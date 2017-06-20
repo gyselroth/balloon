@@ -225,7 +225,7 @@ class LdapAutoShare extends AbstractPlugin
             $sub_folder = Collection::ROOT_FOLDER;
         }
 
-        $result = ldap_search($ldap, (string)$config->basedn, (string)$share->filter/*,$find*/);
+        $result = ldap_search($ldap, (string)$config->basedn, htmlspecialchars_decode((string)$share->filter)/*,$find*/);
         $ldap_shares = array($owner => []);
 
         if ($result) {

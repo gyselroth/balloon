@@ -191,7 +191,7 @@ class Ldap extends LdapServer implements AdapterInterface
     {
         $this->connect();
         $esc_username = ldap_escape($username);
-        $filter       = sprintf($this->account_filter, $esc_username);
+        $filter       = htmlspecialchars_decode(sprintf($this->account_filter, $esc_username));
         $result       = ldap_search($this->connection, $this->basedn, $filter, ['dn']);
         $entries      = ldap_get_entries($this->connection, $result);
 
