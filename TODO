@@ -1,0 +1,48 @@
+TODO
+
+
+1.1.0
+-----------------------------------------------
+* more tests, webdav, ci, ...
+* Share reference system, inject reference during share creation
+    => remove method User::findNewShares()
+* group system change? => groups probably needs to exists locally in a group collection
+    => this is also a reason why share references only first get handled by connection of a share member since the share owner cannot now what group member exists
+* ldap groups? LDAP user/group sync plugin?
+* getId(bool $string=false)  remove $string param
+* quota limit with files in trash?
+* INode => NodeInterface
+* Logger => LoggerInterface
+* reenable checkbox switcher
+* Share nodes: permission *manager*
+* OAUTH2 included within api instead external only
+* pdf shadowing
+* elasticsearch as app
+* ios multiselect 
+* android nexus 5/6 scrolling does not work
+* renable radiobitton switcher
+* include github pages/desktop client download
+* new settings window
+* signin/encryption
+* restore from trash deleted share nodes?
+* editor file contents encoding
+* multi node conflict action
+* encryption plugin
+* security plugin: lock ip addreses, hijacking, ....
+* merge/copy with timestamp comparion
+* admin rest: create user, edit user, pw
+* http://stackoverflow.com/questions/3590058/does-html5-allow-drag-drop-upload-of-folders-or-a-folder-tree
+* unzip zip file via api (not easy since we probably have to write the zip to disk first)
+* mail notification feed file updates
+* Redirect with the same query strings after oauth auth
+* rewrite User/Group management and multiple auth/sync backends
+* GUI for special filtered folders
+* better selection of share resources (user, groups)
+* Device/Session management or log
+* Statistics
+* multi node edit (tags, meta, color)
+* Pause/Start/Stop Uploads in Upload Manager
+* various API /admin/* actions
+*  rember gui settings in localStorage:
+    - position of splitter
+    - enabled filters

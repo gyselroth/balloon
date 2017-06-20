@@ -1,0 +1,57 @@
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ */
+
+a, abbr, acronym, address, applet, article, aside, audio,
+b, blockquote, big, body,
+center, canvas, caption, cite, code, command,
+datalist, dd, del, details, dfn, dl, div, dt,
+em, embed,
+fieldset, figcaption, figure, font, footer, form,
+h1, h2, h3, h4, h5, h6, header, hgroup, html,
+i, iframe, img, ins,
+kbd,
+keygen,
+label, legend, li,
+meter,
+nav,
+object, ol, output,
+p, pre, progress,
+q,
+s, samp, section, small, span, source, strike, strong, sub, sup,
+table, tbody, tfoot, thead, th, tr, td, video, tt,
+u, ul,
+var{
+    background: transparent;
+    border: 0 none;
+    font-size: 100%;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline; }
+li{
+    list-style:none;
+}
+
+a {text-decoration: none;}
+
+input, select {font-size: 13px;}
+
+button,
+input[type="button"],
+input[type="submit"] {
+    border: none;
+}
+
+input {
+    width: 100%;
+    border: none;
+}
+
+/* remove IE peek icon */
+input[type=password]::-ms-reveal {
+    display: none;
+}

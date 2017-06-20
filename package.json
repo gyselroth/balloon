@@ -1,0 +1,16 @@
+{
+  "name": "Balloon",
+  "version": "1.0.11",
+  "description": "",
+  "title": "balloon",
+  "apidoc": {
+      "sampleUrl": " ",
+      "template": {
+        "withCompare": false
+      },
+      "header": {
+        "title": "Getting Started",
+        "filename": "doc/header.md"
+    }
+  }
+}

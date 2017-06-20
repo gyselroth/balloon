@@ -1,0 +1,28 @@
+<config version="1.0">
+    <production>
+        <pid_file>/tmp/.balloon_cli</pid_file>
+        <plugins>
+            <auto_share>
+                <enabled>1</enabled>
+            </auto_share>
+
+            <clean_temp>
+                <enabled>1</enabled>
+            </clean_temp>
+
+            <clean_trash>
+                <enabled>1</enabled>
+            </clean_trash>
+        </plugins>
+        <log>
+            <file>
+                <enabled>0</enabled>
+            </file>
+
+            <stdout>
+                <enabled>1</enabled>
+                <priority>4</priority>
+            </stdout>
+        </log>
+    </production>
+</config>

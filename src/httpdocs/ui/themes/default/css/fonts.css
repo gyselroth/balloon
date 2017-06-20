@@ -1,0 +1,95 @@
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ */
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/themes/default/fonts/ubuntu-light-webfont.eot');
+    src: url('/themes/default/fonts/ubuntu-light-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/themes/default/fonts/ubuntu-light-webfont.woff') format('woff'),
+         url('/themes/default/fonts/ubuntu-light-webfont.ttf') format('truetype'),
+         url('/themes/default/fonts/ubuntu-light-webfont.svg#ubuntu_lightregular') format('svg');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/themes/default/fonts/ubuntu-lightitalic-webfont.eot');
+    src: url('/themes/default/fonts/ubuntu-lightitalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/themes/default/fonts/ubuntu-lightitalic-webfont.woff') format('woff'),
+         url('/themes/default/fonts/ubuntu-lightitalic-webfont.ttf') format('truetype'),
+         url('/themes/default/fonts/ubuntu-lightitalic-webfont.svg#ubuntu_lightitalic') format('svg');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/themes/default/fonts/ubuntu-regular-webfont.eot');
+    src: url('/themes/default/fonts/ubuntu-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/themes/default/fonts/ubuntu-regular-webfont.woff') format('woff'),
+         url('/themes/default/fonts/ubuntu-regular-webfont.ttf') format('truetype'),
+         url('/themes/default/fonts/ubuntu-regular-webfont.svg#ubunturegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/themes/default/fonts/ubuntu-italic-webfont.eot');
+    src: url('/themes/default/fonts/ubuntu-italic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/themes/default/fonts/ubuntu-italic-webfont.woff') format('woff'),
+         url('/themes/default/fonts/ubuntu-italic-webfont.ttf') format('truetype'),
+         url('/themes/default/fonts/ubuntu-italic-webfont.svg#ubuntuitalic') format('svg');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/themes/default/fonts/ubuntu-medium-webfont.eot');
+    src: url('/themes/default/fonts/ubuntu-medium-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/themes/default/fonts/ubuntu-medium-webfont.woff') format('woff'),
+         url('/themes/default/fonts/ubuntu-medium-webfont.ttf') format('truetype'),
+         url('/themes/default/fonts/ubuntu-medium-webfont.svg#ubuntu_lightbold') format('svg');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/themes/default/fonts/ubuntu-mediumitalic-webfont.eot');
+    src: url('/themes/default/fonts/ubuntu-mediumitalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/themes/default/fonts/ubuntu-mediumitalic-webfont.woff') format('woff'),
+         url('/themes/default/fonts/ubuntu-mediumitalic-webfont.ttf') format('truetype'),
+         url('/themes/default/fonts/ubuntu-mediumitalic-webfont.svg#ubuntu_lightbold_italic') format('svg');
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/themes/default/fonts/ubuntu-bold-webfont.eot');
+    src: url('/themes/default/fonts/ubuntu-bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/themes/default/fonts/ubuntu-bold-webfont.woff') format('woff'),
+         url('/themes/default/fonts/ubuntu-bold-webfont.ttf') format('truetype'),
+         url('/themes/default/fonts/ubuntu-bold-webfont.svg#ubuntubold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/themes/default/fonts/ubuntu-bolditalic-webfont.eot');
+    src: url('/themes/default/fonts/ubuntu-bolditalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/themes/default/fonts/ubuntu-bolditalic-webfont.woff') format('woff'),
+         url('/themes/default/fonts/ubuntu-bolditalic-webfont.ttf') format('truetype'),
+         url('/themes/default/fonts/ubuntu-bolditalic-webfont.svg#ubuntubold_italic') format('svg');
+    font-weight: bold;
+    font-style: italic;
+}

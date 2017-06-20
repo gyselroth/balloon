@@ -1,0 +1,46 @@
+{
+    "name": "gyselroth/balloon",
+    "description": "fast and simple DMS",
+    "keywords": ["dms", "nosql", "gui", "webdav", "filesystem", "vfs", "api", "secure", "fast"],
+    "homepage": "http://www.github.com/gyselroth/balloon",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Raffael Sahli",
+            "email": "sahli@gyselroth.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Balloon\\": "src/lib/Balloon",
+            "Balloon\\Testsuite\\": "tests"
+        }
+    },
+    "require": {
+        "php": ">=7.1",
+        "elasticsearch/elasticsearch": "5.*",
+        "sabre/dav" : "3.*",
+        "grandt/binstring": "0.2.0",
+        "grandt/phpzipmerge": "1.0.3",
+        "phpzip/phpzip": "2.*",
+        "psr/log": "1.*",
+        "mongodb/mongodb": "1.2.0-alpha1",
+        "ext-ldap": "*",
+        "ext-xml": "*",
+        "ext-mongodb": "*",
+        "ext-Zend-OPcache": "*",
+        "ext-curl": "*",
+        "ext-imagick": "*",
+        "ext-mbstring": "*",
+        "ext-zip": "*",
+        "ext-intl": "*",
+        "ext-apc": "*",
+        "zendframework/zend-mail": "2.7.*",
+        "league/oauth2-server": "2.1.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.7.*",
+        "guzzlehttp/guzzle": "*",
+        "friendsofphp/php-cs-fixer": "*"
+    }
+}

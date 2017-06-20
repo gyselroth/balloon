@@ -1,0 +1,27 @@
+{
+  "app": {
+    "office": {
+      "session": {
+        "prompt": {
+          "title": "Beitreten?",
+          "new": "Neue Sitzung starten",
+          "join": "Sitzung beitreten",
+          "message_one": "Es läuft bereits eine Sitzung für das Dokument %s von Benutzer %s gestartet vor %s, willst du beitreten?",
+          "message_select": "Es laufen mehrere Sitzungen für das Dokument %s, willst du einer beitreten?",
+          "message_select_by_user": "Sitzung erstellt von %s vor %s"
+        }
+      },
+      "close_edit_file": "Wurde das Dokument bereits gespeichert oder soll das Fenster ohne Speichern des Dokuments geschlossen werden?",
+      "startup_prompt": {
+        "title": "Information",
+        "message": "Diese App ist eine Integration von Libre Office Online mit Kollaboration Features. Du kannst Texte, Tabellen und Präsentationen öffnen und bearbeiten. Das gleichzeitige betrachten und bearbeiten von mehreren Benutzern eines geteilten Dokument ist ebenfalls möglich.<br/>Diese App ist aktuell in einem Beta Test, sollten Probleme auftreten versuche es bitte zu einem späteren Zeitpunkt erneut oder lade das Dokument auf den Desktop um es lokal zu öffnen.",
+        "dont_show_again": "Nicht mehr anzeigen",
+        "close": "Schliessen"
+      },
+      "text_document": "Text Dokument",
+      "word_document": "Word Dokument",
+      "excel_document": "Excel Dokument",
+      "powerpoint_document": "Powerpoint Dokument"
+    }
+  }
+}

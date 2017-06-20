@@ -1,0 +1,1330 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="4320">
+
+<title>intranet icon-library 1.1</title>
+
+<!-- Icon Symbols -->
+
+<symbol id="add">
+	<title>add</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16a7,7,0,1,1,7-7A7,7,0,0,1,12,19Z"/>
+	<polygon points="13 8 11 8 11 11 8 11 8 13 11 13 11 16 13 16 13 13 16 13 16 11 13 11 13 8"/>
+</symbol>
+
+<symbol id="alert">
+	<title>alert</title>
+	<path d="M18,16V11a6,6,0,0,0-5-5.91V3H11V5.09A6,6,0,0,0,6,11v5H4v2H9a3,3,0,0,0,6,0h5V16H18Zm-6,3.2A1.2,1.2,0,0,1,10.8,18h2.4A1.2,1.2,0,0,1,12,19.2ZM16,16H8V11a4,4,0,0,1,8,0v5Z"/>
+</symbol>
+
+<symbol id="book">
+	<title>book</title>
+	<path d="M12,7.93L3,4.56V17.69l8.91,3.38L21,17.7V4.56ZM5,7.44l6,2.25v8.89L5,16.31V7.44ZM19,16.3l-6,2.23V9.69l6-2.25V16.3Z"/>
+</symbol>
+
+<symbol id="bookmark">
+	<title>bookmark</title>
+	<path d="M18,21H15.59L12,17.41,8.41,21H6V3H18V21Zm-6-6.41,4,4V5H8V18.59Z"/>
+</symbol>
+
+<symbol id="calendar">
+	<title>calendar</title>
+	<path d="M17,6V4H15V6H9V4H7V6H4V20H20V6H17Zm1,12H6V12H18v6ZM6,10V8H18v2H6Z"/>
+</symbol>
+
+<symbol id="chart">
+	<title>chart</title>
+	<rect x="11" y="5" width="2" height="14"/>
+	<rect x="6" y="13" width="2" height="6"/>
+	<rect x="16" y="9" width="2" height="10"/>
+</symbol>
+
+<symbol id="chat">
+	<title>chat</title>
+	<path d="M17,22H14.59l-4-4H3V4H21V18H17v4ZM5,16h6.41L15,19.59V16h4V6H5V16Z"/>
+</symbol>
+
+<symbol id="check">
+	<title>check</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16a7,7,0,1,1,7-7A7,7,0,0,1,12,19Z"/>
+	<polygon points="15.86 8.36 10.5 13.73 8.14 11.36 6.86 12.64 10.5 16.27 17.14 9.64 15.86 8.36"/>
+</symbol>
+
+<symbol id="checkmark">
+	<title>checkmark</title>
+	<polygon points="9 18.51 3.09 12.61 4.51 11.19 9 15.69 19.49 5.19 20.91 6.61 9 18.51"/>
+</symbol>
+
+<symbol id="class-book">
+	<title>class-book</title>
+	<path d="M14,5a3,3,0,0,0-2,.78A3,3,0,0,0,10,5H3V19h7a1,1,0,0,1,1,1h2a1,1,0,0,1,1-1h7V5H14ZM10,17H5V7h5a1,1,0,0,1,1,1v9.18A3,3,0,0,0,10,17Zm9,0H14a3,3,0,0,0-1,.18V8a1,1,0,0,1,1-1h5V17Z"/>
+</symbol>
+
+<symbol id="class-book-flip">
+	<title>class-book-flip</title>
+	<path d="M17,5V3H16a5,5,0,0,0-4.32,2.52A3,3,0,0,0,10,5H3V19h7a1,1,0,0,1,1,1h2a1,1,0,0,1,1-1h7V5H17Zm-2,.17V14.1A5,5,0,0,0,13,15V8A3,3,0,0,1,15,5.17ZM10,17H5V7h5a1,1,0,0,1,1,1v9.18A3,3,0,0,0,10,17Zm9,0H14l-0.24,0A3,3,0,0,1,16,16h1V7h2V17Z"/>
+</symbol>
+
+<symbol id="clock">
+	<title>clock</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16a7,7,0,1,1,7-7A7,7,0,0,1,12,19Z"/>
+	<polygon points="13 7 11 7 11 13 16 13 16 11 13 11 13 7"/>
+</symbol>
+
+<symbol id="clear">
+	<title>clear</title>
+	<path d="M18.36,5.64A9,9,0,0,0,5.64,18.36,9,9,0,0,0,18.36,5.64ZM16.95,17a7,7,0,1,1,0-9.9A6.95,6.95,0,0,1,16.95,17Z"/>
+	<polygon points="14.56 8.16 12 10.73 9.44 8.16 8.16 9.44 10.73 12 8.16 14.56 9.44 15.84 12 13.27 14.56 15.84 15.84 14.56 13.27 12 15.84 9.44 14.56 8.16"/>
+</symbol>
+
+<symbol id="close-panel">
+	<title>close-panel</title>
+	<path d="M21,19V5H3V19Zm-2-2H11V7h8ZM5,7H9V17H5Z"/>
+	<polygon points="17 16 17 8 13 12 17 16"/>
+</symbol>
+
+<symbol id="cmd">
+	<title>cmd</title>
+	<path d="M16.5,19h-1A2.5,2.5,0,0,1,13,16.5V15H11v1.5A2.5,2.5,0,0,1,8.5,19h-1A2.5,2.5,0,0,1,5,16.5v-1A2.5,2.5,0,0,1,7.5,13H9V11H7.5A2.5,2.5,0,0,1,5,8.5v-1A2.5,2.5,0,0,1,7.5,5h1A2.5,2.5,0,0,1,11,7.5V9h2V7.5A2.5,2.5,0,0,1,15.5,5h1A2.5,2.5,0,0,1,19,7.5v1A2.5,2.5,0,0,1,16.5,11H15v2h1.5A2.5,2.5,0,0,1,19,15.5v1A2.5,2.5,0,0,1,16.5,19ZM15,15v1.5a0.51,0.51,0,0,0,.5.5h1a0.51,0.51,0,0,0,.5-0.5v-1a0.51,0.51,0,0,0-.5-0.5H15ZM7.5,15a0.51,0.51,0,0,0-.5.5v1a0.51,0.51,0,0,0,.5.5h1A0.51,0.51,0,0,0,9,16.5V15H7.5ZM11,13h2V11H11v2Zm4-4h1.5A0.51,0.51,0,0,0,17,8.5v-1A0.51,0.51,0,0,0,16.5,7h-1a0.51,0.51,0,0,0-.5.5V9ZM7.5,7a0.51,0.51,0,0,0-.5.5v1a0.51,0.51,0,0,0,.5.5H9V7.5A0.51,0.51,0,0,0,8.5,7h-1Z"/>
+</symbol>
+
+<symbol id="cog">
+	<title>cog</title>
+	<path d="M19,12a7,7,0,0,0-.11-1.19l2-.64-0.62-1.9-2,.64A7,7,0,0,0,16.88,7L18.1,5.31,16.48,4.13,15.26,5.81A6.94,6.94,0,0,0,13,5.08V3H11V5.08a6.94,6.94,0,0,0-2.26.73L7.52,4.13,5.9,5.31,7.12,7a7,7,0,0,0-1.4,1.92l-2-.64-0.62,1.9,2,0.64a6.55,6.55,0,0,0,0,2.38l-2,.64,0.62,1.9,2-.64A7,7,0,0,0,7.12,17L5.9,18.69l1.62,1.18,1.22-1.68a6.94,6.94,0,0,0,2.26.73V21h2V18.92a6.94,6.94,0,0,0,2.26-.73l1.22,1.68,1.62-1.18L16.88,17a7,7,0,0,0,1.4-1.92l2,0.64,0.62-1.9-2-.64A7,7,0,0,0,19,12Zm-7,5a5,5,0,1,1,5-5A5,5,0,0,1,12,17Z"/>
+</symbol>
+
+<symbol id="columns">
+	<title>columns</title>
+	<path d="M13,4V20h7V4H13Zm5,14H15V6h3V18Z"/>
+	<path d="M4,20h7V4H4V20ZM6,6H9V18H6V6Z"/>
+</symbol>
+
+<symbol id="connector">
+	<title>connector</title>
+	<path d="M19,3H13V9h2v2H7v4H5v6h6V15H9V13h8V9h2ZM9,19H7V17H9ZM17,7H15V5h2Z"/>
+</symbol>
+
+<symbol id="copy">
+	<title>copy</title>
+	<polygon points="15 4 4 4 4 15 6 15 6 6 15 6 15 4"/>
+	<rect x="17" y="17" width="2" height="2"/>
+	<rect x="17" y="11" width="2" height="2"/>
+	<rect x="17" y="14" width="2" height="2"/>
+	<rect x="8" y="17" width="2" height="2"/>
+	<rect x="11" y="17" width="2" height="2"/>
+	<rect x="14" y="17" width="2" height="2"/>
+	<rect x="8" y="14" width="2" height="2"/>
+	<rect x="8" y="11" width="2" height="2"/>
+	<rect x="8" y="8" width="2" height="2"/>
+	<rect x="11" y="8" width="2" height="2"/>
+	<rect x="17" y="8" width="2" height="2"/>
+	<rect x="14" y="8" width="2" height="2"/>
+</symbol>
+
+<symbol id="crop">
+	<title>crop</title>
+	<path d="M16,8V4H14V8H8v6H4v2H8v4h2V16h6V10h4V8Zm-2,6H10V10h4Z"/>
+</symbol>
+
+<symbol id="cut">
+	<title>cut</title>
+	<path d="M20.41,5H17.59L12,10.59,10.57,9.15A3.46,3.46,0,0,0,11,7.5,3.5,3.5,0,1,0,7.5,11a3.46,3.46,0,0,0,1.65-.43L10.59,12,9.15,13.43A3.46,3.46,0,0,0,7.5,13,3.5,3.5,0,1,0,11,16.5a3.46,3.46,0,0,0-.43-1.65ZM5.8,7.5A1.7,1.7,0,1,1,7.5,9.2,1.7,1.7,0,0,1,5.8,7.5ZM7.5,18.2a1.7,1.7,0,1,1,1.7-1.7A1.7,1.7,0,0,1,7.5,18.2Z"/>
+	<polygon points="13.29 14.71 17.59 19 20.41 19 14.71 13.29 13.29 14.71"/>
+</symbol>
+
+<symbol id="dashboard">
+	<title>dashboard</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,2a7,7,0,0,1,6.71,9H13.39l1.67-5H12.95l-1.67,5h-6A7,7,0,0,1,12,5Zm0,14a7,7,0,0,1-5.74-3H17.74A7,7,0,0,1,12,19Z"/>
+</symbol>
+
+<symbol id="day">
+	<title>day</title>
+	<path d="M12,9.8A2.2,2.2,0,1,1,9.8,12,2.2,2.2,0,0,1,12,9.8M12,8a4,4,0,1,0,4,4,4,4,0,0,0-4-4h0Z"/>
+	<rect x="2" y="11" width="4" height="2"/>
+	<rect x="18" y="11" width="4" height="2"/>
+	<rect x="11" y="2" width="2" height="4"/>
+	<rect x="11" y="18" width="2" height="4"/>
+	<rect x="5.34" y="4.34" width="2" height="4" transform="translate(-2.63 6.34) rotate(-45)"/>
+	<rect x="16.66" y="15.66" width="2" height="4" transform="translate(-7.31 17.67) rotate(-45.02)"/>
+	<rect x="15.66" y="5.34" width="4" height="2" transform="translate(0.68 14.33) rotate(-44.97)"/>
+	<rect x="4.34" y="16.66" width="4" height="2" transform="translate(-10.63 9.66) rotate(-45)"/>
+</symbol>
+
+<symbol id="deny">
+	<title>deny</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,2a7,7,0,0,1,4.18,1.4L6.4,16.18A7,7,0,0,1,12,5Zm0,14a7,7,0,0,1-4.18-1.4L17.6,7.82A7,7,0,0,1,12,19Z"/>
+</symbol>
+
+<symbol id="desktop">
+	<title>desktop</title>
+	<path d="M21,17V5H3V17h8v2H8v2h8V19H13V17h8ZM5,7H19v8H5V7Z"/>
+</symbol>
+
+<symbol id="device">
+	<title>device</title>
+	<circle cx="12" cy="16" r="1.5"/>
+	<path d="M5,3V21H19V3H5ZM17,19H7V5H17V19Z"/>
+</symbol>
+
+<symbol id="dialogue">
+	<title>dialogue</title>
+	<path d="M17,7V4H3V15H5v3H7.41l3-3H17V9h2v7H17v2.59L14.41,16H11v2h2.59l3,3H19V18h2V7H17Zm-2,6H9.59L7,15.59V13H5V6H15v7Z"/>
+</symbol>
+
+<symbol id="dimension">
+	<title>dimension</title>
+	<polygon points="20.5 16 16 11.5 16 15 9 15 9 8 12.5 8 8 3.5 3.5 8 7 8 7 15 3 15 3 17 7 17 7 21 9 21 9 17 16 17 16 20.5 20.5 16"/>
+</symbol>
+
+<symbol id="download">
+	<title>download</title>
+	<polygon points="18.91 10.51 17.49 9.09 13 13.59 13 4 11 4 11 13.59 6.51 9.09 5.09 10.51 12 17.41 18.91 10.51"/>
+	<polygon points="17 17 17 19 7 19 7 17 5 17 5 21 19 21 19 17 17 17"/>
+</symbol>
+
+<symbol id="drag">
+	<title>drag</title>
+	<rect x="11" y="4" width="2" height="16"/>
+</symbol>
+
+<symbol id="drag-active">
+	<title>drag-active</title>
+	<rect x="13" y="4" width="2" height="16"/>
+	<rect x="9" y="4" width="2" height="16"/>
+</symbol>
+
+<symbol id="duplicate">
+	<title>duplicate</title>
+	<path d="M8,8V19H19V8H8Zm9,9H10V10h7v7Z"/>
+	<polygon points="15 4 4 4 4 15 6 15 6 6 15 6 15 4"/>
+</symbol>
+
+<symbol id="emoticon">
+	<title>emoticon</title>
+	<path d="M12,21a9,9,0,1,1,9-9A9,9,0,0,1,12,21ZM12,5a7,7,0,1,0,7,7A7,7,0,0,0,12,5Z"/>
+	<path d="M7.42,14a5,5,0,0,0,9.16,0Z"/>
+	<circle cx="9" cy="10" r="1.5"/>
+	<circle cx="15" cy="10" r="1.5"/>
+</symbol>
+
+<symbol id="empty">
+	<title>empty</title>
+	<path d="M12,21a9,9,0,1,1,9-9A9,9,0,0,1,12,21ZM12,5a7,7,0,1,0,7,7A7,7,0,0,0,12,5Z"/>
+</symbol>
+
+<symbol id="event-available">
+	<title>event-available</title>
+	<polygon points="16.14 10.14 14.86 8.86 10.5 13.23 9.14 11.86 7.86 13.14 10.5 15.77 16.14 10.14"/>
+	<path d="M17,5V3H15V5H9V3H7V5H4V20H20V5H17Zm1,13H6V7H18V18Z"/>
+</symbol>
+
+<symbol id="error">
+	<title>error</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16a7,7,0,1,1,7-7A7,7,0,0,1,12,19Z"/>
+	<rect x="11" y="8" width="2" height="5"/>
+	<rect x="11" y="14.5" width="2" height="1.5"/>
+</symbol>
+
+<symbol id="excused">
+	<title>excused</title>
+	<polygon points="16 8 16 6 8 6 8 18 16 18 16 16 10 16 10 13 15 13 15 11 10 11 10 8 16 8"/>
+</symbol>
+
+<symbol id="exit">
+	<title>exit</title>
+	<polygon points="11 16.5 15.5 12 11 7.5 11 11 4 11 4 13 11 13 11 16.5"/>
+	<polygon points="4 4 4 9 6 9 6 6 18 6 18 18 6 18 6 15 4 15 4 20 20 20 20 4 4 4"/>
+</symbol>
+
+<symbol id="favorite">
+	<title>favorite</title>
+	<path d="M19.71,5.29a4.62,4.62,0,0,0-6.41,0L12,6.59,10.71,5.29a4.54,4.54,0,0,0-6.41,6.41L12,19.41l7.71-7.71A4.62,4.62,0,0,0,19.71,5.29ZM12,16.59L5.71,10.29a2.63,2.63,0,0,1,0-3.59,2.72,2.72,0,0,1,3.59,0L12,9.41l2.71-2.71a2.72,2.72,0,0,1,3.59,0,2.63,2.63,0,0,1,0,3.59Z"/>
+</symbol>
+
+<symbol id="logout">
+	<title>logout</title>
+	<polygon points="17 16.5 21.5 12 17 7.5 17 11 10 11 10 13 17 13 17 16.5"/>
+	<polygon points="15 20 15 15 13 15 13 18 6 18 6 6 13 6 13 9 15 9 15 4 4 4 4 20 15 20"/>
+</symbol>
+
+<symbol id="filter">
+	<title>filter</title>
+	<rect x="4" y="7" width="16" height="2"/>
+	<rect x="10" y="15" width="4" height="2"/>
+	<rect x="7" y="11" width="10" height="2"/>
+</symbol>
+
+<symbol id="flag">
+	<title>flag</title>
+	<path d="M19,3H5V21H7V13H19V3Zm-2,8H7V5H17v6Z"/>
+</symbol>
+
+<symbol id="full">
+	<title>full</title>
+	<circle cx="12" cy="12" r="9"/>
+</symbol>
+
+<symbol id="fullscreen">
+	<title>fullscreen</title>
+	<polygon points="20 4 14 4 16.29 6.29 13.09 9.49 14.51 10.91 17.71 7.71 20 10 20 4"/>
+	<polygon points="9.49 13.09 6.29 16.29 4 14 4 20 10 20 7.71 17.71 10.91 14.51 9.49 13.09"/>
+</symbol>
+
+<!--<symbol id="funnel">
+	<title>funnel</title>
+	<path d="M20,4H4V6.41l7,7V20h2V13.41l7-7V4Zm-8,7.59L6.41,6H17.59Z"/>
+</symbol>-->
+
+
+	<symbol id="funnel">
+		<title>funnel</title>
+		<path d="M10.07673,11.55657a.99645.99645,0,0,1,.26247.67444v7.34245a.499.499,0,0,0,.84887.35549l2.04824-2.34726c.2741-.32891.42526-.49173.42526-.8173V12.23268a1.00452,1.00452,0,0,1,.26247-.67446L19.8013,5.18094a.748.748,0,0,0-.54985-1.2542H4.74929a.74746.74746,0,0,0-.54985,1.2542Z"/>
+	</symbol>
+
+
+<symbol id="grid">
+	<title>grid</title>
+	<path d="M4,11h7V4H4v7ZM6,6H9V9H6V6Z"/>
+	<path d="M13,11h7V4H13v7Zm2-5h3V9H15V6Z"/>
+	<path d="M13,20h7V13H13v7Zm2-5h3v3H15V15Z"/>
+	<path d="M4,20h7V13H4v7Zm2-5H9v3H6V15Z"/>
+</symbol>
+
+<symbol id="group">
+	<title>group</title>
+	<path d="M21,12.41l-0.52-.28A12.15,12.15,0,0,0,15,11H13v2h2a11.61,11.61,0,0,1,4,.66V16H15V14.41l-0.52-.28A12.15,12.15,0,0,0,9,13a12.15,12.15,0,0,0-5.48,1.12L3,14.41V20H15V18h6V12.41ZM13,18H5V15.66A11.6,11.6,0,0,1,9,15a11.61,11.61,0,0,1,4,.66V18Z"/>
+	<path d="M9,12a3,3,0,0,0,3-3V8A3,3,0,0,0,6,8V9A3,3,0,0,0,9,12ZM7.8,8a1.2,1.2,0,0,1,2.4,0V9A1.2,1.2,0,1,1,7.8,9V8Z"/>
+	<path d="M16,10a3,3,0,0,0,3-3V6a3,3,0,0,0-6,0V7A3,3,0,0,0,16,10ZM14.8,6a1.2,1.2,0,0,1,2.4,0V7a1.2,1.2,0,0,1-2.4,0V6Z"/>
+</symbol>
+
+<symbol id="group-add">
+	<title>group-add</title>
+	<polygon points="6 7 4 7 4 5 2 5 2 7 0 7 0 9 2 9 2 11 4 11 4 9 6 9 6 7"/>
+	<path d="M23,12.41l-0.52-.28A12.15,12.15,0,0,0,17,11H15v2h2a11.61,11.61,0,0,1,4,.66V16H17V14.41l-0.52-.28A12.15,12.15,0,0,0,11,13a12.15,12.15,0,0,0-5.48,1.12L5,14.41V20H17V18h6V12.41ZM15,18H7V15.66A11.6,11.6,0,0,1,11,15a11.61,11.61,0,0,1,4,.66V18Z"/>
+	<path d="M11,12a3,3,0,0,0,3-3V8A3,3,0,0,0,8,8V9A3,3,0,0,0,11,12ZM9.8,8a1.2,1.2,0,0,1,2.4,0V9A1.2,1.2,0,1,1,9.8,9V8Z"/>
+	<path d="M18,10a3,3,0,0,0,3-3V6a3,3,0,0,0-6,0V7A3,3,0,0,0,18,10ZM16.8,6a1.2,1.2,0,0,1,2.4,0V7a1.2,1.2,0,0,1-2.4,0V6Z"/>
+</symbol>
+
+<symbol id="half">
+	<title>half</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3ZM5,12a7,7,0,0,1,7-7V19A7,7,0,0,1,5,12Z"/>
+</symbol>
+
+<symbol id="help">
+	<title>help</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16a7,7,0,1,1,7-7A7,7,0,0,1,12,19Z"/>
+	<rect x="11.1" y="15.5" width="1.8" height="1.5"/>
+	<path d="M10,7.95A2.88,2.88,0,0,0,9.1,10h1.8a1.09,1.09,0,0,1,.32-0.78,1.13,1.13,0,0,1,1.56,0,1.1,1.1,0,0,1,0,1.55c-0.35.36-1.39,1.31-1.39,1.31l-0.29.27V14h1.8V13.14c0.34-.32.9-0.85,1.15-1.09a2.9,2.9,0,0,0,0-4.1A3,3,0,0,0,10,7.95Z"/>
+</symbol>
+
+<symbol id="home">
+	<title>home</title>
+	<path d="M20.91,11.49L12,2.59,3.09,11.49l1.41,1.41L6,11.41V20H18V11.41l1.49,1.49ZM16,18H8V9.41l4-4,4,4V18Z"/>
+</symbol>
+
+<symbol id="hourglass">
+	<title>hourglas</title>
+	<path d="M17,21H7V14.59L9.59,12,7,9.41V3H17V9.41L14.41,12,17,14.59V21ZM9,19h6V15.41l-3-3-3,3V19ZM9,8.59l3,3,3-3V5H9V8.59Z"/>
+</symbol>
+
+<symbol id="info">
+	<title>info</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16a7,7,0,1,1,7-7A7,7,0,0,1,12,19Z"/>
+	<rect x="11" y="11" width="2" height="5"/>
+	<rect x="11" y="8" width="2" height="1.5"/>
+</symbol>
+
+<symbol id="insert-file">
+	<title>insert-file</title>
+	<path d="M18,11H9v2h9a3,3,0,0,0,0-6H8A5,5,0,0,0,8,17H19V15H8A3,3,0,0,1,8,9H18A1,1,0,0,1,18,11Z"/>
+</symbol>
+
+<symbol id="insert-m">
+	<title>insert-m</title>
+	<rect x="4" y="6" width="8" height="2"/>
+	<rect x="4" y="16" width="8" height="2"/>
+	<rect x="4" y="11" width="10" height="2"/>
+	<polygon points="16.5 12 21 16.5 21 7.5 16.5 12"/>
+</symbol>
+
+<symbol id="insert-n">
+	<title>insert-n</title>
+	<rect x="4" y="11" width="8" height="2"/>
+	<rect x="4" y="16" width="8" height="2"/>
+	<rect x="4" y="6" width="10" height="2"/>
+	<polygon points="16.5 7 21 11.5 21 2.5 16.5 7"/>
+</symbol>
+
+<symbol id="insert-s">
+	<title>insert-s</title>
+	<rect x="4" y="6" width="8" height="2"/>
+	<rect x="4" y="11" width="8" height="2"/>
+	<rect x="4" y="16" width="10" height="2"/>
+	<polygon points="16.5 17 21 21.5 21 12.5 16.5 17"/>
+</symbol>
+
+<symbol id="interruption">
+	<title>interruption</title>
+	<polygon points="14.39 17 16.39 11 10.39 11 12.39 5 10.28 5 7.61 13 13.61 13 12.28 17 9 17 13 21 17 17 14.39 17"/>
+</symbol>
+
+<symbol id="kpi">
+	<title>kpi</title>
+	<polygon points="12 4.5 7.5 9 16.5 9 12 4.5"/>
+	<polygon points="12 19.5 16.5 15 7.5 15 12 19.5"/>
+</symbol>
+
+<symbol id="language">
+	<title>language</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm5.74,5H15.52a12.68,12.68,0,0,0-.88-2.48A7,7,0,0,1,17.74,8ZM19,12a7,7,0,0,1-.29,2H15.88A17.15,17.15,0,0,0,16,12a17.15,17.15,0,0,0-.12-2h2.83A7,7,0,0,1,19,12Zm-6.83,7H11.83a7.28,7.28,0,0,1-1.48-3h3.31A7.28,7.28,0,0,1,12.17,19ZM9.94,14a15.06,15.06,0,0,1-.14-2,15.06,15.06,0,0,1,.14-2h4.11a15.06,15.06,0,0,1,.14,2,15.06,15.06,0,0,1-.14,2H9.94ZM5,12a7,7,0,0,1,.29-2H8.12a16.72,16.72,0,0,0,0,4H5.29A7,7,0,0,1,5,12Zm6.83-7h0.34a7.28,7.28,0,0,1,1.48,3H10.35A7.28,7.28,0,0,1,11.83,5Zm-2.47.51A12.68,12.68,0,0,0,8.48,8H6.26A7,7,0,0,1,9.36,5.52ZM6.26,16H8.48a12.67,12.67,0,0,0,.88,2.48A7,7,0,0,1,6.26,16Zm8.38,2.48A12.67,12.67,0,0,0,15.52,16h2.22A7,7,0,0,1,14.64,18.48Z"/>
+</symbol>
+
+<symbol id="laptop">
+	<title>laptop</title>
+	<path d="M19,13.59V5H5v8.59l-2,2V19H21V15.59ZM7,7H17v6H7V7ZM19,17H5V16.41L6.41,15H17.59L19,16.41V17Z"/>
+</symbol>
+
+<symbol id="lock">
+	<title>lock</title>
+	<path d="M16,10V9A4,4,0,0,0,8,9v1H5V20H19V10H16ZM10,9a2,2,0,0,1,4,0v1H10V9Zm7,9H7V12H17v6Z"/>
+</symbol>
+
+<symbol id="mail">
+	<title>mail</title>
+	<path d="M3,5V19H21V5H3ZM17.59,7L12,12.59,6.41,7H17.59ZM5,17V8.41l7,7,7-7V17H5Z"/>
+</symbol>
+
+<symbol id="map">
+	<title>map</title>
+	<path d="M15,4.94l-6,2L3,4.52V17.67l5.88,2.39,6.09-2,6,2.41V7.32ZM10,8.72l4-1.33v8.89l-4,1.32V8.72ZM5,7.48l3,1.2v8.87L5,16.33V7.48Zm14,10-3-1.2V7.48l3,1.2v8.85Z"/>
+</symbol>
+
+<symbol id="maximize">
+	<title>maximize</title>
+	<polygon points="4 10 6 10 6 6 10 6 10 4 4 4 4 10"/>
+	<polygon points="6 14 4 14 4 20 10 20 10 18 6 18 6 14"/>
+	<polygon points="18 18 14 18 14 20 20 20 20 14 18 14 18 18"/>
+	<polygon points="14 4 14 6 18 6 18 10 20 10 20 4 14 4"/>
+</symbol>
+
+<symbol id="minimize">
+	<title>minimize</title>
+	<polygon points="4 16 8 16 8 20 10 20 10 14 4 14 4 16"/>
+	<polygon points="8 8 4 8 4 10 10 10 10 4 8 4 8 8"/>
+	<polygon points="16 8 16 4 14 4 14 10 20 10 20 8 16 8"/>
+	<polygon points="14 20 16 20 16 16 20 16 20 14 14 14 14 20"/>
+</symbol>
+
+<symbol id="minus">
+	<title>minus</title>
+	<rect x="4" y="11" width="16" height="2"/>
+</symbol>
+
+<symbol id="note">
+	<title>note</title>
+	<path d="M20,20H4V4H20V20ZM6,18H18V6H6V18Z"/>
+	<rect x="8" y="9" width="8" height="2"/>
+	<rect x="8" y="13" width="6" height="2"/>
+</symbol>
+
+<symbol id="note-fill">
+	<title>note-fill</title>
+	<path d="M6,6V18H18V6H6Zm8,9H8V13h6v2Zm2-4H8V9h8v2Z"/>
+</symbol>
+
+<symbol id="open-in-browser">
+	<title>open-in-browser</title>
+	<polygon points="16 16 12 12 8 16 11 16 11 22 13 22 13 16 16 16"/>
+	<polygon points="3 5 3 20 9 20 9 18 5 18 5 9 19 9 19 18 15 18 15 20 21 20 21 5 3 5"/>
+</symbol>
+
+<symbol id="open-in-new">
+	<title>open-in-new</title>
+	<polygon points="13 5 15.29 7.29 11.09 11.49 12.51 12.91 16.71 8.71 19 11 19 5 13 5"/>
+	<polygon points="17 17 7 17 7 7 11 7 11 5 5 5 5 19 19 19 19 13 17 13 17 17"/>
+</symbol>
+
+<symbol id="open-panel">
+	<title>open-panel</title>
+	<path d="M21,19V5H3V19Zm-2-2H11V7h8ZM5,7H9V17H5Z"/>
+	<polygon points="17 12 13 8 13 16 17 12"/>
+</symbol>
+
+<symbol id="paste">
+	<title>paste</title>
+	<path d="M15,4H4V15H15V4Zm-2,9H6V6h7v7Z"/>
+	<rect x="17" y="8" width="2" height="2"/>
+	<rect x="17" y="11" width="2" height="2"/>
+	<rect x="17" y="14" width="2" height="2"/>
+	<rect x="8" y="17" width="2" height="2"/>
+	<rect x="14" y="17" width="2" height="2"/>
+	<rect x="11" y="17" width="2" height="2"/>
+	<rect x="17" y="17" width="2" height="2"/>
+</symbol>
+
+<symbol id="pause">
+	<title>pause</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16a7,7,0,1,1,7-7A7,7,0,0,1,12,19Z"/>
+	<rect x="9" y="8" width="2" height="8"/>
+	<rect x="13" y="8" width="2" height="8"/>
+</symbol>
+
+<symbol id="pencil">
+	<title>pencil</title>
+	<path d="M15,3.59l-11,11V20H9.41l11-11ZM17.59,9L9.43,17.16,6.84,14.57,15,6.41ZM6,16.27L7.73,18H6V16.27Z"/>
+</symbol>
+
+<symbol id="person">
+	<title>person</title>
+	<path d="M12,12A4,4,0,0,1,8,8V7a4,4,0,0,1,8,0V8A4,4,0,0,1,12,12Zm0-7a2,2,0,0,0-2,2V8a2,2,0,0,0,4,0V7A2,2,0,0,0,12,5Z"/>
+	<path d="M20,20H4V15.46l0.45-.3A14.78,14.78,0,0,1,12,13a14.78,14.78,0,0,1,7.55,2.17L20,15.46V20ZM6,18H18V16.57A13,13,0,0,0,12,15a12.94,12.94,0,0,0-6,1.57V18Z"/>
+</symbol>
+
+<symbol id="person-add">
+	<title>person-add</title>
+	<path d="M20,20H4V15.46l0.45-.3A14.78,14.78,0,0,1,12,13a14.78,14.78,0,0,1,7.55,2.17L20,15.46V20ZM6,18H18V16.57A13,13,0,0,0,12,15a12.94,12.94,0,0,0-6,1.57V18Z"/>
+	<path d="M12,12A4,4,0,0,1,8,8V7a4,4,0,0,1,8,0V8A4,4,0,0,1,12,12Zm0-7a2,2,0,0,0-2,2V8a2,2,0,0,0,4,0V7A2,2,0,0,0,12,5Z"/>
+	<polygon points="6 7 4 7 4 5 2 5 2 7 0 7 0 9 2 9 2 11 4 11 4 9 6 9 6 7"/>
+</symbol>
+
+<symbol id="pin">
+	<title>pin</title>
+	<path d="M16,12V3H8v9H6v2h5v7h2V14h5V12H16Zm-6,0V5h4v7H10Z"/>
+</symbol>
+
+<symbol id="place">
+	<title>place</title>
+	<path d="M12,3a7,7,0,0,0-7,7,6.92,6.92,0,0,0,2,4.92l5,5.58L17,15A7,7,0,0,0,12,3Zm3.5,10.58L12,17.5l-3.54-4A5,5,0,1,1,15.5,13.58Z"/>
+	<circle cx="12" cy="10" r="2"/>
+</symbol>
+
+<symbol id="play">
+	<title>play</title>
+	<path d="M7,19.87V4.13L18.8,12Zm2-12v8.26L15.2,12Z"/>
+</symbol>
+
+<symbol id="plus">
+	<title>plus</title>
+	<polygon points="20 11 13 11 13 4 11 4 11 11 4 11 4 13 11 13 11 20 13 20 13 13 20 13 20 11"/>
+</symbol>
+
+<symbol id="preview">
+	<title>preview</title>
+	<path d="M12,19c-5.55,0-8.76-6.29-8.89-6.55L2.88,12l0.22-.45C3.24,11.29,6.45,5,12,5s8.76,6.29,8.89,6.55L21.12,12l-0.22.45C20.76,12.71,17.55,19,12,19ZM5.15,12c0.77,1.3,3.28,5,6.85,5s6.08-3.7,6.85-5C18.08,10.7,15.57,7,12,7S5.92,10.7,5.15,12Z"/>
+	<path d="M12,10.8A1.2,1.2,0,1,1,10.8,12,1.2,1.2,0,0,1,12,10.8M12,9a3,3,0,1,0,3,3,3,3,0,0,0-3-3h0Z"/>
+</symbol>
+
+<symbol id="print">
+	<title>print</title>
+	<path d="M17,7V3H7V7H3V19H7v2H17V19h4V7H17ZM9,5h6V7H9V5Zm6,14H9V15h6v4Zm4-2H17V13H7v4H5V9H19v8Z"/>
+</symbol>
+
+<symbol id="quarter">
+	<title>quarter</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16A7,7,0,0,1,12,5v7h7A7,7,0,0,1,12,19Z"/>
+</symbol>
+
+<symbol id="redo">
+	<title>redo</title>
+	<path d="M20.5,10,16,5.5V9H6a3,3,0,0,0-3,3v2a3,3,0,0,0,3,3h4V15H6a1,1,0,0,1-1-1V12a1,1,0,0,1,1-1H16v3.5Z"/>
+</symbol>
+
+<symbol id="refresh">
+	<title>refresh</title>
+	<path d="M21,10V4L18.83,6.17A9,9,0,1,0,20.77,14H18.69a7,7,0,1,1-1.29-6.41L15,10h6Z"/>
+</symbol>
+
+<symbol id="remove">
+	<title>remove</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,16a7,7,0,1,1,7-7A7,7,0,0,1,12,19Z"/>
+	<rect x="8" y="11" width="8" height="2"/>
+</symbol>
+
+<symbol id="restore">
+	<title>restore</title>
+	<polygon points="11 7 11 13 16 13 16 11 13 11 13 7 11 7"/>
+	<path d="M12,3A9,9,0,0,0,5.17,6.17L3,4v6H9L6.59,7.59A7,7,0,1,1,5.31,14H3.23A9,9,0,1,0,12,3Z"/>
+</symbol>
+
+
+
+
+	<!--<symbol id="restore-trash">
+		<title>icon</title>
+		<path d="M24,9H20V6H14V9H10v2h1V24H23V11h1V9ZM16,8h2V9H16V8Zm5,14H13V11h8V22Z"/>
+		<path d="M4.613,6.73418A6.97257,6.97257,0,0,1,16.811,4.80432l1.93592-.71353A8.97823,8.97823,0,0,0,2.78262,5.88967L0,4.60584l2.075,5.62978,5.62978-2.075Z"/>
+	</symbol>-->
+
+
+	<symbol id="restore-trash">
+		<defs>
+			<style>
+				.a {
+				fill: none;
+				stroke: #000;
+				stroke-miterlimit: 10;
+				stroke-width: 2px;
+				}
+			</style>
+		</defs>
+		<title>icon_restore-trash</title>
+		<polygon points="9 12 12 9 15 12 9 12"/>
+		<path d="M19,6H15V3H9V6H5V8H6V21H18V8h1V6ZM11,5h2V6H11V5Zm5,14H8V8h8V19Z"/>
+		<line class="a" x1="12" y1="10" x2="12" y2="17"/>
+	</symbol>
+
+
+
+	<symbol id="rotate-ccw">
+	<title>rotate-ccw</title>
+	<path d="M3.24,14a9,9,0,0,0,1.61,3.45L6.29,16a7,7,0,0,1-1-2H3.24Z"/>
+	<path d="M12,3A9,9,0,0,0,5.17,6.17L3,4v6H9L6.59,7.59A7,7,0,0,1,17.71,16l1.44,1.44A9,9,0,0,0,12,3Z"/>
+	<path d="M13.2,18.88v2a8.94,8.94,0,0,0,4.24-1.76L16,17.71A7,7,0,0,1,13.2,18.88Z"/>
+	<path d="M6.56,19.14A8.94,8.94,0,0,0,10.8,20.9v-2A7,7,0,0,1,8,17.71Z"/>
+</symbol>
+
+<symbol id="rotate-cw">
+	<title>rotate-cw</title>
+	<path d="M18.83,6.17a9,9,0,0,0-14,11.28L6.29,16A6.93,6.93,0,0,1,5,12,7,7,0,0,1,17.41,7.59L15,10h6V4Z"/>
+	<path d="M17.71,16l1.44,1.44A9,9,0,0,0,20.76,14H18.69A7,7,0,0,1,17.71,16Z"/>
+	<path d="M6.56,19.14A8.94,8.94,0,0,0,10.8,20.9v-2A7,7,0,0,1,8,17.71Z"/>
+	<path d="M13.2,18.88v2a8.94,8.94,0,0,0,4.24-1.76L16,17.71A7,7,0,0,1,13.2,18.88Z"/>
+</symbol>
+
+<symbol id="rows">
+	<title>rows</title>
+	<path d="M4,4v7H20V4H4ZM18,9H6V6H18V9Z"/>
+	<path d="M4,20H20V13H4v7Zm2-5H18v3H6V15Z"/>
+</symbol>
+
+<symbol id="rss-feed">
+	<title>rss-feed</title>
+	<path d="M15,19H13a8,8,0,0,0-8-8V9A10,10,0,0,1,15,19Z"/>
+	<path d="M20,19H18A13,13,0,0,0,5,6V4A15,15,0,0,1,20,19Z"/>
+	<circle cx="7" cy="17" r="2"/>
+</symbol>
+
+<symbol id="search">
+	<title>search</title>
+	<path d="M20.91,19.49L15.6,14.18a7,7,0,1,0-1.41,1.41l5.31,5.31ZM5,10a5,5,0,1,1,5,5A5,5,0,0,1,5,10Z"/>
+</symbol>
+
+<symbol id="seek-e">
+	<title>seek-e</title>
+	<rect x="14" y="6" width="2" height="12"/>
+	<polygon points="6 6 12 12 6 18 6 6"/>
+</symbol>
+
+<symbol id="seek-n">
+	<title>seek-n</title>
+	<rect x="6" y="8" width="12" height="2"/>
+	<polygon points="6 18 12 12 18 18 6 18"/>
+</symbol>
+
+<symbol id="seek-s">
+	<title>seek-s</title>
+	<rect x="6" y="14" width="12" height="2"/>
+	<polygon points="18 6 12 12 6 6 18 6"/>
+</symbol>
+
+<symbol id="seek-w">
+	<title>seek-w</title>
+	<rect x="8" y="6" width="2" height="12"/>
+	<polygon points="18 18 12 12 18 6 18 18"/>
+</symbol>
+
+<symbol id="settings">
+	<title>settings</title>
+	<path d="M7,11H17a4,4,0,0,0,0-8H7A4,4,0,0,0,7,11Zm3.45-6H17a2,2,0,0,1,0,4H10.45A3.88,3.88,0,0,0,10.45,5ZM7,4.8A2.2,2.2,0,1,1,4.8,7,2.2,2.2,0,0,1,7,4.8Z"/>
+	<path d="M17,13H7a4,4,0,0,0,0,8H17A4,4,0,0,0,17,13Zm0,6.2A2.2,2.2,0,1,1,19.2,17,2.2,2.2,0,0,1,17,19.2Z"/>
+</symbol>
+
+<symbol id="shuffle">
+	<title>shuffle</title>
+	<polygon points="17.71 7.71 20 10 20 4 14 4 16.29 6.29 11.9 10.69 6.51 5.29 5.09 6.71 10.49 12.1 5.09 17.49 6.51 18.91 11.9 13.51 16.19 17.81 14 20 20 20 20 14 17.61 16.39 13.31 12.1 17.71 7.71"/>
+</symbol>
+
+<symbol id="sort-asc">
+	<title>sort-asc</title>
+	<rect x="4" y="15" width="12" height="2"/>
+	<rect x="4" y="7" width="4" height="2"/>
+	<rect x="4" y="11" width="8" height="2"/>
+</symbol>
+
+<symbol id="sort-desc">
+	<title>sort-desc</title>
+	<rect x="4" y="7" width="12" height="2"/>
+	<rect x="4" y="15" width="4" height="2"/>
+	<rect x="4" y="11" width="8" height="2"/>
+</symbol>
+
+<symbol id="sum">
+	<title>sum</title>
+	<polygon points="18 19 6 19 6 16.59 10.59 12 6 7.41 6 5 18 5 18 7 8.41 7 13.41 12 8.41 17 18 17 18 19"/>
+</symbol>
+
+<symbol id="swap-horiz">
+	<title>swap-horiz</title>
+	<polygon points="16 11.5 20.5 7 16 2.5 16 6 4 6 4 8 16 8 16 11.5"/>
+	<polygon points="8 12.5 3.5 17 8 21.5 8 18 20 18 20 16 8 16 8 12.5"/>
+</symbol>
+
+<symbol id="swap-vert">
+	<title>swap-vert</title>
+	<polygon points="2.5 8 6 8 6 20 8 20 8 8 11.5 8 7 3.5 2.5 8"/>
+	<polygon points="18 16 18 4 16 4 16 16 12.5 16 17 20.5 21.5 16 18 16"/>
+</symbol>
+
+<symbol id="sync">
+	<title>sync</title>
+	<path d="M6.59,7.59A7,7,0,0,1,18.71,10h2.06A9,9,0,0,0,5.17,6.17L3,4v6H9Z"/>
+	<path d="M21,14H15l2.4,2.4A7,7,0,0,1,5.31,14H3.23a9,9,0,0,0,15.6,3.83L21,20V14Z"/>
+</symbol>
+
+<symbol id="tag">
+	<title>tag</title>
+	<path d="M21,18H6.59L3,14.41V9.59L6.59,6H21ZM7.41,16H19V8H7.41L5,10.41v3.17Z"/>
+	<circle cx="9" cy="12" r="1.5"/>
+</symbol>
+
+<symbol id="trash">
+	<title>trash</title>
+	<path d="M19,6H15V3H9V6H5V8H6V21H18V8h1V6ZM11,5h2V6H11V5Zm5,14H8V8h8V19Z"/>
+</symbol>
+
+<symbol id="three-quarters">
+	<title>three-quarters</title>
+	<path d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Zm0,2v7H5A7,7,0,0,1,12,5Z"/>
+</symbol>
+
+<symbol id="undo">
+	<title>undo</title>
+	<path d="M18,9H8V5.5L3.5,10,8,14.5V11H18a1,1,0,0,1,1,1v2a1,1,0,0,1-1,1H14v2h4a3,3,0,0,0,3-3V12A3,3,0,0,0,18,9Z"/>
+</symbol>
+
+<symbol id="unexcused">
+	<title>unexcused</title>
+	<path d="M13,18H11a3,3,0,0,1-3-3V6h2v9a1,1,0,0,0,1,1h2a1,1,0,0,0,1-1V6h2v9A3,3,0,0,1,13,18Z"/>
+</symbol>
+
+<symbol id="unfold">
+	<title>unfold</title>
+	<polygon points="18.78 19 16.15 19 14.34 8.14 10.72 19 8.15 19 6.4 8.51 4.97 14.24 3.03 13.76 5.22 5 7.85 5 9.66 15.86 13.28 5 15.85 5 17.6 15.49 19.03 9.76 20.97 10.24 18.78 19"/>
+</symbol>
+
+<symbol id="unlock">
+	<title>unlock</title>
+	<path d="M16,10V7A4,4,0,0,0,8,7V8h2V7a2,2,0,0,1,4,0v3H5V20H19V10H16Zm1,8H7V12H17v6Z"/>
+</symbol>
+
+<symbol id="upload">
+	<title>upload</title>
+	<polygon points="11 6.41 11 16 13 16 13 6.41 17.49 10.91 18.91 9.49 12 2.59 5.09 9.49 6.51 10.91 11 6.41"/>
+	<polygon points="17 17 17 19 7 19 7 17 5 17 5 21 19 21 19 17 17 17"/>
+</symbol>
+
+<symbol id="volume-mute">
+	<title>volume-mute</title>
+	<path d="M12,19H9.59l-3-3H3V8H6.58l3-3H12V19ZM5,14H7.41L10,16.59V7.41L7.41,10H5v4Z"/>
+</symbol>
+
+<symbol id="volume-up">
+	<title>volume-up</title>
+	<path d="M18.29,18.29L17,17A7.11,7.11,0,0,0,17,7l1.27-1.27A8.91,8.91,0,0,1,18.29,18.29Z"/>
+	<path d="M15.47,15.46l-1.27-1.27a3.1,3.1,0,0,0,0-4.38l1.27-1.27A4.91,4.91,0,0,1,15.47,15.46Z"/>
+	<path d="M12,19H9.59l-3-3H3V8H6.58l3-3H12V19ZM5,14H7.41L10,16.59V7.41L7.41,10H5v4Z"/>
+</symbol>
+
+<symbol id="warning">
+	<title>warning</title>
+	<path d="M21,20H3V17.53L10.93,4h2.15L21,17.53V20ZM5,18H19L12,6.12Z"/>
+	<rect x="11" y="10" width="2" height="4"/>
+	<rect x="11" y="15.5" width="2" height="1.5"/>
+</symbol>
+
+<symbol id="warning-fill">
+	<title>warning-fill</title>
+	<path d="M5,17v1H19V17L12.5,6h-1Zm8,0H11V15.5h2V17Zm0-3H11V10h2v4Z"/>
+</symbol>
+
+<symbol id="close">
+	<title>close</title>
+	<polygon points="18.91 6.51 17.49 5.09 12 10.59 6.51 5.09 5.09 6.51 10.59 12 5.09 17.49 6.51 18.91 12 13.41 17.49 18.91 18.91 17.49 13.41 12 18.91 6.51"/>
+</symbol>
+
+<symbol id="zoom-in">
+	<title>zoom-in</title>
+	 <path d="M20.91,19.49L15.6,14.18a7,7,0,1,0-1.41,1.41l5.31,5.31ZM5,10a5,5,0,1,1,5,5A5,5,0,0,1,5,10Z"/>
+	 <polygon points="11 7 9 7 9 9 7 9 7 11 9 11 9 13 11 13 11 11 13 11 13 9 11 9 11 7"/>
+</symbol>
+
+<symbol id="zoom-out">
+	<title>zoom-out</title>
+	<path d="M20.91,19.49L15.6,14.18a7,7,0,1,0-1.41,1.41l5.31,5.31ZM5,10a5,5,0,1,1,5,5A5,5,0,0,1,5,10Z"/>
+	<rect x="7" y="9" width="6" height="2"/>
+</symbol>
+
+
+<symbol id="apps">
+	<title>apps</title>
+	<path d="M4,8H8V4H4V8Z"/>
+	<path d="M10,8h4V4H10V8Z"/>
+	<path d="M16,8h4V4H16V8Z"/>
+	<path d="M4,14H8V10H4v4Z"/>
+	<path d="M10,14h4V10H10v4Z"/>
+	<path d="M16,14h4V10H16v4Z"/>
+	<path d="M4,20H8V16H4v4Z"/>
+	<path d="M10,20h4V16H10v4Z"/>
+	<path d="M16,20h4V16H16v4Z"/>
+</symbol>
+
+<symbol id="arrow-e">
+	<title>arrow-e</title>
+	<polygon points="13.51 5.09 12.09 6.51 16.59 11 4 11 4 13 16.59 13 12.09 17.49 13.51 18.91 20.41 12 13.51 5.09"/>
+</symbol>
+
+<symbol id="arrow-n">
+	<title>arrow-n</title>
+	<polygon points="18.91 10.49 12 3.59 5.09 10.49 6.51 11.91 11 7.41 11 20 13 20 13 7.41 17.49 11.91 18.91 10.49"/>
+</symbol>
+
+<symbol id="arrow-s">
+	<title>arrow-s</title>
+	<polygon points="17.49 12.09 13 16.59 13 4 11 4 11 16.59 6.51 12.09 5.09 13.51 12 20.41 18.91 13.51 17.49 12.09"/>
+</symbol>
+
+<symbol id="arrow-w">
+	<title>arrow-w</title>
+	<polygon points="20 11 7.41 11 11.91 6.51 10.49 5.09 3.59 12 10.49 18.91 11.91 17.49 7.41 13 20 13 20 11"/>
+</symbol>
+
+<symbol id="arrowhead-e">
+	<title>arrowhead-e</title>
+	<polygon points="10.51 16.91 9.09 15.49 12.59 12 9.09 8.51 10.51 7.09 15.41 12 10.51 16.91"/>
+</symbol>
+
+<symbol id="arrowhead-n">
+	<title>arrowhead-n</title>
+	<polygon points="15.49 14.91 12 11.41 8.51 14.91 7.09 13.49 12 8.59 16.91 13.49 15.49 14.91"/>
+</symbol>
+
+<symbol id="arrowhead-s">
+	<title>arrowhead-s</title>
+	<polygon points="12 15.41 7.09 10.51 8.51 9.09 12 12.59 15.49 9.09 16.91 10.51 12 15.41"/>
+</symbol>
+
+<symbol id="arrowhead-w">
+	<title>arrowhead-w</title>
+	<polygon points="13.49 16.91 8.59 12 13.49 7.09 14.91 8.51 11.41 12 14.91 15.49 13.49 16.91"/>
+</symbol>
+
+<symbol id="collapse">
+	<title>collapse</title>
+	<polygon points="18 14 12 8 6 14 18 14"/>
+</symbol>
+
+<symbol id="collapse-horiz">
+	<title>collapse-horiz</title>
+	<polygon points="14 18 8 12 14 6 14 18"/>
+</symbol>
+
+<symbol id="menu">
+	<title>menu</title>
+	<rect x="4" y="11" width="16" height="2"/>
+	<rect x="4" y="16" width="16" height="2"/>
+	<rect x="4" y="6" width="16" height="2"/>
+</symbol>
+
+<symbol id="more">
+	<title>more</title>
+	<circle cx="19" cy="12" r="2"/>
+	<circle cx="12" cy="12" r="2"/>
+	<circle cx="5" cy="12" r="2"/>
+</symbol>
+
+<symbol id="back-color">
+	<title>back-color</title>
+	<path d="M18.71,11.29L11,3.59,8.71,1.29,7.29,2.71,9.59,5l-7,7L11,20.41,19.41,12ZM11,6.41L16.59,12H5.41Z"/>
+	<path d="M21.73,18L20,15l-1.73,3A2,2,0,1,0,21.73,18Z"/>
+</symbol>
+
+<symbol id="bold">
+	<title>bold</title>
+	<path d="M15.71,11.36A4,4,0,0,0,16.5,9a4,4,0,0,0-4-4H7V19h5.5A4.49,4.49,0,0,0,15.71,11.36ZM12.5,8a1,1,0,0,1,0,2H10V8h2.5Zm0,8H10V13h2.5A1.5,1.5,0,0,1,12.5,16Z"/>
+</symbol>
+
+<symbol id="html">
+	<title>html</title>
+	<polygon points="8.29 17.71 2.59 12 8.29 6.29 9.71 7.71 5.41 12 9.71 16.29 8.29 17.71"/>
+	<polygon points="15.71 17.71 14.29 16.29 18.59 12 14.29 7.71 15.71 6.29 21.41 12 15.71 17.71"/>
+</symbol>
+
+<symbol id="hyperlink">
+	<title>hyperlink</title>
+	<rect x="8" y="11" width="8" height="2"/>
+	<rect x="8" y="7" width="3" height="2"/>
+	<rect x="8" y="15" width="3" height="2"/>
+	<rect x="13" y="15" width="3" height="2"/>
+	<rect x="13" y="7" width="3" height="2"/>
+	<path d="M8,17A5,5,0,0,1,8,7V9a3,3,0,0,0,0,6v2Z"/>
+	<path d="M16,17V15a3,3,0,0,0,0-6V7A5,5,0,0,1,16,17Z"/>
+</symbol>
+
+<symbol id="image">
+	<title>image</title>
+	<path d="M3,5V19H21V5H3ZM19,7v6.73l-4-4-4,4-2-2-4,4V7H19ZM6.27,17L9,14.27l2,2,4-4,4,4V17H6.27Z"/>
+	<circle cx="8.5" cy="9.5" r="1.5"/>
+</symbol>
+
+<symbol id="indent">
+	<title>indent</title>
+	<rect x="12" y="13" width="8" height="2"/>
+	<rect x="8" y="17" width="12" height="2"/>
+	<rect x="12" y="9" width="8" height="2"/>
+	<rect x="8" y="5" width="12" height="2"/>
+	<polygon points="3 16 7 12 3 8 3 16"/>
+</symbol>
+
+<symbol id="insert-ordered-list">
+	<title>insert-ordered-list</title>
+	<rect x="9" y="11" width="11" height="2"/>
+	<rect x="9" y="17" width="11" height="2"/>
+	<rect x="9" y="5" width="11" height="2"/>
+	<path d="M4,17H6v0.5H5v1H6V19H4v0.25L4.75,20h1.5L7,19.25v-2.5L6.25,16H4.75L4,16.75V17ZM4,7V8H7V7H6V4H4.75L4,4.75V5H5V7H4Zm0,4H6v0.25l-2,2V14H7V13H5.5L7,11.5V10.75L6.25,10H4.75L4,10.75V11Z"/>
+</symbol>
+
+<symbol id="insert-unordered-list">
+	<title>insert-unordered-list</title>
+	<rect x="9" y="11" width="11" height="2"/>
+	<rect x="9" y="17" width="11" height="2"/>
+	<rect x="9" y="5" width="11" height="2"/>
+	<rect x="4" y="11" width="2" height="2"/>
+	<rect x="4" y="17" width="2" height="2"/>
+	<rect x="4" y="5" width="2" height="2"/>
+</symbol>
+
+<symbol id="italic">
+	<title>italic</title>
+	<polygon points="17 7 17 5 11 5 11 7 12.61 7 9.28 17 7 17 7 19 13 19 13 17 11.39 17 14.72 7 17 7"/>
+</symbol>
+
+<symbol id="justify-center">
+	<title>justify-center</title>
+	<rect x="4" y="13" width="16" height="2"/>
+	<rect x="7" y="9" width="10" height="2"/>
+	<rect x="7" y="17" width="10" height="2"/>
+	<rect x="4" y="5" width="16" height="2"/>
+</symbol>
+
+<symbol id="justify-full">
+	<title>justify-full</title>
+	<rect x="4" y="13" width="16" height="2"/>
+	<rect x="4" y="9" width="16" height="2"/>
+	<rect x="4" y="17" width="16" height="2"/>
+	<rect x="4" y="5" width="16" height="2"/>
+</symbol>
+
+<symbol id="justify-left">
+	<title>justify-left</title>
+	<rect x="4" y="13" width="16" height="2"/>
+	<rect x="4" y="9" width="10" height="2"/>
+	<rect x="4" y="17" width="10" height="2"/>
+	<rect x="4" y="5" width="16" height="2"/>
+</symbol>
+
+<symbol id="justify-right">
+	<title>justify-right</title>
+	<rect x="4" y="13" width="16" height="2"/>
+	<rect x="10" y="9" width="10" height="2"/>
+	<rect x="10" y="17" width="10" height="2"/>
+	<rect x="4" y="5" width="16" height="2"/>
+</symbol>
+
+<symbol id="outdent">
+	<title>outdent</title>
+	<rect x="12" y="13" width="8" height="2"/>
+	<rect x="8" y="17" width="12" height="2"/>
+	<rect x="12" y="9" width="8" height="2"/>
+	<rect x="8" y="5" width="12" height="2"/>
+	<polygon points="7 8 3 12 7 16 7 8"/>
+</symbol>
+
+<symbol id="strikethrough">
+	<title>strikethrough</title>
+	<path d="M11,19h2V15H11v4ZM6,5V7h5v4h2V7h5V5H6Zm0,9H18V12H6v2Z"/>
+</symbol>
+
+<symbol id="underline">
+	<title>underline</title>
+	<rect x="6" y="19" width="12" height="2"/>
+	<path d="M13,17H11a3,3,0,0,1-3-3V5h2v9a1,1,0,0,0,1,1h2a1,1,0,0,0,1-1V5h2v9A3,3,0,0,1,13,17Z"/>
+</symbol>
+
+<symbol id="cloud-upload">
+	<title>cloud-upload</title>
+	<polygon points="12 12 8 16 11 16 11 22 13 22 13 16 16 16 12 12"/>
+	<path d="M18,20H15V18h3a2,2,0,0,0,0-4H17V11a4,4,0,0,0-8,0v1H7a3,3,0,0,0,0,6H9v2H7A5,5,0,0,1,7,10h.08A6,6,0,0,1,19,11v1.13A4,4,0,0,1,18,20Z"/>
+</symbol>
+
+<symbol id="file">
+	<title>file</title>
+	<path d="M14.41,3H5V21H19V7.59ZM7,19V5h6V9h4V19H7Z"/>
+</symbol>
+
+<symbol id="file-archive">
+  <title>file-archive</title>
+  <polygon fill="#d9a641" points="12 4 12 6 14 6 14 8 12 8 12 10 14 10 14 12 12 12 12 14 14 14 14 16 10 16 10 12 12 12 12 10 10 10 10 8 12 8 12 6 10 6 10 4 4 4 4 20 20 20 20 4 12 4"/>
+</symbol>
+
+<symbol id="file-data">
+  <title>file-data</title>
+  <rect fill="#2a8158" x="9" y="9" width="2" height="2"/>
+  <rect fill="#2a8158" x="9" y="13" width="2" height="2"/>
+  <rect fill="#2a8158" x="13" y="13" width="2" height="2"/>
+  <rect fill="#2a8158" x="13" y="9" width="2" height="2"/>
+  <path fill="#2a8158" d="M4,4V20H20V4ZM17,17H7V7H17Z"/>
+</symbol>
+
+<symbol id="file-excel">
+  <title>file-excel</title>
+  <path fill="#2a8158" d="M4,4V20H20V4ZM15,16H13.5L12,13l-1.5,3H9l2-4L9,8h1.5L12,11l1.5-3H15l-2,4Z"/>
+</symbol>
+
+<symbol id="file-movie">
+  <title>file-movie</title>
+  <path fill="#c6c" d="M4,4V20H20V4ZM9,16V8l7,4Z"/>
+</symbol>
+
+<symbol id="file-music">
+  <title>file-music</title>
+  <path fill="#42a6a6" d="M4,4V20H20V4ZM16,9H14v6c0,1.1-1,2-3,2s-3-.9-3-2,1-2,3-2a4.32,4.32,0,0,1,1,.2V7h4Z"/>
+</symbol>
+
+<symbol id="file-pdf">
+  <title>file-pdf</title>
+  <path fill="#e51717" d="M7.72,16.05l.13-.1.22-.2a3.24,3.24,0,0,0-.29.25Z"/>
+  <path fill="#e51717" d="M11.64,8.17a1.72,1.72,0,0,0,0-.42c-.05,0-.08.13-.11.32a3.11,3.11,0,0,0,0,.73v.08C11.58,8.61,11.62,8.37,11.64,8.17Z"/>
+  <path fill="#e51717" d="M11.65,12a16.24,16.24,0,0,1-.73,1.48c.55-.15,1-.24,1.36-.31l.2,0-.17-.22C12.07,12.57,11.85,12.26,11.65,12Z"/>
+  <path fill="#e51717" d="M4,4V20H20V4ZM17.39,15.28a1.13,1.13,0,0,1-.71.59,1.57,1.57,0,0,1-.93,0,3.46,3.46,0,0,1-1-.52,8.25,8.25,0,0,1-1.09-.93L13.28,14l-.81.13a14.42,14.42,0,0,0-1.54.36l-.79.25-.08.11A9.53,9.53,0,0,1,8.5,16.71a2.26,2.26,0,0,1-1.07.56l-.19,0a.68.68,0,0,1-.64-.36,1.09,1.09,0,0,1-.07-.75,1.79,1.79,0,0,1,.54-.88,5.54,5.54,0,0,1,1.46-1c.31-.15.64-.29,1-.41a15.69,15.69,0,0,0,1.42-2.77L11,10.8a6.19,6.19,0,0,1-.27-.77,6.75,6.75,0,0,1-.23-1.14,4.18,4.18,0,0,1,0-1,1.75,1.75,0,0,1,.24-.74,1.06,1.06,0,0,1,.51-.39A1,1,0,0,1,12.38,7a1.57,1.57,0,0,1,.25,1.27,14.16,14.16,0,0,1-.54,2.46l0,.09a9.94,9.94,0,0,0,1,1.43c.17.22.37.45.58.69a7.61,7.61,0,0,1,1,0,7,7,0,0,1,1.08.17,3,3,0,0,1,.92.36,1.78,1.78,0,0,1,.69.76A1.23,1.23,0,0,1,17.39,15.28Z"/>
+  <path fill="#e51717" d="M16.16,14.34a2.12,2.12,0,0,0-.62-.24,6.08,6.08,0,0,0-.88-.14,6.59,6.59,0,0,0,.71.58,2.54,2.54,0,0,0,.68.37.55.55,0,0,0,.34,0,.23.23,0,0,0,.11-.06.26.26,0,0,0,0-.19A.82.82,0,0,0,16.16,14.34Z"/>
+</symbol>
+
+<symbol id="file-powerpoint">
+  <title>file-powerpoint</title>
+  <path fill="#d95c3a" d="M12,9.25H10.38v2.5H12c1,0,1.75-.25,1.75-1.25S13,9.25,12,9.25Z"/>
+  <path fill="#d95c3a" d="M4,4V20H20V4Zm8.25,9H10.38v3H9V8h3.19C14,8,15,9,15,10.5A2.44,2.44,0,0,1,12.25,13Z"/>
+</symbol>
+
+<symbol id="file-presentation">
+  <title>file-presentation</title>
+  <path fill="#d95c3a" d="M4,4V20H20V4ZM9,17H7V11H9Zm4,0H11V7h2Zm4,0H15V13h2Z"/>
+</symbol>
+
+<symbol id="file-text">
+  <title>file-text</title>
+  <path fill="#3a6ea6" d="M4,4V20H20V4Zm9,13H7V15h6Zm4-4H7V11H17Zm0-4H7V7H17Z"/>
+</symbol>
+
+<symbol id="file-word">
+  <title>file-word</title>
+  <path fill="#3a6ea6" d="M4,4V20H20V4ZM15.5,16H14l-2-5.25L10,16H8.5L7,8H8.5l1,5.5,2-5.5h1l2,5.5,1-5.5H17Z"/>
+</symbol>
+
+<symbol id="file-add">
+	<title>file-add</title>
+	<polygon points="13 11 11 11 11 13 9 13 9 15 11 15 11 17 13 17 13 15 15 15 15 13 13 13 13 11"/>
+	<path d="M14.41,3H5V21H19V7.59ZM7,19V5h6V9h4V19H7Z"/>
+</symbol>
+
+<symbol id="folder">
+	<title>folder</title>
+	<path d="M22,20H2V4H9.41l2,2H22V20ZM4,18H20V8H10.59l-2-2H4V18Z"/>
+</symbol>
+
+<symbol id="folder-filter">
+  <title>folder-filter</title>
+  <polygon points="22 20 18 20 18 18 20 18 20 8 10.59 8 8.59 6 4 6 4 18 6 18 6 20 2 20 2 4 9.41 4 11.41 6 22 6 22 20"/>
+  <rect x="9" y="18" width="6" height="2"/>
+  <rect x="7" y="15" width="10" height="2"/>
+  <rect x="11" y="21" width="2" height="2"/>
+</symbol>
+
+<symbol id="folder-filter-received">
+  <title>folder-filter-received</title>
+  <polygon points="18.71 10.71 17.29 9.29 14.29 12.29 12 10 12 16 18 16 15.71 13.71 18.71 10.71"/>
+  <rect x="9" y="18" width="6" height="2"/>
+  <rect x="11" y="21" width="2" height="2"/>
+  <polygon points="22 20 18 20 18 18 20 18 20 8 10.59 8 8.59 6 4 6 4 18 6 18 6 20 2 20 2 4 9.41 4 11.41 6 22 6 22 20"/>
+</symbol>
+
+<symbol id="folder-filter-shared">
+  <title>folder-filter-shared</title>
+  <polygon points="18 10 12 10 14.29 12.29 11.29 15.29 12.71 16.71 15.71 13.71 18 16 18 10"/>
+  <rect x="9" y="18" width="6" height="2"/>
+  <rect x="11" y="21" width="2" height="2"/>
+  <polygon points="22 20 18 20 18 18 20 18 20 8 10.59 8 8.59 6 4 6 4 18 6 18 6 20 2 20 2 4 9.41 4 11.41 6 22 6 22 20"/>
+</symbol>
+
+<symbol id="folder-add">
+	<title>folder-add</title>
+	<path d="M11.41,6l-2-2H2V20H22V6H11.41ZM20,18H4V6H8.59l2,2H20V18Z"/>
+	<polygon points="14 16 16 16 16 14 18 14 18 12 16 12 16 10 14 10 14 12 12 12 12 14 14 14 14 16"/>
+</symbol>
+
+<symbol id="folder-locked">
+	<title>folder-locked</title>
+	<path d="M15,15a3,3,0,0,0-6,0v1H8v6h8V16H15V15Zm-4.2,0a1.2,1.2,0,0,1,2.4,0v1H10.8V15Z"/>
+	<polygon points="11.41 6 9.41 4 2 4 2 20 6 20 6 18 4 18 4 6 8.59 6 10.59 8 20 8 20 18 18 18 18 20 22 20 22 6 11.41 6"/>
+</symbol>
+
+<symbol id="folder-received">
+	<title>folder-received</title>
+	<path d="M22,20H2V4H9.41l2,2H22ZM4,18H20V8H10.59l-2-2H4Z"/>
+	<polygon points="18.71 10.71 17.29 9.29 14.29 12.29 12 10 12 16 18 16 15.71 13.71 18.71 10.71"/>
+</symbol>
+
+<symbol id="folder-shared">
+	<title>folder-shared</title>
+	<path d="M22,20H2V4H9.41l2,2H22ZM4,18H20V8H10.59l-2-2H4Z"/>
+	<polygon points="18 10 12 10 14.29 12.29 11.29 15.29 12.71 16.71 15.71 13.71 18 16 18 10"/>
+</symbol>
+
+<symbol id="folder-system">
+	<title>folder-system</title>
+	<polygon points="11.41 6 9.41 4 2 4 2 20 6 20 6 18 4 18 4 6 8.59 6 10.59 8 20 8 20 18 18 18 18 20 22 20 22 6 11.41 6"/>
+	<path d="M15.83,13.63l-1.89,1.09A3,3,0,0,0,13,14.18V12H11v2.18a3,3,0,0,0-.94.54L8.17,13.63l-1,1.73,1.89,1.09a2.73,2.73,0,0,0,0,1.09L7.17,18.63l1,1.73,1.89-1.09a3,3,0,0,0,.94.54V22h2V19.82a3,3,0,0,0,.94-0.54l1.89,1.09,1-1.73-1.89-1.09a2.73,2.73,0,0,0,0-1.09l1.89-1.09ZM12,18.2A1.2,1.2,0,1,1,13.2,17,1.2,1.2,0,0,1,12,18.2Z"/>
+</symbol>
+
+<symbol id="folder-upload">
+	<title>folder-upload</title>
+	<polygon points="16 16 12 12 8 16 11 16 11 22 13 22 13 16 16 16"/>
+	<polygon points="11.41 6 9.41 4 2 4 2 20 9 20 9 18 4 18 4 6 8.59 6 10.59 8 20 8 20 18 15 18 15 20 22 20 22 6 11.41 6"/>
+</symbol>
+
+<symbol id="expand">
+	<title>expand</title>
+	<polygon points="18 10 12 16 6 10 18 10"/>
+</symbol>
+
+<symbol id="expand-horiz">
+	<title>expand-horiz</title>
+	<polygon points="10 18 16 12 10 6 10 18"/>
+</symbol>
+
+<symbol id="cloud">
+  <title>cloud</title>
+  <path d="M18,20H7A5,5,0,0,1,7,10h.08A6,6,0,0,1,19,11v1.13A4,4,0,0,1,18,20ZM7,12a3,3,0,0,0,0,6H18a2,2,0,0,0,0-4H17V11a4,4,0,0,0-8,0v1Z"/>
+</symbol>
+
+<symbol id="file-image">
+  <title>file-image</title>
+  <path fill="#7fa632" d="M4,4V20H20V4ZM9,7A2,2,0,1,1,7,9,2,2,0,0,1,9,7Zm9,11H6V16l3-3,2,2,4-4,3,3Z"/>
+</symbol>
+
+<symbol id="hyperlink-remove">
+	<title>hyperlink-remove</title>
+	<path d="M8,9h3V7H8A5,5,0,0,0,8,17h3V15H8A3,3,0,0,1,8,9Z"/>
+	<path d="M16,7H13V9h3a3,3,0,0,1,0,6H13v2h3A5,5,0,0,0,16,7Z"/>
+</symbol>
+
+<symbol id="group-elements">
+	<title>group-elements</title>
+	<path d="M6,6V18H18V6ZM8,8h3v3H8Zm3,8H8V13h3Zm5,0H13V13h3Zm-3-5V8h3v3Z"/>
+</symbol>
+
+<symbol id="ungroup-elements">
+	<title>ungroup-elements</title>
+	<path d="M20,11H13V4h7ZM15,9h3V6H15Z"/>
+	<path d="M11,11H5V5h6ZM7,9H9V7H7Z"/>
+	<path d="M19,19H13V13h6Zm-4-2h2V15H15Z"/>
+	<path d="M11,20H4V13h7ZM6,18H9V15H6Z"/>
+</symbol>
+
+
+<!-- Icon Sprite -->
+
+<use x="0" y="0" xlink:href="#add"/>
+<use x="0" y="24" xlink:href="#alert"/>
+<use x="0" y="48" xlink:href="#book"/>
+<use x="0" y="72" xlink:href="#bookmark"/>
+<use x="0" y="96" xlink:href="#calendar"/>
+<use x="0" y="120" xlink:href="#chart"/>
+<use x="0" y="144" xlink:href="#chat"/>
+<use x="0" y="168" xlink:href="#check"/>
+<use x="0" y="192" xlink:href="#checkmark"/>
+<use x="0" y="216" xlink:href="#class-book"/>
+<use x="0" y="240" xlink:href="#class-book-flip"/>
+<use x="0" y="264" xlink:href="#clock"/>
+<use x="0" y="288" xlink:href="#clear"/>
+<use x="0" y="312" xlink:href="#close-panel"/>
+<use x="0" y="336" xlink:href="#cmd"/>
+<use x="0" y="360" xlink:href="#cog"/>
+<use x="0" y="384" xlink:href="#columns"/>
+<use x="0" y="408" xlink:href="#connector"/>
+<use x="0" y="432" xlink:href="#copy"/>
+<use x="0" y="456" xlink:href="#crop"/>
+<use x="0" y="480" xlink:href="#cut"/>
+<use x="0" y="504" xlink:href="#dashboard"/>
+<use x="0" y="528" xlink:href="#day"/>
+<use x="0" y="552" xlink:href="#deny"/>
+<use x="0" y="576" xlink:href="#desktop"/>
+<use x="0" y="600" xlink:href="#device"/>
+<use x="0" y="624" xlink:href="#dialogue"/>
+<use x="0" y="648" xlink:href="#dimension"/>
+<use x="0" y="672" xlink:href="#download"/>
+<use x="0" y="696" xlink:href="#drag"/>
+<use x="0" y="720" xlink:href="#drag-active"/>
+<use x="0" y="744" xlink:href="#duplicate"/>
+<use x="0" y="768" xlink:href="#emoticon"/>
+<use x="0" y="792" xlink:href="#empty"/>
+<use x="0" y="816" xlink:href="#event-available"/>
+<use x="0" y="840" xlink:href="#error"/>
+<use x="0" y="864" xlink:href="#excused"/>
+<use x="0" y="888" xlink:href="#exit"/>
+<use x="0" y="912" xlink:href="#favorite"/>
+<use x="0" y="936" xlink:href="#logout"/>
+<use x="0" y="960" xlink:href="#filter"/>
+<use x="0" y="984" xlink:href="#flag"/>
+<use x="0" y="1008" xlink:href="#full"/>
+<use x="0" y="1032" xlink:href="#fullscreen"/>
+<use x="0" y="1056" xlink:href="#funnel"/>
+<use x="0" y="1080" xlink:href="#grid"/>
+<use x="0" y="1104" xlink:href="#group"/>
+<use x="0" y="1128" xlink:href="#group-add"/>
+<use x="0" y="1152" xlink:href="#half"/>
+<use x="0" y="1176" xlink:href="#help"/>
+<use x="0" y="1200" xlink:href="#home"/>
+<use x="0" y="1224" xlink:href="#hourglass"/>
+<use x="0" y="1248" xlink:href="#info"/>
+<use x="0" y="1272" xlink:href="#insert-file"/>
+<use x="0" y="1296" xlink:href="#insert-m"/>
+<use x="0" y="1320" xlink:href="#insert-n"/>
+<use x="0" y="1344" xlink:href="#insert-s"/>
+<use x="0" y="1368" xlink:href="#interruption"/>
+<use x="0" y="1392" xlink:href="#kpi"/>
+<use x="0" y="1416" xlink:href="#language"/>
+<use x="0" y="1440" xlink:href="#laptop"/>
+<use x="0" y="1464" xlink:href="#lock"/>
+<use x="0" y="1488" xlink:href="#mail"/>
+<use x="0" y="1512" xlink:href="#map"/>
+<use x="0" y="1536" xlink:href="#maximize"/>
+<use x="0" y="1560" xlink:href="#minimize"/>
+<use x="0" y="1584" xlink:href="#minus"/>
+<use x="0" y="1608" xlink:href="#note"/>
+<use x="0" y="1632" xlink:href="#note-fill"/>
+<use x="0" y="1656" xlink:href="#open-in-browser"/>
+<use x="0" y="1680" xlink:href="#open-in-new"/>
+<use x="0" y="1704" xlink:href="#open-panel"/>
+<use x="0" y="1728" xlink:href="#paste"/>
+<use x="0" y="1752" xlink:href="#pause"/>
+<use x="0" y="1776" xlink:href="#pencil"/>
+<use x="0" y="1800" xlink:href="#person"/>
+<use x="0" y="1824" xlink:href="#person-add"/>
+<use x="0" y="1848" xlink:href="#pin"/>
+<use x="0" y="1872" xlink:href="#place"/>
+<use x="0" y="1896" xlink:href="#play"/>
+<use x="0" y="1920" xlink:href="#plus"/>
+<use x="0" y="1944" xlink:href="#preview"/>
+<use x="0" y="1968" xlink:href="#print"/>
+<use x="0" y="1992" xlink:href="#quarter"/>
+<use x="0" y="2016" xlink:href="#redo"/>
+<use x="0" y="2040" xlink:href="#refresh"/>
+<use x="0" y="2064" xlink:href="#remove"/>
+<use x="0" y="2088" xlink:href="#restore"/>
+<use x="0" y="2112" xlink:href="#rotate-ccw"/>
+<use x="0" y="2136" xlink:href="#rotate-cw"/>
+<use x="0" y="2160" xlink:href="#rows"/>
+<use x="0" y="2184" xlink:href="#rss-feed"/>
+<use x="0" y="2208" xlink:href="#search"/>
+<use x="0" y="2232" xlink:href="#seek-e"/>
+<use x="0" y="2256" xlink:href="#seek-n"/>
+<use x="0" y="2280" xlink:href="#seek-s"/>
+<use x="0" y="2304" xlink:href="#seek-w"/>
+<use x="0" y="2328" xlink:href="#settings"/>
+<use x="0" y="2352" xlink:href="#shuffle"/>
+<use x="0" y="2376" xlink:href="#sort-asc"/>
+<use x="0" y="2400" xlink:href="#sort-desc"/>
+<use x="0" y="2424" xlink:href="#sum"/>
+<use x="0" y="2448" xlink:href="#swap-horiz"/>
+<use x="0" y="2472" xlink:href="#swap-vert"/>
+<use x="0" y="2496" xlink:href="#sync"/>
+<use x="0" y="2520" xlink:href="#tag"/>
+<use x="0" y="2544" xlink:href="#trash"/>
+<use x="0" y="2568" xlink:href="#three-quarters"/>
+<use x="0" y="2592" xlink:href="#undo"/>
+<use x="0" y="2616" xlink:href="#unexcused"/>
+<use x="0" y="2640" xlink:href="#unfold"/>
+<use x="0" y="2664" xlink:href="#unlock"/>
+<use x="0" y="2688" xlink:href="#upload"/>
+<use x="0" y="2712" xlink:href="#volume-mute"/>
+<use x="0" y="2736" xlink:href="#volume-up"/>
+<use x="0" y="2760" xlink:href="#warning"/>
+<use x="0" y="2784" xlink:href="#warning-fill"/>
+<use x="0" y="2808" xlink:href="#close"/>
+<use x="0" y="2832" xlink:href="#zoom-in"/>
+<use x="0" y="2856" xlink:href="#zoom-out"/>
+
+<use x="0" y="2880" xlink:href="#apps"/>
+<use x="0" y="2904" xlink:href="#arrow-e"/>
+<use x="0" y="2928" xlink:href="#arrow-n"/>
+<use x="0" y="2952" xlink:href="#arrow-s"/>
+<use x="0" y="2976" xlink:href="#arrow-w"/>
+<use x="0" y="3000" xlink:href="#arrowhead-e"/>
+<use x="0" y="3024" xlink:href="#arrowhead-n"/>
+<use x="0" y="3048" xlink:href="#arrowhead-s"/>
+<use x="0" y="3072" xlink:href="#arrowhead-w"/>
+<use x="0" y="3096" xlink:href="#collapse"/>
+<use x="0" y="3120" xlink:href="#collapse-horiz"/>
+<use x="0" y="3144" xlink:href="#menu"/>
+<use x="0" y="3168" xlink:href="#more"/>
+
+<use x="0" y="3192" xlink:href="#back-color"/>
+<use x="0" y="3216" xlink:href="#bold"/>
+<use x="0" y="3240" xlink:href="#html"/>
+<use x="0" y="3264" xlink:href="#hyperlink"/>
+<use x="0" y="3288" xlink:href="#image"/>
+<use x="0" y="3312" xlink:href="#indent"/>
+<use x="0" y="3336" xlink:href="#insert-ordered-list"/>
+<use x="0" y="3360" xlink:href="#insert-unordered-list"/>
+<use x="0" y="3384" xlink:href="#italic"/>
+<use x="0" y="3408" xlink:href="#justify-center"/>
+<use x="0" y="3432" xlink:href="#justify-full"/>
+<use x="0" y="3456" xlink:href="#justify-left"/>
+<use x="0" y="3480" xlink:href="#justify-right"/>
+<use x="0" y="3504" xlink:href="#outdent"/>
+<use x="0" y="3528" xlink:href="#strikethrough"/>
+<use x="0" y="3552" xlink:href="#underline"/>
+
+<use x="0" y="3576" xlink:href="#cloud-upload"/>
+<use x="0" y="3600" xlink:href="#file"/>
+<use x="0" y="3624" xlink:href="#file-archive"/>
+<use x="0" y="3648" xlink:href="#file-data"/>
+<use x="0" y="3672" xlink:href="#file-excel"/>
+<use x="0" y="3696" xlink:href="#file-movie"/>
+<use x="0" y="3720" xlink:href="#file-music"/>
+<use x="0" y="3744" xlink:href="#file-pdf"/>
+<use x="0" y="3768" xlink:href="#file-powerpoint"/>
+<use x="0" y="3792" xlink:href="#file-presentation"/>
+<use x="0" y="3816" xlink:href="#file-text"/>
+<use x="0" y="3840" xlink:href="#file-word"/>
+<use x="0" y="3864" xlink:href="#file-add"/>
+<use x="0" y="3888" xlink:href="#folder"/>
+<use x="0" y="3912" xlink:href="#folder-add"/>
+<use x="0" y="3936" xlink:href="#folder-locked"/>
+<use x="0" y="3960" xlink:href="#folder-received"/>
+<use x="0" y="3984" xlink:href="#folder-shared"/>
+<use x="0" y="4008" xlink:href="#folder-system"/>
+<use x="0" y="4032" xlink:href="#folder-upload"/>
+
+<use x="0" y="4056" xlink:href="#expand"/>
+<use x="0" y="4080" xlink:href="#expand-horiz"/>
+<use x="0" y="4104" xlink:href="#cloud"/>
+<use x="0" y="4128" xlink:href="#file-image"/>
+<use x="0" y="4152" xlink:href="#hyperlink-remove"/>
+<use x="0" y="4176" xlink:href="#group-elements"/>
+<use x="0" y="4200" xlink:href="#ungroup-elements"/>
+
+<use x="0" y="4224" xlink:href="#folder-filter"/>
+<use x="0" y="4248" xlink:href="#folder-filter-received"/>
+<use x="0" y="4272" xlink:href="#folder-filter-shared"/>
+
+<use x="0" y="4296" xlink:href="#restore-trash"/>
+</svg>
