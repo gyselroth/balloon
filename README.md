@@ -47,6 +47,6 @@ See the [balloon-app-elasticsearch](https://github.com/gyselroth/balloon-app-ela
 ## Requirements
 
 * GNU/Linux Server
-* Webserve
+* Webserver
 * PHP 7.1.x
 * MongoDB
