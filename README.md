@@ -1,5 +1,9 @@
 # balloon
 
+[![Build Status](https://travis-ci.org/gyselroth/balloon.svg?branch=master)](https://travis-ci.org/gyselroth/balloon)
+[![Dependency Status](https://www.versioneye.com/user/projects/594a42e9368b080044d19efa/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/594a42e9368b080044d19efa)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/gyselroth/balloon/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/gyselroth/balloon/?branch=master)
+
 balloon is a cloud server and document management system.
 
 ## Features
