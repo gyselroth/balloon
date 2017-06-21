@@ -192,10 +192,10 @@
                 <notifications>
                     <new_share enabled="1">
                         <config>
-                            <body>{shareowner} added a new share {name} to your cloud. Please visit https://balloon.tam.ch</body>
+                            <body>{shareowner} added a new share {name} to your cloud.</body>
                             <subject>Balloon: A new share has been added to your cloud</subject>
                             <sender>
-                                <address>no-reply@tam.ch</address>
+                                <address>no-reply@localhost</address>
                                 <name>Balloon</name>
                             </sender>
                         </config>
