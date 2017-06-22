@@ -1,5 +1,19 @@
 CHANGELOG
 --
+2.0.0 dev - Raffael Sahli <sahli@gyselroth.com>
+Thu June 22 15:04:32 CET 2017
+--
+Webinterface: [FIX] added missing german locale for view.prop.head.share_value
+
+
+--
+1.0.12 GA - Raffael Sahli <sahli@gyselroth.com>
+Thu June 22 10:04:32 CET 2017
+--
+CORE: [FIX] fixed destroy node via cli plugin if node is a sub node of a share but destroy timestamp was set by share member 
+
+
+--
 1.0.11 RC5 - Raffael Sahli <sahli@gyselroth.com>
 Tue June 20 09:30:00 CET 2017
 --
