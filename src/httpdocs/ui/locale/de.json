@@ -119,6 +119,7 @@
         "tags": "Tags",
         "color_tag": "Farbmarkierung",
         "share": "Freigabe",
+        "share_value": "%s (von %s) [%s]",
         "description": "Beschreibung",
         "license": "Lizenz",
         "copyright": "Copyright",
