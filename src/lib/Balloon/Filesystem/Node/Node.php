@@ -474,7 +474,7 @@ abstract class Node implements INode, DAV\INode
      */
     public function isOwnerRequest(): bool
     {
-        return ($this->owner == $this->_user->getId());
+        return ($this->_user !== null && $this->owner == $this->_user->getId());
     }
 
 
@@ -1165,7 +1165,7 @@ abstract class Node implements INode, DAV\INode
                 return $this->_fs->getRoot();
             } else {
                 $parent = $this->_fs->findNodeWithId($this->parent);
-                if ($parent->isShare() && !$parent->isOwnerRequest()) {
+                if ($parent->isShare() && !$parent->isOwnerRequest() && $this->_user !== null) {
                     $node = $this->_db->storage->findOne([
                         'owner' => $this->_user->getId(),
                         'shared' => true,
