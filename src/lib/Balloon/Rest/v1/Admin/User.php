@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon\Rest\v1\Admin;
 
-use Balloon\Exception;
-use Balloon\Rest\v1\User as SimpleUser;
-use Balloon\Http\Response;
+use \Balloon\Exception;
+use \Balloon\Rest\v1\User as SimpleUser;
+use \Micro\Http\Response;
 
 class User extends SimpleUser
 {

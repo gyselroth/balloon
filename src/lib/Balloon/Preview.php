@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Filesystem\Node\File;
-use Balloon\Preview\PreviewInterface;
-use Balloon\Preview\Exception;
+use \Balloon\Filesystem\Node\File;
+use \Balloon\Preview\PreviewInterface;
+use \Balloon\Preview\Exception;
 use \Psr\Log\LoggerInterface as Logger;
 
 class Preview

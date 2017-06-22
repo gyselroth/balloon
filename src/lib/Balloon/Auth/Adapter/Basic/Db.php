@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Balloon\Auth\Adapter\Basic;
 
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Config;
-use Balloon\Auth\Adapter\AdapterInterface;
+use \Micro\Config;
+use \Balloon\Auth\Adapter\AdapterInterface;
 use \MongoDB\Database;
 
 class Db implements AdapterInterface

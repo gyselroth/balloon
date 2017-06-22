@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Rest\v1;
 
-use Balloon\Exception;
-use Balloon\Helper;
-use Balloon\Http\Response;
-use Balloon\Filesystem\Node\Collection;
+use \Balloon\Exception;
+use \Balloon\Helper;
+use \Micro\Http\Response;
+use \Balloon\Filesystem\Node\Collection;
 
 class File extends Node
 {

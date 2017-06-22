@@ -11,13 +11,13 @@ declare(strict_types=1);
 
 namespace Balloon\Plugin;
 
-use Balloon\Exception;
+use \Balloon\Exception;
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Filesystem;
-use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\INode;
-use Balloon\Auth\Adapter\AdapterInterface as AuthInterface;
+use \Balloon\Filesystem;
+use \Balloon\Filesystem\Node\Collection;
+use \Balloon\Filesystem\Node\File;
+use \Balloon\Filesystem\Node\INode;
+use \Balloon\Auth\Adapter\AdapterInterface as AuthInterface;
 
 interface PluginInterface
 {

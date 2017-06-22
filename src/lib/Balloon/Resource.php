@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Resource\Exception;
+use \Balloon\Resource\Exception;
 use \MongoDB\Database;
 use \Psr\Log\LoggerInterface as Logger;
 

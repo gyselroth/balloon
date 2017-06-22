@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Rest\v1;
 
-use Balloon\Exception;
-use Balloon\Controller;
-use Balloon\User as CoreUser;
-use Balloon\Http\Response;
+use \Balloon\Exception;
+use \Balloon\Controller;
+use \Balloon\User as CoreUser;
+use \Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
 class User extends Controller

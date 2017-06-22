@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Exception;
-use Balloon\Config;
-use Balloon\Auth\Adapter\AdapterInterface;
+use \Balloon\Exception;
+use \Micro\Config;
+use \Balloon\Auth\Adapter\AdapterInterface;
 use \MongoDB\Database;
 use \MongoDB\BSON\Binary;
 use \Psr\Log\LoggerInterface as Logger;

@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon\Preview;
 
-use Balloon\Filesystem\Node\File;
+use \Balloon\Filesystem\Node\File;
 use \Imagick as SystemImagick;
-use Balloon\Config;
+use \Micro\Config;
 
 class Imagick extends AbstractPreview
 {

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Bootstrap;
 
-use Balloon\Config;
+use \Micro\Config;
 
 class Cli extends AbstractCore
 {

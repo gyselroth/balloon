@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Balloon\Auth\Adapter;
 
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Config;
-use Balloon\Exception;
+use \Micro\Config;
+use \Balloon\Exception;
 use \League\OAuth2\Server\Storage\SessionInterface;
 
 class Oauth2 implements AdapterInterface, SessionInterface

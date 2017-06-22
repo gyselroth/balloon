@@ -24,13 +24,13 @@ $composer = require 'vendor/autoload.php';
 if (apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
-    $xml = new \Balloon\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
+    $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
     if (is_readable(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml')) {
-        $local = new \Balloon\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml', APPLICATION_ENV);
+        $local = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml', APPLICATION_ENV);
         $xml->merge($local);
     }
     
-    $config = new \Balloon\Config($xml);
+    $config = new \Micro\Config($xml);
     apc_store('config', $config);
 }
 

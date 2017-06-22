@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Auth\Adapter;
 
-use Balloon\Auth\Exception;
-use Balloon\Auth\Adapter\Basic\Ldap;
-use Balloon\Ldap as LdapServer;
-use Balloon\Config;
+use \Balloon\Auth\Exception;
+use \Balloon\Auth\Adapter\Basic\Ldap;
+use \Balloon\Ldap as LdapServer;
+use \Micro\Config;
 
 class Preauth extends Ldap implements AdapterInterface
 {

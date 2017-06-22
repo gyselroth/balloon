@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Auth\Adapter;
 
-use Balloon\Config;
+use \Micro\Config;
 use \Psr\Log\LoggerInterface as Logger;
 
 interface AdapterInterface

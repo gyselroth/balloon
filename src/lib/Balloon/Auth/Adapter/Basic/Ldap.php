@@ -11,11 +11,11 @@ declare(strict_types=1);
 
 namespace Balloon\Auth\Adapter\Basic;
 
-use Balloon\Auth\Exception;
+use \Balloon\Auth\Exception;
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Config;
-use Balloon\Ldap as LdapServer;
-use Balloon\Auth\Adapter\AdapterInterface;
+use \Micro\Config;
+use \Balloon\Ldap as LdapServer;
+use \Balloon\Auth\Adapter\AdapterInterface;
 
 class Ldap extends LdapServer implements AdapterInterface
 {

@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Filesystem;
-use Balloon\Exception;
-use Balloon\Filesystem\Node\Collection;
+use \Balloon\Filesystem;
+use \Balloon\Exception;
+use \Balloon\Filesystem\Node\Collection;
 use \MongoDB\BSON\ObjectID;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\Binary;

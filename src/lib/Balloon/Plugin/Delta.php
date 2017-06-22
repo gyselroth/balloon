@@ -11,11 +11,11 @@ declare(strict_types=1);
 
 namespace Balloon\Plugin;
 
-use Balloon\User;
-use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\INode;
-use Balloon\Filesystem;
+use \Balloon\User;
+use \Balloon\Filesystem\Node\Collection;
+use \Balloon\Filesystem\Node\File;
+use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectID;
 
 class Delta extends AbstractPlugin

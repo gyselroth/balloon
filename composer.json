@@ -18,6 +18,7 @@
     },
     "require": {
         "php": ">=7.1",
+        "gyselroth/micro": "dev-master",
         "elasticsearch/elasticsearch": "5.*",
         "sabre/dav" : "3.*",
         "grandt/binstring": "0.2.0",

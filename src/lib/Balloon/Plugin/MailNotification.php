@@ -11,12 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon\Plugin;
 
-use Balloon\User;
-use Balloon\Queue\JobInterface;
-use Balloon\Filesystem\Node\INode;
-use Balloon\Resource;
-use Balloon\Filesystem\Node\Collection;
-use Balloon\Queue\Mail;
+use \Balloon\User;
+use \Balloon\Queue\JobInterface;
+use \Balloon\Filesystem\Node\INode;
+use \Balloon\Resource;
+use \Balloon\Filesystem\Node\Collection;
+use \Balloon\Queue\Mail;
 use \Zend\Mail\Message;
 
 class MailNotification extends AbstractPlugin

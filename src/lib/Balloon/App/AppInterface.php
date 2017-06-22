@@ -12,13 +12,13 @@ declare(strict_types=1);
 namespace Balloon\App;
 
 use \Composer\Autoload\ClassLoader as Composer;
-use Balloon\Http\Router;
+use \Micro\Http\Router;
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Auth;
-use Balloon\Filesystem;
-use Balloon\Config;
-use Balloon\Queue;
-use Balloon\Plugin;
+use \Balloon\Auth;
+use \Balloon\Filesystem;
+use \Micro\Config;
+use \Balloon\Queue;
+use \Balloon\Plugin;
 
 interface AppInterface
 {

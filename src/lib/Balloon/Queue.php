@@ -13,8 +13,9 @@ namespace Balloon;
 
 use \MongoDB\Database;
 use \MongoDB\BSON\ObjectId;
-use Balloon\Queue\JobInterface;
+use \Balloon\Queue\JobInterface;
 use \Psr\Log\LoggerInterface as Logger;
+use \Micro\Config;
 
 class Queue
 {

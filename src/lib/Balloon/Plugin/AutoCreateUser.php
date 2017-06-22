@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Plugin;
 
-use Balloon\Exception;
-use Balloon\User;
+use \Balloon\Exception;
+use \Balloon\User;
 use \MongoDB\BSON\Binary;
 use \MongoDB\BSON\UTCDateTime;
 

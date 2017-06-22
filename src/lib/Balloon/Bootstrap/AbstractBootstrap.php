@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Bootstrap;
 
-use Balloon\Config;
-use Balloon\Http\Router;
+use \Micro\Config;
+use \Micro\Http\Router;
 use Composer\Autoload\ClassLoader as Composer;
 
 abstract class AbstractBootstrap

@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Balloon\Queue;
 
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Config;
-use Balloon\Filesystem;
+use \Micro\Config;
+use \Balloon\Filesystem;
 use \MongoDB\Database;
 use \Zend\Mail\Message;
 

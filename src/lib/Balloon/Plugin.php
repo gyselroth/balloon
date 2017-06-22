@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Plugin\PluginInterface;
-use Balloon\Filesystem;
-use Balloon\Plugin\Exception;
+use \Balloon\Plugin\PluginInterface;
+use \Balloon\Filesystem;
+use \Balloon\Plugin\Exception;
 use \Psr\Log\LoggerInterface as Logger;
 
 class Plugin

@@ -11,12 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon\Plugin;
 
-use Balloon\Exception;
-use Balloon\Ldap;
-use Balloon\Filesystem;
-use Balloon\User;
-use Balloon\Filesystem\Node\INode;
-use Balloon\Filesystem\Node\Collection;
+use \Balloon\Exception;
+use \Balloon\Ldap;
+use \Balloon\Filesystem;
+use \Balloon\User;
+use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\Collection;
 
 class LdapAutoShare extends AbstractPlugin
 {

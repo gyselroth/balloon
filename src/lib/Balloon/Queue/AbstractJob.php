@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Queue;
 
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Config;
+use \Micro\Config;
 use \MongoDB\Database;
 
 abstract class AbstractJob implements JobInterface

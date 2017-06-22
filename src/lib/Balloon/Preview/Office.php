@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Preview;
 
-use Balloon\Filesystem\Node\File;
-use Balloon\Config;
+use \Balloon\Filesystem\Node\File;
+use \Micro\Config;
 
 class Office extends Imagick
 {

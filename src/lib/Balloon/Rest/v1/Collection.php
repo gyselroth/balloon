@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon\Rest\v1;
 
-use Balloon\Exception;
-use Balloon\Helper;
-use Balloon\Http\Response;
+use \Balloon\Exception;
+use \Balloon\Helper;
+use \Micro\Http\Response;
 
 class Collection extends Node
 {

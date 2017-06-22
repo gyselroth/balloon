@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Plugin;
 
-use Balloon\Filesystem;
-use Balloon\Exception;
-use Balloon\Filesystem\Node\File;
-use Balloon\Queue\Preview as PreviewJob;
+use \Balloon\Filesystem;
+use \Balloon\Exception;
+use \Balloon\Filesystem\Node\File;
+use \Balloon\Queue\Preview as PreviewJob;
 
 class Preview extends AbstractPlugin
 {

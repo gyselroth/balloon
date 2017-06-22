@@ -1,19 +1,6 @@
 <config version="1.0">
 <production>
   <!--
-    - Elasticsearch
-    -
-    - search.hosts.server[]: elasticsearch server URI
-    - search.index: elasticsearch index name
-    -->
-    <search>
-        <hosts>
-           <server>http://localhost:9200</server>
-        </hosts>
-        <index>balloon</index> 
-    </search>
-
-  <!--
     - MongoDB
     -
     - mongodb.db: The mongodb balloon db name
@@ -35,128 +22,27 @@
     - apps[].confog[]: app specific configurations 
     -->
     <apps>
-        <Api enabled="1" class="\Balloon\App\Api">
+        <Api enabled="1" class="Balloon\App\Elasticsearch">
             <config/>
         </Api>
+
         <Webdav enabled="1" class="\Balloon\App\Webdav">
             <config/>
         </Webdav>
+
         <Share enabled="1" class="\Balloon\App\Share">
             <config/>
-        </Share>
-    </apps>
-
-  <!--
-    - Mail
-    -
-    - mail.class: https://zendframework.github.io/zend-mail/ to get possible mail transporter
-    - mail.config[]: mail transport adapter sepcific settings
-    -->
-    <mail class="\Zend\Mail\Transport\Sendmail">
-         <config/>
-    </mail>
-
-
-  <!--
-    - Log
-    -
-    - log[].enabled: [1|0]
-    - log[].class: Log adapter
-    -    \Balloon\Log\Adapter\File   => Send to file
-    -    \Balloon\Log\Adapter\Syslog => Send to syslog
-    -    \Balloon\Log\Adapter\Stdout => Send to stdout
-    - log[].format: log format string, combine multiple placeholder to form a log message
-    -    %date%    => Date/Time @see date_format
-    -    %context% => Context logging options
-    -    %message% => Log message
-    -    %level%   => Log level
-    - log[].level: log level
-    -    0 => emerg
-    -    1 => alert
-    -    2 => crit
-    -    3 => err
-    -    4 => warn
-    -    5 => notice
-    -    6 => info
-    -    7 => debug
-    -->
-    <log>
-      <!--
-        - File output
-        -
-        - This log adapter sends log messages to a file.
-        -->
-        <file enabled="1" class="\Balloon\Log\Adapter\File">
-            <config>
-                <file>APPLICATION_PATH/log/out.log</file>
-                <date_format>Y-d-m H:i:s</date_format>
-                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
-                <level>7</level>
-            </config>
-        </file>
-        
-      <!--
-        - Stdout output
-        -
-        - This log adapter sends log messages to stdout (Usually only useful for cli)
-        -->
-        <stdout enabled="0" class="\Balloon\Log\Adapter\Stdout">  
-            <config>
-                <date_format>Y-d-m H:i:s</date_format>
-                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
-                <level>7</level>
-            </config>
-        </stdout>
-        
-      <!--
-        - Syslog
-        -
-        - This log adapter sends log messages to syslog.
-        -->
-        <syslog enabled="0" class="\Balloon\Log\Adapter\Syslog">  
-            <config>
-                <date_format>Y-d-m H:i:s</date_format>
-                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
-                <level>7</level>
-                <ident>balloon</ident>
-            </config>
-        </syslog>
-    </log>
-
-  <!--
-    - Temp
-    -
-    - dir.temp: Temporary folder
-    -->
-    <dir>
-        <temp>/tmp/balloon</temp>
-    </dir>
+        </Share> 
     
-  <!--
-    - File options
-    -
-    - file.max_version: As soon as a specific version is hit, then balloon will beginn to overwrite versions from the beginning
-    - file.max_size: The maximum allowed file size (Attention there are some other limits which could take effect like Webserver max body oder PHP memory limits)
-    -->
-    <file>
-        <max_version>8</max_version>
-        <max_size>1073741824</max_size>
-    </file>
+        <elasticsearch enabled="1" class="\Balloon\App\Elasticsearch">
+            <config>
+                <hosts>
+                    <server>http://localhost:9200</server>
+                </hosts>
+                <index>balloon</index> 
+            </config>
+        </elasticsearch>
 
-  <!--
-    - Plugins (Hooks)
-    -
-    - plugin[].enabled: [1|0]
-    - plugin[].class: The plugin class name
-    -    \Balloon\Plugin\Preview: Creates file previews
-    -    \Balloon\Plugin\MailNotification: Sends mail notifications after certain events
-    -    \Balloon\Plugin\Delta: Adds for each fs modification a new operation entry to mongodb delta collection
-    -    \Balloon\Plugin\Destroyer: Auto removal of nodes with expired destroy timestamp
-    -    \Balloon\Plugin\CleanTemp: Cleans up the temporary directory during the execution of the task manager
-    -    \Balloon\Plugin\CleanTrash: Cleans up trash folders from all users during the execution of the task manager
-    -    \Balloon\Plugin\LdapAutoShare: Creates automatic shares with the help of ldap objects
-    -->
-    <plugins>
       <!--
         - Preview generator
         - 
@@ -211,7 +97,7 @@
         - Usually this plugin is disabled in this configuration but enabled in cli.xml.
         - This plugin has no configuration options.
         -->
-        <destroyer enabled="1" class="\Balloon\Plugin\Destroyer">
+        <destroyer enabled="0" class="\Balloon\Plugin\Destroyer">
              <config/>
         </destroyer>
 
@@ -232,7 +118,7 @@
         - plugin[].config.force_check_owner: UID of the webserver owner (Will only remove files which match this configured owner)
         - plugin[].config.max_age: Files older than than max_age in seconds will be removed
         -->
-        <clean_temp enabled="1" class="\Balloon\Plugin\CleanTemp">
+        <clean_temp enabled="0" class="\Balloon\Plugin\CleanTemp">
             <config>
                 <dir>/tmp/balloon</dir>
                 <force_check_owner>33</force_check_owner>
@@ -245,7 +131,7 @@
         - 
         - plugin[].config.max_age: After how many secconds a deleted node gets removed completely
         -->
-        <clean_trash enabled="1" class="\Balloon\Plugin\CleanTrash">
+        <clean_trash enabled="0" class="\Balloon\Plugin\CleanTrash">
             <config>
                 <max_age>2592000</max_age>
             </config>
@@ -258,7 +144,7 @@
         - With this plugin you can set default user values but only during creating the user.
         - Afterwards the user attribute map will override those values if an attribute was configured in the map.
         -->
-        <auto_create_user enabled="1" class="\Balloon\Plugin\AutoCreateUser">
+        <auto_create_user enabled="0" class="\Balloon\Plugin\AutoCreateUser">
             <config>
                 <attributes>
                     <soft_quota type="int" value="10000000"/>
@@ -332,7 +218,104 @@
                 </shares>
             </config>    
         </auto_share>
-    </plugins>
+    </apps>
+
+  <!--
+    - Mail
+    -
+    - mail.class: https://zendframework.github.io/zend-mail/ to get possible mail transporter
+    - mail.config[]: mail transport adapter sepcific settings
+    -->
+    <mail class="\Zend\Mail\Transport\Sendmail">
+         <config/>
+    </mail>
+
+
+  <!--
+    - Log
+    -
+    - log[].enabled: [1|0]
+    - log[].class: Log adapter
+    -    \Micro\Log\Adapter\File   => Send to file
+    -    \Micro\Log\Adapter\Syslog => Send to syslog
+    -    \Micro\Log\Adapter\Stdout => Send to stdout
+    - log[].format: log format string, combine multiple placeholder to form a log message
+    -    %date%    => Date/Time @see date_format
+    -    %context% => Context logging options
+    -    %message% => Log message
+    -    %level%   => Log level
+    - log[].level: log level
+    -    0 => emerg
+    -    1 => alert
+    -    2 => crit
+    -    3 => err
+    -    4 => warn
+    -    5 => notice
+    -    6 => info
+    -    7 => debug
+    -->
+    <log>
+      <!--
+        - File output
+        -
+        - This log adapter sends log messages to a file.
+        -->
+        <file enabled="1" class="\Micro\Log\Adapter\File">
+            <config>
+                <file>APPLICATION_PATH/log/out.log</file>
+                <date_format>Y-d-m H:i:s</date_format>
+                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
+                <level>7</level>
+            </config>
+        </file>
+        
+      <!--
+        - Stdout output
+        -
+        - This log adapter sends log messages to stdout (Usually only useful for cli)
+        -->
+        <stdout enabled="0" class="\Micro\Log\Adapter\Stdout">  
+            <config>
+                <date_format>Y-d-m H:i:s</date_format>
+                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
+                <level>7</level>
+            </config>
+        </stdout>
+        
+      <!--
+        - Syslog
+        -
+        - This log adapter sends log messages to syslog.
+        -->
+        <syslog enabled="0" class="\Micro\Log\Adapter\Syslog">  
+            <config>
+                <date_format>Y-d-m H:i:s</date_format>
+                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
+                <level>7</level>
+                <ident>balloon</ident>
+            </config>
+        </syslog>
+    </log>
+
+  <!--
+    - Temp
+    -
+    - dir.temp: Temporary folder
+    -->
+    <dir>
+        <temp>/tmp/balloon</temp>
+    </dir>
+    
+  <!--
+    - File options
+    -
+    - file.max_version: As soon as a specific version is hit, then balloon will beginn to overwrite versions from the beginning
+    - file.max_size: The maximum allowed file size (Attention there are some other limits which could take effect like Webserver max body oder PHP memory limits)
+    -->
+    <file>
+        <max_version>8</max_version>
+        <max_size>1073741824</max_size>
+    </file>
 
   <!--
     - Authentication

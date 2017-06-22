@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Auth\Adapter;
 
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Config;
+use \Micro\Config;
 
 class None implements AdapterInterface
 {

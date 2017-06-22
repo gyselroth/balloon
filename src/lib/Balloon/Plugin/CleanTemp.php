@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Plugin;
 
-use Balloon\Exception;
-use Balloon\Filesystem;
+use \Balloon\Exception;
+use \Balloon\Filesystem;
 
 class CleanTemp extends AbstractPlugin
 {

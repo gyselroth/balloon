@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Preview;
 
 use \Psr\Log\LoggerInterface as Logger;
-use Balloon\Preview;
+use \Balloon\Preview;
 
 class AbstractPreview implements PreviewInterface
 {

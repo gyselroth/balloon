@@ -11,13 +11,13 @@ declare(strict_types=1);
 
 namespace Balloon\Bootstrap;
 
-use Balloon\Http\Router;
-use Balloon\Http\Response;
-use Balloon\User;
-use Balloon\Auth;
-use Balloon\Auth\Adapter\None as AuthNone;
-use Balloon\App\AppInterface;
-use Balloon\Config;
+use \Micro\Http\Router;
+use \Micro\Http\Response;
+use \Balloon\User;
+use \Balloon\Auth;
+use \Balloon\Auth\Adapter\None as AuthNone;
+use \Balloon\App\AppInterface;
+use \Micro\Config;
 
 class Http extends AbstractCore
 {
@@ -91,10 +91,19 @@ class Http extends AbstractCore
      */
     protected function loadApps(): bool
     {
-        foreach ($this->option_apps as $name => $app) {
-            $this->composer->addPsr4("Balloon\\App\\$name\\", APPLICATION_PATH."/src/app/$name/src/lib");
+        foreach ($this->option_apps as $app) {
+            $ns = (string)$app->class;
+            $name = substr($ns, strrpos($ns, '\\') + 1);
+            $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$name/src/lib");
+            #$this->composer->addPsr4('Balloon\\App\\Elasticsearch\\', APPLICATION_PATH."/src/app/Elasticsearch/src/lib");
             
-            $class = (string)$app->class;
+
+
+##var_dump($name);
+#var_dump($ns.'\\');
+#var_dump(APPLICATION_PATH."/src/app/$name/src/lib");
+            $class = $ns.'\\Init';
+#var_dump($class);
 
             if (isset($app['enabled']) && $app['enabled'] != "1") {
                 $this->logger->debug('skip disabled app ['.$class.']', [
