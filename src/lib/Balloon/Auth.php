@@ -105,7 +105,7 @@ class Auth
                         $this->logger->info("user [{$adapter->getIdentity()}] authenticated over [{$class}]", [
                             'category' => get_class($this)
                         ]);
-
+                        
                         $this->plugin->run('validAuthentication', [$adapter->getIdentity(), $adapter]);
                         return true;
                     }
@@ -127,7 +127,6 @@ class Auth
         ]);
 
         $this->plugin->run('invalidAuthentication', [$adapters]);
-        
         if (isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] == '_logout') {
             (new Response())
                 ->setCode(401)

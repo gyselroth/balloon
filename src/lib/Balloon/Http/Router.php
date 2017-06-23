@@ -17,6 +17,7 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Http\Router\Route;
 use \ReflectionMethod;
 use \Micro\Http\Router as MicroRouter;
+use \Micro\Http\Response;
 
 class Router extends MicroRouter
 {
@@ -37,7 +38,8 @@ class Router extends MicroRouter
 
         switch (get_class($exception)) {
            case 'Balloon\\Exception\\InvalidArgument':
-           case 'Balloon\\Exception\\Conflict':
+           case 'Balloon\\Exception\\InvalidArgument':
+           case 'Micro\\Http\\Exception':
                $code = 400;
            break;
            case 'Balloon\\Exception\\NotFound':

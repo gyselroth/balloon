@@ -11,13 +11,13 @@ declare(strict_types=1);
 
 namespace Balloon\App\Office\Rest\v1;
 
-use Balloon\Exception;
-use Balloon\Controller;
-use Balloon\App\Office\Document;
-use Balloon\App\Office\Session as WopiSession;
-use Balloon\App\Office\Session\Member;
-use Balloon\Http\Response;
-use MongoDB\BSON\ObjectId;
+use \Balloon\Exception;
+use \Balloon\Controller;
+use \Balloon\App\Office\Document;
+use \Balloon\App\Office\Session as WopiSession;
+use \Balloon\App\Office\Session\Member;
+use \Balloon\Http\Response;
+use \MongoDB\BSON\ObjectId;
 
 class Session extends Controller
 {
