@@ -92,7 +92,7 @@ class Http extends AbstractCore
     protected function loadApps(): bool
     {
         foreach ($this->option_apps as $app) {
-            $ns = (string)$app->class;
+            $ns = ltrim((string)$app->class, '\\');
             $name = substr($ns, strrpos($ns, '\\') + 1);
             $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$name/src/lib");
             #$this->composer->addPsr4('Balloon\\App\\Elasticsearch\\', APPLICATION_PATH."/src/app/Elasticsearch/src/lib");

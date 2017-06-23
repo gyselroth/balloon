@@ -1,0 +1,27 @@
+{
+  "app": {
+    "office": {
+      "session": {
+        "prompt": {
+          "title": "Join?",
+          "new": "Start new session",
+          "join": "Join session",
+          "message_one": "There is already an ongoing session for the document %s startet by user %s %s ago. Would you like to join?",
+          "message_select": "There are multiple session runnning for the document %s. Would you like to join one?",
+          "message_select_by_user": "Session started by %s %s ago"
+        }
+      },
+      "close_edit_file": "Did you save the document or would you like to close this window without saving the document?",
+      "startup_prompt": {
+        "title": "Information",
+        "message": "This app is an integration of the office suite Libre Office with collaboration features. You can open and edit text, spreadsheet and presentation documents. Multiple user can open and edit a shared document at the same time.<br/>This app is currently Beta stage if you encounter any problems please try again later or download the document and open it locally.",
+        "dont_show_again": "Don't show again",
+        "close": "Close"
+      },
+      "text_document": "Text document",
+      "word_document": "Word document",
+      "excel_document": "Excel document",
+      "powerpoint_document": "Powerpoint document"
+    }
+  }
+}

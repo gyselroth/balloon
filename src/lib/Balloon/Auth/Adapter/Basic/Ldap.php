@@ -14,7 +14,7 @@ namespace Balloon\Auth\Adapter\Basic;
 use \Balloon\Auth\Exception;
 use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Config;
-use \Balloon\Ldap as LdapServer;
+use \Micro\Ldap as LdapServer;
 use \Balloon\Auth\Adapter\AdapterInterface;
 
 class Ldap extends LdapServer implements AdapterInterface
@@ -109,7 +109,7 @@ class Ldap extends LdapServer implements AdapterInterface
      * @param   Iterable
      * @return  Ldap
      */
-    public function setOptions(?Iterable $config): LdapServer
+    public function setOptions(?Iterable $config=null): LdapServer
     {
         if ($config === null) {
             return $this;

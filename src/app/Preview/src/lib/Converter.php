@@ -9,14 +9,13 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon;
+namespace Balloon\App\Preview;
 
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Preview\PreviewInterface;
-use \Balloon\Preview\Exception;
+use \Balloon\App\Preview\Converter\ConverterInterface;
 use \Psr\Log\LoggerInterface as Logger;
 
-class Preview
+class Converter
 {
     /**
      * Logger
@@ -68,8 +67,8 @@ class Preview
 
             $instance = new $class($this->logger, $converter->config);
 
-            if (!($instance instanceof PreviewInterface)) {
-                throw new Exception('preview converter does not implement \Balloon\Preview\PreviewInterface');
+            if (!($instance instanceof ConverterInterface)) {
+                throw new Exception('preview converter does not implement \Balloon\App\Preview\Converter\ConverterInterface');
             }
 
             $this->converter[$class] = $instance;
@@ -83,9 +82,9 @@ class Preview
      * Return converter
      *
      * @param  string $class
-     * @return PreviewInterface
+     * @return ConverterInterface
      */
-    public function getConverter(string $class): PreviewInterface
+    public function getConverter(string $class): ConverterInterface
     {
         if (array_key_exists($class, $this->converter)) {
             throw new Exception('preview converter '.$class.' is not registered');

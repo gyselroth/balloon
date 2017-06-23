@@ -1,0 +1,46 @@
+#fs-new-file {
+    left: 40px;
+    padding: 5px;
+    position: absolute;
+    top: 0;
+    width: 170px;
+    z-index: 5;
+}
+
+#fs-new-file .fs-i-file-add {
+    float: left;
+    background-color: #f4f4f4;
+    opacity: 1;
+    transition: none;
+    height: 28px;
+    margin-left: 2px;
+}
+
+#fs-new-file ul {
+    background-color: #f4f4f4;
+    margin: -28px 0 0 23px;
+    padding: 4px 8px 8px;    
+    width: 170px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+#fs-new-file li {
+    clear: both;
+    padding: 0 0 25px;
+    cursor: pointer;
+}
+
+#fs-new-file li:hover {
+    color: #666;
+}
+
+#fs-new-file span {
+    float: left;
+    line-height: 27px;
+}
+
+#fs-office-join-prompt ul {
+    margin-top: 10px;
+}

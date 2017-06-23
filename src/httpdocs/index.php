@@ -21,7 +21,7 @@ set_include_path(implode(PATH_SEPARATOR, [
 
 $composer = require 'vendor/autoload.php';
 
-if (apc_exists('config')) {
+if (extension_loaded('apc') && apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
     $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
@@ -31,7 +31,10 @@ if (apc_exists('config')) {
     }
     
     $config = new \Micro\Config($xml);
-    apc_store('config', $config);
+
+    if(extension_loaded('apc')) {
+        apc_store('config', $config);
+    }
 }
 
 new \Balloon\Bootstrap\Http($composer, $config);

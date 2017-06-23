@@ -9,11 +9,12 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Preview;
+namespace Balloon\App\Preview;
 
 use \Balloon\Filesystem\Node\File;
 use \Imagick as SystemImagick;
 use \Micro\Config;
+use \Balloon\App\Preview\Exception;
 
 class Imagick extends AbstractPreview
 {

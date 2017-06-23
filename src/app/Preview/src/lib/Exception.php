@@ -1,6 +1,4 @@
 <?php
-declare(strict_types=1);
-
 /**
  * Balloon
  *
@@ -9,7 +7,7 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Preview;
+namespace Balloon\App\Preview;
 
 class Exception extends \Balloon\Exception
 {

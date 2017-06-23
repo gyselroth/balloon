@@ -17,6 +17,7 @@ use \Balloon\Auth\Adapter\AdapterInterface;
 use \MongoDB\Database;
 use \MongoDB\BSON\Binary;
 use \Psr\Log\LoggerInterface as Logger;
+use \Micro\Http\Response;
 
 class Auth
 {
@@ -128,7 +129,7 @@ class Auth
         $this->plugin->run('invalidAuthentication', [$adapters]);
         
         if (isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] == '_logout') {
-            (new \Balloon\Http\Response())
+            (new Response())
                 ->setCode(401)
                 ->setBody('Unauthorized')
                 ->send();
@@ -139,7 +140,7 @@ class Auth
                 $code = 401;
             }
 
-            (new \Balloon\Http\Response())
+            (new Response())
                 ->setHeader('WWW-Authenticate', 'Basic realm="balloon"')
                 ->setCode($code)
                 ->setBody('Unauthorized')

@@ -35,9 +35,11 @@
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
-        "ext-apc": "*",
         "zendframework/zend-mail": "2.7.*",
         "league/oauth2-server": "2.1.3"
+    },
+    "suggest": {
+        "ext-apc": "Allows caching configuration which gives more performance"
     },
     "require-dev": {
         "phpunit/phpunit": "5.7.*",

@@ -1,3 +1,7 @@
+***1.00 -> 2.00
+Config: replace ldap configuration <host> with <uri>, and remove port
+
+
 ***0.4 -> 1.0.0
 
 **Server
@@ -20,7 +24,6 @@
  db.delta.createIndex({"owner": 1})
  db.delta.createIndex({"timestamp": 1})
  db.delta.createIndex({"node": 1})
-
 
 (MongoDB > 3.0)
  db.storage.updateMany({'deleted': true},{$set: {'deleted': new Date()}})

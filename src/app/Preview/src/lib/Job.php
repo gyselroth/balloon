@@ -9,15 +9,15 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Queue;
+namespace Balloon\App\Preview;
 
 use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Config;
 use \Balloon\Filesystem;
 use \MongoDB\Database;
-use \Balloon\Preview as PreviewCreator;
+use \Balloon\Preview as Previewreator;
 
-class Preview extends AbstractJob
+class Job extends AbstractJob
 {
     /**
      * Run job

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon;
 
 use \Psr\Log\LoggerInterface as Logger;
+use \Micro\Config;
 
 class Controller
 {

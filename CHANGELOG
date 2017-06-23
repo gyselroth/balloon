@@ -3,6 +3,8 @@ CHANGELOG
 2.0.0 dev - Raffael Sahli <sahli@gyselroth.com>
 Thu June 22 15:04:32 CET 2017
 --
+CORE: [CHANE] php ext apc is now optional (cache configuration)
+CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
 Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 
 

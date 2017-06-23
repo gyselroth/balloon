@@ -9,12 +9,11 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Preview;
+namespace Balloon\App\Preview\Converter;
 
 use \Psr\Log\LoggerInterface as Logger;
-use \Balloon\Preview;
 
-class AbstractPreview implements PreviewInterface
+class AbstractConverter implements ConverterInterface
 {
 
     /**
