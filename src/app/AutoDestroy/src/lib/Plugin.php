@@ -9,13 +9,14 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Plugin;
+namespace Balloon\App\AutoDestroy;
 
 use \Balloon\Filesystem;
 use \Balloon\Exception;
 use \MongoDB\BSON\UTCDateTime;
+use \Balloon\Plugin\AbstractPlugin;
 
-class Destroyer extends AbstractPlugin
+class Plugin extends AbstractPlugin
 {
     /**
      * Execute plugin

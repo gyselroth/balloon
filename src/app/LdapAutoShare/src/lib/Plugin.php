@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Plugin;
+namespace Balloon\App\LdapAutoShare;
 
 use \Balloon\Exception;
 use \Balloon\Ldap;
@@ -17,8 +17,10 @@ use \Balloon\Filesystem;
 use \Balloon\User;
 use \Balloon\Filesystem\Node\INode;
 use \Balloon\Filesystem\Node\Collection;
+use \Balloon\Plugin\AbstractPlugin;
+use \Balloon\Plugin\PluginInterface;
 
-class LdapAutoShare extends AbstractPlugin
+class Plugin extends AbstractPlugin
 {
     /**
      * Filesystem

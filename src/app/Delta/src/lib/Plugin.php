@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Plugin;
+namespace Balloon\App\Delta;
 
 use \Balloon\User;
 use \Balloon\Filesystem\Node\Collection;
@@ -17,8 +17,9 @@ use \Balloon\Filesystem\Node\File;
 use \Balloon\Filesystem\Node\INode;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectID;
+use \Balloon\Plugin\AbstractPlugin;
 
-class Delta extends AbstractPlugin
+class Plugin extends AbstractPlugin
 {
     /**
      * Client

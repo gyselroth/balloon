@@ -23,17 +23,7 @@ class Init extends AbstractApp
      */
     public function init(): bool
     {
-        return true;
-    }
-
-
-    /**
-     * Start
-     *
-     * @return bool
-     */
-    public function start(): bool
-    {
+        $this->pluginmgr->registerPlugin('\Balloon\App\LdapAutoShare\Plugin', null);
         return true;
     }
 }

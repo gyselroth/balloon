@@ -21,15 +21,15 @@ set_include_path(implode(PATH_SEPARATOR, [
 
 $composer = require 'vendor/autoload.php';
 
-$xml = new \Balloon\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
+$xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
 if (is_readable(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml')) {
-    $local = new \Balloon\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml', APPLICATION_ENV);
+    $local = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml', APPLICATION_ENV);
     $xml->merge($local);
 }
 if (is_readable(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'cli.xml')) {
-    $cli = new \Balloon\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'cli.xml', APPLICATION_ENV);
+    $cli = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'cli.xml', APPLICATION_ENV);
     $xml->merge($cli);
 }
 
-$config = new \Balloon\Config($xml);
+$config = new \Micro\Config($xml);
 new \Balloon\Bootstrap\Cli($composer, $config);

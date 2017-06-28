@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Plugin;
+namespace Balloon\App\Notification;
 
 use \Balloon\User;
 use \Balloon\Queue\JobInterface;
@@ -18,8 +18,10 @@ use \Balloon\Resource;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Queue\Mail;
 use \Zend\Mail\Message;
+use \Balloon\Plugin\AbstractPlugin;
+use \Balloon\Plugin\PluginInterface;
 
-class MailNotification extends AbstractPlugin
+class Plugin extends AbstractPlugin
 {
     /**
      * Notifications

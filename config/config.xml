@@ -33,6 +33,15 @@
         <Sharelink enabled="1" class="\Balloon\App\Sharelink">
             <config/>
         </Sharelink> 
+                
+        <pdfshadow enabled="1" class="\Balloon\App\PdfShadow">
+            <config>
+                <max_size>300</max_size>
+                <timeout>10</timeout>
+                <tmp>/tmp/balloon</tmp>
+                <soffice>/usr/bin/soffice</soffice>
+            </config>
+        </pdfshadow>
     
         <elasticsearch enabled="1" class="\Balloon\App\Elasticsearch">
             <config>

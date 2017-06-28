@@ -7,7 +7,7 @@
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Notification;
+namespace Balloon\App\AutoDestroy;
 
 use \Balloon\User;
 use \Balloon\Filesystem;
@@ -23,7 +23,7 @@ class Init extends AbstractApp
      */
     public function init(): bool
     {
-        $this->pluginmgr->registerPlugin('\Balloon\App\Notification\Plugin', null);
+        $this->pluginmgr->registerPlugin('\Balloon\App\AutoDestroy\Plugin', null);
         return true;
     }
 

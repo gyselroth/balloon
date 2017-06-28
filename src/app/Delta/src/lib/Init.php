@@ -23,9 +23,8 @@ class Init extends AbstractApp
      */
     public function init(): bool
     {
-        #$this->pluginmgr->registerPlugin('\Balloon\App\Preview\Plugin', null);
+        $this->pluginmgr->registerPlugin('\Balloon\App\Delta\Plugin', null);
         #$this->router->prependRoute((new Route('/api/v1/app/office', $this, 'start')));
-
         return true;
     }
 

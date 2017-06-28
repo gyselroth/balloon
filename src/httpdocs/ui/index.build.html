@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title data-i18n="app.title"></title>
+
+    <link rel="icon" sizes="32x32" href="/ui/themes/default/img/favicon/favicon-32.png">
+    <link rel="mask-icon" href="/ui/themes/default/img/favicon/favicon.svg" color="#1e1e1e">
+    <link rel="android-chrome-192" href="/ui/themes/default/img/favicon/android-chrome-192.png">
+    <link rel="apple-touch-icon" href="/ui/themes/default/img/favicon/apple-touch-icon.png">
+    <link rel="favicon" href="/ui/themes/default/img/favicon/favicon.ico">
+    <link rel="favicon-32" sizes="32x32" href="/ui/themes/default/img/favicon/favicon-32.png">
+
+    <link href="/ui/themes/default/css/build.css?v=20170623" media="screen" rel="stylesheet" type="text/css">
+
+    <script type="text/javascript" src="/ui/config.js"></script>
+
+    <script src="/ui/lib/build.js?v=20170623" type="text/javascript"></script>
+</head>
+<body>
+    <div id="login">
+        <div id="login-box">
+            <div id="login-header"><span class="fs-icon fs-i-cloud"></span><span data-i18n="app.title"></span></div>
+            <input type="text" name="username" autocomplete="off" data-i18n="[placeholder]login.username"/>
+            <input type="password" name="password" autocomplete="off" data-i18n="[placeholder]login.password"/>
+            <select id="login-locale"></select>
+            <input type="submit" name="submit" data-i18n="[value]login.login"/>
+            <div id="login-oauth"></div>
+        </div>
+    </div>
+    <div style="display: none;" id="fs-namespace">
+    <div id="fs-browser-properties"></div>
+    <input id="fs-query" name="query" type="hidden" value=""/>
+            
+    <div id="fs-browser-top-bar">
+        <div class="fs-icon fs-i-cloud"></div>
+        <div id="fs-title" data-i18n="app.title"></div>
+
+            <div id="fs-crumb">
+                <ul id="fs-crumb-search-list">
+                    <li fs-id="" id="fs-crumb-search">
+                        <div></div>
+                        <div class="fs-icon fs-i-arrowhead-e"></div>
+                    </li>
+                </ul>
+                <ul id="fs-crumb-home-list">
+                    <li fs-id="" id="fs-crumb-home">
+                        <div data-i18n="menu.cloud"></div>
+                        <div class="fs-icon fs-i-arrowhead-e"></div>
+                    </li>
+                </ul>
+            </div>
+
+
+        <div id="fs-request-success" class="fs-icon fs-i-check"></div>
+        <div id="fs-loader"></div>
+
+        <div id="fs-identity">
+            <div class="fs-icon fs-i-user"></div>
+                <div id="fs-identity-username"></div>
+
+            <div id="fs-identity-menu">
+                <div id="fs-quota" data-i18n="[title]user.disk_space">
+                    <div id="fs-quota-usage"></div>
+                    <div id="fs-quota-total"></div> 
+                </div>
+
+                <ul>
+                    <li id="fs-menu-user-profile"><span class="fs-icon fs-i-user"></span><span data-i18n="login.profile"></span></li>
+                    <li id="fs-menu-user-events"><span class="fs-icon fs-i-alert"></span><span data-i18n="login.events"></span></li>
+                    <li id="fs-menu-user-logout"><span class="fs-icon fs-i-logout"></span><span data-i18n="login.logout"></span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div id="fs-browser-layout" >
+        <div id="fs-menu-left">
+            <ul>
+                <li class="fs-menu-left-active" id="fs-menu-cloud"><div class="fs-icon fs-i-cloud"></div><div data-i18n="menu.cloud"></div></li>
+                <li id="fs-menu-shared_for_me"><div class="fs-icon fs-i-folder-received"></div><div data-i18n="menu.shared_for_me"></div></li>
+                <li id="fs-menu-shared_from_me"><div class="fs-icon fs-i-folder-shared"></div><div data-i18n="menu.shared_from_me"></div></li>
+                <li id="fs-menu-shared_link"><div class="fs-icon fs-i-hyperlink"></div><div data-i18n="menu.shared_link"></div></li>
+                <li id="fs-menu-search"><div class="fs-icon fs-i-search"></div><div data-i18n="menu.search"></div></li>
+                <li id="fs-menu-trash"><div class="fs-icon fs-i-trash"></div><div data-i18n="menu.trash"></div></li>
+            </ul>
+
+            <div id="fs-disclaimer" data-i18n="app.disclaimer"></div>
+        </div>
+        <div id="fs-layout-left">
+            <div id="fs-browser-action">
+                <ul>
+                    <li id="fs-action-menu" class="fs-icon fs-i-menu fs-action-element" data-i18n="[title]nav.action.toggle_menu"></li>
+                    <li id="fs-action-file" class="fs-icon fs-i-file-add fs-action-element fs-action-collection-only" data-i18n="[title]nav.action.add_file"></li>
+                    <li id="fs-action-folder" class="fs-icon fs-i-folder-add fs-action-element fs-action-collection-only" data-i18n="[title]nav.action.add_folder"></li>
+                    <li id="fs-action-upload" class="fs-icon fs-i-cloud-upload fs-action-element fs-action-collection-only" data-i18n="[title]nav.action.upload"></li>
+                    <li id="fs-action-filter" class="fs-icon fs-i-filter fs-action-element fs-action-collection-only" data-i18n="[title]nav.action.filter"></li>
+                </ul>
+    
+                <input name="files[]" id="fs-files" type="file" multiple="multiple"/>
+
+                <div id="fs-action-search">
+                    <div class="fs-icon fs-i-search"></div>
+                    <button id="fs-search-button" type="button"></button>
+                    <input accesskey="s" type="text" data-i18n="[placeholder]nav.action.search"/>
+                    <button id="fs-search-reset-button" type="button">x</button>
+                </div>
+                <div id="fs-action-filter-select">
+                    <div class="fs-icon fs-i-filter"></div>
+                    <div>
+                        <ul>
+                            <li>
+                                <div class="fs-onoffswitch">
+                                    <input type="checkbox" name="directory" class="fs-onoffswitch-checkbox" id="fs-filter-directory" checked>
+                                    <label for="fs-filter-directory" class="fs-onoffswitch-label"/>
+                                </div>
+                                <span data-i18n="tree.filter.directories"></span>
+                            </li>
+                            <li>
+                                <div class="fs-onoffswitch">
+                                    <input type="checkbox" name="file" class="fs-onoffswitch-checkbox" id="fs-filter-file" checked>
+                                    <label for="fs-filter-file" class="fs-onoffswitch-label"/>
+                                </div>
+                                <span data-i18n="tree.filter.files"></span>
+                            </li>
+                            <li>
+                                <div class="fs-onoffswitch">
+                                    <input type="checkbox" name="share" class="fs-onoffswitch-checkbox" id="fs-filter-share" checked>
+                                    <label for="fs-filter-share" class="fs-onoffswitch-label"/>
+                                </div>
+                                <span data-i18n="tree.filter.shares"></span>
+                            </li>
+                            <li>
+                                <div class="fs-onoffswitch">
+                                    <input type="checkbox" name="deleted" class="fs-onoffswitch-checkbox" id="fs-filter-deleted">
+                                    <label for="fs-filter-deleted" class="fs-onoffswitch-label"/>
+                                </div>
+                                <span data-i18n="tree.filter.deleted"></span>
+                            </li>
+                            <li>
+                                <div class="fs-onoffswitch">
+                                    <input type="checkbox" name="hidden" class="fs-onoffswitch-checkbox" id="fs-filter-hidden">
+                                    <label for="fs-filter-hidden" class="fs-onoffswitch-label"/>
+                                </div>
+                                <span data-i18n="tree.filter.hidden"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                <div id="fs-browser">
+                    <div id="fs-browser-fresh" data-i18n="tree.no_nodes"></div>
+                    <div id="fs-browser-header">
+                    <div id="fs-browser-header-name"><div data-i18n="tree.column.name"></div><span class="k-icon k-i-arrow-s"></span></div>
+                    <div id="fs-browser-header-changed"><div data-i18n="tree.column.changed"></div><span></span></div>
+                    <div id="fs-browser-header-size"><div data-i18n="tree.column.size"></div><span></span></div>
+                </div>
+
+                <div id="fs-browser-tree"></div>
+
+                <div id="fs-browser-select-action">
+                    <div id="fs-action-refresh" class="fs-icon fs-i-refresh fs-action-element fs-action-collection-only" data-i18n="[title]nav.action.refresh"></div>
+                    <div id="fs-browser-summary"></div>
+                    <ul>
+                        <li id="fs-action-download" class="fs-action-element fs-action-select-only fs-action-disabled" data-i18n="[title]nav.action.download"><div class="fs-icon fs-i-download"></div></li>
+                        <li id="fs-action-delete" class="fs-action-element fs-action-select-only fs-action-disabled" data-i18n="[title]nav.action.delete"><div class="fs-icon fs-i-trash"></div></li>
+                        <li id="fs-action-restore" class="fs-action-element fs-action-select-only fs-action-disabled" data-i18n="[title]nav.action.restore"><div class="fs-icon fs-i-restore-trash"></div></li>
+                        <li id="fs-action-copy" class="fs-action-element fs-action-select-only" data-i18n="[title]nav.action.copy"><div class="fs-icon fs-i-copy"></div></li>
+                        <li id="fs-action-cut" class="fs-action-element fs-action-select-only" data-i18n="[title]nav.action.cut"><div class="fs-icon fs-i-cut"></div></li>
+                        <li id="fs-action-paste" class="fs-action-element fs-action-select-only fs-action-disabled" data-i18n="[title]nav.action.paste"><div class="fs-icon fs-i-paste"></div></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="fs-upload"></div>
+        </div>
+
+        <div id="fs-content">
+            <div id="fs-properties-name">
+                <div class="fs-icon"></div>
+                <span class="fs-value"></span>
+                <span class="fs-ext"></span>
+                <div class="fs-icon fs-i-pencil"></div>
+            </div>
+
+            <div id="fs-view-bar">
+                <ul>
+                    <li id="fs-view-preview">
+                        <span class="fs-action-bar-active" data-i18n="nav.view.preview"></span>
+                    </li>
+                    <li id="fs-view-properties">
+                        <span data-i18n="nav.view.properties"></span>
+                    </li>
+                    <li id="fs-view-history">
+                        <span data-i18n="nav.view.history"></span>
+                    </li>
+                    <li id="fs-view-share-collection">
+                        <span data-i18n="nav.view.share_folder"></span>
+                    </li>
+                    <li id="fs-view-share-link">
+                        <span data-i18n="nav.view.share_link"></span>
+                    </li>
+                    <li id="fs-view-events">
+                        <span data-i18n="nav.view.events"></span>
+                    </li>
+                    <li id="fs-view-advanced">
+                        <span data-i18n="nav.view.advanced"></span>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="fs-content-data">
+                <div class="fs-view-content" id="fs-properties">
+                    <fieldset id="fs-properties-fixed">
+                        <table>
+                            <tbody id="fs-properties-collection">
+                                <tr>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tbody>
+                            <tbody id="fs-properties-file">
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.version"></th>
+                                    <td id="fs-properties-version"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.hash"></th>
+                                    <td id="fs-properties-hash"><span class="fs-value"></span></td>
+                                </tr>
+                            </tbody>
+                            <tbody id="fs-properties-node">
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.deleted"></th>
+                                    <td id="fs-properties-deleted"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.created"></th>
+                                    <td id="fs-properties-created"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.changed"></th>
+                                    <td id="fs-properties-changed"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.mime"></th>
+                                    <td id="fs-properties-mime"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.size"></th>
+                                    <td id="fs-properties-size"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.id"></th>
+                                    <td id="fs-properties-id"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr>
+                                    <th data-i18n="view.prop.head.path"></th>
+                                    <td id="fs-properties-path"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.contains"></th>
+                                    <td id="fs-properties-childcount"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.changed"></th>
+                                    <td id="fs-properties-changed"><span class="fs-value"></span></td>
+                                </tr>
+                                <tr class="fs-searchable">
+                                    <th data-i18n="view.prop.head.share"></th>
+                                    <td id="fs-properties-share">
+                                        <div class="fs-icon fs-i-folder-shared"></div> 
+                                        <div class="fs-value"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </fieldset>
+
+                    <fieldset id="fs-properties-editable">
+                        <table>
+                            <tr class="fs-editable">
+                                <th data-i18n="view.prop.head.description"></th>
+                                <td id="fs-properties-description"><textarea></textarea></td>
+                            </tr>
+                            <tr class="fs-editable">
+                                <th data-i18n="view.prop.head.coordinate"></th>
+                                <td id="fs-properties-coordinate"><input type="text"/></td>
+                            </tr>
+                            <tr class="fs-editable">
+                                <th data-i18n="view.prop.head.copyright"></th>
+                                <td id="fs-properties-copyright"><input type="text"/></td>
+                            </tr>
+                            <tr class="fs-editable">
+                                <th data-i18n="view.prop.head.author"></th>
+                                <td id="fs-properties-author"><input type="text"/></td>
+                            </tr>
+                            <tr class="fs-editable">
+                                <th data-i18n="view.prop.head.license"></th>
+                                <td id="fs-properties-license"><input type="text"/></td>
+                            </tr>
+                        </table> 
+                    </fieldset>           
+                </div>
+                <div class="fs-view-content" id="fs-preview">
+                    <div id="fs-preview-thumb">
+                        <div></div>
+                    </div>
+
+                    <div id="fs-preview-properties">
+                        <div>
+                            <div data-i18n="view.prop.head.tags"></div>
+                            <div class="fs-add fs-icon fs-i-add"></div>
+                            <div id="fs-preview-add-tag"><input type="text" name="add_tag"/></div>
+                            <div id="fs-properties-meta-tags">
+                                <ul></ul>
+                            </div>
+                        </div>
+    
+                        <div>
+                            <div data-i18n="view.prop.head.color_tag"></div>
+                            <div id="fs-properties-meta-color">
+                                <ul>
+                                    <li style="background-color: #FF4D8D" class="fs-color-FF4D8D"></li>
+                                    <li style="background-color: #854DFF" class="fs-color-854DFF"></li>
+                                    <li style="background-color: #4DC9FF" class="fs-color-4DC9FF"></li>
+                                    <li style="background-color: #4DFF88" class="fs-color-4DFF88"></li>
+                                    <li style="background-color: #FFE14D" class="fs-color-FFE14D"></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fs-view-content" id="fs-history">
+                    <ul></ul>
+                    <input type="submit" name="restore" data-i18n="[value]view.history.restore">
+                </div>
+                <div class="fs-view-content" id="fs-share-collection">
+                    <p class="fs-hint" data-i18n="view.share.hint_add"></p>
+                    <div>
+                        <input type="text" name="share_role" data-i18n="[placeholder]view.share.search_user">
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th data-i18n="view.share.resource"></th>
+                                <th data-i18n="view.share.full_access"></th>
+                                <th data-i18n="view.share.ro"></th>
+                                <th data-i18n="view.share.wo"></th>
+                                <th data-i18n="view.share.wp"></th>
+                                <th></th>
+                            </tr>                                                            
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <div>
+                        <input type="submit" name="share" data-i18n="[value]view.share.create"/> 
+                    </div>
+                    <div class="fs-share-remove">
+                        <p class="fs-hint" data-i18n="view.share.hint_remove"></p>   
+                        <input type="submit" name="unshare" data-i18n="[value]view.share.delete"/> 
+                    </div>
+                </div>
+                <div class="fs-view-content" id="fs-share-link">
+                    <p class="fs-hint" data-i18n="view.share.hint_create_url"></p>
+                    <div id="fs-link-options">
+                        <div>
+                            <input type="text" readonly="readonly" name="file_url">
+                        </div>
+                    </div>
+                    <div>
+                        <p data-i18n="view.share.expiration"></p>
+                        <input type="text" name="share_expiration"> 
+                    </div>
+                    <div>
+                        <p data-i18n="view.share.password"></p>
+                        <input type="password" name="share_password"> 
+                    </div>
+                    <div>
+                        <input type="submit" name="share" data-i18n="[value]view.share.create"/> 
+                    </div>
+                    <div class="fs-share-remove">
+                        <p class="fs-hint" data-i18n="view.share.hint_remove_url"></p>
+                        <input type="submit" name="unshare" data-i18n="[value]view.share.delete"/> 
+                    </div>                    
+                </div>
+                <div class="fs-view-content" id="fs-events">
+                    <ul></ul>
+                </div>
+                <div class="fs-view-content" id="fs-advanced">
+                    <div>
+                        <p data-i18n="view.advanced.destroyable"></p>
+                        <input type="text" name="destroy_at"> 
+                    </div>
+                    <div>
+                        <p data-i18n="view.advanced.readonly"></p>
+                        <div class="fs-onoffswitch">
+                           <input type="checkbox" name="readonly" class="fs-onoffswitch-checkbox" id="fs-readonly">
+                           <label for="fs-readonly" class="fs-onoffswitch-label"/>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="submit" name="submit" data-i18n="[value]view.advanced.save"/> 
+                    </div>
+                </div>
+            </div> 
+        </div>     
+    </div>
+
+    <div id="fs-upload-progress">
+        <div id="fs-upload-progress-bar">
+            <div></div>
+        </div>
+        <div id="fs-upload-progress-more">
+            <div id="fs-upload-details" data-i18n="uploadmgr.details"></div>
+            <span> | </span>
+            <div id="fs-upload-info"></div>
+            <span> | </span>
+            <span>0%</span>
+        </div>
+     </div>
+    
+    <div id="fs-edit-live">
+        <textarea></textarea>
+        <input type="submit" data-i18n="[value]view.preview.save">
+    </div>
+    
+    <div id="fs-display-live">
+        <div id="fs-display-left"></div>
+        <div id="fs-display-content"></div>
+        <div id="fs-display-right"></div>
+    </div>
+    
+    <div id="fs-event-window" data-i18n="[title]login.events">
+        <ul></ul>
+    </div>
+    
+    <div id="fs-profile-window" data-i18n="[title]login.profile">
+        <div id="fs-profile-avatar"></div>
+
+        <fieldset id="fs-profile-quota">
+            <label data-i18n="profile.quota"></label>
+            <div id="fs-profile-quota-bar"></div>
+            <table>
+                <tr id="fs-profile-quota-max">
+                    <th data-i18n="profile.quota_max"></th>
+                    <td></td>
+                </tr>
+                <tr id="fs-profile-quota-used">
+                    <th data-i18n="profile.quota_used"></th>
+                    <td></td>
+                </tr>
+                <tr id="fs-profile-quota-left">
+                    <th data-i18n="profile.quota_left"></th>
+                    <td></td>
+                </tr>
+            </table>
+        </fieldset>
+
+        <fieldset id="fs-profile-user">
+            <label data-i18n="profile.user"></label>
+            <table></table>
+        </fieldset>
+    </div>
+
+    <div id="fs-error-window" data-i18n="[title]error.error">
+        <fieldset id="fs-error-single">
+            <div data-i18n="error.hint_single"></div>
+            <table>
+                <tr>
+                    <th data-i18n="error.status"></th>
+                    <td id="fs-error-status"></td>
+                </tr>
+                <tr>
+                    <th data-i18n="error.classification"></th>
+                    <td id="fs-error-error"></td>
+                </tr>
+                <tr>
+                    <th data-i18n="error.code"></th>
+                    <td id="fs-error-code"></td>
+                </tr>
+                <tr>
+                    <th data-i18n="error.message"></th>
+                    <td id="fs-error-message"></td>
+                </tr>
+            </table>
+        </fieldset>
+
+        <fieldset id="fs-error-multi">
+            <div data-i18n="error.hint_multi"></div>
+            <ul></ul>
+        </fieldset>
+    </div>
+    
+    <div id="fs-hint-window" class="fs-prompt-window" data-i18n="[title]hint.did_you_know">
+        <div id="fs-hint-window-content"></div>
+        <div id="fs-hint-window-button-wrapper">
+            <input type="button" tabindex="2" name="stop" data-i18n="[value]hint.dont_show_anymore"/>
+            <input type="button" tabindex="1" name="next" data-i18n="[value]hint.next_hint"/>
+        </div>
+    </div>
+    
+    <div id="fs-prompt-window" class="fs-prompt-window" data-i18n="[title]prompt.confirm">
+        <div id="fs-prompt-window-content"></div>
+        <div id="fs-prompt-window-button-wrapper">
+            <input type="button" tabindex="2" name="confirm" data-i18n="[value]prompt.continue"/>
+            <input type="button" tabindex="1" name="cancel" data-i18n="[value]prompt.cancel"/>
+        </div>
+    </div>
+    
+    <iframe style="display: none;" id="fs-fetch-file"></iframe>
+    <div id="fs-status-message"></div>
+
+    <div id="fs-uploadmgr" data-i18n="[title]uploadmgr.uploadmgr" >
+        <div class="fs-uploadmgr-area" data-i18n="uploadmgr.waitlist"></div>
+        <div id="fs-upload-list"></div>
+        <p></p>
+        <div class="fs-uploadmgr-area" data-i18n="uploadmgr.progress"></div>
+        <div id="fs-uploadmgr-total-progress"><div></div></div>
+        
+        <div id="fs-uploadmgr-files"></div>
+        <div id="fs-uploadmgr-files-progress"><div></div></div>
+
+        <div class="fs-uploadmgr-area" data-i18n="uploadmgr.transfer"></div>
+        <div id="fs-uploadmgr-bytes"></div>
+        <div id="fs-uploadmgr-bandwidth">0 B/s</div>
+        <div id="fs-uploadmgr-time"></div>
+        <div class="fs-status-loader fs-status"></div>
+    </div>
+</div>
+</body>
+</html>

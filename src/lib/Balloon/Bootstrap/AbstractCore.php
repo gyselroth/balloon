@@ -82,8 +82,6 @@ abstract class AbstractCore extends AbstractBootstrap
         $this->setErrorHandler();
 
         $this->pluginmgr = new Plugin($this->logger);
-        $this->pluginmgr->registerPlugin($this->option_plugins);
-
         $this->logger->info('connect to mongodb ['.$this->option_mongodb.']', [
             'category' => get_class($this),
         ]);

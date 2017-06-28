@@ -9,14 +9,20 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Plugin;
+namespace Balloon\App\PdfShadow;
 
-use \Balloon\Filesystem;
-use \Balloon\Exception;
+use \Balloon\User;
+use \Balloon\Queue\JobInterface;
+use \Balloon\Filesystem\Node\INode;
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Queue\Preview as PreviewJob;
+use \Balloon\Resource;
+use \Balloon\Filesystem\Node\Collection;
+use \Balloon\Queue\Mail;
+use \Zend\Mail\Message;
+use \Balloon\Plugin\AbstractPlugin;
+use \Balloon\Plugin\PluginInterface;
 
-class Preview extends AbstractPlugin
+class Plugin extends AbstractPlugin
 {
     /**
      * Run: postPutFile
@@ -32,7 +38,7 @@ class Preview extends AbstractPlugin
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
         $queue = $node->getFilesystem()->getQueue();
-        $queue->addJob(new PreviewJob([
+        $queue->addJob(new Job([
             'id' => $node->getId()
         ]));
     }
@@ -50,7 +56,7 @@ class Preview extends AbstractPlugin
     public function postRestoreFile(File $node, int $version): void
     {
         $queue = $node->getFilesystem()->getQueue();
-        $queue->addJob(new PreviewJob([
+        $queue->addJob(new Job([
             'id' => $node->getId()
         ]));
     }

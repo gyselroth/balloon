@@ -15,7 +15,8 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Config;
 use \Balloon\Filesystem;
 use \MongoDB\Database;
-use \Balloon\Preview as Previewreator;
+use \Balloon\App\Preview\Converter;
+use \Balloon\Queue\AbstractJob;
 
 class Job extends AbstractJob
 {
@@ -32,7 +33,7 @@ class Job extends AbstractJob
             'category' => get_class($this),
         ]);
 
-        $preview = new PreviewCreator($logger, $config->plugins->preview->config);
+        $preview = new Converter($logger, $config->plugins->preview->config);
         $content = $preview->create($file);
         $file->setPreview($content);
         return true;
