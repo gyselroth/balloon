@@ -175,7 +175,7 @@ class File extends Node implements INode, DAV\IFile
             $result = $parent->getChild($this->name);
             $result->put($this->get());
         } else {
-            $result = $parent->createFile($name, $this->get(), [
+            $result = $parent->addFile($name, $this->get(), [
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,

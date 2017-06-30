@@ -530,7 +530,7 @@ class File extends Node
                     }
 
                     $name = Helper::filter($name);
-                    $result = $collection->createFile($name, $content, $attributes)->getId(true);
+                    $result = $collection->addFile($name, $content, $attributes)->getId(true);
                     return (new Response())->setCode(201)->setBody($result);
                 }
             }
@@ -550,7 +550,7 @@ class File extends Node
                         throw new Exception\InvalidArgument('name must be a valid string');
                     }
 
-                    $result = $parent->createFile($name, $content, $attributes)->getId(true);
+                    $result = $parent->addFile($name, $content, $attributes)->getId(true);
                     return (new Response())->setCode(201)->setBody($result);
                 } catch (Exception\NotFound $e) {
                     throw new Exception('parent collection '.$parent_path.' was not found');

@@ -64,7 +64,7 @@ class Job extends AbstractJob
         if($parent->childExists($name)) {
             $parent->getChild($name)->put($pdf);
         } else {
-            $parent->createFile($name, $pdf);
+            $parent->addFile($name, $pdf);
         }
 
         return true;

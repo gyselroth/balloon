@@ -9,6 +9,14 @@ Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 
 
 --
+1.0.13 - Raffael Sahli <sahli@gyselroth.com>
+Fri June 30 16:04:32 CET 2017
+--
+CORE: [FIX] added missing node name in Exception\NotFound during requesting child by name
+CORE: [FIX] fixed #40 webdav adding new file return error 500
+
+
+--
 1.0.12 GA - Raffael Sahli <sahli@gyselroth.com>
 Thu June 22 10:04:32 CET 2017
 --
