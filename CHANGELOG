@@ -27,11 +27,11 @@ Webinterface: [CHANGE] client hostname in event log is now more Unknown, if not 
 1.0.10 RC4 - Raffael Sahli <sahli@gyselroth.com>
 Tue June 13 09:30:00 CET 2017
 --
-CORE: [FIX] fixed CloudFS\Exception\Coding Undefined index: acl after unshare share and access request from a member
-CORE: [FIX] CloudFS\Plugin\Delta now works in cli mode as well which is essential for some other plugins (there are now delta entries for destroy,cleantrash,...)
-CORE: [CHANGE] added system client log to system events within CloudFS\Plugin\Delta
+CORE: [FIX] fixed Balloon\Exception\Coding Undefined index: acl after unshare share and access request from a member
+CORE: [FIX] Balloon\Plugin\Delta now works in cli mode as well which is essential for some other plugins (there are now delta entries for destroy,cleantrash,...)
+CORE: [CHANGE] added system client log to system events within Balloon\Plugin\Delta
 CORE: [FIX] fixed invalid editFile delta entry during forceDeleteCollection event
-CORE: [FIX] fixed CloudFS\Exception\Coding Undefined variable: $exists after restoring file content to a version with a 0byte file
+CORE: [FIX] fixed Balloon\Exception\Coding Undefined variable: $exists after restoring file content to a version with a 0byte file
 CORE: [CHANGE] .. and . are now invalid node names, Exception\InvalidArgument gets thrown
 CORE: [FIX] there is now a delta entry if event unshareCollection was triggered and endpoint GET node/delta is requested 
 CORE: [FIX] fixed delta entries for share children after a refernece was added but the cursor was already more further
@@ -59,7 +59,7 @@ CORE: [FIX] temporary file gets now removed if checksums are equal
 CORE: [CHANGE] used quota does now not include files with the deleted flag set
 API: [FIX] new shares now get added if delta gets called
 API: [CHANGE] GET /node/delta the delta gets now generated recursively from the given node via param id or p
-API: [FIX] fixed CloudFS\Exception (parent collection was not found) if requested via param p and file is readonly
+API: [FIX] fixed Balloon\Exception (parent collection was not found) if requested via param p and file is readonly
 API: [FIX] fixed application/xml response
 API: [FIX] xml response does now include Content-Type: application/xml; charset=UTF8 header
 API: [FIX] GET /collection/children does now return all child objects with their default attributes (removed json serializable interface)
@@ -82,8 +82,8 @@ Tue May 2 11:02:00 CET 2017
 --
 CORE: [CHANGE] node names are now case insensitive, meaning A and a can not exist under the same parent collection
 CORE: [FIX] fixed parent node empty string instead null in raw delta (db)
-CORE: [FIX] some minor fixes in CloudFS\Log
-CORE: [FIX] some minor fixes in CloudFS\Config
+CORE: [FIX] some minor fixes in Balloon\Log
+CORE: [FIX] some minor fixes in Balloon\Config
 Webinterface: [FIX] fixed tree keybindings with focused textarea,input,select areas
 Webinterface: [FIX] fixed undefined in undo move event prompt message
 Webinterface: [FIX] smaller next/previous arrows in viewer
@@ -158,11 +158,11 @@ CORE: [CHANGE] format variables can now be any possible node attribute in Plugin
 CORE: [CHANGE] renamed configuration myaccount_filter for auth adapters to account_filter
 CORE: [FIX] fixed write only share privilege
 CORE: [FIX] references get now deleted after the source share gets deleted
-CORE: [CHANGE] changed use CloudFS\Logger to use \Psr\Log\LoggerInterface as Logger;
+CORE: [CHANGE] changed use Balloon\Logger to use \Psr\Log\LoggerInterface as Logger;
 CORE: [FIX] preview converter do now return false in match() if the file is empty
 CORE: [CHANGE] preview manager does now throw an exception if no converter matched
 CORE: [FIX] fixed preview creation for text files with no file extension
-CORE: [CHANGE] added error codes for CloudFS\Exception\{Forbidden,NotFound,Conflict}
+CORE: [CHANGE] added error codes for Balloon\Exception\{Forbidden,NotFound,Conflict}
 CORE: [FIX] reversed recursive removal fix from 1.0.5
 CORE: [FIX] fixed binary user attribute (avatar especially)
 CORE: [FIX] fixed destroyer plugin (wrong timestamp comparsion)
@@ -183,8 +183,8 @@ Webinterface: [FIX] only the file name parts get selected (excluding file extens
 Fri Mar 3 17:00:00 CET 2017
 --
 CORE: [FIX] fixed preauth adapter (auth was not possible in 1.0.4)
-CORE: [FIX] fixed CloudFS\Exception\Forbidden: not allowed to access node in initial delta request (triggered if a reference points to a deleted share)
-CORE: [FIX] fixed CloudFS\Exception\Forbidden: not allowed to acces snode in delta request (triggered if a share or collection got deleted/undeleted)
+CORE: [FIX] fixed Balloon\Exception\Forbidden: not allowed to access node in initial delta request (triggered if a reference points to a deleted share)
+CORE: [FIX] fixed Balloon\Exception\Forbidden: not allowed to acces snode in delta request (triggered if a share or collection got deleted/undeleted)
 CORE: [FIX] fixed isAllowed() read permission for collection master shares, its now forbidden to request a master share instead the reference (expect the share owner)
 CORE: [CHANGE] simplified node initialization and filesystem node loading
 CORE: [FEATURE] All exception do now have a specific error code
@@ -212,11 +212,11 @@ Mon Feb 27 11:00:00 CET 2017
 CORE: [CHANGE] changed all plugins to parse iterable config via setOptions() and include default values
 CORE: [CHANGE] changed queue job MailNotification to simple Zend\Mail\Message sender named Mail, creation of notifcation messages is now handled by the plugin MailNotification itself
 CORE: [CHANGE] transformed MailNotification plugin to handle various different notifications
-CORE: [FIX] fixed CloudFS\Exception\Conflict move within a share but move only share members
-CORE: [FEATURE] integreaded \CloudFS\Auth\Adapter\Basic\Db to authenticate local users (its possible since this release to operate without an ldap server)
+CORE: [FIX] fixed Balloon\Exception\Conflict move within a share but move only share members
+CORE: [FEATURE] integreaded \Balloon\Auth\Adapter\Basic\Db to authenticate local users (its possible since this release to operate without an ldap server)
 CORE: [CHANGE] changed some configurations entries (@see dist/config.xml)
 CORE: [CHANGE] removal of share search caching (new shares will automatically get discovered with every request)
-CORE: [CHANGE] new plugin \CloudFS\Plugin\AutoCreateUser which creates an account if it does not exists
+CORE: [CHANGE] new plugin \Balloon\Plugin\AutoCreateUser which creates an account if it does not exists
 CORE: [CHANGE] admin is now handled by a simple boolean on the user record itself
 CORE: [FIX] fixed stream_copy_to_stream() expects parameter 1 to be resource, null given with move/copy&merge and 0bytes files
 CORE: [CHANGE] removed plugin hook instanceUser, preCreateUser, postCreateUser and added new hooks preInstanceUser and postInstanceUser
@@ -261,7 +261,7 @@ Fri Feb 17 10:30:00 CET 2017
 CORE: [FIX] removed debug mail addr from Plugin\MailNotification
 CORE: [FIX] replaced findNewShares() after a user has been set to the Filesystem
 CORE: [FIX] removed removing share reference if share still exists but deleted (only remove reference if share has been deleted completely)
-API: [FIX] fixed Argument 1 passed to CloudFS\Rest\v1\Node::delete() must be of the type string or null, array given (all multi node enpoints were affected)
+API: [FIX] fixed Argument 1 passed to Balloon\Rest\v1\Node::delete() must be of the type string or null, array given (all multi node enpoints were affected)
 API: [FEATURE] added param $skip to GET /api/v1/node/events to skip/limit return pool (useful for paging), set default limit to 100 instead 250
 Webinterface: [FIX] swapped icons restore from trash & restore from history
 Webinterface: [FIX] fixed time/date format conversion to unix timestamp (destroy at & share expiration)
@@ -312,19 +312,19 @@ CORE: [!BREAKER] upgraded codebase to php7.1, new required php version is at lea
 CORE: [FEATURE] Migrated to mongo user level api mongo-php-library https://github.com/mongodb/mongo-php-library since there is no support for the legacy driver with php7.1
 CORE: [CHANGE] Migrated all array() declarations to the short version [] (which is available since php5.4)
 CORE: [FEATURE] Added scalar type declarations and return types to all methods
-CORE: [FEATURE] Added text as possible output format for \CloudFS\Http\Response
+CORE: [FEATURE] Added text as possible output format for \Balloon\Http\Response
 CORE: [FIX] If a globally shared node could not be opened a 404 will be sent instead a 200
 CORE: [FEATURE] Added various api PHPUnit tests including detailed desting of the delta endpoing
 CORE: [CHANGE] Upgraded Sabre library
 CORE: [FEATURE] Completely new build.sh script with various options
 CORE: [CHANGE] PSR-1/PSR-2 compatible code syle (executed php-cs-fixer and added to composer)
-CORE: [CHANGE] TNode::setName() throws \CloudFS\Exception\InvalidArgument instead \CloudFS\Exception if in invalid name was provided
+CORE: [CHANGE] TNode::setName() throws \Balloon\Exception\InvalidArgument instead \Balloon\Exception if in invalid name was provided
 CORE: [FIX] Fix some attributes related to share in TNode::getAttributes() and added date converters for created/changed
 CORE: [FIX] Fixed various bugs within the delta, ordering is now correct, timestamp is now used to filter and order instead _id, fixed missing entries
 CORE: [FIX] Get nodes via path will now return only nodes which have not been deleted
 CORE: [FEATURE] Implemented new PSR-3 Logger, removed old log formats and moved to {message}, {context.category}, ... added new confg settting date_format
 CORE: [CHANGE] Removed all Registry, Singletons and static classes, converted them to dependency injection pattern
-CORE: [CHANGE] Since there is no registry anymore all rest controllers do now inherit from a new \CloudFS\Controller class
+CORE: [CHANGE] Since there is no registry anymore all rest controllers do now inherit from a new \Balloon\Controller class
 CORE: [CHANGE] All classes decalare now all used classes with use right after the namespace declaration
 CORE: [CHANGE] Big changes due the whole core, new bootstrap implementation which then setups router, db, ..., implemented Api, Webdav and global shares as Apps (@see new "feature 3rd party applications")
 CORE: [FIX] File uploads bigger than 500MB can now be achieved, before the server reached a timeout if php max_execution_time was configured for the default 30s
@@ -332,10 +332,10 @@ CORE: [FEATURE] New Plugin\MailNotification which sends mails after new shares h
 CORE: [CHANGE] Removed old unused plugin Plugin\JobQueue
 CORE: [!BREAKER] Renamed all Plugins to a valid PSR classname (no underscores), @see upgrade guid
 CORE: [CHANGE] Moved job queue from Memcached to MongoDB since its persistent and Memcached implementation on php7.1 is shitty, @see feature apc, apc is now required and used if any cache needed
-CORE: [FEATURE] Added \CloudFS\Resource which now includes lookup methods for user/groups (moved those methods from \CloudFS\User) 
+CORE: [FEATURE] Added \Balloon\Resource which now includes lookup methods for user/groups (moved those methods from \Balloon\User) 
 CORE: [CHANGE] Implemented more interfaces and renamed existing ones to NameInterface and abstract classes to AbstractName
-CORE: [CHANGE] Removed CloudFS\Task and moved the functionality to CloudFS\Bootstrap\Cli
-CORE: [FEATURE] Implemented new traversable/array \CloudFS\Config class and moved xml stuff to \CloudFS\Config\Xml, all other classes do now require Config instead \SimpleXMLElement
+CORE: [CHANGE] Removed Balloon\Task and moved the functionality to Balloon\Bootstrap\Cli
+CORE: [FEATURE] Implemented new traversable/array \Balloon\Config class and moved xml stuff to \Balloon\Config\Xml, all other classes do now require Config instead \SimpleXMLElement
 CORE: [FEATURE] xml configuration is now stored in the apc cache
 CORE: [CHANGE] the log category is now get_class($this) instead a static string
 CORE: [CHANGE] All php files gets now parsed within strict type which is available since php7.0
@@ -343,9 +343,9 @@ CORE: [CHANGE] Added type declarations to all parameters and return types which 
 CORE: [CHANGE] Some cli minor updates, renamed task.php to cli.php
 CORE: [CHANGE] If a collection gets deleted, change timestamp wont get modified anymore
 CORE: [!BREAKER] If a node gets deleted, deleted now turns into a timestamp, none deleted nodes are just set deleted=NULL, database needs to get upgraded, @see upgrade guide
-CORE: [FEATURE] New plugin \CloudFS\Plugin\CleanTrash which is able to completely remove trashed nodes older than x
+CORE: [FEATURE] New plugin \Balloon\Plugin\CleanTrash which is able to completely remove trashed nodes older than x
 CORE: [FEATURE] Added package.json with some new meta data
-CORE: [FEATURE] Added possibility to set self-destruction timestamp (destroy attribute), added plugin \CloudFS\Plugin\Destroyer which does the cleanup job
+CORE: [FEATURE] Added possibility to set self-destruction timestamp (destroy attribute), added plugin \Balloon\Plugin\Destroyer which does the cleanup job
 CORE: [CHANGE] Upgraded elasticsearch api to 5.x
 CORE: [FIX] Fixed search bugs related with shares
 CORE: [FIX] Fixed isAllowed(r) position which is now placed at the constructor of a collection and file
@@ -353,7 +353,7 @@ CORE: [FIX] Fixed GET application/json as content-type; only curl does support s
 CORE: [FEATURE] New acl permission w+ which allows a share member to modify/see only owned nodes
 CORE: [FIX] Fixed delta/event-log for nodes within a share, the real share id instead the reference is now stores within the delta
 CORE: [FIX] All pre* hooks are now called with parameters as reference
-CORE: [FEATURE] Fixed and reimplemented preview system, added \CloudFS\Plugin\Preview and a new Preview namespace \CloudFS\Preview with multiple converters
+CORE: [FEATURE] Fixed and reimplemented preview system, added \Balloon\Plugin\Preview and a new Preview namespace \Balloon\Preview with multiple converters
 CORE: [FIX] Fixed preview creation for MS Office documents
 CORE: [FEATURE] Added new plugin hooks prePutFile() and postPutFile()
 CORE: [CHANGE] Image previews are not png instead jpeg
@@ -362,14 +362,14 @@ CORE: [CHANGE] action endpoints return now a http response instance instead send
 CORE: [FIX] if name is longer than 255 characters an InvalidArgument exception will be thrown
 CORE: [CHANGE] if a name is invalid an InvalidArgument exception instead Conflict exception will be thrown
 CORE: [CHANGE] router throws an Exception\InvalidArgument if required action param not available in request parameters
-CORE: [FIX] fixed delta feed after emptying the whole trash, CloudFS\\Exception\\Coding Undefined index: path was thrown before
+CORE: [FIX] fixed delta feed after emptying the whole trash, Balloon\\Exception\\Coding Undefined index: path was thrown before
 CORE: [FIX] fixed Node::checkName() name will no be normalized to NFC (php-intl required)
 CORE: [CHANGE] moved config files from src/*.xml to config/
 API: [FIX] Fixed infinite loop during TNode::isSubNode(), called from POST /node/move a parent collection in a child collection of itself
-API: [CHANGE] If a readonly node will be modified an instance of \CloudFS\Exception\Conflict will be thrown instead Forbidden
+API: [CHANGE] If a readonly node will be modified an instance of \Balloon\Exception\Conflict will be thrown instead Forbidden
 API: [FEATURE] Integreated libre office online (CODE) as 3rd party app named office
 API: [FEATURE] node id can now be specified either within the path (like GET /node/121ee22323333322333/attributes) or as usual as id query string
-API: [FIX] Throws \CloudFS\Exception\Conflict POST /node/clone if a collection would be copied into itself
+API: [FIX] Throws \Balloon\Exception\Conflict POST /node/clone if a collection would be copied into itself
 API: [CHANGE] POST /node/move and POST /node/undelete now return 200 with the new name if param $conflict was set to CONFLICT_RENAME
 API: [FEATURE] Added $limit parameter to GET /node/delta
 API: [CHANGE] Moved endpoint GET /user/acl-roles to /resource/acl-roles
@@ -473,16 +473,16 @@ CORE: [FIX] Restore a previous version now restores the changed (timestamp) fiel
 CORE: [FIX] Various coding revisions, added INode interface, renamed item trait to TNode
 CORE: [FIX] Calling INode::getParent() from a instance of a root collection now returns null instead the root collection itself again
 CORE: [FIX] All internal methods now use INode::save() to store their fields to mongodb
-CORE: [FEATURE] php internal debug, warnings and erros now throw a \CloudFS\Exception\Coding
-CORE: [FEATURE] Added \CloudFS\Plugin\Delta which adds an event for each modification
-CORE: [FEATURE] Added \CloudFS\Exception classes for each CloudFS namespace
+CORE: [FEATURE] php internal debug, warnings and erros now throw a \Balloon\Exception\Coding
+CORE: [FEATURE] Added \Balloon\Plugin\Delta which adds an event for each modification
+CORE: [FEATURE] Added \Balloon\Exception classes for each Balloon namespace
 CORE: [FEATURE] User attributes can now be requested with User::getAttribute($attribute)
 CORE: [FIX] TNode::save() now also logs the changed attributes via Log::OPT_PARAMS
 CORE: [FIX] File::_put() does not try to create a new file anymore if something went wrong during modifying content of an existing file
 CORE: [FEATURE] It is now possible to protect a globally shared link with a password
 CORE: [FIX] TNode::setParent() now also checks if the node itself will be copied into any sub nodes of the node itself and not just one level, deeper requests were ended in a loop, now a Conflict exception will be thrown
 CORE: [FIX] If an exception is thrown during the response handling, the thrown exception will now be returned correctly under the data array element
-CORE: [FEATURE] Replaced all \Sabre\DAV\Exception with \CloudFS\Exception
+CORE: [FEATURE] Replaced all \Sabre\DAV\Exception with \Balloon\Exception
 CORE: [FEATURE] globally shared links do now support an additional request parameter download=1 which will enforce a download instead streaming or display
 CORE: [FIX] Replaced Http\Response::jsonFormat() with native json_encode() JSON_PRETTY_PRINT
 CORE: [CHANGE] Reconfigured user/group search filter to *%s* instead %s* 
@@ -632,7 +632,7 @@ Fri Dec 11 10:18:15 CEST 2015
 * CORE: [FEATURE] It is now possible to reference anywhere to another configuration node within the xml configuration using the "inherits" attribute
 * CORE: [FIX] Upgraded phpzip/phpzip to latest version 1.0.4
 * CORE: [FIX] Upgraded to sabre/dav 3.0
-* CORE: [FIX] Replaced development global namespace with \CloudFS
+* CORE: [FIX] Replaced development global namespace with \Balloon
 * CORE: [FIX] Implemented the upcomming PHP5.6 function ldap_esacape to escape all ldap filters
 * CORE: [FIX] Fixed trailing slash with zip files (windows explorer can't handle trailing slashes)
 * CORE: [FIX] It is now allowed to call a node "0"

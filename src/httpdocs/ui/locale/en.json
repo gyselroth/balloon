@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "balloon",
-    "disclaimer": "balloon v1.0.12 2017"
+    "disclaimer": "balloon v1.0.13 2017"
   },
   "login": {
     "username": "Username",

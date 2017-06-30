@@ -1,1 +1,11 @@
 composer.lock
+vendor
+src/httpdocs/ui/vendor
+config/local.xml
+log/*
+src/httpdocs/ui/config.js
+src/httpdocs/ui/index.build.html
+src/httpdocs/ui/lib/build.js
+src/httpdocs/ui/locale/build.de.json
+src/httpdocs/ui/locale/build.en.json
+src/httpdocs/ui/themes/default/css/build.css
