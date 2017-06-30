@@ -338,35 +338,27 @@ class Delta
                 }
                 
                 $fields = $log_node->getAttribute($attributes);
-               
-                if (array_key_exists('previous', $log) && array_key_exists('parent', $log['previous'])) {
-                    $list[$fields['path']] = $fields;
-                    if ($log['previous']['parent'] === null) {
-                        $previous_path = DIRECTORY_SEPARATOR./*$log_node->getName()*/$log['name'];
-                    } else {
-                        $parent = $this->fs->findNodeWithId($log['previous']['parent']);
-                        $previous_path = $parent->getPath().DIRECTORY_SEPARATOR./*$log_node->getName()*/$log['name'];
-                    }
-                   
-                    $deleted_node = [
-                        'id'        => (string)$log['node'],
-                        'deleted'   => true,
-                        'created'   => null,
-                        'changed'   => Helper::DateTimeToUnix($log['timestamp']),
-                        'path'      => $previous_path,
-                        'directory' => $fields['directory']
-                    ];
 
-                    $list[$previous_path]  = $list[$fields['path']];
-                    $list[$fields['path']] = $deleted_node;
-                } elseif (array_key_exists('previous', $log) && array_key_exists('name', $log['previous'])) {
-                    if ($log['parent'] === null) {
-                        $previous_path = DIRECTORY_SEPARATOR.$log['previous']['name'];
+                if (array_key_exists('previous', $log)) {
+                    if (array_key_exists('parent', $log['previous'])) {
+                        if ($log['previous']['parent'] === null) {
+                            $previous_path = DIRECTORY_SEPARATOR.$log['name'];
+                        } else {
+                            $parent = $this->fs->findNodeWithId($log['previous']['parent']);
+                            $previous_path = $parent->getPath().DIRECTORY_SEPARATOR.$log['name'];
+                        }
+                    } elseif (array_key_exists('name', $log['previous'])) {
+                        if ($log['parent'] === null) {
+                            $previous_path = DIRECTORY_SEPARATOR.$log['previous']['name'];
+                        } else {
+                            $parent = $this->fs->findNodeWithId($log['parent']);
+                            $previous_path = $parent->getPath().DIRECTORY_SEPARATOR.$log['previous']['name'];
+                        }
                     } else {
-                        $parent = $this->fs->findNodeWithId($log['parent']);
-                        $previous_path = $parent->getPath().DIRECTORY_SEPARATOR.$log['previous']['name'];
+                        $list[$fields['path']] = $fields;
+                        continue;
                     }
-                    
+
                     $deleted_node = [
                         'id'        => (string)$log['node'],
                         'deleted'   => true,
