@@ -7,7 +7,7 @@
     - mongodb.server: MongoDB connection URI @see http://docs.mongodb.org/manual/reference/connection-string/
     -->
     <mongodb>
-        <db>cloudfs</db>
+        <db>balloon</db>
         <server>mongodb://localhost:27017</server>
     </mongodb>
 
@@ -411,8 +411,7 @@
             <basic_ldap enabled="0" class="\Balloon\Auth\Adapter\Basic\Ldap">
                 <config>
                     <ldap>
-                        <host>ldap.example.org</host>
-                        <port>389</port>
+                        <uri>ldap://ldap.example.org:389</uri>
                         <basedn>dc=example,dc=org</basedn>
                         <username>uid=bind,dc=example,dc=org</username>
                         <password>1234</password>
