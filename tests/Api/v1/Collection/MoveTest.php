@@ -33,7 +33,7 @@ class MoveTest extends Test
             'deleted'   => false,
             'path'      => '/'.$name
         ];
-
+        
         return [
             'id'  => $id,
             'name'=> $name
@@ -82,11 +82,11 @@ class MoveTest extends Test
         $this->assertEquals((string)$source['id'], $delta['nodes'][1]->id);
         self::$current_cursor = $delta['cursor'];
 
-        self::$delta[0]['deleted'] = true;
+        self::$delta[0]['path'] = '/'.$dest['name'].'/'.$source['name'];
         self::$delta[] = [
             'id'      => (string)$source['id'],
-            'deleted' => false,
-            'path'    => '/'.$dest['name'].'/'.$source['name'] 
+            'deleted' => true,
+            'path'    => '/'.$source['name'] 
         ];
 
         return [
@@ -244,31 +244,26 @@ class MoveTest extends Test
         $this->assertEquals('/'.$nodes['a']['name'], $delta['nodes'][0]->path);
         $this->assertTrue($delta['nodes'][0]->deleted);
         
+        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]->id);
+        $this->assertEquals('/'.$body, $delta['nodes'][2]->path);
+        $this->assertTrue($delta['nodes'][2]->deleted);
 
         $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]->id);
-        $this->assertEquals('/'.$body, $delta['nodes'][1]->path);
-        $this->assertTrue($delta['nodes'][1]->deleted);
-
-
-        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]->id);
-        $this->assertEquals('/'.$nodes['b']['name'].'/'.$body, $delta['nodes'][2]->path);
-        $this->assertFalse($delta['nodes'][2]->deleted);
+        $this->assertEquals('/'.$nodes['b']['name'].'/'.$body, $delta['nodes'][1]->path);
+        $this->assertFalse($delta['nodes'][1]->deleted);
         
-
-        self::$delta[6]['deleted'] = true;
-
         self::$delta[] = [
             'id'        => (string)$nodes['a']['id'],
             'deleted'   => true,
             'path'      => self::$delta[6]['path']
         ];
 
-        self::$delta[6]['path'] = '/'.$body;
+        self::$delta[6]['path'] =  '/'.$nodes['b']['name'].'/'.$body;
 
         self::$delta[] = [
             'id'        => (string)$nodes['a']['id'],
-            'deleted'   => false,
-            'path'      => '/'.$nodes['b']['name'].'/'.$body
+            'deleted'   => true,
+            'path'      => '/'.$body
         ];
     }
 
