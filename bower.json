@@ -1,6 +1,6 @@
 {
-  "name": "CloudFS",
-  "version": "1.0.10",
+  "name": "balloon",
+  "version": "2.0.0-dev",
   "ignore": [
     ".jshintrc",
     "**/*.txt"

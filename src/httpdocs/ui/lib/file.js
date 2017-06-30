@@ -21,7 +21,7 @@ var balloon = {
     /**
      * Version
      */
-    BALLOON_VERSION: '1.0.11',
+    BALLOON_VERSION: '2.0.0-dev',
 
 
     /**
