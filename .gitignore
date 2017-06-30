@@ -1,6 +1,7 @@
 composer.lock
 vendor
 src/httpdocs/ui/vendor
+config/config.xml
 config/local.xml
 log/*
 src/httpdocs/ui/config.js
