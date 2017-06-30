@@ -311,7 +311,7 @@ class Collection extends Node
             $parent_path = dirname($p);
             $name = basename($p);
             $parent = $this->fs->findNodeWithPath($parent_path, 'Collection');
-            $result = $parent->createDirectory($name, $attributes, $conflict)->getId(true);
+            $result = $parent->addDirectory($name, $attributes, $conflict)->getId(true);
             return (new Response())->setCode(201)->setBody($result);
         } elseif ($id !== null && $name === null) {
             throw new Exception\InvalidArgument('name must be set with id');
@@ -322,7 +322,7 @@ class Collection extends Node
                 throw new Exception\InvalidArgument('name must be a valid string');
             }
     
-            $result = $parent->createDirectory($name, $attributes, $conflict)->getId(true);
+            $result = $parent->addDirectory($name, $attributes, $conflict)->getId(true);
             return (new Response())->setCode(201)->setBody($result);
         }
     }

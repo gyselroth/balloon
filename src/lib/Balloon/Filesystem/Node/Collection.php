@@ -125,7 +125,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
         if ($conflict === INode::CONFLICT_MERGE && $parent->childExists($this->name)) {
             $new_parent = $parent->getChild($this->name);
         } else {
-            $new_parent = $parent->createDirectory($name, [
+            $new_parent = $parent->addDirectory($name, [
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
@@ -389,8 +389,9 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
         //if $node is string load the object from the backend based on the current parent (the name
         //is unique per depth, so we can load the object)
         if (is_string($node)) {
+            $name = $node;
             $search = [
-                'name'    => $node,
+                'name'    => $name,
                 'parent'  => $this->getRealId(),
             ];
     
@@ -425,7 +426,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             }
 
             if ($node === null) {
-                throw new Exception\NotFound('node called '.$node.' does not exists here',
+                throw new Exception\NotFound('node called '.$name.' does not exists here',
                     Exception\NotFound::NODE_NOT_FOUND
                 );
             }
@@ -832,7 +833,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param   bool $clone
      * @return  Collection
      */
-    public function createDirectory($name, array $attributes=[], int $conflict=INode::CONFLICT_NOACTION, bool $clone=false): Collection
+    public function addDirectory($name, array $attributes=[], int $conflict=INode::CONFLICT_NOACTION, bool $clone=false): Collection
     {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden('not allowed to create new node here',
@@ -912,7 +913,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param   bool $clone
      * @return  File
      */
-    public function createFile($name, $data=null, array $attributes=[], int $conflict=INode::CONFLICT_NOACTION, bool $clone=false): File
+    public function addFile($name, $data=null, array $attributes=[], int $conflict=INode::CONFLICT_NOACTION, bool $clone=false): File
     {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden('not allowed to create new node here',
@@ -999,5 +1000,36 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
 
             throw $e;
         }
+    }
+
+
+    /**
+     * Create new file wrapper
+     * (Sabe\DAV compatible method, elsewhere use addFile()
+     *
+     * Sabre\DAV requires that createFile() returns the ETag instead the newly created file instance
+     *
+     * @param   string $name
+     * @param   string $data
+     * @return  File
+     */
+    public function createFile($name, $data=null): String
+    {
+        return $this->addFile($name, $data)->getETag();
+    }
+    
+
+    /**
+     * Create new directory wrapper
+     * (Sabe\DAV compatible method, elsewhere use addDirectory()
+     *
+     * Sabre\DAV requires that createDirectory() returns void
+     *
+     * @param   string $name
+     * @return  void
+     */
+    public function createDirectory($name): void
+    {
+        $this->addDirectory($name);
     }
 }

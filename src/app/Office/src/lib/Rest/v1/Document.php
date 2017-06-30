@@ -122,7 +122,7 @@ class Document extends Controller
     {
         $parent = $this->fs->getNode($collection, null, 'Collection', false, true);
         $tpl    = new Template($type);
-        $result = $parent->createFile($name, $tpl->get(), $attributes);
+        $result = $parent->addFile($name, $tpl->get(), $attributes);
 
         return (new Response())->setCode(201)->setBody((string)$result->getId());
     }

@@ -605,10 +605,10 @@ class User
             
             try {
                 $dir = $this->fs->getRoot();
-                $dir->createDirectory($node['name'], $attrs);
+                $dir->addDirectory($node['name'], $attrs);
             } catch (Exception\Conflict $e) {
                 $new = $node['name'].' ('.substr(uniqid('', true), -4).')';
-                $dir->createDirectory($new, $attrs);
+                $dir->addDirectory($new, $attrs);
             } catch (\Exception $e) {
                 $this->logger->error('failed create new share reference to share ['.$node['_id'].']', [
                     'category' => get_class($this),

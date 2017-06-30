@@ -129,7 +129,7 @@ class LdapAutoShare extends AbstractPlugin
                 try {
                     if ($name != Collection::ROOT_FOLDER) {
                         if (!$root->childExists($name)) {
-                            $root->createDirectory($name, [
+                            $root->addDirectory($name, [
                                 '_plugin' => 'Auto_Share',
                             ]);
                         }
@@ -150,7 +150,7 @@ class LdapAutoShare extends AbstractPlugin
                 foreach ($user_share as $name => $share) {
                     try {
                         if (!$parent->childExists($name, INode::DELETED_INCLUDE)) {
-                            $parent->createDirectory($name, [
+                            $parent->addDirectory($name, [
                                 '_plugin' => 'Auto_Share',
                             ]);
                         }
