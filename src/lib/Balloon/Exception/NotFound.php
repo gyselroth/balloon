@@ -18,7 +18,7 @@ class NotFound extends \Sabre\DAV\Exception\NotFound
     const REFERENCE_NOT_FOUND   = 0x33;
     const NOT_ALL_NODES_FOUND   = 0x34;
     const USER_NOT_FOUND        = 0x35;
-    const DESTINTAION_NOT_FOUND = 0x36;
+    const DESTINATION_NOT_FOUND = 0x36;
     const PARENT_NOT_FOUND      = 0x37;
     const PREVIEW_NOT_FOUND     = 0x38;
     const CONTENTS_NOT_FOUND    = 0x39;

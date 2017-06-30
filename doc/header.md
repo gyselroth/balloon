@@ -187,7 +187,7 @@ instead just one.
      <li>REFERENCE_NOT_FOUND   = 0x33</li> 
      <li>NOT_ALL_NODES_FOUND   = 0x34</li>
      <li>USER_NOT_FOUND        = 0x35</li> 
-     <li>DESTINTAION_NOT_FOUND = 0x36</li> 
+     <li>DESTINATION_NOT_FOUND = 0x36</li> 
      <li>PARENT_NOT_FOUND      = 0x37</li> 
      <li>PREVIEW_NOT_FOUND     = 0x38</li> 
      <li>CONTENTS_NOT_FOUND    = 0x39</li> 
