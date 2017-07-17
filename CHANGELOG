@@ -12,6 +12,7 @@ Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 1.0.14 - Raffael Sahli <sahli@gyselroth.com>
 Fri June 30 16:04:32 CET 2017
 --
+CORE: [FIX] fixed ldap auto share sync plugin #45
 API: [FIX] missing delta entry if node gets moved and a new node is created at the old place #44
 
 

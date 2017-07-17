@@ -125,7 +125,7 @@ class Plugin extends AbstractPlugin
             
             $owner  = new User($owner, $this->logger, $this->fs, true);
             $this->fs->setUser($owner);
-            $folder = $this->fs->getRoot();
+            $root = $this->fs->getRoot();
  
             foreach ($folder as $name => $user_share) {
                 try {
@@ -151,6 +151,7 @@ class Plugin extends AbstractPlugin
                 
                 foreach ($user_share as $name => $share) {
                     try {
+                        $name = (string)$name;
                         if (!$parent->childExists($name, INode::DELETED_INCLUDE)) {
                             $parent->addDirectory($name, [
                                 '_plugin' => 'Auto_Share',
@@ -169,10 +170,7 @@ class Plugin extends AbstractPlugin
                                 'category' => get_class($this),
                             ]);
                             
-                            $node->share([
-                                'shared' => true,
-                                'acl'    => $share,
-                            ]);
+                            $node->share($share);
                         }
                     } catch (\Exception $e) {
                         $this->logger->error("failed add auto share folder [$name]", [
@@ -240,13 +238,13 @@ class Plugin extends AbstractPlugin
 
             foreach ($data as $ldap_share) {
                 if (!isset($ldap_share[$name_attr]) && !empty($ldap_share[$name_attr])) {
-                    $this->logger->info("skip share ${ldap_share['dn']}, share_name attribute [${name_attr}] was not found or is empty", [
+                    $this->logger->info("skip share [".$ldap_share['dn']."], share_name attribute [".$name_attr."] was not found or is empty", [
                         'category' => get_class($this),
                     ]);
 
                     continue;
                 } elseif ($subfolder_attr != Collection::ROOT_FOLDER && !isset($ldap_share[$subfolder_attr])) {
-                    $this->logger->info("skip share ${ldap_share['dn']}, subfolder attribute [${subfolder_attr}] was not found or is empty", [
+                    $this->logger->info("skip share [".$ldap_share['dn']."], subfolder attribute [".$subfolder_attr."] was not found or is empty", [
                         'category' => get_class($this),
                     ]);
 
