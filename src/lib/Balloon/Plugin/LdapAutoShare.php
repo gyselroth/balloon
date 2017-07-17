@@ -279,7 +279,7 @@ class LdapAutoShare extends AbstractPlugin
                     }
 
                     if (!array_key_exists($acl_role, $ldap_share)) {
-                        $this->logger->warning("skip share ${ldap_share['dn']}, acl_role attribute [${acl_role}] does not exists", [
+                        $this->logger->warning("skip share [".$ldap_share['dn']."], acl_role attribute [".$acl_role."] does not exists", [
                             'category' => get_class($this),
                         ]);
 
