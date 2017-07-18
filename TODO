@@ -1,0 +1,16 @@
+V2 
+notes to my future me:
+
+OAUTH2/OpenID Connect/SAML
+
+* OAUTH2/OpenID Connect, probably auth\oauth2 needs to be replaced with a more standard layer OpenID Connect since
+this es explictly for authentication whereas oauth2 is more for authorization.
+* With an OpenID Connect auth adapter we could be compatible with OpenID connect provider like google, facebook, twitter, so theoretically balloon could be running via
+those idp.
+* What if you want to use no external id provider and you do not want to implement an own idp internally? I guess balloon needs to ship an internal OAUTH2/OpenID Connect provider since we also got various apps (1st and probably 3rd party apps). So a system administrator can decide if he wants to use the internal (should always be enabled since the desktop or webapp will probably use the internal ones with the password grant flow since those are 1st party apps, or if he wants additional OpenID Connect provider like google. So the balloon servers needs to verify tokens from those provider and the client (desktop or webinterface) needs to obtain tokens from those)
+
+links:
+https://connect2id.com/learn/openid-connect
+https://github.com/alexbilbie/alexbilbie.github.com/blob/master/_posts/2014-11-11-oauth-and-javascript.md
+https://alexbilbie.com/guide-to-oauth-2-grants/
+https://github.com/uchicago/shibboleth-oidc
