@@ -49,3 +49,7 @@ See the [balloon-app-elasticsearch](https://github.com/gyselroth/balloon-app-ela
 * Webserve
 * PHP 7.1.x
 * MongoDB
+
+## Docker image
+
+There is a Dockerfile for a ready-to-go docker image in the [balloon-dockerimage](https://github.com/gyselroth/balloon-dockerimage) repository.
