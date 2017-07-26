@@ -1,4 +1,12 @@
 CHANGELOG
+
+--
+1.0.15 - Raffael Sahli <sahli@gyselroth.com>
+Wed July 26 15:58:32 CET 2017
+--
+API: [FEATURE] /node/attributes does now accept multiple id #47
+
+
 --
 1.0.14 - Raffael Sahli <sahli@gyselroth.com>
 Mon July 17 11:13:00 CET 2017

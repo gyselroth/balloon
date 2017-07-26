@@ -776,13 +776,22 @@ class Node extends Controller
      * @param  array $attributes
      * @return Response
      */
-    public function getAttributes(?string $id=null, ?string $p=null, array $attributes=[]): Response
+    public function getAttributes($id=null, ?string $p=null, array $attributes=[]): Response
     {
-        $result = Helper::escape(
-            $this->_getNode($id, $p)->getAttribute($attributes)
-        );
+        if (is_array($id)) {
+            $nodes    = [];
+            foreach ($this->fs->findNodes($id) as $node) {
+                $nodes[] = Helper::escape($node->getAttribute($attributes));
+            }
+
+            return (new Response())->setCode(200)->setBody($nodes);
+        } else {
+            $result = Helper::escape(
+                $this->_getNode($id, $p)->getAttribute($attributes)
+            );
         
-        return (new Response())->setCode(200)->setBody($result);
+            return (new Response())->setCode(200)->setBody($result);
+        }
     }
 
 
