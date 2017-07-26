@@ -728,7 +728,7 @@ class Node extends Controller
      * @apiName getAttributes
      * @apiGroup Node
      * @apiPermission none
-     * @apiDescription Get node attribute
+     * @apiDescription Get attributes from one or multiple nodes
      * @apiUse _getNode
      * @apiUse _nodeAttributes
      *
