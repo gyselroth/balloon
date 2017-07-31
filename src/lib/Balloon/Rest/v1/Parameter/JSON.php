@@ -23,14 +23,18 @@ class JSON extends \ArrayObject {
      */
     public function __construct(\ReflectionParameter $param, $value)
     {
-        if(!is_string($value)) {
-          throw new Exception\InvalidArgument('Parameter '.$param->name.' expects a json string. ' . gettype($value).' given.');
-        }
+        if(is_array($value)) {
+          $data = $value;
+        } else {
+          if(!is_string($value)) {
+            throw new Exception\InvalidArgument('Parameter '.$param->name.' expects a json string. ' . gettype($value).' given.');
+          }
 
-        $data = json_decode($value);
+          $data = json_decode($value);
 
-        if($data === null) {
-            throw new Exception\InvalidArgument('Parameter '.$param->name.' expects a valid json string. ' . json_last_error_msg());
+          if($data === null) {
+              throw new Exception\InvalidArgument('Parameter '.$param->name.' expects a valid json string. ' . json_last_error_msg());
+          }
         }
 
         return call_user_func_array(array('parent', __FUNCTION__), [$data]);
