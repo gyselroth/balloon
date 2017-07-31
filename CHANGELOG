@@ -10,9 +10,10 @@ Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 
 --
 1.0.15 - Raffael Sahli <sahli@gyselroth.com>
-Wed July 26 15:58:32 CET 2017
+Mon July 31 12:55:02 CET 2017
 --
 API: [FEATURE] /node/attributes does now accept multiple id #47
+API: [FIX] fixed XSS via X-Client header
 
 
 --

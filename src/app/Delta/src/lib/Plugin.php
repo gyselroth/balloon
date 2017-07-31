@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Delta;
 
+use \Balloon\Helper;
 use \Balloon\User;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
@@ -50,7 +51,7 @@ class Plugin extends AbstractPlugin
             ];
         } else {
             if (isset($_SERVER['HTTP_X_CLIENT'])) {
-                $parts = explode('|', $_SERVER['HTTP_X_CLIENT']);
+                $parts = explode('|', Helper::filter($_SERVER['HTTP_X_CLIENT']));
                 $count = count($parts);
 
                 if ($count === 3) {
