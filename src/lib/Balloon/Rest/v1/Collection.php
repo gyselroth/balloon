@@ -100,11 +100,11 @@ class Collection extends Node
         ?string $id=null,
         ?string $p=null,
         int $deleted=0,
-        array $filter=[],
+        Parameter\JSON $filter=NULL,
         array $attributes=[]): Response
     {
         $children = [];
-        $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
+        $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, (array)$filter);
         
         foreach ($nodes as $node) {
             $children[] = Helper::escape($node->getAttribute($attributes));
