@@ -7,6 +7,7 @@ CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are
 CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
 CORE: [CHANGE] changed hook preAuthentication() first param to Auth $auth instead auth adapters
 CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon\Plugin => \Balloon\Hook #55, \Balloon\Queue => \Balloon\Async
+CORE: [CHANGE] renamed \Ballon\Exception\Coding to \Balloon\Exception\Internal
 CORE: [CHANGE] Added new \Balloon\Server which is the new point of entry, also moved \Balloon\User to \Ballon\Server\User and made various code improvements to it
 CORE: [CHANGE] Moved \Balloon\Filesystem\node\INode to \Balloon\Filesystem\node\NodeInterface and \Balloon\Filesystem\Node\Node to \Balloon\Filesystem\Node\AbstractNode #6
 CORE: [CHANGE] Elasticsearch is now an app and not part of the core anymore #10

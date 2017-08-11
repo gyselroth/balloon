@@ -47,6 +47,10 @@ class Http extends AbstractBootstrap
         $this->router = new Router($_SERVER, $this->logger);
         $this->auth = new Auth($this->option_auth, $this->logger);
 
+        if($this->auth->hasAdapter('basic_db')) {
+            $this->auth->getAdapter('basic_db')->setOptions(['mongodb' => $this->db]);
+        }
+
         $this->loadApps();
 
         if($this->auth->requireOne())  {

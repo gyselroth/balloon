@@ -15,7 +15,7 @@ use \Balloon\Helper;
 use \Balloon\User;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectID;
 use \Balloon\Hook\AbstractHook;
@@ -269,10 +269,10 @@ class Hook extends AbstractHook
     /**
      * Get Event owner id
      *
-     * @param   INode $node
+     * @param   NodeInterface $node
      * @return  ObjectID
      */
-    protected function getEventOwner(INode $node): ObjectID
+    protected function getEventOwner(NodeInterface $node): ObjectID
     {
         $user = $node->getFilesystem()->getUser();
         if ($user === null) {
@@ -325,14 +325,14 @@ class Hook extends AbstractHook
      *
      * Executed post node attributes were saved to mongodb
      *
-     * @param  INode $node
+     * @param  NodeInterface $node
      * @param  array $attributes
      * @param  array $remove
      * @param  string $recursion
      * @param  bool $recursion_first
      * @return void
      */
-    public function postSaveNodeAttributes(INode $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
+    public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
     {
         if ($recursion_first === false) {
             return;
@@ -426,10 +426,10 @@ class Hook extends AbstractHook
     /**
      * Update share delta entries
      *
-     * @param   INode $node
+     * @param   NodeInterface $node
      * @return  bool
      */
-    protected function updateExistingDeltaShareMember(INode $node): bool
+    protected function updateExistingDeltaShareMember(NodeInterface $node): bool
     {
         $toset = $node->getChildrenRecursive($node->getRealId());
         $action = [

@@ -14,6 +14,7 @@ namespace Balloon\Auth\Adapter\Basic;
 use \Micro\Auth\Adapter\Basic\AbstractBasic;
 use \Micro\Auth\Adapter\AdapterInterface;
 use \MongoDB\Database;
+use \Balloon\Helper;
 
 class Db extends AbstractBasic
 {
@@ -23,12 +24,6 @@ class Db extends AbstractBasic
      * @var Database
      */
     protected $db;
-
-
-    /**
-     * Attributes
-     */
-    protected $attributes = [];
 
 
     /**
@@ -70,8 +65,7 @@ class Db extends AbstractBasic
         if($result === null) {
             return null;
         } else {
-            $this->attributes = $result;
-            return $this->attributes['username'];
+            return Helper::convertBSONDocToPhp($result);
         }
     }
 

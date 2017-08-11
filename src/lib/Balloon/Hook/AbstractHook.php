@@ -16,7 +16,7 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Micro\Auth\Adapter\AdapterInterface as AuthInterface;
 use \Micro\Auth;
 
@@ -324,14 +324,14 @@ abstract class AbstractHook implements HookInterface
      *
      * Executed pre node attributes will be saved to mongodb
      *
-     * @param   INode $node
+     * @param   NodeInterface $node
      * @param   array $save_attributes
      * @param   array $remove_attributes
      * @param   string $recursion
      * @param   bool $recursion_first
      * @return  void
      */
-    public function preSaveNodeAttributes(INode $node, array &$save_attributes,
+    public function preSaveNodeAttributes(NodeInterface $node, array &$save_attributes,
         array &$remove_attributes, ?string $recursion, bool $recursion_first): void
     {
     }
@@ -342,44 +342,15 @@ abstract class AbstractHook implements HookInterface
      *
      * Executed post node attributes were saved to mongodb
      *
-     * @param  INode $node
+     * @param  NodeInterface $node
      * @param  array $save_attributes
      * @param  array $remove_attributes
      * @param  string $recursion
      * @param  bool $recursion_first
      * @return void
      */
-    public function postSaveNodeAttributes(INode $node, array $save_attributes,
+    public function postSaveNodeAttributes(NodeInterface $node, array $save_attributes,
         array $remove_attributes, ?string $recursion, bool $recursion_first): void
-    {
-    }
-    
-    
-    /**
-     * Run: preInstanceUser
-     *
-     * Executed pre a a user gets initialized
-     *
-     * @param   \Balloon\User $user
-     * @param   string $username
-     * @param   array $attributes
-     * @param   bool $autocreate
-     * @return  void
-     */
-    public function preInstanceUser(\Balloon\User $user, string &$username, ?array &$attributes, bool $autocreate): void
-    {
-    }
-
-
-    /**
-     * Run: postInstanceUser
-     *
-     * Executed at the end of \Balloon\User::__construct()
-     *
-     * @param   \Balloon\User $user
-     * @return  void
-     */
-    public function postInstanceUser(\Balloon\User $user): void
     {
     }
 }

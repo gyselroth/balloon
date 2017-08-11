@@ -217,7 +217,7 @@ abstract class AbstractBootstrap
                     $this->logger->error($msg, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Coding::ERROR;
+                    $code = Exception\Internal::ERROR;
                 break;
             
                 case E_WARNING:
@@ -225,18 +225,18 @@ abstract class AbstractBootstrap
                     $this->logger->warning($msg, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Coding::WARNING;
+                    $code = Exception\Internal::WARNING;
                 break;
             
                 default:
                     $this->logger->debug($msg, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Coding::DEBUG;
+                    $code = Exception\Internal::DEBUG;
                 break;
             }
 
-            throw new Exception\Coding($errstr, $code);
+            throw new Exception\Internal($errstr, $code);
         });
 
         return $this;

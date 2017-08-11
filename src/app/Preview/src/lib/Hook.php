@@ -14,9 +14,9 @@ namespace Balloon\App\Preview;
 use \Balloon\Filesystem;
 use \Balloon\Exception;
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Plugin\AbstractPlugin;
+use \Balloon\Hook\AbstractHook;
 
-class Plugin extends AbstractPlugin
+class Hook extends AbstractHook
 {
     /**
      * Run: postPutFile
@@ -31,7 +31,7 @@ class Plugin extends AbstractPlugin
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
-        $queue = $node->getFilesystem()->getQueue();
+        $queue = $node->getFilesystem()->getServer()->getAsync();
         $queue->addJob(new Job([
             'id' => $node->getId()
         ]));
@@ -49,7 +49,7 @@ class Plugin extends AbstractPlugin
      */
     public function postRestoreFile(File $node, int $version): void
     {
-        $queue = $node->getFilesystem()->getQueue();
+        $queue = $node->getFilesystem()->getServer()->getAsync();
         $queue->addJob(new Job([
             'id' => $node->getId()
         ]));

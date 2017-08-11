@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Exception;
 
-class Coding extends \Balloon\Exception
+class Internal extends \Balloon\Exception
 {
     const ERROR   = 0x61;
     const WARNING = 0x62;

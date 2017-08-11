@@ -15,7 +15,7 @@ use \Balloon\Exception;
 use \Balloon\Ldap;
 use \Balloon\Filesystem;
 use \Balloon\User;
-use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Plugin\AbstractPlugin;
 use \Balloon\Plugin\PluginInterface;
@@ -152,13 +152,13 @@ class Plugin extends AbstractPlugin
                 foreach ($user_share as $name => $share) {
                     try {
                         $name = (string)$name;
-                        if (!$parent->childExists($name, INode::DELETED_INCLUDE)) {
+                        if (!$parent->childExists($name, NodeInterface::DELETED_INCLUDE)) {
                             $parent->addDirectory($name, [
                                 '_plugin' => 'Auto_Share',
                             ]);
                         }
 
-                        $node = $parent->getChild($name, INode::DELETED_INCLUDE);
+                        $node = $parent->getChild($name, NodeInterface::DELETED_INCLUDE);
                         if ($node->isDeleted()) {
                             $node->undelete();
                         }
@@ -183,7 +183,7 @@ class Plugin extends AbstractPlugin
                 }
 
                 if ($this->auto_delete === true) {
-                    $children = $parent->getChildNodes(INode::DELETED_EXCLUDE, [
+                    $children = $parent->getChildNodes(NodeInterface::DELETED_EXCLUDE, [
                         '_plugin'   => 'Auto_Share',
                         'directory' => true,
                         'owner'     => $owner->getId()

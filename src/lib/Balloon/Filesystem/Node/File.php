@@ -14,10 +14,8 @@ namespace Balloon\Filesystem\Node;
 use \Sabre\DAV;
 use \Balloon\Exception;
 use \Balloon\Helper;
-use \Balloon\Queue;
-use \Balloon\User;
+use \Balloon\Server\User;
 use \Psr\Log\LoggerInterface as Logger;
-use \Balloon\Plugin;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
@@ -204,8 +202,7 @@ class File extends AbstractNode implements DAV\IFile
         foreach ($history as $version) {
             $v = (array)$version;
 
-            $v['user'] = (new User($version['user'], $this->_logger, $this->_fs))
-              ->getUsername();
+            $v['user'] = $this->_fs->getServer()->getUserById($version['user'])->getUsername();
             $v['changed'] = Helper::DateTimeToUnix($version['changed']);
             $filtered[] = $v;
         }
@@ -950,18 +947,18 @@ class File extends AbstractNode implements DAV\IFile
 
             $stream = fopen($file, 'r');
         } elseif (is_resource($file)) {
-            $tmp = $this->_config->dir->temp.DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->_user->getId();
+            $tmp = $this->_fs->getServer()->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->_user->getId();
             if (!file_exists($tmp)) {
                 mkdir($tmp, 0700, true);
             }
 
             $tmp_file = $tmp.DIRECTORY_SEPARATOR.$this->guidv4(openssl_random_pseudo_bytes(16));
             $stream = fopen($tmp_file, 'w+');
-            $size = stream_copy_to_stream($file, $stream, ((int)$this->_config->file->max_size + 1));
+            $size = stream_copy_to_stream($file, $stream, ((int)$this->_fs->getServer()->getMaxFileSize() + 1));
             rewind($stream);
             fclose($file);
 
-            if ($size > (int)$this->_config->file->max_size) {
+            if ($size > (int)$this->_fs->getServer()->getMaxFileSize()) {
                 unlink($tmp_file);
                 throw new Exception\InsufficientStorage('file size exceeded limit',
                     Exception\InsufficientStorage::FILE_SIZE_LIMIT
@@ -1010,7 +1007,7 @@ class File extends AbstractNode implements DAV\IFile
         }
         
         $this->hash = $new_hash;
-        $max = (int)(string)$this->_config->file->max_version;
+        $max = (int)(string)$this->_fs->getServer()->getMaxFileVersion();
         if (count($this->history) >= $max) {
             $del = key($this->history);
             $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [

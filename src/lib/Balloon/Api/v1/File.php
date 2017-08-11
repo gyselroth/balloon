@@ -318,7 +318,7 @@ class File extends Node
         }
 
         $chunkgroup = Helper::filter($chunkgroup);
-        $folder     = $this->config->dir->temp.DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
+        $folder     = $this->server->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
 
         if (!file_exists($folder)) {
             mkdir($folder, 0700, true);

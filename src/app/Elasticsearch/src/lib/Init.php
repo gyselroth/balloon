@@ -49,7 +49,7 @@ class Init extends AbstractApp
      * @param   int $deleted
      * @return  array
      */
-    public function search(array $query, int $deleted=INode::DELETED_INCLUDE): array
+    public function search(array $query, int $deleted=NodeInterface::DELETED_INCLUDE): array
     {
         #if ($this->user instanceof User) {
         #    $this->user->findNewShares();

@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Notification;
 
 use \Balloon\User;
-use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Resource;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Async\Mail;
@@ -101,14 +101,14 @@ class Hook extends AbstractHook
      *
      * Executed post node attributes were saved to mongodb
      *
-     * @param  INode $node
+     * @param  NodeInterface $node
      * @param  array $attributes
      * @param  array $remove
      * @param  string $recursion
      * @param  bool $recursion_first
      * @return void
      */
-    public function postSaveNodeAttributes(INode $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
+    public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
     {
         if (!($node instanceof Collection)) {
             return;
@@ -168,11 +168,11 @@ class Hook extends AbstractHook
     /**
      * Check if users needs a notification and checks if mail adress is available
      *
-     * @param   INode $node
+     * @param   NodeInterface $node
      * @param   User $user
      * @return  string
      */
-    protected function checkNotify(INode $node, User $user): ?string
+    protected function checkNotify(NodeInterface $node, User $user): ?string
     {
         if ($user->hasShare($node)) {
             $this->logger->debug('skip mail notifcation for share ['.$node->getId().'] user ['.$user->getId().'] already owns it', [

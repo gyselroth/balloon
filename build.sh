@@ -205,7 +205,7 @@ fi
 
 if [ $OPT_TEST -eq 1 ]; then
     echo "[TASK] Execute phpunit"
-    ./vendor/phpunit/phpunit/phpunit --debug --bootstrap tests/Bootstrap.php tests/
+    ./vendor/phpunit/phpunit/phpunit --debug --bootstrap tests/Unit/Bootstrap.php tests/Unit
     if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
         echo "unit testing failed, abort build"
         exit 127

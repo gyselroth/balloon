@@ -51,7 +51,7 @@ class Async
      * @param   Config $config
      * @return  void
      */
-    public function __construct(Database $db, Logger $logger, Config $config)
+    public function __construct(Database $db, Logger $logger, ?Config $config=null)
     {
         $this->db     = $db;
         $this->logger = $logger;

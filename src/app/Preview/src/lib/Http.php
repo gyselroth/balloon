@@ -14,7 +14,7 @@ use \Balloon\Filesystem;
 use \Balloon\Http\Router\Route;
 use \Balloon\App\AbstractApp;
 
-class Init extends AbstractApp
+class Http extends AbstractApp
 {
     /**
      * Init
@@ -23,20 +23,7 @@ class Init extends AbstractApp
      */
     public function init(): bool
     {
-        $this->pluginmgr->registerPlugin('\Balloon\App\Preview\Plugin', null);
-        #$this->router->prependRoute((new Route('/api/v1/app/office', $this, 'start')));
-
-        return true;
-    }
-
-
-    /**
-     * Start
-     *
-     * @return bool
-     */
-    public function start(): bool
-    {
+        $this->server->getHook()->registerHook('\Balloon\App\Preview\Hook');
         return true;
     }
 }

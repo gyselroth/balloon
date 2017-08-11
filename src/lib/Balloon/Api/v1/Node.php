@@ -14,7 +14,7 @@ namespace Balloon\Api\v1;
 use \Balloon\Exception;
 use \Balloon\Api\Controller;
 use \Balloon\Helper;
-use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Root;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\Node as CoreNode;
@@ -173,7 +173,7 @@ class Node extends Controller
      * @param   bool $multiple Allow $id to be an array
      * @param   bool $allow_root Allow instance of root collection
      * @param   bool $deleted How to handle deleted node
-     * @return  INode
+     * @return  NodeInterface
      */
     protected function _getNode(
         ?string $id=null,
@@ -181,7 +181,7 @@ class Node extends Controller
         ?string $class=null,
         bool $multiple=false,
         bool $allow_root=false,
-        int $deleted=2): INode
+        int $deleted=2): NodeInterface
     {
         if ($class === null) {
             $class = join('', array_slice(explode('\\', get_class($this)), -1));
@@ -343,7 +343,7 @@ class Node extends Controller
                 $result = $node->undelete($conflict);
             }
 
-            if ($move == true && $conflict == INode::CONFLICT_RENAME) {
+            if ($move == true && $conflict == NodeInterface::CONFLICT_RENAME) {
                 return (new Response())->setCode(200)->setBody($node->getName());
             } else {
                 return (new Response())->setCode(204);
@@ -1236,7 +1236,7 @@ class Node extends Controller
             $node   = $this->_getNode($id, $p);
             $result = $node->setParent($parent, $conflict);
             
-            if ($conflict == INode::CONFLICT_RENAME) {
+            if ($conflict == NodeInterface::CONFLICT_RENAME) {
                 return (new Response())->setCode(200)->setBody($node->getName());
             } else {
                 return (new Response())->setCode(204);
@@ -1417,7 +1417,7 @@ class Node extends Controller
     public function getTrash(array $attributes=[]): Response
     {
         $children = [];
-        $nodes = $this->fs->findNodesWithCustomFilterUser(INode::DELETED_ONLY, ['deleted' => ['$type' => 9]]);
+        $nodes = $this->fs->findNodesWithCustomFilterUser(NodeInterface::DELETED_ONLY, ['deleted' => ['$type' => 9]]);
 
         foreach ($nodes as $node) {
             try {

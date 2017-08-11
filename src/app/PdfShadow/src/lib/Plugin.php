@@ -13,7 +13,7 @@ namespace Balloon\App\PdfShadow;
 
 use \Balloon\User;
 use \Balloon\Queue\JobInterface;
-use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\Resource;
 use \Balloon\Filesystem\Node\Collection;
