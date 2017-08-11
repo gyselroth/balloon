@@ -25,7 +25,7 @@ use \MongoDB\Model\BSONDocument;
 use \MongoDB\BSON\Regex;
 use \Generator;
 
-class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
+class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 {
     /**
      * Root folder
@@ -95,9 +95,9 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param  int $conflict
      * @param  string $recursion
      * @param  bool $recursion_first
-     * @return INode
+     * @return NodeInterface
      */
-    public function copyTo(Collection $parent, int $conflict=INode::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): INode
+    public function copyTo(Collection $parent, int $conflict=NodeInterface::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): NodeInterface
     {
         if ($recursion === null) {
             $recursion_first = true;
@@ -106,11 +106,11 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             $recursion_first = false;
         }
 
-        $this->_pluginmgr->run('preCopyCollection',
+        $this->_hook->run('preCopyCollection',
             [$this, $parent, &$conflict, &$recursion, &$recursion_first]
         );
 
-        if ($conflict === INode::CONFLICT_RENAME && $parent->childExists($this->name)) {
+        if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
             $name = $this->_getDuplicateName();
         } else {
             $name = $this->name;
@@ -122,7 +122,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             );
         }
 
-        if ($conflict === INode::CONFLICT_MERGE && $parent->childExists($this->name)) {
+        if ($conflict === NodeInterface::CONFLICT_MERGE && $parent->childExists($this->name)) {
             $new_parent = $parent->getChild($this->name);
         } else {
             $new_parent = $parent->addDirectory($name, [
@@ -130,14 +130,14 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'filter'  => $this->filter,
-            ], INode::CONFLICT_NOACTION, true);
+            ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        foreach ($this->getChildNodes(INode::DELETED_INCLUDE) as $child) {
+        foreach ($this->getChildNodes(NodeInterface::DELETED_INCLUDE) as $child) {
             $child->copyTo($new_parent, $conflict, $recursion, false);
         }
 
-        $this->_pluginmgr->run('postCopyCollection',
+        $this->_hook->run('postCopyCollection',
             [$this, $parent, $new_parent, $conflict, $recursion, $recursion_first]
         );
 
@@ -242,7 +242,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param   array $filter
      * @return  Generator
      */
-    public function getChildNodes(int $deleted=INode::DELETED_EXCLUDE, array $filter=[]): Generator
+    public function getChildNodes(int $deleted=NodeInterface::DELETED_EXCLUDE, array $filter=[]): Generator
     {
         if ($this->_user instanceof User) {
             $this->_user->findNewShares();
@@ -252,9 +252,9 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             'parent' => $this->getRealId(),
         ];
 
-        if ($deleted === INode::DELETED_EXCLUDE) {
+        if ($deleted === NodeInterface::DELETED_EXCLUDE) {
             $search['deleted'] = false;
-        } elseif ($deleted === INode::DELETED_ONLY) {
+        } elseif ($deleted === NodeInterface::DELETED_ONLY) {
             $search['deleted'] = ['$type' => 9];
         }
 
@@ -313,7 +313,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param   array $filter
      * @return  Generator
      */
-    public function getChildren(int $deleted=INode::DELETED_EXCLUDE, array $filter=[]): array
+    public function getChildren(int $deleted=NodeInterface::DELETED_EXCLUDE, array $filter=[]): array
     {
         return iterator_to_array($this->getChildNodes($deleted, $filter));
     }
@@ -338,7 +338,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
     public function getSize(): int
     {
         if ($this->isDeleted()) {
-            return count(iterator_to_array($this->getChildNodes(INode::DELETED_INCLUDE)));
+            return count(iterator_to_array($this->getChildNodes(NodeInterface::DELETED_INCLUDE)));
         } else {
             return count(iterator_to_array($this->getChildNodes()));
         }
@@ -382,9 +382,9 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param  Collection|File|string $node
      * @param  int $deleted
      * @param  array $filter
-     * @return INode
+     * @return NodeInterface
      */
-    public function getChild($node, int $deleted=INode::DELETED_EXCLUDE, array $filter=[]): INode
+    public function getChild($node, int $deleted=NodeInterface::DELETED_EXCLUDE, array $filter=[]): NodeInterface
     {
         //if $node is string load the object from the backend based on the current parent (the name
         //is unique per depth, so we can load the object)
@@ -396,10 +396,10 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             ];
     
             switch ($deleted) {
-                case INode::DELETED_EXCLUDE:
+                case NodeInterface::DELETED_EXCLUDE:
                     $search['deleted'] = false;
                     break;
-                case INode::DELETED_ONLY:
+                case NodeInterface::DELETED_ONLY:
                     $search['deleted'] = ['$type' => '9'];
                     break;
             }
@@ -453,7 +453,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param   int $deleted
      * @return  bool
      */
-    protected function doRecursiveAction(string $method, array $params=[], int $deleted=INode::DELETED_EXCLUDE): bool
+    protected function doRecursiveAction(string $method, array $params=[], int $deleted=NodeInterface::DELETED_EXCLUDE): bool
     {
         if (!is_callable([$this, $method])) {
             throw new Exception("method $method is not callable in ".__CLASS__);
@@ -495,7 +495,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             $recursion_first = false;
         }
 
-        $this->_pluginmgr->run('preDeleteCollection',
+        $this->_hook->run('preDeleteCollection',
             [$this, &$force, &$recursion, &$recursion_first]
         );
         
@@ -528,7 +528,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             $result = true;
         }
 
-        $this->_pluginmgr->run('postDeleteCollection',
+        $this->_hook->run('postDeleteCollection',
             [$this, $force, $recursion, $recursion_first]
         );
 
@@ -550,7 +550,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
                 'force'     => true,
                 'recursion' => $recursion,
                 'recursion_first' => false,
-            ], INode::DELETED_INCLUDE);
+            ], NodeInterface::DELETED_INCLUDE);
         }
   
         try {
@@ -565,7 +565,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             ]);
         
 
-            $this->_pluginmgr->run('postDeleteCollection',
+            $this->_hook->run('postDeleteCollection',
                 [$this, true, $recursion, $recursion_first]
             );
         } catch (\Exception $e) {
@@ -595,7 +595,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param   array $filter
      * @return  bool
      */
-    public function childExists($name, $deleted=INode::DELETED_EXCLUDE, array $filter=[]): bool
+    public function childExists($name, $deleted=NodeInterface::DELETED_EXCLUDE, array $filter=[]): bool
     {
         $find = [
             'parent'  => $this->getRealId(),
@@ -607,10 +607,10 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
         }
 
         switch ($deleted) {
-            case INode::DELETED_EXCLUDE:
+            case NodeInterface::DELETED_EXCLUDE:
                 $find['deleted'] = false;
                 break;
-            case INode::DELETED_ONLY:
+            case NodeInterface::DELETED_ONLY:
                 $find['deleted'] = ['$type' => 9];
                 break;
         }
@@ -833,7 +833,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param   bool $clone
      * @return  Collection
      */
-    public function addDirectory($name, array $attributes=[], int $conflict=INode::CONFLICT_NOACTION, bool $clone=false): Collection
+    public function addDirectory($name, array $attributes=[], int $conflict=NodeInterface::CONFLICT_NOACTION, bool $clone=false): Collection
     {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden('not allowed to create new node here',
@@ -841,7 +841,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             );
         }
 
-        $this->_pluginmgr->run('preCreateCollection', [$this, &$name, &$attributes, &$clone]);
+        $this->_hook->run('preCreateCollection', [$this, &$name, &$attributes, &$clone]);
 
         if ($this->readonly) {
             throw new Exception\Conflict('node is set as readonly, it is not possible to add new sub nodes',
@@ -852,11 +852,11 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
         $name = $this->checkName($name);
 
         if ($this->childExists($name)) {
-            if ($conflict === INode::CONFLICT_NOACTION) {
+            if ($conflict === NodeInterface::CONFLICT_NOACTION) {
                 throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
                     Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
                 );
-            } elseif ($conflict === INode::CONFLICT_RENAME) {
+            } elseif ($conflict === NodeInterface::CONFLICT_RENAME) {
                 $name = $this->getDuplicateName($name);
             }
         }
@@ -890,7 +890,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             ]);
 
             $new = new Collection(new BSONDocument($save), $this->_fs);
-            $this->_pluginmgr->run('postCreateCollection', [$this, $new, $clone]);
+            $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
      
             return $new;
         } catch (\Exception $e) {
@@ -913,7 +913,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      * @param   bool $clone
      * @return  File
      */
-    public function addFile($name, $data=null, array $attributes=[], int $conflict=INode::CONFLICT_NOACTION, bool $clone=false): File
+    public function addFile($name, $data=null, array $attributes=[], int $conflict=NodeInterface::CONFLICT_NOACTION, bool $clone=false): File
     {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden('not allowed to create new node here',
@@ -921,7 +921,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             );
         }
 
-        $this->_pluginmgr->run('preCreateFile', [$this, &$name, &$attributes, &$clone]);
+        $this->_hook->run('preCreateFile', [$this, &$name, &$attributes, &$clone]);
 
         if ($this->readonly) {
             throw new Exception\Conflict('node is set as readonly, it is not possible to add new sub nodes',
@@ -932,11 +932,11 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
         $name = $this->checkName($name);
 
         if ($this->childExists($name)) {
-            if ($conflict === INode::CONFLICT_NOACTION) {
+            if ($conflict === NodeInterface::CONFLICT_NOACTION) {
                 throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
                     Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
                 );
-            } elseif ($conflict === INode::CONFLICT_RENAME) {
+            } elseif ($conflict === NodeInterface::CONFLICT_RENAME) {
                 $name = $this->getDuplicateName($name);
             }
         }
@@ -989,7 +989,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
                 throw $e;
             }
             
-            $this->_pluginmgr->run('postCreateFile', [$this, $file, $clone]);
+            $this->_hook->run('postCreateFile', [$this, $file, $clone]);
 
             return $file;
         } catch (\Exception $e) {

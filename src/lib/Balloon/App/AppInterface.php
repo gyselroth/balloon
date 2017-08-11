@@ -14,11 +14,9 @@ namespace Balloon\App;
 use \Composer\Autoload\ClassLoader as Composer;
 use \Micro\Http\Router;
 use \Psr\Log\LoggerInterface as Logger;
-use \Balloon\Auth;
-use \Balloon\Filesystem;
+use \Micro\Auth;
+use \Balloon\Server;
 use \Micro\Config;
-use \Balloon\Queue;
-use \Balloon\Plugin;
 
 interface AppInterface
 {
@@ -32,10 +30,10 @@ interface AppInterface
     public function __construct(
         Composer $composer,
         Config $config,
-        Router $router,
+        Server $server,
         Logger $logger,
-        Filesystem $fs,
-        Auth $auth);
+        ?Router $router=null,
+        ?Auth $auth=null);
 
 
     /**

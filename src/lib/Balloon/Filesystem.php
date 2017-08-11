@@ -12,11 +12,9 @@ declare(strict_types=1);
 namespace Balloon;
 
 use \Balloon\Exception;
-use \Balloon\User;
 use \Psr\Log\LoggerInterface as Logger;
-use \Balloon\Plugin;
 use \Balloon\Filesystem\Delta;
-use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
 use \MongoDB\Database;
@@ -24,6 +22,7 @@ use \MongoDB\BSON\ObjectID;
 use \MongoDB\Model\BSONDocument;
 use \Generator;
 use \Micro\Config;
+use \Balloon\Server\User;
 
 class Filesystem
 {
@@ -44,19 +43,11 @@ class Filesystem
 
 
     /**
-     * Plugin
+     * Hook
      *
-     * @var Plugin
+     * @var Hook
      */
-    protected $pluginmgr;
-
-    
-    /**
-     * Queue
-     *
-     * @var Queue
-     */
-    protected $queuemgr;
+    protected $hook;
 
     
     /**
@@ -74,14 +65,6 @@ class Filesystem
      */
     protected $delta;
     
-    
-    /**
-     * Config
-     *
-     * @var Config
-     */
-    protected $config;
-
 
     /**
      * Get user
@@ -96,13 +79,13 @@ class Filesystem
      *
      * @return void
      */
-    public function __construct(Database $db, Logger $logger, Config $config, Queue $queuemgr, Plugin $pluginmgr)
+    public function __construct(Server $server, Logger $logger)
     {
-        $this->db        = $db;
+        $server->setFilesystem($this);
+        $this->server    = $server;
+        $this->db        = $server->getDatabase();
         $this->logger    = $logger;
-        $this->pluginmgr = $pluginmgr;
-        $this->config    = $config;
-        $this->queuemgr  = $queuemgr;
+        $this->hook      = $server->getHook();;
     }
 
    
@@ -111,7 +94,7 @@ class Filesystem
      *
      * @return User
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         return $this->user;
     }
@@ -142,17 +125,6 @@ class Filesystem
     
     
     /**
-     * Get Config
-     *
-     * @return Config
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-   
-    /**
      * Get logger
      *
      * @return Logger
@@ -162,26 +134,15 @@ class Filesystem
         return $this->logger;
     }
 
-    
-    /**
-     * Get queue
-     *
-     * @return Queue
-     */
-    public function getQueue()
-    {
-        return $this->queuemgr;
-    }
-
 
     /**
-     * Get plugin
+     * Get Hook
      *
-     * @return Plugin
+     * @return Hook
      */
-    public function getPlugin()
+    public function getHook(): Hook
     {
-        return $this->pluginmgr;
+        return $this->hook;
     }
     
 
@@ -238,9 +199,9 @@ class Filesystem
      * Initialize node
      *
      * @param  BSONDocument $node
-     * @return INode
+     * @return NodeInterface
      */
-    protected function initNode(BSONDocument $node): INode
+    protected function initNode(BSONDocument $node): NodeInterface
     {
         if (isset($node['shared']) && $node['shared'] === true && $this->user !== null && $node['owner'] != $this->user->getId()) {
             if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
@@ -294,9 +255,9 @@ class Filesystem
      * @param   string|ObjectID $id
      * @param   string $class Fore check node type
      * @param   int $deleted
-     * @return  INode
+     * @return  NodeInterface
      */
-    public function findNodeWithId($id, ?string $class=null, int $deleted=INode::DELETED_INCLUDE): INode
+    public function findNodeWithId($id, ?string $class=null, int $deleted=NodeInterface::DELETED_INCLUDE): NodeInterface
     {
         if (!is_string($id) && !($id instanceof ObjectID)) {
             throw new Exception\InvalidArgument($id.' node id has to be a string or instance of \MongoDB\BSON\ObjectID');
@@ -315,12 +276,12 @@ class Filesystem
         ];
 
         switch ($deleted) {
-            case INode::DELETED_INCLUDE:
+            case NodeInterface::DELETED_INCLUDE:
                 break;
-            case INode::DELETED_EXCLUDE:
+            case NodeInterface::DELETED_EXCLUDE:
                 $filter['deleted'] = false;
                 break;
-            case INode::DELETED_ONLY:
+            case NodeInterface::DELETED_ONLY:
                 $filter['deleted'] = ['$type' => 9];
                 break;
         }
@@ -352,9 +313,9 @@ class Filesystem
      *
      * @param   string $path
      * @param   string $class Fore check node type
-     * @return  INode
+     * @return  NodeInterface
      */
-    public function findNodeWithPath(string $path='', ?string $class=null): INode
+    public function findNodeWithPath(string $path='', ?string $class=null): NodeInterface
     {
         if (empty($path) || $path[0] != '/') {
             $path = '/'.$path;
@@ -369,7 +330,7 @@ class Filesystem
         $parent = new Collection(null, $this);
         array_shift($parts);
         foreach ($parts as $node) {
-            $parent = $parent->getChild($node, INode::DELETED_EXCLUDE);
+            $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
         }
         
         if ($class !== null) {
@@ -389,9 +350,9 @@ class Filesystem
      *
      * @param   string $token
      * @param   string $class Fore check node type
-     * @return  INode
+     * @return  NodeInterface
      */
-    public function findNodeWithShareToken(string $token, ?string $class=null): INode
+    public function findNodeWithShareToken(string $token, ?string $class=null): NodeInterface
     {
         $node = $this->db->storage->findOne([
             'sharelink.token' => $token,
@@ -435,7 +396,7 @@ class Filesystem
      * @param   bool $deleted
      * @return  Generator
      */
-    public function findNodes(array $id=[], ?string $class=null, int $deleted=INode::DELETED_INCLUDE): Generator
+    public function findNodes(array $id=[], ?string $class=null, int $deleted=NodeInterface::DELETED_INCLUDE): Generator
     {
         $id = (array)$id;
 
@@ -449,12 +410,12 @@ class Filesystem
         ];
 
         switch ($deleted) {
-            case INode::DELETED_INCLUDE:
+            case NodeInterface::DELETED_INCLUDE:
                 break;
-            case INode::DELETED_EXCLUDE:
+            case NodeInterface::DELETED_EXCLUDE:
                 $filter['deleted'] = false;
                 break;
-            case INode::DELETED_ONLY:
+            case NodeInterface::DELETED_ONLY:
                 $filter['deleted'] = ['$type' => 9];
                 break;
         }
@@ -488,7 +449,7 @@ class Filesystem
      * @param   bool $multiple Allow $id to be an array
      * @param   bool $allow_root Allow instance of root collection
      * @param   bool $deleted How to handle deleted node
-     * @return  INode
+     * @return  NodeInterface
      */
     public function getNode($id=null, $path=null, $class=null, $multiple=false, $allow_root=false, $deleted=null)
     {
@@ -502,7 +463,7 @@ class Filesystem
             throw new Exception\InvalidArgument('parameter id and p (path) can not be used at the same time');
         } elseif ($id !== null) {
             if ($deleted === null) {
-                $deleted = INode::DELETED_INCLUDE;
+                $deleted = NodeInterface::DELETED_INCLUDE;
             }
 
             if ($multiple === true && is_array($id)) {
@@ -512,7 +473,7 @@ class Filesystem
             }
         } elseif ($path !== null) {
             if ($deleted === null) {
-                $deleted = INode::DELETED_EXCLUDE;
+                $deleted = NodeInterface::DELETED_EXCLUDE;
             }
     
             $node = $this->findNodeWithPath($path, $class);
@@ -572,9 +533,9 @@ class Filesystem
             ]]
         ]];
 
-        if ($deleted === INode::DELETED_EXCLUDE) {
+        if ($deleted === NodeInterface::DELETED_EXCLUDE) {
             $stored_filter['$and'][0]['deleted'] = false;
-        } elseif ($deleted === INode::DELETED_ONLY) {
+        } elseif ($deleted === NodeInterface::DELETED_ONLY) {
             $stored_filter['$and'][0]['deleted'] = ['$type' => 9];
         }
         
@@ -602,7 +563,7 @@ class Filesystem
      * @param   int $limit
      * @param   string $cursor
      * @param   bool $has_more
-     * @param   INode $parent
+     * @param   NodeInterface $parent
      * @return  array
      */
     public function findNodeAttributesWithCustomFilter(
@@ -611,7 +572,7 @@ class Filesystem
         ?int $limit = null,
         ?int &$cursor = null,
         ?bool &$has_more = null,
-        ?INode $parent = null)
+        ?NodeInterface $parent = null)
     {
         $default = [
             '_id'       => 1,

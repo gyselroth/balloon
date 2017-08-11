@@ -1,55 +1,52 @@
-CHANGELOG
---
-2.0.0-dev - Raffael Sahli <sahli@gyselroth.com>
-Thu June 22 15:04:32 CET 2017
---
+# 2.0.0-dev
+## Raffael Sahli <sahli@gyselroth.com>
+## Thu June 22 15:04:32 CET 2017
 CORE: [CHANE] php ext apc is now optional (cache configuration)
 CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
+CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
+CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
+CORE: [CHANGE] changed hook preAuthentication() first param to Auth $auth instead auth adapters
+CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon\Plugin => \Balloon\Hook #55, \Balloon\Queue => \Balloon\Async
+CORE: [CHANGE] Added new \Balloon\Server which is the new point of entry, also moved \Balloon\User to \Ballon\Server\User and made various code improvements to it
 Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 
 
---
-1.0.15 - Raffael Sahli <sahli@gyselroth.com>
-Mon July 31 12:55:02 CET 2017
---
+# 1.0.15 
+## Raffael Sahli <sahli@gyselroth.com>
+## Mon July 31 12:55:02 CET 2017
 API: [FEATURE] /node/attributes does now accept multiple id #47
 API: [FIX] fixed XSS via X-Client header
 
 
---
-1.0.14 - Raffael Sahli <sahli@gyselroth.com>
-Mon July 30 11:13:00 CET 2017
---
+# 1.0.14
+## Raffael Sahli <sahli@gyselroth.com>
+## Mon July 30 11:13:00 CET 2017
 CORE: [FIX] fixed ldap auto share sync plugin #45
 API: [FIX] missing delta entry if node gets moved and a new node is created at the old place #44
 
 
---
-1.0.13 - Raffael Sahli <sahli@gyselroth.com>
-Fri June 30 16:04:32 CET 2017
---
+# 1.0.13 
+## Raffael Sahli <sahli@gyselroth.com>
+## Fri June 30 16:04:32 CET 2017
 CORE: [FIX] added missing node name in Exception\NotFound during requesting child by name
 CORE: [FIX] fixed #40 webdav adding new file return error 500
 API: [FIX] fixed #41 Error (Undefined class constant 'DESTINATION_NOT_FOUND') during POST /node/move request
 
 
---
-1.0.12 GA - Raffael Sahli <sahli@gyselroth.com>
-Thu June 22 10:04:32 CET 2017
---
+# 1.0.12 GA
+## Raffael Sahli <sahli@gyselroth.com>
+## Thu June 22 10:04:32 CET 2017
 CORE: [FIX] fixed destroy node via cli plugin if node is a sub node of a share but destroy timestamp was set by share member 
 
 
---
-1.0.11 RC5 - Raffael Sahli <sahli@gyselroth.com>
-Tue June 20 09:30:00 CET 2017
---
+# 1.0.11 RC5
+## Raffael Sahli <sahli@gyselroth.com>
+## Tue June 20 09:30:00 CET 2017
 CORE: [FIX] fixed decoding ldap filter from xml configuration &amp; => &
 API: [FIX] fixed GET node/attributes if parent is a share reference and attribute parent is requested the id is now the id of the reference instead the one of the share
 Webinterface: [CHANGE] client hostname in event log is now more Unknown, if not available then there will be no client hostname
 
 
---
 1.0.10 RC4 - Raffael Sahli <sahli@gyselroth.com>
 Tue June 13 09:30:00 CET 2017
 --

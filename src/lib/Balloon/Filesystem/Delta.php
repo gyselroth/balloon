@@ -16,7 +16,7 @@ use \Balloon\Exception;
 use \Balloon\Filesystem;
 use \Balloon\Helper;
 use \Balloon\User;
-use \Balloon\Filesystem\Node\INode;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\ObjectID;
@@ -112,10 +112,10 @@ class Delta
      * @param   array $cursor
      * @param   int $limit
      * @param   array $attributes
-     * @param   INode $node
+     * @param   NodeInterface $node
      * @return  array
      */
-    public function buildFeedFromCurrentState(?array $cursor=null, int $limit=100, array $attributes=[], ?INode $node=null): array
+    public function buildFeedFromCurrentState(?array $cursor=null, int $limit=100, array $attributes=[], ?NodeInterface $node=null): array
     {
         $current_cursor = 0;
         $filter = ['$and' => [
@@ -198,10 +198,10 @@ class Delta
     /**
      * Get last delta event
      *
-     * @param  INode $node
+     * @param  NodeInterface $node
      * @return BSONDocument
      */
-    public function getLastRecord(?INode $node=null): ?BSONDocument
+    public function getLastRecord(?NodeInterface $node=null): ?BSONDocument
     {
         $filter = $this->getDeltaFilter();
         
@@ -224,10 +224,10 @@ class Delta
     /**
      * Get last cursor
      *
-     * @param  INode $node
+     * @param  NodeInterface $node
      * @return string
      */
-    public function getLastCursor(?INode $node=null): string
+    public function getLastCursor(?NodeInterface $node=null): string
     {
         $filter = $this->getDeltaFilter();
         
@@ -256,10 +256,10 @@ class Delta
      * @param   string $cursor
      * @param   int $limit
      * @param   array $attributes
-     * @param   INode $node
+     * @param   NodeInterface $node
      * @return  array
      */
-    public function getDeltaFeed(?string $cursor=null, int $limit=250, array $attributes=[], ?INode $node=null): array
+    public function getDeltaFeed(?string $cursor=null, int $limit=250, array $attributes=[], ?NodeInterface $node=null): array
     {
         $this->user->findNewShares();
 
@@ -323,7 +323,7 @@ class Delta
             }
             
             try {
-                $log_node = $this->fs->findNodeWithId($log['node'], null, INode::DELETED_EXCLUDE);
+                $log_node = $this->fs->findNodeWithId($log['node'], null, NodeInterface::DELETED_EXCLUDE);
                 if ($node !== null && !$node->isSubNode($log_node)) {
                     continue;
                 }
@@ -418,10 +418,10 @@ class Delta
      *
      * @param   int $limit
      * @param   int $skip
-     * @param   INode $node
+     * @param   NodeInterface $node
      * @return  array
      */
-    public function getEventLog(int $limit=100, int $skip=0, ?INode $node=null): array
+    public function getEventLog(int $limit=100, int $skip=0, ?NodeInterface $node=null): array
     {
         $filter = $this->getDeltaFilter();
 
@@ -468,7 +468,7 @@ class Delta
                         ];
                     } else {
                         try {
-                            $node = $this->fs->findNodeWithId($events[$id]['previous']['parent'], null, INode::DELETED_INCLUDE);
+                            $node = $this->fs->findNodeWithId($events[$id]['previous']['parent'], null, NodeInterface::DELETED_INCLUDE);
                             $events[$id]['previous']['parent'] = [
                                 'id'      => (string)$node->getId(),
                                 'name'    => $node->getName(),
@@ -483,7 +483,7 @@ class Delta
             }
 
             try {
-                $node = $this->fs->findNodeWithId($log['node'], null, INode::DELETED_INCLUDE);
+                $node = $this->fs->findNodeWithId($log['node'], null, NodeInterface::DELETED_INCLUDE);
                 $events[$id]['node'] = [
                     'id'      => (string)$node->getId(),
                     'name'    => $node->getName(),
@@ -500,7 +500,7 @@ class Delta
                         'name' => null
                     ];
                 } else {
-                    $node = $this->fs->findNodeWithId($log['parent'], null, INode::DELETED_INCLUDE);
+                    $node = $this->fs->findNodeWithId($log['parent'], null, NodeInterface::DELETED_INCLUDE);
                     $events[$id]['parent'] = [
                         'id'      => (string)$node->getId(),
                         'name'    => $node->getName(),
@@ -525,7 +525,7 @@ class Delta
                 if (isset($log['share']) && $log['share'] === false || !isset($log['share'])) {
                     $events[$id]['share'] = null;
                 } else {
-                    $node = $this->fs->findNodeWithId($log['share'], null, INode::DELETED_INCLUDE);
+                    $node = $this->fs->findNodeWithId($log['share'], null, NodeInterface::DELETED_INCLUDE);
                     $events[$id]['share'] = [
                         'id'      => (string)$node->getId(),
                         'name'    => $node->getName(),

@@ -14,11 +14,9 @@ namespace Balloon\App;
 use \Composer\Autoload\ClassLoader as Composer;
 use \Micro\Http\Router;
 use \Psr\Log\LoggerInterface as Logger;
-use \Balloon\Filesystem;
-use \Balloon\Auth;
+use \Balloon\Server;
+use \Micro\Auth;
 use \Micro\Config;
-use \Balloon\Queue;
-use \Balloon\Plugin;
 
 abstract class AbstractApp implements AppInterface
 {
@@ -55,35 +53,11 @@ abstract class AbstractApp implements AppInterface
 
 
     /**
-     * Database
+     * Server
      *
-     * @var Database
+     * @var Server
      */
-    protected $db;
-
-
-    /**
-     * Queue
-     *
-     * @var Queue
-     */
-    protected $queuemgr;
-
-
-    /**
-     * Plugin
-     *
-     * @var Plugin
-     */
-    protected $pluginmgr;
-    
-
-    /**
-     * Filesystem
-     *
-     * @var Filesystem
-     */
-    protected $fs;
+    protected $server;
 
 
     /**
@@ -96,19 +70,17 @@ abstract class AbstractApp implements AppInterface
     public function __construct(
         Composer $composer,
         Config $config,
-        Router $router,
+        Server $server,
         Logger $logger,
-        Filesystem $fs,
-        Auth $auth)
+        ?Router $router=null,
+        ?Auth $auth=null)
     {
         $this->composer = $composer;
         $this->config   = $config;
         $this->router   = $router;
         $this->logger   = $logger;
-        $this->fs       = $fs;
-        $this->db       = $fs->getDatabase();
-        $this->pluginmgr= $fs->getPlugin();
-        $this->queuemgr = $fs->getQueue();
+        $this->server   = $server;
+        $this->fs       = $server->getFilesystem();
         $this->auth     = $auth;
 
         $this->init();

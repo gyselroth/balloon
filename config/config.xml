@@ -346,19 +346,15 @@
             </basic_db>
 
           <!--
-            - Authenticate via OAUTH2 Authorization server
+            - OpenID-Connect
             -
-            - auth.adapter[].auth_server: OAUTH2 authorziation endpoint
-            - auth.adapter[].client_id: OAUTH2 client id
-            - auth.adapter[].client_secret: OAUTH2 client secret
+            - auth.adapter[].provider_ul: OpenID-Connect provider url
             -->
-            <oauth2 enabled="0" class="\Balloon\Auth\Adapter\Oauth2">
+            <oidc enabled="0" class="\Micro\Auth\Adapter\Oidc">
                 <config>
-                    <auth_server>https://oauth.example.org/validate</auth_server>
-                    <client_id>YOUR_OAUTH_CLIENT_ID</client_id>
-                    <client_secret>YOUR_OAUTH_CLIENT_SECRET</client_secret>
+                    <provider_url>https://openidconnect.example.net</provider_url>
                 </config>
-            </oauth2>
+            </oidc>
 
           <!--
             - Preauth with LDAP Account and preauth key
@@ -367,7 +363,7 @@
             -
             - @deprecated
             -->
-            <preauth enabled="0" class="\Balloon\Auth\Adapter\Preauth">
+            <preauth enabled="0" class="\Micro\Auth\Adapter\Preauth">
                 <config>
                     <key>random_pre_auth_key</key>
                     <source>
@@ -408,7 +404,7 @@
             -        avatar : Profile picture
             -        ldapdn : User LDAP DN
             -->
-            <basic_ldap enabled="0" class="\Balloon\Auth\Adapter\Basic\Ldap">
+            <basic_ldap enabled="0" class="\Micro\Auth\Adapter\Basic\Ldap">
                 <config>
                     <ldap>
                         <uri>ldap://ldap.example.org:389</uri>

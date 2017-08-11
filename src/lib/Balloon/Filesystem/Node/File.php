@@ -23,7 +23,7 @@ use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\Model\BSONDocument;
 
-class File extends Node implements INode, DAV\IFile
+class File extends AbstractNode implements DAV\IFile
 {
     /**
      * History types
@@ -157,21 +157,21 @@ class File extends Node implements INode, DAV\IFile
      * @param  int $conflict
      * @param  string $recursion
      * @param  bool $recursion_first
-     * @return INode
+     * @return NodeInterface
      */
-    public function copyTo(Collection $parent, int $conflict=INode::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): INode
+    public function copyTo(Collection $parent, int $conflict=NodeInterface::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): NodeInterface
     {
-        $this->_pluginmgr->run('preCopyFile',
+        $this->_hook->run('preCopyFile',
             [$this, $parent, &$conflict, &$recursion, &$recursion_first]
         );
 
-        if ($conflict === INode::CONFLICT_RENAME && $parent->childExists($this->name)) {
+        if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
             $name = $this->_getDuplicateName();
         } else {
             $name = $this->name;
         }
 
-        if ($conflict === INode::CONFLICT_MERGE && $parent->childExists($this->name)) {
+        if ($conflict === NodeInterface::CONFLICT_MERGE && $parent->childExists($this->name)) {
             $result = $parent->getChild($this->name);
             $result->put($this->get());
         } else {
@@ -180,10 +180,10 @@ class File extends Node implements INode, DAV\IFile
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'thumbnail' => $this->thumbnail
-            ], INode::CONFLICT_NOACTION, true);
+            ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        $this->_pluginmgr->run('postCopyFile',
+        $this->_hook->run('postCopyFile',
             [$this, $parent, $result, $conflict, $recursion, $recursion_first]
         );
 
@@ -228,7 +228,7 @@ class File extends Node implements INode, DAV\IFile
             );
         }
 
-        $this->_pluginmgr->run('preRestoreFile', [$this, &$version]);
+        $this->_hook->run('preRestoreFile', [$this, &$version]);
         
         if ($this->readonly) {
             throw new Exception\Conflict('node is marked as readonly, it is not possible to change any content',
@@ -287,7 +287,7 @@ class File extends Node implements INode, DAV\IFile
                 'changed'
             ]);
 
-            $this->_pluginmgr->run('postRestoreFile', [$this, &$version]);
+            $this->_hook->run('postRestoreFile', [$this, &$version]);
             
             $this->_logger->info('restored file ['.$this->_id.'] to version ['.$version.']', [
                 'category' => get_class($this),
@@ -324,7 +324,7 @@ class File extends Node implements INode, DAV\IFile
             );
         }
 
-        $this->_pluginmgr->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
+        $this->_hook->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
 
         if ($this->readonly && $this->_user !== null) {
             throw new Exception\Conflict('node is marked as readonly, it is not possible to delete it',
@@ -334,7 +334,7 @@ class File extends Node implements INode, DAV\IFile
 
         if ($force === true || $this->isTemporaryFile()) {
             $result = $this->_forceDelete();
-            $this->_pluginmgr->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);
+            $this->_hook->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);
             return $result;
         }
 
@@ -357,7 +357,7 @@ class File extends Node implements INode, DAV\IFile
             'history'
         ], [], $recursion, $recursion_first);
 
-        $this->_pluginmgr->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);
+        $this->_hook->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);
         return $result;
     }
 
@@ -929,7 +929,7 @@ class File extends Node implements INode, DAV\IFile
             );
         }
 
-        $this->_pluginmgr->run('prePutFile', [$this, &$file, &$new, &$attributes]);
+        $this->_hook->run('prePutFile', [$this, &$file, &$new, &$attributes]);
 
         if ($this->readonly) {
             throw new Exception\Conflict('node is marked as readonly, it is not possible to change any content',
@@ -1108,7 +1108,7 @@ class File extends Node implements INode, DAV\IFile
                 'category' => get_class($this),
             ]);
     
-            $this->_pluginmgr->run('postPutFile', [$this, $file, $new, $attributes]);
+            $this->_hook->run('postPutFile', [$this, $file, $new, $attributes]);
 
             return $this->version;
         } catch (\Exception $e) {

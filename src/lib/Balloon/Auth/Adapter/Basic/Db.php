@@ -11,37 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon\Auth\Adapter\Basic;
 
-use \Psr\Log\LoggerInterface as Logger;
-use \Micro\Config;
-use \Balloon\Auth\Adapter\AdapterInterface;
+use \Micro\Auth\Adapter\Basic\AbstractBasic;
+use \Micro\Auth\Adapter\AdapterInterface;
 use \MongoDB\Database;
 
-class Db implements AdapterInterface
+class Db extends AbstractBasic
 {
-    /**
-     * Identity
-     *
-     * @var string
-     */
-    protected $identity;
-
-
-    /**
-     * Logger
-     *
-     * @var Logger
-     */
-    protected $logger;
-
-    
-    /**
-     * ldap resources
-     *
-     * @var Iterable
-     */
-    protected $ldap_resources = [];
-
-    
     /**
      * Db
      *
@@ -51,26 +26,18 @@ class Db implements AdapterInterface
 
 
     /**
-     * Ldap connect
-     *
-     * @param   Iterable $config
-     * @param   Logger $logger
-     * @return  void
+     * Attributes
      */
-    public function __construct(?Iterable $config, Logger $logger)
-    {
-        $this->logger  = $logger;
-        $this->setOptions($config);
-    }
+    protected $attributes = [];
 
 
     /**
      * Set options
      *
-     * @param   Iterable
-     * @return  Ldap
+     * @param   Iterable $config
+     * @return  AdapterInterface
      */
-    public function setOptions(?Iterable $config): Db
+    public function setOptions(?Iterable $config=null): AdapterInterface
     {
         if ($config === null) {
             return $this;
@@ -78,8 +45,8 @@ class Db implements AdapterInterface
     
         foreach ($config as $option => $value) {
             switch ($option) {
-                case 'ldap_resources':
-                    $this->ldap_resources = $value;
+                case 'mongodb':
+                    $this->db = $value;
                 break;
             }
         }
@@ -87,132 +54,28 @@ class Db implements AdapterInterface
         return $this;
     }
     
-
-    /**
-     * Set database
-     *
-     * @param Database $db
-     * @return Db
-     */
-    public function setDatabase(Database $db): Db
-    {
-        $this->db = $db;
-        return $this;
-    }
-
-    
-    /**
-     * Get ldap resources
-     *
-     * @return Iterable
-     */
-    public function getLdapResources(): Iterable
-    {
-        return $this->ldap_resources;
-    }
-
       
     /**
-     * Get attribute sync cache
-     *
-     * @return int
-     */
-    public function getAttributeSyncCache(): int
-    {
-        return -1;
-    }
-
-
-    /**
-     * Authenticate
-     *
-     * @return bool
-     */
-    public function authenticate(): bool
-    {
-        if (!isset($_SERVER['HTTP_AUTHORIZATION'])) {
-            $this->logger->debug('skip auth adapter ['.get_class($this).'], no http authorization header found', [
-                'category' => get_class($this)
-            ]);
-        
-            return false;
-        }
-
-        $header = $_SERVER['HTTP_AUTHORIZATION'];
-        $parts  = explode(' ', $header);
-        
-        if ($parts[0] == 'Basic') {
-            $this->logger->debug('found http basic authorization header', [
-                'category' => get_class($this)
-            ]);
-
-            $username = $_SERVER['PHP_AUTH_USER'];
-            $password = $_SERVER['PHP_AUTH_PW'];
-
-            return $this->plainAuth($username, $password);
-        } else {
-            $this->logger->warning('http authorization header contains no basic string or invalid authentication string', [
-                'category' => get_class($this)
-            ]);
-        
-            return false;
-        }
-    }
-
-
-    /**
-     * Auth
+     * Find identity
      *
      * @param   string $username
-     * @param   string $password
-     * @return  bool
+     * @return  array
      */
-    public function plainAuth(string $username, string $password): bool
+    public function findIdentity(string $username): ?array
     {
         $result = $this->db->user->findOne([
             'username' => $username
         ]);
 
-        if ($result === null) {
-            $this->logger->info('found no user named ['.$username.'] in database', [
-                'category' => get_class($this)
-            ]);
-
-            return false;
+        if($result === null) {
+            return null;
+        } else {
+            $this->attributes = $result;
+            return $this->attributes['username'];
         }
-        
-        if (!isset($result['password']) || empty($result['password'])) {
-            $this->logger->info('found no password for ['.$username.'] in database', [
-                'category' => get_class($this)
-            ]);
-         
-            return false;
-        }
-
-        if (!password_verify($password, $result['password'])) {
-            $this->logger->info('failed match given password for ['.$username.'] with stored hash in database', [
-                'category' => get_class($this)
-            ]);
-         
-            return false;
-        }
-
-        $this->identity  = $username;
-        return true;
     }
 
 
-    /**
-     * Get identity
-     *
-     * @return string
-     */
-    public function getIdentity(): string
-    {
-        return $this->identity;
-    }
-
-    
     /**
      * Get attributes
      *
@@ -220,6 +83,6 @@ class Db implements AdapterInterface
      */
     public function getAttributes(): array
     {
-        return [];
+        return $this->attributes;
     }
 }

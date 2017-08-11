@@ -13,13 +13,14 @@ namespace Balloon\Bootstrap;
 
 use \Balloon\Http\Router;
 use \Micro\Http\Response;
-use \Balloon\User;
-use \Balloon\Auth;
-use \Balloon\Auth\Adapter\None as AuthNone;
+use \Balloon\Server\User;
+use \Micro\Auth;
+use \Micro\Auth\Adapter\None as AuthNone;
 use \Balloon\App\AppInterface;
 use \Micro\Config;
+use \Composer\Autoload\ClassLoader as Composer;
 
-class Http extends AbstractCore
+class Http extends AbstractBootstrap
 {
     /**
      * option: auth
@@ -32,11 +33,11 @@ class Http extends AbstractCore
     /**
      * Init bootstrap
      *
-     * @return bool
+     * @return void
      */
-    public function init(): bool
+    public function __construct(Composer $composer, Config $config)
     {
-        parent::init();
+        parent::__construct($composer, $config);
         $this->setExceptionHandler();
 
         $this->logger->info('processing incoming http ['. $_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [
@@ -44,19 +45,49 @@ class Http extends AbstractCore
         ]);
 
         $this->router = new Router($_SERVER, $this->logger);
-        $this->auth = new Auth($this->logger, $this->pluginmgr, $this->db);
+        $this->auth = new Auth($this->option_auth, $this->logger);
 
         $this->loadApps();
-        $this->auth->requireOne($this->option_auth);
-        $this->user = new User($this->auth, $this->logger, $this->fs, true, false);
 
-        if (!($this->auth->getAdapter() instanceof AuthNone)) {
-            $this->fs->setUser($this->user);
+        if($this->auth->requireOne())  {
+            $this->server->setIdentity($this->auth->getIdentity());
+
+            if (!($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
+                $this->server->setIdentity($this->auth->getIdentity());
+            }
+
+            return $this->router->run();
+        } else {
+            return $this->invalidAuthentication();
         }
+    }
 
-        $this->router->run();
 
-        return true;
+    /**
+     * Send invalid authentication response
+     *
+     * @return void
+     */
+    protected function invalidAuthentication(): void
+    {
+        if (isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] == '_logout') {
+            (new Response())
+                ->setCode(401)
+                ->setBody('Unauthorized')
+                ->send();
+        } else {
+            if ($_SERVER['REQUEST_URI'] == '/api/auth') {
+                $code = 403;
+            } else {
+                $code = 401;
+            }
+ 
+            (new Response())
+                ->setHeader('WWW-Authenticate', 'Basic realm="balloon"')
+                ->setCode($code)
+                ->setBody('Unauthorized')
+                ->send();
+        }
     }
 
 
@@ -64,22 +95,19 @@ class Http extends AbstractCore
      * Set options
      *
      * @param  Config $config
-     * @return AbstractCore
+     * @return AbstractBootstrap
      */
-    public function setOptions(Config $config): AbstractCore
+    public function setOptions(Config $config): AbstractBootstrap
     {
-        parent::setOptions($config);
         foreach ($config->children() as $option => $value) {
             switch ($option) {
                 case 'auth':
-                    if (isset($value['adapter'])) {
-                        $this->option_auth = $value->adapter;
-                    }
-                    break;
+                    $this->option_auth = $value;
+                break;
             }
         }
     
-        return $this;
+        return parent::setOptions($config);
     }
 
 
@@ -95,7 +123,7 @@ class Http extends AbstractCore
             $ns = ltrim((string)$app->class, '\\');
             $name = substr($ns, strrpos($ns, '\\') + 1);
             $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$name/src/lib");
-            $class = $ns.'\\Init';
+            $class = $ns.'\\Http';
 
             if (isset($app['enabled']) && $app['enabled'] != "1") {
                 $this->logger->debug('skip disabled app ['.$class.']', [
@@ -104,14 +132,20 @@ class Http extends AbstractCore
                 continue;
             }
             
-            $this->logger->info('inject app ['.$class.']', [
-                'category' => get_class($this)
-            ]);
+            if(class_exists($class)) {
+                $this->logger->info('inject app ['.$class.']', [
+                    'category' => get_class($this)
+                ]);
 
-            $app = new $class($this->composer, $this->config, $this->router, $this->logger, $this->fs, $this->auth);
+                $app = new $class($this->composer, $app->config, $this->server, $this->logger, $this->router, $this->auth);
 
-            if (!($app instanceof AppInterface)) {
-                throw new Exception('app '.$class.' is required to implement AppInterface');
+                if (!($app instanceof AppInterface)) {
+                    throw new Exception('app '.$class.' is required to implement AppInterface');
+                }
+            } else {
+                $this->logger->debug('app ['.$class.'] does not exists, skip it', [
+                    'category' => get_class($this)
+                ]);
             }
         }
 

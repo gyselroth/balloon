@@ -11,18 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Bootstrap;
 
-use \Micro\Config;
+use \Balloon\App\AppInterface;
 
-class Cli extends AbstractCore
+class Cli extends AbstractBootstrap
 {
-    /**
-     * pid
-     *
-     * @var string
-     */
-    protected $pid_file = '/tmp/.balloon_cli.pid';
-
-
     /**
      * Init bootstrap
      *
@@ -38,57 +30,11 @@ class Cli extends AbstractCore
             'category' => get_class($this),
         ]);
 
-        $this->loadApps();
-
-        if ($this->checkPid()) {
-            $this->queuemgr->execute($this->fs);
-        }
-        
-        $this->pluginmgr->run('cli', [$this->fs]);
-        return unlink($this->pid_file);
-    }
-
-
-    /**
-     * Set options
-     *
-     * @param  Config $config
-     * @return AbstractCore
-     */
-    public function setOptions(Config $config): AbstractCore
-    {
-        parent::setOptions($config);
-        foreach ($config->children() as $option => $value) {
-            switch ($option) {
-                case 'pid_file':
-                    $this->pid_file = $value;
-                    break;
-            }
-        }
-    
-        return $this;
-    }
-
-
-    /**
-     * Check pid
-     *
-     * @return bool
-     */
-    public function checkPid(): bool
-    {
         if (posix_getuid() == 0) {
             throw new Exception('cli is not allowed to call as root');
         }
 
-        $pid = getmypid();
-        
-        if (file_exists($this->pid_file)) {
-            throw new Exception("cli still running? pid_file found in {$this->pid_file}");
-        } else {
-            file_put_contents($this->pid_file, $pid);
-        }
-
+        $this->loadApps();
         return true;
     }
 
@@ -100,8 +46,34 @@ class Cli extends AbstractCore
      */
     protected function loadApps(): bool
     {
-        foreach ($this->option_apps->children() as $name => $app) {
-            $this->composer->addPsr4("Balloon\\App\\$name\\", APPLICATION_PATH."/src/app/$name/src/lib");
+        foreach ($this->option_apps as $app) {
+            $ns = ltrim((string)$app->class, '\\');
+            $name = substr($ns, strrpos($ns, '\\') + 1);
+            $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$name/src/lib");
+            $class = $ns.'\\Cli';
+
+            if (isset($app['enabled']) && $app['enabled'] != "1") {
+                $this->logger->debug('skip disabled app ['.$class.']', [
+                   'category' => get_class($this)
+                ]);
+                continue;
+            }
+            
+            if(class_exists($class)) {
+                $this->logger->info('inject app ['.$class.']', [
+                    'category' => get_class($this)
+                ]);
+
+                $app = new $class($this->composer, $app->config, $this->server, $this->logger);
+
+                if (!($app instanceof AppInterface)) {
+                    throw new Exception('app '.$class.' is required to implement AppInterface');
+                }
+            } else {
+                $this->logger->debug('app ['.$class.'] does not exists, skip it', [
+                    'category' => get_class($this)
+                ]);
+            }
         }
 
         return true;
