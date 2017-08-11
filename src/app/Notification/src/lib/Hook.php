@@ -12,16 +12,15 @@ declare(strict_types=1);
 namespace Balloon\App\Notification;
 
 use \Balloon\User;
-use \Balloon\Queue\JobInterface;
 use \Balloon\Filesystem\Node\INode;
 use \Balloon\Resource;
 use \Balloon\Filesystem\Node\Collection;
-use \Balloon\Queue\Mail;
+use \Balloon\Async\Mail;
 use \Zend\Mail\Message;
-use \Balloon\Plugin\AbstractPlugin;
-use \Balloon\Plugin\PluginInterface;
+use \Balloon\Hook\AbstractHook;
+use \Balloon\Hook\HookInterface;
 
-class Plugin extends AbstractPlugin
+class Hook extends AbstractHook
 {
     /**
      * Notifications
@@ -52,9 +51,9 @@ class Plugin extends AbstractPlugin
      * Set options
      *
      * @param  Iterable $config
-     * @return PluginInterface
+     * @return HookInterface
      */
-    public function setOptions(?Iterable $config): PluginInterface
+    public function setOptions(?Iterable $config): HookInterface
     {
         if ($config === null) {
             return $this;
@@ -120,7 +119,7 @@ class Plugin extends AbstractPlugin
         }
  
         $fs  = $node->getFilesystem();
-        $job = $fs->getQueue();
+        $async = $server->getAsync();
         $raw = $node->getRawAttributes();
         $acl = $node->getShare();
         $resource = new Resource($fs->getUser(), $this->logger, $fs);
@@ -159,7 +158,7 @@ class Plugin extends AbstractPlugin
                 
                 foreach ($receiver as $rec) {
                     $mail->setTo($rec);
-                    $job->addJob(new Mail(['mail' => $mail->toString()]));
+                    $async->addJob(new Mail(['mail' => $mail->toString()]));
                 }
             }
         }

@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Api\v1;
 
 use \Balloon\Exception;
-use \Balloon\Controller;
+use \Balloon\Api\Controller;
 use \Micro\Http\Response;
 
 class Api extends Controller
@@ -49,7 +49,8 @@ class Api extends Controller
     public function get(): Response
     {
         $data = [
-            'version'           => 1,
+            'name'              => 'balloon',
+            'api_version'       => 1,
             'server_timestamp'  => time(),
             'server_timezone'   => date_default_timezone_get(),
         ];
@@ -58,75 +59,6 @@ class Api extends Controller
     }
 
 
-    /**
-     * @api {get} /about API Information
-     * @apiVersion 1.0.6
-     * @apiName getAbout
-     * @apiGroup Api
-     * @apiPermission none
-     * @apiDescription Get various API information
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v1/about?pretty"
-     *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {object} data API information
-     * @apiSuccess {string} data.description API description
-     * @apiSuccess {string} data.copyright Copyright
-     * @apiSuccess {string} data.license License
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": {
-     *          "description": "This is the balloon API Interface...",
-     *          "copyright": "gyselroth Gmbh 2012 - 2016",
-     *          "license": "GPLv3",
-     *     }
-     * }
-     *
-     * @return Response
-     */
-    public function getAbout(): Response
-    {
-        $data = [
-            'description'       => 'Balloon API: See /api/v1/help or /doc for any more information.',
-            'copyright'         => 'gyselroth Gmbh 2012 - '.date('Y').' Raffael Sahli <sahli@gyselroth.com>',
-            'license'           => 'GPLv3'
-        ];
-        
-        return (new Response())->setCode(200)->setBody($data);
-    }
-
-
-    /**
-     * @api {get} /version API Version
-     * @apiVersion 1.0.6
-     * @apiName getVersion
-     * @apiGroup Api
-     * @apiPermission none
-     * @apiDescription Get API Version
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/version?pretty"
-     *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {number} data API version
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": 1
-     * }
-     *
-     * @return Response
-     */
-    public function getVersion(): Response
-    {
-        return (new Response())->setCode(200)->setBody(1);
-    }
-
-    
     /**
      * @api {get} /help API Help Reference
      * @apiVersion 1.0.6

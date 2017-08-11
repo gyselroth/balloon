@@ -3,11 +3,11 @@
     "description": "fast and simple DMS",
     "keywords": ["dms", "nosql", "gui", "webdav", "filesystem", "vfs", "api", "secure", "fast"],
     "homepage": "http://www.github.com/gyselroth/balloon",
-    "license": "GPLv3",
+    "license": "GPL-3.0",
     "authors": [
         {
             "name": "Raffael Sahli",
-            "email": "sahli@gyselroth.com"
+            "email": "sahli@gyselroth.net"
         }
     ],
     "autoload": {

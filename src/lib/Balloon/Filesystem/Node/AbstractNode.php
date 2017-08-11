@@ -202,8 +202,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         $this->_fs     = $fs;
         $this->_db     = $fs->getDatabase();
         $this->_user   = $fs->getUser();
-        $this->_logger = $fs->getLogger();
-        $this->_hook   = $fs->getHook();
+        $this->_logger = $fs->getServer()->getLogger();
+        $this->_hook   = $fs->getServer()->getHook();
 
         if ($node !== null) {
             $node = Helper::convertBSONDocToPhp($node);

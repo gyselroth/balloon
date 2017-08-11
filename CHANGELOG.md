@@ -10,6 +10,9 @@ CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon
 CORE: [CHANGE] Added new \Balloon\Server which is the new point of entry, also moved \Balloon\User to \Ballon\Server\User and made various code improvements to it
 CORE: [CHANGE] Moved \Balloon\Filesystem\node\INode to \Balloon\Filesystem\node\NodeInterface and \Balloon\Filesystem\Node\Node to \Balloon\Filesystem\Node\AbstractNode #6
 CORE: [CHANGE] Elasticsearch is now an app and not part of the core anymore #10
+API: [CHANGE] removed GET /api/v1/about
+API: [CHANGE] removed GET /api/v1/version
+API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
 Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 
 

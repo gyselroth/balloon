@@ -11,17 +11,18 @@ declare(strict_types=1);
 
 namespace Balloon;
 
+use \Balloon\Hook\Exception;
 use \Balloon\Hook\HookInterface;
 use \Psr\Log\LoggerInterface as Logger;
 
 class Hook
 {
     /**
-     * Task plugins
+     * Hooks
      *
      * @var array
      */
-    protected $plugins = [];
+    protected $hook = [];
 
 
     /**
@@ -33,7 +34,7 @@ class Hook
 
 
     /**
-     * Init queue
+     * Init hook manager
      *
      * @param   Logger $logger
      * @return  void
@@ -45,66 +46,91 @@ class Hook
 
 
     /**
-     * Register plugin
+     * Register hook
      *
-     * @param   array|string|Config|HookInterface $name
-     * @param   object|array $config
+     * @param   string $class
+     * @param   Iterable $config
      * @return  bool
      */
-    public function registerHook($name, $config=null): bool
+    public function registerHook(string $class, ?Iterable $config=null): bool
     {
-        if ($name instanceof Config) {
-            foreach ($name as $id => $config) {
-                if ($config->enabled != '1') {
-                    $this->logger->debug('skip disabled plugin ['.$config->class.']', [
-                        'category' => get_class($this),
-                    ]);
-                    
-                    continue;
-                }
-                $this->registerHook((string)$config->class, $config->config);
-            }
-
-            return true;
+        if (!class_exists($class)) {
+           throw new Exception("hook class $class was not found");
         }
-        
-        if ($name instanceof HookInterface) {
-            if (isset($this->plugins[$name->getName()])) {
-                throw new Exception('plugin '.$name->getName().' is already registered');
-            }
             
-            $this->logger->info('register plugin ['.$name->getName().']', [
-                'category' => get_class($this),
-            ]);
-
-            $this->plugins[$name->getName()] = $name;
-        } elseif (is_string($name)) {
-            if (!class_exists($name)) {
-                throw new Exception("plugin class $name was not found");
-            }
-            
-            $plug = new $name($config, $this->logger);
-            if (isset($this->plugins[$plug->getName()])) {
-                throw new Exception('plugin '.$plug->getName().' is already registered');
-            }
-            
-            if (!($plug instanceof HookInterface)) {
-                throw new Exception('plugin '.$name.' does not implement \Balloon\Hook\HookInterface');
-            }
-
-            $this->logger->info('register plugin ['.$plug->getName().']', [
-                'category' => get_class($this),
-            ]);
-
-            $this->plugins[$plug->getName()] = $plug;
+        $hook = new $class($config, $this->logger);
+        if (isset($this->hook[$class])) {
+           throw new Exception('hook '.$class.' is already registered');
         }
+            
+        if (!($hook instanceof HookInterface)) {
+           throw new Exception('hook '.$class.' does not implement HookInterface');
+        }
+
+        $this->logger->info('register hook ['.$class.']', [
+             'category' => get_class($this),
+        ]);
+
+        $this->hook[$class] = $hook;
 
         return true;
     }
 
 
     /**
-     * Run plugin method
+     * Has hook
+     *
+     * @param  string $class
+     * @return bool
+     */
+    public function hasHook(string $class): bool
+    {
+        return isset($this->hook[$class]);
+    }
+
+
+    /**
+     * Get hook
+     *      
+     * @param  string $class
+     * @return HookInterface
+     */
+    public function getHook(string $class): HookInterface
+    {
+        if (!$this->hasHook($class)) {
+            throw new Exception('auth hook '.$class.' is not registered');
+        }
+
+        return $this->hook[$class];
+    }
+
+
+    /**
+     * Get hooks
+     *      
+     * @param  array $hooks
+     * @return array
+     */
+    public function getHooks(array $hooks = []): array
+    {
+        if (empty($hook)) {
+            return $this->hook;
+        } else {
+            $list = [];
+            foreach ($hook as $class) {
+                if (!$this->hasHook($class)) {
+                    throw new Exception('auth hook '.$class.' is not registered');
+                }
+                $list[$class] = $this->hook[$class];
+            }
+
+            return $list;
+        }
+    }
+
+
+    /**
+     * Run hook method
      *
      * @param   string $method
      * @param   array $context
@@ -112,7 +138,7 @@ class Hook
      */
     public function run(string $method, array $context=[]): bool
     {
-        $this->logger->debug('execute plugins hooks for ['.$method.']', [
+        $this->logger->debug('execute hooks hooks for ['.$method.']', [
             'category' => get_class($this),
         ]);
 
@@ -121,12 +147,12 @@ class Hook
             $args[$k] = &$arg;
         }
 
-        foreach ($this->plugins as $plugin) {
-            $this->logger->debug('found registered plugin hoook, execute ['.get_class($plugin).'::'.$method.']', [
+        foreach ($this->hook as $hook) {
+            $this->logger->debug('found registered hook hoook, execute ['.get_class($hook).'::'.$method.']', [
                 'category' => get_class($this),
             ]);
 
-            call_user_func_array([$plugin, $method], $args);
+            call_user_func_array([$hook, $method], $args);
         }
 
         return true;

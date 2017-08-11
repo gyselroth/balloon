@@ -49,7 +49,15 @@ class Filesystem
      */
     protected $hook;
 
-    
+
+    /**
+     * Server
+     *    
+     * @var Server
+     */
+    protected $server;
+
+
     /**
      * Root collection
      *
@@ -88,7 +96,20 @@ class Filesystem
         $this->hook      = $server->getHook();;
     }
 
-   
+
+    /**
+     * Set User
+     *
+     * @param  User
+     * @return Filesystem
+     */   
+    public function setUser(User $user): Filesystem
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+
     /**
      * Get user
      *
@@ -96,20 +117,18 @@ class Filesystem
      */
     public function getUser(): ?User
     {
-        return $this->user;
+        return $this->server->getUser();
     }
-    
+   
     
     /**
-     * Set user
+     * Get server
      *
-     * @param   User $user
-     * @return  Filesystem
-     */
-    public function setUser(User $user): Filesystem
+     * @return Server
+     */ 
+    public function getServer(): Server
     {
-        $this->user = $user;
-        return $this;
+        return $this->server;
     }
     
 
@@ -118,31 +137,9 @@ class Filesystem
      *
      * @return Database
      */
-    public function getDatabase()
+    public function getDatabase(): Database
     {
         return $this->db;
-    }
-    
-    
-    /**
-     * Get logger
-     *
-     * @return Logger
-     */
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-
-    /**
-     * Get Hook
-     *
-     * @return Hook
-     */
-    public function getHook(): Hook
-    {
-        return $this->hook;
     }
     
 
@@ -151,7 +148,7 @@ class Filesystem
      *
      * @return Collection
      */
-    public function getRoot()
+    public function getRoot(): Collection
     {
         if ($this->root instanceof Collection) {
             return $this->root;

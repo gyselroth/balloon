@@ -41,16 +41,6 @@ interface HookInterface
    
  
     /**
-     * Check if plugin method does exists
-     *
-     * @param   string $method
-     * @param   array $params
-     * @return  void
-     */
-    public function __call(string $method, array $params=[]): void;
-
-
-    /**
      * Run: preRestoreFile
      *
      * Executed pre version rollback

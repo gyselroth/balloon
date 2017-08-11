@@ -180,11 +180,23 @@ class Server
             throw new Exception('user does not exists');
         } else {
             $user = new User($result, $this->fs);
+            $this->user = $user;
             $this->fs->setUser($user);
             $user->updateIdentity($identity);
             return true;
         }
     }   
+
+
+    /**
+     * Get user
+     * 
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
 
 
     /**

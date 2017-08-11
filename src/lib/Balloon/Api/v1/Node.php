@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Api\v1;
 
 use \Balloon\Exception;
-use \Balloon\Controller;
+use \Balloon\Api\Controller;
 use \Balloon\Helper;
 use \Balloon\Filesystem\Node\INode;
 use \Balloon\Filesystem\Node\Root;

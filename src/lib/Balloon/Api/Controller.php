@@ -9,10 +9,10 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon;
+namespace Balloon\Api;
 
 use \Psr\Log\LoggerInterface as Logger;
-use \Micro\Config;
+use \Balloon\Server;
 
 class Controller
 {
@@ -33,11 +33,11 @@ class Controller
 
     
     /**
-     * Config
+     * Server
      *
-     * @var Config
+     * @var Server
      */
-    protected $config;
+    protected $server;
 
     
     /**
@@ -56,11 +56,11 @@ class Controller
      * @param  Logger $logger
      * @return void
      */
-    public function __construct(Filesystem $fs, Config $config, Logger $logger)
+    public function __construct(Server $server, Logger $logger)
     {
-        $this->fs     = $fs;
-        $this->config = $config;
-        $this->user   = $fs->getUser();
+        $this->fs     = $server->getFilesystem();
+        $this->user   = $server->getUser();
+        $this->server = $server;
         $this->logger = $logger;
     }
 }

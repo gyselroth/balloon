@@ -53,6 +53,6 @@ class Http extends AbstractApp
             ->addRoute(new Route('/api/v1', 'Balloon\Api\v1\Api'))
             ->addRoute(new Route('/api$', 'Balloon\Api\v1\Api'));
 
-        return $this->router->run([$this->fs, $this->config, $this->logger]);
+        return $this->router->run([$this->server, $this->logger]);
     }
 }

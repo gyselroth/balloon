@@ -23,19 +23,7 @@ class Http extends AbstractApp
      */
     public function init(): bool
     {
-        $this->fs->getHook()->registerHook('\Balloon\App\Delta\Hook', null);
-        #$this->router->prependRoute((new Route('/api/v1/app/office', $this, 'start')));
-        return true;
-    }
-
-
-    /**
-     * Start
-     *
-     * @return bool
-     */
-    public function start(): bool
-    {
+        $this->server->getHook()->registerHook('\Balloon\App\Delta\Hook', null);
         return true;
     }
 }

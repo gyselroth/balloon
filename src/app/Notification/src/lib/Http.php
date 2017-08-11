@@ -9,12 +9,11 @@
 
 namespace Balloon\App\Notification;
 
-use \Balloon\User;
 use \Balloon\Filesystem;
 use \Balloon\Http\Router\Route;
 use \Balloon\App\AbstractApp;
 
-class Init extends AbstractApp
+class Http extends AbstractApp
 {
     /**
      * Init
@@ -23,18 +22,7 @@ class Init extends AbstractApp
      */
     public function init(): bool
     {
-        $this->pluginmgr->registerPlugin('\Balloon\App\Notification\Plugin', null);
-        return true;
-    }
-
-
-    /**
-     * Start
-     *
-     * @return bool
-     */
-    public function start(): bool
-    {
+        $this->server->getHook()->registerHook('\Balloon\App\Notification\Hook', null);
         return true;
     }
 }

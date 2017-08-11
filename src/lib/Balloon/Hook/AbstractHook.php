@@ -60,21 +60,6 @@ abstract class AbstractHook implements HookInterface
 
     
     /**
-     * Check if plugin method does exists
-     *
-     * @param   string $method
-     * @param   array $params
-     * @return  void
-     */
-    public function __call(string $method, array $params=[]): void
-    {
-        if (!is_callable([$this, $method])) {
-            throw new Exception('invalid plugin call ['.$this->getName().'], hook ['.$method.'] does not exists');
-        }
-    }
-
-
-    /**
      * Run: preCreateCollection
      *
      * Executed pre a directory will be created

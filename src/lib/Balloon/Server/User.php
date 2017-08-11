@@ -166,7 +166,7 @@ class User
     {
         $this->fs       = $fs;
         $this->db       = $fs->getDatabase();
-        $this->logger   = $fs->getLogger();
+        $this->logger   = $fs->getServer()->getLogger();
 
         $attributes = Helper::convertBSONDocToPhp($user);
 
