@@ -2,10 +2,8 @@ language: php
 php:
   - '7.1'
 sudo: false
-addons:
-  apt:
-    packages:
-      - php7.1-mongodb
-      - php7.1-imagick
-
-script: ./build.sh --dep --test
+before_install:
+  - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - pecl install imagick
+  - echo "extension = imagick.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+script: ./build.sh --dep --test --package deb

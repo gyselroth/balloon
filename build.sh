@@ -318,6 +318,65 @@ function generateDebianControl {
     echo "Description: balloon cloud server" >> $OPT_SOURCE/build/DEBIAN/control
 }
 
+function generateDebianChangelog {
+    v=
+    stable="stable"
+    author=
+    date=
+    changes=
+    rm $OPT_SOURCE/build/DEBIAN/changelog
+
+    while read l; do
+        if [ "${l:0:2}" == "##" ]; then  
+            if [ "$v" != "" ]; then
+                echo "balloon-server ($v) $stable; urgency=low" >> $OPT_SOURCE/build/DEBIAN/changelog
+                echo -e "$changes" >> $OPT_SOURCE/build/DEBIAN/changelog
+                echo >>  $OPT_SOURCE/build/DEBIAN/changelog
+                echo " -- $author  $date +0000" >> $OPT_SOURCE/build/DEBIAN/changelog
+                echo >>  $OPT_SOURCE/build/DEBIAN/changelog
+                v=
+                stable="stable"
+                author=
+                date=
+                changes=
+            fi
+
+            v=${l:3}
+            if [[ "$v" == *"RC"* ]]; then
+                stable="unstable"
+            elif [[ "$v" == *"BETA"* ]]; then
+                stable="unstable"
+            elif [[ "$v" == *"ALPHA"* ]]; then
+                stable="unstable"
+            elif [[ "$v" == *"dev"* ]]; then
+                stable="unstable"
+            fi
+        elif [ "${l:0:5}" == "***Ma" ]; then 
+            p1=$(echo $l | cut -d '>' -f1) 
+            p2=$(echo $l | cut -d '>' -f2) 
+            author="${p1:18}>"
+            date=${p2:12}
+        elif [ "${l:0:2}" == "* " ]; then  
+            changes="  $changes\n  $l"
+        fi
+    done < CHANGELOG.md
+}
+
+function buildDeb {
+    mkdir -p $OPT_SOURCE/build/DEBIAN
+    generateDebianControl
+    generateDebianChangelog
+    mkdir -p $OPT_SOURCE/build/usr/share/balloon-server
+    mkdir -p $OPT_SOURCE/build/etc/balloon
+    mkdir -p $OPT_SOURCE/build/var/log/balloon
+    cp -Rp $OPT_SOURCE/composer.* $OPT_SOURCE/build/usr/share/balloon-server
+    cp -Rp $OPT_SOURCE/package.json $OPT_SOURCE/build/usr/share/balloon-server
+    cp -Rp $OPT_SOURCE/{vendor,src,doc} $OPT_SOURCE/build/usr/share/balloon-server
+    dpkg-deb --build build
+    mkdir $OPT_SOURCE/dist
+    mv build.deb $OPT_SOURCE/dist/balloon-server-$version.deb
+}
+
 if [[ ! "$OPT_PACKAGE" == "0" ]]; then
     for i in $(echo $OPT_PACKAGE | tr "," "\n"); do
         if [ "$i" == "tar" ]; then
@@ -339,9 +398,7 @@ if [[ ! "$OPT_PACKAGE" == "0" ]]; then
 
         if [ "$i" == "deb" ]; then
             echo "[TASK] Create deb package"
-            mkdir -p $OPT_SOURCE/build/DEBIAN
-            generateDebianControl
-            dpkg-deb --build build
+            buildDeb
         fi
     done
 fi
