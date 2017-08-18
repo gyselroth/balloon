@@ -22,6 +22,7 @@ Next major release v2, includes various new features and core changes. The API i
 * API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 * UI: [FIX] added missing german locale for view.prop.head.share_value
+* BUILD: [FEATURE] can now build deb package #53
 
 
 ## 1.0.15 
