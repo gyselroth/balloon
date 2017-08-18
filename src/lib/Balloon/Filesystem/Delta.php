@@ -131,7 +131,7 @@ class Delta
         if (is_array($cursor)) {
             $current_cursor = $cursor[1];
         }
-        
+
         $children = $this->fs->findNodeAttributesWithCustomFilter(
             $filter,
             $attributes,
@@ -241,7 +241,7 @@ class Delta
         $last   = $this->getLastRecord($node);
         
         if ($last === null) {
-            $cursor = base64_encode('initial|0|0|0'.new UTCDateTime());
+            $cursor = base64_encode('delta|0|0|0|'.new UTCDateTime());
         } else {
             $cursor = base64_encode('delta|0|0|'.$last['_id'].'|'.$last['timestamp']);
         }
@@ -267,7 +267,7 @@ class Delta
             $attributes);
 
         $cursor = $this->decodeCursor($cursor);
-
+        
         if ($cursor === null || $cursor[0] == 'initial') {
             return $this->buildFeedFromCurrentState($cursor, $limit, $attributes, $node);
         }
@@ -284,12 +284,13 @@ class Delta
                 $filter = $this->getDeltaFilter();
                 $filter = [
                     '$and' => [
-                        ['timestamp' => ['$gt' => new UTCDateTime($cursor[4])]],
+                        ['timestamp' => ['$gte' => new UTCDateTime($cursor[4])]],
+                        ['_id' => ['$gt' => new ObjectId($cursor[3])]],
                         $filter
                     ]
                 ];
             }
-
+            
             $result = $this->db->delta->find($filter, [
                 'skip'  => (int)$cursor[1],
                 'limit' => (int)$limit,

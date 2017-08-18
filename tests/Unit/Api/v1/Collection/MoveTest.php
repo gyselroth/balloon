@@ -1,13 +1,20 @@
 <?php
 namespace Balloon\Testsuite\Unit\Api\Collection;
 
-use Balloon\Testsuite\Unit\Test;
+use \Balloon\Testsuite\Unit\Test;
+use \Balloon\Api\v1\Collection;
+use \Micro\Http\Response;
+use \MongoDB\BSON\ObjectID;
 
 class MoveTest extends Test
 {
     protected static $delta = [];
-    protected static $first_cursor;
-    protected static $current_cursor;
+
+    public static function setUpBeforeClass()
+    {
+        $server = self::setupMockServer();
+        self::$controller = new Collection($server, $server->getLogger());
+    }
 
     public function testReceiveLastDelta()
     {
@@ -18,15 +25,15 @@ class MoveTest extends Test
     public function testCreate()
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
+        $res = self::$controller->post(null, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
 
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
-        $this->assertEquals((string)$id, $delta['nodes'][0]->id);
+        $this->assertEquals((string)$id, $delta['nodes'][0]['id']);
         self::$current_cursor = $delta['cursor'];
         self::$delta[] = [
             'id'        => (string)$id,
@@ -35,36 +42,35 @@ class MoveTest extends Test
         ];
         
         return [
-            'id'  => $id,
+            'id'  => (string)$id,
             'name'=> $name
         ];
     }
 
     public function testCreate2()
     {
+        #self::$first_cursor = $this->getLastCursor();
         return $this->testCreate();
     }
     
     /**
      * @depends testCreate
+     * @expectedException \Balloon\Exception\Conflict
+     * @expectedExceptionCode 18
      */
     public function testMoveCollectionIntoItself($node)
     {
-        $res = $this->request('POST', '/collection/move?id='.$node['id'].'&destid='.$node['id']);
-        $this->assertEquals(400, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertEquals('Balloon\\Exception\\Conflict', $body['error']);
+        self::$controller->postMove($node['id'], null, $node['id']);
     }
     
     /**
      * @depends testCreate
+     * @expectedException \Balloon\Exception\Conflict
+     * @expectedExceptionCode 17
      */
     public function testMoveCollectionIntoSameParent($node)
     {
-        $res = $this->request('POST', '/collection/'.$node['id'].'/move?destid=');
-        $this->assertEquals(400, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertEquals('Balloon\\Exception\\Conflict', $body['error']);
+        self::$controller->postMove($node['id'], null, null);
     }
 
     /**
@@ -73,13 +79,14 @@ class MoveTest extends Test
      */
     public function testMoveCollectionIntoOtherCollection($source, $dest)
     {
-        $res = $this->request('POST', '/collection/move?id='.$source['id'].'&destid='.$dest['id']);
-        $this->assertEquals(204, $res->getStatusCode());
+        $res = self::$controller->postMove($source['id'], null, $dest['id']);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
         
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(2, $delta['nodes']);
-        $this->assertEquals((string)$source['id'], $delta['nodes'][0]->id);
-        $this->assertEquals((string)$source['id'], $delta['nodes'][1]->id);
+        $this->assertEquals((string)$source['id'], $delta['nodes'][0]['id']);
+        $this->assertEquals((string)$source['id'], $delta['nodes'][1]['id']);
         self::$current_cursor = $delta['cursor'];
 
         self::$delta[0]['path'] = '/'.$dest['name'].'/'.$source['name'];
@@ -97,27 +104,26 @@ class MoveTest extends Test
 
     /**
      * @depends testMoveCollectionIntoOtherCollection
+     * @expectedException \Balloon\Exception\Conflict
+     * @expectedExceptionCode 18
      */
     public function testMoveParentIntoChild($nodes)
     {
-        $res = $this->request('POST', '/collection/'.$nodes['parent']['id'].'/move?destid='.$nodes['child']['id']);
-        $this->assertEquals(400, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertEquals('Balloon\\Exception\\Conflict', $body['error']);
+        self::$controller->postMove($nodes['parent']['id'], null, $nodes['child']['id']);
     }
 
     public function testCreateA()
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
+        $res = self::$controller->post(null, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
         
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
-        $this->assertEquals((string)$id, $delta['nodes'][0]->id);
+        $this->assertEquals((string)$id, $delta['nodes'][0]['id']);
         self::$current_cursor = $delta['cursor'];
         
         self::$delta[] = [
@@ -127,7 +133,7 @@ class MoveTest extends Test
         ];
 
         return [
-            'id'   => $id,
+            'id'   => (string)$id,
             'name' => $name,
         ];
     }
@@ -138,15 +144,15 @@ class MoveTest extends Test
     public function testCreateB($a)
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
+        $res = self::$controller->post(null, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
         
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
-        $this->assertEquals((string)$id, $delta['nodes'][0]->id);
+        $this->assertEquals((string)$id, $delta['nodes'][0]['id']);
         self::$current_cursor = $delta['cursor'];
         
         self::$delta[] = [
@@ -158,7 +164,7 @@ class MoveTest extends Test
         return [
             'a' => $a,
             'b' => [
-                'id'   => $id,
+                'id'   => (string)$id,
                 'name' => $name,
             ]
         ];
@@ -169,15 +175,15 @@ class MoveTest extends Test
      */
     public function testCreateAUnderB($nodes)
     {
-        $res = $this->request('POST', '/collection/'.$nodes['b']['id'].'?name='.$nodes['a']['name']);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
-        
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $res = self::$controller->post($nodes['b']['id'], null, $nodes['a']['name']);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
+       
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
-        $this->assertEquals((string)$id, $delta['nodes'][0]->id);
+        $this->assertEquals((string)$id, $delta['nodes'][0]['id']);
         self::$current_cursor = $delta['cursor'];
         
         self::$delta[] = [
@@ -196,35 +202,34 @@ class MoveTest extends Test
 
     /**
      * @depends testCreateAUnderB
+     * @expectedException \Balloon\Exception\Conflict
+     * @expectedExceptionCode 19
      */
     public function testMoveAToBConflict($nodes)
     {
-        $res = $this->request('POST', '/collection/'.$nodes['a']['id'].'/move?destid='.$nodes['b']['id']);
-        $this->assertEquals(400, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertEquals('Balloon\\Exception\\Conflict', $body['error']);
-        return $nodes;
+        self::$controller->postMove($nodes['a']['id'], null, $nodes['b']['id']);
     }
 
     /**
-     * @depends testMoveAToBConflict
+     * @depends testCreateAUnderB
      */
     public function testMoveAToBResolvedConflictMerge($nodes)
     {
-        $res = $this->request('POST', '/collection/'.$nodes['a']['id'].'/move?destid='.$nodes['b']['id'].'&conflict=2');
-        $this->assertEquals(204, $res->getStatusCode());
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $res = self::$controller->postMove($nodes['a']['id'], null, $nodes['b']['id'], null, 2);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
+        $delta = $this->getDelta(self::$current_cursor);
 
         $this->assertCount(2, $delta['nodes']);
         $path_a_under_b = '/'.$nodes['b']['name'].'/'.$nodes['a']['name'];        
 
-        $this->assertEquals((string)$nodes['a2']['id'], $delta['nodes'][0]->id);
-        $this->assertEquals($path_a_under_b, $delta['nodes'][0]->path);
-        $this->assertFalse($delta['nodes'][0]->deleted);
+        $this->assertEquals((string)$nodes['a2']['id'], $delta['nodes'][0]['id']);
+        $this->assertEquals($path_a_under_b, $delta['nodes'][0]['path']);
+        $this->assertFalse($delta['nodes'][0]['deleted']);
 
-        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]->id);
-        $this->assertEquals('/'.$nodes['a']['name'], $delta['nodes'][1]->path);
-        $this->assertTrue($delta['nodes'][1]->deleted);
+        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]['id']);
+        $this->assertEquals('/'.$nodes['a']['name'], $delta['nodes'][1]['path']);
+        $this->assertTrue($delta['nodes'][1]['deleted']);
 
         self::$current_cursor = $delta['cursor'];
         self::$delta[3]['deleted'] = true;
@@ -233,24 +238,25 @@ class MoveTest extends Test
     public function testMoveAToBResolvedConflictRename()
     {
         $nodes = $this->testCreateAUnderB($this->testCreateB($this->testCreateA()));
-        $res = $this->request('POST', '/collection/'.$nodes['a']['id'].'/move?destid='.$nodes['b']['id'].'&conflict=1');
-        $this->assertEquals(200, $res->getStatusCode());
-        $body = $this->jsonBody($res);
+        $res = self::$controller->postMove($nodes['a']['id'], null, $nodes['b']['id'], null, 1);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
+        $body = $res->getBody();
 
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(3, $delta['nodes']);
 
-        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][0]->id);
-        $this->assertEquals('/'.$nodes['a']['name'], $delta['nodes'][0]->path);
-        $this->assertTrue($delta['nodes'][0]->deleted);
+        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][0]['id']);
+        $this->assertEquals('/'.$nodes['a']['name'], $delta['nodes'][0]['path']);
+        $this->assertTrue($delta['nodes'][0]['deleted']);
         
-        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]->id);
-        $this->assertEquals('/'.$body, $delta['nodes'][2]->path);
-        $this->assertTrue($delta['nodes'][2]->deleted);
+        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]['id']);
+        $this->assertEquals('/'.$body, $delta['nodes'][2]['path']);
+        $this->assertTrue($delta['nodes'][2]['deleted']);
 
-        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]->id);
-        $this->assertEquals('/'.$nodes['b']['name'].'/'.$body, $delta['nodes'][1]->path);
-        $this->assertFalse($delta['nodes'][1]->deleted);
+        $this->assertEquals((string)$nodes['a']['id'], $delta['nodes'][1]['id']);
+        $this->assertEquals('/'.$nodes['b']['name'].'/'.$body, $delta['nodes'][1]['path']);
+        $this->assertFalse($delta['nodes'][1]['deleted']);
         
         self::$delta[] = [
             'id'        => (string)$nodes['a']['id'],
@@ -269,7 +275,7 @@ class MoveTest extends Test
 
     public function testDelta()
     {
-        $delta = $this->getLastDelta(self::$first_cursor);
+        $delta = $this->getDelta(self::$first_cursor);
         $this->assertCount(count(self::$delta), $delta['nodes']);
 
         foreach($delta['nodes'] as $key => $node) {

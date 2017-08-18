@@ -3,19 +3,17 @@ namespace Balloon\Testsuite\Unit\Api\Collection;
 
 use \Balloon\Testsuite\Unit\Test;
 use \Balloon\Api\v1\Collection;
+use \Micro\Http\Response;
+use \MongoDB\BSON\ObjectID;
 
 class CloneTest extends Test
 {   
     protected static $delta = [];
-    protected static $first_cursor;
-    protected static $current_cursor;
-    protected static $server;
-    protected static $controller;
-
+    
     public static function setUpBeforeClass()
     {
-        self::$server = self::setupMockServer();
-        self::$controller = new Collection(self::$server, self::$server->getLogger());
+        $server = self::setupMockServer();
+        self::$controller = new Collection($server, $server->getLogger());
     }
 
     public function testReceiveLastDelta()
@@ -28,10 +26,10 @@ class CloneTest extends Test
     {       
         $name = uniqid();
         $res = self::$controller->post(null, null, $name);
-        $this->assertInstanceOf('\Micro\Http\Response', $res);
+        $this->assertInstanceOf(Response::class, $res);
         $this->assertEquals(201, $res->getCode());
-        $id = new \MongoDB\BSON\ObjectID($res->getBody());
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
         self::$delta[] = $id;
         return (string)$id;
     }
@@ -54,11 +52,11 @@ class CloneTest extends Test
     /**
      * @depends testCreate
      * @expectedException \Balloon\Exception\Conflict
-     * @expectedExceptionCode 17
+     * @expectedExceptionCode 19
      */
     public function testCloneCollectionIntoSameParent($id)
     {
-        self::$controller->postClone($id, null, null);
+        self::$controller->postClone($id);
     }
 
     /**
@@ -69,14 +67,14 @@ class CloneTest extends Test
     {
         $res = self::$controller->postClone($source, null, $dest);
         $this->assertEquals(201, $res->getCode());
-        $id = new \MongoDB\BSON\ObjectID($res->getBody());
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
         self::$delta[] = $id;
     }
 
     public function testDelta()
     {
-        $delta = self::$server->getFilesystem()->getDelta()->getDeltaFeed(self::$first_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(count(self::$delta), $delta['nodes']);
 
         foreach($delta['nodes'] as $key => $node) {

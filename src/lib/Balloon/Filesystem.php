@@ -581,12 +581,13 @@ class Filesystem
 
         $search_attributes = array_merge($default, array_fill_keys($attributes, 1));
         $list   = [];
+        
         $result =$this->db->storage->find($filter, [
             'skip'      => $cursor,
             'limit'     => $limit,
             'projection'=> $search_attributes
         ]);
-        
+
         $left =$this->db->storage->count($filter, [
             'skip' => $cursor,
         ]);

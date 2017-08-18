@@ -1,7 +1,10 @@
 <?php
 namespace Balloon\Testsuite\Unit\Api\v1\Collection;
 
-use Balloon\Testsuite\Unit\Api\v1\Node;
+use \Balloon\Testsuite\Unit\Api\v1\Node;
+use \Balloon\Api\v1\Collection;
+use \Micro\Http\Response;
+use \MongoDB\BSON\ObjectID;
 
 class DeleteTest extends Node\DeleteTest
 {
@@ -11,20 +14,26 @@ class DeleteTest extends Node\DeleteTest
         self::$current_cursor = self::$first_cursor;
     }
 
+    public static function setUpBeforeClass()
+    {
+        $server = self::setupMockServer();
+        self::$controller = new Collection($server, $server->getLogger());
+    }
+
     public function testCreate()
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
+        $res = self::$controller->post(null, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
         
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
-        $this->assertEquals((string)$id, $delta['nodes'][0]->id);
+        $this->assertEquals((string)$id, $delta['nodes'][0]['id']);
         self::$current_cursor = $delta['cursor'];
         
-        return $id;
+        return (string)$id;
     }
 }

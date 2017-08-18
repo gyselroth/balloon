@@ -13,19 +13,19 @@ namespace Balloon\Exception;
 
 class Conflict extends \Sabre\DAV\Exception\Conflict
 {
-    const ALREADY_THERE                      = 0x11;
-    const CANT_BE_CHILD_OF_ITSELF            = 0x12;
-    const NODE_WITH_SAME_NAME_ALREADY_EXISTS = 0x13;
-    const SHARED_NODE_CANT_BE_CHILD_OF_SHARE = 0x14;
-    const DELETED_PARENT                     = 0x15;
-    const NODE_CONTAINS_SHARED_NODE          = 0x16;
-    const PARENT_NOT_AVAILABLE_ANYMORE       = 0x17;
-    const NOT_DELETED                        = 0x18;
-    const READONLY                           = 0x19;
-    const CANT_COPY_INTO_ITSELF              = 0x110;
-    const NOT_SHARED                         = 0x111;
-    const CAN_NOT_DELETE_OWN_ACCOUNT         = 0x112;
-    const CHUNKS_LOST                        = 0x113;
-    const CHUNKS_INVALID_SIZE                = 0x114;
-    const INVALID_OFFSET                     = 0x115;
+    const ALREADY_THERE                      = 17;
+    const CANT_BE_CHILD_OF_ITSELF            = 18;
+    const NODE_WITH_SAME_NAME_ALREADY_EXISTS = 19;
+    const SHARED_NODE_CANT_BE_CHILD_OF_SHARE = 20;
+    const DELETED_PARENT                     = 21;
+    const NODE_CONTAINS_SHARED_NODE          = 22;
+    const PARENT_NOT_AVAILABLE_ANYMORE       = 23;
+    const NOT_DELETED                        = 24;
+    const READONLY                           = 25;
+    const CANT_COPY_INTO_ITSELF              = 272;
+    const NOT_SHARED                         = 273;
+    const CAN_NOT_DELETE_OWN_ACCOUNT         = 274;
+    const CHUNKS_LOST                        = 275;
+    const CHUNKS_INVALID_SIZE                = 276;
+    const INVALID_OFFSET                     = 278;
 }

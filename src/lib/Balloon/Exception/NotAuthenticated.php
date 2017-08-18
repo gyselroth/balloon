@@ -13,6 +13,6 @@ namespace Balloon\Exception;
 
 class NotAuthenticated extends \Sabre\DAV\Exception\NotAuthenticated
 {
-    const NOT_AUTHENTICATED = 0x51;
-    const USER_DELETED      = 0x52;
+    const NOT_AUTHENTICATED = 81;
+    const USER_DELETED      = 82;
 }

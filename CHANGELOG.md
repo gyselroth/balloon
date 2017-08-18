@@ -11,9 +11,12 @@ CORE: [CHANGE] renamed \Ballon\Exception\Coding to \Balloon\Exception\Internal
 CORE: [CHANGE] Added new \Balloon\Server which is the new point of entry, also moved \Balloon\User to \Ballon\Server\User and made various code improvements to it
 CORE: [CHANGE] Moved \Balloon\Filesystem\node\INode to \Balloon\Filesystem\node\NodeInterface and \Balloon\Filesystem\Node\Node to \Balloon\Filesystem\Node\AbstractNode #6
 CORE: [CHANGE] Elasticsearch is now an app and not part of the core anymore #10
+CORE: [CHANGED] changed exception codes from hex to integer
 API: [CHANGE] removed GET /api/v1/about
 API: [CHANGE] removed GET /api/v1/version
 API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
+API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
+API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 
 

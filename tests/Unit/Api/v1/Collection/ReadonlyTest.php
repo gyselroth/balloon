@@ -1,19 +1,28 @@
 <?php
 namespace Balloon\Testsuite\Unit\Api\Collection;
 
-use Balloon\Testsuite\Unit\Test;
+use \Balloon\Testsuite\Unit\Test;
+use \Balloon\Api\v1\Collection;
+use \Micro\Http\Response;
+use \MongoDB\BSON\ObjectID;
 
 class ReadonlyTest extends Test
 {
+    public static function setUpBeforeClass()
+    {
+        $server = self::setupMockServer();
+        self::$controller = new Collection($server, $server->getLogger());
+    }
+
     public function testCreate()
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
-        return $id;
+        $res = self::$controller->post(null, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
+        return (string)$id;
     }
     
     /**
@@ -21,31 +30,30 @@ class ReadonlyTest extends Test
      */
     public function testSetReadonly($id)
     {
-        $res = $this->request('POST', '/collection/readonly?id='.$id);
-        $this->assertEquals(204, $res->getStatusCode());
+        $res = self::$controller->postReadonly($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
         return $id;
     }
 
     /**
      * @depends testSetReadonly
+     * @expectedException \Balloon\Exception\Conflict
+     * @expectedExceptionCode 25
      */
     public function testCreateChildUnderReadonlyCollection($id)
     {
-        $name = uniqid();
-        $res = $this->request('POST', '/collection?id='.$id.'&name='.$name);
-        $this->assertEquals(400, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertEquals('Balloon\\Exception\\Conflict', $body['error']);
-        return $id;
+        self::$controller->post($id, null, uniqid());
     }
     
     /**
-     * @depends testCreateChildUnderReadonlyCollection
+     * @depends testSetReadonly
      */
     public function testSetWriteable($id)
     {
-        $res = $this->request('POST', '/collection/'.$id.'/readonly?readonly=false');
-        $this->assertEquals(204, $res->getStatusCode());
+        $res = self::$controller->postReadonly($id, null, false);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
     }
 
     /**
@@ -54,10 +62,10 @@ class ReadonlyTest extends Test
     public function testCreateChildUnderWriteableCollection($id)
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection/'.$id.'?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
+        $res = self::$controller->post($id, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
     }
 }

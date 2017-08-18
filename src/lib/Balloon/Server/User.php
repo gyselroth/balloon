@@ -518,7 +518,7 @@ class User
             //    '$in' => $found
             //]
         ]);
-
+        
         $exists = [];
         foreach ($item as $child) {
             if (!in_array($child['reference'], $found)) {

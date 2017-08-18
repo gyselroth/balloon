@@ -1,19 +1,28 @@
 <?php
 namespace Balloon\Testsuite\Unit\Api\Collection;
 
-use Balloon\Testsuite\Unit\Test;
+use \Balloon\Testsuite\Unit\Test;
+use \Balloon\Api\v1\Collection;
+use \Micro\Http\Response;
+use \MongoDB\BSON\ObjectID;
 
 class ParentTest extends Test
 {
+    public static function setUpBeforeClass()
+    {
+        $server = self::setupMockServer();
+        self::$controller = new Collection($server, $server->getLogger());
+    }
+
     public function testCreate()
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
-        return $id;
+        $res = self::$controller->post(null, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
+        return (string)$id;
     }
     
 
@@ -23,12 +32,12 @@ class ParentTest extends Test
     public function testCreateChild($id)
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection?id='.$id.'&name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
-        return $id;
+        $res = self::$controller->post($id, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
+        return (string)$id;
     }
 
     /**
@@ -37,10 +46,10 @@ class ParentTest extends Test
      */
     public function testCheckParent($parent, $child)
     {
-        $res = $this->request('GET', '/collection/'.$child.'/parent');
-        $this->assertEquals(200, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertEquals($parent, new \MongoDB\BSON\ObjectID($body['id']));
+        $res = self::$controller->getParent($child);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
+        $this->assertEquals(new ObjectID($parent), new ObjectID($res->getBody()['id']));
     }
 
     /**
@@ -49,11 +58,11 @@ class ParentTest extends Test
      */
     public function testCheckParents($parent, $child)
     {
-        $res = $this->request('GET', '/collection/'.$child.'/parents');
-        $this->assertEquals(200, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertCount(1, $body);
-        $this->assertEquals($parent, new \MongoDB\BSON\ObjectID($body[0]->id));
+        $res = self::$controller->getParents($child);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
+        $this->assertCount(1, $res->getBody());
+        $this->assertEquals(new ObjectID($parent), new ObjectID($res->getBody()[0]['id']));
     }
 
     /**
@@ -62,11 +71,12 @@ class ParentTest extends Test
      */
     public function testCheckParentsIncludingSelf($parent, $child)
     {
-        $res = $this->request('GET', '/collection/'.$child.'/parents?self=true');
-        $this->assertEquals(200, $res->getStatusCode());
-        $body = $this->jsonBody($res);
+        $res = self::$controller->getParents($child, null, [], true);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
+        $body = $res->getBody();
         $this->assertCount(2, $body);
-        $this->assertEquals($child, new \MongoDB\BSON\ObjectID($body[0]->id));
-        $this->assertEquals($parent, new \MongoDB\BSON\ObjectID($body[1]->id));
+        $this->assertEquals(new ObjectID($child), new ObjectID($body[0]['id']));
+        $this->assertEquals(new ObjectID($parent), new ObjectID($body[1]['id']));
     }
 }

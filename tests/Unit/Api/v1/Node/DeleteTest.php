@@ -1,12 +1,21 @@
 <?php
 namespace Balloon\Testsuite\Unit\Api\v1\Node;
 
-use Balloon\Testsuite\Unit\Test;
+use \Balloon\Testsuite\Unit\Test;
+use \Balloon\Api\v1\Node;
+use \Micro\Http\Response;
 
 abstract class DeleteTest extends Test
 {
     protected static $first_cursor;
     protected static $current_cursor;
+
+    public static function setUpBeforeClass()
+    {
+        $server = self::setupMockServer();
+        self::$controller = new Node($server, $server->getLogger());
+    }
+
 
     public function testReceiveLastDelta()
     {
@@ -14,29 +23,16 @@ abstract class DeleteTest extends Test
         self::$current_cursor = self::$first_cursor;
     }
 
-    public function testCreate()
-    {
-        $name = uniqid();
-        $res = $this->request('PUT', '/'.$this->type.'?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
-        $delta = $this->getLastDelta(self::$current_cursor);
-        $this->assertCount(1, $delta['nodes']);
-        $this->assertEquals((string)$id, $delta['nodes'][0]->id);
-        self::$current_cursor = $delta['cursor'];
-        
-        return $id;
-    }
+    abstract public function testCreate();
     
     /**
      * @depends testCreate
      */
     public function testExists($id)
     {
-        $res = $this->request('HEAD', '/'.$this->type.'?id='.$id);
-        $this->assertEquals(200, $res->getStatusCode());
+        $res = self::$controller->head($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
     }
     
     /**
@@ -44,14 +40,15 @@ abstract class DeleteTest extends Test
      */
     public function testDeleteIntoTrash($id)
     {
-        $res = $this->request('DELETE', '/'.$this->type.'?id='.$id);
-        $this->assertEquals(204, $res->getStatusCode());
+        $res = self::$controller->delete($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
         
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
-        $this->assertTrue($delta['nodes'][0]->deleted);
+        $this->assertTrue($delta['nodes'][0]['deleted']);
         self::$current_cursor = $delta['cursor'];
-        
+
         return $id;
     }
     
@@ -60,14 +57,24 @@ abstract class DeleteTest extends Test
      */
     public function testExistsWhenDeleted($id)
     {
-        $res = $this->request('HEAD', '/'.$this->type.'/'.$id);
-        $this->assertEquals(404, $res->getStatusCode());
+        $res = self::$controller->head($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(404, $res->getCode());
         
-        $res = $this->request('HEAD', '/'.$this->type.'/'.$id.'?deleted=1');
-        $this->assertEquals(200, $res->getStatusCode());
+    }
+
+    /**
+     * @depends testDeleteIntoTrash
+     */
+    public function testExistsWhenDeletedIncludeDeleted($id)
+    { 
+        $res = self::$controller->head($id, null, 1);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
         
-        $res = $this->request('HEAD', '/'.$this->type.'/'.$id.'?deleted=2');
-        $this->assertEquals(200, $res->getStatusCode());
+        $res = self::$controller->head($id, null, 2);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
     } 
     
     /**
@@ -75,11 +82,11 @@ abstract class DeleteTest extends Test
      */
     public function testCheckIfIsDeleted($id)
     {
-        $res = $this->request('GET', '/'.$this->type.'/attributes?id='.$id);
-        $this->assertEquals(200, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertArrayHasKey('deleted', $body);
-        $this->assertInstanceOf('\stdClass', $body['deleted']);
+        $res = self::$controller->getAttributes($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
+        $this->assertArrayHasKey('deleted', $res->getBody());
+        $this->assertInstanceOf('\stdClass', $res->getBody()['deleted']);
         return $id;
     }
 
@@ -88,12 +95,13 @@ abstract class DeleteTest extends Test
      */
     public function testRestoreFromTrash($id)
     {
-        $res = $this->request('POST', '/'.$this->type.'/undelete?id='.$id);
-        $this->assertEquals(204, $res->getStatusCode());
+        $res = self::$controller->postUndelete($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
         
-        $delta = $this->getLastDelta(self::$current_cursor);
+        $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
-        $this->assertFalse($delta['nodes'][0]->deleted);
+        $this->assertFalse($delta['nodes'][0]['deleted']);
         self::$current_cursor = $delta['cursor'];
         
         return $id;
@@ -104,9 +112,10 @@ abstract class DeleteTest extends Test
      */
     public function testCheckIfIsNotDeleted($id)
     {
-        $res = $this->request('GET', '/'.$this->type.'/attributes?id='.$id);
-        $this->assertEquals(200, $res->getStatusCode());
-        $body = $this->jsonBody($res);
+        $res = self::$controller->getAttributes($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
+        $body = $res->getBody();
         $this->assertArrayHasKey('deleted', $body);
         $this->assertFalse($body['deleted']);
         return $id;
@@ -117,31 +126,28 @@ abstract class DeleteTest extends Test
      */
     public function testForceDelete($id)
     {
-        $res = $this->request('DELETE', '/'.$this->type.'?id='.$id.'&force=1');
-        $this->assertEquals(204, $res->getStatusCode());
+        $res = self::$controller->delete($id, null, 1);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
         return $id;
     }
 
     /**
      * @depends testRestoreFromTrash
+     * @expectedException \Balloon\Exception\NotFound
+     * @expectedExceptionCode 49
      */
     public function testCheckIfIsForceDeleted($id)
     {
-        $res = $this->request('GET', '/'.$this->type.'/attributes?id='.$id);
-        $this->assertEquals(404, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertEquals('Balloon\\Exception\\NotFound', $body['error']);
+        $res = self::$controller->getAttributes($id);
     }
-
 
     /**
      * @depends testForceDelete
      */
     public function testDelta($id)
     {
-        $delta = $this->getLastDelta(self::$first_cursor);
+        $delta = $this->getDelta(self::$first_cursor);
         $this->assertCount(1, $delta['nodes']);
-        $this->assertEquals((string)$id, $delta['nodes'][0]->id);
-        $this->assertTrue($delta['nodes'][0]->deleted);
     }
 }

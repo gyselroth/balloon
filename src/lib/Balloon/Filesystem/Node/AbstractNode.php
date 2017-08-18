@@ -184,7 +184,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
 
     /**
      * Plugin
-     *
+     /*
      * @var Plugin
      */
     protected $_hook;
@@ -1209,7 +1209,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function getZip(): void
     {
-        $temp = $this->_config->dir->temp.DIRECTORY_SEPARATOR.'zip';
+        $temp = $this->_fs->getServer()->getTempDir().DIRECTORY_SEPARATOR.'zip';
         if (!file_exists($temp)) {
             mkdir($temp, 0700, true);
         }
@@ -1218,7 +1218,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         $archive = new ZipStream($this->name.".zip", "application/zip", $this->name.".zip");
         $this->zip($archive, false);
         $archive->finalize();
-        exit();
     }
 
 

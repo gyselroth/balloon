@@ -13,7 +13,7 @@ namespace Balloon\Exception;
 
 class Internal extends \Balloon\Exception
 {
-    const ERROR   = 0x61;
-    const WARNING = 0x62;
-    const DEBUG   = 0x63;
+    const ERROR   = 97;
+    const WARNING = 98;
+    const DEBUG   = 99;
 }

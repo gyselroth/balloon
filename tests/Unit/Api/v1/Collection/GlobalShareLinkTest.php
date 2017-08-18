@@ -1,20 +1,28 @@
 <?php
 namespace Balloon\Testsuite\Unit\Api\Collection;
 
-use Balloon\Testsuite\Unit\Test;
-use \GuzzleHttp;
+use \Balloon\Testsuite\Unit\Test;
+use \Balloon\Api\v1\Collection;
+use \Micro\Http\Response;
+use \MongoDB\BSON\ObjectID;
 
 class GlobalShareLinkTest extends Test
 {
+    public static function setUpBeforeClass()
+    {
+        $server = self::setupMockServer();
+        self::$controller = new Collection($server, $server->getLogger());
+    }
+
     public function testCreate()
     {
         $name = uniqid();
-        $res = $this->request('POST', '/collection?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $id = new \MongoDB\BSON\ObjectID($body);
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
-        return $id;
+        $res = self::$controller->post(null, null, $name);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(201, $res->getCode());
+        $id = new ObjectID($res->getBody());
+        $this->assertInstanceOf(ObjectID::class, $id);
+        return (string)$id;
     }
 
     /**
@@ -22,8 +30,9 @@ class GlobalShareLinkTest extends Test
      */
     public function testCreateShareLink($id)
     {
-        $res = $this->request('POST', '/collection/share-link?id='.$id);
-        $this->assertEquals(204, $res->getStatusCode());
+        $res = self::$controller->postShareLink($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
         return $id;
     }
     
@@ -31,15 +40,15 @@ class GlobalShareLinkTest extends Test
     /**
      * @depends testCreateShareLink
      */
-    public function testGetShareLink($node)
+    public function testGetShareLink($id)
     {
-        $res = $this->request('GET', '/collection/'.$node.'/share-link');
-        $this->assertEquals(200, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-        $this->assertArrayHasKey('token', $body);
+        $res = self::$controller->getShareLink($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
+        $this->assertArrayHasKey('token', $res->getBody());
         return [
-            'token' => $body['token'],
-            'id'    => $node,
+            'token' => $res->getBody()['token'],
+            'id'    => $id,
         ];
     }
     
@@ -48,21 +57,23 @@ class GlobalShareLinkTest extends Test
      */
     public function testVerifyShareLink($node)
     {
-        $client = new GuzzleHttp\Client();
+        /*$client = new GuzzleHttp\Client();
         $res = $client->request('GET', $_SERVER['BALLOON_API_HOST'].'/share?t='.$node['token'], ['http_errors' => false]);
         $this->assertEquals(200, $res->getStatusCode());
         $this->assertEquals('application/zip', $res->getHeaderLine('Content-Type'));
         $this->assertNotEmpty($res->getHeaderLine('Content-Disposition'));
+        return $node;*/
         return $node;
-    }    
+    }  
 
     /**
      * @depends testVerifyShareLink
      */
     public function testDeleteShareLink($node)
     {
-        $res = $this->request('DELETE', '/collection/share-link?id='.$node['id']);
-        $this->assertEquals(204, $res->getStatusCode());
+        $res = self::$controller->deleteShareLink($node['id']);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
         return $node;
     }
     
@@ -71,9 +82,9 @@ class GlobalShareLinkTest extends Test
      */
     public function testCheckIfShareLinkIsDeleted($node)
     {
-        $client = new GuzzleHttp\Client();
+        /*$client = new GuzzleHttp\Client();
         $res = $client->request('GET', $_SERVER['BALLOON_API_HOST'].'/share?t='.$node['token'], ['http_errors' => false]);
-        $this->assertEquals(404, $res->getStatusCode());
+        $this->assertEquals(404, $res->getStatusCode());*/
     }
 
     /**
@@ -81,15 +92,15 @@ class GlobalShareLinkTest extends Test
      */
     public function testCreateExpiredShareLink($id)
     {
-        $res = $this->request('POST', '/collection/share-link?id='.$id, ['form_params' => ['options' => ['expiration' => 1999999]]]);
-        $this->assertEquals(204, $res->getStatusCode());
-        $res = $this->request('GET', '/collection/'.$id.'/share-link');
-        $this->assertEquals(200, $res->getStatusCode());
-        $body = $this->jsonBody($res);
-
+        $res = self::$controller->postShareLink($id, null, ['expiration' => '1999999']);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(204, $res->getCode());
+        $res = self::$controller->getShareLink($id);
+        $this->assertInstanceOf(Response::class, $res);
+        $this->assertEquals(200, $res->getCode());
         return [
             'id'  => $id,
-            'token' => $body['token']
+            'token' => $res->getBody()['token']
         ];
     }
     
@@ -98,8 +109,8 @@ class GlobalShareLinkTest extends Test
      */
     public function testIfShareLinkIsExpired($node)
     {
-        $client = new GuzzleHttp\Client();
+        /*$client = new GuzzleHttp\Client();
         $res = $client->request('GET', $_SERVER['BALLOON_API_HOST'].'/share?t='.$node['token'], ['http_errors' => false]);
-        $this->assertEquals(404, $res->getStatusCode());
+        $this->assertEquals(404, $res->getStatusCode());*/
     }
 }

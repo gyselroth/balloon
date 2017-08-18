@@ -516,70 +516,73 @@ class Node extends Controller
         int $length=0,
         ?string $encode=null,
         bool $download=false,
-        string $name='selected'): void
+        string $name='selected'): Response
     {
         if (is_array($id)) {
-            $this->_combine($id, $p, $name);
-        } else {
-            $node = $this->_getNode($id, $p);
-
-            if ($node instanceof Balloon\Collection) {
+            return $this->_combine($id, $p, $name);
+        } 
+         
+        $node = $this->_getNode($id, $p);
+        if ($node instanceof Collection) {
+            return (new Response())->setBody(function() use($node){
                 $node->getZip();
+            });
+        }
+      
+        return (new Response())->setBody(function() use($node){
+            $mime  = $node->getMime();
+            $stream = $node->get();
+            $name  = $node->getName();
+        
+            if ($download == true) {
+                header('Content-Disposition: attachment; filename*=UTF-8\'\'' .rawurlencode($name));
+                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+                header('Content-Type: application/octet-stream');
+                header('Content-Length: '.$node->getSize());
+                header('Content-Transfer-Encoding: binary');
             } else {
-                $mime  = $node->getMime();
-                $stream = $node->get();
-                $name  = $node->getName();
+                header('Content-Disposition: inline; filename*=UTF-8\'\'' .rawurlencode($name));
             }
-        }
 
-        if ($download == true) {
-            header('Content-Disposition: attachment; filename*=UTF-8\'\'' .rawurlencode($name));
-            header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-            header('Content-Type: application/octet-stream');
-            header('Content-Length: '.$node->getSize());
-            header('Content-Transfer-Encoding: binary');
-        } else {
-            header('Content-Disposition: inline; filename*=UTF-8\'\'' .rawurlencode($name));
-        }
-
-        if ($stream === null) {
-            exit();
-        }
-
-        if ($offset !== 0) {
-            if (fseek($stream, $offset) === -1) {
-                throw Exception\Conflict('invalid offset requested',
-                    Exception\Conflict::INVALID_OFFSET
-                );
+            if ($stream === null) {
+                exit();
             }
-        }
 
-        $read = 0;
-        header('Content-Type: '.$mime.'');
-        if ($encode === 'base64') {
-            header('Content-Encoding: base64');
-            while (!feof($stream)) {
-                if ($length !== 0 && $read + 8192 > $length) {
-                    echo base64_encode(fread($stream, $length - $read));
-                    exit();
+            if ($offset !== 0) {
+                if (fseek($stream, $offset) === -1) {
+                    throw Exception\Conflict('invalid offset requested',
+                        Exception\Conflict::INVALID_OFFSET
+                    );
                 }
-
-                echo base64_encode(fread($stream, 8192));
-                $read += 8192;
             }
-        } else {
-            while (!feof($stream)) {
-                if ($length !== 0 && $read + 8192 > $length) {
-                    echo fread($stream, $length - $read);
-                    exit();
+
+            $read = 0;
+            header('Content-Type: '.$mime.'');
+            if ($encode === 'base64') {
+                header('Content-Encoding: base64');
+                while (!feof($stream)) {
+                    if ($length !== 0 && $read + 8192 > $length) {
+                        echo base64_encode(fread($stream, $length - $read));
+                        exit();
+                    }
+
+                    echo base64_encode(fread($stream, 8192));
+                    $read += 8192;
                 }
+            } else {
+                while (!feof($stream)) {
+                    if ($length !== 0 && $read + 8192 > $length) {
+                        echo fread($stream, $length - $read);
+                        exit();
+                    }
 
-                echo fread($stream, 8192);
-                $read += 8192;
+                    echo fread($stream, 8192);
+                    $read += 8192;
+                }
             }
-        }
+        });
             
-        exit();
+        //exit();
     }
 
 
