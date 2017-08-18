@@ -9,14 +9,18 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Plugin;
+namespace Balloon\App\AutoCreateUser;
 
 use \Balloon\Exception;
-use \Balloon\User;
+use \Balloon\Hook\AbstractHook;
+use \Balloon\Hook\HookInterface;
+use \Balloon\Server;
 use \MongoDB\BSON\Binary;
 use \MongoDB\BSON\UTCDateTime;
+use \MongoDB\Model\BSONDocument;
+use \Micro\Auth\Identity;
 
-class AutoCreateUser extends AbstractPlugin
+class Hook extends AbstractHook
 {
     /**
      * Attributes
@@ -30,9 +34,9 @@ class AutoCreateUser extends AbstractPlugin
      * Set options
      *
      * @param  Iterable $config
-     * @return PluginInterface
+     * @return HookInterface
      */
-    public function setOptions(?Iterable $config): PluginInterface
+    public function setOptions(?Iterable $config): HookInterface
     {
         if ($config === null) {
             return $this;
@@ -47,28 +51,25 @@ class AutoCreateUser extends AbstractPlugin
 
 
     /**
-     * Run: preCreateUser
+     * Run: preServerIdentity
      *
-     * Executed pre a new user will be created
-     *
-     * @param   User $user
-     * @param   string $username
-     * @param   array $attributes
-     * @param   bool $autocreate
+     * @param   Server $server
+     * @param   Identity $identity
+     * @param   BSONDocument $attributes
      * @return  void
      */
-    public function preInstanceUser(User $user, string &$username, ?array &$attributes, bool $autocreate): void
+    public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes): void
     {
-        if ($autocreate === false || $attributes !== null) {
+        if ($user !== null) {
             return;
         }
 
-        $this->logger->info('found first time username ['.$username.'], auto-create user in mongodb user collection', [
+        $this->logger->info('found first time username ['.$identity->getIdentitfier().'], auto-create user in mongodb user collection', [
              'category' => get_class($this)
         ]);
 
         $attributes = [
-            'username'   => $username,
+            'username'   => $identity->getIdentitfier(),
             'created'    => new UTCDateTime,
             'deleted'    => false,
         ];
@@ -105,6 +106,6 @@ class AutoCreateUser extends AbstractPlugin
             }
         }
 
-        $result = $user->getFilesystem()->getDatabase()->user->insertOne($attributes);
+        $result = $server->getDatabase()->user->insertOne($attributes);
     }
 }

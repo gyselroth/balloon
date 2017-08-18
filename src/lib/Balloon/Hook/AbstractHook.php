@@ -13,12 +13,14 @@ namespace Balloon\Hook;
 
 use \Balloon\Exception;
 use \Psr\Log\LoggerInterface as Logger;
+use \Balloon\Server;
+use \Balloon\Server\User;
 use \Balloon\Filesystem;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\Filesystem\Node\NodeInterface;
-use \Micro\Auth\Adapter\AdapterInterface as AuthInterface;
-use \Micro\Auth;
+use \Micro\Auth\Identity;
+use \MongoDB\Model\BSONDocument;
 
 abstract class AbstractHook implements HookInterface
 {
@@ -56,6 +58,35 @@ abstract class AbstractHook implements HookInterface
     public function setOptions(?Iterable $config): HookInterface
     {
         return $this;
+    }
+
+
+    /**
+     * Run: preServerIdentity
+     *
+     * Executed after authentication but before the identity gets authenticated with the server
+     *
+     * @param   Server $server
+     * @param   Identity $identity
+     * @param   BSONDocument $attributes
+     * @return  void
+     */
+    public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes): void
+    {
+    }
+    
+
+    /**
+     * Run: postCreateCollection
+     *
+     * Executed authenticated with the server
+     *
+     * @param   Server $server
+     * @param   User $user
+     * @return  void
+     */
+    public function postServerIdentity(Server $server, User $user): void
+    {
     }
 
     

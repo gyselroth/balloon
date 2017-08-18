@@ -11,7 +11,8 @@ CORE: [CHANGE] renamed \Ballon\Exception\Coding to \Balloon\Exception\Internal
 CORE: [CHANGE] Added new \Balloon\Server which is the new point of entry, also moved \Balloon\User to \Ballon\Server\User and made various code improvements to it
 CORE: [CHANGE] Moved \Balloon\Filesystem\node\INode to \Balloon\Filesystem\node\NodeInterface and \Balloon\Filesystem\Node\Node to \Balloon\Filesystem\Node\AbstractNode #6
 CORE: [CHANGE] Elasticsearch is now an app and not part of the core anymore #10
-CORE: [CHANGED] changed exception codes from hex to integer
+CORE: [CHANGE] changed exception codes from hex to integer
+CORE [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
 API: [CHANGE] removed GET /api/v1/about
 API: [CHANGE] removed GET /api/v1/version
 API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46

@@ -282,7 +282,7 @@ class Server
     public function setIdentity(Identity $identity): bool
     {
         $result = $this->db->user->findOne(['username' => $identity->getIdentifier()]);
-        //$this->hook->run('preIdentity', [$identity, &$result]);
+        $this->hook->run('preServerIdentity', [$this, $identity, &$result]);
 
         if($result === null) {
             throw new Exception('user does not exists');
@@ -291,6 +291,7 @@ class Server
             $this->user = $user;
             $this->fs->setUser($user);
             $user->updateIdentity($identity);
+            $this->hook->run('postServerIdentity', [$this, $user]);
             return true;
         }
     }   
