@@ -5,7 +5,7 @@ sudo: false
 addons:
   apt:
     packages:
-      - php-mongodb
-      - php-imagick
+      - php7.1-mongodb
+      - php7.1-imagick
 
 script: ./build.sh --dep --test
