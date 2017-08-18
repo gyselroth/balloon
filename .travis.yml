@@ -2,4 +2,4 @@ language: php
 php:
   - '7.1'
 sudo: false
-script: ./build.sh -t
+script: ./build.sh --dep --test
