@@ -1,6 +1,8 @@
-# 2.0.0-dev
-Raffael Sahli <sahli@gyselroth.com>\
-Thu June 22 15:04:32 CET 2017\
+## 2.0.0-dev
+***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
+***Date***: Thu June 22 15:04:32 CET 2017\
+
+Next major release v2, includes various new features and core changes. The API is still v1 and compatible with all current implementations.
 
 * CORE: [CHANGE] php ext apc is now optional (cache configuration)
 * CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
@@ -22,11 +24,12 @@ Thu June 22 15:04:32 CET 2017\
 Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 
 
-# 1.0.15 
-## Raffael Sahli <sahli@gyselroth.com>
-## Mon July 31 12:55:02 CET 2017
-API: [FEATURE] /node/attributes does now accept multiple id #47
-API: [FIX] fixed XSS via X-Client header
+## 1.0.15 
+***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
+***Date***: Mon July 31 12:55:02 CET 2017\
+ 
+* API: [FEATURE] /node/attributes does now accept multiple id #47
+* API: [FIX] fixed XSS via X-Client header
 
 
 # 1.0.14
