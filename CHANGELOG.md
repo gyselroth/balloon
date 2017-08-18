@@ -1,23 +1,24 @@
 # 2.0.0-dev
-## Raffael Sahli <sahli@gyselroth.com>
-## Thu June 22 15:04:32 CET 2017
-CORE: [CHANE] php ext apc is now optional (cache configuration)
-CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
-CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
-CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
-CORE: [CHANGE] changed hook preAuthentication() first param to Auth $auth instead auth adapters
-CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon\Plugin => \Balloon\Hook #55, \Balloon\Queue => \Balloon\Async
-CORE: [CHANGE] renamed \Ballon\Exception\Coding to \Balloon\Exception\Internal
-CORE: [CHANGE] Added new \Balloon\Server which is the new point of entry, also moved \Balloon\User to \Ballon\Server\User and made various code improvements to it
-CORE: [CHANGE] Moved \Balloon\Filesystem\node\INode to \Balloon\Filesystem\node\NodeInterface and \Balloon\Filesystem\Node\Node to \Balloon\Filesystem\Node\AbstractNode #6
-CORE: [CHANGE] Elasticsearch is now an app and not part of the core anymore #10
-CORE: [CHANGE] changed exception codes from hex to integer
-CORE [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
-API: [CHANGE] removed GET /api/v1/about
-API: [CHANGE] removed GET /api/v1/version
-API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
-API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
-API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
+Raffael Sahli <sahli@gyselroth.com>\
+Thu June 22 15:04:32 CET 2017\
+
+* CORE: [CHANGE] php ext apc is now optional (cache configuration)
+* CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
+* CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
+* CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
+* CORE: [CHANGE] changed hook preAuthentication() first param to Auth $auth instead auth adapters
+* CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon\Plugin => \Balloon\Hook #55, \Balloon\Queue => \Balloon\Async
+* CORE: [CHANGE] renamed \Ballon\Exception\Coding to \Balloon\Exception\Internal
+* CORE: [CHANGE] Added new \Balloon\Server which is the new point of entry, also moved \Balloon\User to \Ballon\Server\User and made various code improvements to it
+* CORE: [CHANGE] Moved \Balloon\Filesystem\node\INode to \Balloon\Filesystem\node\NodeInterface and \Balloon\Filesystem\Node\Node to \Balloon\Filesystem\Node\AbstractNode #6
+* CORE: [CHANGE] Elasticsearch is now an app and not part of the core anymore #10
+* CORE: [CHANGE] changed exception codes from hex to integer
+* CORE [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
+* API: [CHANGE] removed GET /api/v1/about
+* API: [CHANGE] removed GET /api/v1/version
+* API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
+* API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
+* API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 Webinterface: [FIX] added missing german locale for view.prop.head.share_value
 
 
