@@ -48,7 +48,7 @@ Balloon build tool $version
   -m --minify
     Executes the minify task of the user interface (yui-compressor is required)
     
-  -p --package 
+  -p --package tar,deb [DEFAULT: tar,deb]
     This generates a tar archive of a complete build, equal to "--dep --minify --test --apidoc --php-cs-fixer" 
     and creates a package with the result
   
@@ -78,13 +78,19 @@ case $key in
     showHelp
     ;;
     -p|--package)
-    OPT_PACKAGE=1
-    OPT_COMPOSER=1
-    OPT_BOWER=1
-    OPT_TEST=1
-    OPT_MINIFY=1
-    OPT_APIDOC=1
-    OPT_PHPCS_FIX=1
+    if [[ "$2" == '' || "${2:0:1}" == '-' ]]; then
+      OPT_PACKAGE="tar,deb"
+    else 
+      OPT_PACKAGE="$2"
+    fi
+    shift
+
+    #OPT_COMPOSER=1
+    #OPT_BOWER=1
+    #OPT_TEST=1
+    #OPT_MINIFY=1
+    #OPT_APIDOC=1
+    #OPT_PHPCS_FIX=1
     ;;
     -f|--full-build)
     OPT_COMPOSER=1
@@ -300,20 +306,42 @@ if [ $OPT_MINIFY -eq 1 ]; then
     sed -n '1h; 1!H; ${g; s/<!--js-->[^!]*<!--js-->/'\<script\ src="\"\/ui\/lib\/build.js?v=$ts\""\ type="\"text\/javascript\""\>\<\\/script\>'/g; p;}' -i $ui/index.build.html
 fi
 
+function generateDebianControl {
+    echo "Package: balloon-server" > $OPT_SOURCE/build/DEBIAN/control 
+    echo "Version: $version" >> $OPT_SOURCE/build/DEBIAN/control
+    echo "Architecture: all" >> $OPT_SOURCE/build/DEBIAN/control
+    echo "Maintainer: Raffael Sahli <sahli@gyselroth.com>" >>  $OPT_SOURCE/build/DEBIAN/control
+    echo 'Depends: php (>= 7.1), php-ldap (>= 7.1), php-xml (>= 7.1), php-mongodb (>= 7.1), php-opcache (>= 7.1), php-curl (>= 7.1), php-imagick (>= 7.1), php-cli (>= 7.1), php-zip (>= 7.1), php-intl (>= 7.1)' >> $OPT_SOURCE/build/DEBIAN/control
+    echo 'Recommends: php-apc (>= 7.1)' >> $OPT_SOURCE/build/DEBIAN/control
+    echo 'Suggests: php-fpm (>=7.1), nginx' >> $OPT_SOURCE/build/DEBIAN/control
+    echo "Homepage: https://github.com/gyselroth/balloon" >> $OPT_SOURCE/build/DEBIAN/control 
+    echo "Description: balloon cloud server" >> $OPT_SOURCE/build/DEBIAN/control
+}
 
-if [ $OPT_PACKAGE -eq 1 ]; then
-    echo "[TASK] Create tar archive"
-    rm -rfv $OPT_SOURCE/*.tar.gz
-    mkdir build
-    cp -Rp $OPT_SOURCE/* $OPT_SOURCE/build
-    rm -rf $OPT_SOURCE/build/log/*
-    find $OPT_SOURCE/build -name .svn -exec rm -rf {} \;
-    archive=balloon-build-$version.tar.gz
-    tar -cvzf $OPT_SOURCE/$archive -C $OPT_SOURCE/build .
-    rm -rf $OPT_SOURCE/build
+if [[ ! "$OPT_PACKAGE" == "0" ]]; then
+    for i in $(echo $OPT_PACKAGE | tr "," "\n"); do
+        if [ "$i" == "tar" ]; then
+          echo "[TASK] Create tar archive"
+          rm -rfv $OPT_SOURCE/*.tar.gz
+          mkdir build
+          cp -Rp $OPT_SOURCE/* $OPT_SOURCE/build
+          rm -rf $OPT_SOURCE/build/log/*
+          find $OPT_SOURCE/build -name .svn -exec rm -rf {} \;
+          archive=balloon-build-$version.tar.gz
+          tar -cvzf $OPT_SOURCE/$archive -C $OPT_SOURCE/build .
+          rm -rf $OPT_SOURCE/build
 
-    checksum=$(md5sum $OPT_SOURCE/$archive | cut -d' ' -f1)
-    echo 
-    echo "package available at $OPT_SOURCE/$archive"
-    echo "MD5 CHECKSUM: $checksum"
+          checksum=$(md5sum $OPT_SOURCE/$archive | cut -d' ' -f1)
+          echo 
+          echo "package available at $OPT_SOURCE/$archive"
+          echo "MD5 CHECKSUM: $checksum"
+        fi
+
+        if [ "$i" == "deb" ]; then
+            echo "[TASK] Create deb package"
+            mkdir -p $OPT_SOURCE/build/DEBIAN
+            generateDebianControl
+            dpkg-deb --build build
+        fi
+    done
 fi
