@@ -2,4 +2,10 @@ language: php
 php:
   - '7.1'
 sudo: false
+addons:
+  apt:
+    packages:
+      - php-mongodb
+      - php-imagick
+
 script: ./build.sh --dep --test
