@@ -6,4 +6,4 @@ before_install:
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - pecl install imagick
   - echo "extension = imagick.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-script: ./build.sh --dep --test --package deb
+script: ./build.sh --dep --test

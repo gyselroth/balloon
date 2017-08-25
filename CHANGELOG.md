@@ -1,6 +1,6 @@
 ## 2.0.0-dev
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Thu June 22 15:04:32 CET 2017\
+***Date***: Thu June 22 15:04:32 CEST 2017\
 
 Next major release v2, includes various new features and core changes. The API is still v1 and compatible with all current implementations.
 
@@ -27,7 +27,7 @@ Next major release v2, includes various new features and core changes. The API i
 
 ## 1.0.15 
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Mon July 31 12:55:02 CET 2017\
+***Date***: Mon July 31 12:55:02 CEST 2017\
  
 * API: [FEATURE] /node/attributes does now accept multiple id #47
 * API: [FIX] fixed XSS via X-Client header
@@ -35,7 +35,7 @@ Next major release v2, includes various new features and core changes. The API i
 
 ## 1.0.14
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Mon July 30 11:13:00 CET 2017\
+***Date***: Mon July 30 11:13:00 CEST 2017\
 
 * CORE: [FIX] fixed ldap auto share sync plugin #45
 * API: [FIX] missing delta entry if node gets moved and a new node is created at the old place #44
@@ -43,7 +43,7 @@ Next major release v2, includes various new features and core changes. The API i
 
 ## 1.0.13 
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Fri June 30 16:04:32 CET 2017\
+***Date***: Fri June 30 16:04:32 CEST 2017\
 
 * CORE: [FIX] added missing node name in Exception\NotFound during requesting child by name
 * CORE: [FIX] fixed #40 webdav adding new file return error 500
@@ -52,14 +52,14 @@ Next major release v2, includes various new features and core changes. The API i
 
 ## 1.0.12 GA
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Thu June 22 10:04:32 CET 2017\
+***Date***: Thu June 22 10:04:32 CEST 2017\
 
 * CORE: [FIX] fixed destroy node via cli plugin if node is a sub node of a share but destroy timestamp was set by share member 
 
 
 ## 1.0.11 RC5
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Tue June 20 09:30:00 CET 2017\
+***Date***: Tue June 20 09:30:00 CEST 2017\
 
 * CORE: [FIX] fixed decoding ldap filter from xml configuration &amp; => &
 * API: [FIX] fixed GET node/attributes if parent is a share reference and attribute parent is requested the id is now the id of the reference instead the one of the share
@@ -68,7 +68,7 @@ Next major release v2, includes various new features and core changes. The API i
 
 ## 1.0.11 RC4
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Tue June 13 09:30:00 CET 2017\
+***Date***: Tue June 13 09:30:00 CEST 2017\
 
 * CORE: [FIX] fixed Balloon\Exception\Coding Undefined index: acl after unshare share and access request from a member
 * CORE: [FIX] Balloon\Plugin\Delta now works in cli mode as well which is essential for some other plugins (there are now delta entries for destroy,cleantrash,...)
@@ -92,7 +92,7 @@ Next major release v2, includes various new features and core changes. The API i
 
 ## 1.0.9 RC3
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Tue June 7 16:00:00 CET 2017\
+***Date***: Tue June 7 16:00:00 CEST 2017\
 
 * CORE: [FIX] fixed major errors in delta, paths are now dynamically generated, fixed delta for share members
 * CORE: [FIX] fixed delta entries for a newly created share with existing sub nodes
@@ -121,7 +121,7 @@ Next major release v2, includes various new features and core changes. The API i
 
 ## 1.0.8 RC2
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Tue May 2 11:02:00 CET 2017\
+***Date***: Tue May 2 11:02:00 CEST 2017\
 
 * CORE: [CHANGE] node names are now case insensitive, meaning A and a can not exist under the same parent collection
 * CORE: [FIX] fixed parent node empty string instead null in raw delta (db)
@@ -140,7 +140,7 @@ AppOffice-Webinterface: [FIX] changed de translation after closing an edit windo
 
 ## 1.0.7 RC1
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Thu Apr 13 16:20:00 CET 2017\
+***Date***: Thu Apr 13 16:20:00 CEST 2017\
 
 * CORE: [FIX] fixed setOptions in Auth\Adapter\Preauth (removed unset)
 * CORE: [FIX] fixed disabling apps in config
@@ -343,7 +343,7 @@ AppOffice-Webinterface: [FIX] code cleanup
 
 ## 1.0.0 Alpha
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Tue Feb 14 11:44:05 CET 2017\
+***Date***: Tue Feb 11 11:44:05 CET 2017\
 
 * CORE: [CHANGE] Repository is now available under GPLv3
 * CORE: [CHANGE] Changed all file headers
@@ -465,7 +465,7 @@ webinterface: [FIX] Global share link password input gets now reseted after open
 
 ## 0.4.3
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-Wed Dez 20 14:57:05 CET 2016\
+***Date***: Tue Dec 20 14:57:05 CET 2016\
 
 * CORE: [FIX] TNode::getAttributes() attribute parent is now a normal string and not a converted MongoId
 * UI: [FIX] Open file does not now show the popup top bar with webkit browser (close view was only possible with ESC)
@@ -477,14 +477,14 @@ Wed Dez 20 14:57:05 CET 2016\
 
 ## 0.4.2
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-Wed Nov 23 13:44:05 CET 2016\
+***Date***: Wed Nov 23 13:44:05 CET 2016\
 
 STABLE RELEASE 0.4.x
 
 
 ## 0.4.1 RC
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Fri Nov 4 11:51:12 CEST 2016\
+***Date***: Fri Nov 4 11:51:12 CET 2016\
 
 * CORE: [CHANGE] Replaced internal autoloader with composer PS-4 autoloader
 * CORE: [FIX] Delta plugin will now store the absolute node path as string (needed for a working delta feed)
@@ -510,7 +510,7 @@ STABLE RELEASE 0.4.x
 
 ## 0.4 Beta
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-Wed Nov 1 13:51:12 CEST 2016\
+***Date***: Wed Nov 1 13:51:12 CET 2016\
 
 * CORE: [FIX] Restore a previous version now restores the changed (timestamp) field from the previous version as well.
 * CORE: [FIX] Various coding revisions, added INode interface, renamed item trait to TNode
@@ -621,7 +621,7 @@ Wed Nov 1 13:51:12 CEST 2016\
 
 ## 0.3
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Fri Dec 11 10:18:15 CEST 2015\
+***Date***: Fri Dec 11 10:18:15 CET 2015\
 
 * UI: [FIX] fixed upload manager colors (progress), increased animation time for quota progress
 * UI: [FIX] upload progress bar has now a modern design and sticks at the bottom of the interface
@@ -696,6 +696,6 @@ BETA RELEASE
 
 ## 0.1
 ***Maintainer***: Raffael Sahli <sahli@gyselroth.com>\
-***Date***: Mon Oct 27 10:18:15 CEST 2014\
+***Date***: Mon Oct 27 10:18:15 CET 2014\
 
 ALPHA RELEASE

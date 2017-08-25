@@ -332,7 +332,7 @@ function generateDebianChangelog {
                 echo "balloon-server ($v) $stable; urgency=low" >> $OPT_SOURCE/build/DEBIAN/changelog
                 echo -e "$changes" >> $OPT_SOURCE/build/DEBIAN/changelog
                 echo >>  $OPT_SOURCE/build/DEBIAN/changelog
-                echo " -- $author  $date +0000" >> $OPT_SOURCE/build/DEBIAN/changelog
+                echo " -- $author  $date" >> $OPT_SOURCE/build/DEBIAN/changelog
                 echo >>  $OPT_SOURCE/build/DEBIAN/changelog
                 v=
                 stable="stable"
@@ -356,6 +356,7 @@ function generateDebianChangelog {
             p2=$(echo $l | cut -d '>' -f2) 
             author="${p1:18}>"
             date=${p2:12}
+            date=$(date -d"$date" +'%a, %d %b %Y %H:%M:%S %z')
         elif [ "${l:0:2}" == "* " ]; then  
             changes="  $changes\n  $l"
         fi
@@ -369,9 +370,9 @@ function buildDeb {
     mkdir -p $OPT_SOURCE/build/usr/share/balloon-server
     mkdir -p $OPT_SOURCE/build/etc/balloon
     mkdir -p $OPT_SOURCE/build/var/log/balloon
-    cp -Rp $OPT_SOURCE/composer.* $OPT_SOURCE/build/usr/share/balloon-server
-    cp -Rp $OPT_SOURCE/package.json $OPT_SOURCE/build/usr/share/balloon-server
-    cp -Rp $OPT_SOURCE/{vendor,src,doc} $OPT_SOURCE/build/usr/share/balloon-server
+    #cp -Rp $OPT_SOURCE/composer.* $OPT_SOURCE/build/usr/share/balloon-server
+    #cp -Rp $OPT_SOURCE/package.json $OPT_SOURCE/build/usr/share/balloon-server
+    #cp -Rp $OPT_SOURCE/{vendor,src,doc} $OPT_SOURCE/build/usr/share/balloon-server
     dpkg-deb --build build
     mkdir $OPT_SOURCE/dist
     mv build.deb $OPT_SOURCE/dist/balloon-server-$version.deb
