@@ -40,12 +40,6 @@
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/martin-helmich/php-mongomock"
-        }
-    ],
     "require-dev": {
         "phpunit/phpunit": "5.7.*",
         "guzzlehttp/guzzle": "*",

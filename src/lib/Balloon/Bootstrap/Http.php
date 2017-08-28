@@ -19,15 +19,20 @@ use \Micro\Auth\Adapter\None as AuthNone;
 use \Balloon\App\AppInterface;
 use \Micro\Config;
 use \Composer\Autoload\ClassLoader as Composer;
+use \Balloon\Auth\Adapter\Basic\Db;
 
 class Http extends AbstractBootstrap
 {
     /**
      * option: auth
      *
-     * @var Config
+     * @var Iterable
      */
-    protected $option_auth;
+    protected $option_auth = [
+        'basic_db' => [
+            'class' => Db::class,
+        ]
+    ];
 
 
     /**
@@ -35,7 +40,7 @@ class Http extends AbstractBootstrap
      *
      * @return void
      */
-    public function __construct(Composer $composer, Config $config)
+    public function __construct(Composer $composer, ?Config $config)
     {
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
@@ -101,8 +106,12 @@ class Http extends AbstractBootstrap
      * @param  Config $config
      * @return AbstractBootstrap
      */
-    public function setOptions(Config $config): AbstractBootstrap
+    public function setOptions(?Config $config): AbstractBootstrap
     {
+        if($config === null) {
+            return $this;
+        }
+
         foreach ($config->children() as $option => $value) {
             switch ($option) {
                 case 'auth':

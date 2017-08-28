@@ -22,7 +22,7 @@ class Office extends Imagick
      *
      * @var string
      */
-    protected $soffice;
+    protected $soffice = '/usr/bin/soffice';
 
 
     /**

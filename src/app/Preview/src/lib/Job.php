@@ -16,7 +16,7 @@ use \Micro\Config;
 use \Balloon\Filesystem;
 use \MongoDB\Database;
 use \Balloon\App\Preview\Converter;
-use \Balloon\Queue\AbstractJob;
+use \Balloon\Async\AbstractJob;
 
 class Job extends AbstractJob
 {

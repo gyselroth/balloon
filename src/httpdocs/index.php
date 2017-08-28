@@ -4,7 +4,7 @@
  *
  * @category    balloon
  * @author      Raffael Sahli <sahli@gyselroth.net>
- * @copyright   copryright (c) 2012-2016 gyselroth GmbH
+ * @copyright   copryright (c) 2012-2017 gyselroth GmbH
  */
 
 defined('APPLICATION_PATH')
@@ -24,16 +24,16 @@ $composer = require 'vendor/autoload.php';
 if (extension_loaded('apc') && apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
-    $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
-    if (is_readable(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml')) {
-        $local = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml', APPLICATION_ENV);
-        $xml->merge($local);
-    }
-    
-    $config = new \Micro\Config($xml);
+    $file = APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
+    if(is_readable($file)) {
+        $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
+        $config = new \Micro\Config($xml);
 
-    if(extension_loaded('apc')) {
-        apc_store('config', $config);
+        if(extension_loaded('apc')) {
+            apc_store('config', $config);
+        }
+    } else {
+        $config = null;
     }
 }
 

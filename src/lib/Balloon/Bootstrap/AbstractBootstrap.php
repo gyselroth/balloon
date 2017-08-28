@@ -20,6 +20,7 @@ use \Balloon\Filesystem;
 use \Balloon\Server;
 use \Composer\Autoload\ClassLoader as Composer;
 use \MongoDB\Client;
+use \Micro\Log\Adapter\File;
 
 abstract class AbstractBootstrap
 {
@@ -114,15 +115,23 @@ abstract class AbstractBootstrap
     /**
      * Option: log
      *
-     * @var Config
+     * @var Iterable
      */
-    protected $option_log ;
+    protected $option_log = [
+        'file' => [
+            'class' => File::class,
+            'config' => [
+                'file'  => APPLICATION_PATH.DIRECTORY_SEPARATATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
+                'level' => 3
+            ]
+        ]
+    ];
 
 
     /**
      * Option: apps
      *
-     * @var array
+     * @var Iterable
      */
     protected $option_apps = [];
 
@@ -134,7 +143,7 @@ abstract class AbstractBootstrap
      * @param  Config $config
      * @return bool
      */
-    public function __construct(Composer $composer, Config $config)
+    public function __construct(Composer $composer, ?Config $config)
     {
         $this->composer = $composer;
         $this->config   = $config;
@@ -174,8 +183,12 @@ abstract class AbstractBootstrap
      * @param  Config $config
      * @return AbstractBootstrap
      */
-    public function setOptions(Config $config): AbstractBootstrap
+    public function setOptions(?Config $config): AbstractBootstrap
     {
+        if($config === null) {
+            return $this;
+        }
+
         foreach ($config->children() as $option => $value) {
             switch ($option) {
                 case 'mongodb':

@@ -341,7 +341,7 @@ class File extends Node
             $wrote = fwrite($chunkgroup_handler, $data);
             $tmp_size += $wrote;
 
-            if ($tmp_size > (int)$this->config->file->max_size) {
+            if ($tmp_size > (int)$this->server->getMaxFileSize()) {
                 fclose($input_handler);
                 fclose($chunkgroup_handler);
                 unlink($file);
