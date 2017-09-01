@@ -14,6 +14,7 @@ namespace Balloon;
 use \MongoDB\Database;
 use \Balloon\Async;
 use \Balloon\Hook;
+use \Balloon\App;
 use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Auth\Identity;
 use \Balloon\Server\User;
@@ -51,7 +52,23 @@ class Server
      *
      * @var Async
      */
-    protected $Async;
+    protected $async;
+
+
+    /** 
+     * App
+     *
+     * @var App
+     */
+    protected $app;
+
+
+    /**
+     * User
+     *
+     * @var User
+     */
+    protected $user;
 
 
     /**
@@ -135,7 +152,30 @@ class Server
         return $this->db;
     }
     
+
+    /**
+     * Set app
+     *
+     * @return Server
+     */
+    public function setApp(App $app): Server
+    {
+        $this->app = $app;
+        return $this;
+    }
+
+
+    /**
+     * Get app
+     *
+     * @return App
+     */
+    public function getApp(): App
+    {
+        return $this->app;
+    }
     
+
     /**
      * Get logger
      *
@@ -302,7 +342,7 @@ class Server
      * 
      * @return User
      */
-    public function getUser(): User
+    public function getUser(): ?User
     {
         return $this->user;
     }

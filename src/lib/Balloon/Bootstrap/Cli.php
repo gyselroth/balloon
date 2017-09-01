@@ -12,73 +12,187 @@ declare(strict_types=1);
 namespace Balloon\Bootstrap;
 
 use \Balloon\App\AppInterface;
+use \Balloon\App;
+use \Micro\Config;
+use \Composer\Autoload\ClassLoader as Composer;
+use \Micro\Log\Adapter\Stdout;
 
 class Cli extends AbstractBootstrap
 {
     /**
      * Init bootstrap
      *
-     * @return bool
+     * @param  Composer $composer
+     * @param  Config $config
+     * @return void
      */
-    public function init(): bool
+    public function __construct(Composer $composer, ?Config $config=null)
     {
-        parent::init();
-
+        parent::__construct($composer, $config);
         $this->setExceptionHandler();
-
-        $this->logger->info('processing incomming cli request', [
-            'category' => get_class($this),
-        ]);
-
-        if (posix_getuid() == 0) {
-            throw new Exception('cli is not allowed to call as root');
-        }
-
-        $this->loadApps();
+        $this->start($this->parseOptions());
         return true;
     }
 
 
     /**
-     * Load apps
+     * Configure cli logger
      *
+     * @return Cli
+     */
+    protected function configureLogger(array $options=[]): Cli
+    {
+        $level = 2;
+        if(isset($options['verbose'])) {
+            $value = $options['verbose'];
+            if($value === false) {
+                $level = 4;
+            } elseif(is_array($value) && count($value) === 2) {
+                $level = 5;
+            } elseif(is_array($value) && count($value) === 3) {
+                $level = 6;
+            } elseif(is_array($value) && count($value) === 4) {
+                $level = 7;
+            } else {
+                $level = 7;
+            }
+        }
+
+        if(!$this->logger->hasAdapter('stdout')) {
+            $this->logger->addAdapter('stdout', Stdout::class, ['level' => $level]);
+        } else {
+            $this->logger->getAdapter('stdout')->setOptions(['level' => $level]);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Parse cmd options
+     * 
+     * @return array
+     */ 
+    protected function parseOptions(): array
+    {
+        $options = $this->prepareOptions(getopt('hdqa::v::', [
+            'help',
+            'daemon',
+            'apps',
+            'queue'
+        ]));
+
+        $this->configureLogger($options);
+
+        if(isset($options['help'])) {
+            return $this->showHelp();
+        } 
+
+        $this->logger->info('processing incomming cli request', [
+            'category' => get_class($this),
+            'options'  => $options
+        ]);
+
+        if (posix_getuid() == 0) {
+            $this->logger->warning('cli should not be executed as root', [
+                'category' => get_class($this),
+            ]);
+        }
+
+        return $options;
+    }
+
+
+    /**
+     * Prepare & sort options
+     *
+     * @param  array $options
+     * @return array
+     */
+    protected function prepareOptions(array $options=[]): array
+    {
+        $priority = [
+            'help'   => 'h',
+            'verbose'=> 'v',
+            'apps'   => 'a',
+            'queue'  => 'q',
+            'daemon' => 'd',
+        ];
+
+        $set = [];
+        foreach($priority as $option => $value) {
+            if(isset($options[$option])) {
+                $set[$option] = $options[$option];
+            } elseif(isset($options[$value])) {
+                $set[$option] = $options[$value];
+            }
+        }
+
+        return $set;
+    }
+
+
+    /**
+     * Start
+     * 
+     * @param  array $options
      * @return bool
      */
-    protected function loadApps(): bool
+    protected function start(array $options=[]): bool
     {
-        foreach ($this->option_apps as $app) {
-            $ns = ltrim((string)$app->class, '\\');
-            $name = substr($ns, strrpos($ns, '\\') + 1);
-            $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$name/src/lib");
-            $class = $ns.'\\Cli';
+        $this->app = new App(App::CONTEXT_CLI, $this->composer, $this->server, $this->logger, $this->option_app);
+        
+        if(isset($options['apps'])) {
+            $apps = explode(',', $options['apps']);
+        } else {
+            $apps = [];
+        }
 
-            if (isset($app['enabled']) && $app['enabled'] != "1") {
-                $this->logger->debug('skip disabled app ['.$class.']', [
-                   'category' => get_class($this)
-                ]);
-                continue;
+        if(!isset($options['queue'])) {
+            $this->logger->debug("skip job queue execution", [
+                'category' => get_class($this),
+            ]);
+        }
+
+        if(isset($options['daemon'])) {
+            $this->fireupDaemon($options);
+        } else {
+            if(isset($options['queue'])) {
+                $cursor = $this->async->getCursor(false);
+                $this->async->start($cursor, $this->server);
             }
-            
-            if(class_exists($class)) {
-                $this->logger->info('inject app ['.$class.']', [
-                    'category' => get_class($this)
-                ]);
 
-                $app = new $class($this->composer, $app->config, $this->server, $this->logger);
-
-                if (!($app instanceof AppInterface)) {
-                    throw new Exception('app '.$class.' is required to implement AppInterface');
-                }
-            } else {
-                $this->logger->debug('app ['.$class.'] does not exists, skip it', [
-                    'category' => get_class($this)
-                ]);
+            foreach($this->app->getApps($apps) as $app) {
+                $app->start();
             }
         }
 
         return true;
     }
 
+
+    /**
+     * Fire up daemon
+     *
+     * @param  array $options
+     * @return bool
+     */
+    protected function fireupDaemon(array $options=[]): bool
+    {
+        $this->logger->info("daemon execution requested, fire up daemon", [
+            'category' => get_class($this),
+        ]);
+
+        $cursor = $this->async->getCursor(true);
+        while(true) {
+            if(isset($options['queue'])) {
+                $this->async->start($cursor, $this->server);
+            }
+        }
+
+        return true;
+    }
+    
 
     /**
      * Set exception handler
@@ -92,15 +206,6 @@ class Cli extends AbstractBootstrap
                 'category' => get_class($this),
                 'exception' => $e
             ]);
-
-                
-            if (file_exists($this->pid_file)) {
-                $this->logger->info('remove cli pid file', [
-                    'category' => get_class($this),
-                ]);
-                
-                unlink($this->pid_file);
-            }
         });
 
         return $this;

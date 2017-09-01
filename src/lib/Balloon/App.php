@@ -66,6 +66,8 @@ class App
         $this->router   = $router;
         $this->auth     = $auth;
         $this->logger   = $logger;
+
+        $this->server->setApp($this);
         $this->setOptions($config);
     }
 
@@ -118,11 +120,12 @@ class App
         $name  = $class;
         $class = $class.'\\'.$this->context;
         $app   = substr($name, strrpos($name, '\\') + 1);
-        $ns = ltrim($name, '\\');
-        $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$app/src/lib");
+        $ns    = ltrim($name, '\\');
+        $name  = str_replace('\\', '.', $ns);
+        $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$name/src/lib");
 
         if (!class_exists($class)) {
-            $this->logger->debug('skip non-existent app class ['.$class.']', [
+            $this->logger->debug('skip non-existent class ['.$class.'] from app ['.$name.']', [
                  'category' => get_class($this),
             ]);
             return false;
@@ -134,10 +137,10 @@ class App
         }
             
         if (!($app instanceof AppInterface)) {
-           throw new Exception('app '.$class.' does not implement AppInterface');
+           throw new Exception('app class '.$class.' does not implement AppInterface');
         }
 
-        $this->logger->info('register app ['.$class.']', [
+        $this->logger->info('register ['.$class.'] from app ['.$name.']', [
              'category' => get_class($this),
         ]);
 

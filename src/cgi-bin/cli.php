@@ -2,9 +2,9 @@
 /**
  * Balloon
  *
- * @category    balloon
  * @author      Raffael Sahli <sahli@gyselroth.net>
- * @copyright   copryright (c) 2012-2016 gyselroth GmbH
+ * @copyright   copryright (c) 2012-2017 gyselroth GmbH
+ * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
 defined('APPLICATION_PATH')
@@ -21,15 +21,12 @@ set_include_path(implode(PATH_SEPARATOR, [
 
 $composer = require 'vendor/autoload.php';
 
-$xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
-if (is_readable(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml')) {
-    $local = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'local.xml', APPLICATION_ENV);
-    $xml->merge($local);
-}
-if (is_readable(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'cli.xml')) {
-    $cli = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'cli.xml', APPLICATION_ENV);
-    $xml->merge($cli);
+$file = APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
+if(is_readable($file)) {
+    $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
+    $config = new \Micro\Config($xml);
+} else {
+    $config = null;
 }
 
-$config = new \Micro\Config($xml);
 new \Balloon\Bootstrap\Cli($composer, $config);

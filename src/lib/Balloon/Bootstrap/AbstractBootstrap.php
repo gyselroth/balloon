@@ -22,6 +22,7 @@ use \Composer\Autoload\ClassLoader as Composer;
 use \MongoDB\Client;
 use \Micro\Log\Adapter\File;
 
+
 abstract class AbstractBootstrap
 {
     /**
@@ -121,8 +122,10 @@ abstract class AbstractBootstrap
         'file' => [
             'class' => File::class,
             'config' => [
-                'file'  => APPLICATION_PATH.DIRECTORY_SEPARATATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
-                'level' => 3
+                'file'  => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
+                'level' => 3,
+                'date_format' => 'Y-d-m H:i:s',
+                'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}'
             ]
         ]
     ];
@@ -133,7 +136,20 @@ abstract class AbstractBootstrap
      *
      * @var Iterable
      */
-    protected $option_apps = [];
+    protected $option_app = [
+        'Api'           => ['class' => '\\Balloon\\App\\Api'],
+        'AutoCreateUser'=> ['class' => '\\Balloon\\App\\AutoCreateUser'],
+        'AutoDestroy'   => ['class' => '\\Balloon\\App\\AutoDestroy'],
+        'CleanTemp'     => ['class' => '\\Balloon\\App\CleanTemp'],
+        'CleanTrash'    => ['class' => '\\Balloon\\App\\CleanTrash'],
+        'Delta'         => ['class' => '\\Balloon\\App\\Delta'],
+        'Notification'  => ['class' => '\\Balloon\\App\\Notification'],
+        'PdfShadow'     => ['class' => '\\Balloon\\App\\PdfShadow'],
+        'Preview'       => ['class' => '\\Balloon\\App\\Preview'],
+        'Sharelink'     => ['class' => '\\Balloon\\App\\ShareLink'],
+        'Webdav'        => ['class' => '\\Balloon\\App\\Webdav'],
+        'Elasticsearch' => ['class' => '\\Balloon\\App\\Elasticsearch'],
+    ];
 
 
     /**
@@ -168,11 +184,10 @@ abstract class AbstractBootstrap
 
         $client = new Client($this->option_mongodb);
         $this->db = $client->{$this->option_mongodb_db};
-       
         $this->async = new Async($this->db, $this->logger, $this->config);
         $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);
         $this->fs = new Filesystem($this->server, $this->logger);
- 
+        
         return true;
     }
 
@@ -201,9 +216,6 @@ abstract class AbstractBootstrap
                     break;
                 case 'apps':
                     $this->option_apps = $value;
-                    break;
-                case 'plugins':
-                    $this->option_plugins = $value;
                     break;
                 case 'log':
                     $this->option_log = $value;

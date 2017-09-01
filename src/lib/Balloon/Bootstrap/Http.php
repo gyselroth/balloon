@@ -16,10 +16,10 @@ use \Micro\Http\Response;
 use \Balloon\Server\User;
 use \Micro\Auth;
 use \Micro\Auth\Adapter\None as AuthNone;
-use \Balloon\App\AppInterface;
 use \Micro\Config;
 use \Composer\Autoload\ClassLoader as Composer;
 use \Balloon\Auth\Adapter\Basic\Db;
+use \Balloon\App;
 
 class Http extends AbstractBootstrap
 {
@@ -40,7 +40,7 @@ class Http extends AbstractBootstrap
      *
      * @return void
      */
-    public function __construct(Composer $composer, ?Config $config)
+    public function __construct(Composer $composer, ?Config $config=null)
     {
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
@@ -56,7 +56,7 @@ class Http extends AbstractBootstrap
             $this->auth->getAdapter('basic_db')->setOptions(['mongodb' => $this->db]);
         }
 
-        $this->loadApps();
+        $this->app = new App(App::CONTEXT_HTTP, $this->composer, $this->server, $this->logger, $this->option_app, $this->router, $this->auth);
 
         if($this->auth->requireOne())  {
             $this->server->setIdentity($this->auth->getIdentity());
@@ -121,48 +121,6 @@ class Http extends AbstractBootstrap
         }
     
         return parent::setOptions($config);
-    }
-
-
-
-    /**
-     * Load apps
-     *
-     * @return bool
-     */
-    protected function loadApps(): bool
-    {
-        foreach ($this->option_apps as $app) {
-            $ns = ltrim((string)$app->class, '\\');
-            $name = substr($ns, strrpos($ns, '\\') + 1);
-            $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$name/src/lib");
-            $class = $ns.'\\Http';
-
-            if (isset($app['enabled']) && $app['enabled'] != "1") {
-                $this->logger->debug('skip disabled app ['.$class.']', [
-                   'category' => get_class($this)
-                ]);
-                continue;
-            }
-            
-            if(class_exists($class)) {
-                $this->logger->info('inject app ['.$class.']', [
-                    'category' => get_class($this)
-                ]);
-
-                $app = new $class($this->composer, $app->config, $this->server, $this->logger, $this->router, $this->auth);
-
-                if (!($app instanceof AppInterface)) {
-                    throw new Exception('app '.$class.' is required to implement AppInterface');
-                }
-            } else {
-                $this->logger->debug('app ['.$class.'] does not exists, skip it', [
-                    'category' => get_class($this)
-                ]);
-            }
-        }
-
-        return true;
     }
 
 

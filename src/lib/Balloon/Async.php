@@ -16,6 +16,10 @@ use \MongoDB\BSON\ObjectId;
 use \Balloon\Async\JobInterface;
 use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Config;
+use \MongoDB\Operation\Find;
+use \MongoDB\Driver\Cursor;
+use \MongoDB\BSON\UTCDateTime;
+use \IteratorIterator;
 
 class Async
 {
@@ -69,8 +73,10 @@ class Async
     {
         $bson = \MongoDB\BSON\fromPHP($job);
         $result = $this->db->queue->insertOne([
-            'class' => get_class($job),
-            'data'  => $job->getData()
+            'class'     => get_class($job),
+            'waiting'   => true,
+            'timestamp' => new UTCDateTime(),
+            'data'      => $job->getData()
         ]);
 
         $this->logger->debug("queue job [".$result->getInsertedId()."] added to [".get_class($job)."]", [
@@ -94,18 +100,66 @@ class Async
         return $result->isAcknowledged();
     }
 
+    
+    /**
+     * Get cursor
+     * 
+     * @param  bool $tailable
+     * @return IteratorIterator
+     */
+    public function getCursor(bool $tailable=false): IteratorIterator
+    {
+        $options = [];
+        if($tailable === true) {
+            $options['cursorType'] = Find::TAILABLE;
+        }
+
+        $cursor = $this->db->queue->find(['waiting' => true], $options);
+        $iterator = new IteratorIterator($cursor);
+        $iterator->rewind();
+
+        return $iterator;
+    }
+
+
+    /**
+     * Mark job as executed
+     *
+     * @return bool
+     */
+    public function updateJob(ObjectId $id, bool $status): bool
+    {
+        $result = $this->db->queue->updateOne(['_id' => $id], [ '$set' => [
+            'waiting'   => false,
+            'timestamp' => new UTCDateTime()
+        ]]);
+        
+        return $result->isAcknowledged();
+    }      
+
 
     /**
      * Execute job queue
      *
-     * @param  Filesystem $fs
-     * @return void
+     * @param  IteratorIterator $cursor
+     * @param  Server $server
+     * @return bool
      */
-    public function execute(Filesystem $fs): void
+    public function start(\IteratorIterator $cursor, Server $server): bool
     {
-        $queue = $this->db->queue->find();
-        
-        foreach ($queue as $job) {
+        while(true) {
+            if($cursor->current() === null) {
+                if($cursor->getInnerIterator()->isDead()) {
+                    return false;
+                } else {
+                    $cursor->next();
+                    return true;
+                }
+            }
+
+            $job = $cursor->current();
+            $cursor->next();
+
             $this->logger->debug("execute job [".$job['_id']."] [".$job['class']."]", [
                 'category' => get_class($this),
                 'params'   => $job['data']
@@ -113,20 +167,20 @@ class Async
             
             try {
                 if (!class_exists($job['class'])) {
-                    $this->removeJob($job['_id']);
+                    $this->updateJob($job['_id'], false);
                     continue;
                 }
 
                 $instance = new $job['class']((array)$job['data']);
-                $instance->run($fs, $this->logger, $this->config);
-                $this->removeJob($job['_id']);
+                $instance->run($server, $this->logger);
+                $this->updateJob($job['_id'], true);
             } catch (\Exception $e) {
                 $this->logger->error("failed execute job [".$job['_id']."], failed with error", [
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);
-            
-                $this->removeJob($job['_id']);
+                
+                $this->updateJob($job['_id'], false);
             }
         }
     }

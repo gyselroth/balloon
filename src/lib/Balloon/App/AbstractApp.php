@@ -29,14 +29,6 @@ abstract class AbstractApp implements AppInterface
 
 
     /**
-     * Composer
-     *
-     * @var Composer
-     */
-    protected $composer;
-
-    
-    /**
      * Router
      *
      * @var Router
@@ -68,14 +60,12 @@ abstract class AbstractApp implements AppInterface
      * @return  void
      */
     public function __construct(
-        Composer $composer,
-        Config $config,
         Server $server,
         Logger $logger,
+        ?Iterable $config=null,
         ?Router $router=null,
         ?Auth $auth=null)
     {
-        $this->composer = $composer;
         $this->config   = $config;
         $this->router   = $router;
         $this->logger   = $logger;
@@ -83,6 +73,27 @@ abstract class AbstractApp implements AppInterface
         $this->fs       = $server->getFilesystem();
         $this->auth     = $auth;
 
+        $this->setOptions($config);
         $this->init();
+    }
+
+
+    /**
+     * Init
+     */
+    public function init(): bool
+    {
+        return true;
+    }
+
+
+    /**
+     * Set options
+     *
+     * @var Iterable $config
+     */
+    public function setOptions(?Iterable $config=null): AppInterface
+    {
+        return $this;
     }
 }

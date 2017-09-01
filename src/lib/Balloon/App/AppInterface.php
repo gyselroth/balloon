@@ -16,7 +16,6 @@ use \Micro\Http\Router;
 use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Auth;
 use \Balloon\Server;
-use \Micro\Config;
 
 interface AppInterface
 {
@@ -28,12 +27,12 @@ interface AppInterface
      * @return  void
      */
     public function __construct(
-        Composer $composer,
-        Config $config,
         Server $server,
         Logger $logger,
+        ?Iterable $config,
         ?Router $router=null,
-        ?Auth $auth=null);
+        ?Auth $auth=null
+    );
 
 
     /**

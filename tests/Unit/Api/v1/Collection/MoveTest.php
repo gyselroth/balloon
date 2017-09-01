@@ -10,10 +10,12 @@ class MoveTest extends Test
 {
     protected static $delta = [];
 
+protected static $server;
     public static function setUpBeforeClass()
     {
         $server = self::setupMockServer();
         self::$controller = new Collection($server, $server->getLogger());
+self::$server  = $server;
     }
 
     public function testReceiveLastDelta()
