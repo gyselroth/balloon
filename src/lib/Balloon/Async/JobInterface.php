@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\Async;
 
 use \Psr\Log\LoggerInterface as Logger;
-use \Micro\Config;
 use \Balloon\Server;
 
 interface JobInterface
@@ -29,7 +28,8 @@ interface JobInterface
     /**
      * Run job
      *
-     * @param   Filesystem $fs
+     * @param   Server $server
+     * @param   Logger $logger
      * @return  bool
      */
     public function run(Server $server, Logger $logger): bool;
