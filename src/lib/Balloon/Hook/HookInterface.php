@@ -19,18 +19,20 @@ use \Balloon\Server\User;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\Filesystem\Node\NodeInterface;
+use \Micro\Auth;
 use \Micro\Auth\Identity;
 use \MongoDB\Model\BSONDocument;
 
 interface HookInterface
 {
     /**
-     * Create plugin
+     * Create hook
      *
+     * @param  Logger $logger
      * @param  Iterable $config
      * @return void
      */
-    public function __construct(Iterable $config, Logger $logger);
+    public function __construct(Logger $logger, ?Iterable $config=null);
 
 
     /**
@@ -40,6 +42,17 @@ interface HookInterface
      * @return HookInterface
      */
     public function setOptions(?Iterable $config): HookInterface;
+
+
+    /**
+     * Run: preAuthentication
+     *
+     * Executed before authentication
+     *
+     * @param   Auth $auth
+     * @return  void
+     */
+    public function preAuthentication(Auth $auth): void;
    
 
     /**
@@ -52,7 +65,7 @@ interface HookInterface
      * @param   BSONDocument $attributes
      * @return  void
      */
-    public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes);
+    public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes): void;
     
 
     /**

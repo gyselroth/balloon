@@ -14,7 +14,7 @@ namespace Balloon\Filesystem\Node;
 use \Sabre\DAV;
 use \Balloon\Exception;
 use \Balloon\Helper;
-use \Balloon\User;
+use \Balloon\Server\User;
 use \Balloon\Filesystem;
 use \PHPZip\Zip\Stream\ZipStream;
 use \MongoDB\BSON\ObjectId;
@@ -180,12 +180,20 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      * @var Logger
      */
     protected $_logger;
+    
+
+    /**
+     * Server
+     *
+     * @var Server
+     */
+    protected $_server;
 
 
     /**
-     * Plugin
-     /*
-     * @var Plugin
+     * Hook
+     *
+     * @var Hook
      */
     protected $_hook;
     
@@ -202,8 +210,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         $this->_fs     = $fs;
         $this->_db     = $fs->getDatabase();
         $this->_user   = $fs->getUser();
-        $this->_logger = $fs->getServer()->getLogger();
-        $this->_hook   = $fs->getServer()->getHook();
+        $this->_server = $fs->getServer();
+        $this->_logger = $this->_server->getLogger();
+        $this->_hook   = $this->_server->getHook();
 
         if ($node !== null) {
             $node = Helper::convertBSONDocToPhp($node);
@@ -866,9 +875,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
  
                 case 'shareowner':
                     if ($this->isSpecial() && $sharenode !== null) {
-                        $build['shareowner'] = (new User($this->_fs->findRawNode($this->getShareId())['owner'],
-                          $this->_logger, $this->_fs)
-                        )->getUsername();
+                        $build['shareowner'] = $this->_server->getUserById($this->_fs->findRawNode($this->getShareId())['owner'])
+                          ->getUsername();
                     }
                 break;
             }
@@ -1209,7 +1217,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function getZip(): void
     {
-        $temp = $this->_fs->getServer()->getTempDir().DIRECTORY_SEPARATOR.'zip';
+        $temp = $this->_server->getTempDir().DIRECTORY_SEPARATOR.'zip';
         if (!file_exists($temp)) {
             mkdir($temp, 0700, true);
         }

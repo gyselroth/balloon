@@ -57,10 +57,9 @@ class Http extends AbstractBootstrap
         }
 
         $this->app = new App(App::CONTEXT_HTTP, $this->composer, $this->server, $this->logger, $this->option_app, $this->router, $this->auth);
+        $this->hook->run('preAuthentication', [$this->auth]);
 
         if($this->auth->requireOne())  {
-            $this->server->setIdentity($this->auth->getIdentity());
-
             if (!($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
                 $this->server->setIdentity($this->auth->getIdentity());
             }

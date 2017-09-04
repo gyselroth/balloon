@@ -9,9 +9,7 @@
 
 namespace Balloon\App\Delta;
 
-use \Balloon\User;
-use \Balloon\Filesystem;
-use \Balloon\Http\Router\Route;
+use \Balloon\App\Delta\Hook;
 use \Balloon\App\AbstractApp;
 
 class Http extends AbstractApp
@@ -23,7 +21,6 @@ class Http extends AbstractApp
      */
     public function init(): bool
     {
-        $this->server->getHook()->registerHook('\Balloon\App\Delta\Hook', null);
-        return true;
+        return $this->server->getHook()->registerHook(Hook::class);
     }
 }

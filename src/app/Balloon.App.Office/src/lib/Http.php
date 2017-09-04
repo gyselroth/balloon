@@ -13,8 +13,9 @@ use \Balloon\Server\User;
 use \Balloon\Filesystem;
 use \Balloon\Http\Router\Route;
 use \Balloon\App\AbstractApp;
+use \Balloon\App\Office\Hook;
 
-class Init extends AbstractApp
+class Http extends AbstractApp
 {
     /**
      * Init
@@ -23,7 +24,7 @@ class Init extends AbstractApp
      */
     public function init(): bool
     {
-        $this->pluginmgr->registerPlugin('\Balloon\App\Office\Plugin', null);
+        $this->server->getHook()->registerHook(Hook::class);
         $this->router->prependRoute((new Route('/api/v1/app/office', $this, 'start')));
         return true;
     }
@@ -38,11 +39,11 @@ class Init extends AbstractApp
     {
         $this->router
             ->clearRoutingTable()
-            ->appendRoute(new Route('/api/v1/app/office/document', 'Balloon\App\Office\Rest\v1\Document'))
-            ->appendRoute(new Route('/api/v1/app/office/user', 'Balloon\App\Office\Rest\v1\User'))
-            ->appendRoute(new Route('/api/v1/app/office/session', 'Balloon\App\Office\Rest\v1\Session'))
-            ->appendRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', 'Balloon\App\Office\Rest\v1\Wopi\Document'))
-            ->appendRoute(new Route('/api/v1/app/office/wopi/document', 'Balloon\App\Office\Rest\v1\Wopi\Document'))
+            ->appendRoute(new Route('/api/v1/app/office/document', 'Balloon\App\Office\Api\v1\Document'))
+            ->appendRoute(new Route('/api/v1/app/office/user', 'Balloon\App\Office\Api\v1\User'))
+            ->appendRoute(new Route('/api/v1/app/office/session', 'Balloon\App\Office\Api\v1\Session'))
+            ->appendRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', 'Balloon\App\Office\Api\v1\Wopi\Document'))
+            ->appendRoute(new Route('/api/v1/app/office/wopi/document', 'Balloon\App\Office\Api\v1\Wopi\Document'))
             ->run([$this->fs, $this->config, $this->logger]);
 
         return true;

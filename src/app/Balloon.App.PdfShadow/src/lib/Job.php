@@ -15,34 +15,10 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Config;
 use \Balloon\Filesystem;
 use \MongoDB\Database;
-use \Balloon\Queue\AbstractJob;
+use \Balloon\Async\AbstractJob;
 
 class Job extends AbstractJob
 {
-    /**
-     * soffice
-     *
-     * @var string
-     */
-    protected $soffice = '/usr/bin/soffice';
-    
-    
-    /**
-     * tmp
-     *
-     * @var string
-     */
-    protected $tmp = '/tmp';
-
-
-    /**
-     * Timeout
-     *
-     * @var int
-     */
-    protected $timeout = 10;
-
-
     /**
      * Run job
      *

@@ -11,8 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Office;
 
-use \Balloon\Config;
-use \Balloon\User;
+use \Balloon\Server\User;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;

@@ -15,7 +15,7 @@ use \Sabre\DAV;
 use \Balloon\Exception;
 use \Balloon\Filesystem;
 use \Balloon\Helper;
-use \Balloon\User;
+use \Balloon\Server\User;
 use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \MongoDB\BSON\UTCDateTime;
@@ -513,7 +513,7 @@ class Delta
             }
 
             try {
-                $user = new User($log['owner'], $this->fs->getLogger(), $this->fs);
+                $user = $this->fs->getServer()->getUserById($log['owner']);
                 $events[$id]['user'] = [
                     'id' => (string)$user->getId(),
                     'username' => $user->getUsername()

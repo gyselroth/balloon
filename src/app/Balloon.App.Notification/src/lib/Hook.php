@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification;
 
-use \Balloon\User;
+use \Balloon\Server\User;
 use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Resource;
 use \Balloon\Filesystem\Node\Collection;

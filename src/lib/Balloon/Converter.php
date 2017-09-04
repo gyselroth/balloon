@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon;
 
+use \Balloon\Converter\Exception;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\Converter\ConverterInterface;
 use \Psr\Log\LoggerInterface as Logger;
@@ -116,6 +117,24 @@ class Converter
 
 
     /**
+     * Inject converter
+     *
+     * @param  string $name
+     * @param  ConverterInterface $adapter
+     * @return ConverterInterface
+     */
+    public function injectConverter(string $name, ConverterInterface $adapter) : ConverterInterface
+    {
+        if ($this->hasConverter($name)) {
+            throw new Exception('converter '.$name.' is already registered');
+        }
+            
+        $this->converter[$name] = $converter;
+        return $converter;
+    }
+
+
+    /**
      * Get converter
      *      
      * @param  string $name
@@ -129,7 +148,6 @@ class Converter
 
         return $this->converter[$name];
     }
-
 
 
     /**
@@ -170,13 +188,13 @@ class Converter
                     return $converter->create($file);
                 }
             } catch (\Exception $e) {
-                $this->logger->error('failed execute preview converter['.get_class($converter).']', [
+                $this->logger->error('failed execute converter ['.$name.'] ['.get_class($converter).']', [
                     'category' => get_class($this),
                     'exception'=>$e
                 ]);
             }
         }
 
-        throw new Exception('no matching preview converter found');
+        throw new Exception('no matching converter found');
     }
 }

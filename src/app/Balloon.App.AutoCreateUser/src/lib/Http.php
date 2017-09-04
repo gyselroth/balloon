@@ -9,9 +9,7 @@
 
 namespace Balloon\App\AutoCreateUser;
 
-use \Balloon\User;
-use \Balloon\Filesystem;
-use \Balloon\Http\Router\Route;
+use \Balloon\App\AutoCreateUser\Hook;
 use \Balloon\App\AbstractApp;
 
 class Http extends AbstractApp
@@ -23,17 +21,6 @@ class Http extends AbstractApp
      */
     public function init(): bool
     {
-        return true;
-    }
-
-
-    /**
-     * Start
-     *
-     * @return bool
-     */
-    public function start(): bool
-    {
-        return true;
+        return $this->server->getHook()->registerHook(Hook::class);
     }
 }

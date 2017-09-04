@@ -60,7 +60,7 @@ class Hook extends AbstractHook
      */
     public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes): void
     {
-        if ($user !== null) {
+        if ($attributes !== null) {
             return;
         }
 

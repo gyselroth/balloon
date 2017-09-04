@@ -19,6 +19,7 @@ use \Balloon\Filesystem;
 use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\Filesystem\Node\NodeInterface;
+use \Micro\Auth;
 use \Micro\Auth\Identity;
 use \MongoDB\Model\BSONDocument;
 
@@ -35,10 +36,11 @@ abstract class AbstractHook implements HookInterface
     /**
      * Create plugin
      *
+     * @param  Logger $logger
      * @param  Iterable $config
      * @return void
      */
-    public function __construct(?Iterable $config, Logger $logger)
+    public function __construct(Logger $logger, ?Iterable $config=null)
     {
         $this->logger = $logger;
         $this->setOptions($config);
@@ -55,11 +57,23 @@ abstract class AbstractHook implements HookInterface
      * @param  Iterable $config
      * @return HookInterface
      */
-    public function setOptions(?Iterable $config): HookInterface
+    public function setOptions(?Iterable $config=null): HookInterface
     {
         return $this;
     }
 
+
+    /**
+     * Run: preAuthentication
+     *
+     * Executed before authentication
+     *
+     * @param   Auth $auth
+     * @return  void
+     */
+    public function preAuthentication(Auth $auth): void
+    {
+    }
 
     /**
      * Run: preServerIdentity

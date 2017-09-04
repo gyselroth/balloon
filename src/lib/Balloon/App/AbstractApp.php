@@ -80,8 +80,21 @@ abstract class AbstractApp implements AppInterface
 
     /**
      * Init
+     *
+     * @return bool
      */
     public function init(): bool
+    {
+        return true;
+    }
+
+    
+    /**
+     * Start
+     *
+     * @return bool
+     */
+    public function start(): bool
     {
         return true;
     }
@@ -90,7 +103,8 @@ abstract class AbstractApp implements AppInterface
     /**
      * Set options
      *
-     * @var Iterable $config
+     * @param  Iterable $config
+     * @return AppInterface
      */
     public function setOptions(?Iterable $config=null): AppInterface
     {

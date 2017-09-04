@@ -13,6 +13,7 @@ namespace Balloon;
 
 use \Balloon\Resource\Exception;
 use \MongoDB\Database;
+use \Balloon\Server\User;
 use \Psr\Log\LoggerInterface as Logger;
 
 class Resource
