@@ -38,7 +38,6 @@ class Router extends MicroRouter
 
         switch (get_class($exception)) {
            case 'Balloon\\Exception\\InvalidArgument':
-           case 'Balloon\\Exception\\InvalidArgument':
            case 'Micro\\Http\\Exception':
                $code = 400;
            break;
@@ -55,15 +54,21 @@ class Router extends MicroRouter
               $code = 500;
            break;
         }
-        
+
         $this->logger->error('uncaught exception '.$message.']', [
             'category' => get_class($this),
             'exception' => $exception,
         ]);
-        
-        (new Response())
-            ->setCode($code)
-            ->setBody($msg)
-            ->send();
+
+        $this->sendResponse($code, $msg);
+    }
+
+    // TODO: move this to MicroRouter
+    protected function sendResponse(int $code, $body): void
+    {
+      (new Response())
+          ->setCode($code)
+          ->setBody($body)
+          ->send();
     }
 }
