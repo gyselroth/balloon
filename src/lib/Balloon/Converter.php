@@ -178,9 +178,10 @@ class Converter
      * Create preview
      *
      * @param  File $file
+     * @param  string $to
      * @return string
      */
-    public function create(File $file): string
+    public function convert(File $file, string $to): string
     {
         foreach ($this->converter as $converter) {
             try {
@@ -195,6 +196,6 @@ class Converter
             }
         }
 
-        throw new Exception('no matching converter found');
+        throw new Exception('all converter failed');
     }
 }

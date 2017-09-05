@@ -25,6 +25,14 @@ class Imagick extends AbstractConverter
 
 
     /**
+     * Format
+     *
+     * @var string
+     */
+    protected $format = 'png';
+
+
+    /**
      * Set options
      *
      * @param  Iterable $config
@@ -40,6 +48,9 @@ class Imagick extends AbstractConverter
             switch ($option) {
                 case 'max_size':
                     $this->max_size = (int)$value;
+                    break;
+                case 'format':
+                    $this->format = (string)$format;
                     break;
             }
         }
@@ -67,17 +78,18 @@ class Imagick extends AbstractConverter
 
 
     /**
-     * Get thumbnail
+     * Convert
      *
      * @param  File $file
+     * @param  string $format
      * @return string
      */
-    public function create(File $file): string
+    public function convert(File $file, string $format): string
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
-        return $this->createFromFile($source);
+        return $this->createFromFile($source, $format);
     }
 
 
@@ -85,9 +97,10 @@ class Imagick extends AbstractConverter
      * Create from file
      *
      * @param   string $source
+     * @param   string $format
      * @return  string
      */
-    public function createFromFile(string $source): string
+    public function createFromFile(string $source, string $format): string
     {
         $desth = tmpfile();
         $dest = stream_get_meta_data($desth)['uri'];
@@ -106,11 +119,11 @@ class Imagick extends AbstractConverter
         $image->setImageCompressionQuality(100);
         $image->stripImage();
         $image->setColorSpace(SystemImagick::COLORSPACE_SRGB);
-        $image->setImageFormat('png');
+        $image->setImageFormat($format);
         $image->writeImage($dest);
 
         if (!file_exists($dest) || filesize($dest) <= 0) {
-            throw new Exception('failed convert file contents to preview');
+            throw new Exception('failed convert file');
         }
 
         return file_get_contents($dest);
