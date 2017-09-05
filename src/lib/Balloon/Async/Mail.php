@@ -13,7 +13,7 @@ namespace Balloon\Async;
 
 use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Config;
-use \Balloon\Filesystem;
+use \Balloon\Server;
 use \MongoDB\Database;
 use \Zend\Mail\Message;
 
@@ -38,7 +38,7 @@ class Mail extends AbstractJob
         if (isset($config['mail']) && isset($config['mail']['transport'])) {
             $this->transport = $config->mail->transport;
         }
-    
+
         return $this;
     }
 
@@ -46,12 +46,12 @@ class Mail extends AbstractJob
     /**
      * Run job
      *
-     * @param  Filesystem $fs
-     * @return bool
+     * @param   Server $server
+     * @param   Logger $logger
+     * @return  bool
      */
-    public function run(Filesystem $fs, Logger $logger, Config $config): bool
+    public function run(Server $server, Logger $logger): bool
     {
-        $this->setOptions($config);
         $mail = Message::fromString($this->data['mail']);
         $logger->debug('send mail ['.$mail->getSubject().']', [
             'category' => get_class($this),
