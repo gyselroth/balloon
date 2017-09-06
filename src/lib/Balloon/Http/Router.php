@@ -66,9 +66,9 @@ class Router extends MicroRouter
     // TODO: move this to MicroRouter
     protected function sendResponse(int $code, $body): void
     {
-      (new Response())
-          ->setCode($code)
-          ->setBody($body)
-          ->send();
+        (new Response())
+            ->setCode($code)
+            ->setBody($body)
+            ->send();
     }
 }

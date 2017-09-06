@@ -70,8 +70,9 @@ class Delta
      */
     public function add(array $options): bool
     {
-        if(!self::isValidDeltaEvent($options))
-          throw new \Balloon\Filesystem\Delta\Exception();
+        if (!self::isValidDeltaEvent($options)) {
+            throw new \Balloon\Filesystem\Delta\Exception();
+        }
 
         if (!array_key_exists('timestamp', $options)) {
             $options['timestamp'] = new UTCDateTime();
@@ -91,11 +92,12 @@ class Delta
      */
     protected static function isValidDeltaEvent(array $options)
     {
-      // events w/o 'operation' throw warnings when building feed
-      if(!array_key_exists('operation', $options))
-        return false;
-      // events w/o 'owner' and w/o 'share' are ignored by filter when reading delta
-      return array_key_exists('owner', $options) || array_key_exists('share', $options);
+        // events w/o 'operation' throw warnings when building feed
+        if (!array_key_exists('operation', $options)) {
+            return false;
+        }
+        // events w/o 'owner' and w/o 'share' are ignored by filter when reading delta
+        return array_key_exists('owner', $options) || array_key_exists('share', $options);
     }
 
 
