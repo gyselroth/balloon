@@ -20,7 +20,7 @@ class File extends Node
 {
     /**
      * @api {get} /api/v1/file/preview?id=:id Get Preview
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getPreview
      * @apiGroup Node\File
      * @apiPermission none
@@ -73,7 +73,7 @@ class File extends Node
     
     /**
      * @api {get} /api/v1/file/history?id=:id Get history
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getHistory
      * @apiGroup Node\File
      * @apiPermission none
@@ -139,7 +139,7 @@ class File extends Node
 
     /**
      * @api {post} /api/v1/file/restore?id=:id Rollback version
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postApiore
      * @apiGroup Node\File
      * @apiPermission none
@@ -170,7 +170,7 @@ class File extends Node
 
     /**
      * @api {put} /api/v1/file/chunk Upload file chunk
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName putChunk
      * @apiGroup Node\File
      * @apiPermission none
@@ -382,7 +382,7 @@ class File extends Node
 
     /**
      * @api {put} /api/v1/file Upload file
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName put
      * @apiGroup Node\File
      * @apiPermission none

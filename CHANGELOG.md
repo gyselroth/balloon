@@ -28,6 +28,7 @@ Next major release v2, includes various new features and core changes. The API i
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 * API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v1 since all timestamps are in UTC anyway #61
 * UI: [FIX] added missing german locale for view.prop.head.share_value
+* DOC: [FIX] @apiVersion is now correctly declared as api version "1"
 
 
 ## 1.0.15 

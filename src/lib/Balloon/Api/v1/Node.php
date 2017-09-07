@@ -197,7 +197,7 @@ class Node extends Controller
 
     /**
      * @api {head} /api/v1/node?id=:id Node exists?
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName head
      * @apiGroup Node
      * @apiPermission none
@@ -244,7 +244,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/undelete?id=:id Undelete node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postUndelete
      * @apiGroup Node
      * @apiPermission none
@@ -354,7 +354,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/share-link?id=:id Create sharing link
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postShareLink
      * @apiGroup Node
      * @apiPermission none
@@ -393,7 +393,7 @@ class Node extends Controller
 
     /**
      * @api {delete} /api/v1/node/share-link?id=:id Delete sharing link
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName deleteShareLink
      * @apiGroup Node
      * @apiPermission none
@@ -424,7 +424,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/share-link?id=:id Get sharing link
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getShareLink
      * @apiGroup Node
      * @apiPermission none
@@ -466,7 +466,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node?id=:id Download stream
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName get
      * @apiGroup Node
      * @apiPermission none
@@ -590,7 +590,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/readonly?id=:id Mark node as readonly
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postReadonly
      * @apiGroup Node
      * @apiPermission none
@@ -729,7 +729,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/attributes?id=:id Get attributes
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getAttributes
      * @apiGroup Node
      * @apiPermission none
@@ -867,7 +867,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/parent?id=:id Get parent node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getParent
      * @apiGroup Node
      * @apiPermission none
@@ -924,7 +924,7 @@ class Node extends Controller
     
     /**
      * @api {get} /api/v1/node/parents?id=:id Get parent nodes
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getParents
      * @apiGroup Node
      * @apiPermission none
@@ -1013,7 +1013,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/meta-attributes?id=:id Write meta attributes
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postMetaAttributes
      * @apiGroup Node
      * @apiPermission none
@@ -1049,7 +1049,7 @@ class Node extends Controller
     
     /**
      * @api {post} /api/v1/node/name?id=:id Rename node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postName
      * @apiGroup Node
      * @apiPermission none
@@ -1082,7 +1082,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/clone?id=:id Clone node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postClone
      * @apiGroup Node
      * @apiPermission none
@@ -1160,7 +1160,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/move?id=:id Move node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postMove
      * @apiGroup Node
      * @apiPermission none
@@ -1252,7 +1252,7 @@ class Node extends Controller
 
     /**
      * @api {delete} /api/v1/node?id=:id Delete node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName delete
      * @apiGroup Node
      * @apiPermission none
@@ -1343,7 +1343,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/query Custom query
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getQuery
      * @apiGroup Node
      * @apiPermission none
@@ -1395,7 +1395,7 @@ class Node extends Controller
     /**
      * @api {get} /api/v1/node/trash Get trash
      * @apiName getTrash
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiGroup Node
      * @apiPermission none
      * @apiDescription A similar endpoint to /api/v1/node/query filer={'deleted': {$type: 9}] but instead returning all deleted
@@ -1443,7 +1443,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/search Search
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getSearch
      * @apiGroup Node
      * @apiPermission none
@@ -1517,7 +1517,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/delta Get delta
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getDelta
      * @apiGroup Node
      * @apiPermission none
@@ -1624,7 +1624,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/event-log?id=:id Event log
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getEventLog
      * @apiGroup Node
      * @apiPermission none
@@ -1739,7 +1739,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/last-cursor Get last Cursor
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName geLastCursor
      * @apiGroup Node
      * @apiUse _getNode
