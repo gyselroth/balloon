@@ -7,7 +7,7 @@
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Preview;
+namespace Balloon\App\PdfShadow;
 
 use \Balloon\App\AppInterface;
 use \Balloon\App\AbstractApp;

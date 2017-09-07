@@ -186,7 +186,6 @@ abstract class AbstractBootstrap
         $this->db = $client->{$this->option_mongodb_db};
         $this->async = new Async($this->db, $this->logger);
         $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);
-        $this->fs = new Filesystem($this->server, $this->logger);
         
         return true;
     }

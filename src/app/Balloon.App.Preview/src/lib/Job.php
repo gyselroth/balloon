@@ -18,25 +18,26 @@ use \Balloon\Async\AbstractJob;
 class Job extends AbstractJob
 {
     /**
-     * Run job
+     * Start job
      *
+     * @param  Server $server
+     * @param  Logger $logger
      * @return bool
      */
-    public function run(Server $server, Logger $logger): bool
+    public function start(Server $server, Logger $logger): bool
     {
         $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
 
-        $logger->info("create preview for [".$this->data['id']."]", [
+        $logger->info("create preview for node [".$this->data['id']."]", [
             'category' => get_class($this),
         ]);
-
         
-        $content = $server->getApp()
+        $result = $server->getApp()
             ->getApp('Balloon.App.Preview')
             ->getConverter()
-            ->create($file);
+            ->convert($file, 'png');
 
-        $file->setPreview($content);
+        $file->setPreview($result->getContents());
         return true;
     }
 }

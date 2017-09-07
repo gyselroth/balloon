@@ -85,28 +85,18 @@ class Filesystem
     /**
      * Initialize
      *
+     * @param  Server $server
+     * @param  Logger $logger
+     * @param  User $user
      * @return void
      */
-    public function __construct(Server $server, Logger $logger)
+    public function __construct(Server $server, Logger $logger, ?User $user=null)
     {
-        $server->setFilesystem($this);
+        $this->user      = $user;
         $this->server    = $server;
         $this->db        = $server->getDatabase();
         $this->logger    = $logger;
-        $this->hook      = $server->getHook();;
-    }
-
-
-    /**
-     * Set User
-     *
-     * @param  User
-     * @return Filesystem
-     */   
-    public function setUser(User $user): Filesystem
-    {
-        $this->user = $user;
-        return $this;
+        $this->hook      = $server->getHook();
     }
 
 
@@ -117,7 +107,7 @@ class Filesystem
      */
     public function getUser(): ?User
     {
-        return $this->server->getUser();
+        return $this->user;
     }
    
     

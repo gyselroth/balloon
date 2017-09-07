@@ -9,12 +9,10 @@
 
 namespace Balloon\App\PdfShadow;
 
-use \Balloon\User;
-use \Balloon\Filesystem;
-use \Balloon\Http\Router\Route;
 use \Balloon\App\AbstractApp;
+use \Balloon\App\PdfShadow\Hook;
 
-class Init extends AbstractApp
+class Http extends AbstractApp
 {
     /**
      * Init
@@ -23,7 +21,7 @@ class Init extends AbstractApp
      */
     public function init(): bool
     {
-        $this->pluginmgr->registerPlugin('\Balloon\App\PdfShadow\Plugin', null);
+        $this->server->getHook()->registerHook(Hook::class);
         return true;
     }
 }

@@ -528,29 +528,33 @@ class Node extends Controller
                 $node->getZip();
             });
         }
-      
-        return (new Response())->setBody(function() use($node){
+     
+        $response = new Response();
+
+        if($download == true) {
+            $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\'' .rawurlencode($name));
+            $response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+            $response->setHeader('Content-Type', 'application/octet-stream');
+            $response->setHeader('Content-Length', (string)$node->getSize());
+            $response->setHeader('Content-Transfer-Encoding', 'binary');
+        } else {
+            $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\'' .rawurlencode($name));
+        }
+
+        return (new Response())
+          ->setOutputFormat(null)
+          ->setBody(function() use($node, $encode, $offset, $length, $download){
             $mime  = $node->getMime();
             $stream = $node->get();
             $name  = $node->getName();
         
-            if ($download == true) {
-                header('Content-Disposition: attachment; filename*=UTF-8\'\'' .rawurlencode($name));
-                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-                header('Content-Type: application/octet-stream');
-                header('Content-Length: '.$node->getSize());
-                header('Content-Transfer-Encoding: binary');
-            } else {
-                header('Content-Disposition: inline; filename*=UTF-8\'\'' .rawurlencode($name));
-            }
-
             if ($stream === null) {
-                exit();
+                return;
             }
 
             if ($offset !== 0) {
                 if (fseek($stream, $offset) === -1) {
-                    throw Exception\Conflict('invalid offset requested',
+                    throw new Exception\Conflict('invalid offset requested',
                         Exception\Conflict::INVALID_OFFSET
                     );
                 }
@@ -581,8 +585,6 @@ class Node extends Controller
                 }
             }
         });
-            
-        //exit();
     }
 
 

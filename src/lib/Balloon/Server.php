@@ -64,11 +64,11 @@ class Server
 
 
     /**
-     * User
+     * Authenticated identity
      *
      * @var User
      */
-    protected $user;
+    protected $identity;
 
 
     /**
@@ -243,25 +243,20 @@ class Server
 
 
     /**
-     * Set filesystem
-     *
-     * @param  Filesystem
-     * @return Server
-     */
-    public function setFilesystem(Filesystem $fs): Server
-    {
-        $this->fs = $fs;
-        return $this;
-    }
-
-
-    /**
      * Get Filesystem
      *
      * @return Filesystem
      */
-     public function getFilesystem(): Filesystem
+     public function getFilesystem(?User $user=null): Filesystem
      {
+        if($user !== null && php_sapi_name() === "cli") {
+            return new Filesystem($this, $this->logger, $user);
+        } elseif($this->identity instanceof User) {
+            return new Filesystem($this, $this->logger, $this->identity);
+        } else {
+            return new Filesystem($this, $this->logger);
+        }
+
         return $this->fs;
      }
 
@@ -309,7 +304,7 @@ class Server
             throw new Exception('user does not exists');
         }
 
-        return new User($attributes, $this->fs);
+        return new User($attributes, $this, $this->logger);
     }
 
     
@@ -327,9 +322,8 @@ class Server
         if($result === null) {
             throw new Exception('user does not exists');
         } else {
-            $user = new User($result, $this->fs);
-            $this->user = $user;
-            $this->fs->setUser($user);
+            $user = new User($result, $this, $this->logger);
+            $this->identity = $user;
             $user->updateIdentity($identity);
             $this->hook->run('postServerIdentity', [$this, $user]);
             return true;
@@ -338,13 +332,13 @@ class Server
 
 
     /**
-     * Get user
+     * Get authenticated user
      * 
      * @return User
      */
-    public function getUser(): ?User
+    public function getIdentity(): ?User
     {
-        return $this->user;
+        return $this->identity;
     }
 
 

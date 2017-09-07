@@ -13,6 +13,7 @@ use \Balloon\User;
 use \Balloon\Filesystem;
 use \Balloon\Http\Router\Route;
 use \Balloon\App\AbstractApp;
+use \Balloon\App\Preview\Hook;
 
 class Http extends AbstractApp
 {
@@ -23,7 +24,7 @@ class Http extends AbstractApp
      */
     public function init(): bool
     {
-        $this->server->getHook()->registerHook('\Balloon\App\Preview\Hook');
+        $this->server->getHook()->registerHook(Hook::class);
         return true;
     }
 }

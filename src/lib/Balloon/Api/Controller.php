@@ -59,7 +59,7 @@ class Controller
     public function __construct(Server $server, Logger $logger)
     {
         $this->fs     = $server->getFilesystem();
-        $this->user   = $server->getUser();
+        $this->user   = $server->getIdentity();
         $this->server = $server;
         $this->logger = $logger;
     }

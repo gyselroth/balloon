@@ -875,9 +875,12 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'meta'      => [],
                 'created'   => new UTCDateTime(),
                 'changed'   => new UTCDateTime(),
-                'owner'     => $this->_user->getId(),
                 'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared)
             ];
+            
+            if($this->_user !== null) {
+                $meta['owner'] = $this->_user->getId();
+            }
 
             $save  = array_merge($meta, $attributes);
 
@@ -956,11 +959,14 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'meta'      => [],
                 'created'   => new UTCDateTime(),
                 'changed'   => new UTCDateTime(),
-                'owner'     => $this->_user->getId(),
                 'history'   => [],
                 'version'   => 0,
                 'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared),
             ];
+
+            if($this->_user !== null) {
+                $meta['owner'] = $this->_user->getId();
+            }
 
             $save  = array_merge($meta, $attributes);
 

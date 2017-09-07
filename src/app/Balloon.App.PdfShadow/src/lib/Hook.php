@@ -11,18 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon\App\PdfShadow;
 
-use \Balloon\User;
-use \Balloon\Queue\JobInterface;
-use \Balloon\Filesystem\Node\NodeInterface;
+use \Balloon\Filesystem;
+use \Balloon\Exception;
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Resource;
-use \Balloon\Filesystem\Node\Collection;
-use \Balloon\Queue\Mail;
-use \Zend\Mail\Message;
-use \Balloon\Plugin\AbstractPlugin;
-use \Balloon\Plugin\PluginInterface;
+use \Balloon\Hook\AbstractHook;
 
-class Plugin extends AbstractPlugin
+class Hook extends AbstractHook
 {
     /**
      * Run: postPutFile
@@ -37,7 +31,7 @@ class Plugin extends AbstractPlugin
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
-        $queue = $node->getFilesystem()->getQueue();
+        $queue = $node->getFilesystem()->getServer()->getAsync();
         $queue->addJob(new Job([
             'id' => $node->getId()
         ]));
@@ -55,7 +49,7 @@ class Plugin extends AbstractPlugin
      */
     public function postRestoreFile(File $node, int $version): void
     {
-        $queue = $node->getFilesystem()->getQueue();
+        $queue = $node->getFilesystem()->getServer()->getAsync();
         $queue->addJob(new Job([
             'id' => $node->getId()
         ]));

@@ -226,6 +226,18 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
 
 
     /**
+     * Set filesystem
+     *
+     * @return NodeInterface
+     */
+    public function setFilesystem(Filesystem $fs)
+    {
+        $this->_fs = $fs;
+        return $this;
+    }
+
+
+    /**
      * Convert to filename
      *
      * @return string
