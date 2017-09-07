@@ -19,13 +19,14 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [FEATURE] console can now be executed with command parameters
 * CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchonosuly executed non-stop #56
 * CORE: [CHANGE] Converted all core plugins from v1.0.x into apps #20
-* CORE: [CHANGE] Moved converted classe from preview into global \Balloon\Converter space
+* CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converted is now useable to converty anything to anything
 * CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/config.dist.xml #59
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
 * API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
+* API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v1 since all timestamps are in UTC anyway #61
 * UI: [FIX] added missing german locale for view.prop.head.share_value
 
 

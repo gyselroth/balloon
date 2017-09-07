@@ -92,7 +92,7 @@ class Server
      * 
      * @var int
      */
-    protected $max_file_size = 100000;
+    protected $max_file_size = 1073741824;
 
 
     /**

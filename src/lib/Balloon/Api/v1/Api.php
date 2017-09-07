@@ -30,17 +30,15 @@ class Api extends Controller
      *
      * @apiSuccess {number} status Status Code
      * @apiSuccess {object} data API/Server information
-     * @apiSuccess {float} data.version API Version
-     * @apiSuccess {number} data.server_timestamp Server timestamp in unix format (seconds since 1970-01-01 00:00:00)
-     * @apiSuccess {string} data.server_timezone Server timezone
+     * @apiSuccess {string} data.name balloon identifier
+     * @apiSuccess {number} data.api_version API Version
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
      *     "status": 200,
      *     "data": {
-     *         "version": 1,
-     *         "server_timestamp": 1423660181,
-     *         "server_timezone": "Europe\/Berlin",
+     *         "name": "balloon",
+     *         "api_version": 1
      *     }
      * }
      *
@@ -49,10 +47,8 @@ class Api extends Controller
     public function get(): Response
     {
         $data = [
-            'name'              => 'balloon',
-            'api_version'       => 1,
-            'server_timestamp'  => time(),
-            'server_timezone'   => date_default_timezone_get(),
+            'name'        => 'balloon',
+            'api_version' => 1
         ];
         
         return (new Response())->setCode(200)->setBody($data);
