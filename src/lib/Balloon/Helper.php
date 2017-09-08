@@ -20,30 +20,6 @@ use \Stdclass;
 class Helper
 {
     /**
-     * Convert BSONDocument array to php
-     *
-     * @param   array|BSONArray|BSONDocument $doc
-     * @return  array|BSONArray|BSONDocument
-     */
-    public static function convertBSONDocToPhp($doc)
-    {
-        if (is_array($doc)) {
-            return $doc;
-        }
-
-        foreach ($doc as $attr => $value) {
-            if ($value instanceof BSONArray || $value instanceof BSONDocument) {
-                $doc[$attr] = $value->getArrayCopy();
-            } else {
-                $doc[$attr] = $value;
-            }
-        }
-
-        return (array)$doc;
-    }
-
-
-    /**
      * Convert UTCDateTime to unix ts
      *
      * @param  UTCDateTime $date
@@ -120,22 +96,6 @@ class Helper
         }
  
         return $data;
-    }
-
-
-    /**
-     * Bool param (string => bool)
-     *
-     * @param   string|bool $param
-     * @return  bool
-     */
-    public static function boolParam($param): bool
-    {
-        if ($param == 'true' || $param == 1) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
 

@@ -19,7 +19,6 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 
 class File extends AbstractNode implements DAV\IFile
 {
@@ -116,13 +115,13 @@ class File extends AbstractNode implements DAV\IFile
     /**
      * Init virtual file and set attributes
      *
-     * @param   BSONDocument $node
+     * @param   array $attributes
      * @param   Filesystem $fs
      * @return  void
      */
-    public function __construct(BSONDocument $node, Filesystem $fs)
+    public function __construct(array $attributes, Filesystem $fs)
     {
-        parent::__construct($node, $fs);
+        parent::__construct($attributes, $fs);
         $this->_verifyAccess();
     }
 

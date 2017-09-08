@@ -15,7 +15,6 @@ use \Balloon\Filesystem;
 use \Balloon\Exception;
 use \Balloon\Filesystem\Node\Collection;
 use \Micro\Auth\Identity;
-use \MongoDB\Model\BSONDocument;
 use \MongoDB\BSON\ObjectID;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\Binary;
@@ -164,18 +163,16 @@ class User
     /**
      * Instance user
      *
-     * @param   BSONDocument $user
+     * @param   array $attributes
      * @param   Server $server
      * @param   bool $ignore_deleted
      * @return  void
      */
-    public function __construct(BSONDocument $user, Server $server, Logger $logger,  bool $ignore_deleted=true)
+    public function __construct(array $attributes, Server $server, Logger $logger,  bool $ignore_deleted=true)
     {
         $this->server   = $server;
         $this->db       = $server->getDatabase();
         $this->logger   = $logger;
-
-        $attributes = Helper::convertBSONDocToPhp($user);
 
         /*$logparams = (array)$attributes;
         if (isset($logparams['avatar']) && $logparams['avatar'] instanceof Binary) {

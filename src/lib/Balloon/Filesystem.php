@@ -19,7 +19,6 @@ use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
 use \MongoDB\Database;
 use \MongoDB\BSON\ObjectID;
-use \MongoDB\Model\BSONDocument;
 use \Generator;
 use \Micro\Config;
 use \Balloon\Server\User;
@@ -178,17 +177,17 @@ class Filesystem
             );
         }
 
-        return Helper::convertBSONDocToPhp($node);
+        return $node;
     }
 
 
     /**
      * Initialize node
      *
-     * @param  BSONDocument $node
+     * @param  array $node
      * @return NodeInterface
      */
-    protected function initNode(BSONDocument $node): NodeInterface
+    protected function initNode(array $node): NodeInterface
     {
         if (isset($node['shared']) && $node['shared'] === true && $this->user !== null && $node['owner'] != $this->user->getId()) {
             if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {

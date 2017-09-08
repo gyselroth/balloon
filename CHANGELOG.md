@@ -21,6 +21,7 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Converted all core plugins from v1.0.x into apps #20
 * CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converted is now useable to converty anything to anything
 * CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/config.dist.xml #59
+* CORE: [CHANGE] No more BSONDocument, all cursor get mapped to arrays
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46

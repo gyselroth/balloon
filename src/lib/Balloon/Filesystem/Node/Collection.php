@@ -20,7 +20,6 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 use \MongoDB\BSON\Regex;
 use \Generator;
 
@@ -67,15 +66,15 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Initialize
      *
-     * @param  BSONDocument $node
+     * @param  array $attributes
      * @param  Filesystem $fs
      * @return void
      */
-    public function __construct(?BSONDocument $node, Filesystem $fs)
+    public function __construct(?array $attributes, Filesystem $fs)
     {
-        parent::__construct($node, $fs);
+        parent::__construct($attributes, $fs);
         
-        if ($node === null) {
+        if ($attributes === null) {
             $this->_id = null;
 
             if ($this->_user instanceof User) {
@@ -891,7 +890,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $new = new Collection(new BSONDocument($save), $this->_fs);
+            $new = new Collection($save, $this->_fs);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
      
             return $new;
@@ -977,7 +976,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
             
-            $file = new File(new BSONDocument($save), $this->_fs);
+            $file = new File($save, $this->_fs);
 
             try {
                 $file->put($data, true, $attributes);

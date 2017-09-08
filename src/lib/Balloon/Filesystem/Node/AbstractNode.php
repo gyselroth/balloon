@@ -19,7 +19,6 @@ use \Balloon\Filesystem;
 use \PHPZip\Zip\Stream\ZipStream;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 use \Normalizer;
 
 abstract class AbstractNode implements NodeInterface, DAV\INode
@@ -149,6 +148,14 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     protected $readonly = false;
 
+
+    /**
+     * App attributes
+     *
+     * @var array
+     */
+    protected $app_attributes = [];
+
     
     /**
      * Filesystem
@@ -201,11 +208,11 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     /**
      * Initialize
      *
-     * @param  BSONDocument $node
+     * @param  array $attributes
      * @param  Filesystem $fs
      * @return void
      */
-    public function __construct(?BSONDocument $node, Filesystem $fs)
+    public function __construct(?array $attributes, Filesystem $fs)
     {
         $this->_fs     = $fs;
         $this->_db     = $fs->getDatabase();
@@ -214,13 +221,12 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         $this->_logger = $this->_server->getLogger();
         $this->_hook   = $this->_server->getHook();
 
-        if ($node !== null) {
-            $node = Helper::convertBSONDocToPhp($node);
-            foreach ($node as $attr => $value) {
+        if ($attributes !== null) {
+            foreach ($attributes as $attr => $value) {
                 $this->{$attr} = $value;
             }
 
-            $this->raw_attributes = $node;
+            $this->raw_attributes = $attributes;
         }
     }
 
@@ -1303,6 +1309,17 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     public function isReference(): bool
     {
         return ($this->reference instanceof ObjectId);
+    }
+
+
+    /**
+     * Set app attributes
+     * 
+     * @param AppInterface $app
+     */
+    public function setAppAttribute(AppInterface $app, $attribute, $value)
+    {
+
     }
 
 

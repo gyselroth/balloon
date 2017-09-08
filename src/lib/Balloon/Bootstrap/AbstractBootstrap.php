@@ -182,7 +182,14 @@ abstract class AbstractBootstrap
             'category' => get_class($this),
         ]);
 
-        $client = new Client($this->option_mongodb);
+        $client = new Client($this->option_mongodb, [], [
+            'typeMap' => [
+                'root' => 'array', 
+                'document' => 'array', 
+                'array' => 'array'
+            ]
+        ]);
+        
         $this->db = $client->{$this->option_mongodb_db};
         $this->async = new Async($this->db, $this->logger);
         $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);

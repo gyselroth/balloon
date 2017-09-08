@@ -20,7 +20,6 @@ use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\ObjectID;
-use \MongoDB\Model\BSONDocument;
 
 class Delta
 {
@@ -199,9 +198,9 @@ class Delta
      * Get last delta event
      *
      * @param  NodeInterface $node
-     * @return BSONDocument
+     * @return array
      */
-    public function getLastRecord(?NodeInterface $node=null): ?BSONDocument
+    public function getLastRecord(?NodeInterface $node=null): ?array
     {
         $filter = $this->getDeltaFilter();
         
