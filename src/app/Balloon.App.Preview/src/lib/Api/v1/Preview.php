@@ -56,7 +56,7 @@ class Preview extends Controller
      */
     public function get(?string $id=null, ?string $p=null, ?string $encode=null): Response
     {
-        $node = $this->_getNode($id, $p, 'File');
+        $node = $this->fs->getNode($id, $p, 'File');
         $data = $this->server->getApp()->getApp('Balloon.App.Preview')->getPreview($node);
         $response = (new Response())
             ->setHeader('Content-Type', 'image/png')

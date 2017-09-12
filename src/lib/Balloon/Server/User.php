@@ -81,14 +81,6 @@ class User
 
 
     /**
-     * Auth instance
-     *
-     * @var Auth
-     */
-    protected $auth;
-
-    
-    /**
      * Admin
      *
      * @var bool
@@ -107,7 +99,7 @@ class User
     /**
      * avatar
      *
-     * @var \MongoBinData
+     * @var Binary
      */
     protected $avatar;
 
@@ -174,17 +166,6 @@ class User
         $this->db       = $server->getDatabase();
         $this->logger   = $logger;
 
-        /*$logparams = (array)$attributes;
-        if (isset($logparams['avatar']) && $logparams['avatar'] instanceof Binary) {
-            $logparams['avatar'] = '<bin>';
-        }
-
-        $this->logger->info('select user ['.$username.'] attributes from mongodb', [
-            'category' => get_class($this),
-            'params'   => $logparams,
-        ]);*/
-
-        //set user properties
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
         }
@@ -197,40 +178,43 @@ class User
     }
 
 
+    /**
+     * Update user with identity attributes
+     *
+     * @param  Identity $identity
+     * @return bool
+     */
     public function updateIdentity(Identity $identity): bool
     {
-            $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
-            if ($attr_sync == -1) {
-                return true;
-            }
-
-            $cache = ($this->last_attr_sync instanceof UTCDateTime ?
-            $this->last_attr_sync->toDateTime()->format('U') : 0);
-        
-            if (time() - $attr_sync > $cache) {
-                $this->logger->info('user attribute sync cache time expired, resync with auth attributes', [
-                    'category' => get_class($this),
-                ]);
-
-
-                $attributes = $identity->getAttributes();
-        foreach ($attributes as $attr => $value) {
-            $this->{$attr} = $value;
+        $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
+        if ($attr_sync == -1) {
+            return true;
         }
-        
-        $this->last_attr_sync = new UTCDateTime();
-        
-        $save = array_keys($attributes);
-        $save[] = 'last_attr_sync';
-        return $this->save($save);
 
-            } else {
-                $this->logger->debug('user auth attribute sync cache is in time', [
-                    'category' => get_class($this),
-                ]);
-                return true;
+        $cache = ($this->last_attr_sync instanceof UTCDateTime ?
+        $this->last_attr_sync->toDateTime()->format('U') : 0);
+        
+        if (time() - $attr_sync > $cache) {
+            $this->logger->info('user attribute sync cache time expired, resync with auth attributes', [
+                'category' => get_class($this),
+            ]);
+
+            $attributes = $identity->getAttributes();
+            foreach ($attributes as $attr => $value) {
+                $this->{$attr} = $value;
             }
-
+        
+            $this->last_attr_sync = new UTCDateTime();
+        
+            $save = array_keys($attributes);
+            $save[] = 'last_attr_sync';
+            return $this->save($save);
+        } else {
+            $this->logger->debug('user auth attribute sync cache is in time', [
+                'category' => get_class($this),
+            ]);
+            return true;
+        }
     }
 
 
@@ -783,17 +767,6 @@ class User
     public function getGroups(): array
     {
         return $this->groups;
-    }
-    
-    
-    /**
-     * Get auth
-     *
-     * @return Auth
-     */
-    public function getAuth(): Auth
-    {
-        return $this->auth;
     }
     
     

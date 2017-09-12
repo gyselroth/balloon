@@ -31,10 +31,12 @@ class Hook extends AbstractHook
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
-        $queue = $node->getFilesystem()->getServer()->getAsync();
-        $queue->addJob(new Job([
-            'id' => $node->getId()
-        ]));
+        if(count($node->getAppAttributes($node->getFilesystem()->getServer()->getApp()->getApp('Balloon.App.PdfShadow'))) !== 0) {
+            $queue = $node->getFilesystem()->getServer()->getAsync();
+            $queue->addJob(new Job([
+                'id' => $node->getId()
+            ]));
+        }
     }
   
   
@@ -49,9 +51,11 @@ class Hook extends AbstractHook
      */
     public function postRestoreFile(File $node, int $version): void
     {
-        $queue = $node->getFilesystem()->getServer()->getAsync();
-        $queue->addJob(new Job([
-            'id' => $node->getId()
-        ]));
+        if(count($node->getAppAttributes($node->getFilesystem()->getServer()->getApp()->getApp('Balloon.App.PdfShadow'))) !== 0) {
+            $queue = $node->getFilesystem()->getServer()->getAsync();
+            $queue->addJob(new Job([
+                'id' => $node->getId()
+            ]));
+        }
     }
 }

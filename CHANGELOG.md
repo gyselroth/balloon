@@ -28,6 +28,7 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Preview is now an entirely removed from the core and operates as an own app Balloon.App.Preview
 * CORE: [CHANGE] Changed generating access token to random_bytes() for creating sharelink tokens
 * CORE: [FEATURE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes 
+* CORE: [CHANGE] added AbstractNode::getAttributes(array $attributes=[]) besides AbstractNode::getAttribute()
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46

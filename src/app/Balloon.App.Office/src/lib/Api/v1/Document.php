@@ -57,13 +57,15 @@ class Document extends Controller
                 'created' => $session['_id']->getTimestamp(),
                 'user' => [
                     'id'   => (string)$session['user'],
-                    'name' => (new User($session['user'], $this->logger, $this->fs))->getUsername()
+                    'name' => $this->server->getUserById($session['user'])->getUsername()
                 ]
             ];
         }
 
+        $url = $this->server->getApp()->getApp('Balloon.App.Office')->getLoleaflet();
+
         $result = [
-            'loleaflet' => (string)$this->config->apps->Office->config->loleaflet,
+            'loleaflet' => $url,
             'session'   => $sessions,
         ];
 

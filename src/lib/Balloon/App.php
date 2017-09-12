@@ -86,17 +86,13 @@ class App
 
         foreach ($config as $name => $app) {
             if (!isset($app['enabled']) || $app['enabled'] === '1') {
-                if (!isset($app['class'])) {
-                    throw new Exception('class option is required');
-                }
-                        
                 if (isset($app['config'])) {
                     $config = $app['config'];
                 } else {
                     $config = null;
                 }
                 
-                $this->registerApp($app['class'], $config);
+                $this->registerApp($name, $config);
             } else {
                 $this->logger->debug("skip disabled app [".$name."]", [
                     'category' => get_class($this)
@@ -111,18 +107,15 @@ class App
     /**
      * Register app
      *
-     * @param   string $class
+     * @param   string $name
      * @param   Iterable $config
      * @return  bool
      */
-    public function registerApp(string $class, ?Iterable $config=null): bool
+    public function registerApp(string $name, ?Iterable $config=null): bool
     {
-        $name  = $class;
-        $class = $class.'\\'.$this->context;
-        $app   = substr($name, strrpos($name, '\\') + 1);
-        $ns    = ltrim($name, '\\');
-        $name  = str_replace('\\', '.', $ns);
-        $this->composer->addPsr4($ns.'\\', APPLICATION_PATH."/src/app/$name/src/lib");
+        $ns = str_replace('.', '\\', $name).'\\';
+        $class = '\\'.$ns.$this->context;
+        $this->composer->addPsr4($ns, APPLICATION_PATH."/src/app/$name/src/lib");
 
         if (!class_exists($class)) {
             $this->logger->debug('skip non-existent class ['.$class.'] from app ['.$name.']', [

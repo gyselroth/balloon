@@ -53,7 +53,7 @@ class Hook extends AbstractHook
      * @param  Iterable $config
      * @return HookInterface
      */
-    public function setOptions(?Iterable $config): HookInterface
+    public function setOptions(?Iterable $config=null): HookInterface
     {
         if ($config === null) {
             return $this;

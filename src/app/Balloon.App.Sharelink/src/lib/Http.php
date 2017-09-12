@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Sharelink;
 
 use \Balloon\Exception;
-use \Micro\Config;
 use \Balloon\App;
 use \Balloon\Filesystem;
 use \Balloon\Filesystem\Node\NodeInterface;

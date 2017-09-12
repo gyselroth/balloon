@@ -11,14 +11,14 @@ declare(strict_types=1);
 
 namespace Balloon\App\Office\Session;
 
-use \Balloon\Config;
-use \Balloon\User;
-use \Balloon\Logger;
+use \Balloon\Server;
+use \Balloon\Server\User;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\Serializable as BSONSerializable;
 use \Balloon\App\Office\Session;
+use \Psr\Log\LoggerInterface as Logger;
 
 class Member implements BSONSerializable
 {
@@ -164,18 +164,18 @@ class Member implements BSONSerializable
     /**
      * Get Session
      *
-     * @param  Filesystem $fs
+     * @param  Server $server
      * @param  Logger $logger
      * @param  ObjectId $session_id
      * @param  string $access_token
      * @return Member
      */
-    public static function getByAccessToken(Filesystem $fs, Logger $logger, ObjectId $session_id, string $access_token): Member
+    public static function getByAccessToken(Server $server, Logger $logger, ObjectId $session_id, string $access_token): Member
     {
-        $session = Session::getByAccessToken($fs, $session_id, $access_token);
+        $session = Session::getByAccessToken($server, $session_id, $access_token);
         foreach ($session->getMember() as $member) {
             if ($member['access_token'] === $access_token) {
-                return new self(new User($member['user'], $logger, $fs), 0, $session);
+                return new self($server->getUserById($member['user']), 0, $session);
             }
         }
     }
@@ -186,9 +186,9 @@ class Member implements BSONSerializable
      *
      * @return string
      */
-    protected function createToken()
+    protected function createToken(): string
     {
-        return md5(uniqid(rand().(string)$this->user->getId(), true));
+        return bin2hex(random_bytes(16));
     }
 
 
@@ -197,7 +197,7 @@ class Member implements BSONSerializable
      *
      * @return string
      */
-    public function getAccessToken()
+    public function getAccessToken(): string
     {
         return $this->access_token;
     }

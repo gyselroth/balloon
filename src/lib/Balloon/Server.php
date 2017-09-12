@@ -243,13 +243,13 @@ class Server
 
 
     /**
-     * Get Filesystem
+     * Filesystem factory
      *
      * @return Filesystem
      */
      public function getFilesystem(?User $user=null): Filesystem
      {
-        if($user !== null && php_sapi_name() === "cli") {
+        if($user !== null) {
             return new Filesystem($this, $this->logger, $user);
         } elseif($this->identity instanceof User) {
             return new Filesystem($this, $this->logger, $this->identity);
