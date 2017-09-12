@@ -11,19 +11,35 @@ declare(strict_types=1);
 
 namespace Balloon\Converter;
 
-use \Balloon\Filesystem\Node\File;
-
 class Result
 {
+    /**
+     * Stream
+     * 
+     * @var resource
+     */
+    protected $stream;
+
+
+    /**
+     * Path
+     * 
+     * @var string
+     */
+    protected $path;
+
+
     /**
      * Create result
      *
      * @param  string $path
+     * @param  resource $stream
      * @return void
      */
-    public function __construct(string $path)
+    public function __construct(string $path, $resource=null)
     {
-        $this->path = $path;
+        $this->path   = $path;
+        $this->stream = $resource;
     }
 
 
@@ -32,7 +48,7 @@ class Result
      *
      * @return string  
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -43,9 +59,13 @@ class Result
      *
      * @return resource
      */
-    public function openStream()
+    public function getStream()
     {
-        return fopen($this->path, 'r');
+        if($this->stream === null) {
+            return $this->stream = fopen($this->path, 'r');
+        }
+
+        return $this->stream;
     }
 
 
@@ -58,9 +78,4 @@ class Result
     {
         return file_get_contents($this->path); 
     }
-
-
-    /**
-     * Clear
-     */
 }

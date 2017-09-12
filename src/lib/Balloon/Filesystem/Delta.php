@@ -332,12 +332,12 @@ class Delta
                 //than the create timestamp of the share reference
                 if ($log['operation'] === 'addCollectionReference' && $log_node->isReference()) {
                     foreach ($this->fs->findNodesWithCustomFilter(['shared' => $log_node->getShareId()]) as $share_member) {
-                        $member_attrs = $share_member->getAttribute($attributes);
+                        $member_attrs = $share_member->getAttributes($attributes);
                         $list[$member_attrs['path']] = $member_attrs;
                     }
                 }
                 
-                $fields = $log_node->getAttribute($attributes);
+                $fields = $log_node->getAttributes($attributes);
 
                 if (array_key_exists('previous', $log)) {
                     if (array_key_exists('parent', $log['previous'])) {

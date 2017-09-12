@@ -145,7 +145,7 @@ class Member implements BSONSerializable
     public function getAttributes(): array
     {
         $doc   = $this->session->getDocument();
-        $attrs = $doc->getNode()->getAttribute(['name', 'version']);
+        $attrs = $doc->getNode()->getAttributes(['name', 'version']);
         $attributes = [
             'BaseFileName'     => $attrs['name'],
             'Size'             => $doc->getSize(),

@@ -28,16 +28,10 @@ class Job extends AbstractJob
     {
         $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
 
-        $logger->info("create preview for node [".$this->data['id']."]", [
-            'category' => get_class($this),
-        ]);
-        
         $result = $server->getApp()
             ->getApp('Balloon.App.Preview')
-            ->getConverter()
-            ->convert($file, 'png');
+            ->createPreview($file);
 
-        $file->setPreview($result->getContents());
         return true;
     }
 }

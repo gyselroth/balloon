@@ -5,6 +5,8 @@
 Next major release v2, includes various new features and core changes. The API is still v1 and compatible with all current implementations.
 
 * CORE: [CHANGE] php ext apc is now optional (cache configuration)
+* CORE: [CHANGE] php ext imagick is now optional (if not installed image previews will fail)
+* CORE: [CHANGE] php ext ldap is now optional (if not installed ldap authentication or ldap sync core app will not be available)
 * CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
 * CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
 * CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
@@ -18,10 +20,14 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
 * CORE: [FEATURE] console can now be executed with command parameters
 * CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchonosuly executed non-stop #56
-* CORE: [CHANGE] Converted all core plugins from v1.0.x into apps #20
+* CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks which are now part of new core apps #20
 * CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converted is now useable to converty anything to anything
 * CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/config.dist.xml #59
 * CORE: [CHANGE] No more BSONDocument, all cursor get mapped to arrays
+* CORE: [CHANGE] Sharlink is now an entirely removed from the core and operates as an own app Balloon.App.Sharelink
+* CORE: [CHANGE] Preview is now an entirely removed from the core and operates as an own app Balloon.App.Preview
+* CORE: [CHANGE] Changed generating access token to random_bytes() for creating sharelink tokens
+* CORE: [FEATURE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes 
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
@@ -29,8 +35,11 @@ Next major release v2, includes various new features and core changes. The API i
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 * API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v1 since all timestamps are in UTC anyway #61
 * API: [FEATURE] GET /api and GET /api/v1 are now public readable #46
+* API: [CHANGE] Removed attribute history from GET /file/attributes
+* API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
 * UI: [FIX] added missing german locale for view.prop.head.share_value
 * DOC: [FIX] @apiVersion is now correctly declared as api version "1"
+* Webinterface: [CHANGE] node list now gets populated without size for collections which increases performance (Collection number of children is still visible in the properties tab)
 
 
 ## 1.0.15 

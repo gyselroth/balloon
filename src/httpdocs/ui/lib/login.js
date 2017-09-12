@@ -227,7 +227,7 @@ var login = {
             type: 'GET',
             username: username,
             password: password,
-            url: '/api/v1',
+            url: '/api/v1/user/whoami',
             beforeSend: function() {
                 username_input.removeClass('error');
                 password_input.removeClass('error');    

@@ -107,7 +107,7 @@ class Collection extends Node
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
         
         foreach ($nodes as $node) {
-            $children[] = Helper::escape($node->getAttribute($attributes));
+            $children[] = Helper::escape($node->getAttributes($attributes));
         }
         
         return (new Response())->setCode(200)->setBody($children);

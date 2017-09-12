@@ -11,9 +11,9 @@ namespace Balloon\App\Preview;
 
 use \Balloon\User;
 use \Balloon\Filesystem;
-use \Balloon\Http\Router\Route;
-use \Balloon\App\AbstractApp;
+use \Micro\Http\Router\Route;
 use \Balloon\App\Preview\Hook;
+use \Balloon\App\Preview\Api\v1\Preview;
 
 class Http extends AbstractApp
 {
@@ -24,7 +24,10 @@ class Http extends AbstractApp
      */
     public function init(): bool
     {
-        $this->server->getHook()->registerHook(Hook::class);
-        return true;
+        $this->router
+            ->prependRoute(new Route('/api/v1/file/preview', Preview::class))
+            ->prependRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}/preview', Preview::class));
+
+        return $this->server->getHook()->registerHook(Hook::class);
     }
 }

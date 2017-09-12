@@ -109,7 +109,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         );
 
         if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
-            $name = $this->_getDuplicateName();
+            $name = $this->getDuplicateName();
         } else {
             $name = $this->name;
         }
@@ -128,6 +128,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'filter'  => $this->filter,
+                'app_attributes' => $this->app_attributes
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
@@ -191,19 +192,17 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Get Attribute
      *
-     * @param  array|string $attribute
-     * @return array|string
+     * @param  array $attributes
+     * @return array
      */
-    public function getAttribute($attribute=[])
+    public function getAttributes(array $attributes=[]): array
     {
-        if (empty($attribute)) {
-            $attribute = [
+        if (empty($attributes)) {
+            $attributes = [
                 'id',
                 'name',
                 'meta',
                 'mime',
-                'size',
-                'sharelink',
                 'reference',
                 'deleted',
                 'changed',
@@ -213,7 +212,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             ];
         }
     
-        return $this->_getAttribute($attribute);
+        return parent::getAttributes($attributes);
     }
 
     

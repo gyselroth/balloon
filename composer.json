@@ -26,19 +26,19 @@
         "phpzip/phpzip": "2.*",
         "psr/log": "1.*",
         "mongodb/mongodb": "1.2.0-alpha1",
-        "ext-ldap": "*",
         "ext-xml": "*",
         "ext-mongodb": "*",
         "ext-Zend-OPcache": "*",
         "ext-curl": "*",
-        "ext-imagick": "*",
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
         "zendframework/zend-mail": "2.7.*"
     },
     "suggest": {
-        "ext-apc": "Allows caching configuration which gives more performance"
+        "ext-apc": "Allows caching configuration which gives more performance",
+        "ext-imagick": "Required for image previews and converter",
+        "ext-ldap": "Required for ldap authentication and ldap synchronization"
     },
     "require-dev": {
         "phpunit/phpunit": "5.7.*",

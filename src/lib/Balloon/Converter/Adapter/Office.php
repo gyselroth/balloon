@@ -137,7 +137,7 @@ class Office extends Imagick
             'category' => get_class($this)
         ]);
 
-        $result = shell_exec($command);
+        shell_exec($command);
         $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$format;
 
         if (!file_exists($temp)) {

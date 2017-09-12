@@ -105,7 +105,8 @@ class Imagick extends AbstractAdapter
     public function createFromFile(string $source, string $format): Result
     {
         $desth = tmpfile();
-        $dest = stream_get_meta_data($desth)['uri'];
+        $dest  = stream_get_meta_data($desth)['uri'];
+        
         $image = new SystemImagick($source."[0]");
 
         $width  = $image->getImageWidth();
@@ -123,11 +124,11 @@ class Imagick extends AbstractAdapter
         $image->setColorSpace(SystemImagick::COLORSPACE_SRGB);
         $image->setImageFormat($format);
         $image->writeImage($dest);
-
+        
         if (!file_exists($dest) || filesize($dest) <= 0) {
             throw new Exception('failed convert file');
         }
 
-        return new Result($dest);
+        return new Result($dest, $desth);
     }
 }

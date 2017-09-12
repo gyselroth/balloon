@@ -64,7 +64,7 @@ class Http extends AbstractBootstrap
                 $this->server->setIdentity($this->auth->getIdentity());
             }
 
-            return $this->router->run();
+            return $this->router->run([$this->server, $this->logger]);
         } else {
             return $this->invalidAuthentication();
         }
