@@ -15,6 +15,7 @@ use \Balloon\Exception;
 use \Balloon\Helper;
 use \Micro\Http\Response;
 use \Balloon\Filesystem\Node\Collection;
+use \Balloon\Converter;
 
 class File extends Node
 {
@@ -87,7 +88,7 @@ class File extends Node
     /**
      * @api {post} /api/v1/file/restore?id=:id Rollback version
      * @apiVersion 1
-     * @apiName postApiore
+     * @apiName postRestore
      * @apiGroup Node\File
      * @apiPermission none
      * @apiDescription Rollback to a recent version from history. Use the version number from history.
@@ -108,7 +109,7 @@ class File extends Node
      * @param   string $version
      * @return  Response
      */
-    public function postApiore(int $version, ?string $id=null, ?string $p=null): Response
+    public function postRestore(int $version, ?string $id=null, ?string $p=null): Response
     {
         $result = $this->_getNode($id, $p)->restore($version);
         return (new Response())->setCode(204);

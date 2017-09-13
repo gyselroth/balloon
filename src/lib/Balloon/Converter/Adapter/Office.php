@@ -42,6 +42,25 @@ class Office extends Imagick
 
 
     /**
+     * Formats
+     *
+     * @var array
+     */
+    protected $formats = [
+        'spreadsheet' => [
+            'ods'  => 'application/vnd.oasis.opendocument.spreadsheet',
+            'fods' => 'application/vnd.oasis.opendocument.spreadsheet-flat-xml',
+            'xls'  => 'application/vnd.ms-excel',
+            'xlb'  => 'application/vnd.ms-excel',
+            'xlt'  => 'application/vnd.ms-excel',
+            'xlsb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+            'xlsm' => 'application/vnd.ms-excel.sheet.macroEnabled.12',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]
+    ];
+
+
+    /**
      * Set options
      *
      * @param  Iterable $config
@@ -95,11 +114,33 @@ class Office extends Imagick
         if ($file->getSize() === 0) {
             return false;
         }
+        
+        foreach($this->formats as $type => $formats) {
+            if(in_array($file->getMime(), $formats)) {
+                return true;
+            }
+        }
 
-        //TODO: match office document
-        return true;
+        return false;
     }
 
+    
+    /**
+     * Get supported formats
+     *
+     * @param  File $file
+     * @return array
+     */
+    public function getSupportedFormats(File $file): array
+    {
+        foreach($this->formats as $type => $formats) {
+            if(in_array($file->getMime(), $formats)) {
+                $values = array_keys($formats);
+                return array_merge($values, parent::getSupportedFormats($file));
+            }
+        }
+    }
+    
 
     /**
      * Convert
@@ -114,7 +155,7 @@ class Office extends Imagick
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
 
-        if(in_array($format, parent::getSupportedFormats())) {
+        if(in_array($format, parent::getSupportedFormats($file))) {
             $convert = 'pdf';
         } else {
             $convert =  $format;

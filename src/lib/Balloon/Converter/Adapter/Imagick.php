@@ -62,20 +62,20 @@ class Imagick extends AbstractAdapter
             return false;
         }
 
-        $formats    = (new SystemImagick())->queryFormats();
-        $extension  = strtoupper($file->getExtension());
-        return in_array($extension, $formats);
+        $extension  = $file->getExtension();
+        return in_array($extension, $this->getSupportedFormats($file));
     }
 
     
     /**
      * Get supported formats
      *
+     * @param  File $file
      * @return array
      */
-    public function getSupportedFormats(): array
+    public function getSupportedFormats(File $file): array
     {
-        return (new SystemImagick())->queryFormats();
+        return array_map('strtolower', (new SystemImagick())->queryFormats());
     }
 
 

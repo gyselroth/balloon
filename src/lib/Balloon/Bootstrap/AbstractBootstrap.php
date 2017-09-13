@@ -144,7 +144,7 @@ abstract class AbstractBootstrap
         'Balloon.App.CleanTrash'    => [],
         'Balloon.App.Delta'         => [],
         'Balloon.App.Notification'  => [],
-        'Balloon.App.PdfShadow'     => [],
+        'Balloon.App.Convert'       => [],
         'Balloon.App.Preview'       => [],
         'Balloon.App.Sharelink'     => [],
         'Balloon.App.Webdav'        => [],

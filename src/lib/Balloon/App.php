@@ -182,7 +182,7 @@ class App
     public function getApp(string $class): AppInterface
     {
         if (!$this->hasApp($class)) {
-            throw new Exception('auth app '.$class.' is not registered');
+            throw new Exception('app '.$class.' is not registered');
         }
 
         return $this->app[$class];
@@ -203,7 +203,7 @@ class App
             $list = [];
             foreach ($app as $class) {
                 if (!$this->hasApp($class)) {
-                    throw new Exception('auth app '.$class.' is not registered');
+                    throw new Exception('app '.$class.' is not registered');
                 }
                 $list[$class] = $this->app[$class];
             }

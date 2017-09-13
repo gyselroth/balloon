@@ -32,17 +32,6 @@ class Cli extends AbstractApp
      */
     protected $converter;
 
-    
-    /**
-     * Default converter
-     *
-     * @return array
-     */
-    protected $default_converter = [
-        'imagick'  => ['class' => Imagick::class],
-        'office'   => ['class' => Office::class],
-    ];
-
 
     /**
      * Init
@@ -63,10 +52,6 @@ class Cli extends AbstractApp
      */
     public function setOptions(?Iterable $config=null): AppInterface
     {
-        if($config === null) {
-            $config = $this->default_converter;
-        }
-
         $this->converter = new Converter($this->logger, $config);
         return $this;
     }

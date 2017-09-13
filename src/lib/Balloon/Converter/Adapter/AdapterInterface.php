@@ -23,6 +23,15 @@ interface AdapterInterface
      * @return  bool
      */
     public function match(File $file): bool;
+    
+
+    /**
+     * Supported formats
+     *
+     * @param   File $file
+     * @return  array
+     */
+    public function getSupportedFormats(File $file): array;
 
 
     /**
