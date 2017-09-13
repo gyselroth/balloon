@@ -38,7 +38,7 @@ class Delta
      */
     protected $db;
 
-    
+
     /**
      * User
      *
@@ -69,12 +69,34 @@ class Delta
      */
     public function add(array $options): bool
     {
+        if (!self::isValidDeltaEvent($options)) {
+            throw new \Balloon\Filesystem\Delta\Exception();
+        }
+
         if (!array_key_exists('timestamp', $options)) {
             $options['timestamp'] = new UTCDateTime();
         }
 
         $result = $this->db->delta->insertOne($options);
         return $result->isAcknowledged();
+    }
+
+    /**
+     * Verify structure of delta event
+     * Necessary because methods of this class rely on a defined structure of
+     * delta events.
+     *
+     * @param   array $options
+     * @return  bool
+     */
+    protected static function isValidDeltaEvent(array $options)
+    {
+        // events w/o 'operation' throw warnings when building feed
+        if (!array_key_exists('operation', $options)) {
+            return false;
+        }
+        // events w/o 'owner' and w/o 'share' are ignored by filter when reading delta
+        return array_key_exists('owner', $options) || array_key_exists('share', $options);
     }
 
 
@@ -89,12 +111,12 @@ class Delta
         if ($cursor === null) {
             return null;
         }
-        
+
         $cursor = base64_decode($cursor);
         if ($cursor === false) {
             return null;
         }
-        
+
         $cursor = explode('|', $cursor);
         if (count($cursor) !== 5) {
             return null;
@@ -139,7 +161,7 @@ class Delta
             $has_more,
             $node
         );
-        
+
         $reset = false;
 
         if ($cursor === null) {
@@ -193,7 +215,7 @@ class Delta
         ];
     }
 
-    
+
     /**
      * Get last delta event
      *
@@ -203,7 +225,7 @@ class Delta
     public function getLastRecord(?NodeInterface $node=null): ?array
     {
         $filter = $this->getDeltaFilter();
-        
+
         if ($node !== null) {
             $filter['$and'][] = [
                 'node' => $node->getId()
@@ -229,7 +251,7 @@ class Delta
     public function getLastCursor(?NodeInterface $node=null): string
     {
         $filter = $this->getDeltaFilter();
-        
+
         if ($node !== null) {
             $filter['$and'][] = [
                 'node' => $node->getId()
@@ -238,13 +260,13 @@ class Delta
 
         $count  = $this->db->delta->count($filter);
         $last   = $this->getLastRecord($node);
-        
+
         if ($last === null) {
             $cursor = base64_encode('delta|0|0|0|'.new UTCDateTime());
         } else {
             $cursor = base64_encode('delta|0|0|'.$last['_id'].'|'.$last['timestamp']);
         }
-        
+
         return $cursor;
     }
 
@@ -266,11 +288,11 @@ class Delta
             $attributes);
 
         $cursor = $this->decodeCursor($cursor);
-        
+
         if ($cursor === null || $cursor[0] == 'initial') {
             return $this->buildFeedFromCurrentState($cursor, $limit, $attributes, $node);
         }
-        
+
         try {
             if ($cursor[3] == 0) {
                 $filter = $this->getDeltaFilter();
@@ -279,7 +301,7 @@ class Delta
                 if ($this->db->delta->count(['_id' => new ObjectID($cursor[3])]) === 0) {
                     return $this->buildFeedFromCurrentState(null, $limit, $attributes, $node);
                 }
-            
+
                 $filter = $this->getDeltaFilter();
                 $filter = [
                     '$and' => [
@@ -289,13 +311,13 @@ class Delta
                     ]
                 ];
             }
-            
+
             $result = $this->db->delta->find($filter, [
                 'skip'  => (int)$cursor[1],
                 'limit' => (int)$limit,
                 'sort'  => ['timestamp' => 1]
             ]);
-            
+
             $left = $this->db->delta->count($filter, [
                 'skip'  => (int)$cursor[1],
                 'sort'  => ['timestamp' => 1]
@@ -321,13 +343,13 @@ class Delta
                 $last_id = (string)$log['_id'];
                 $last_ts = (string)$log['timestamp'];
             }
-            
+
             try {
                 $log_node = $this->fs->findNodeWithId($log['node'], null, NodeInterface::DELETED_EXCLUDE);
                 if ($node !== null && !$node->isSubNode($log_node)) {
                     continue;
                 }
-                
+
                 //include share children after a new reference was added, otherwise the children would be lost if the cursor is newer
                 //than the create timestamp of the share reference
                 if ($log['operation'] === 'addCollectionReference' && $log_node->isReference()) {
@@ -432,7 +454,7 @@ class Delta
             ],
             $old]];
         }
-        
+
         $result = $this->db->delta->find($filter, [
             'sort'   => ['_id' => -1],
             'skip'  => $skip,
@@ -445,7 +467,7 @@ class Delta
             'v'   => null,
             'hostname' => null
         ];
-        
+
         $events = [];
         foreach ($result as $log) {
             $id    = (string)$log['_id'];
@@ -492,7 +514,7 @@ class Delta
             } catch (\Exception $e) {
                 $events[$id]['node'] = null;
             }
-            
+
             try {
                 if ($log['parent'] === null) {
                     $events[$id]['parent'] = [
@@ -536,7 +558,7 @@ class Delta
                 $events[$id]['share'] = null;
             }
         }
-        
+
         return array_values($events);
     }
 }
