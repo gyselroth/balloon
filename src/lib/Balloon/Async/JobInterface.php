@@ -17,20 +17,19 @@ use \Balloon\Server;
 interface JobInterface
 {
     /**
-     * Run job
+     * Get job data
      *
-     * @param   Filesystem $fs
-     * @return  bool
+     * @return array
      */
     public function getData(): array;
 
 
     /**
-     * Run job
+     * Start job
      *
      * @param   Server $server
      * @param   Logger $logger
      * @return  bool
      */
-    public function run(Server $server, Logger $logger): bool;
+    public function start(Server $server, Logger $logger): bool;
 }

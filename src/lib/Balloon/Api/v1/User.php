@@ -110,7 +110,7 @@ class User extends Controller
 
     /**
      * @api {get} /api/v1/user/is-admin Is Admin?
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getIsAdmin
      * @apiUse _getUser
      * @apiGroup User
@@ -146,7 +146,7 @@ class User extends Controller
     
     /**
      * @api {get} /api/v1/user/whoami Who am I?
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getWhoami
      * @apiUse _getUser
      * @apiGroup User
@@ -182,7 +182,7 @@ class User extends Controller
  
     /**
      * @api {get} /api/v1/user/node-attribute-summary Node attribute summary
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getNodeAttributeSummary
      * @apiUse _getUser
      * @apiGroup User
@@ -220,7 +220,7 @@ class User extends Controller
     
     /**
      * @api {get} /api/v1/user/groups Group membership
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getGroups
      * @apiUse _getUser
      * @apiGroup User
@@ -259,7 +259,7 @@ class User extends Controller
 
     /**
      * @api {get} /api/v1/user/shares Share membership
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getShares
      * @apiUse _getUser
      * @apiGroup User
@@ -298,7 +298,7 @@ class User extends Controller
 
     /**
      * @api {get} /api/v1/user/quota-usage Quota usage
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getQuotaUsage
      * @apiUse _getUser
      * @apiGroup User
@@ -343,7 +343,7 @@ class User extends Controller
 
     /**
      * @api {get} /api/v1/user/attributes User attributes
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getAttributes
      * @apiUse _getUser
      * @apiGroup User

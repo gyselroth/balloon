@@ -14,6 +14,9 @@ namespace Balloon\App\Api;
 use \Balloon\App\AbstractApp;
 use \Micro\Http\Router;
 use \Micro\Http\Router\Route;
+use \Micro\Auth\Adapter\None as AuthNone;
+use \Balloon\Hook\AbstractHook;
+use \Micro\Auth;
 
 class Http extends AbstractApp
 {
@@ -25,6 +28,15 @@ class Http extends AbstractApp
     public function init(): bool
     {
         $this->router->appendRoute((new Route('/api', $this, 'start')));
+        $this->server->getHook()->injectHook(new class($this->logger) extends AbstractHook {
+            public function preAuthentication(Auth $auth): void
+            {
+                if ($_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api' ||  $_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api/v1') {
+                    $auth->injectAdapter('none' ,(new AuthNone($this->logger)) );
+                }
+            }
+        });
+
         return true;
     }
 

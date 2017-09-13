@@ -11,8 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon;
 
+use \Balloon\Converter\Exception;
+use \Balloon\Converter\Result;
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Converter\ConverterInterface;
+use \Balloon\Converter\Adapter\AdapterInterface;
 use \Psr\Log\LoggerInterface as Logger;
 
 class Converter
@@ -97,19 +99,37 @@ class Converter
      * @param  string $name
      * @param  string $class
      * @param  Iterable $config
-     * @return ConverterInterface
+     * @return AdapterInterface
      */
-    public function addConverter(string $name, string $class, ? Iterable $config = null) : ConverterInterface
+    public function addConverter(string $name, string $class, ? Iterable $config = null) : AdapterInterface
     {
         if ($this->hasConverter($name)) {
             throw new Exception('converter '.$name.' is already registered');
         }
             
         $converter = new $class($this->logger, $config);
-        if (!($converter instanceof ConverterInterface)) {
-            throw new Exception('converter must include ConverterInterface interface');
+        if (!($converter instanceof AdapterInterface)) {
+            throw new Exception('converter must include AdapterInterface interface');
         }
 
+        $this->converter[$name] = $converter;
+        return $converter;
+    }
+
+
+    /**
+     * Inject converter
+     *
+     * @param  string $name
+     * @param  AdapterInterface $adapter
+     * @return AdapterInterface
+     */
+    public function injectConverter(string $name, AdapterInterface $adapter) : AdapterInterface
+    {
+        if ($this->hasConverter($name)) {
+            throw new Exception('converter '.$name.' is already registered');
+        }
+            
         $this->converter[$name] = $converter;
         return $converter;
     }
@@ -119,9 +139,9 @@ class Converter
      * Get converter
      *      
      * @param  string $name
-     * @return ConverterInterface
+     * @return AdapterInterface
      */
-    public function getConverter(string $name): ConverterInterface
+    public function getConverter(string $name): AdapterInterface
     {
         if (!$this->hasConverter($name)) {
             throw new Exception('converter '.$name.' is not registered');
@@ -129,7 +149,6 @@ class Converter
 
         return $this->converter[$name];
     }
-
 
 
     /**
@@ -157,26 +176,27 @@ class Converter
 
 
     /**
-     * Create preview
+     * Convert document
      *
      * @param  File $file
-     * @return string
+     * @param  string $format
+     * @return Result
      */
-    public function create(File $file): string
+    public function convert(File $file, string $format): Result
     {
         foreach ($this->converter as $converter) {
             try {
                 if ($converter->match($file)) {
-                    return $converter->create($file);
+                    return $converter->convert($file, $format);
                 }
             } catch (\Exception $e) {
-                $this->logger->error('failed execute preview converter['.get_class($converter).']', [
+                $this->logger->error('failed execute converter ['.get_class($converter).']', [
                     'category' => get_class($this),
                     'exception'=>$e
                 ]);
             }
         }
 
-        throw new Exception('no matching preview converter found');
+        throw new Exception('all converter failed');
     }
 }

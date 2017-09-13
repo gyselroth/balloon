@@ -137,18 +137,18 @@ abstract class AbstractBootstrap
      * @var Iterable
      */
     protected $option_app = [
-        'Api'           => ['class' => '\\Balloon\\App\\Api'],
-        'AutoCreateUser'=> ['class' => '\\Balloon\\App\\AutoCreateUser'],
-        'AutoDestroy'   => ['class' => '\\Balloon\\App\\AutoDestroy'],
-        'CleanTemp'     => ['class' => '\\Balloon\\App\CleanTemp'],
-        'CleanTrash'    => ['class' => '\\Balloon\\App\\CleanTrash'],
-        'Delta'         => ['class' => '\\Balloon\\App\\Delta'],
-        'Notification'  => ['class' => '\\Balloon\\App\\Notification'],
-        'PdfShadow'     => ['class' => '\\Balloon\\App\\PdfShadow'],
-        'Preview'       => ['class' => '\\Balloon\\App\\Preview'],
-        'Sharelink'     => ['class' => '\\Balloon\\App\\ShareLink'],
-        'Webdav'        => ['class' => '\\Balloon\\App\\Webdav'],
-        'Elasticsearch' => ['class' => '\\Balloon\\App\\Elasticsearch'],
+        'Balloon.App.Api'           => [],
+        'Balloon.App.AutoCreateUser'=> [],
+        'Balloon.App.AutoDestroy'   => [],
+        'Balloon.App.CleanTemp'     => [],
+        'Balloon.App.CleanTrash'    => [],
+        'Balloon.App.Delta'         => [],
+        'Balloon.App.Notification'  => [],
+        'Balloon.App.PdfShadow'     => [],
+        'Balloon.App.Preview'       => [],
+        'Balloon.App.Sharelink'     => [],
+        'Balloon.App.Webdav'        => [],
+        'Balloon.App.Elasticsearch' => [],
     ];
 
 
@@ -182,11 +182,17 @@ abstract class AbstractBootstrap
             'category' => get_class($this),
         ]);
 
-        $client = new Client($this->option_mongodb);
+        $client = new Client($this->option_mongodb, [], [
+            'typeMap' => [
+                'root' => 'array', 
+                'document' => 'array', 
+                'array' => 'array'
+            ]
+        ]);
+        
         $this->db = $client->{$this->option_mongodb_db};
-        $this->async = new Async($this->db, $this->logger, $this->config);
+        $this->async = new Async($this->db, $this->logger);
         $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);
-        $this->fs = new Filesystem($this->server, $this->logger);
         
         return true;
     }
@@ -214,8 +220,10 @@ abstract class AbstractBootstrap
                         $this->option_mongodb_db = $value->db;
                     }
                     break;
-                case 'apps':
-                    $this->option_apps = $value;
+                case 'app':
+                    foreach($value as $app => $options) {
+                        $this->option_app[$app] = $options;
+                    }
                     break;
                 case 'log':
                     $this->option_log = $value;

@@ -58,15 +58,9 @@ class Db extends AbstractBasic
      */
     public function findIdentity(string $username): ?array
     {
-        $result = $this->db->user->findOne([
+        return $this->db->user->findOne([
             'username' => $username
         ]);
-
-        if($result === null) {
-            return null;
-        } else {
-            return Helper::convertBSONDocToPhp($result);
-        }
     }
 
 

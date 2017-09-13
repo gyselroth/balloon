@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace Balloon\Async;
 
 use \Psr\Log\LoggerInterface as Logger;
-use \Micro\Config;
 use \Balloon\Server;
 use \MongoDB\Database;
 use \Zend\Mail\Message;
+use \Zend\Mail\Transport\Sendmail;
 
 class Mail extends AbstractJob
 {
@@ -24,16 +24,16 @@ class Mail extends AbstractJob
      *
      * @var string
      */
-    protected $transport = '\Zend\Mail\Transport\Sendmail';
+    protected $transport = Sendmail::class;
 
 
     /**
      * Set options
      *
-     * @param  Config $config
-     * @return MailNotification
+     * @param  Iterable $config
+     * @return Mail
      */
-    public function setOptions(Config $config): Mail
+    public function setOptions(?Iterable $config=null): Mail
     {
         if (isset($config['mail']) && isset($config['mail']['transport'])) {
             $this->transport = $config->mail->transport;

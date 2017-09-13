@@ -842,12 +842,7 @@ var balloon = {
                     break;
 
                     case 'size':
-                        if(node.directory) {
-                            html_children.push('<span class="fs-meta-info">'+i18next.t("view.prop.data.childcount", {
-                                count: node.size,
-                            })+'</span>');
-                    
-                        } else {
+                        if(!node.directory) {
                             html_children.push('<span class="fs-meta-info">'+balloon.getReadableFileSizeString(node.size)+'</span>');
                         }
                     break;
@@ -2293,7 +2288,7 @@ var balloon = {
                  
                     var attributes = [
                         'id', 'name', 'mime', 'deleted', 'meta.color', 'meta.tags', 
-                        'directory', 'changed', 'size', 'filtered', 
+                        'directory', 'changed', 'file.size', 'filtered', 
                         'shared', 'sharelink', 'hash', 'reference', 'share', 'access'
                     ];
                     
@@ -5489,6 +5484,7 @@ var balloon = {
 
         var attributes = [
             'path',
+            'size',
             'meta.license',
             'meta.description',
             'meta.copyright',

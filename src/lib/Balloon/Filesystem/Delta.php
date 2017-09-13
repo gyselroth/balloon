@@ -15,12 +15,11 @@ use \Sabre\DAV;
 use \Balloon\Exception;
 use \Balloon\Filesystem;
 use \Balloon\Helper;
-use \Balloon\User;
+use \Balloon\Server\User;
 use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\ObjectID;
-use \MongoDB\Model\BSONDocument;
 
 class Delta
 {
@@ -221,9 +220,9 @@ class Delta
      * Get last delta event
      *
      * @param  NodeInterface $node
-     * @return BSONDocument
+     * @return array
      */
-    public function getLastRecord(?NodeInterface $node=null): ?BSONDocument
+    public function getLastRecord(?NodeInterface $node=null): ?array
     {
         $filter = $this->getDeltaFilter();
 
@@ -355,12 +354,12 @@ class Delta
                 //than the create timestamp of the share reference
                 if ($log['operation'] === 'addCollectionReference' && $log_node->isReference()) {
                     foreach ($this->fs->findNodesWithCustomFilter(['shared' => $log_node->getShareId()]) as $share_member) {
-                        $member_attrs = $share_member->getAttribute($attributes);
+                        $member_attrs = $share_member->getAttributes($attributes);
                         $list[$member_attrs['path']] = $member_attrs;
                     }
                 }
-
-                $fields = $log_node->getAttribute($attributes);
+                
+                $fields = $log_node->getAttributes($attributes);
 
                 if (array_key_exists('previous', $log)) {
                     if (array_key_exists('parent', $log['previous'])) {
@@ -535,7 +534,7 @@ class Delta
             }
 
             try {
-                $user = new User($log['owner'], $this->fs->getLogger(), $this->fs);
+                $user = $this->fs->getServer()->getUserById($log['owner']);
                 $events[$id]['user'] = [
                     'id' => (string)$user->getId(),
                     'username' => $user->getUsername()

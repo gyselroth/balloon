@@ -9,12 +9,14 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Converter;
+namespace Balloon\Converter\Adapter;
 
 use \Balloon\Filesystem\Node\File;
 use \Imagick as SystemImagick;
+use \Balloon\Converter\Exception;
+use \Balloon\Converter\Result;
 
-class Imagick extends AbstractConverter
+class Imagick extends AbstractAdapter
 {
     /**
      * Max size
@@ -28,9 +30,9 @@ class Imagick extends AbstractConverter
      * Set options
      *
      * @param  Iterable $config
-     * @return ConverterInterface
+     * @return AdapterInterface
      */
-    public function setOptions(?Iterable $config=null): ConverterInterface
+    public function setOptions(?Iterable $config=null): AdapterInterface
     {
         if($config === null) {
             return $this;
@@ -65,19 +67,31 @@ class Imagick extends AbstractConverter
         return in_array($extension, $formats);
     }
 
+    
+    /**
+     * Get supported formats
+     *
+     * @return array
+     */
+    public function getSupportedFormats(): array
+    {
+        return (new SystemImagick())->queryFormats();
+    }
+
 
     /**
-     * Get thumbnail
+     * Convert
      *
      * @param  File $file
-     * @return string
+     * @param  string $format
+     * @return Result
      */
-    public function create(File $file): string
+    public function convert(File $file, string $format): Result
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
-        return $this->createFromFile($source);
+        return $this->createFromFile($source, $format);
     }
 
 
@@ -85,12 +99,14 @@ class Imagick extends AbstractConverter
      * Create from file
      *
      * @param   string $source
-     * @return  string
+     * @param   string $format
+     * @return  Result
      */
-    public function createFromFile(string $source): string
+    public function createFromFile(string $source, string $format): Result
     {
         $desth = tmpfile();
-        $dest = stream_get_meta_data($desth)['uri'];
+        $dest  = stream_get_meta_data($desth)['uri'];
+        
         $image = new SystemImagick($source."[0]");
 
         $width  = $image->getImageWidth();
@@ -106,13 +122,13 @@ class Imagick extends AbstractConverter
         $image->setImageCompressionQuality(100);
         $image->stripImage();
         $image->setColorSpace(SystemImagick::COLORSPACE_SRGB);
-        $image->setImageFormat('png');
+        $image->setImageFormat($format);
         $image->writeImage($dest);
-
+        
         if (!file_exists($dest) || filesize($dest) <= 0) {
-            throw new Exception('failed convert file contents to preview');
+            throw new Exception('failed convert file');
         }
 
-        return file_get_contents($dest);
+        return new Result($dest, $desth);
     }
 }

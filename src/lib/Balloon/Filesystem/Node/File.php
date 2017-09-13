@@ -19,7 +19,6 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 
 class File extends AbstractNode implements DAV\IFile
 {
@@ -90,14 +89,6 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Thumbnail
-     *
-     * @var ObjectId
-     */
-    protected $thumbnail = false;
-
-
-    /**
      * GridFS file id
      *
      * @var ObjectId
@@ -116,13 +107,13 @@ class File extends AbstractNode implements DAV\IFile
     /**
      * Init virtual file and set attributes
      *
-     * @param   BSONDocument $node
+     * @param   array $attributes
      * @param   Filesystem $fs
      * @return  void
      */
-    public function __construct(BSONDocument $node, Filesystem $fs)
+    public function __construct(array $attributes, Filesystem $fs)
     {
-        parent::__construct($node, $fs);
+        parent::__construct($attributes, $fs);
         $this->_verifyAccess();
     }
 
@@ -164,7 +155,7 @@ class File extends AbstractNode implements DAV\IFile
         );
 
         if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
-            $name = $this->_getDuplicateName();
+            $name = $this->getDuplicateName();
         } else {
             $name = $this->name;
         }
@@ -177,7 +168,7 @@ class File extends AbstractNode implements DAV\IFile
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
-                'thumbnail' => $this->thumbnail
+                'app_attributes' => $this->app_attributes
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
@@ -435,7 +426,7 @@ class File extends AbstractNode implements DAV\IFile
                 
                 $found = false;
                 foreach ($ref as $key => $node) {
-                    if ($node->id == $this->_id) {
+                    if ($node['id'] == $this->_id) {
                         unset($ref[$key]);
                     }
                 }
@@ -481,15 +472,6 @@ class File extends AbstractNode implements DAV\IFile
     protected function _forceDelete(): bool
     {
         try {
-            $this->deletePreview();
-        } catch (\MongoDB\GridFS\Exception\FileNotFoundException $e) {
-            $this->_logger->debug('could remove preview, preview ['.$this->thumbnail.'] does not exists', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-        }
-
-        try {
             $this->cleanHistory();
             $result = $this->_db->storage->deleteOne([
                 '_id' => $this->_id,
@@ -527,53 +509,15 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Delete preview
-     *
-     * @return bool
-     */
-    public function deletePreview(): bool
-    {
-        if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to modify node',
-                Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
-            );
-        }
-
-        $bucket = $this->_db->selectGridFSBucket(['bucketName' => 'thumbnail']);
-
-        try {
-            if ($this->thumbnail instanceof ObjectId) {
-                $bucket->delete($this->thumbnail);
-            
-                $this->_logger->debug('removed preview ['.$this->thumbnail.'] from file ['.$this->_id.']', [
-                    'category' => get_class($this),
-                ]);
-            
-                return true;
-            }
-        } catch (\Exception $e) {
-            $this->_logger->error('failed remove preview ['.$this->thumbnail.'] from file ['.$this->_id.']', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-
-            throw $e;
-        }
-
-        return true;
-    }
-
-
-    /**
      * Get Attributes
      *
-     * @param  string|array $attribute
-     * @return array|string
+     * @param  array $attributes
+     * @return array
      */
-    public function getAttribute($attribute=[])
+    public function getAttributes(array $attributes=[]): array
     {
-        if (empty($attribute)) {
-            $attribute = [
+        if (empty($attributes)) {
+            $attributes = [
                 'id',
                 'name',
                 'hash',
@@ -581,7 +525,6 @@ class File extends AbstractNode implements DAV\IFile
                 'version',
                 'meta',
                 'mime',
-                'sharelink',
                 'deleted',
                 'changed',
                 'created',
@@ -590,138 +533,18 @@ class File extends AbstractNode implements DAV\IFile
             ];
         }
         
-        $requested = (array)$attribute;
         $build = [];
-        foreach ($requested as $key => $attr) {
+        foreach ($attributes as $key => $attr) {
             switch ($attr) {
                case 'hash':
                case 'version':
-               case 'thumbnail':
                    $build[$attr] = $this->{$attr};
                break;
-            
-               case 'history':
-                   $build['history'] = $this->getHistory();
-               break;
             }
         }
 
-        if (is_string($attribute) && !empty($build)) {
-            return $build[$attribute];
-        }
-
-        $attributes = $this->_getAttribute($attribute);
-
-        if (is_string($attribute)) {
-            return $attributes;
-        } else {
-            return array_merge($build, $attributes);
-        }
-    }
-
-
-    /**
-     * Get preview
-     *
-     * @return string
-     */
-    public function getPreview(): string
-    {
-        if ($this->thumbnail instanceof ObjectId) {
-            try {
-                $stream = $this->_db->selectGridFSBucket(['bucketName' => 'thumbnail'])
-                    ->openDownloadStream($this->thumbnail);
-                $contents = stream_get_contents($stream);
-                fclose($stream);
-
-                return $contents;
-            } catch (\Exception $e) {
-                $this->_logger->warning('failed download preview from gridfs for file ['.$this->_id.']', [
-                    'category'  => get_class($this),
-                    'exception' => $e
-                ]);
-            }
-        }
-
-        throw new Exception\NotFound('preview does not exists',
-            Exception\NotFound::PREVIEW_NOT_FOUND
-        );
-    }
-
-
-    /**
-     * Set thumbnail
-     *
-     * @param  resource $thumbnail
-     * @return ObjectId
-     */
-    protected function storePreview(string $content): ObjectId
-    {
-        if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to modify node',
-                Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
-            );
-        }
-
-        try {
-            $id     = new ObjectId();
-            $bucket = $this->_db->selectGridFSBucket(['bucketName' => 'thumbnail']);
-            $stream = $bucket->openUploadStream(null, ['_id' => $id]);
-            fwrite($stream, $content);
-            fclose($stream);
- 
-            $this->thumbnail = $id;
-            $this->save('thumbnail');
-
-            $this->_logger->info('stored new preview ['.$this->thumbnail.'] for file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
- 
-            return $id;
-        } catch (\Exception $e) {
-            $this->_logger->error('failed store preview for file ['.$this->_id.']', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-
-            throw $e;
-        }
-    }
-
-
-    /**
-     * Rebuild thumbnail
-     *
-     * @return ObjectId
-     */
-    public function setPreview(string $content): ObjectId
-    {
-        $this->_logger->debug('set preview for file ['.$this->_id.']', [
-            'category' => get_class($this),
-        ]);
- 
-        try {
-            $hash = md5($content);
-
-            $found = $this->_db->{'thumbnail.files'}->findOne([
-                'md5' => $hash,
-            ], ['_id', 'thumbnail']);
-
-            if ($found) {
-                $this->_logger->debug('found preview ['.$found['_id'].'] with same hash, use stored preview', [
-                    'category' => get_class($this),
-                ]);
-
-                $this->thumbnail = $found['_id'];
-                $this->save('thumbnail');
-                return $found['_id'];
-            } else {
-                return $this->storePreview($content);
-            }
-        } catch (\Exception $e) {
-            $this->save([], 'thumbnail');
-            throw $e;
-        }
+        $attributes = parent::getAttributes($attributes);
+        return array_merge($build, $attributes);
     }
 
 

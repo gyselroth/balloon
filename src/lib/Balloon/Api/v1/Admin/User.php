@@ -19,7 +19,7 @@ class User extends SimpleUser
 {
     /**
      * @api {head} /api/v1/user?uid=:uid User exists?
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postQuota
      * @apiUse _getUser
      * @apiGroup User
@@ -47,7 +47,7 @@ class User extends SimpleUser
 
     /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postQuota
      * @apiUse _getUser
      * @apiGroup User
@@ -82,7 +82,7 @@ class User extends SimpleUser
 
     /**
      * @api {delete} /api/v1/user?uid=:uid Delete user
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName delete
      * @apiUse _getUser
      * @apiGroup User
@@ -132,7 +132,7 @@ class User extends SimpleUser
     
     /**
      * @api {post} /api/v1/user/undelete?uid=:uid Apiore user
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postUndelete
      * @apiUse _getUser
      * @apiGroup User

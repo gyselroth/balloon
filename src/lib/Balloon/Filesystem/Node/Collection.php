@@ -20,7 +20,6 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 use \MongoDB\BSON\Regex;
 use \Generator;
 
@@ -67,15 +66,15 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Initialize
      *
-     * @param  BSONDocument $node
+     * @param  array $attributes
      * @param  Filesystem $fs
      * @return void
      */
-    public function __construct(?BSONDocument $node, Filesystem $fs)
+    public function __construct(?array $attributes, Filesystem $fs)
     {
-        parent::__construct($node, $fs);
+        parent::__construct($attributes, $fs);
         
-        if ($node === null) {
+        if ($attributes === null) {
             $this->_id = null;
 
             if ($this->_user instanceof User) {
@@ -110,7 +109,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         );
 
         if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
-            $name = $this->_getDuplicateName();
+            $name = $this->getDuplicateName();
         } else {
             $name = $this->name;
         }
@@ -129,6 +128,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'filter'  => $this->filter,
+                'app_attributes' => $this->app_attributes
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
@@ -192,19 +192,17 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Get Attribute
      *
-     * @param  array|string $attribute
-     * @return array|string
+     * @param  array $attributes
+     * @return array
      */
-    public function getAttribute($attribute=[])
+    public function getAttributes(array $attributes=[]): array
     {
-        if (empty($attribute)) {
-            $attribute = [
+        if (empty($attributes)) {
+            $attributes = [
                 'id',
                 'name',
                 'meta',
                 'mime',
-                'size',
-                'sharelink',
                 'reference',
                 'deleted',
                 'changed',
@@ -214,7 +212,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             ];
         }
     
-        return $this->_getAttribute($attribute);
+        return parent::getAttributes($attributes);
     }
 
     
@@ -875,9 +873,12 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'meta'      => [],
                 'created'   => new UTCDateTime(),
                 'changed'   => new UTCDateTime(),
-                'owner'     => $this->_user->getId(),
                 'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared)
             ];
+            
+            if($this->_user !== null) {
+                $meta['owner'] = $this->_user->getId();
+            }
 
             $save  = array_merge($meta, $attributes);
 
@@ -888,7 +889,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $new = new Collection(new BSONDocument($save), $this->_fs);
+            $new = new Collection($save, $this->_fs);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
      
             return $new;
@@ -956,11 +957,14 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'meta'      => [],
                 'created'   => new UTCDateTime(),
                 'changed'   => new UTCDateTime(),
-                'owner'     => $this->_user->getId(),
                 'history'   => [],
                 'version'   => 0,
                 'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared),
             ];
+
+            if($this->_user !== null) {
+                $meta['owner'] = $this->_user->getId();
+            }
 
             $save  = array_merge($meta, $attributes);
 
@@ -971,7 +975,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
             
-            $file = new File(new BSONDocument($save), $this->_fs);
+            $file = new File($save, $this->_fs);
 
             try {
                 $file->put($data, true, $attributes);

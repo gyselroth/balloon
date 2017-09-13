@@ -19,7 +19,6 @@ use \Balloon\Filesystem\Node\Collection;
 use \Balloon\Filesystem\Node\File;
 use \MongoDB\Database;
 use \MongoDB\BSON\ObjectID;
-use \MongoDB\Model\BSONDocument;
 use \Generator;
 use \Micro\Config;
 use \Balloon\Server\User;
@@ -85,28 +84,18 @@ class Filesystem
     /**
      * Initialize
      *
+     * @param  Server $server
+     * @param  Logger $logger
+     * @param  User $user
      * @return void
      */
-    public function __construct(Server $server, Logger $logger)
+    public function __construct(Server $server, Logger $logger, ?User $user=null)
     {
-        $server->setFilesystem($this);
+        $this->user      = $user;
         $this->server    = $server;
         $this->db        = $server->getDatabase();
         $this->logger    = $logger;
-        $this->hook      = $server->getHook();;
-    }
-
-
-    /**
-     * Set User
-     *
-     * @param  User
-     * @return Filesystem
-     */   
-    public function setUser(User $user): Filesystem
-    {
-        $this->user = $user;
-        return $this;
+        $this->hook      = $server->getHook();
     }
 
 
@@ -117,7 +106,7 @@ class Filesystem
      */
     public function getUser(): ?User
     {
-        return $this->server->getUser();
+        return $this->user;
     }
    
     
@@ -188,17 +177,17 @@ class Filesystem
             );
         }
 
-        return Helper::convertBSONDocToPhp($node);
+        return $node;
     }
 
 
     /**
      * Initialize node
      *
-     * @param  BSONDocument $node
+     * @param  array $node
      * @return NodeInterface
      */
-    protected function initNode(BSONDocument $node): NodeInterface
+    protected function initNode(array $node): NodeInterface
     {
         if (isset($node['shared']) && $node['shared'] === true && $this->user !== null && $node['owner'] != $this->user->getId()) {
             if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
@@ -341,49 +330,6 @@ class Filesystem
         return $parent;
     }
 
-    
-    /**
-     * Factory loader
-     *
-     * @param   string $token
-     * @param   string $class Fore check node type
-     * @return  NodeInterface
-     */
-    public function findNodeWithShareToken(string $token, ?string $class=null): NodeInterface
-    {
-        $node = $this->db->storage->findOne([
-            'sharelink.token' => $token,
-            'deleted'         => false,
-        ]);
-        
-        if ($node === null) {
-            throw new Exception('node with share token '.$token.' not found');
-        }
-
-        if ($node['sharelink']['token'] !== $token) {
-            throw new Exception('token do not match');
-        }
-        
-        if (isset($node['sharelink']['expiration']) && !empty($node['sharelink']['expiration'])) {
-            $time = (int)$node['sharelink']['expiration'];
-            if ($time < time()) {
-                throw new Exception('share link for this node is expired');
-            }
-        }
-
-        $return = $this->initNode($node);
-        
-        if ($class !== null) {
-            $class = '\Balloon\Filesystem\Node\\'.$class;
-        }
-
-        if ($class !== null && !($return instanceof $class)) {
-            throw new Exception('node is not instance of '.$class);
-        }
-
-        return $return;
-    }
-    
 
     /**
      * Factory loader
@@ -395,8 +341,6 @@ class Filesystem
      */
     public function findNodes(array $id=[], ?string $class=null, int $deleted=NodeInterface::DELETED_INCLUDE): Generator
     {
-        $id = (array)$id;
-
         $find = [];
         foreach ($id as $i) {
             $find[] = new ObjectID($i);
@@ -448,7 +392,7 @@ class Filesystem
      * @param   bool $deleted How to handle deleted node
      * @return  NodeInterface
      */
-    public function getNode($id=null, $path=null, $class=null, $multiple=false, $allow_root=false, $deleted=null)
+    public function getNode($id=null, $path=null, $class=null, $multiple=false, $allow_root=false, $deleted=null): NodeInterface
     {
         if (empty($id) && empty($path)) {
             if ($allow_root === true) {
@@ -477,6 +421,25 @@ class Filesystem
         }
         
         return $node;
+    }
+    
+
+    /**
+     * Find node with custom filter
+     *
+     * @param   array $filter
+     * @return  NodeInterface
+     */
+    public function findNodeWithCustomFilter(array $filter): NodeInterface
+    {
+        $result = $this->db->storage->findOne($filter);
+        if($result === null) {
+            throw new Exception\NotFound('node with custom filter was not found',
+                Exception\NotFound::NODE_NOT_FOUND
+            );
+        }   
+
+        return $this->initNode($result);
     }
     
 
@@ -613,7 +576,7 @@ class Filesystem
                 continue;
             }
 
-            $values = $node->getAttribute($attributes);
+            $values = $node->getAttributes($attributes);
             $list[] = $values;
         }
         
