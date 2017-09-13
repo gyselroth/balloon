@@ -23,13 +23,11 @@ class SendExceptionTest extends Test
 
     public function setUp()
     {
-        // setup mock
         $this->router = $this->getMockBuilder(Router::class)
-            ->setConstructorArgs([[], self::$logger])
+            ->setConstructorArgs([self::$logger])
             ->setMethods(['sendResponse'])
             ->getMock();
 
-        // prepare fixture
         $this->body = [
             'message' => 'message',
             'code' => 0,
@@ -66,16 +64,16 @@ class SendExceptionTest extends Test
         $this->exceptionTest(TestException::class, 500);
     }
 
-    private function exceptionTest(string $exceptionClass, int $httpStatus)
+    private function exceptionTest(string $exception_class, int $http_status)
     {
         // complete fixture
-        $this->body['error'] = $exceptionClass;
+        $this->body['error'] = $exception_class;
 
         // assertion
         $this->router->expects($this->once())
             ->method('sendResponse')
             ->with(
-                $this->equalTo($httpStatus),
+                $this->equalTo($http_status),
                 $this->equalTo($this->body)
             );
 

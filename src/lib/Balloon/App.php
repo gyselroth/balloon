@@ -116,7 +116,7 @@ class App
         $ns = str_replace('.', '\\', $name).'\\';
         $class = '\\'.$ns.$this->context;
         $this->composer->addPsr4($ns, APPLICATION_PATH."/src/app/$name/src/lib");
-
+        
         if (!class_exists($class)) {
             $this->logger->debug('skip non-existent class ['.$class.'] from app ['.$name.']', [
                  'category' => get_class($this),
@@ -125,7 +125,7 @@ class App
         }
             
         $app = new $class($this->server, $this->logger, $config, $this->router, $this->auth);
-        if (isset($this->app[$name])) {
+        if ($this->hasApp($name)) {
            throw new Exception('app '.$name.' is already registered');
         }
             
@@ -139,6 +139,24 @@ class App
 
         $this->app[$name] = $app;
 
+        return true;
+    }
+
+
+    /**
+     * Inject app
+     *
+     * @param  AppInterface $app
+     * @return bool 
+     */
+    public function injectApp(AppInterface $app)
+    {
+        $name = str_replace('_', '.', $app->getName());
+        if ($this->hasApp($name)) {
+           throw new Exception('app '.$name.' is already registered');
+        }
+           
+        $this->app[$name] = $app;
         return true;
     }
 

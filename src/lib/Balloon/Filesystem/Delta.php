@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Filesystem;
 
 use \Sabre\DAV;
-use \Balloon\Exception;
+use \Balloon\Filesystem\Delta\Exception;
 use \Balloon\Filesystem;
 use \Balloon\Helper;
 use \Balloon\Server\User;
@@ -50,7 +50,7 @@ class Delta
     /**
      * Initialize delta
      *
-     * @param   User $user
+     * @param   Filesystem $fs
      * @return  void
      */
     public function __construct(Filesystem $fs)
@@ -69,8 +69,8 @@ class Delta
      */
     public function add(array $options): bool
     {
-        if (!self::isValidDeltaEvent($options)) {
-            throw new \Balloon\Filesystem\Delta\Exception();
+        if (!$this->isValidDeltaEvent($options)) {
+            throw new Exception('invalid delta structuce given');
         }
 
         if (!array_key_exists('timestamp', $options)) {
@@ -81,21 +81,19 @@ class Delta
         return $result->isAcknowledged();
     }
 
+
     /**
-     * Verify structure of delta event
-     * Necessary because methods of this class rely on a defined structure of
-     * delta events.
+     * Verify delta structure
      *
      * @param   array $options
      * @return  bool
      */
-    protected static function isValidDeltaEvent(array $options)
+    protected function isValidDeltaEvent(array $options): bool
     {
-        // events w/o 'operation' throw warnings when building feed
         if (!array_key_exists('operation', $options)) {
             return false;
         }
-        // events w/o 'owner' and w/o 'share' are ignored by filter when reading delta
+        
         return array_key_exists('owner', $options) || array_key_exists('share', $options);
     }
 
