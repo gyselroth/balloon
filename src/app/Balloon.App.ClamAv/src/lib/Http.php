@@ -12,9 +12,10 @@ namespace Balloon\App\ClamAv;
 use \Balloon\User;
 use \Balloon\Filesystem;
 use \Balloon\Http\Router\Route;
+use \Balloon\App\AppInterface;
 use \Balloon\App\AbstractApp;
 
-class Init extends AbstractApp
+class Http extends AbstractApp
 {
     const FILE_INFECTED = 0;
     const FILE_OK = 1;
@@ -40,7 +41,7 @@ class Init extends AbstractApp
      */
     public function init(): bool
     {
-        $this->pluginmgr->registerPlugin('\Balloon\App\ClamAv\Plugin', null);
+        return $this->server->getHook()->registerHook(Hook::class);
         return true;
     }
 

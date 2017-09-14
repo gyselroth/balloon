@@ -11,18 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\App\ClamAv;
 
-use \Balloon\User;
-use \Balloon\Queue\JobInterface;
-use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Resource;
-use \Balloon\Filesystem\Node\Collection;
-use \Balloon\Queue\Mail;
-use \Zend\Mail\Message;
-use \Balloon\Plugin\AbstractPlugin;
-use \Balloon\Plugin\PluginInterface;
+use \Balloon\Hook\AbstractHook;
 
-class Plugin extends AbstractPlugin
+class Hook extends AbstractHook
 {
     /**
      * Run: postPutFile
@@ -39,7 +31,7 @@ class Plugin extends AbstractPlugin
     {
         $queue = $node->getFilesystem()->getQueue();
         $queue->addJob(new Job([
-            'id' => $node->getId()
+            'file' => $node
         ]));
     }
 }

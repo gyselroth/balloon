@@ -12,9 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\ClamAv;
 
 use \Psr\Log\LoggerInterface as Logger;
-use \Micro\Config;
 use \Balloon\Server;
-use \MongoDB\Database;
 use \Balloon\Async\AbstractJob;
 
 class Job extends AbstractJob
@@ -24,15 +22,15 @@ class Job extends AbstractJob
      *
      * @return bool
      */
-    public function run(Filesystem $fs, Logger $logger, Config $config): bool
+    public function start(Server $server, Logger $logger): bool
     {
-        $file = $fs->findNodeWithId($this->data['id']);
+        $file = $this->data['file'];
 
-        $logger->debug("scan file with clamav: [".$this->data['id']."]", [
+        $logger->debug("scan file with clamav: [".$file->id."]", [
             'category' => get_class($this),
         ]);
 
-        $result = $this->server->getApp('Balloon.App.ClamAv')->scan($file);
+        $result = $server->getApp('Balloon.App.ClamAv')->scan($file);
 
         if ($result === 0) {
             $file->delete(true);

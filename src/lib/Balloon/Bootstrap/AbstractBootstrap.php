@@ -80,7 +80,7 @@ abstract class AbstractBootstrap
      */
     protected $pluginmgr;
 
-    
+
     /**
      * Filesystem
      *
@@ -88,7 +88,7 @@ abstract class AbstractBootstrap
      */
     protected $fs;
 
-    
+
     /**
      * User
      *
@@ -104,7 +104,7 @@ abstract class AbstractBootstrap
      */
     protected $option_mongodb = 'mongodb://localhost:27017';
 
-    
+
     /**
      * Option: mongodb database
      *
@@ -140,6 +140,7 @@ abstract class AbstractBootstrap
         'Balloon.App.Api'           => [],
         'Balloon.App.AutoCreateUser'=> [],
         'Balloon.App.AutoDestroy'   => [],
+        'Balloon.App.ClamAv'        => [],
         'Balloon.App.CleanTemp'     => [],
         'Balloon.App.CleanTrash'    => [],
         'Balloon.App.Delta'         => [],
@@ -184,16 +185,16 @@ abstract class AbstractBootstrap
 
         $client = new Client($this->option_mongodb, [], [
             'typeMap' => [
-                'root' => 'array', 
-                'document' => 'array', 
+                'root' => 'array',
+                'document' => 'array',
                 'array' => 'array'
             ]
         ]);
-        
+
         $this->db = $client->{$this->option_mongodb_db};
         $this->async = new Async($this->db, $this->logger);
         $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);
-        
+
         return true;
     }
 
@@ -230,10 +231,10 @@ abstract class AbstractBootstrap
                     break;
             }
         }
-    
+
         return $this;
     }
-    
+
 
     /**
      * Set error handler
@@ -252,7 +253,7 @@ abstract class AbstractBootstrap
                     ]);
                     $code = Exception\Internal::ERROR;
                 break;
-            
+
                 case E_WARNING:
                 case E_USER_WARNING:
                     $this->logger->warning($msg, [
@@ -260,7 +261,7 @@ abstract class AbstractBootstrap
                     ]);
                     $code = Exception\Internal::WARNING;
                 break;
-            
+
                 default:
                     $this->logger->debug($msg, [
                         'category' => get_class($this)
