@@ -31,7 +31,7 @@ class Hook extends AbstractHook
     {
         $queue = $node->getFilesystem()->getServer()->getAsync();
         $queue->addJob(new Job([
-            'file' => $node
+            'id' => $node->getId()
         ]));
     }
 }

@@ -24,9 +24,9 @@ class Job extends AbstractJob
      */
     public function start(Server $server, Logger $logger): bool
     {
-        $file = $this->data['file'];
+        $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
 
-        $logger->debug("scan file with clamav: [".$file->id."]", [
+        $logger->debug("scan file with clamav: [".$this->data['id']."]", [
             'category' => get_class($this),
         ]);
 
