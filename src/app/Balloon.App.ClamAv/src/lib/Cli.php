@@ -83,7 +83,7 @@ class Cli extends AbstractApp
         $socket = (new \Socket\Raw\Factory())->createClient($this->socket);
 
         // Create a new instance of the Client
-        $quahog = new \Xenolope\Quahog\Client($socket);
+        $quahog = new \Xenolope\Quahog\Client($socket, 30, PHP_NORMAL_READ);
 
         // Scan file
         $result = $quahog->scanResourceStream($file->get());
