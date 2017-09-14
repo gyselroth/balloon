@@ -62,7 +62,7 @@ class Document extends Controller
      */
     public function get(string $id, string $access_token): Response
     {
-        $session = Member::getByAccessToken($this->fs, $this->logger, $this->parseId($id), $access_token);
+        $session = Member::getByAccessToken($this->server, $this->logger, $this->parseId($id), $access_token);
         return (new Response())->setCode(200)->setBody($session->getAttributes(), true);
     }
 
@@ -93,7 +93,7 @@ class Document extends Controller
      */
     public function postContents(string $id, string $access_token): Response
     {
-        $session = Session::getByAccessToken($this->fs, $this->parseId($id), $access_token);
+        $session = Session::getByAccessToken($this->server, $this->parseId($id), $access_token);
         $node = $session->getDocument()->getNode();
         ini_set('auto_detect_line_endings', '1');
         $content = fopen('php://input', 'rb');
@@ -125,7 +125,7 @@ class Document extends Controller
      */
     public function getContents(string $id, string $access_token): void
     {
-        $session = Session::getByAccessToken($this->fs, $this->parseId($id), $access_token);
+        $session = Session::getByAccessToken($this->server, $this->parseId($id), $access_token);
         $stream =  $session->getDocument()->get();
 
         while (!feof($stream)) {

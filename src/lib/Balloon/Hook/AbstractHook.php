@@ -21,7 +21,6 @@ use \Balloon\Filesystem\Node\File;
 use \Balloon\Filesystem\Node\NodeInterface;
 use \Micro\Auth;
 use \Micro\Auth\Identity;
-use \MongoDB\Model\BSONDocument;
 
 abstract class AbstractHook implements HookInterface
 {
@@ -82,10 +81,10 @@ abstract class AbstractHook implements HookInterface
      *
      * @param   Server $server
      * @param   Identity $identity
-     * @param   BSONDocument $attributes
+     * @param   array $attributes
      * @return  void
      */
-    public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes): void
+    public function preServerIdentity(Server $server, Identity $identity, ?array &$attributes): void
     {
     }
     

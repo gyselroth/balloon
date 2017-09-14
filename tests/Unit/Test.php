@@ -5,40 +5,79 @@ use \PHPUnit\Framework\TestCase;
 use \Exception;
 use \Balloon\Filesystem;
 use \Balloon\Hook;
+use \Balloon\App;
 use \Balloon\Async;
 use \Balloon\Server;
 use \Balloon\Testsuite\Unit\Mock;
 use \Helmich\MongoMock\MockDatabase;
 use \Balloon\App\Delta;
+use \Micro\Http\Response;
 
-class Test extends TestCase
+abstract class Test extends TestCase
 {
     protected $type = 'node';
 
     protected static $first_cursor;
     protected static $current_cursor;
     protected static $controller;
+    protected static $logger;
+
+    protected static $apps = [
+        'Balloon.App.Api'           => [],
+        'Balloon.App.AutoCreateUser'=> [],
+        'Balloon.App.AutoDestroy'   => [],
+        'Balloon.App.CleanTemp'     => [],
+        'Balloon.App.CleanTrash'    => [],
+        'Balloon.App.Delta'         => [],
+        'Balloon.App.Notification'  => [],
+        'Balloon.App.Convert'       => [],
+        'Balloon.App.Preview'       => [],
+        'Balloon.App.Sharelink'     => [],
+        'Balloon.App.Webdav'        => [],
+        'Balloon.App.Elasticsearch' => [],
+    ];
 
     public static function setupMockServer()
     {
-        $db         = new MockDatabase();
-        $logger     = new Mock\Log();
-        $async      = new Async($db, $logger);
-        $hook       = new Hook($logger);
-        $hook->registerHook(Delta\Hook::class);
+        $db = new MockDatabase('balloon', [
+            'typeMap' => [
+                'root' => 'array',
+                'document' => 'array',
+                'array' => 'array'
+            ]
+        ]);
 
-        $server     = new Server($db, $logger, $async, $hook);
-        $identity   = new Mock\Identity('testuser', [], $logger);
-        $filesystem = new Filesystem($server, $logger);
+        self::registerAppNamespaces();
+        self::$logger = new Mock\Log();
+        $async = new Async($db, self::$logger);
+        $hook  = new Hook(self::$logger);
+
+        $server= new Server($db, self::$logger, $async, $hook);
+
+        $identity   = new Mock\Identity('testuser', [], self::$logger);
+        $filesystem = new Filesystem($server, self::$logger);
         $server->addUser(['username' => 'testuser']);  
         $server->setIdentity($identity);
+
+        global $composer;
+        $app = new App('test', $composer, $server, self::$logger);
+        
         return $server;
+    }
+
+    protected static function registerAppNamespaces()
+    {
+        global $composer;
+        foreach(self::$apps as $app => $config) {
+            $ns = str_replace('.', '\\', $app).'\\';
+            $composer->addPsr4($ns, APPLICATION_PATH."/src/app/$app/src/lib");
+        }
     }
 
     public function getDelta($cursor=null)
     {
         $res = self::$controller->getDelta(null, null, $cursor);
-        $this->assertInstanceOf('\Micro\Http\Response', $res);
+        $this->assertInstanceOf(Response::class, $res);
         $this->assertEquals(200, $res->getCode());
         return $res->getBody();
     }
@@ -46,13 +85,8 @@ class Test extends TestCase
     public function getLastCursor()
     {
         $res = self::$controller->getLastCursor();
-        $this->assertInstanceOf('\Micro\Http\Response', $res);
+        $this->assertInstanceOf(Response::class, $res);
         $this->assertEquals(200, $res->getCode());
-
-        //if we have an empty delta collection this would be 4 and not 5
-        //$cursor = base64_decode($res->getBody());
-        //$parts  = explode('|',$cursor);
-        //$this->assertCount(5, $parts);
 
         return $res->getBody();
     }

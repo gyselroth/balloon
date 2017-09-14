@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Converter;
+namespace Balloon\App;
 
-interface ConverterInterface
+class Exception extends \Balloon\Exception
 {
 }

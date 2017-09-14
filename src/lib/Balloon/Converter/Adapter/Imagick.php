@@ -9,12 +9,14 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Converter;
+namespace Balloon\Converter\Adapter;
 
 use \Balloon\Filesystem\Node\File;
 use \Imagick as SystemImagick;
+use \Balloon\Converter\Exception;
+use \Balloon\Converter\Result;
 
-class Imagick extends AbstractConverter
+class Imagick extends AbstractAdapter
 {
     /**
      * Max size
@@ -25,20 +27,12 @@ class Imagick extends AbstractConverter
 
 
     /**
-     * Format
-     *
-     * @var string
-     */
-    protected $format = 'png';
-
-
-    /**
      * Set options
      *
      * @param  Iterable $config
-     * @return ConverterInterface
+     * @return AdapterInterface
      */
-    public function setOptions(?Iterable $config=null): ConverterInterface
+    public function setOptions(?Iterable $config=null): AdapterInterface
     {
         if($config === null) {
             return $this;
@@ -48,9 +42,6 @@ class Imagick extends AbstractConverter
             switch ($option) {
                 case 'max_size':
                     $this->max_size = (int)$value;
-                    break;
-                case 'format':
-                    $this->format = (string)$format;
                     break;
             }
         }
@@ -71,9 +62,20 @@ class Imagick extends AbstractConverter
             return false;
         }
 
-        $formats    = (new SystemImagick())->queryFormats();
-        $extension  = strtoupper($file->getExtension());
-        return in_array($extension, $formats);
+        $extension  = $file->getExtension();
+        return in_array($extension, $this->getSupportedFormats($file));
+    }
+
+    
+    /**
+     * Get supported formats
+     *
+     * @param  File $file
+     * @return array
+     */
+    public function getSupportedFormats(File $file): array
+    {
+        return array_map('strtolower', (new SystemImagick())->queryFormats());
     }
 
 
@@ -82,9 +84,9 @@ class Imagick extends AbstractConverter
      *
      * @param  File $file
      * @param  string $format
-     * @return string
+     * @return Result
      */
-    public function convert(File $file, string $format): string
+    public function convert(File $file, string $format): Result
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
@@ -98,12 +100,13 @@ class Imagick extends AbstractConverter
      *
      * @param   string $source
      * @param   string $format
-     * @return  string
+     * @return  Result
      */
-    public function createFromFile(string $source, string $format): string
+    public function createFromFile(string $source, string $format): Result
     {
         $desth = tmpfile();
-        $dest = stream_get_meta_data($desth)['uri'];
+        $dest  = stream_get_meta_data($desth)['uri'];
+        
         $image = new SystemImagick($source."[0]");
 
         $width  = $image->getImageWidth();
@@ -121,11 +124,11 @@ class Imagick extends AbstractConverter
         $image->setColorSpace(SystemImagick::COLORSPACE_SRGB);
         $image->setImageFormat($format);
         $image->writeImage($dest);
-
+        
         if (!file_exists($dest) || filesize($dest) <= 0) {
             throw new Exception('failed convert file');
         }
 
-        return file_get_contents($dest);
+        return new Result($dest, $desth);
     }
 }

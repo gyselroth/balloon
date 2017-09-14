@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Office;
 
+use \Balloon\Server;
 use \Balloon\Server\User;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
@@ -137,14 +138,14 @@ class Session
     /**
      * Get Session
      *
-     * @param  Filesystem $fs
+     * @param  Server $server
      * @param  ObjectId $session_id
      * @param  string $access_token
      * @return Session
      */
-    public static function getByAccessToken(Filesystem $fs, ObjectId $session_id, string $access_token): Session
+    public static function getByAccessToken(Server $server, ObjectId $session_id, string $access_token): Session
     {
-        $result = $fs->getDatabase()->app_office_session->findOne([
+        $result = $server->getDatabase()->app_office_session->findOne([
             '_id' => $session_id,
             'member' => [
                 '$elemMatch' => [
@@ -165,8 +166,8 @@ class Session
 
         foreach ($result['member'] as $member) {
             if ($member['access_token'] === $access_token) {
-                $user = new User($member['user'], $fs->getLogger(), $fs, true, false);
-                $fs->setUser($user);
+                $user = $server->getUserById($member['user']);
+                $fs = $user->getFilesystem();
                 $node = $fs->findNodeWithId($result['node'], 'File');
                 $document = new Document($fs->getDatabase(), $node);
                 return new self($fs, $document, 0, $result);

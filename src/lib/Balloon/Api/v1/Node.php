@@ -197,7 +197,7 @@ class Node extends Controller
 
     /**
      * @api {head} /api/v1/node?id=:id Node exists?
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName head
      * @apiGroup Node
      * @apiPermission none
@@ -244,7 +244,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/undelete?id=:id Undelete node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postUndelete
      * @apiGroup Node
      * @apiPermission none
@@ -353,120 +353,8 @@ class Node extends Controller
 
 
     /**
-     * @api {post} /api/v1/node/share-link?id=:id Create sharing link
-     * @apiVersion 1.0.6
-     * @apiName postShareLink
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Create a unique sharing link of a node (global accessible):
-     * a possible existing link will be deleted if this method will be called.
-     * @apiUse _getNode
-     * @apiUse _writeAction
-     *
-     * @apiParam (POST Parameter) {object} [options] Sharing options
-     * @apiParam (POST Parameter) {number} [options.expiration] Expiration unix timestamp of the sharing link
-     * @apiParam (POST Parameter) {string} [options.password] Protected shared link with password
-     *
-     * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v1/node/share-link?id=544627ed3c58891f058b4686&pretty"
-     * curl -XPOST "https://SERVER/api/v1/node/544627ed3c58891f058b4686/share-link?pretty"
-     * curl -XPOST "https://SERVER/api/v1/node/share-link?p=/absolute/path/to/my/node&pretty"
-     *
-     * @apiSuccessExample {json} Success-Response (Created or modified share link):
-     * HTTP/1.1 204 No Content
-     *
-     * @param   string $id
-     * @param   string $p
-     * @param   array $options
-     * @return  Response
-     */
-    public function postShareLink(?string $id=null, ?string $p=null, array $options=[]): Response
-    {
-        $node = $this->_getNode($id, $p);
-        $options = Helper::filter($options);
-        $options['shared'] = true;
-
-        $node->shareLink($options);
-        return (new Response())->setCode(204);
-    }
-
-
-    /**
-     * @api {delete} /api/v1/node/share-link?id=:id Delete sharing link
-     * @apiVersion 1.0.6
-     * @apiName deleteShareLink
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Delete an existing sharing link
-     * @apiUse _getNode
-     * @apiUse _writeAction
-     *
-     * @apiExample (cURL) example:
-     * curl -XDELETE "https://SERVER/api/v1/node/share-link?id=544627ed3c58891f058b4686?pretty"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
-     *
-     * @param   string $id
-     * @param   string $p
-     * @return  Response
-     */
-    public function deleteShareLink(?string $id=null, ?string $p=null): Response
-    {
-        $node = $this->_getNode($id, $p);
-        
-        $options = ['shared' => false];
-        $node->shareLink($options);
-
-        return (new Response())->setCode(204);
-    }
-
-
-    /**
-     * @api {get} /api/v1/node/share-link?id=:id Get sharing link
-     * @apiVersion 1.0.6
-     * @apiName getShareLink
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Get an existing sharing link
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v1/node/share-link?id=544627ed3c58891f058b4686&pretty"
-     * curl -XGET "https://SERVER/api/v1/node/544627ed3c58891f058b4686/share-link?pretty"
-     * curl -XGET "https://SERVER/api/v1/node/share-link?p=/path/to/my/node&pretty"
-     *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object} data Share options
-     * @apiSuccess (200 OK) {string} data.token Shared unique node token
-     * @apiSuccess (200 OK) {string} [data.password] Share link is password protected
-     * @apiSuccess (200 OK) {string} [data.expiration] Unix timestamp
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": {
-     *        "token": "544627ed3c51111f058b468654db6b7daca8e5.69846614",
-     *     }
-     * }
-     *
-     * @param   string $id
-     * @param   string $p
-     * @return  Response
-     */
-    public function getShareLink(?string $id=null, ?string $p=null): Response
-    {
-        $result = Helper::escape(
-            $this->_getNode($id, $p)->getShareLink()
-        );
-        
-        return (new Response())->setCode(200)->setBody($result);
-    }
-
-
-    /**
      * @api {get} /api/v1/node?id=:id Download stream
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName get
      * @apiGroup Node
      * @apiPermission none
@@ -528,29 +416,33 @@ class Node extends Controller
                 $node->getZip();
             });
         }
-      
-        return (new Response())->setBody(function() use($node){
+     
+        $response = new Response();
+
+        if($download == true) {
+            $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\'' .rawurlencode($name));
+            $response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+            $response->setHeader('Content-Type', 'application/octet-stream');
+            $response->setHeader('Content-Length', (string)$node->getSize());
+            $response->setHeader('Content-Transfer-Encoding', 'binary');
+        } else {
+            $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\'' .rawurlencode($name));
+        }
+
+        return (new Response())
+          ->setOutputFormat(null)
+          ->setBody(function() use($node, $encode, $offset, $length, $download){
             $mime  = $node->getMime();
             $stream = $node->get();
             $name  = $node->getName();
         
-            if ($download == true) {
-                header('Content-Disposition: attachment; filename*=UTF-8\'\'' .rawurlencode($name));
-                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-                header('Content-Type: application/octet-stream');
-                header('Content-Length: '.$node->getSize());
-                header('Content-Transfer-Encoding: binary');
-            } else {
-                header('Content-Disposition: inline; filename*=UTF-8\'\'' .rawurlencode($name));
-            }
-
             if ($stream === null) {
-                exit();
+                return;
             }
 
             if ($offset !== 0) {
                 if (fseek($stream, $offset) === -1) {
-                    throw Exception\Conflict('invalid offset requested',
+                    throw new Exception\Conflict('invalid offset requested',
                         Exception\Conflict::INVALID_OFFSET
                     );
                 }
@@ -581,14 +473,12 @@ class Node extends Controller
                 }
             }
         });
-            
-        //exit();
     }
 
 
     /**
      * @api {post} /api/v1/node/readonly?id=:id Mark node as readonly
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postReadonly
      * @apiGroup Node
      * @apiPermission none
@@ -719,7 +609,6 @@ class Node extends Controller
      * @apiSuccess (200 OK - additional attributes) {string} data.path Absolute node path
      * @apiSuccess (200 OK - additional attributes) {boolean} data.filtered Node is filtered (usually only a collection)
      * @apiSuccess (200 OK - additional attributes) {boolean} data.readonly Node is readonly
-     * @apiSuccess (200 OK - additional attributes) {object[]} data.history Get file history (file node only)
      *
      * @apiParam (GET Parameter) {string[]} [attributes] Filter attributes, per default not all attributes would be returned
      */
@@ -727,7 +616,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/attributes?id=:id Get attributes
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getAttributes
      * @apiGroup Node
      * @apiPermission none
@@ -769,7 +658,6 @@ class Node extends Controller
      *              "usec": 869000
      *          },
      *          "share": false,
-     *          "thumbnail": "544628243c5889b86d8b4568",
      *          "directory": false
      *      }
      * }
@@ -784,13 +672,13 @@ class Node extends Controller
         if (is_array($id)) {
             $nodes    = [];
             foreach ($this->fs->findNodes($id) as $node) {
-                $nodes[] = Helper::escape($node->getAttribute($attributes));
+                $nodes[] = Helper::escape($node->getAttributes($attributes));
             }
 
             return (new Response())->setCode(200)->setBody($nodes);
         } else {
             $result = Helper::escape(
-                $this->_getNode($id, $p)->getAttribute($attributes)
+                $this->_getNode($id, $p)->getAttributes($attributes)
             );
         
             return (new Response())->setCode(200)->setBody($result);
@@ -865,7 +753,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/parent?id=:id Get parent node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getParent
      * @apiGroup Node
      * @apiPermission none
@@ -913,7 +801,7 @@ class Node extends Controller
         $result = Helper::escape(
             $this->_getNode($id, $p)
                  ->getParent()
-                 ->getAttribute($attributes)
+                 ->getAttributes($attributes)
         );
         
         return (new Response())->setCode(200)->setBody($result);
@@ -922,7 +810,7 @@ class Node extends Controller
     
     /**
      * @api {get} /api/v1/node/parents?id=:id Get parent nodes
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getParents
      * @apiGroup Node
      * @apiPermission none
@@ -997,11 +885,11 @@ class Node extends Controller
         $result = [];
         
         if ($self === true && $request instanceof Collection) {
-            $result[] = $request->getAttribute($attributes);
+            $result[] = $request->getAttributes($attributes);
         }
         
         foreach ($parents as $node) {
-            $result[] = $node->getAttribute($attributes);
+            $result[] = $node->getAttributes($attributes);
         }
 
         $result = Helper::escape($result);
@@ -1011,7 +899,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/meta-attributes?id=:id Write meta attributes
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postMetaAttributes
      * @apiGroup Node
      * @apiPermission none
@@ -1047,7 +935,7 @@ class Node extends Controller
     
     /**
      * @api {post} /api/v1/node/name?id=:id Rename node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postName
      * @apiGroup Node
      * @apiPermission none
@@ -1080,7 +968,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/clone?id=:id Clone node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postClone
      * @apiGroup Node
      * @apiPermission none
@@ -1158,7 +1046,7 @@ class Node extends Controller
 
     /**
      * @api {post} /api/v1/node/move?id=:id Move node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postMove
      * @apiGroup Node
      * @apiPermission none
@@ -1250,7 +1138,7 @@ class Node extends Controller
 
     /**
      * @api {delete} /api/v1/node?id=:id Delete node
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName delete
      * @apiGroup Node
      * @apiPermission none
@@ -1341,7 +1229,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/query Custom query
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getQuery
      * @apiGroup Node
      * @apiPermission none
@@ -1382,7 +1270,7 @@ class Node extends Controller
         $nodes = $this->fs->findNodesWithCustomFilterUser($deleted, $filter);
         
         foreach ($nodes as $node) {
-            $child = Helper::escape($node->getAttribute($attributes));
+            $child = Helper::escape($node->getAttributes($attributes));
             $children[] = $child;
         }
         
@@ -1393,7 +1281,7 @@ class Node extends Controller
     /**
      * @api {get} /api/v1/node/trash Get trash
      * @apiName getTrash
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiGroup Node
      * @apiPermission none
      * @apiDescription A similar endpoint to /api/v1/node/query filer={'deleted': {$type: 9}] but instead returning all deleted
@@ -1431,7 +1319,7 @@ class Node extends Controller
             } catch (\Exception $e) {
             }
 
-            $child = Helper::escape($node->getAttribute($attributes));
+            $child = Helper::escape($node->getAttributes($attributes));
             $children[] = $child;
         }
         
@@ -1441,7 +1329,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/search Search
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getSearch
      * @apiGroup Node
      * @apiPermission none
@@ -1499,7 +1387,7 @@ class Node extends Controller
 
         foreach ($nodes as $node) {
             try {
-                $child = Helper::escape($node->getAttribute($attributes));
+                $child = Helper::escape($node->getAttributes($attributes));
                 $children[] = $child;
             } catch (\Exception $e) {
                 $this->logger->info('error occured during loading attributes, skip search result node', [
@@ -1515,7 +1403,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/delta Get delta
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getDelta
      * @apiGroup Node
      * @apiPermission none
@@ -1622,7 +1510,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/event-log?id=:id Event log
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getEventLog
      * @apiGroup Node
      * @apiPermission none
@@ -1737,7 +1625,7 @@ class Node extends Controller
 
     /**
      * @api {get} /api/v1/node/last-cursor Get last Cursor
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName geLastCursor
      * @apiGroup Node
      * @apiUse _getNode

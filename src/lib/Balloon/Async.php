@@ -161,7 +161,7 @@ class Async
                 }
 
                 $instance = new $job['class']((array)$job['data']);
-                $instance->run($server, $this->logger);
+                $instance->start($server, $this->logger);
                 $this->updateJob($job['_id'], true);
             } catch (\Exception $e) {
                 $this->logger->error("failed execute job [".$job['_id']."], failed with error", [

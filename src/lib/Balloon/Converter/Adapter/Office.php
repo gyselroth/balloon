@@ -9,9 +9,11 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Converter;
+namespace Balloon\Converter\Adapter;
 
 use \Balloon\Filesystem\Node\File;
+use \Balloon\Converter\Exception;
+use \Balloon\Converter\Result;
 
 class Office extends Imagick
 {
@@ -40,12 +42,31 @@ class Office extends Imagick
 
 
     /**
+     * Formats
+     *
+     * @var array
+     */
+    protected $formats = [
+        'spreadsheet' => [
+            'ods'  => 'application/vnd.oasis.opendocument.spreadsheet',
+            'fods' => 'application/vnd.oasis.opendocument.spreadsheet-flat-xml',
+            'xls'  => 'application/vnd.ms-excel',
+            'xlb'  => 'application/vnd.ms-excel',
+            'xlt'  => 'application/vnd.ms-excel',
+            'xlsb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+            'xlsm' => 'application/vnd.ms-excel.sheet.macroEnabled.12',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]
+    ];
+
+
+    /**
      * Set options
      *
      * @param  Iterable $config
-     * @return ConverterInterface
+     * @return AdapterInterface
      */
-    public function setOptions(Iterable $config=null): ConverterInterface
+    public function setOptions(Iterable $config=null): AdapterInterface
     {
         if($config === null) {
             return $this;
@@ -93,23 +114,52 @@ class Office extends Imagick
         if ($file->getSize() === 0) {
             return false;
         }
+        
+        foreach($this->formats as $type => $formats) {
+            if(in_array($file->getMime(), $formats)) {
+                return true;
+            }
+        }
 
-        //TODO: match office document
-        return true;
+        return false;
     }
 
-
+    
     /**
-     * Get thumbnail
+     * Get supported formats
      *
      * @param  File $file
-     * @return string
+     * @return array
      */
-    public function create(File $file): string
+    public function getSupportedFormats(File $file): array
+    {
+        foreach($this->formats as $type => $formats) {
+            if(in_array($file->getMime(), $formats)) {
+                $values = array_keys($formats);
+                return array_merge($values, parent::getSupportedFormats($file));
+            }
+        }
+    }
+    
+
+    /**
+     * Convert
+     *
+     * @param  File $file
+     * @param  string $format
+     * @return Result
+     */
+    public function convert(File $file, string $format): Result
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
+
+        if(in_array($format, parent::getSupportedFormats($file))) {
+            $convert = 'pdf';
+        } else {
+            $convert =  $format;
+        } 
 
         $command = "HOME=".escapeshellarg($this->tmp)." timeout ".escapeshellarg($this->timeout)." "
             .escapeshellarg($this->soffice)
@@ -120,27 +170,29 @@ class Office extends Imagick
             ." --nofirststartwizard"
             ." --nologo"
             ." --norestore"
-            ." --convert-to pdf"
+            ." --convert-to ".escapeshellarg($convert)
             ." --outdir ".escapeshellarg($this->tmp)
             ." ".escapeshellarg($source);
 
-        $this->logger->debug('convert file to pdf using ['.$command.']', [
+        $this->logger->debug('convert file to ['.$convert.'] using ['.$command.']', [
             'category' => get_class($this)
         ]);
 
-        $o = shell_exec($command);
-        $pdf = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.pdf';
+        shell_exec($command);
+        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$format;
 
-        if (!file_exists($pdf)) {
-            throw new Exception('failed convert office file to pdf');
+        if (!file_exists($temp)) {
+            throw new Exception('failed convert document into '.$convert);
         } else {
-            $this->logger->info('pdf file ['.$pdf.'] created', [
+            $this->logger->info('converted document into ['.$convert.']', [
                 'category' => get_class($this),
             ]);
-                        
-            $return = $this->createFromFile($pdf);
-            unlink($pdf);
-            return $return;
+                                    
+            if($convert === 'pdf' && $format !== 'pdf') {
+                return $this->createFromFile($temp);
+            } else {
+                return new Result($temp);
+            }
         }
     }
 }

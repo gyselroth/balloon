@@ -9,11 +9,11 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Converter;
+namespace Balloon\Converter\Adapter;
 
 use \Psr\Log\LoggerInterface as Logger;
 
-class AbstractConverter implements ConverterInterface
+abstract class AbstractAdapter implements AdapterInterface
 {
     /**
      * Logger
