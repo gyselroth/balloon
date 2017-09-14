@@ -32,27 +32,50 @@ class Job extends AbstractJob
             'category' => get_class($this),
         ]);
         
-        $result = $server->getApp()
-            ->getApp('Balloon.App.Convert')
-            ->getConverter()
+        $app = $server->getApp()
+            ->getApp('Balloon.App.Convert');
+
+        $result = $app->getConverter()
             ->convert($file, $this->data['format']);
 
         $file->setFilesystem($server->getUserById($file->getOwner())->getFilesystem());
 
-        $name = $file->getName().'.'.$this->data['format']; 
-        
         try {
-            $file->getParent()->getChild($name)->put($result->getPath());
+            $shadows = $file->getAppAttribute($app, 'shadows');
+            if(is_array($shadows) && isset($shadows[$this->data['format']])) {
+                $shadow = $file->getFilesystem()->findNodeWithId($shadows[$format]);
+                $shadow->put($result->getPath());
+                return true;
+            }
 
         } catch(\Exception $e) {
-            $logger->debug('create non existing shadow node ['.$this->data['id'].']', [
-                'category' => get_class($this)
-            ]);
-        
-            $file->getParent()->createFile($file->getName().'.'.$this->data['format'], $result->getPath(), [
-                'owner' => $file->getOwner()
+            $logger->debug('referenced shadow node ['.$shadows[$this->data['format']].'] does not exists or is not accessible', [
+                'category' => get_class($this),
+                'exception'=> $e
             ]);
         }
+
+        $logger->debug('create non existing shadow node for ['.$this->data['id'].']', [
+            'category' => get_class($this)
+        ]);
+       
+        try {
+            $name = substr($file->getName(), -strlen($file->getExtension()));
+            $name .= $this->data['format']; 
+        } catch(\Exception $e) {
+            $name = $file->getName().'.'.$this->data['format']; 
+        }
+        
+        $shadow = $file->getParent()->createFile($name, $result->getPath(), [
+            'owner' => $file->getOwner(),
+            'app'   => [
+                $app->getName() => [
+                    'master' => $file->getId()
+                ]
+            ]
+        ]);
+
+        $file->setAppAttribute($app, 'shadows.'.$this->data['format'], $shadow->getId());
 
         return true;
     }

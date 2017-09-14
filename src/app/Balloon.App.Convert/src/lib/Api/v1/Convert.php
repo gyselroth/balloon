@@ -67,7 +67,7 @@ class Convert extends Controller
     {
         $file = $this->fs->getNode($id, $p, 'File');
         $app = $this->server->getApp()->getApp('Balloon.App.Convert');
-        $shadow = $file->getAppAttribute($app, 'shadow');
+        $shadow = $file->getAppAttribute($app, 'formats');
 
         return (new Response())->setCode(200)->setBody((array)$shadow); 
     }
@@ -79,7 +79,7 @@ class Convert extends Controller
         $converter = $app->getConverter();
         $supported = $converter->getSupportedFormats($file); 
 
-        $shadow = $file->getAppAttribute($app, 'shadow');
+        $shadow = $file->getAppAttribute($app, 'formats');
         if($shadow === null) {
             $shadow = [];
         }
@@ -96,7 +96,7 @@ class Convert extends Controller
             ]));
         }
         
-        $file->setAppAttribute($app, 'shadow', $formats);
+        $file->setAppAttribute($app, 'formats', $formats);
         return (new Response())->setCode(204);
     }
     

@@ -56,6 +56,7 @@ class Office extends Imagick
             'xlsb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
             'xlsm' => 'application/vnd.ms-excel.sheet.macroEnabled.12',
             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'csv'  => 'text/csv'
         ]
     ];
 

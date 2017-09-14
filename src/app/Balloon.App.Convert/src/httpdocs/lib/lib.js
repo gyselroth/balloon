@@ -8,21 +8,21 @@
 balloon.apps['Balloon.App.Shadow'] = {
     render: function() {
         var $node = $('<li id="fs-view-shadow" style="display: inline-block;" class="fs-view-bar-active">'
-                +'<span data-i18n="app.Balloon.App.Shadow.menu_title">w</span>'
+                +'<span data-i18n="app.balloon_app_shadow.menu_title"></span>'
             +'</li>');
         
         $('#fs-view-bar').find('ul').append($node);
         balloon.apps['Balloon.App.Shadow'].$menu = $node;
 
         var $view = $('<div id="fs-shadow" class="fs-view-content">'
-                +'<div id="fs-shadow-description">Hello world</div>'
-                +'<div id="fs-shadow-not-supported">Not</div>'
+                +'<div id="fs-shadow-description" data-i18n="app.balloon_app_shadow.description"></div>'
+                +'<div id="fs-shadow-not-supported" data-i18n="app.balloon_app_shadow.not_supported"></div>'
                 +'<select name="formats">'
-                    +'<option>Choose</option>'
+                    +'<option data-i18n="app.balloon_app_shadow.choose_format"></option>'
                 +'</select>'
                 +'<span class="k-sprite fs-i-add fs-icon"></span>'
                 +'<ul></ul>'
-                +'<input type="submit" name="save"/>'
+                +'<input type="submit" data-i18n="[value]button.save" name="save"/>'
             +'</div>');
 
         $('#fs-content-data').append($view);
@@ -34,18 +34,17 @@ balloon.apps['Balloon.App.Shadow'] = {
     },
 
     resetView: function() {
-        balloon.apps['Balloon.App.Shadow'].$view.find('li,option[value]').remove();
+        balloon.apps['Balloon.App.Shadow'].$view.find('li, option[value]').remove();
         balloon.apps['Balloon.App.Shadow'].$view.find('.fs-shadow-not-supported').hide();
     },
 
     selectNode: function() {
-        balloon.apps['Balloon.App.Shadow'].resetView();
-
         if(balloon.last.directory || balloon.last.deleted) {
             return;
         }
         
         balloon.apps['Balloon.App.Shadow'].$menu.show().unbind('click').bind('click', function(){
+            balloon.apps['Balloon.App.Shadow'].resetView();
             $('.fs-view-content').hide();
             balloon.apps['Balloon.App.Shadow'].$view.show();
             balloon.apps['Balloon.App.Shadow'].loadShadows(balloon.last);

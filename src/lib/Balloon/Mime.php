@@ -24,43 +24,14 @@ class Mime
 
     
     /**
-     * Mimes from extension
-     *
-     * @var array
-     */
-    protected $extension = [
-        'application/zip',
-        'application/vnd.ms-office',
-        'application/octet-stream'
-    ];
-
-    
-    /**
-     * Path
-     *
-     * @var string
-     */
-    protected $path;
-
-
-    /**
-     * Name
-     *
-     * @var string
-     */
-    protected $name;
-
-
-    /**
      * Set path
      *
-     * @param  string $path
+     * @param  Iterable $config
      * @return void
      */
-    public function __construct(string $path, string $name)
+    public function __construct(?Iterable $config=null)
     {
-        $this->path = $path;
-        $this->name = $name;
+        $this->setOptions($config);
     }
 
 
@@ -81,10 +52,6 @@ class Mime
                 case 'db':
                     $this->db = (string)$value;
                 break;
-                        
-                case 'mime':
-                    $this->mime = (array)$value;
-                break;
             }
         }
 
@@ -95,21 +62,17 @@ class Mime
     /**
      * Get mime
      *
+     * @param  string $path
+     * @param  string $name
      * @return string
      */      
-    public function getMime(): string
+    public function getMime(string $path, string $name): string
     {
-        $mime = $this->getMimeFromContents();
-
         try {
-            if (in_array($mime, $this->extension)) {
-                return $this->getMimeTypeFromExtension();
-            }
+            return $this->getMimeTypeFromExtension($name);
         } catch(\Exception $e) {
-            return $mime;
+            return $this->getMimeFromContents($path);
         }
-
-        return $mime;
     }
     
     
@@ -118,10 +81,10 @@ class Mime
      *
      * @return string
      */      
-    public function getMimeFromContents(): string
+    public function getMimeFromContents(string $path): string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime  = finfo_file($finfo, $this->path);
+        $mime  = finfo_file($finfo, $path);
         return $mime;
     }
 
@@ -129,17 +92,18 @@ class Mime
     /**
      * Get mimetype with string (file has not to be exists)
      *
+     * @param  string $name
      * @return string
      */
-    public function getMimeTypeFromExtension(): string
+    public function getMimeTypeFromExtension(string $name): string
     {
         if (!is_readable($this->db)) {
             throw new Exception('mime database '.$this->db.' was not found or is not readable');
         }
 
-        $fileext = substr(strrchr($this->name, '.'), 1);
+        $fileext = substr(strrchr($name, '.'), 1);
         if (empty($fileext)) {
-            throw new Exception('no file extension given');
+            throw new Exception('file name given contains no extension given');
         }
 
         $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";

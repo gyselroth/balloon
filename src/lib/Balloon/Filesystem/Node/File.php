@@ -846,7 +846,7 @@ class File extends AbstractNode implements DAV\IFile
         if (isset($attributes['mime'])) {
             $this->mime = $attributes['mime'];
         } elseif ($file !== null) {
-            $this->mime = (new Mime($file, $this->name))->getMime();
+            $this->mime = (new Mime())->getMime($file, $this->name);
         }
        
         //Remove tmp file

@@ -102,6 +102,9 @@
     "second": "{{count}} Sekunde",
     "second_plural": "{{count}} Sekunden"
   },
+  "button": {
+    "save": "Speichern"
+  },
   "view": {
     "prop": {
       "head": {
@@ -134,7 +137,6 @@
       }
     },
     "preview": {
-      "save": "Speichern",
       "failed": "Die Vorschau konnte nicht erstellt werden"
     },
     "share": {
@@ -171,7 +173,6 @@
       "changed_since": "Vor %s (%s)"
     },
     "advanced": {
-      "save": "Speichern",
       "destroyable": "Selbstzerstörung: (Die Datei/Ordner wird sich, nachdem die angegebene Datum/Zeit abgelaufen ist, selber löschen (Nicht wiederherstellbar!)):",
       "prompt_destroy": "Möchtest du wirklich, dass am %s die die Datei/Ordner %s gelöscht wird?",
       "readonly": "Nur lesen: (Der Inhalt kann nicht geändert werden, aber Metadaten können weiterhin gesetzt werden):"
