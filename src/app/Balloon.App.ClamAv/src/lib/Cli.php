@@ -11,6 +11,7 @@ namespace Balloon\App\ClamAv;
 
 use \Balloon\Filesystem\Node\File;
 use \Balloon\App\AbstractApp;
+use \Balloon\App\AppInterface;
 
 class Cli extends AbstractApp
 {
