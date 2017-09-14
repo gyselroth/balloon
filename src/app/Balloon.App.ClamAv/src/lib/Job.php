@@ -30,7 +30,14 @@ class Job extends AbstractJob
             'category' => get_class($this),
         ]);
 
-        $result = $server->getApp()->getApp('Balloon.App.ClamAv')->scan($file);
+        try {
+          $result = $server->getApp()->getApp('Balloon.App.ClamAv')->scan($file);
+        } catch (Exception $e) {
+          $logger->error($e->getMessage(), [
+              'category' => get_class($this),
+          ]);
+          return false;
+        }
 
         if ($result === 0) {
             $file->delete(true);

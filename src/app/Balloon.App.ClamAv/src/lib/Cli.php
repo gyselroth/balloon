@@ -78,29 +78,37 @@ class Cli extends AbstractApp
         if ($file->getSize() > $this->maxStreamSize) {
             throw new Exception('file size of ' . $file->getSize() . ' exceeds stream size (' . $this->maxStreamSize . ')');
         }
-        // Create a new socket instance
-        // TODO: read socket from config
-        $socket = (new \Socket\Raw\Factory())->createClient($this->socket);
 
-        // Create a new instance of the Client
-        $quahog = new \Xenolope\Quahog\Client($socket, 30, PHP_NORMAL_READ);
-
-        // Scan file
-        $result = $quahog->scanResourceStream($file->get());
-
-        $this->logger->debug('scan result for file ' . $file->getId() . ': ' . $result, [
-            'category' => get_class($this)
-        ]);
-
-        $result = explode(' ', $result);
-
-        if (end($result) === 'OK') {
-            return self::FILE_OK;
-        }
-        if (end($result) === 'FOUND') {
-            return self::FILE_INFECTED;
+        try {
+            // Create a new socket instance
+            $socket = (new \Socket\Raw\Factory())->createClient($this->socket);
+        } catch (Exception $e) {
+            throw new Exception('scan of file ' . $file->getId() . ' failed: ' . $e->getMessage());
         }
 
-        throw new Exception('scan of file ' . $file->getId() . ' failed');
+        try {
+            // Create a new instance of the Client
+            $quahog = new \Xenolope\Quahog\Client($socket, 30, PHP_NORMAL_READ);
+
+            // Scan file
+            $result = $quahog->scanResourceStream($file->get());
+
+            $this->logger->debug('scan result for file ' . $file->getId() . ': ' . $result['status'], [
+                'category' => get_class($this)
+            ]);
+
+            if ($result['status'] === 'OK') {
+                return self::FILE_OK;
+            }
+            if ($result['status'] === 'FOUND') {
+                $this->logger->debug('file ' . $file->getId() . ' is infected (' . $result['reason'] . ')', [
+                    'category' => get_class($this)
+                ]);
+                return self::FILE_INFECTED;
+            }
+        } catch (Xenolope\Quahog\Exception\ConnectionException $e) {
+            throw new Exception('scan of file ' . $file->getId() . ' failed: ' . $e->getMessage());
+        }
+        throw new Exception('scan of file ' . $file->getId() . ' failed: status=' . $result['status'] . ', reason=' . $result['reason']);
     }
 }
