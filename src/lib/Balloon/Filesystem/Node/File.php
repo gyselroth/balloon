@@ -19,6 +19,7 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
+use \Balloon\Mime;
 
 class File extends AbstractNode implements DAV\IFile
 {
@@ -720,16 +721,6 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Unzip zip
-     *
-     * @return bool
-     */
-    public function unzip(): bool
-    {
-    }
-
-
-    /**
      * Change content
      *
      * @param   resource|string $file
@@ -855,11 +846,7 @@ class File extends AbstractNode implements DAV\IFile
         if (isset($attributes['mime'])) {
             $this->mime = $attributes['mime'];
         } elseif ($file !== null) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $this->mime  = finfo_file($finfo, $file);
-            if ($this->mime == 'application/zip' || $this->mime == 'application/vnd.ms-office') {
-                $this->mime = $this->getMimeTypeFromExtension($this->name);
-            }
+            $this->mime = (new Mime($file, $this->name))->getMime();
         }
        
         //Remove tmp file
@@ -939,41 +926,6 @@ class File extends AbstractNode implements DAV\IFile
     
             throw $e;
         }
-    }
-
-
-    /**
-     * Get mimetype with string (file has not to be exists)
-     *
-     * @param  string $filename
-     * @param  string $db mimetypes
-     * @return string
-     */
-    public function getMimeTypeFromExtension(string $filename, string $db='/etc/mime.types'): string
-    {
-        if (!is_readable($db)) {
-            throw new Exception('mime database '.$db.' was not found or is not readable');
-        }
-
-        $fileext = substr(strrchr($filename, '.'), 1);
-        if (empty($fileext)) {
-            return (false);
-        }
-        $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";
-        $lines = file($db);
-
-        foreach ($lines as $line) {
-            if (substr($line, 0, 1) == '#') {
-                continue;
-            } // skip comments
-            $line = rtrim($line) . " ";
-            if (!preg_match($regex, $line, $matches)) {
-                continue;
-            } // no match to the extension
-            return $matches[1];
-        }
-    
-        return false; // no match at all
     }
 
 

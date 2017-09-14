@@ -21,7 +21,7 @@ use \Balloon\Server;
 use \Composer\Autoload\ClassLoader as Composer;
 use \MongoDB\Client;
 use \Micro\Log\Adapter\File;
-
+use \ErrorException;
 
 abstract class AbstractBootstrap
 {
@@ -242,34 +242,31 @@ abstract class AbstractBootstrap
      */
     protected function setErrorHandler(): AbstractBootstrap
     {
-        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-            $msg = $errstr." in ".$errfile.":".$errline;
+        set_error_handler(function ($severity, $message, $file, $line) {
+            $log = $message." in ".$file.":".$line;
             switch ($errno) {
                 case E_ERROR:
                 case E_USER_ERROR:
-                    $this->logger->error($msg, [
+                    $this->logger->error($log, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Internal::ERROR;
                 break;
             
                 case E_WARNING:
                 case E_USER_WARNING:
-                    $this->logger->warning($msg, [
+                    $this->logger->warning($log, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Internal::WARNING;
                 break;
             
                 default:
-                    $this->logger->debug($msg, [
+                    $this->logger->debug($log, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Internal::DEBUG;
                 break;
             }
 
-            throw new Exception\Internal($errstr, $code);
+            throw new ErrorException($message, 0, $severity, $file, $line);
         });
 
         return $this;

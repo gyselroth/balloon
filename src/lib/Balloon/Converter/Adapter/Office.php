@@ -179,7 +179,7 @@ class Office extends Imagick
         ]);
 
         shell_exec($command);
-        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$format;
+        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$convert;
 
         if (!file_exists($temp)) {
             throw new Exception('failed convert document into '.$convert);
@@ -189,7 +189,7 @@ class Office extends Imagick
             ]);
                                     
             if($convert === 'pdf' && $format !== 'pdf') {
-                return $this->createFromFile($temp);
+                return $this->createFromFile($temp, $format);
             } else {
                 return new Result($temp);
             }
