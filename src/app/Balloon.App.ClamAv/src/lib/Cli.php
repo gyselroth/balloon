@@ -82,8 +82,8 @@ class Cli extends AbstractApp
         try {
             // Create a new socket instance
             $socket = (new \Socket\Raw\Factory())->createClient($this->socket);
-        } catch (Exception $e) {
-            throw new Exception('scan of file ' . $file->getId() . ' failed: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            throw new Exception('scan of file [' . $file->getId() . '] failed: ' . $e->getMessage());
         }
 
         try {
@@ -93,7 +93,7 @@ class Cli extends AbstractApp
             // Scan file
             $result = $quahog->scanResourceStream($file->get());
 
-            $this->logger->debug('scan result for file ' . $file->getId() . ': ' . $result['status'], [
+            $this->logger->debug('scan result for file [' . $file->getId() . ']: ' . $result['status'], [
                 'category' => get_class($this)
             ]);
 
@@ -101,14 +101,14 @@ class Cli extends AbstractApp
                 return self::FILE_OK;
             }
             if ($result['status'] === 'FOUND') {
-                $this->logger->debug('file ' . $file->getId() . ' is infected (' . $result['reason'] . ')', [
+                $this->logger->debug('file [' . $file->getId() . '] is infected (' . $result['reason'] . ')', [
                     'category' => get_class($this)
                 ]);
                 return self::FILE_INFECTED;
             }
         } catch (Xenolope\Quahog\Exception\ConnectionException $e) {
-            throw new Exception('scan of file ' . $file->getId() . ' failed: ' . $e->getMessage());
+            throw new Exception('scan of file [' . $file->getId() . '] failed: ' . $e->getMessage());
         }
-        throw new Exception('scan of file ' . $file->getId() . ' failed: status=' . $result['status'] . ', reason=' . $result['reason']);
+        throw new Exception('scan of file [' . $file->getId() . '] failed: status=' . $result['status'] . ', reason=' . $result['reason']);
     }
 }
