@@ -29,7 +29,7 @@ class Hook extends AbstractHook
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
-        $queue = $node->getFilesystem()->getQueue();
+        $queue = $node->getFilesystem()->getServer()->getAsync();
         $queue->addJob(new Job([
             'file' => $node
         ]));
