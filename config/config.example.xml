@@ -12,14 +12,14 @@
     </mongodb>
 
   <!--
-    - Apps (Extensions) 
+    - Apps (Extensions)
     -
     - Balloon is easly extendable, just add  a new app here.
     - Apps get injected in the given order.
     -
     - apps[].enabled: [1|0]
     - apps[].class: app bootstrap class
-    - apps[].confog[]: app specific configurations 
+    - apps[].confog[]: app specific configurations
     -->
     <apps>
         <Api enabled="1" class="\Balloon\App\Api">
@@ -32,8 +32,8 @@
 
         <Sharelink enabled="1" class="\Balloon\App\Sharelink">
             <config/>
-        </Sharelink> 
-                
+        </Sharelink>
+
         <pdfshadow enabled="1" class="\Balloon\App\PdfShadow">
             <config>
                 <max_size>300</max_size>
@@ -42,26 +42,30 @@
                 <soffice>/usr/bin/soffice</soffice>
             </config>
         </pdfshadow>
-    
+
         <elasticsearch enabled="1" class="\Balloon\App\Elasticsearch">
             <config>
                 <hosts>
                     <server>http://localhost:9200</server>
                 </hosts>
-                <index>balloon</index> 
+                <index>balloon</index>
             </config>
         </elasticsearch>
 
+        <ClamAv enabled="0" class="\Balloon\App\ClamAv">
+            <config/>
+        </ClamAv>
+
       <!--
         - Preview generator
-        - 
+        -
         - This plugin automatically creates previews of new or changed files.
         -->
         <preview enabled="1" class="\Balloon\App\Preview">
             <config>
                 <imagick class="\Balloon\Preview\Imagick">
                     <config>
-                        <max_size>300</max_size> 
+                        <max_size>300</max_size>
                     </config>
                 </imagick>
                 <office class="\Balloon\Preview\Office">
@@ -77,7 +81,7 @@
 
       <!--
         - Mail notifications
-        - 
+        -
         - Its possible with this plugin to send mail notifications after certain events happened.
         -->
         <notify enabled="1" class="\Balloon\App\Notification">
@@ -93,14 +97,14 @@
                             </sender>
                         </config>
                     </new_share>
-                </notifications>            
+                </notifications>
             </config>
         </notify>
 
       <!--
         - Auto node destroyer
-        - 
-        - This plugin automatically removed node with an expired destroy timestamp. 
+        -
+        - This plugin automatically removed node with an expired destroy timestamp.
         - Usually this plugin is disabled in this configuration but enabled in cli.xml.
         - This plugin has no configuration options.
         -->
@@ -110,7 +114,7 @@
 
       <!--
         - Delta
-        - 
+        -
         - This plugin is used to log all user events (also required if you need the delta API endpoint).
         - This plugin has no configuration options.
         -->
@@ -120,7 +124,7 @@
 
       <!--
         - Temp directory cleaner
-      
+
         - plugin[].config.dir: The temorary directory to clean up (usually the same as dir.temp)
         - plugin[].config.force_check_owner: UID of the webserver owner (Will only remove files which match this configured owner)
         - plugin[].config.max_age: Files older than than max_age in seconds will be removed
@@ -135,7 +139,7 @@
 
       <!--
         - Auto trash cleaner
-        - 
+        -
         - plugin[].config.max_age: After how many secconds a deleted node gets removed completely
         -->
         <clean_trash enabled="0" class="\Balloon\App\CleanTrash">
@@ -143,7 +147,7 @@
                 <max_age>2592000</max_age>
             </config>
         </clean_trash>
-      
+
         <!--
         - Initial user attributes (Auto create user)
         -
@@ -164,7 +168,7 @@
         - Auto shares from LDAP
         -
         - You can automatically create shares based on ldap groups&membership.
-        - 
+        -
         - plugin[].config.ldap.host : LDAP connection URI
         - plugin[].config.ldap.port : LDAP port
         - plugin[].config.ldap.basedn : LDAP basedn
@@ -177,7 +181,7 @@
         - plugin[].config.shares[].share_owner : The owner for the automatic share (Could be any username or just SYSTEM)
         - plugin[].config.shares[].subfolder_attr : Shares will be grouped under a automatic subfolder (For example this could be the attribute "organization")
         - plugin[].config.shares[].acl[].type : ACL rule type
-        -     user => the acl rule is user based 
+        -     user => the acl rule is user based
         -     group => the acl rule is group based
         -  plugin[].config.shares[].acl[].priv : ACL privilege for share members
         -     r => Read-Only access
@@ -223,7 +227,7 @@
                         <share_name>cn</share_name>
                     </share1>
                 </shares>
-            </config>    
+            </config>
         </auto_share>
     </apps>
 
@@ -275,26 +279,26 @@
                 <level>3</level>
             </config>
         </file>
-        
+
       <!--
         - Stdout output
         -
         - This log adapter sends log messages to stdout (Usually only useful for cli)
         -->
-        <stdout enabled="0" class="\Micro\Log\Adapter\Stdout">  
+        <stdout enabled="0" class="\Micro\Log\Adapter\Stdout">
             <config>
                 <date_format>Y-d-m H:i:s</date_format>
                 <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
                 <level>3</level>
             </config>
         </stdout>
-        
+
       <!--
         - Syslog
         -
         - This log adapter sends log messages to syslog.
         -->
-        <syslog enabled="0" class="\Micro\Log\Adapter\Syslog">  
+        <syslog enabled="0" class="\Micro\Log\Adapter\Syslog">
             <config>
                 <date_format>Y-d-m H:i:s</date_format>
                 <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
@@ -312,7 +316,7 @@
     <dir>
         <temp>/tmp/balloon</temp>
     </dir>
-    
+
   <!--
     - File options
     -
@@ -326,7 +330,7 @@
 
   <!--
     - Authentication
-    - 
+    -
     - auth.adapter[].enabled: [1|0]
     - auth.adapter[].class: The authentication class
     -    \Balloon\Auth\Adapter\Basic\Db: Local user stored in MongoDB
@@ -376,7 +380,7 @@
                     <attr_sync_cache>3600</attr_sync_cache>
                 </config>
             </preauth>
-          
+
           <!--
             - Authenticate via LDAP
             -
@@ -391,10 +395,10 @@
             - auth.adapter[].config.ldap.attr_sync_cache: After how many secconds the attributes in the db get synchronised with those from LDAP
             - auth.adapter[].config.ldap.account_filter: LDAP filter which is used to find the user object (%s gets replaced with the username)
             - auth.adapter[].config.ldap.map[] : Map LDAP user attributes to balloon user attributes
-            -    Examples:  
+            -    Examples:
             -        <groups type="array" attr="memberof"/> groups is the balloon attribute name and memberof the ldap one
             -        <hard_quota type="int" attr="balloonhardquota"/> hard_qutoa is the balloon attribute name and balloonhardquota the ldap one (custom ldap attribute)
-            -    
+            -
             -    Balloon operational attributes (You can map other attributes as well but the following have operational effects):
             -        soft_quota : soft user quota,
             -        hard_qutoa : hard user quota
@@ -415,13 +419,13 @@
                         <options>
                             <option attr="LDAP_OPT_PROTOCOL_VERSION" value="3"/>
                         </options>
-                    </ldap>        
+                    </ldap>
                     <account_filter>(uid=%s)</account_filter>
                     <attr_sync_cache>3600</attr_sync_cache>
 
                   <!--
                     - LDAP share resources
-                    - 
+                    -
                     . Besides finding local users/groups you can define ldap resoures. If you share a node
                     - you will be able to find users which exists not only in the db but on an LDAP Server as well.
                     -
@@ -432,8 +436,8 @@
                     -
                     - If an attribute mapping named "namespace" exists and the authenticated user has this attribute, another basedn could be used
                     - for searching acl roles.
-                    -    
-                    - Example: 
+                    -
+                    - Example:
                     - There are multiple subtrees in an ldap DIT like:
                     -    o=firm1,dc=example,dc=org
                     -    o=firm2,dc=example,dc=org
@@ -444,7 +448,7 @@
                     -
                     - Now you can create an attribute mapping:
                     -    <namespace type="string" attr="o"/>
-                    - 
+                    -
                     - And create a basedn which includes this namespace (Attention, use the basedn configuration under </search>!):
                     -    <basedn>o=%s,dc=example,dc=org</basedn>
                     -->
