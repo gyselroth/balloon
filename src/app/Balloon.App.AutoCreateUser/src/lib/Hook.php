@@ -63,12 +63,12 @@ class Hook extends AbstractHook
             return;
         }
 
-        $this->logger->info('found first time username ['.$identity->getIdentitfier().'], auto-create user in mongodb user collection', [
+        $this->logger->info('found first time username ['.$identity->getIdentifier().'], auto-create user in mongodb user collection', [
              'category' => get_class($this)
         ]);
 
         $attributes = [
-            'username'   => $identity->getIdentitfier(),
+            'username'   => $identity->getIdentifier(),
             'created'    => new UTCDateTime,
             'deleted'    => false,
         ];
