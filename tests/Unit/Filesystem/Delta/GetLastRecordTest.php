@@ -6,7 +6,6 @@ use \Balloon\Testsuite\Unit\Test;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 
 class GetLastRecordTest extends Test
 {
@@ -16,7 +15,7 @@ class GetLastRecordTest extends Test
     public function setUp()
     {
         $server = self::setupMockServer();
-        $this->fs = new \Balloon\Filesystem($server, $server->getLogger());
+        $this->fs = $server->getFilesystem();
         $this->delta = new Delta($this->fs);
     }
 
@@ -34,20 +33,19 @@ class GetLastRecordTest extends Test
         $this->delta->add($data);
 
         // get record
-        $fromDelta = $this->delta->getLastRecord();
-        $this->assertTrue($this->looseCompareBSON($fromDelta, new BSONDocument($data), ['_id']));
+        $from_delta = $this->delta->getLastRecord();
+        $this->assertEquals($data['name'], $from_delta['name']);
     }
 
     public function testGetEmpty()
     {
         // get record
-        $fromDelta = $this->delta->getLastRecord();
-        $this->assertNull($fromDelta);
+        $from_delta = $this->delta->getLastRecord();
+        $this->assertNull($from_delta);
     }
 
     public function testGetLastRecord()
     {
-        // fixture
         $data = [
             [
                 'owner' => $this->fs->getUser()->getId(),
@@ -62,17 +60,12 @@ class GetLastRecordTest extends Test
             ]
         ];
 
-        // verify comparsion function
-        $this->assertFalse(self::looseCompareBSON(new BSONDocument($data[0]), new BSONDocument($data[1]), ['_id']));
-
-        // create records
         foreach ($data as $record) {
             $this->delta->add($record);
         }
 
-        // get record
-        $fromDelta = $this->delta->getLastRecord();
-        $this->assertTrue(self::looseCompareBSON($fromDelta, new BSONDocument($data[1]), ['_id']));
+        $from_delta = $this->delta->getLastRecord();
+        $this->assertEquals($from_delta['name'], $data[1]['name']);
     }
 
     // public function testGetCollectionRecord()
@@ -114,32 +107,8 @@ class GetLastRecordTest extends Test
     //     var_dump("0 " . $data[0]['node']->getId());
     //     var_dump("1 " . $data[1]['node']->getId());
     //     // get record
-    //     $fromDelta = $this->delta->getLastRecord($data[0]['node']);
-    //     var_dump($fromDelta['operation']);
-    //     $this->assertTrue(self::looseCompareBSON($fromDelta, new BSONDocument($data[0]), ['_id', 'node']));
+    //     $from_delta = $this->delta->getLastRecord($data[0]['node']);
+    //     var_dump($from_delta['operation']);
+    //     $this->assertTrue(self::looseCompareBSON($from_delta, new BSONDocument($data[0]), ['_id', 'node']));
     // }
-
-    protected static function looseCompareBSON(BSONDocument $docA, BSONDocument $docB, array $ignoreFields = []) : bool
-    {
-        if ($docA === $docB) {
-            return true;
-        }
-        if ($docA == $docB) {
-            return true;
-        }
-        if (empty($ignoreFields)) {
-            return false;
-        }
-
-        foreach (get_object_vars($docA) as $key => $value) {
-            if (in_array($key, $ignoreFields)) {
-                continue;
-            }
-            if ($docA->$key != $docB->$key) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }
