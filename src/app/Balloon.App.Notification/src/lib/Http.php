@@ -12,6 +12,7 @@ namespace Balloon\App\Notification;
 use \Balloon\Filesystem;
 use \Balloon\Http\Router\Route;
 use \Balloon\App\AbstractApp;
+use \Balloon\App\Notification\Hook;
 
 class Http extends AbstractApp
 {
@@ -22,7 +23,6 @@ class Http extends AbstractApp
      */
     public function init(): bool
     {
-        $this->server->getHook()->registerHook('\Balloon\App\Notification\Hook', null);
-        return true;
+        return $this->server->getHook()->registerHook(Hook::class);
     }
 }

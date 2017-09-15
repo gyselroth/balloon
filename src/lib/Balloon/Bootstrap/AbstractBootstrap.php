@@ -21,7 +21,7 @@ use \Balloon\Server;
 use \Composer\Autoload\ClassLoader as Composer;
 use \MongoDB\Client;
 use \Micro\Log\Adapter\File;
-
+use \ErrorException;
 
 abstract class AbstractBootstrap
 {
@@ -137,18 +137,18 @@ abstract class AbstractBootstrap
      * @var Iterable
      */
     protected $option_app = [
-        'Api'           => ['class' => '\\Balloon\\App\\Api'],
-        'AutoCreateUser'=> ['class' => '\\Balloon\\App\\AutoCreateUser'],
-        'AutoDestroy'   => ['class' => '\\Balloon\\App\\AutoDestroy'],
-        'CleanTemp'     => ['class' => '\\Balloon\\App\CleanTemp'],
-        'CleanTrash'    => ['class' => '\\Balloon\\App\\CleanTrash'],
-        'Delta'         => ['class' => '\\Balloon\\App\\Delta'],
-        'Notification'  => ['class' => '\\Balloon\\App\\Notification'],
-        'PdfShadow'     => ['class' => '\\Balloon\\App\\PdfShadow'],
-        'Preview'       => ['class' => '\\Balloon\\App\\Preview'],
-        'Sharelink'     => ['class' => '\\Balloon\\App\\ShareLink'],
-        'Webdav'        => ['class' => '\\Balloon\\App\\Webdav'],
-        'Elasticsearch' => ['class' => '\\Balloon\\App\\Elasticsearch'],
+        'Balloon.App.Api'           => [],
+        'Balloon.App.AutoCreateUser'=> [],
+        'Balloon.App.AutoDestroy'   => [],
+        'Balloon.App.CleanTemp'     => [],
+        'Balloon.App.CleanTrash'    => [],
+        'Balloon.App.Delta'         => [],
+        'Balloon.App.Notification'  => [],
+        'Balloon.App.Convert'       => [],
+        'Balloon.App.Preview'       => [],
+        'Balloon.App.Sharelink'     => [],
+        'Balloon.App.Webdav'        => [],
+        'Balloon.App.Elasticsearch' => [],
     ];
 
 
@@ -182,11 +182,17 @@ abstract class AbstractBootstrap
             'category' => get_class($this),
         ]);
 
-        $client = new Client($this->option_mongodb);
+        $client = new Client($this->option_mongodb, [], [
+            'typeMap' => [
+                'root' => 'array', 
+                'document' => 'array', 
+                'array' => 'array'
+            ]
+        ]);
+        
         $this->db = $client->{$this->option_mongodb_db};
-        $this->async = new Async($this->db, $this->logger, $this->config);
+        $this->async = new Async($this->db, $this->logger);
         $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);
-        $this->fs = new Filesystem($this->server, $this->logger);
         
         return true;
     }
@@ -214,8 +220,10 @@ abstract class AbstractBootstrap
                         $this->option_mongodb_db = $value->db;
                     }
                     break;
-                case 'apps':
-                    $this->option_apps = $value;
+                case 'app':
+                    foreach($value as $app => $options) {
+                        $this->option_app[$app] = $options;
+                    }
                     break;
                 case 'log':
                     $this->option_log = $value;
@@ -234,34 +242,31 @@ abstract class AbstractBootstrap
      */
     protected function setErrorHandler(): AbstractBootstrap
     {
-        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-            $msg = $errstr." in ".$errfile.":".$errline;
+        set_error_handler(function ($severity, $message, $file, $line) {
+            $log = $message." in ".$file.":".$line;
             switch ($errno) {
                 case E_ERROR:
                 case E_USER_ERROR:
-                    $this->logger->error($msg, [
+                    $this->logger->error($log, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Internal::ERROR;
                 break;
             
                 case E_WARNING:
                 case E_USER_WARNING:
-                    $this->logger->warning($msg, [
+                    $this->logger->warning($log, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Internal::WARNING;
                 break;
             
                 default:
-                    $this->logger->debug($msg, [
+                    $this->logger->debug($log, [
                         'category' => get_class($this)
                     ]);
-                    $code = Exception\Internal::DEBUG;
                 break;
             }
 
-            throw new Exception\Internal($errstr, $code);
+            throw new ErrorException($message, 0, $severity, $file, $line);
         });
 
         return $this;

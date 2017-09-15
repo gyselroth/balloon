@@ -15,12 +15,12 @@ use \Balloon\Filesystem;
 use \Balloon\Exception;
 use \Balloon\Filesystem\Node\Collection;
 use \Micro\Auth\Identity;
-use \MongoDB\Model\BSONDocument;
 use \MongoDB\BSON\ObjectID;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\Binary;
 use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Helper;
+use \Balloon\Server;
 
 class User
 {
@@ -81,14 +81,6 @@ class User
 
 
     /**
-     * Auth instance
-     *
-     * @var Auth
-     */
-    protected $auth;
-
-    
-    /**
      * Admin
      *
      * @var bool
@@ -107,7 +99,7 @@ class User
     /**
      * avatar
      *
-     * @var \MongoBinData
+     * @var Binary
      */
     protected $avatar;
 
@@ -145,6 +137,14 @@ class User
     
 
     /**
+     * Server
+     *
+     * @var Server
+     */
+    protected $server;
+    
+
+    /**
      * Filesystem
      *
      * @var Filesystem
@@ -153,34 +153,19 @@ class User
 
 
     /**
-     * Load user object with name or with id
+     * Instance user
      *
-     * @param   string|ObjectID|Auth $user
-     * @param   Logger $logger
-     * @param   Filesystem $fs
-     * @param   bool $autocreate
+     * @param   array $attributes
+     * @param   Server $server
      * @param   bool $ignore_deleted
      * @return  void
      */
-    public function __construct(BSONDocument $user, Filesystem $fs, bool $ignore_deleted=true)
+    public function __construct(array $attributes, Server $server, Logger $logger,  bool $ignore_deleted=true)
     {
-        $this->fs       = $fs;
-        $this->db       = $fs->getDatabase();
-        $this->logger   = $fs->getServer()->getLogger();
+        $this->server   = $server;
+        $this->db       = $server->getDatabase();
+        $this->logger   = $logger;
 
-        $attributes = Helper::convertBSONDocToPhp($user);
-
-        /*$logparams = (array)$attributes;
-        if (isset($logparams['avatar']) && $logparams['avatar'] instanceof Binary) {
-            $logparams['avatar'] = '<bin>';
-        }
-
-        $this->logger->info('select user ['.$username.'] attributes from mongodb', [
-            'category' => get_class($this),
-            'params'   => $logparams,
-        ]);*/
-
-        //set user properties
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
         }
@@ -193,40 +178,43 @@ class User
     }
 
 
+    /**
+     * Update user with identity attributes
+     *
+     * @param  Identity $identity
+     * @return bool
+     */
     public function updateIdentity(Identity $identity): bool
     {
-            $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
-            if ($attr_sync == -1) {
-                return true;
-            }
-
-            $cache = ($this->last_attr_sync instanceof UTCDateTime ?
-            $this->last_attr_sync->toDateTime()->format('U') : 0);
-        
-            if (time() - $attr_sync > $cache) {
-                $this->logger->info('user attribute sync cache time expired, resync with auth attributes', [
-                    'category' => get_class($this),
-                ]);
-
-
-                $attributes = $identity->getAttributes();
-        foreach ($attributes as $attr => $value) {
-            $this->{$attr} = $value;
+        $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
+        if ($attr_sync == -1) {
+            return true;
         }
-        
-        $this->last_attr_sync = new UTCDateTime();
-        
-        $save = array_keys($attributes);
-        $save[] = 'last_attr_sync';
-        return $this->save($save);
 
-            } else {
-                $this->logger->debug('user auth attribute sync cache is in time', [
-                    'category' => get_class($this),
-                ]);
-                return true;
+        $cache = ($this->last_attr_sync instanceof UTCDateTime ?
+        $this->last_attr_sync->toDateTime()->format('U') : 0);
+        
+        if (time() - $attr_sync > $cache) {
+            $this->logger->info('user attribute sync cache time expired, resync with auth attributes', [
+                'category' => get_class($this),
+            ]);
+
+            $attributes = $identity->getAttributes();
+            foreach ($attributes as $attr => $value) {
+                $this->{$attr} = $value;
             }
-
+        
+            $this->last_attr_sync = new UTCDateTime();
+        
+            $save = array_keys($attributes);
+            $save[] = 'last_attr_sync';
+            return $this->save($save);
+        } else {
+            $this->logger->debug('user auth attribute sync cache is in time', [
+                'category' => get_class($this),
+            ]);
+            return true;
+        }
     }
 
 
@@ -432,13 +420,17 @@ class User
     
 
     /**
-     * Get fs
+     * Get filesystem
      *
      * @return Filesystem
      */
     public function getFilesystem(): Filesystem
     {
-        return $this->fs;
+        if($this->fs instanceof Filesystem) {
+            return $this->fs;
+        }
+
+        return $this->fs = $this->server->getFilesystem($this);
     }
 
 
@@ -527,7 +519,7 @@ class User
                 ]);
 
                 try {
-                    $this->fs->findNodeWithId($child['_id'])->delete(true);
+                    $this->getFilesystem()->findNodeWithId($child['_id'])->delete(true);
                 } catch (\Exception $e) {
                 }
             } else {
@@ -563,7 +555,7 @@ class User
             ];
             
             try {
-                $dir = $this->fs->getRoot();
+                $dir = $this->getFilesystem()->getRoot();
                 $dir->addDirectory($node['name'], $attrs);
             } catch (Exception\Conflict $e) {
                 $new = $node['name'].' ('.substr(uniqid('', true), -4).')';
@@ -717,11 +709,11 @@ class User
     public function delete(bool $force=false): bool
     {
         if ($force === false) {
-            $result_data = $this->fs->getRoot()->delete();
+            $result_data = $this->getFilesystem()->getRoot()->delete();
             $this->deleted = true;
             $result_user = $this->save(['deleted']);
         } else {
-            $result_data = $this->fs->getRoot()->delete(true);
+            $result_data = $this->getFilesystem()->getRoot()->delete(true);
             
             $result = $this->db->user->deleteOne([
                 '_id' => $this->_id,
@@ -775,17 +767,6 @@ class User
     public function getGroups(): array
     {
         return $this->groups;
-    }
-    
-    
-    /**
-     * Get auth
-     *
-     * @return Auth
-     */
-    public function getAuth(): Auth
-    {
-        return $this->auth;
     }
     
     

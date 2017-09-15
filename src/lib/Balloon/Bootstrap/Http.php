@@ -49,23 +49,22 @@ class Http extends AbstractBootstrap
             'category' => get_class($this),
         ]);
 
-        $this->router = new Router($_SERVER, $this->logger);
-        $this->auth = new Auth($this->option_auth, $this->logger);
+        $this->router = new Router($this->logger, $_SERVER);
+        $this->auth = new Auth($this->logger, $this->option_auth);
 
         if($this->auth->hasAdapter('basic_db')) {
             $this->auth->getAdapter('basic_db')->setOptions(['mongodb' => $this->db]);
         }
 
         $this->app = new App(App::CONTEXT_HTTP, $this->composer, $this->server, $this->logger, $this->option_app, $this->router, $this->auth);
+        $this->hook->run('preAuthentication', [$this->auth]);
 
         if($this->auth->requireOne())  {
-            $this->server->setIdentity($this->auth->getIdentity());
-
             if (!($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
                 $this->server->setIdentity($this->auth->getIdentity());
             }
 
-            return $this->router->run();
+            return $this->router->run([$this->server, $this->logger]);
         } else {
             return $this->invalidAuthentication();
         }

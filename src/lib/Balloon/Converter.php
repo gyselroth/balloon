@@ -11,8 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon;
 
+use \Balloon\Converter\Exception;
+use \Balloon\Converter\Result;
+use \Balloon\Converter\Adapter\Imagick;
+use \Balloon\Converter\Adapter\Office;
 use \Balloon\Filesystem\Node\File;
-use \Balloon\Converter\ConverterInterface;
+use \Balloon\Converter\Adapter\AdapterInterface;
 use \Psr\Log\LoggerInterface as Logger;
 
 class Converter
@@ -31,6 +35,17 @@ class Converter
      * @var array
      */
     protected $converter = [];
+
+
+    /**
+     * Default converter
+     *
+     * @var array
+     */
+    protected $default_converter = [
+        Imagick::class => [],
+        Office::class => [],
+    ];
 
 
     /**
@@ -56,23 +71,28 @@ class Converter
     public function setOptions(? Iterable $config = null): Converter
     {
         if ($config === null) {
-            return $this;
+            $config = [];
         }
+        
+        $converter = $this->default_converter;
 
         foreach ($config as $option => $value) {
-            if (!isset($value['enabled']) || $value['enabled'] === '1') {
-                if(!isset($value['class'])) {
-                    throw new Exception('class option is required');
-                }
-
-                if(isset($value['config'])) {
-                    $config = $value['config'];
-                } else {
-                    $config = null;
-                }
-
-                $this->addConverter($option, $value['class'], $config);
+            if(!isset($value['class'])) {
+                throw new Exception('option class is required');
             }
+
+            $converter[$value['class']] = [];
+            if(isset($value['config'])) {
+                $config = $value['config'];
+            } else {
+                $config = null;
+            }
+            
+            $converter[$value['class']] = $config;
+        }
+
+        foreach ($converter as $converter => $config) {
+            $this->addConverter($converter, $config);
         }
         
         return $this;
@@ -94,22 +114,40 @@ class Converter
     /**
      * Add converter
      *
-     * @param  string $name
      * @param  string $class
      * @param  Iterable $config
-     * @return ConverterInterface
+     * @return AdapterInterface
      */
-    public function addConverter(string $name, string $class, ? Iterable $config = null) : ConverterInterface
+    public function addConverter(string $class, ? Iterable $config = null) : AdapterInterface
     {
+        if ($this->hasConverter($class)) {
+            throw new Exception('converter '.$class.' is already registered');
+        }
+            
+        $converter = new $class($this->logger, $config);
+        if (!($converter instanceof AdapterInterface)) {
+            throw new Exception('converter must include AdapterInterface interface');
+        }
+
+        $this->converter[$class] = $converter;
+        return $converter;
+    }
+
+
+    /**
+     * Inject converter
+     *
+     * @param  AdapterInterface $adapter
+     * @return AdapterInterface
+     */
+    public function injectConverter(AdapterInterface $adapter) : AdapterInterface
+    {
+        $name = get_class($adapter);
+
         if ($this->hasConverter($name)) {
             throw new Exception('converter '.$name.' is already registered');
         }
             
-        $converter = new $class($this->logger, $config);
-        if (!($converter instanceof ConverterInterface)) {
-            throw new Exception('converter must include ConverterInterface interface');
-        }
-
         $this->converter[$name] = $converter;
         return $converter;
     }
@@ -119,9 +157,9 @@ class Converter
      * Get converter
      *      
      * @param  string $name
-     * @return ConverterInterface
+     * @return AdapterInterface
      */
-    public function getConverter(string $name): ConverterInterface
+    public function getConverter(string $name): AdapterInterface
     {
         if (!$this->hasConverter($name)) {
             throw new Exception('converter '.$name.' is not registered');
@@ -129,7 +167,6 @@ class Converter
 
         return $this->converter[$name];
     }
-
 
 
     /**
@@ -157,26 +194,44 @@ class Converter
 
 
     /**
-     * Create preview
+     * Get supported formats
+     *
+     * @return array
+     */
+    public function getSupportedFormats(File $file): array
+    {
+        foreach ($this->converter as $converter) {
+            if ($converter->match($file)) {
+                return $converter->getSupportedFormats($file);
+            }
+        }
+            
+        return [];
+    }
+
+
+    /**
+     * Convert document
      *
      * @param  File $file
-     * @return string
+     * @param  string $format
+     * @return Result
      */
-    public function create(File $file): string
+    public function convert(File $file, string $format): Result
     {
         foreach ($this->converter as $converter) {
             try {
                 if ($converter->match($file)) {
-                    return $converter->create($file);
+                    return $converter->convert($file, $format);
                 }
             } catch (\Exception $e) {
-                $this->logger->error('failed execute preview converter['.get_class($converter).']', [
+                $this->logger->error('failed execute converter ['.get_class($converter).']', [
                     'category' => get_class($this),
                     'exception'=>$e
                 ]);
             }
         }
 
-        throw new Exception('no matching preview converter found');
+        throw new Exception('all converter failed');
     }
 }

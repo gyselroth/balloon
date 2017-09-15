@@ -19,7 +19,7 @@ class Collection extends Node
 {
     /**
      * @api {head} /api/v1/collection/children?id=:id children exists?
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName head
      * @apiGroup Node\Collection
      * @apiPermission none
@@ -60,7 +60,7 @@ class Collection extends Node
 
     /**
      * @api {get} /api/v1/collection/children Get children
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getChildren
      * @apiGroup Node\Collection
      * @apiPermission none
@@ -107,7 +107,7 @@ class Collection extends Node
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
         
         foreach ($nodes as $node) {
-            $children[] = Helper::escape($node->getAttribute($attributes));
+            $children[] = Helper::escape($node->getAttributes($attributes));
         }
         
         return (new Response())->setCode(200)->setBody($children);
@@ -116,7 +116,7 @@ class Collection extends Node
     
     /**
      * @api {get} /api/v1/collection/share?id=:id Get Share parameters
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getShare
      * @apiGroup Node\Collection
      * @apiPermission none
@@ -161,7 +161,7 @@ class Collection extends Node
     
     /**
      * @api {post} /api/v1/collection/share?id=:id Create share
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiGroup Node\Collection
      * @apiPermission none
      * @apiDescription Create a new share from an existing collection
@@ -215,7 +215,7 @@ class Collection extends Node
     
     /**
      * @api {delete} /api/v1/collection/share?id=:id Delete share
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName deleteShare
      * @apiGroup Node\Collection
      * @apiPermission none
@@ -247,7 +247,7 @@ class Collection extends Node
 
     /**
      * @api {post} /api/v1/collection?id=:id Create collection
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName post
      * @apiGroup Node\Collection
      * @apiPermission none

@@ -124,6 +124,14 @@ var balloon = {
 
 
     /**
+     * Apps
+     *
+     * @var object 
+     */
+    apps: {},
+
+
+    /**
      * Init file browsing
      *
      * @return void
@@ -131,8 +139,7 @@ var balloon = {
     init: function() {
         if(balloon.isInitialized()) {
             balloon.resetDom();
-        }
-        else {
+        } else {
             this.base = this.base+'/v'+this.BALLOON_API_VERSION;
         }
 
@@ -193,7 +200,7 @@ var balloon = {
 
         var $fs_browser_tree = $('#fs-browser-tree');
     	$fs_browser_tree.kendoTreeView(options);
-
+        
         if(balloon.isTouchDevice()) {
             $fs_browser_tree
                 .off('touchstart', '.k-in').on('touchstart', '.k-in', balloon._treeTouch)
@@ -260,6 +267,21 @@ var balloon = {
         
         balloon.showHint();
         balloon.initialized = true;
+        balloon.initApps();
+    },
+
+    
+    /**
+     * Init apps
+     *
+     * @return void
+     */
+    initApps: function() {
+        for(var app in this.apps) {
+            if(typeof this.apps[app].init === 'function') {
+                this.apps[app].init();
+            }
+        }
     },
 
 
@@ -842,12 +864,7 @@ var balloon = {
                     break;
 
                     case 'size':
-                        if(node.directory) {
-                            html_children.push('<span class="fs-meta-info">'+i18next.t("view.prop.data.childcount", {
-                                count: node.size,
-                            })+'</span>');
-                    
-                        } else {
+                        if(!node.directory) {
                             html_children.push('<span class="fs-meta-info">'+balloon.getReadableFileSizeString(node.size)+'</span>');
                         }
                     break;
@@ -2293,7 +2310,7 @@ var balloon = {
                  
                     var attributes = [
                         'id', 'name', 'mime', 'deleted', 'meta.color', 'meta.tags', 
-                        'directory', 'changed', 'size', 'filtered', 
+                        'directory', 'changed', 'file.size', 'filtered', 
                         'shared', 'sharelink', 'hash', 'reference', 'share', 'access'
                     ];
                     
@@ -5489,6 +5506,7 @@ var balloon = {
 
         var attributes = [
             'path',
+            'size',
             'meta.license',
             'meta.description',
             'meta.copyright',

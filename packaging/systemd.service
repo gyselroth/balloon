@@ -1,0 +1,16 @@
+[Unit]
+Description=Ballooon
+After=network.target
+
+[Service]
+ExecStart=src/cgi-bin/cli.php -q -d
+ExecReload=/bin/kill -HUP $MAINPID
+User=balloon
+KillMode=process
+Restart=on-failure
+RestartPreventExitStatus=255
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
+Alias=balloon.service

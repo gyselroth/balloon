@@ -17,7 +17,6 @@ use \Balloon\Hook\HookInterface;
 use \Balloon\Server;
 use \MongoDB\BSON\Binary;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 use \Micro\Auth\Identity;
 
 class Hook extends AbstractHook
@@ -55,12 +54,12 @@ class Hook extends AbstractHook
      *
      * @param   Server $server
      * @param   Identity $identity
-     * @param   BSONDocument $attributes
+     * @param   array $attributes
      * @return  void
      */
-    public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes): void
+    public function preServerIdentity(Server $server, Identity $identity, ?array &$attributes): void
     {
-        if ($user !== null) {
+        if ($attributes !== null) {
             return;
         }
 

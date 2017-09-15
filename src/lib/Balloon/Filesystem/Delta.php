@@ -12,15 +12,14 @@ declare(strict_types=1);
 namespace Balloon\Filesystem;
 
 use \Sabre\DAV;
-use \Balloon\Exception;
+use \Balloon\Filesystem\Delta\Exception;
 use \Balloon\Filesystem;
 use \Balloon\Helper;
-use \Balloon\User;
+use \Balloon\Server\User;
 use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\ObjectID;
-use \MongoDB\Model\BSONDocument;
 
 class Delta
 {
@@ -51,7 +50,7 @@ class Delta
     /**
      * Initialize delta
      *
-     * @param   User $user
+     * @param   Filesystem $fs
      * @return  void
      */
     public function __construct(Filesystem $fs)
@@ -70,8 +69,8 @@ class Delta
      */
     public function add(array $options): bool
     {
-        if (!self::isValidDeltaEvent($options)) {
-            throw new \Balloon\Filesystem\Delta\Exception();
+        if (!$this->isValidDeltaEvent($options)) {
+            throw new Exception('invalid delta structuce given');
         }
 
         if (!array_key_exists('timestamp', $options)) {
@@ -82,21 +81,19 @@ class Delta
         return $result->isAcknowledged();
     }
 
+
     /**
-     * Verify structure of delta event
-     * Necessary because methods of this class rely on a defined structure of
-     * delta events.
+     * Verify delta structure
      *
      * @param   array $options
      * @return  bool
      */
-    protected static function isValidDeltaEvent(array $options)
+    protected function isValidDeltaEvent(array $options): bool
     {
-        // events w/o 'operation' throw warnings when building feed
         if (!array_key_exists('operation', $options)) {
             return false;
         }
-        // events w/o 'owner' and w/o 'share' are ignored by filter when reading delta
+        
         return array_key_exists('owner', $options) || array_key_exists('share', $options);
     }
 
@@ -221,9 +218,9 @@ class Delta
      * Get last delta event
      *
      * @param  NodeInterface $node
-     * @return BSONDocument
+     * @return array
      */
-    public function getLastRecord(?NodeInterface $node=null): ?BSONDocument
+    public function getLastRecord(?NodeInterface $node=null): ?array
     {
         $filter = $this->getDeltaFilter();
 
@@ -355,12 +352,12 @@ class Delta
                 //than the create timestamp of the share reference
                 if ($log['operation'] === 'addCollectionReference' && $log_node->isReference()) {
                     foreach ($this->fs->findNodesWithCustomFilter(['shared' => $log_node->getShareId()]) as $share_member) {
-                        $member_attrs = $share_member->getAttribute($attributes);
+                        $member_attrs = $share_member->getAttributes($attributes);
                         $list[$member_attrs['path']] = $member_attrs;
                     }
                 }
-
-                $fields = $log_node->getAttribute($attributes);
+                
+                $fields = $log_node->getAttributes($attributes);
 
                 if (array_key_exists('previous', $log)) {
                     if (array_key_exists('parent', $log['previous'])) {
@@ -535,7 +532,7 @@ class Delta
             }
 
             try {
-                $user = new User($log['owner'], $this->fs->getLogger(), $this->fs);
+                $user = $this->fs->getServer()->getUserById($log['owner']);
                 $events[$id]['user'] = [
                     'id' => (string)$user->getId(),
                     'username' => $user->getUsername()

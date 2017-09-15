@@ -237,7 +237,7 @@ class Hook extends AbstractHook
             return;
         }
    
-        $attributes = $node->getAttribute(['parent', 'name']);
+        $attributes = $node->getAttributes(['parent', 'name']);
         $attributes['node']      = $node->getId();
            
 
@@ -300,7 +300,7 @@ class Hook extends AbstractHook
             return;
         }
     
-        $attributes = $node->getAttribute(['parent', 'name']);
+        $attributes = $node->getAttributes(['parent', 'name']);
         $attributes['node']      = $node->getId();
         
         if ($force === true) {

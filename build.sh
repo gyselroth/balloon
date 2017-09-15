@@ -242,8 +242,13 @@ if [ $OPT_MINIFY -eq 1 ]; then
         for app in `ls src/app`; do
             if [ -e $OPT_SOURCE/src/app/$app/src/httpdocs/locale ]; then
                 for locale in `ls $OPT_SOURCE/src/app/$app/src/httpdocs/locale`; do
+                    echo $locale;
+                    echo "---"
                     name=$(basename $locale)
-                    jq -s '.[0] * .[1]' $OPT_SOURCE/src/httpdocs/ui/locale/$name $OPT_SOURCE/src/app/$app/src/httpdocs/locale/$locale > $OPT_SOURCE/src/httpdocs/ui/locale/build.$name
+                    echo $OPT_SOURCE/src/app/$app/src/httpdocs/locale/$locale
+                    echo $OPT_SOURCE/src/httpdocs/ui/locale/build.$name
+                    jq -s '.[0] * .[1]' $OPT_SOURCE/src/httpdocs/ui/locale/build.$name $OPT_SOURCE/src/app/$app/src/httpdocs/locale/$locale > $OPT_SOURCE/src/httpdocs/ui/locale/build.temp.$name
+                    mv $OPT_SOURCE/src/httpdocs/ui/locale/build.temp.$name $OPT_SOURCE/src/httpdocs/ui/locale/build.$name
 
                     if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
                         echo "locale merge for app $app failed, abort build"
@@ -274,7 +279,7 @@ if [ $OPT_MINIFY -eq 1 ]; then
         done
     fi
 
-    yui-compressor -o $ui/lib/build.dev.js $ui/lib/build.dev.js
+    $OPT_SOURCE/node_modules/.bin/yuicompressor -o $ui/lib/build.dev.js $ui/lib/build.dev.js
     if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
         echo "yui-compressor failed, abort build"
         exit 127
@@ -294,7 +299,7 @@ if [ $OPT_MINIFY -eq 1 ]; then
         done
     fi
 
-    yui-compressor -o $ui/themes/default/css/build.css $ui/themes/default/css/build.css
+    $OPT_SOURCE/node_modules/.bin/yuicompressor -o $ui/themes/default/css/build.css $ui/themes/default/css/build.css
     if [ $? -ne 0 ]; then
         echo "yui-compressor failed, abort build"
         exit 127

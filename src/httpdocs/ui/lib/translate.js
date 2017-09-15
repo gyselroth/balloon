@@ -6,7 +6,7 @@
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 $(document).init(function(){
-    var locale_version = '2017062001';
+    var locale_version = '2017062004';
 
     var locales = [
         ['en',    'English'],

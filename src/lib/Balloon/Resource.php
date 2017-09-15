@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+//TODO: Attention this class is currently under development ans gets removed in this dev release
+
 /**
  * Balloon
  *
@@ -13,6 +15,7 @@ namespace Balloon;
 
 use \Balloon\Resource\Exception;
 use \MongoDB\Database;
+use \Balloon\Server\User;
 use \Psr\Log\LoggerInterface as Logger;
 
 class Resource

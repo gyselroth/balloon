@@ -58,7 +58,7 @@ class Hook
            throw new Exception("hook class $class was not found");
         }
             
-        $hook = new $class($config, $this->logger);
+        $hook = new $class($this->logger, $config);
         if (isset($this->hook[$class])) {
            throw new Exception('hook '.$class.' is already registered');
         }
@@ -73,6 +73,23 @@ class Hook
 
         $this->hook[$class] = $hook;
 
+        return true;
+    }
+
+
+    /**
+     * Inject hook
+     *
+     * @param  HookInterface $adapter
+     * @return bool
+     */
+    public function injectHook(HookInterface $hook) : bool
+    {
+        if ($this->hasHook(get_class($hook))) {
+            throw new Exception('hook '.get_class($hook).' is already registered');
+        }
+            
+        $this->hook[get_class($hook)] = $hook;
         return true;
     }
 
@@ -98,7 +115,7 @@ class Hook
     public function getHook(string $class): HookInterface
     {
         if (!$this->hasHook($class)) {
-            throw new Exception('auth hook '.$class.' is not registered');
+            throw new Exception('hook '.$class.' is not registered');
         }
 
         return $this->hook[$class];
@@ -119,7 +136,7 @@ class Hook
             $list = [];
             foreach ($hook as $class) {
                 if (!$this->hasHook($class)) {
-                    throw new Exception('auth hook '.$class.' is not registered');
+                    throw new Exception('hook '.$class.' is not registered');
                 }
                 $list[$class] = $this->hook[$class];
             }
@@ -148,7 +165,7 @@ class Hook
         }
 
         foreach ($this->hook as $hook) {
-            $this->logger->debug('found registered hook hoook, execute ['.get_class($hook).'::'.$method.']', [
+            $this->logger->debug('found registered hook, execute ['.get_class($hook).'::'.$method.']', [
                 'category' => get_class($this),
             ]);
 

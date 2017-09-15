@@ -15,65 +15,13 @@ use \Balloon\Exception;
 use \Balloon\Helper;
 use \Micro\Http\Response;
 use \Balloon\Filesystem\Node\Collection;
+use \Balloon\Converter;
 
 class File extends Node
 {
     /**
-     * @api {get} /api/v1/file/preview?id=:id Get Preview
-     * @apiVersion 1.0.6
-     * @apiName getPreview
-     * @apiGroup Node\File
-     * @apiPermission none
-     * @apiDescription Get a preview of the files content. The body either contains an encoded string or a jpeg binary
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v1/file/preview?id=544627ed3c58891f058b4686 > preview.jpg"
-     * curl -XGET "https://SERVER/api/v1/file/544627ed3c58891f058b4686/preview > preview.jpg"
-     * curl -XGET "https://SERVER/api/v1/file/preview?p=/absolute/path/to/my/file > preview.jpg"
-     *
-     * @apiParam (GET Parameter) {string} [encode=false] Set to base64 to return a jpeg encoded preview as base64, else return it as jpeg binary
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
-     *
-     * @apiSuccessExample {binary} Success-Response:
-     * HTTP/1.1 200 OK
-     *
-     * @apiErrorExample {json} Error-Response (thumbnail not found):
-     * HTTP/1.1 404 Not Found
-     * {
-     *      "status": 404,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\NotFound",
-     *          "message": "no preview exists"
-     *      }
-     * }
-     *
-     * @param  string $id
-     * @param  string $p
-     * @param  string $encode
-     * @return void
-     */
-    public function getPreview(?string $id=null, ?string $p=null, ?string $encode=null): void
-    {
-        $node = $this->_getNode($id, $p);
-        $data = $node->getPreview();
-        
-        header('Content-Type: image/jpeg');
-        if ($encode == 'base64') {
-            echo base64_encode($data);
-        } else {
-            echo $data;
-        }
-
-        exit();
-    }
-    
-    
-    /**
      * @api {get} /api/v1/file/history?id=:id Get history
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName getHistory
      * @apiGroup Node\File
      * @apiPermission none
@@ -139,8 +87,8 @@ class File extends Node
 
     /**
      * @api {post} /api/v1/file/restore?id=:id Rollback version
-     * @apiVersion 1.0.6
-     * @apiName postApiore
+     * @apiVersion 1
+     * @apiName postRestore
      * @apiGroup Node\File
      * @apiPermission none
      * @apiDescription Rollback to a recent version from history. Use the version number from history.
@@ -161,7 +109,7 @@ class File extends Node
      * @param   string $version
      * @return  Response
      */
-    public function postApiore(int $version, ?string $id=null, ?string $p=null): Response
+    public function postRestore(int $version, ?string $id=null, ?string $p=null): Response
     {
         $result = $this->_getNode($id, $p)->restore($version);
         return (new Response())->setCode(204);
@@ -170,7 +118,7 @@ class File extends Node
 
     /**
      * @api {put} /api/v1/file/chunk Upload file chunk
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName putChunk
      * @apiGroup Node\File
      * @apiPermission none
@@ -382,7 +330,7 @@ class File extends Node
 
     /**
      * @api {put} /api/v1/file Upload file
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName put
      * @apiGroup Node\File
      * @apiPermission none

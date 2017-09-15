@@ -1,7 +1,13 @@
 {
   "app": {
     "title": "balloon",
-    "disclaimer": "balloon v1.0.11 2017",
+    "disclaimer": "balloon v2.0.0-dev 2017",
+    "balloon_app_shadow": {
+      "menu_title": "Shadow",
+      "choose_format": "Choose format",
+      "description": "Automatically convert file to other formats after file contents changed.",
+      "not_supported": "This file type can not be converted into other file formats."
+    },
     "office": {
       "session": {
         "prompt": {
@@ -125,6 +131,9 @@
     "second": "{{count}} second",
     "second_plural": "{{count}} seconds"
   },
+  "button": {
+    "save": "Save"
+  },
   "view": {
     "prop": {
       "head": {
@@ -155,7 +164,6 @@
       }
     },
     "preview": {
-      "save": "Save",
       "failed": "The preview could not be created"
     },
     "share": {
@@ -192,7 +200,6 @@
       "changed_since": "%s ago (%s)"
     },
     "advanced": {
-      "save": "Save",
       "destroyable": "Self-Destruction: (The node will destroy itself at the time specified (Not-restorable!)):",
       "prompt_destroy": "Would you really like to set the date/time %s for node %s for self destruction?",
       "readonly": "Readonly: (No content changes can be made anymore, but you can still modify meta data):"

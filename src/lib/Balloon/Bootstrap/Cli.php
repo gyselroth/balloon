@@ -59,7 +59,9 @@ class Cli extends AbstractBootstrap
         }
 
         if(!$this->logger->hasAdapter('stdout')) {
-            $this->logger->addAdapter('stdout', Stdout::class, ['level' => $level]);
+            $this->logger->addAdapter('stdout', Stdout::class, [
+                'level'  => $level,
+                'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}']);
         } else {
             $this->logger->getAdapter('stdout')->setOptions(['level' => $level]);
         }

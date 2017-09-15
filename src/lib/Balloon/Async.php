@@ -15,7 +15,6 @@ use \MongoDB\Database;
 use \MongoDB\BSON\ObjectId;
 use \Balloon\Async\JobInterface;
 use \Psr\Log\LoggerInterface as Logger;
-use \Micro\Config;
 use \MongoDB\Operation\Find;
 use \MongoDB\Driver\Cursor;
 use \MongoDB\BSON\UTCDateTime;
@@ -38,28 +37,18 @@ class Async
      */
     protected $logger;
 
-    
-    /**
-     * Config
-     *
-     * @var Config
-     */
-    protected $config;
 
-    
     /**
      * Init queue
      *
      * @param   Filesystem $fs
      * @param   Logger $logger
-     * @param   Config $config
      * @return  void
      */
-    public function __construct(Database $db, Logger $logger, ?Config $config=null)
+    public function __construct(Database $db, Logger $logger)
     {
         $this->db     = $db;
         $this->logger = $logger;
-        $this->config = $config;
     }
 
 
@@ -145,7 +134,7 @@ class Async
      * @param  Server $server
      * @return bool
      */
-    public function start(\IteratorIterator $cursor, Server $server): bool
+    public function start(IteratorIterator $cursor, Server $server): bool
     {
         while(true) {
             if($cursor->current() === null) {
@@ -172,7 +161,7 @@ class Async
                 }
 
                 $instance = new $job['class']((array)$job['data']);
-                $instance->run($server, $this->logger);
+                $instance->start($server, $this->logger);
                 $this->updateJob($job['_id'], true);
             } catch (\Exception $e) {
                 $this->logger->error("failed execute job [".$job['_id']."], failed with error", [
