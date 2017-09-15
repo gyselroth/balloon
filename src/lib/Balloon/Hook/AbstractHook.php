@@ -177,9 +177,13 @@ abstract class AbstractHook implements HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function preCopyCollection(Collection $node, Collection $parent,
-        int $conflict, ?string $recursion, bool $recursion_first): void
-    {
+    public function preCopyCollection(
+        Collection $node,
+        Collection $parent,
+        int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void {
     }
 
 
@@ -196,9 +200,14 @@ abstract class AbstractHook implements HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function postCopyCollection(Collection $node, Collection $parent,
-        Collection $new_node, int $conflict, ?string $recursion, bool $recursion_first): void
-    {
+    public function postCopyCollection(
+        Collection $node,
+        Collection $parent,
+        Collection $new_node,
+        int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void {
     }
 
 
@@ -214,9 +223,13 @@ abstract class AbstractHook implements HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function preCopyFile(File $node, Collection $parent,
-       int $conflict, ?string $recursion, bool $recursion_first): void
-    {
+    public function preCopyFile(
+        File $node,
+        Collection $parent,
+       int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void {
     }
 
 
@@ -233,9 +246,14 @@ abstract class AbstractHook implements HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function postCopyFile(File $node, Collection $parent, File $new_node,
-       int $conflict, ?string $recursion, bool $recursion_first): void
-    {
+    public function postCopyFile(
+        File $node,
+        Collection $parent,
+        File $new_node,
+       int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void {
     }
 
 
@@ -375,9 +393,13 @@ abstract class AbstractHook implements HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function preSaveNodeAttributes(NodeInterface $node, array &$save_attributes,
-        array &$remove_attributes, ?string $recursion, bool $recursion_first): void
-    {
+    public function preSaveNodeAttributes(
+        NodeInterface $node,
+        array &$save_attributes,
+        array &$remove_attributes,
+        ?string $recursion,
+        bool $recursion_first
+    ): void {
     }
 
     
@@ -393,8 +415,12 @@ abstract class AbstractHook implements HookInterface
      * @param  bool $recursion_first
      * @return void
      */
-    public function postSaveNodeAttributes(NodeInterface $node, array $save_attributes,
-        array $remove_attributes, ?string $recursion, bool $recursion_first): void
-    {
+    public function postSaveNodeAttributes(
+        NodeInterface $node,
+        array $save_attributes,
+        array $remove_attributes,
+        ?string $recursion,
+        bool $recursion_first
+    ): void {
     }
 }

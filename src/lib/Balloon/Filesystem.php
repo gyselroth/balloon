@@ -51,7 +51,7 @@ class Filesystem
 
     /**
      * Server
-     *    
+     *
      * @var Server
      */
     protected $server;
@@ -114,7 +114,7 @@ class Filesystem
      * Get server
      *
      * @return Server
-     */ 
+     */
     public function getServer(): Server
     {
         return $this->server;
@@ -152,14 +152,14 @@ class Filesystem
      *
      * @return Delta
      */
-     public function getDelta(): Delta
-     {
-         if ($this->delta instanceof Delta) {
-             return $this->delta;
-         }
+    public function getDelta(): Delta
+    {
+        if ($this->delta instanceof Delta) {
+            return $this->delta;
+        }
  
-         return $this->delta = new Delta($this);
-     }
+        return $this->delta = new Delta($this);
+    }
 
     
     /**
@@ -172,7 +172,8 @@ class Filesystem
     {
         $node = $this->db->storage->findOne(['_id' => $id]);
         if ($node === null) {
-            throw new Exception\NotFound('node '.$id.' not found',
+            throw new Exception\NotFound(
+                'node '.$id.' not found',
                 Exception\NotFound::NODE_NOT_FOUND
             );
         }
@@ -202,7 +203,8 @@ class Filesystem
                 ]);
 
                 if ($node === null) {
-                    throw new Exception\NotFound('no share node for reference node '.$node['reference'].' found',
+                    throw new Exception\NotFound(
+                        'no share node for reference node '.$node['reference'].' found',
                         Exception\NotFound::SHARE_NOT_FOUND
                     );
                 }
@@ -218,7 +220,8 @@ class Filesystem
                 ]);
                 
                 if ($node === null) {
-                    throw new Exception\NotFound('no share reference for node '.$node['_id'].' found',
+                    throw new Exception\NotFound(
+                        'no share reference for node '.$node['_id'].' found',
                         Exception\NotFound::REFERENCE_NOT_FOUND
                     );
                 }
@@ -275,7 +278,8 @@ class Filesystem
         $node = $this->db->storage->findOne($filter);
         
         if ($node === null) {
-            throw new Exception\NotFound('node '.$id.' not found',
+            throw new Exception\NotFound(
+                'node '.$id.' not found',
                 Exception\NotFound::NODE_NOT_FOUND
             );
         }
@@ -433,11 +437,12 @@ class Filesystem
     public function findNodeWithCustomFilter(array $filter): NodeInterface
     {
         $result = $this->db->storage->findOne($filter);
-        if($result === null) {
-            throw new Exception\NotFound('node with custom filter was not found',
+        if ($result === null) {
+            throw new Exception\NotFound(
+                'node with custom filter was not found',
                 Exception\NotFound::NODE_NOT_FOUND
             );
-        }   
+        }
 
         return $this->initNode($result);
     }
@@ -532,8 +537,8 @@ class Filesystem
         ?int $limit = null,
         ?int &$cursor = null,
         ?bool &$has_more = null,
-        ?NodeInterface $parent = null)
-    {
+        ?NodeInterface $parent = null
+    ) {
         $default = [
             '_id'       => 1,
             'directory' => 1,

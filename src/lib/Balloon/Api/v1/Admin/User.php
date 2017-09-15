@@ -120,7 +120,8 @@ class User extends SimpleUser
         $user = $this->_getUser($uid, $uname);
 
         if ($user->getId() == $this->user->getId()) {
-            throw new Exception\Conflict('can not delete yourself',
+            throw new Exception\Conflict(
+                'can not delete yourself',
                 Exception\Conflict::CAN_NOT_DELETE_OWN_ACCOUNT
             );
         }

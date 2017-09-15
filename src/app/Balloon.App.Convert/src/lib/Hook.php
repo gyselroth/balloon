@@ -26,12 +26,12 @@ class Hook extends AbstractHook
     protected function addJob(File $node): void
     {
         $shadow = $node->getAppAttribute($node->getFilesystem()->getServer()->getApp()->getApp('Balloon.App.Convert'), 'shadow');
-        if($shadow === null) {
+        if ($shadow === null) {
             return;
-        }           
+        }
 
         $queue = $node->getFilesystem()->getServer()->getAsync();
-        foreach($shadow as $format) {
+        foreach ($shadow as $format) {
             $queue->addJob(new Job([
                 'id' => $node->getId(),
                 'format' => $format

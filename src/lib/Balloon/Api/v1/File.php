@@ -253,8 +253,8 @@ class File extends Node
         int $chunks=0,
         int $size=0,
         array $attributes=[],
-        int $conflict=0)
-    {
+        int $conflict=0
+    ) {
         ini_set('auto_detect_line_endings', '1');
         $input_handler = fopen('php://input', 'rb');
         if (!is_string($chunkgroup) || empty($chunkgroup)) {
@@ -278,7 +278,8 @@ class File extends Node
         if (file_exists($file)) {
             $tmp_size = filesize($file);
         } elseif ($index > 1) {
-            throw new Exception\Conflict('chunks lost, reupload all chunks',
+            throw new Exception\Conflict(
+                'chunks lost, reupload all chunks',
                 Exception\Conflict::CHUNKS_LOST
             );
         }
@@ -293,7 +294,8 @@ class File extends Node
                 fclose($input_handler);
                 fclose($chunkgroup_handler);
                 unlink($file);
-                throw new Exception\InsufficientStorage('file size exceeded limit',
+                throw new Exception\InsufficientStorage(
+                    'file size exceeded limit',
                     Exception\InsufficientStorage::FILE_SIZE_LIMIT
                 );
             }
@@ -302,7 +304,8 @@ class File extends Node
         if ($index == $chunks) {
             clearstatcache();
             if (!is_readable($file)) {
-                throw new Exception\Conflict('chunks lost, reupload all chunks',
+                throw new Exception\Conflict(
+                    'chunks lost, reupload all chunks',
                     Exception\Conflict::CHUNKS_LOST
                 );
             }
@@ -310,7 +313,8 @@ class File extends Node
             if ($tmp_size != $size) {
                 fclose($chunkgroup_handler);
                 unlink($file);
-                throw new Exception\Conflict('merged chunks temp file size is not as expected',
+                throw new Exception\Conflict(
+                    'merged chunks temp file size is not as expected',
                     Exception\Conflict::CHUNKS_INVALID_SIZE
                 );
             }
@@ -417,8 +421,8 @@ class File extends Node
         ?string $collection=null,
         ?string $name=null,
         array $attributes=[],
-        int $conflict=0): Response
-    {
+        int $conflict=0
+    ): Response {
         $attributes = $this->_verifyAttributes($attributes);
 
         ini_set('auto_detect_line_endings', '1');
@@ -446,8 +450,8 @@ class File extends Node
         ?string $collection=null,
         ?string $name=null,
         array $attributes=[],
-        int $conflict=0): Response
-    {
+        int $conflict=0
+    ): Response {
         if ($id === null && $p === null && $name === null) {
             throw new Exception\InvalidArgument('neither id, p nor name was set');
         }

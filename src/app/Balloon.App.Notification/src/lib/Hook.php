@@ -152,8 +152,10 @@ class Hook extends AbstractHook
 
                 $mail  = new Message();
                 $mail->setBody($body);
-                $mail->setFrom($this->notifications['new_share']['sender']['address'],
-                  $this->notifications['new_share']['sender']['name']);
+                $mail->setFrom(
+                    $this->notifications['new_share']['sender']['address'],
+                  $this->notifications['new_share']['sender']['name']
+                );
                 $mail->setSubject($subject);
                 
                 foreach ($receiver as $rec) {

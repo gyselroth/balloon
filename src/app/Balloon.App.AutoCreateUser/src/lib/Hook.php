@@ -69,7 +69,7 @@ class Hook extends AbstractHook
 
         $attributes = [
             'username'   => $identity->getIdentifier(),
-            'created'    => new UTCDateTime,
+            'created'    => new UTCDateTime(),
             'deleted'    => false,
         ];
 

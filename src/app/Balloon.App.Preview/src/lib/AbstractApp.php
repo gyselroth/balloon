@@ -42,7 +42,8 @@ class AbstractApp extends AbstractBalloonApp
             }
         }
 
-        throw new Exception\NotFound('preview does not exists',
+        throw new Exception\NotFound(
+            'preview does not exists',
             Exception\NotFound::PREVIEW_NOT_FOUND
         );
     }
@@ -57,7 +58,8 @@ class AbstractApp extends AbstractBalloonApp
     public function deletePreview(File $file): bool
     {
         if (!$file->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to modify node',
+            throw new Exception\Forbidden(
+                'not allowed to modify node',
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
             );
         }
@@ -71,7 +73,7 @@ class AbstractApp extends AbstractBalloonApp
                     'apps' => [$this->getName() => ['preview' => $preview]]
                 ]);
                 
-                if($references === 1) {
+                if ($references === 1) {
                     $this->logger->debug('delete preview ['.$preview.'] from file ['.$file->getId().']', [
                         'category' => get_class($this),
                     ]);

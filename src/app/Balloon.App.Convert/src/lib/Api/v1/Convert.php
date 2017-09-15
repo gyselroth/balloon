@@ -69,7 +69,7 @@ class Convert extends Controller
         $app = $this->server->getApp()->getApp('Balloon.App.Convert');
         $shadow = $file->getAppAttribute($app, 'formats');
 
-        return (new Response())->setCode(200)->setBody((array)$shadow); 
+        return (new Response())->setCode(200)->setBody((array)$shadow);
     }
 
     public function postShadow(array $formats, ?string $id=null, ?string $p=null): Response
@@ -77,16 +77,16 @@ class Convert extends Controller
         $file = $this->fs->getNode($id, $p, 'File');
         $app = $this->server->getApp()->getApp('Balloon.App.Convert');
         $converter = $app->getConverter();
-        $supported = $converter->getSupportedFormats($file); 
+        $supported = $converter->getSupportedFormats($file);
 
         $shadow = $file->getAppAttribute($app, 'formats');
-        if($shadow === null) {
+        if ($shadow === null) {
             $shadow = [];
         }
 
         $queue = $file->getFilesystem()->getServer()->getAsync();
-        foreach($formats as $type) {
-            if(!in_array($type, $supported)) {
+        foreach ($formats as $type) {
+            if (!in_array($type, $supported)) {
                 throw new Exception('format '.$type.' is not available for file');
             }
 

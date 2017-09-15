@@ -184,8 +184,8 @@ abstract class AbstractBootstrap
 
         $client = new Client($this->option_mongodb, [], [
             'typeMap' => [
-                'root' => 'array', 
-                'document' => 'array', 
+                'root' => 'array',
+                'document' => 'array',
                 'array' => 'array'
             ]
         ]);
@@ -206,7 +206,7 @@ abstract class AbstractBootstrap
      */
     public function setOptions(?Config $config): AbstractBootstrap
     {
-        if($config === null) {
+        if ($config === null) {
             return $this;
         }
 
@@ -221,7 +221,7 @@ abstract class AbstractBootstrap
                     }
                     break;
                 case 'app':
-                    foreach($value as $app => $options) {
+                    foreach ($value as $app => $options) {
                         $this->option_app[$app] = $options;
                     }
                     break;

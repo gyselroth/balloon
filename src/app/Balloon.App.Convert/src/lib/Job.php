@@ -42,13 +42,12 @@ class Job extends AbstractJob
 
         try {
             $shadows = $file->getAppAttribute($app, 'shadows');
-            if(is_array($shadows) && isset($shadows[$this->data['format']])) {
+            if (is_array($shadows) && isset($shadows[$this->data['format']])) {
                 $shadow = $file->getFilesystem()->findNodeWithId($shadows[$format]);
                 $shadow->put($result->getPath());
                 return true;
             }
-
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $logger->debug('referenced shadow node ['.$shadows[$this->data['format']].'] does not exists or is not accessible', [
                 'category' => get_class($this),
                 'exception'=> $e
@@ -61,9 +60,9 @@ class Job extends AbstractJob
        
         try {
             $name = substr($file->getName(), -strlen($file->getExtension()));
-            $name .= $this->data['format']; 
-        } catch(\Exception $e) {
-            $name = $file->getName().'.'.$this->data['format']; 
+            $name .= $this->data['format'];
+        } catch (\Exception $e) {
+            $name = $file->getName().'.'.$this->data['format'];
         }
         
         $shadow = $file->getParent()->createFile($name, $result->getPath(), [

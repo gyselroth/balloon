@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Balloon
  *
@@ -35,7 +35,7 @@ class Http extends AbstractApp
      * Token ttl
      *
      * @var int
-     */ 
+     */
     protected $token_ttl = 1800;
 
    
@@ -47,18 +47,18 @@ class Http extends AbstractApp
      */
     public function setOptions(?Iterable $config=null): AppInterface
     {
-        if($config === null) {
+        if ($config === null) {
             return $this;
         }
         
-        foreach($config as $option => $value) {
-            switch($option) {
-                case 'loleaflet':              
-                    $this->loleaflet = (string)$value; 
+        foreach ($config as $option => $value) {
+            switch ($option) {
+                case 'loleaflet':
+                    $this->loleaflet = (string)$value;
                 break;
                 
-                case 'token_ttl':              
-                    $this->token_ttl = (int)$value; 
+                case 'token_ttl':
+                    $this->token_ttl = (int)$value;
                 break;
             }
         }
@@ -106,7 +106,7 @@ class Http extends AbstractApp
 
                 foreach ($skip as $path) {
                     if (preg_match('#^'.$path.'#', $_SERVER["ORIG_SCRIPT_NAME"])) {
-                        $auth->injectAdapter('none' ,(new AuthNone($this->logger)) );
+                        $auth->injectAdapter('none', (new AuthNone($this->logger)));
                         break;
                     }
                 }

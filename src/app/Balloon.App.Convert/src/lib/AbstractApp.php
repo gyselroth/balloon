@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Balloon
  *
@@ -38,7 +38,7 @@ abstract class AbstractApp extends CoreAbstractApp
 
     /**
      * Converter
-     * 
+     *
      * @return Converter
      */
     public function getConverter(): Converter

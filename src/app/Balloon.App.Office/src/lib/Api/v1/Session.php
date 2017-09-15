@@ -67,7 +67,7 @@ class Session extends Controller
     {
         $node     = $this->fs->getNode($id, $p, 'File');
         $document = new Document($this->fs->getDatabase(), $node);
-        $ttl      = $this->server->getApp()->getApp('Balloon.App.Office')->getTokenTtl(); 
+        $ttl      = $this->server->getApp()->getApp('Balloon.App.Office')->getTokenTtl();
 
         $session= new WopiSession($this->fs, $document, $ttl);
         $member = new Member($this->fs->getUser(), $ttl);
@@ -109,7 +109,7 @@ class Session extends Controller
     public function postJoin(string $id): Response
     {
         $session= WopiSession::getSessionById($this->fs, $this->parseId($id));
-        $ttl    = $this->server->getApp()->getApp('Balloon.App.Office')->getTokenTtl(); 
+        $ttl    = $this->server->getApp()->getApp('Balloon.App.Office')->getTokenTtl();
         $member = new Member($this->fs->getUser(), $ttl);
         $session->join($member)
                 ->store();

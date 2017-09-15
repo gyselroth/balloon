@@ -42,7 +42,7 @@ class Http extends AbstractApp
             public function preAuthentication(Auth $auth): void
             {
                 if (preg_match('#^/index.php/share#', $_SERVER["ORIG_SCRIPT_NAME"])) {
-                    $auth->injectAdapter('none' ,(new AuthNone($this->logger)) );
+                    $auth->injectAdapter('none', (new AuthNone($this->logger)));
                 }
             }
         });
@@ -127,7 +127,7 @@ class Http extends AbstractApp
      */
     public function getShareLink(NodeInterface $node): array
     {
-        return $node->getAppAttributes($this); 
+        return $node->getAppAttributes($this);
     }
     
 
@@ -169,7 +169,7 @@ class Http extends AbstractApp
             'deleted' => false,
         ]);
 
-        $attributes = $node->getAppAttributes($this);       
+        $attributes = $node->getAppAttributes($this);
 
         if ($attributes['token'] !== $token) {
             throw new Exception('token do not match');
@@ -255,14 +255,14 @@ class Http extends AbstractApp
                     'exception' => $e,
                 ]);
 
-                (new Response)
+                (new Response())
                     ->setOutputFormat('text')
                     ->setCode(404)
                     ->setBody('Token is invalid or share link is expired')
                     ->send();
             }
         } else {
-            (new Response)
+            (new Response())
                 ->setOutputFormat('text')
                 ->setCode(401)
                 ->setBody('No token submited')

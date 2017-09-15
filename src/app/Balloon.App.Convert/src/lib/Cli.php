@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Balloon
  *
@@ -16,5 +16,4 @@ use \Balloon\Converter\Adapter\Office;
 
 class Cli extends AbstractApp
 {
-
 }

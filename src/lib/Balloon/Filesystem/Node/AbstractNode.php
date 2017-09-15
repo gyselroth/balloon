@@ -311,30 +311,36 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     public function setParent(Collection $parent, int $conflict=NodeInterface::CONFLICT_NOACTION): NodeInterface
     {
         if ($this->parent === $parent->getId()) {
-            throw new Exception\Conflict('source node '.$this->name.' is already in the requested parent folder',
+            throw new Exception\Conflict(
+                'source node '.$this->name.' is already in the requested parent folder',
                 Exception\Conflict::ALREADY_THERE
             );
         } elseif ($this->isSubNode($parent)) {
-            throw new Exception\Conflict('node called '.$this->name.' can not be moved into itself',
+            throw new Exception\Conflict(
+                'node called '.$this->name.' can not be moved into itself',
                 Exception\Conflict::CANT_BE_CHILD_OF_ITSELF
             );
         } elseif (!$this->isAllowed('w') && !$this->isReference()) {
-            throw new Exception\Forbidden('not allowed to move node '.$this->name,
+            throw new Exception\Forbidden(
+                'not allowed to move node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_MOVE
             );
         }
         
         $exists = $parent->childExists($this->name);
         if ($exists === true && $conflict === NodeInterface::CONFLICT_NOACTION) {
-            throw new Exception\Conflict('a node called '.$this->name.' does already exists in this collection',
+            throw new Exception\Conflict(
+                'a node called '.$this->name.' does already exists in this collection',
                 Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
             );
         } elseif ($this->isShared() && $this instanceof Collection && $parent->isShared()) {
-            throw new Exception\Conflict('a shared folder can not be a child of a shared folder too',
+            throw new Exception\Conflict(
+                'a shared folder can not be a child of a shared folder too',
                 Exception\Conflict::SHARED_NODE_CANT_BE_CHILD_OF_SHARE
             );
         } elseif ($parent->isDeleted()) {
-            throw new Exception\Conflict('cannot move node into a deleted collction',
+            throw new Exception\Conflict(
+                'cannot move node into a deleted collction',
                 Exception\Conflict::DELETED_PARENT
             );
         }
@@ -348,7 +354,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             $this->getChildrenRecursive($this->getRealId(), $shares);
 
             if (!empty($shares) && $parent->isShared()) {
-                throw new Exception\Conflict('folder contains a shared folder',
+                throw new Exception\Conflict(
+                    'folder contains a shared folder',
                     Exception\Conflict::NODE_CONTAINS_SHARED_NODE
                 );
             }
@@ -418,7 +425,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     protected function _verifyAccess()
     {
         if (!$this->isAllowed('r')) {
-            throw new Exception\Forbidden('not allowed to access node',
+            throw new Exception\Forbidden(
+                'not allowed to access node',
                 Exception\Forbidden::NOT_ALLOWED_TO_ACCESS
             );
         }
@@ -539,7 +547,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         $name = $this->checkName($name);
 
         if ($this->getParent()->childExists($name)) {
-            throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+            throw new Exception\Conflict(
+                'a node called '.$name.' does already exists in this collection',
                 Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
             );
         }
@@ -766,7 +775,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     {
         $attributes = $this->getAttributes([$attribute]);
 
-        if(!isset($attributes[$attribute])) {
+        if (!isset($attributes[$attribute])) {
             throw new Exception('attribute was not found');
         }
 
@@ -787,14 +796,14 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         $apps      = [];
 
         foreach ($attributes as $key => $attr) {
-            $keys   = explode('.', $attr); 
+            $keys   = explode('.', $attr);
             $prefix = array_shift($keys);
             
-            if($prefix === 'file' && ($this instanceof Collection)) {
+            if ($prefix === 'file' && ($this instanceof Collection)) {
                 continue;
-            } elseif($prefix === 'collection' && ($this instanceof File)) {
+            } elseif ($prefix === 'collection' && ($this instanceof File)) {
                 continue;
-            } elseif(($prefix === 'file' || $prefix === 'collection') && count($keys) > 1) {
+            } elseif (($prefix === 'file' || $prefix === 'collection') && count($keys) > 1) {
                 $prefix = array_shift($keys);
             }
 
@@ -802,17 +811,17 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 $apps[] = implode('.', $keys);
             } elseif ($prefix === 'meta' && count($keys) === 1) {
                 $meta[]  = $keys[0];
-            } elseif(count($keys) === 1) {
+            } elseif (count($keys) === 1) {
                 $clean[] = $keys[0];
             } else {
                 $clean[] = $attr;
             }
         }
 
-        if(count($meta) > 0) {
+        if (count($meta) > 0) {
             $clean[] = 'meta';
         }
-        if(count($apps) > 0) {
+        if (count($apps) > 0) {
             $clean[] = 'apps';
         }
         
@@ -918,9 +927,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                     }
                 break;
 
-                case 'apps': 
+                case 'apps':
                     $this->build['apps'] = [];
-                    foreach($this->server->getApps()->getApps($apps) as $app) {
+                    foreach ($this->server->getApps()->getApps($apps) as $app) {
                         $this->build['apps'][$app->getName()] = $app->getAttributes($this);
                     }
                 break;
@@ -969,18 +978,21 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     public function undelete(int $conflict=NodeInterface::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): bool
     {
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to restore node '.$this->name,
+            throw new Exception\Forbidden(
+                'not allowed to restore node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_UNDELETE
             );
         } elseif (!$this->isDeleted()) {
-            throw new Exception\Conflict('node is not deleted, skip restore',
+            throw new Exception\Conflict(
+                'node is not deleted, skip restore',
                 Exception\Conflict::NOT_DELETED
             );
         }
         
         $parent = $this->getParent();
         if ($parent->isDeleted()) {
-            throw new Exception\Conflict('could not restore node '.$this->name.' into a deleted parent',
+            throw new Exception\Conflict(
+                'could not restore node '.$this->name.' into a deleted parent',
                 Exception\Conflict::DELETED_PARENT
             );
         }
@@ -993,7 +1005,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 $this->setName($this->getDuplicateName());
                 $this->raw_attributes['name'] = $this->name;
             } else {
-                throw new Exception\Conflict('a node called '.$this->name.' does already exists in this collection',
+                throw new Exception\Conflict(
+                    'a node called '.$this->name.' does already exists in this collection',
                     Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
                 );
             }
@@ -1034,7 +1047,11 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 'deleted',
             ], [], $recursion, $recursion_first);
             
-            return $this->doRecursiveAction('undelete', [
+            return $this->doRecursiveAction(
+            
+                'undelete',
+            
+                [
                     'conflict'        => $conflict,
                     'recursion'       => $recursion,
                     'recursion_first' => false
@@ -1115,7 +1132,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 }
             }
         } catch (Exception\NotFound $e) {
-            throw new Exception\NotFound('parent node '.$this->parent.' could not be found',
+            throw new Exception\NotFound(
+                'parent node '.$this->parent.' could not be found',
                 Exception\NotFound::PARENT_NOT_FOUND
             );
         }
@@ -1240,7 +1258,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     
     /**
      * Set app attributes
-     * 
+     *
      * @param  AppInterface $app
      * @param  array $attributes
      * @return NodeInterface
@@ -1255,7 +1273,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
 
     /**
      * Set app attribute
-     * 
+     *
      * @param  AppInterface $app
      * @param  string $attribute
      * @param  mixed $value
@@ -1263,7 +1281,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function setAppAttribute(AppInterface $app, string $attribute, $value): NodeInterface
     {
-        if(!isset($this->app_attributes[$app->getName()])) {
+        if (!isset($this->app_attributes[$app->getName()])) {
             $this->app_attributes[$app->getName()] = [];
         }
 
@@ -1275,13 +1293,13 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
 
     /**
      * Remove app attribute
-     * 
+     *
      * @param  AppInterface $app
      * @return NodeInterface
      */
     public function unsetAppAttributes(AppInterface $app): NodeInterface
     {
-        if(isset($this->app_attributes[$app->getName()])) {
+        if (isset($this->app_attributes[$app->getName()])) {
             unset($this->app_attributes[$app->getName()]);
             $this->save('app_attributes');
         }
@@ -1292,14 +1310,14 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     
     /**
      * Remove app attribute
-     * 
+     *
      * @param  AppInterface $app
      * @param  string $attribute
      * @return NodeInterface
      */
     public function unsetAppAttribute(AppInterface $app, string $attribute): NodeInterface
     {
-        if(isset($this->app_attributes[$app->getName()]) && isset($this->app_attributes[$app->getName()][$attribute])) {
+        if (isset($this->app_attributes[$app->getName()]) && isset($this->app_attributes[$app->getName()][$attribute])) {
             unset($this->app_attributes[$app->getName()][$attribute]);
             $this->save('app_attributes');
         }
@@ -1317,7 +1335,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function getAppAttribute(AppInterface $app, string $attribute)
     {
-        if(isset($this->app_attributes[$app->getName()]) && isset($this->app_attributes[$app->getName()][$attribute])) {
+        if (isset($this->app_attributes[$app->getName()]) && isset($this->app_attributes[$app->getName()][$attribute])) {
             return $this->app_attributes[$app->getName()][$attribute];
         }
 
@@ -1333,7 +1351,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function getAppAttributes(AppInterface $app): array
     {
-        if(isset($this->app_attributes[$app->getName()])) {
+        if (isset($this->app_attributes[$app->getName()])) {
             return $this->app_attributes[$app->getName()];
         }
 
@@ -1524,15 +1542,18 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     public function save($attributes=[], $remove=[], ?string $recursion=null, bool $recursion_first=true): bool
     {
         if (!$this->isAllowed('w') && !$this->isReference()) {
-            throw new Exception\Forbidden('not allowed to modify node '.$this->name,
+            throw new Exception\Forbidden(
+                'not allowed to modify node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
             );
         }
         
         $remove     = (array)$remove;
         $attributes = (array)$attributes;
-        $this->_hook->run('preSaveNodeAttributes',
-            [$this, &$attributes, &$remove, &$recursion, &$recursion_first]);
+        $this->_hook->run(
+            'preSaveNodeAttributes',
+            [$this, &$attributes, &$remove, &$recursion, &$recursion_first]
+        );
 
         try {
             $set = [];
@@ -1559,8 +1580,12 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 ], $update);
             }
             
-            $this->_hook->run('postSaveNodeAttributes',
-                [$this, $attributes, $remove, $recursion, $recursion_first]);
+            $this->_hook->run(
+            
+                'postSaveNodeAttributes',
+                [$this, $attributes, $remove, $recursion, $recursion_first]
+            
+            );
             
             $this->_logger->info('modified node attributes of ['.$this->_id.']', [
                 'category' => get_class($this),

@@ -186,7 +186,7 @@ fi
 
 if [ $OPT_PHPCS_FIX -eq 1 ]; then
     echo "[TASK] Execute php-cs-fixer"
-    php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src/ --rules=@PSR1,@PSR2
+    php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --allow-risky yes src/ --rules="@PSR1,@PSR2,declare_strict_types,new_with_braces,no_empty_phpdoc"
     if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
         echo "php-cs-fixer failed, abort build."
         exit 127

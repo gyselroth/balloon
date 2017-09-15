@@ -13,13 +13,13 @@ namespace Balloon;
 
 use \Balloon\Mime\Exception;
 
-class Mime 
+class Mime
 {
     /**
      * Mime type db
      *
      * @var string
-     */  
+     */
     protected $db = '/etc/mime.types';
 
     
@@ -43,12 +43,12 @@ class Mime
      */
     public function setOptions(?Iterable $config=null): Mime
     {
-        if($config === null) {
+        if ($config === null) {
             return $this;
         }
 
-        foreach($config as $option => $value) {
-            switch($option) {
+        foreach ($config as $option => $value) {
+            switch ($option) {
                 case 'db':
                     $this->db = (string)$value;
                 break;
@@ -65,12 +65,12 @@ class Mime
      * @param  string $path
      * @param  string $name
      * @return string
-     */      
+     */
     public function getMime(string $path, string $name): string
     {
         try {
             return $this->getMimeTypeFromExtension($name);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return $this->getMimeFromContents($path);
         }
     }
@@ -80,7 +80,7 @@ class Mime
      * Determine mime from contents
      *
      * @return string
-     */      
+     */
     public function getMimeFromContents(string $path): string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
