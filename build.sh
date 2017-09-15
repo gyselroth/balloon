@@ -5,6 +5,7 @@ OPT_COMPOSER=0
 OPT_BOWER=0
 OPT_TEST=0
 OPT_PHPCS_FIX=0
+OPT_PHPSTAN=0
 OPT_APIDOC=0
 OPT_MINIFY=0
 OPT_VERSION=0
@@ -20,18 +21,18 @@ cd $OPT_SOURCE
 showHelp() {
 cat <<-END
 Balloon build tool $version
-  
+
   -a --apidoc
     Creates the API documentation guide, available under ./doc
 
   -b --bower
     Install and update all javascript requirements (bower.io)
-  
+
   -c --composer
     Install and update all php requirements (getcomposer.org)
 
   -e --exclude-apps
-    Per default alls apps within src/apps will be integrated into the build  
+    Per default alls apps within src/apps will be integrated into the build
 
   -d --dep
     Installs all requiremenets, equal to "--composer --bower"
@@ -39,25 +40,28 @@ Balloon build tool $version
   -f --full-build
     Executes a full build, equal to "--dep --minify --test --apidoc --php-cs-fixer"
 
-  -h --help 
+  -h --help
     Shows this message
-  
+
   -i --ignore
     Ignore any error
- 
+
   -m --minify
     Executes the minify task of the user interface (yui-compressor is required)
-    
+
   -p --package tar,deb [DEFAULT: tar,deb]
-    This generates a tar archive of a complete build, equal to "--dep --minify --test --apidoc --php-cs-fixer" 
+    This generates a tar archive of a complete build, equal to "--dep --minify --test --apidoc --php-cs-fixer"
     and creates a package with the result
-  
+
   -P --php-cs-fixer
     Executes php-cs-fixer for PSR-1/PSR-2 code style
 
   -s --source SOURCE_FOLDER [DEFAULT: ./]
     The folder of the application itself, usually the folder where this build scrip lies
-     
+
+  -S --phpstan
+    Executes phpstan on src/ and tests/ directories
+
   -t --test
     Executes the testing library (phpunit checks)
 
@@ -80,17 +84,11 @@ case $key in
     -p|--package)
     if [[ "$2" == '' || "${2:0:1}" == '-' ]]; then
       OPT_PACKAGE="tar,deb"
-    else 
+    else
       OPT_PACKAGE="$2"
     fi
     shift
 
-    #OPT_COMPOSER=1
-    #OPT_BOWER=1
-    #OPT_TEST=1
-    #OPT_MINIFY=1
-    #OPT_APIDOC=1
-    #OPT_PHPCS_FIX=1
     ;;
     -f|--full-build)
     OPT_COMPOSER=1
@@ -98,6 +96,7 @@ case $key in
     OPT_MINIFY=1
     OPT_APIDOC=1
     OPT_TEST=1
+    #OPT_PHPSTAN=1
     OPT_PHPCS_FIX=1
     ;;
     -P|--php-cs-fixer)
@@ -131,6 +130,9 @@ case $key in
     -s|--source)
     OPT_SOURCE="$2"
     shift
+    ;;
+    -S|--phpstan)
+    OPT_PHPSTAN=1
     ;;
     -v|--version)
     OPT_VERSION=1
@@ -170,7 +172,7 @@ if [ $OPT_COMPOSER -eq 1 ]; then
                 cd $OPT_SOURCE
             fi
         done
-    fi 
+    fi
 fi
 
 if [ $OPT_BOWER -eq 1 ]; then
@@ -199,7 +201,7 @@ if [ $OPT_APIDOC -eq 1 ]; then
             if [ -e $OPT_SOURCE/src/app/$app/src/lib/Rest ]; then
                 input="$input -i $OPT_SOURCE/src/app/$app/src/lib/Rest"
             fi
-        done 
+        done
     fi
 
     apidoc $input -o $OPT_SOURCE/doc
@@ -216,7 +218,7 @@ if [ $OPT_TEST -eq 1 ]; then
         echo "unit testing failed, abort build"
         exit 127
     fi
-    
+
     if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
         for app in `ls src/app`; do
             if [ -e $OPT_SOURCE/src/app/$app/tests ]; then
@@ -227,12 +229,21 @@ if [ $OPT_TEST -eq 1 ]; then
                 fi
             fi
         done
-    fi 
+    fi
+fi
+
+if [ $OPT_PHPSTAN -eq 1 ]; then
+    echo "[TASK] Execute phpstan"
+    php ./vendor/bin/phpstan analyse src tests
+    if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
+        echo "phpstan failed, abort build."
+        exit 127
+    fi
 fi
 
 if [ $OPT_MINIFY -eq 1 ]; then
     echo "[TASK] Execute yui-compressor"
-                
+
     for locale in `ls $OPT_SOURCE/src/httpdocs/ui/locale | grep -v build`; do
         name=$(basename $locale)
         cp -v $OPT_SOURCE/src/httpdocs/ui/locale/$name $OPT_SOURCE/src/httpdocs/ui/locale/build.$name
@@ -272,7 +283,7 @@ if [ $OPT_MINIFY -eq 1 ]; then
 
     sed -e '$s/$/\n/' -s $c_js_min > $ui/lib/build.min.js
     sed -e '$s/$/\n/' -s $c_js > $ui/lib/build.dev.js
-    
+
     if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
         for app in `ls $OPT_SOURCE/src/app`; do
             cat $OPT_SOURCE/src/app/$app/src/httpdocs/lib/* >> $ui/lib/build.dev.js
@@ -289,10 +300,10 @@ if [ $OPT_MINIFY -eq 1 ]; then
     rm -fv $ui/lib/build.dev.js
     mv $ui/lib/build.min.js $ui/lib/build.js
 
-    c_css=${css//\/ui/"$ui"}  
+    c_css=${css//\/ui/"$ui"}
     echo "$c_css"
     sed -e '$s/$/\n/' -s $c_css > $ui/themes/default/css/build.css
-    
+
     if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
         for app in `ls $OPT_SOURCE/src/app`; do
             cat $OPT_SOURCE/src/app/$app/src/httpdocs/styles/* >> $ui/themes/default/css/build.css
@@ -312,14 +323,14 @@ if [ $OPT_MINIFY -eq 1 ]; then
 fi
 
 function generateDebianControl {
-    echo "Package: balloon-server" > $OPT_SOURCE/build/DEBIAN/control 
+    echo "Package: balloon-server" > $OPT_SOURCE/build/DEBIAN/control
     echo "Version: $version" >> $OPT_SOURCE/build/DEBIAN/control
     echo "Architecture: all" >> $OPT_SOURCE/build/DEBIAN/control
     echo "Maintainer: Raffael Sahli <sahli@gyselroth.com>" >>  $OPT_SOURCE/build/DEBIAN/control
     echo 'Depends: php (>= 7.1), php-ldap (>= 7.1), php-xml (>= 7.1), php-mongodb (>= 7.1), php-opcache (>= 7.1), php-curl (>= 7.1), php-imagick (>= 7.1), php-cli (>= 7.1), php-zip (>= 7.1), php-intl (>= 7.1)' >> $OPT_SOURCE/build/DEBIAN/control
     echo 'Recommends: php-apc (>= 7.1)' >> $OPT_SOURCE/build/DEBIAN/control
     echo 'Suggests: php-fpm (>=7.1), nginx' >> $OPT_SOURCE/build/DEBIAN/control
-    echo "Homepage: https://github.com/gyselroth/balloon" >> $OPT_SOURCE/build/DEBIAN/control 
+    echo "Homepage: https://github.com/gyselroth/balloon" >> $OPT_SOURCE/build/DEBIAN/control
     echo "Description: balloon cloud server" >> $OPT_SOURCE/build/DEBIAN/control
 }
 
@@ -332,7 +343,7 @@ function generateDebianChangelog {
     rm $OPT_SOURCE/build/DEBIAN/changelog
 
     while read l; do
-        if [ "${l:0:2}" == "##" ]; then  
+        if [ "${l:0:2}" == "##" ]; then
             if [ "$v" != "" ]; then
                 echo "balloon-server ($v) $stable; urgency=low" >> $OPT_SOURCE/build/DEBIAN/changelog
                 echo -e "$changes" >> $OPT_SOURCE/build/DEBIAN/changelog
@@ -356,13 +367,13 @@ function generateDebianChangelog {
             elif [[ "$v" == *"dev"* ]]; then
                 stable="unstable"
             fi
-        elif [ "${l:0:5}" == "***Ma" ]; then 
-            p1=$(echo $l | cut -d '>' -f1) 
-            p2=$(echo $l | cut -d '>' -f2) 
+        elif [ "${l:0:5}" == "***Ma" ]; then
+            p1=$(echo $l | cut -d '>' -f1)
+            p2=$(echo $l | cut -d '>' -f2)
             author="${p1:18}>"
             date=${p2:12}
             date=$(date -d"$date" +'%a, %d %b %Y %H:%M:%S %z')
-        elif [ "${l:0:2}" == "* " ]; then  
+        elif [ "${l:0:2}" == "* " ]; then
             changes="  $changes\n  $l"
         fi
     done < CHANGELOG.md
@@ -397,7 +408,7 @@ if [[ ! "$OPT_PACKAGE" == "0" ]]; then
           rm -rf $OPT_SOURCE/build
 
           checksum=$(md5sum $OPT_SOURCE/$archive | cut -d' ' -f1)
-          echo 
+          echo
           echo "package available at $OPT_SOURCE/$archive"
           echo "MD5 CHECKSUM: $checksum"
         fi

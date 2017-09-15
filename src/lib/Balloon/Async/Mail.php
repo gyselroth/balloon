@@ -50,7 +50,7 @@ class Mail extends AbstractJob
      * @param   Logger $logger
      * @return  bool
      */
-    public function run(Server $server, Logger $logger): bool
+    public function start(Server $server, Logger $logger): bool
     {
         $mail = Message::fromString($this->data['mail']);
         $logger->debug('send mail ['.$mail->getSubject().']', [
