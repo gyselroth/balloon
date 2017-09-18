@@ -1,0 +1,23 @@
+#fs-shadow select {
+    margin-top: 10px;
+    width: 150px; 
+    float: left;
+}
+
+#fs-shadow option {
+    width: inherit;
+    height: inherit;
+    padding-left: 25px;
+}
+
+#fs-shadow .fs-i-add {
+    margin-top: 15px;
+}
+
+#fs-shadow ul {
+    clear: both;
+}
+
+#fs-shadow-not-supported {
+    display: none;
+}

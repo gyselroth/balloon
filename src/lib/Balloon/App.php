@@ -21,17 +21,16 @@ use \Micro\Auth;
 use \Micro\Auth\Adapter\None as AuthNone;
 use \Composer\Autoload\ClassLoader as Composer;
 
-
 class App
 {
     /**
-     * Context: http  
+     * Context: http
      */
     const CONTEXT_HTTP = 'Http';
 
     
     /**
-     * Context: cli  
+     * Context: cli
      */
     const CONTEXT_CLI = 'Cli';
 
@@ -58,7 +57,7 @@ class App
      * @param   Logger $logger
      * @return  void
      */
-   public function __construct(string $context=self::CONTEXT_HTTP, Composer $composer, Server $server, Logger $logger, ?Iterable $config=null, ?Router $router=null, Auth $auth=null)
+    public function __construct(string $context=self::CONTEXT_HTTP, Composer $composer, Server $server, Logger $logger, ?Iterable $config=null, ?Router $router=null, Auth $auth=null)
     {
         $this->context  = $context;
         $this->composer = $composer;
@@ -126,11 +125,11 @@ class App
             
         $app = new $class($this->server, $this->logger, $config, $this->router, $this->auth);
         if ($this->hasApp($name)) {
-           throw new Exception('app '.$name.' is already registered');
+            throw new Exception('app '.$name.' is already registered');
         }
             
         if (!($app instanceof AppInterface)) {
-           throw new Exception('app class '.$class.' does not implement AppInterface');
+            throw new Exception('app class '.$class.' does not implement AppInterface');
         }
 
         $this->logger->info('register ['.$class.'] from app ['.$name.']', [
@@ -147,13 +146,13 @@ class App
      * Inject app
      *
      * @param  AppInterface $app
-     * @return bool 
+     * @return bool
      */
     public function injectApp(AppInterface $app)
     {
         $name = str_replace('_', '.', $app->getName());
         if ($this->hasApp($name)) {
-           throw new Exception('app '.$name.' is already registered');
+            throw new Exception('app '.$name.' is already registered');
         }
            
         $this->app[$name] = $app;
@@ -175,7 +174,7 @@ class App
 
     /**
      * Get app
-     *      
+     *
      * @param  string $class
      * @return AppInterface
      */
@@ -191,7 +190,7 @@ class App
 
     /**
      * Get apps
-     *      
+     *
      * @param  array $apps
      * @return array
      */

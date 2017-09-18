@@ -62,7 +62,7 @@ class Preview extends Controller
             ->setHeader('Content-Type', 'image/png')
             ->setOutputFormat('text');
         
-        if($encode === 'base64') {
+        if ($encode === 'base64') {
             $response->setBody(base64_encode($data), true);
         } else {
             $response->setBody($data, true);

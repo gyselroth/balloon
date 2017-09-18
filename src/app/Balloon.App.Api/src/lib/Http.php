@@ -32,7 +32,7 @@ class Http extends AbstractApp
             public function preAuthentication(Auth $auth): void
             {
                 if ($_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api' ||  $_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api/v1') {
-                    $auth->injectAdapter('none' ,(new AuthNone($this->logger)) );
+                    $auth->injectAdapter('none', (new AuthNone($this->logger)));
                 }
             }
         });

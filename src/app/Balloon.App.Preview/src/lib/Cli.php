@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Balloon
  *
@@ -59,7 +59,7 @@ class Cli extends AbstractApp
 
     /**
      * Converter
-     * 
+     *
      * @return Converter
      */
     public function getConverter(): Converter
@@ -78,7 +78,8 @@ class Cli extends AbstractApp
     protected function storePreview(File $file, Result $content): ObjectId
     {
         if (!$file->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to modify node',
+            throw new Exception\Forbidden(
+                'not allowed to modify node',
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
             );
         }

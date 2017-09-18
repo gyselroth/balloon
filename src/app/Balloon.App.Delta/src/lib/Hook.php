@@ -35,11 +35,11 @@ class Hook extends AbstractHook
     ];
 
 
-   /**
-    * Init
-    *
-    * @return void
-    */
+    /**
+     * Init
+     *
+     * @return void
+     */
     public function init(): void
     {
         if (php_sapi_name() === 'cli') {
@@ -126,9 +126,14 @@ class Hook extends AbstractHook
      * @param   bool $recursion_first
      * @return  void
      */
-    public function postCopyCollection(Collection $node, Collection $parent,
-        Collection $new_node, int $conflict, ?string $recursion, bool $recursion_first): void
-    {
+    public function postCopyCollection(
+        Collection $node,
+        Collection $parent,
+        Collection $new_node,
+        int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void {
         if ($recursion_first === false) {
             return;
         }
@@ -163,9 +168,14 @@ class Hook extends AbstractHook
      * @param   bool $recursion_first
      * @return  void
      */
-    public function postCopyFile(File $node, Collection $parent, File $new_node,
-        int $conflict, ?string $recursion, bool $recursion_first): void
-    {
+    public function postCopyFile(
+        File $node,
+        Collection $parent,
+        File $new_node,
+        int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void {
         if ($recursion_first === false) {
             return;
         }

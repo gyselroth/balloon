@@ -45,6 +45,7 @@
         "phpunit/phpunit": "5.7.*",
         "guzzlehttp/guzzle": "*",
         "friendsofphp/php-cs-fixer": "*",
-        "helmich/mongomock": "dev-master"
+        "helmich/mongomock": "dev-master",
+        "phpstan/phpstan": "^0.8.5"
     }
 }

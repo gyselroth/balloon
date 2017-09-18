@@ -43,22 +43,22 @@ class Cli extends AbstractBootstrap
     protected function configureLogger(array $options=[]): Cli
     {
         $level = 2;
-        if(isset($options['verbose'])) {
+        if (isset($options['verbose'])) {
             $value = $options['verbose'];
-            if($value === false) {
+            if ($value === false) {
                 $level = 4;
-            } elseif(is_array($value) && count($value) === 2) {
+            } elseif (is_array($value) && count($value) === 2) {
                 $level = 5;
-            } elseif(is_array($value) && count($value) === 3) {
+            } elseif (is_array($value) && count($value) === 3) {
                 $level = 6;
-            } elseif(is_array($value) && count($value) === 4) {
+            } elseif (is_array($value) && count($value) === 4) {
                 $level = 7;
             } else {
                 $level = 7;
             }
         }
 
-        if(!$this->logger->hasAdapter('stdout')) {
+        if (!$this->logger->hasAdapter('stdout')) {
             $this->logger->addAdapter('stdout', Stdout::class, [
                 'level'  => $level,
                 'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}']);
@@ -72,9 +72,9 @@ class Cli extends AbstractBootstrap
 
     /**
      * Parse cmd options
-     * 
+     *
      * @return array
-     */ 
+     */
     protected function parseOptions(): array
     {
         $options = $this->prepareOptions(getopt('hdqa::v::', [
@@ -86,9 +86,9 @@ class Cli extends AbstractBootstrap
 
         $this->configureLogger($options);
 
-        if(isset($options['help'])) {
+        if (isset($options['help'])) {
             return $this->showHelp();
-        } 
+        }
 
         $this->logger->info('processing incomming cli request', [
             'category' => get_class($this),
@@ -122,10 +122,10 @@ class Cli extends AbstractBootstrap
         ];
 
         $set = [];
-        foreach($priority as $option => $value) {
-            if(isset($options[$option])) {
+        foreach ($priority as $option => $value) {
+            if (isset($options[$option])) {
                 $set[$option] = $options[$option];
-            } elseif(isset($options[$value])) {
+            } elseif (isset($options[$value])) {
                 $set[$option] = $options[$value];
             }
         }
@@ -136,7 +136,7 @@ class Cli extends AbstractBootstrap
 
     /**
      * Start
-     * 
+     *
      * @param  array $options
      * @return bool
      */
@@ -144,27 +144,27 @@ class Cli extends AbstractBootstrap
     {
         $this->app = new App(App::CONTEXT_CLI, $this->composer, $this->server, $this->logger, $this->option_app);
         
-        if(isset($options['apps'])) {
+        if (isset($options['apps'])) {
             $apps = explode(',', $options['apps']);
         } else {
             $apps = [];
         }
 
-        if(!isset($options['queue'])) {
+        if (!isset($options['queue'])) {
             $this->logger->debug("skip job queue execution", [
                 'category' => get_class($this),
             ]);
         }
 
-        if(isset($options['daemon'])) {
+        if (isset($options['daemon'])) {
             $this->fireupDaemon($options);
         } else {
-            if(isset($options['queue'])) {
+            if (isset($options['queue'])) {
                 $cursor = $this->async->getCursor(false);
                 $this->async->start($cursor, $this->server);
             }
 
-            foreach($this->app->getApps($apps) as $app) {
+            foreach ($this->app->getApps($apps) as $app) {
                 $app->start();
             }
         }
@@ -186,8 +186,8 @@ class Cli extends AbstractBootstrap
         ]);
 
         $cursor = $this->async->getCursor(true);
-        while(true) {
-            if(isset($options['queue'])) {
+        while (true) {
+            if (isset($options['queue'])) {
                 $this->async->start($cursor, $this->server);
             }
         }

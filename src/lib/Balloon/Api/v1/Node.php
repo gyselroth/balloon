@@ -181,8 +181,8 @@ class Node extends Controller
         ?string $class=null,
         bool $multiple=false,
         bool $allow_root=false,
-        int $deleted=2): NodeInterface
-    {
+        int $deleted=2
+    ): NodeInterface {
         if ($class === null) {
             $class = join('', array_slice(explode('\\', get_class($this)), -1));
         }
@@ -288,13 +288,14 @@ class Node extends Controller
         bool $move=false,
         ?string $destid=null,
         ?string $destp=null,
-        int $conflict=0): Response
-    {
+        int $conflict=0
+    ): Response {
         if ($move == true) {
             try {
                 $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
             } catch (Exception\NotFound $e) {
-                throw new Exception\NotFound('destination collection was not found or is not a collection',
+                throw new Exception\NotFound(
+                    'destination collection was not found or is not a collection',
                     Exception\NotFound::DESTINATION_NOT_FOUND
                 );
             }
@@ -404,22 +405,22 @@ class Node extends Controller
         int $length=0,
         ?string $encode=null,
         bool $download=false,
-        string $name='selected'): Response
-    {
+        string $name='selected'
+    ): Response {
         if (is_array($id)) {
             return $this->_combine($id, $p, $name);
-        } 
+        }
          
         $node = $this->_getNode($id, $p);
         if ($node instanceof Collection) {
-            return (new Response())->setBody(function() use($node){
+            return (new Response())->setBody(function () use ($node) {
                 $node->getZip();
             });
         }
      
         $response = new Response();
 
-        if($download == true) {
+        if ($download == true) {
             $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\'' .rawurlencode($name));
             $response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
             $response->setHeader('Content-Type', 'application/octet-stream');
@@ -431,48 +432,49 @@ class Node extends Controller
 
         return (new Response())
           ->setOutputFormat(null)
-          ->setBody(function() use($node, $encode, $offset, $length, $download){
-            $mime  = $node->getMime();
-            $stream = $node->get();
-            $name  = $node->getName();
+          ->setBody(function () use ($node, $encode, $offset, $length, $download) {
+              $mime  = $node->getMime();
+              $stream = $node->get();
+              $name  = $node->getName();
         
-            if ($stream === null) {
-                return;
-            }
+              if ($stream === null) {
+                  return;
+              }
 
-            if ($offset !== 0) {
-                if (fseek($stream, $offset) === -1) {
-                    throw new Exception\Conflict('invalid offset requested',
+              if ($offset !== 0) {
+                  if (fseek($stream, $offset) === -1) {
+                      throw new Exception\Conflict(
+                        'invalid offset requested',
                         Exception\Conflict::INVALID_OFFSET
                     );
-                }
-            }
+                  }
+              }
 
-            $read = 0;
-            header('Content-Type: '.$mime.'');
-            if ($encode === 'base64') {
-                header('Content-Encoding: base64');
-                while (!feof($stream)) {
-                    if ($length !== 0 && $read + 8192 > $length) {
-                        echo base64_encode(fread($stream, $length - $read));
-                        exit();
-                    }
+              $read = 0;
+              header('Content-Type: '.$mime.'');
+              if ($encode === 'base64') {
+                  header('Content-Encoding: base64');
+                  while (!feof($stream)) {
+                      if ($length !== 0 && $read + 8192 > $length) {
+                          echo base64_encode(fread($stream, $length - $read));
+                          exit();
+                      }
 
-                    echo base64_encode(fread($stream, 8192));
-                    $read += 8192;
-                }
-            } else {
-                while (!feof($stream)) {
-                    if ($length !== 0 && $read + 8192 > $length) {
-                        echo fread($stream, $length - $read);
-                        exit();
-                    }
+                      echo base64_encode(fread($stream, 8192));
+                      $read += 8192;
+                  }
+              } else {
+                  while (!feof($stream)) {
+                      if ($length !== 0 && $read + 8192 > $length) {
+                          echo fread($stream, $length - $read);
+                          exit();
+                      }
 
-                    echo fread($stream, 8192);
-                    $read += 8192;
-                }
-            }
-        });
+                      echo fread($stream, 8192);
+                      $read += 8192;
+                  }
+              }
+          });
     }
 
 
@@ -1001,12 +1003,13 @@ class Node extends Controller
         ?string $p=null,
         ?string $destid=null,
         ?string $destp=null,
-        int $conflict=0): Response
-    {
+        int $conflict=0
+    ): Response {
         try {
             $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
         } catch (Exception\NotFound $e) {
-            throw new Exception\NotFound('destination collection was not found or is not a collection',
+            throw new Exception\NotFound(
+                'destination collection was not found or is not a collection',
                 Exception\NotFound::DESTINATION_NOT_FOUND
             );
         }
@@ -1087,12 +1090,13 @@ class Node extends Controller
         ?string $p=null,
         ?string $destid=null,
         ?string $destp=null,
-        int $conflict=0): Response
-    {
+        int $conflict=0
+    ): Response {
         try {
             $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
         } catch (Exception\NotFound $e) {
-            throw new Exception\NotFound('destination collection was not found or is not a collection',
+            throw new Exception\NotFound(
+                'destination collection was not found or is not a collection',
                 Exception\NotFound::DESTINATION_NOT_FOUND
             );
         }
@@ -1171,8 +1175,8 @@ class Node extends Controller
         ?string $p=null,
         bool $force=false,
         bool $ignore_flag=false,
-        ?string $at=null): Response
-    {
+        ?string $at=null
+    ): Response {
         $failures = [];
             
         if ($at !== null && $at !== '0') {
@@ -1494,8 +1498,8 @@ class Node extends Controller
         ?string $p=null,
         ?string $cursor=null,
         int $limit=250,
-        array $attributes=[]): Response
-    {
+        array $attributes=[]
+    ): Response {
         if ($id !== null || $p !== null) {
             $node = $this->_getNode($id, $p);
         } else {

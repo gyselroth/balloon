@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Balloon
  *
@@ -62,7 +62,7 @@ class Http extends AbstractApp
             ->appendRoute(new Route('/api/v1/node/search', 'Balloon\App\Elasticsearch\Api\v1\Search'))
             ->run([$this->server, $this->logger]);
 
-         return true;
+        return true;
     }
 
 
@@ -73,12 +73,12 @@ class Http extends AbstractApp
      */
     public function setOptions(?Iterable $config=null): AppInterface
     {
-        if($config === null) {
+        if ($config === null) {
             return $this;
         }
 
-        foreach($config as $option => $value) {
-            switch($option) {
+        foreach ($config as $option => $value) {
+            switch ($option) {
                 case 'server':
                     $this->es_server = (array)$value;
                 break;
@@ -113,7 +113,7 @@ class Http extends AbstractApp
         $list = [];
         $id = false;
     
-        $user   = $this->server->getUser();    
+        $user   = $this->server->getUser();
         $shares = $user->getShares(true);
         $result = $this->executeQuery($query, $shares);
 
@@ -251,5 +251,4 @@ class Http extends AbstractApp
 
         return $result;
     }
-
 }

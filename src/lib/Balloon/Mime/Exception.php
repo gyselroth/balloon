@@ -9,11 +9,8 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Exception;
+namespace Balloon\Mime;
 
-class Internal extends \Balloon\Exception
+class Exception extends \Balloon\Exception
 {
-    const ERROR   = 97;
-    const WARNING = 98;
-    const DEBUG   = 99;
 }

@@ -102,6 +102,9 @@
     "second": "{{count}} second",
     "second_plural": "{{count}} seconds"
   },
+  "button": {
+    "save": "Save"
+  },
   "view": {
     "prop": {
       "head": {
@@ -132,7 +135,6 @@
       }
     },
     "preview": {
-      "save": "Save",
       "failed": "The preview could not be created"
     },
     "share": {
@@ -169,7 +171,6 @@
       "changed_since": "%s ago (%s)"
     },
     "advanced": {
-      "save": "Save",
       "destroyable": "Self-Destruction: (The node will destroy itself at the time specified (Not-restorable!)):",
       "prompt_destroy": "Would you really like to set the date/time %s for node %s for self destruction?",
       "readonly": "Readonly: (No content changes can be made anymore, but you can still modify meta data):"

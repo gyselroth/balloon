@@ -56,8 +56,8 @@ abstract class AbstractApp implements AppInterface
         Logger $logger,
         ?Iterable $config=null,
         ?Router $router=null,
-        ?Auth $auth=null)
-    {
+        ?Auth $auth=null
+    ) {
         $this->config   = $config;
         $this->router   = $router;
         $this->logger   = $logger;
@@ -100,7 +100,7 @@ abstract class AbstractApp implements AppInterface
     public function getName(): string
     {
         $class = str_replace('\\', '_', get_class($this));
-        return substr($class, 0, strrpos($class, '_') );
+        return substr($class, 0, strrpos($class, '_'));
     }
 
 

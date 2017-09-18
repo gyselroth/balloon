@@ -15,7 +15,7 @@ class Result
 {
     /**
      * Stream
-     * 
+     *
      * @var resource
      */
     protected $stream;
@@ -23,7 +23,7 @@ class Result
 
     /**
      * Path
-     * 
+     *
      * @var string
      */
     protected $path;
@@ -46,7 +46,7 @@ class Result
     /**
      * Get path
      *
-     * @return string  
+     * @return string
      */
     public function getPath(): string
     {
@@ -61,7 +61,7 @@ class Result
      */
     public function getStream()
     {
-        if($this->stream === null) {
+        if ($this->stream === null) {
             return $this->stream = fopen($this->path, 'r');
         }
 
@@ -76,6 +76,6 @@ class Result
      */
     public function getContents(): string
     {
-        return file_get_contents($this->path); 
+        return file_get_contents($this->path);
     }
 }

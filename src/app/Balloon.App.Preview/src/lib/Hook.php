@@ -32,11 +32,11 @@ class Hook extends AbstractHook
      */
     public function preDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
-        if($force === true) {
+        if ($force === true) {
             try {
                 $node->getFilesystem()->getServer()->getApp()->getApp('Balloon.App.Preview')->deletePreview($node);
             } catch (FileNotFoundException $e) {
-                 $this->logger->debug('could not remove preview from file ['.$node->getId().'], preview does not exists', [
+                $this->logger->debug('could not remove preview from file ['.$node->getId().'], preview does not exists', [
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);

@@ -19,6 +19,7 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
+use \Balloon\Mime;
 
 class File extends AbstractNode implements DAV\IFile
 {
@@ -132,7 +133,8 @@ class File extends AbstractNode implements DAV\IFile
                 return $this->_db->selectGridFSBucket()->openDownloadStream($this->file);
             }
         } catch (\Exception $e) {
-            throw new Exception\NotFound('content not found',
+            throw new Exception\NotFound(
+                'content not found',
                 Exception\NotFound::CONTENT_NOT_FOUND
             );
         }
@@ -150,7 +152,8 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function copyTo(Collection $parent, int $conflict=NodeInterface::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): NodeInterface
     {
-        $this->_hook->run('preCopyFile',
+        $this->_hook->run(
+            'preCopyFile',
             [$this, $parent, &$conflict, &$recursion, &$recursion_first]
         );
 
@@ -172,7 +175,8 @@ class File extends AbstractNode implements DAV\IFile
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        $this->_hook->run('postCopyFile',
+        $this->_hook->run(
+            'postCopyFile',
             [$this, $parent, $result, $conflict, $recursion, $recursion_first]
         );
 
@@ -211,7 +215,8 @@ class File extends AbstractNode implements DAV\IFile
     public function restore(int $version): bool
     {
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to restore node '.$this->name,
+            throw new Exception\Forbidden(
+                'not allowed to restore node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_RESTORE
             );
         }
@@ -219,7 +224,8 @@ class File extends AbstractNode implements DAV\IFile
         $this->_hook->run('preRestoreFile', [$this, &$version]);
         
         if ($this->readonly) {
-            throw new Exception\Conflict('node is marked as readonly, it is not possible to change any content',
+            throw new Exception\Conflict(
+                'node is marked as readonly, it is not possible to change any content',
                 Exception\Conflict::READONLY
             );
         }
@@ -307,7 +313,8 @@ class File extends AbstractNode implements DAV\IFile
     public function delete(bool $force=false, ?string $recursion=null, bool $recursion_first=true): bool
     {
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to delete node '.$this->name,
+            throw new Exception\Forbidden(
+                'not allowed to delete node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_DELETE
             );
         }
@@ -315,7 +322,8 @@ class File extends AbstractNode implements DAV\IFile
         $this->_hook->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
 
         if ($this->readonly && $this->_user !== null) {
-            throw new Exception\Conflict('node is marked as readonly, it is not possible to delete it',
+            throw new Exception\Conflict(
+                'node is marked as readonly, it is not possible to delete it',
                 Exception\Conflict::READONLY
             );
         }
@@ -720,16 +728,6 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Unzip zip
-     *
-     * @return bool
-     */
-    public function unzip(): bool
-    {
-    }
-
-
-    /**
      * Change content
      *
      * @param   resource|string $file
@@ -744,7 +742,8 @@ class File extends AbstractNode implements DAV\IFile
         ]);
 
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to modify node',
+            throw new Exception\Forbidden(
+                'not allowed to modify node',
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
             );
         }
@@ -752,13 +751,15 @@ class File extends AbstractNode implements DAV\IFile
         $this->_hook->run('prePutFile', [$this, &$file, &$new, &$attributes]);
 
         if ($this->readonly) {
-            throw new Exception\Conflict('node is marked as readonly, it is not possible to change any content',
+            throw new Exception\Conflict(
+                'node is marked as readonly, it is not possible to change any content',
                 Exception\Conflict::READONLY
             );
         }
 
         if ($this->isShareMember() && $new === false && $this->getShareNode()->getAclPrivilege() === 'w') {
-            throw new Exception\Forbidden('not allowed to overwrite node',
+            throw new Exception\Forbidden(
+                'not allowed to overwrite node',
                 Exception\Forbidden::NOT_ALLOWED_TO_OVERWRITE
             );
         }
@@ -783,7 +784,8 @@ class File extends AbstractNode implements DAV\IFile
 
             if ($size > (int)$this->_fs->getServer()->getMaxFileSize()) {
                 unlink($tmp_file);
-                throw new Exception\InsufficientStorage('file size exceeded limit',
+                throw new Exception\InsufficientStorage(
+                    'file size exceeded limit',
                     Exception\InsufficientStorage::FILE_SIZE_LIMIT
                 );
             }
@@ -809,7 +811,9 @@ class File extends AbstractNode implements DAV\IFile
                     $this->_forceDelete();
                 }
             
-                throw new Exception\InsufficientStorage('user quota is full',
+                throw new Exception\InsufficientStorage(
+            
+                    'user quota is full',
                     Exception\InsufficientStorage::USER_QUOTA_FULL
                 );
             }
@@ -855,11 +859,7 @@ class File extends AbstractNode implements DAV\IFile
         if (isset($attributes['mime'])) {
             $this->mime = $attributes['mime'];
         } elseif ($file !== null) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $this->mime  = finfo_file($finfo, $file);
-            if ($this->mime == 'application/zip' || $this->mime == 'application/vnd.ms-office') {
-                $this->mime = $this->getMimeTypeFromExtension($this->name);
-            }
+            $this->mime = (new Mime())->getMime($file, $this->name);
         }
        
         //Remove tmp file
@@ -939,41 +939,6 @@ class File extends AbstractNode implements DAV\IFile
     
             throw $e;
         }
-    }
-
-
-    /**
-     * Get mimetype with string (file has not to be exists)
-     *
-     * @param  string $filename
-     * @param  string $db mimetypes
-     * @return string
-     */
-    public function getMimeTypeFromExtension(string $filename, string $db='/etc/mime.types'): string
-    {
-        if (!is_readable($db)) {
-            throw new Exception('mime database '.$db.' was not found or is not readable');
-        }
-
-        $fileext = substr(strrchr($filename, '.'), 1);
-        if (empty($fileext)) {
-            return (false);
-        }
-        $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";
-        $lines = file($db);
-
-        foreach ($lines as $line) {
-            if (substr($line, 0, 1) == '#') {
-                continue;
-            } // skip comments
-            $line = rtrim($line) . " ";
-            if (!preg_match($regex, $line, $matches)) {
-                continue;
-            } // no match to the extension
-            return $matches[1];
-        }
-    
-        return false; // no match at all
     }
 
 

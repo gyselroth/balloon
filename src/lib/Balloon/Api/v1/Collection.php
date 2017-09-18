@@ -101,8 +101,8 @@ class Collection extends Node
         ?string $p=null,
         int $deleted=0,
         array $filter=[],
-        array $attributes=[]): Response
-    {
+        array $attributes=[]
+    ): Response {
         $children = [];
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
         
@@ -295,8 +295,8 @@ class Collection extends Node
         ?string $p=null,
         ?string $name=null,
         array $attributes=[],
-        int $conflict=0): Response
-    {
+        int $conflict=0
+    ): Response {
         if ($p !== null && $name !== null) {
             throw new Exception\InvalidArgument('p and name can not be used at the same time');
         }

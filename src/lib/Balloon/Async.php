@@ -92,14 +92,14 @@ class Async
     
     /**
      * Get cursor
-     * 
+     *
      * @param  bool $tailable
      * @return IteratorIterator
      */
     public function getCursor(bool $tailable=false): IteratorIterator
     {
         $options = [];
-        if($tailable === true) {
+        if ($tailable === true) {
             $options['cursorType'] = Find::TAILABLE;
         }
 
@@ -124,7 +124,7 @@ class Async
         ]]);
         
         return $result->isAcknowledged();
-    }      
+    }
 
 
     /**
@@ -136,9 +136,9 @@ class Async
      */
     public function start(IteratorIterator $cursor, Server $server): bool
     {
-        while(true) {
-            if($cursor->current() === null) {
-                if($cursor->getInnerIterator()->isDead()) {
+        while (true) {
+            if ($cursor->current() === null) {
+                if ($cursor->getInnerIterator()->isDead()) {
                     return false;
                 } else {
                     $cursor->next();

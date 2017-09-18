@@ -222,8 +222,8 @@ class Controller
         ?string $class=null,
         bool $multiple=false,
         bool $allow_root=false,
-        int $deleted=2): NodeInterface
-    {
+        int $deleted=2
+    ): NodeInterface {
         if ($class === null) {
             $class = join('', array_slice(explode('\\', get_class($this)), -1));
         }

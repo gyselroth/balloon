@@ -160,7 +160,7 @@ class User
      * @param   bool $ignore_deleted
      * @return  void
      */
-    public function __construct(array $attributes, Server $server, Logger $logger,  bool $ignore_deleted=true)
+    public function __construct(array $attributes, Server $server, Logger $logger, bool $ignore_deleted=true)
     {
         $this->server   = $server;
         $this->db       = $server->getDatabase();
@@ -171,7 +171,8 @@ class User
         }
 
         if ($this->deleted === true && $ignore_deleted === false) {
-            throw new Exception\NotAuthenticated('user '.$username.' is deleted',
+            throw new Exception\NotAuthenticated(
+                'user '.$username.' is deleted',
                 Exception\NotAuthenticated::USER_DELETED
             );
         }
@@ -426,7 +427,7 @@ class User
      */
     public function getFilesystem(): Filesystem
     {
-        if($this->fs instanceof Filesystem) {
+        if ($this->fs instanceof Filesystem) {
             return $this->fs;
         }
 
@@ -658,7 +659,8 @@ class User
      */
     public function getQuotaUsage(): array
     {
-        $result = $this->db->storage->find([
+        $result = $this->db->storage->find(
+            [
                 'owner'     => $this->_id,
                 'directory' => false,
                 'deleted'   => false,

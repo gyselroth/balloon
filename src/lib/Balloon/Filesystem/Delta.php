@@ -282,8 +282,10 @@ class Delta
     {
         $this->user->findNewShares();
 
-        $attributes = array_merge(['id', 'directory', 'deleted',  'path', 'changed', 'created', 'owner'],
-            $attributes);
+        $attributes = array_merge(
+            ['id', 'directory', 'deleted',  'path', 'changed', 'created', 'owner'],
+            $attributes
+        );
 
         $cursor = $this->decodeCursor($cursor);
 

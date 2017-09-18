@@ -77,12 +77,12 @@ class Converter
         $converter = $this->default_converter;
 
         foreach ($config as $option => $value) {
-            if(!isset($value['class'])) {
+            if (!isset($value['class'])) {
                 throw new Exception('option class is required');
             }
 
             $converter[$value['class']] = [];
-            if(isset($value['config'])) {
+            if (isset($value['config'])) {
                 $config = $value['config'];
             } else {
                 $config = null;
@@ -155,7 +155,7 @@ class Converter
 
     /**
      * Get converter
-     *      
+     *
      * @param  string $name
      * @return AdapterInterface
      */
@@ -171,7 +171,7 @@ class Converter
 
     /**
      * Get converters
-     *      
+     *
      * @param  array $converters
      * @return array
      */

@@ -93,12 +93,14 @@ class User extends Controller
                     $this->fs->setUser($user);
                     return $user;
                 } catch (\Exception $e) {
-                    throw new Exception\NotFound('requested user was not found',
+                    throw new Exception\NotFound(
+                        'requested user was not found',
                         Exception\NotFound::USER_NOT_FOUND
                     );
                 }
             } else {
-                throw new Exception\Forbidden('submitted parameters require to have admin privileges',
+                throw new Exception\Forbidden(
+                    'submitted parameters require to have admin privileges',
                     Exception\Forbidden::ADMIN_PRIV_REQUIRED
                 );
             }

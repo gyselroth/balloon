@@ -56,6 +56,7 @@ class Office extends Imagick
             'xlsb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
             'xlsm' => 'application/vnd.ms-excel.sheet.macroEnabled.12',
             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'csv'  => 'text/csv'
         ]
     ];
 
@@ -68,7 +69,7 @@ class Office extends Imagick
      */
     public function setOptions(Iterable $config=null): AdapterInterface
     {
-        if($config === null) {
+        if ($config === null) {
             return $this;
         }
 
@@ -115,8 +116,8 @@ class Office extends Imagick
             return false;
         }
         
-        foreach($this->formats as $type => $formats) {
-            if(in_array($file->getMime(), $formats)) {
+        foreach ($this->formats as $type => $formats) {
+            if (in_array($file->getMime(), $formats)) {
                 return true;
             }
         }
@@ -133,8 +134,8 @@ class Office extends Imagick
      */
     public function getSupportedFormats(File $file): array
     {
-        foreach($this->formats as $type => $formats) {
-            if(in_array($file->getMime(), $formats)) {
+        foreach ($this->formats as $type => $formats) {
+            if (in_array($file->getMime(), $formats)) {
                 $values = array_keys($formats);
                 return array_merge($values, parent::getSupportedFormats($file));
             }
@@ -155,11 +156,11 @@ class Office extends Imagick
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
 
-        if(in_array($format, parent::getSupportedFormats($file))) {
+        if (in_array($format, parent::getSupportedFormats($file))) {
             $convert = 'pdf';
         } else {
             $convert =  $format;
-        } 
+        }
 
         $command = "HOME=".escapeshellarg($this->tmp)." timeout ".escapeshellarg($this->timeout)." "
             .escapeshellarg($this->soffice)
@@ -179,7 +180,7 @@ class Office extends Imagick
         ]);
 
         shell_exec($command);
-        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$format;
+        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$convert;
 
         if (!file_exists($temp)) {
             throw new Exception('failed convert document into '.$convert);
@@ -188,8 +189,8 @@ class Office extends Imagick
                 'category' => get_class($this),
             ]);
                                     
-            if($convert === 'pdf' && $format !== 'pdf') {
-                return $this->createFromFile($temp);
+            if ($convert === 'pdf' && $format !== 'pdf') {
+                return $this->createFromFile($temp, $format);
             } else {
                 return new Result($temp);
             }

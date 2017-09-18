@@ -55,16 +55,16 @@ class Hook
     public function registerHook(string $class, ?Iterable $config=null): bool
     {
         if (!class_exists($class)) {
-           throw new Exception("hook class $class was not found");
+            throw new Exception("hook class $class was not found");
         }
             
         $hook = new $class($this->logger, $config);
         if (isset($this->hook[$class])) {
-           throw new Exception('hook '.$class.' is already registered');
+            throw new Exception('hook '.$class.' is already registered');
         }
             
         if (!($hook instanceof HookInterface)) {
-           throw new Exception('hook '.$class.' does not implement HookInterface');
+            throw new Exception('hook '.$class.' does not implement HookInterface');
         }
 
         $this->logger->info('register hook ['.$class.']', [
@@ -108,7 +108,7 @@ class Hook
 
     /**
      * Get hook
-     *      
+     *
      * @param  string $class
      * @return HookInterface
      */
@@ -124,7 +124,7 @@ class Hook
 
     /**
      * Get hooks
-     *      
+     *
      * @param  array $hooks
      * @return array
      */

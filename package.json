@@ -12,5 +12,9 @@
         "title": "Getting Started",
         "filename": "doc/header.md"
     }
+  },
+  "devDependencies": {
+    "yuicompressor": "*",
+    "apidoc": "*"
   }
 }

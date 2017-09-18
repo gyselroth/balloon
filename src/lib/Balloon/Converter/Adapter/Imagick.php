@@ -34,7 +34,7 @@ class Imagick extends AbstractAdapter
      */
     public function setOptions(?Iterable $config=null): AdapterInterface
     {
-        if($config === null) {
+        if ($config === null) {
             return $this;
         }
 
