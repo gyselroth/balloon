@@ -52,8 +52,23 @@
             </config>
         </elasticsearch>
 
+        <!--
+          - ClamAv antivirus
+
+          - app[].config.socket: Socket of the clamav daemon
+          - app[].config.max_stream_size: maximum stream size accepted by the clamav daemon
+          - app[].config.aggressiveness: Level how "aggressive" the app threats infected files:
+          -     0 => no action
+          -     1 => set quarantine attribute on node to true
+          -     2 => thrash node and set quarantine attribute to true
+          -     3 => force delete node (default)
+          -->
         <ClamAv enabled="0" class="\Balloon\App\ClamAv">
-            <config/>
+            <config>
+                <socket>unix:///var/run/clamav/clamd.ctl</socket>
+                <max_stream_size>26214400</max_stream_size>
+                <aggressiveness>3</aggressiveness>
+            </config>
         </ClamAv>
 
       <!--

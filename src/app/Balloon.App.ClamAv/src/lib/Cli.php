@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Balloon
  *
@@ -12,6 +14,9 @@ namespace Balloon\App\ClamAv;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\App\AbstractApp;
 use \Balloon\App\AppInterface;
+use \Xenolope\Quahog\Client as ClamAv;
+use \Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
+use \Socket\Raw\Factory as SocketFactory;
 
 class Cli extends AbstractApp
 {
@@ -30,7 +35,14 @@ class Cli extends AbstractApp
     *
     * @var int
     */
-    protected $maxStreamSize = 26214400;
+    protected $max_stream_size = 26214400;
+
+    /**
+    * Aggressiveness
+    *
+    * @var int
+    */
+    protected $aggressiveness = 3;
 
     /**
      * Init
@@ -58,8 +70,13 @@ class Cli extends AbstractApp
                 case 'socket':
                     $this->socket = (string)$value;
                     break;
-                case 'maxStreamSize':
-                    $this->maxStreamSize = (int)$value;
+                case 'max_stream_size':
+                    $this->max_stream_size = (int)$value;
+                    break;
+                case 'aggressiveness':
+                    if ((int)$value <= 3) {
+                        $this->aggressiveness = (int)$value;
+                    }
                     break;
             }
         }
@@ -75,23 +92,23 @@ class Cli extends AbstractApp
      */
     public function scan(File $file): int
     {
-        if ($file->getSize() > $this->maxStreamSize) {
-            throw new Exception('file size of ' . $file->getSize() . ' exceeds stream size (' . $this->maxStreamSize . ')');
+        if ($file->getSize() > $this->max_stream_size) {
+            throw new Exception('file size of ' . $file->getSize() . ' exceeds stream size (' . $this->max_stream_size . ')');
         }
 
         try {
             // Create a new socket instance
-            $socket = (new \Socket\Raw\Factory())->createClient($this->socket);
+            $socket = (new SocketFactory())->createClient($this->socket);
         } catch (\Exception $e) {
             throw new Exception('scan of file [' . $file->getId() . '] failed: ' . $e->getMessage());
         }
 
         try {
             // Create a new instance of the Client
-            $quahog = new \Xenolope\Quahog\Client($socket, 30, PHP_NORMAL_READ);
+            $clamav = new ClamAv($socket, 30, PHP_NORMAL_READ);
 
             // Scan file
-            $result = $quahog->scanResourceStream($file->get());
+            $result = $clamav->scanResourceStream($file->get());
 
             $this->logger->debug('scan result for file [' . $file->getId() . ']: ' . $result['status'], [
                 'category' => get_class($this)
@@ -106,9 +123,39 @@ class Cli extends AbstractApp
                 ]);
                 return self::FILE_INFECTED;
             }
-        } catch (Xenolope\Quahog\Exception\ConnectionException $e) {
+        } catch (ClamAvConnectionException $e) {
             throw new Exception('scan of file [' . $file->getId() . '] failed: ' . $e->getMessage());
         }
         throw new Exception('scan of file [' . $file->getId() . '] failed: status=' . $result['status'] . ', reason=' . $result['reason']);
+    }
+
+    /**
+     * Execute appropriate action on given file
+     *
+     * @param  File $file
+     * @param  bool $infected
+     * @return void
+     */
+    public function handleFile(File $file, $infected=false): void
+    {
+        if ($infected) {
+            switch ($this->aggressiveness) {
+                case 0:
+                    break;
+                case 1:
+                    $file->setAppAttribute($this, 'quarantine', true);
+                    break;
+                case 2:
+                    $file->setAppAttribute($this, 'quarantine', true);
+                    $file->delete();
+                    break;
+                case 3:
+                default:
+                    $file->delete(true);
+                    break;
+            }
+        } else {
+            $file->setAppAttribute($this, 'quarantine', false);
+        }
     }
 }

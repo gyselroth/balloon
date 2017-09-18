@@ -39,9 +39,9 @@ class Job extends AbstractJob
           return false;
         }
 
-        if ($result === 0) {
-            $file->delete(true);
-        }
+        $infected = $result === Cli::FILE_INFECTED;
+
+        $server->getApp()->getApp('Balloon.App.ClamAv')->handleFile($file, $infected);
 
         return true;
     }
