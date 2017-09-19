@@ -6,6 +6,8 @@ use \Balloon\Testsuite\Unit\Test;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use \MongoDB\BSON\UTCDateTime;
+use \MongoDB\BSON\ObjectId;
+
 
 class GetLastRecordTest extends Test
 {
@@ -68,47 +70,51 @@ class GetLastRecordTest extends Test
         $this->assertEquals($from_delta['name'], $data[1]['name']);
     }
 
-    // public function testGetCollectionRecord()
-    // {
-    //     // fixture
-    //     $data = [
-    //         [
-    //             'owner' => $this->fs->getUser()->getId(),
-    //             'timestamp' => new UTCDateTime(0),
-    //             'operation' => 'test1',
-    //             'node'  =>  new File(
-    //                 new BSONDocument([
-    //                     'owner' => $this->fs->getUser()->getId(),
-    //                     '_id' => uniqid()
-    //                 ]),
-    //                 $this->fs
-    //             ),
-    //             'name' => uniqid()
-    //         ], [
-    //             'owner' => $this->fs->getUser()->getId(),
-    //             'timestamp' => new UTCDateTime(),
-    //             'operation' => 'test2',
-    //             'node'  =>  new File(
-    //                 new BSONDocument([
-    //                     'owner' => $this->fs->getUser()->getId(),
-    //                     '_id' => uniqid()
-    //                 ]),
-    //                 $this->fs
-    //             ),
-    //             'name' => uniqid()
-    //         ]
-    //     ];
-    //
-    //     // create records
-    //     foreach ($data as $record) {
-    //         $this->delta->add($record);
-    //     }
-    //
-    //     var_dump("0 " . $data[0]['node']->getId());
-    //     var_dump("1 " . $data[1]['node']->getId());
-    //     // get record
-    //     $from_delta = $this->delta->getLastRecord($data[0]['node']);
-    //     var_dump($from_delta['operation']);
-    //     $this->assertTrue(self::looseCompareBSON($from_delta, new BSONDocument($data[0]), ['_id', 'node']));
-    // }
+    public function testGetLastRecordForNode()
+    {
+        // fixture
+        $files = [
+            new File(
+                [
+                    'owner' => $this->fs->getUser()->getId(),
+                    '_id' => new ObjectId()
+                ],
+                $this->fs
+            ),
+            new File(
+                [
+                    'owner' => $this->fs->getUser()->getId(),
+                    '_id' => new ObjectId()
+                ],
+                $this->fs
+            )
+        ];
+        $data = [
+            [
+                'owner' => $this->fs->getUser()->getId(),
+                'timestamp' => new UTCDateTime(0),
+                'operation' => 'test1',
+                'node'  => $files[0]->getId(),
+                'name' => uniqid()
+            ], [
+                'owner' => $this->fs->getUser()->getId(),
+                'timestamp' => new UTCDateTime(),
+                'operation' => 'test2',
+                'node'  => $files[1]->getId(),
+                'name' => uniqid()
+            ]
+        ];
+
+
+        // create records
+        foreach ($data as $record) {
+            $this->delta->add($record);
+        }
+
+        // get record
+        $from_delta = $this->delta->getLastRecord($files[0]);
+        // unset _id property to be able to compare
+        unset($from_delta['_id']);
+        $this->assertEquals($data[0], $from_delta);
+    }
 }

@@ -93,7 +93,7 @@ class Delta
         if (!array_key_exists('operation', $options)) {
             return false;
         }
-        
+
         return array_key_exists('owner', $options) || array_key_exists('share', $options);
     }
 
@@ -225,8 +225,11 @@ class Delta
         $filter = $this->getDeltaFilter();
 
         if ($node !== null) {
-            $filter['$and'][] = [
-                'node' => $node->getId()
+            $filter = [
+                '$and' => [
+                    ['node' => $node->getId()],
+                    $filter
+                ]
             ];
         }
 
@@ -251,8 +254,11 @@ class Delta
         $filter = $this->getDeltaFilter();
 
         if ($node !== null) {
-            $filter['$and'][] = [
-                'node' => $node->getId()
+            $filter = [
+                '$and' => [
+                    ['node' => $node->getId()],
+                    $filter
+                ]
             ];
         }
 
@@ -358,7 +364,7 @@ class Delta
                         $list[$member_attrs['path']] = $member_attrs;
                     }
                 }
-                
+
                 $fields = $log_node->getAttributes($attributes);
 
                 if (array_key_exists('previous', $log)) {
