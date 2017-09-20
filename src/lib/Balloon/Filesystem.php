@@ -32,7 +32,7 @@ class Filesystem
      */
     protected $db;
 
-    
+
     /**
      * Logger
      *
@@ -71,7 +71,7 @@ class Filesystem
      * @var Delta
      */
     protected $delta;
-    
+
 
     /**
      * Get user
@@ -108,8 +108,8 @@ class Filesystem
     {
         return $this->user;
     }
-   
-    
+
+
     /**
      * Get server
      *
@@ -119,7 +119,7 @@ class Filesystem
     {
         return $this->server;
     }
-    
+
 
     /**
      * Get database
@@ -130,7 +130,7 @@ class Filesystem
     {
         return $this->db;
     }
-    
+
 
     /**
      * Get root
@@ -142,7 +142,7 @@ class Filesystem
         if ($this->root instanceof Collection) {
             return $this->root;
         }
- 
+
         return $this->root = new Collection(null, $this);
     }
 
@@ -157,11 +157,11 @@ class Filesystem
         if ($this->delta instanceof Delta) {
             return $this->delta;
         }
- 
+
         return $this->delta = new Delta($this);
     }
 
-    
+
     /**
      * Find raw node
      *
@@ -218,7 +218,7 @@ class Filesystem
                     'shared' => true,
                     'reference' => $node['_id'],
                 ]);
-                
+
                 if ($node === null) {
                     throw new Exception\NotFound(
                         'no share reference for node '.$node['_id'].' found',
@@ -228,8 +228,18 @@ class Filesystem
             }
         }
 
+        if (isset($node['parent'])) {
+            try {
+                $this->findNodeWithId($node['parent']);
+            } catch (Exception\InvalidArgument $e) {
+                throw new Exception\InvalidArgument('invalid parent node specified: ' . $e->getMessage());
+            } catch (Exception\NotFound $e) {
+                throw new Exception\InvalidArgument('invalid parent node specified: ' . $e->getMessage());
+            }
+        }
+
         if (!array_key_exists('directory', $node)) {
-            throw new Exception('invalid node '.$id.' found, directory attribute does not exists');
+            throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         } elseif ($node['directory'] == true) {
             return new Collection($node, $this);
         } else {
@@ -276,14 +286,14 @@ class Filesystem
         }
 
         $node = $this->db->storage->findOne($filter);
-        
+
         if ($node === null) {
             throw new Exception\NotFound(
-                'node '.$id.' not found',
+                'node ['.$id.'] not found',
                 Exception\NotFound::NODE_NOT_FOUND
             );
         }
-        
+
         $return = $this->initNode($node);
 
         if ($class !== null) {
@@ -293,7 +303,7 @@ class Filesystem
         if ($class !== null && !($return instanceof $class)) {
             throw new Exception('node '.get_class($return).' is not instance of '.$class);
         }
-    
+
         return $return;
     }
 
@@ -310,7 +320,7 @@ class Filesystem
         if (empty($path) || $path[0] != '/') {
             $path = '/'.$path;
         }
-        
+
         $last = strlen($path)-1;
         if ($path[$last] == '/') {
             $path = substr($path, 0, -1);
@@ -322,7 +332,7 @@ class Filesystem
         foreach ($parts as $node) {
             $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
         }
-        
+
         if ($class !== null) {
             $class = '\Balloon\Filesystem\Node\\'.$class;
         }
@@ -349,7 +359,7 @@ class Filesystem
         foreach ($id as $i) {
             $find[] = new ObjectID($i);
         }
-        
+
         $filter = [
             '_id' => ['$in' => $find]
         ];
@@ -364,7 +374,7 @@ class Filesystem
                 $filter['deleted'] = ['$type' => 9];
                 break;
         }
-        
+
         $result = $this->db->storage->find($filter);
 
         if ($class !== null) {
@@ -374,11 +384,11 @@ class Filesystem
         $nodes = [];
         foreach ($result as $node) {
             $return = $this->initNode($node);
-        
+
             if ($class !== null && !($return instanceof $class)) {
                 throw new Exception('node is not instance of '.$class);
             }
-        
+
             yield $return;
         }
     }
@@ -402,7 +412,7 @@ class Filesystem
             if ($allow_root === true) {
                 return $this->getRoot();
             }
-            
+
             throw new Exception\InvalidArgument('neither parameter id nor p (path) was given');
         } elseif ($id !== null && $path !== null) {
             throw new Exception\InvalidArgument('parameter id and p (path) can not be used at the same time');
@@ -420,13 +430,13 @@ class Filesystem
             if ($deleted === null) {
                 $deleted = NodeInterface::DELETED_EXCLUDE;
             }
-    
+
             $node = $this->findNodeWithPath($path, $class);
         }
-        
+
         return $node;
     }
-    
+
 
     /**
      * Find node with custom filter
@@ -446,7 +456,7 @@ class Filesystem
 
         return $this->initNode($result);
     }
-    
+
 
     /**
      * Find nodes with custom filters
@@ -463,7 +473,7 @@ class Filesystem
             if (!array_key_exists('directory', $node)) {
                 continue;
             }
-    
+
             try {
                 yield $this->initNode($node);
             } catch (\Exception $e) {
@@ -503,10 +513,10 @@ class Filesystem
         } elseif ($deleted === NodeInterface::DELETED_ONLY) {
             $stored_filter['$and'][0]['deleted'] = ['$type' => 9];
         }
-        
+
         $stored_filter['$and'][0] = array_merge($filter, $stored_filter['$and'][0]);
         $result = $this->db->storage->find($stored_filter);
-        
+
         foreach ($result as $node) {
             try {
                 yield $this->initNode($node);
@@ -549,7 +559,7 @@ class Filesystem
 
         $search_attributes = array_merge($default, array_fill_keys($attributes, 1));
         $list   = [];
-        
+
         $result =$this->db->storage->find($filter, [
             'skip'      => $cursor,
             'limit'     => $limit,
@@ -566,7 +576,7 @@ class Filesystem
 
         foreach ($result as $node) {
             ++$cursor;
-            
+
             try {
                 $node = $this->initNode($node);
 
@@ -584,7 +594,7 @@ class Filesystem
             $values = $node->getAttributes($attributes);
             $list[] = $values;
         }
-        
+
         $has_more = ($left - $count) > 0;
         return $list;
     }
