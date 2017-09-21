@@ -4,17 +4,59 @@
   "description": "",
   "title": "balloon",
   "apidoc": {
-      "sampleUrl": " ",
-      "template": {
-        "withCompare": false
-      },
-      "header": {
-        "title": "Getting Started",
-        "filename": "doc/header.md"
+    "sampleUrl": " ",
+    "template": {
+      "withCompare": false
+    },
+    "header": {
+      "title": "Getting Started",
+      "filename": "doc/header.md"
     }
   },
-  "devDependencies": {
+  "dependencies": {
+    "@openid/appauth": "*",
+    "i18next": "3.x",
+    "i18next-browser-languagedetector": "*",
+    "i18next-localstorage-cache": "*",
+    "i18next-sprintf-postprocessor": "*",
+    "i18next-xhr-backend": "*",
+    "jquery": "3.x",
+    "jquery-i18next": "*",
+    "jquery-ui": "1.x",
+    "kendo-ui-core": "*",
+    "kendo-ui-web": "https://github.com/StefH/bower-kendo-ui-web.git",
+    "apidoc": "*",
+    "webpack": "^3.6.0",
     "yuicompressor": "*",
-    "apidoc": "*"
+    "yarn": "*"
+  },
+  "resolutions": {
+    "jquery": "3.2.1",
+    "@types/form-data": "2.2.0",
+    "@types/node": "8.0.28",
+    "@types/react": "16.0.5",
+    "form-data": "2.1.4",
+    "boom": "2.10.1",
+    "cryptiles": "2.0.5",
+    "hoek": "2.16.3",
+    "ajv": "4.11.8",
+    "assert-plus": "1.0.0",
+    "punycode": "1.4.1",
+    "semver": "5.3.0",
+    "inherits": "2.0.1",
+    "strip-ansi": "0.1.1",
+    "async": "1.0.0",
+    "acorn": "4.0.13",
+    "yargs": "3.10.0",
+    "string_decoder": "1.0.3",
+    "minimist": "1.2.0",
+    "hash-base": "3.0.4",
+    "camelcase": "1.2.1",
+    "cliui": "2.1.0",
+    "kind-of": "4.0.0",
+    "is-number": "3.0.0",
+    "string-width": "1.0.2",
+    "is-fullwidth-code-point": "1.0.0",
+    "ansi-regex": "2.1.1"
   }
 }
