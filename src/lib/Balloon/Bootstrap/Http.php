@@ -84,7 +84,7 @@ class Http extends AbstractBootstrap
                 ->setBody('Unauthorized')
                 ->send();
         } else {
-            if ($_SERVER['REQUEST_URI'] == '/api/auth') {
+            if ($_SERVER['PATH_INFO'] === '/api/auth') {
                 $code = 403;
             } else {
                 $code = 401;
