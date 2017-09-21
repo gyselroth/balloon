@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Balloon
  *
@@ -25,11 +25,11 @@ if (extension_loaded('apc') && apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
     $file = APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
-    if(is_readable($file)) {
+    if (is_readable($file)) {
         $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
         $config = new \Micro\Config($xml);
 
-        if(extension_loaded('apc')) {
+        if (extension_loaded('apc')) {
             apc_store('config', $config);
         }
     } else {

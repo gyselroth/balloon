@@ -16,6 +16,7 @@ use \Micro\Http\Router;
 use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Auth;
 use \Balloon\Server;
+use \Balloon\Filesystem\Node\NodeInterface;
 
 interface AppInterface
 {
@@ -41,4 +42,30 @@ interface AppInterface
      * @return bool
      */
     public function init(): bool;
+
+
+    /**
+     * Start
+     *
+     * @return bool
+     */
+    public function start(): bool;
+
+
+    /**
+     * Get attributes
+     *
+     * @param  NodeInterface $node
+     * @param  array $attributes
+     * @return array
+     */
+    public function getAttributes(NodeInterface $node, array $attributes=[]): array;
+
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName(): string;
 }

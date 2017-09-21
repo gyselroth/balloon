@@ -55,7 +55,7 @@ class Server
     protected $async;
 
 
-    /** 
+    /**
      * App
      *
      * @var App
@@ -64,11 +64,11 @@ class Server
 
 
     /**
-     * User
+     * Authenticated identity
      *
      * @var User
      */
-    protected $user;
+    protected $identity;
 
 
     /**
@@ -81,7 +81,7 @@ class Server
     
     /**
      * Max file version
-     * 
+     *
      * @var int
      */
     protected $max_file_version = 8;
@@ -89,10 +89,10 @@ class Server
     
     /**
      * Max file size
-     * 
+     *
      * @var int
      */
-    protected $max_file_size = 100000;
+    protected $max_file_size = 1073741824;
 
 
     /**
@@ -118,12 +118,12 @@ class Server
      */
     public function setOptions(?Iterable $config=null): Server
     {
-        if($config === null) {
+        if ($config === null) {
             return $this;
         }
 
-        foreach($config as $name => $value) {
-            switch($name) {
+        foreach ($config as $name => $value) {
+            switch ($name) {
                 case 'temp_dir':
                     $this->temp_dir = (string)$value;
                 break;
@@ -192,7 +192,7 @@ class Server
      *
      * @return string
      */
-    public function getTempDir(): string 
+    public function getTempDir(): string
     {
         return $this->temp_dir;
     }
@@ -243,27 +243,22 @@ class Server
 
 
     /**
-     * Set filesystem
-     *
-     * @param  Filesystem
-     * @return Server
-     */
-    public function setFilesystem(Filesystem $fs): Server
-    {
-        $this->fs = $fs;
-        return $this;
-    }
-
-
-    /**
-     * Get Filesystem
+     * Filesystem factory
      *
      * @return Filesystem
      */
-     public function getFilesystem(): Filesystem
-     {
+    public function getFilesystem(?User $user=null): Filesystem
+    {
+        if ($user !== null) {
+            return new Filesystem($this, $this->logger, $user);
+        } elseif ($this->identity instanceof User) {
+            return new Filesystem($this, $this->logger, $this->identity);
+        } else {
+            return new Filesystem($this, $this->logger);
+        }
+
         return $this->fs;
-     }
+    }
 
 
     /**
@@ -273,11 +268,11 @@ class Server
      */
     public function addUser(array $user): bool
     {
-        if($this->userExists($user['username'])) {
+        if ($this->userExists($user['username'])) {
             throw new Exception('user does already exists');
-        } 
+        }
     
-        $this->db->user->insertOne($user);       
+        $this->db->user->insertOne($user);
         return true;
     }
 
@@ -303,13 +298,13 @@ class Server
     {
         $attributes = $this->db->user->findOne([
            '_id' => $id
-        ]); 
+        ]);
         
         if ($attributes === null) {
             throw new Exception('user does not exists');
         }
 
-        return new User($attributes, $this->fs);
+        return new User($attributes, $this, $this->logger);
     }
 
     
@@ -324,39 +319,37 @@ class Server
         $result = $this->db->user->findOne(['username' => $identity->getIdentifier()]);
         $this->hook->run('preServerIdentity', [$this, $identity, &$result]);
 
-        if($result === null) {
+        if ($result === null) {
             throw new Exception('user does not exists');
         } else {
-            $user = new User($result, $this->fs);
-            $this->user = $user;
-            $this->fs->setUser($user);
+            $user = new User($result, $this, $this->logger);
+            $this->identity = $user;
             $user->updateIdentity($identity);
             $this->hook->run('postServerIdentity', [$this, $user]);
             return true;
         }
-    }   
+    }
 
 
     /**
-     * Get user
-     * 
+     * Get authenticated user
+     *
      * @return User
      */
-    public function getUser(): ?User
+    public function getIdentity(): ?User
     {
-        return $this->user;
+        return $this->identity;
     }
 
 
     /**
      * Get user by name
-     * 
+     *
      * @param  string $name
      * @return User
      */
     public function getUserByName(string $name): User
     {
-        
     }
         
 
@@ -365,7 +358,7 @@ class Server
      *
      * @return Filesystem
      */
-     public function addGroup(Group $group): Filesystem
-     {
-     }
-} 
+    public function addGroup(Group $group): Filesystem
+    {
+    }
+}

@@ -21,7 +21,6 @@ use \Balloon\Filesystem\Node\File;
 use \Balloon\Filesystem\Node\NodeInterface;
 use \Micro\Auth;
 use \Micro\Auth\Identity;
-use \MongoDB\Model\BSONDocument;
 
 interface HookInterface
 {
@@ -62,10 +61,10 @@ interface HookInterface
      *
      * @param   Server $server
      * @param   Identity $identity
-     * @param   BSONDocument $attributes
+     * @param   array $attributes
      * @return  void
      */
-    public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes): void;
+    public function preServerIdentity(Server $server, Identity $identity, ?array &$attributes): void;
     
 
     /**
@@ -198,8 +197,13 @@ interface HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function preCopyCollection(Collection $node, Collection $parent,
-        int $conflict, ?string $recursion, bool $recursion_first): void;
+    public function preCopyCollection(
+        Collection $node,
+        Collection $parent,
+        int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void;
 
 
     /**
@@ -215,8 +219,14 @@ interface HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function postCopyCollection(Collection $node, Collection $parent,
-        Collection $new_node, int $conflict, ?string $recursion, bool $recursion_first): void;
+    public function postCopyCollection(
+        Collection $node,
+        Collection $parent,
+        Collection $new_node,
+        int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void;
 
 
     /**
@@ -231,8 +241,13 @@ interface HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function preCopyFile(File $node, Collection $parent,
-       int $conflict, ?string $recursion, bool $recursion_first): void;
+    public function preCopyFile(
+        File $node,
+        Collection $parent,
+       int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void;
 
 
     /**
@@ -248,8 +263,14 @@ interface HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function postCopyFile(File $node, Collection $parent, File $new_node,
-       int $conflict, ?string $recursion, bool $recursion_first): void;
+    public function postCopyFile(
+        File $node,
+        Collection $parent,
+        File $new_node,
+       int $conflict,
+        ?string $recursion,
+        bool $recursion_first
+    ): void;
 
 
     /**
@@ -320,8 +341,13 @@ interface HookInterface
      * @param   bool $recursion_first
      * @return  void
      */
-    public function preSaveNodeAttributes(NodeInterface $node, array &$save_attributes,
-        array &$remove_attributes, ?string $recursion, bool $recursion_first): void;
+    public function preSaveNodeAttributes(
+        NodeInterface $node,
+        array &$save_attributes,
+        array &$remove_attributes,
+        ?string $recursion,
+        bool $recursion_first
+    ): void;
 
     
     /**
@@ -336,6 +362,11 @@ interface HookInterface
      * @param  bool $recursion_first
      * @return void
      */
-    public function postSaveNodeAttributes(NodeInterface $node, array $save_attributes,
-        array $remove_attributes, ?string $recursion, bool $recursion_first): void;
+    public function postSaveNodeAttributes(
+        NodeInterface $node,
+        array $save_attributes,
+        array $remove_attributes,
+        ?string $recursion,
+        bool $recursion_first
+    ): void;
 }

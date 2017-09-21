@@ -20,7 +20,6 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 use \MongoDB\BSON\Regex;
 use \Generator;
 
@@ -67,15 +66,15 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Initialize
      *
-     * @param  BSONDocument $node
+     * @param  array $attributes
      * @param  Filesystem $fs
      * @return void
      */
-    public function __construct(?BSONDocument $node, Filesystem $fs)
+    public function __construct(?array $attributes, Filesystem $fs)
     {
-        parent::__construct($node, $fs);
+        parent::__construct($attributes, $fs);
         
-        if ($node === null) {
+        if ($attributes === null) {
             $this->_id = null;
 
             if ($this->_user instanceof User) {
@@ -105,18 +104,20 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             $recursion_first = false;
         }
 
-        $this->_hook->run('preCopyCollection',
+        $this->_hook->run(
+            'preCopyCollection',
             [$this, $parent, &$conflict, &$recursion, &$recursion_first]
         );
 
         if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
-            $name = $this->_getDuplicateName();
+            $name = $this->getDuplicateName();
         } else {
             $name = $this->name;
         }
         
         if ($this->_id == $parent->getId()) {
-            throw new Exception\Conflict('can not copy node into itself',
+            throw new Exception\Conflict(
+                'can not copy node into itself',
                 Exception\Conflict::CANT_COPY_INTO_ITSELF
             );
         }
@@ -129,6 +130,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'filter'  => $this->filter,
+                'app_attributes' => $this->app_attributes
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
@@ -136,7 +138,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             $child->copyTo($new_parent, $conflict, $recursion, false);
         }
 
-        $this->_hook->run('postCopyCollection',
+        $this->_hook->run(
+            'postCopyCollection',
             [$this, $parent, $new_parent, $conflict, $recursion, $recursion_first]
         );
 
@@ -192,19 +195,17 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Get Attribute
      *
-     * @param  array|string $attribute
-     * @return array|string
+     * @param  array $attributes
+     * @return array
      */
-    public function getAttribute($attribute=[])
+    public function getAttributes(array $attributes=[]): array
     {
-        if (empty($attribute)) {
-            $attribute = [
+        if (empty($attributes)) {
+            $attributes = [
                 'id',
                 'name',
                 'meta',
                 'mime',
-                'size',
-                'sharelink',
                 'reference',
                 'deleted',
                 'changed',
@@ -214,7 +215,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             ];
         }
     
-        return $this->_getAttribute($attribute);
+        return parent::getAttributes($attributes);
     }
 
     
@@ -425,7 +426,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             }
 
             if ($node === null) {
-                throw new Exception\NotFound('node called '.$name.' does not exists here',
+                throw new Exception\NotFound(
+                    'node called '.$name.' does not exists here',
                     Exception\NotFound::NODE_NOT_FOUND
                 );
             }
@@ -482,7 +484,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function delete(bool $force=false, ?string $recursion=null, bool $recursion_first=true): bool
     {
         if (!$this->isAllowed('w') && !$this->isReference()) {
-            throw new Exception\Forbidden('not allowed to delete node '.$this->name,
+            throw new Exception\Forbidden(
+                'not allowed to delete node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_DELETE
             );
         }
@@ -494,12 +497,14 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             $recursion_first = false;
         }
 
-        $this->_hook->run('preDeleteCollection',
+        $this->_hook->run(
+            'preDeleteCollection',
             [$this, &$force, &$recursion, &$recursion_first]
         );
         
         if ($this->readonly && $this->_user !== null) {
-            throw new Exception\Conflict('node is marked as readonly, it is not possible to delete it',
+            throw new Exception\Conflict(
+                'node is marked as readonly, it is not possible to delete it',
                 Exception\Conflict::READONLY
             );
         }
@@ -527,7 +532,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             $result = true;
         }
 
-        $this->_hook->run('postDeleteCollection',
+        $this->_hook->run(
+            'postDeleteCollection',
             [$this, $force, $recursion, $recursion_first]
         );
 
@@ -564,7 +570,10 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             ]);
         
 
-            $this->_hook->run('postDeleteCollection',
+            $this->_hook->run(
+        
+
+                'postDeleteCollection',
                 [$this, true, $recursion, $recursion_first]
             );
         } catch (\Exception $e) {
@@ -643,7 +652,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
         
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to share node',
+            throw new Exception\Forbidden(
+                'not allowed to share node',
                 Exception\Forbidden::NOT_ALLOWED_TO_SHARE
             );
         }
@@ -716,13 +726,15 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function unshare(): bool
     {
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to share node',
+            throw new Exception\Forbidden(
+                'not allowed to share node',
                 Exception\Forbidden::NOT_ALLOWED_TO_SHARE
             );
         }
 
         if ($this->shared !== true) {
-            throw new Exception\Conflict('Can not unshare a none shared collection',
+            throw new Exception\Conflict(
+                'Can not unshare a none shared collection',
                 Exception\Conflict::NOT_SHARED
             );
         }
@@ -835,7 +847,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function addDirectory($name, array $attributes=[], int $conflict=NodeInterface::CONFLICT_NOACTION, bool $clone=false): Collection
     {
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to create new node here',
+            throw new Exception\Forbidden(
+                'not allowed to create new node here',
                 Exception\Forbidden::NOT_ALLOWED_TO_CREATE
             );
         }
@@ -843,7 +856,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         $this->_hook->run('preCreateCollection', [$this, &$name, &$attributes, &$clone]);
 
         if ($this->readonly) {
-            throw new Exception\Conflict('node is set as readonly, it is not possible to add new sub nodes',
+            throw new Exception\Conflict(
+                'node is set as readonly, it is not possible to add new sub nodes',
                 Exception\Conflict::READONLY
             );
         }
@@ -852,7 +866,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
         if ($this->childExists($name)) {
             if ($conflict === NodeInterface::CONFLICT_NOACTION) {
-                throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+                throw new Exception\Conflict(
+                    'a node called '.$name.' does already exists in this collection',
                     Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
                 );
             } elseif ($conflict === NodeInterface::CONFLICT_RENAME) {
@@ -861,7 +876,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
         
         if ($this->isDeleted()) {
-            throw new Exception\Conflict('could not add node '.$name.' into a deleted parent collection',
+            throw new Exception\Conflict(
+                'could not add node '.$name.' into a deleted parent collection',
                 Exception\Conflict::DELETED_PARENT
             );
         }
@@ -875,9 +891,12 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'meta'      => [],
                 'created'   => new UTCDateTime(),
                 'changed'   => new UTCDateTime(),
-                'owner'     => $this->_user->getId(),
                 'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared)
             ];
+            
+            if ($this->_user !== null) {
+                $meta['owner'] = $this->_user->getId();
+            }
 
             $save  = array_merge($meta, $attributes);
 
@@ -888,7 +907,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $new = new Collection(new BSONDocument($save), $this->_fs);
+            $new = new Collection($save, $this->_fs);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
      
             return $new;
@@ -915,7 +934,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function addFile($name, $data=null, array $attributes=[], int $conflict=NodeInterface::CONFLICT_NOACTION, bool $clone=false): File
     {
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to create new node here',
+            throw new Exception\Forbidden(
+                'not allowed to create new node here',
                 Exception\Forbidden::NOT_ALLOWED_TO_CREATE
             );
         }
@@ -923,7 +943,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         $this->_hook->run('preCreateFile', [$this, &$name, &$attributes, &$clone]);
 
         if ($this->readonly) {
-            throw new Exception\Conflict('node is set as readonly, it is not possible to add new sub nodes',
+            throw new Exception\Conflict(
+                'node is set as readonly, it is not possible to add new sub nodes',
                 Exception\Conflict::READONLY
             );
         }
@@ -932,7 +953,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
         if ($this->childExists($name)) {
             if ($conflict === NodeInterface::CONFLICT_NOACTION) {
-                throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+                throw new Exception\Conflict(
+                    'a node called '.$name.' does already exists in this collection',
                     Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
                 );
             } elseif ($conflict === NodeInterface::CONFLICT_RENAME) {
@@ -941,7 +963,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         if ($this->isDeleted()) {
-            throw new Exception\Conflict('could not add node '.$name.' into a deleted parent collection',
+            throw new Exception\Conflict(
+                'could not add node '.$name.' into a deleted parent collection',
                 Exception\Conflict::DELETED_PARENT
             );
         }
@@ -956,11 +979,14 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'meta'      => [],
                 'created'   => new UTCDateTime(),
                 'changed'   => new UTCDateTime(),
-                'owner'     => $this->_user->getId(),
                 'history'   => [],
                 'version'   => 0,
                 'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared),
             ];
+
+            if ($this->_user !== null) {
+                $meta['owner'] = $this->_user->getId();
+            }
 
             $save  = array_merge($meta, $attributes);
 
@@ -971,7 +997,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
             
-            $file = new File(new BSONDocument($save), $this->_fs);
+            $file = new File($save, $this->_fs);
 
             try {
                 $file->put($data, true, $attributes);

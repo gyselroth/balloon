@@ -29,7 +29,7 @@ class Http extends AbstractApp
      */
     public function init(): bool
     {
-        $this->router->appendRoute((new Route('/webdav', $this, 'start')));
+        $this->router->appendRoute(new Route('/webdav', $this, 'start'));
         return true;
     }
 
@@ -42,7 +42,7 @@ class Http extends AbstractApp
     public function start(): bool
     {
         $root = $this->fs->getRoot();
-
+        
         $server = new DAV\Server($root);
         $server->setBaseUri('/webdav/');
 
@@ -52,7 +52,7 @@ class Http extends AbstractApp
 
         $plugin = new DAV\Browser\Plugin();
         $server->addPlugin($plugin);
-
+        
         $authBackend = new DAV\Auth\Backend\Apache();
         $authPlugin = new DAV\Auth\Plugin($authBackend, 'SabreDAV');
         $server->addPlugin($authPlugin);

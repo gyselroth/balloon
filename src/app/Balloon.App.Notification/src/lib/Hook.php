@@ -53,7 +53,7 @@ class Hook extends AbstractHook
      * @param  Iterable $config
      * @return HookInterface
      */
-    public function setOptions(?Iterable $config): HookInterface
+    public function setOptions(?Iterable $config=null): HookInterface
     {
         if ($config === null) {
             return $this;
@@ -152,8 +152,10 @@ class Hook extends AbstractHook
 
                 $mail  = new Message();
                 $mail->setBody($body);
-                $mail->setFrom($this->notifications['new_share']['sender']['address'],
-                  $this->notifications['new_share']['sender']['name']);
+                $mail->setFrom(
+                    $this->notifications['new_share']['sender']['address'],
+                  $this->notifications['new_share']['sender']['name']
+                );
                 $mail->setSubject($subject);
                 
                 foreach ($receiver as $rec) {

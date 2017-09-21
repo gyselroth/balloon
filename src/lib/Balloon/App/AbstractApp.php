@@ -16,18 +16,10 @@ use \Micro\Http\Router;
 use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Server;
 use \Micro\Auth;
-use \Micro\Config;
+use \Balloon\Filesystem\Node\NodeInterface;
 
 abstract class AbstractApp implements AppInterface
 {
-    /**
-     * Config
-     *
-     * @var Config
-     */
-    protected $config;
-
-
     /**
      * Router
      *
@@ -64,8 +56,8 @@ abstract class AbstractApp implements AppInterface
         Logger $logger,
         ?Iterable $config=null,
         ?Router $router=null,
-        ?Auth $auth=null)
-    {
+        ?Auth $auth=null
+    ) {
         $this->config   = $config;
         $this->router   = $router;
         $this->logger   = $logger;
@@ -97,6 +89,31 @@ abstract class AbstractApp implements AppInterface
     public function start(): bool
     {
         return true;
+    }
+
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        $class = str_replace('\\', '_', get_class($this));
+        return substr($class, 0, strrpos($class, '_'));
+    }
+
+
+    /**
+     * Get attributes
+     *
+     * @param  NodeInterface $node
+     * @param  array $attributes
+     * @return array
+     */
+    public function getAttributes(NodeInterface $node, array $attributes=[]): array
+    {
+        return [];
     }
 
 

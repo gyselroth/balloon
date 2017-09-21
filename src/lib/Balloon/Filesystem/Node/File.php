@@ -19,7 +19,7 @@ use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
+use \Balloon\Mime;
 
 class File extends AbstractNode implements DAV\IFile
 {
@@ -90,14 +90,6 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Thumbnail
-     *
-     * @var ObjectId
-     */
-    protected $thumbnail = false;
-
-
-    /**
      * GridFS file id
      *
      * @var ObjectId
@@ -116,13 +108,13 @@ class File extends AbstractNode implements DAV\IFile
     /**
      * Init virtual file and set attributes
      *
-     * @param   BSONDocument $node
+     * @param   array $attributes
      * @param   Filesystem $fs
      * @return  void
      */
-    public function __construct(BSONDocument $node, Filesystem $fs)
+    public function __construct(array $attributes, Filesystem $fs)
     {
-        parent::__construct($node, $fs);
+        parent::__construct($attributes, $fs);
         $this->_verifyAccess();
     }
 
@@ -141,7 +133,8 @@ class File extends AbstractNode implements DAV\IFile
                 return $this->_db->selectGridFSBucket()->openDownloadStream($this->file);
             }
         } catch (\Exception $e) {
-            throw new Exception\NotFound('content not found',
+            throw new Exception\NotFound(
+                'content not found',
                 Exception\NotFound::CONTENT_NOT_FOUND
             );
         }
@@ -159,12 +152,13 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function copyTo(Collection $parent, int $conflict=NodeInterface::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): NodeInterface
     {
-        $this->_hook->run('preCopyFile',
+        $this->_hook->run(
+            'preCopyFile',
             [$this, $parent, &$conflict, &$recursion, &$recursion_first]
         );
 
         if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
-            $name = $this->_getDuplicateName();
+            $name = $this->getDuplicateName();
         } else {
             $name = $this->name;
         }
@@ -177,11 +171,12 @@ class File extends AbstractNode implements DAV\IFile
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
-                'thumbnail' => $this->thumbnail
+                'app_attributes' => $this->app_attributes
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        $this->_hook->run('postCopyFile',
+        $this->_hook->run(
+            'postCopyFile',
             [$this, $parent, $result, $conflict, $recursion, $recursion_first]
         );
 
@@ -220,7 +215,8 @@ class File extends AbstractNode implements DAV\IFile
     public function restore(int $version): bool
     {
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to restore node '.$this->name,
+            throw new Exception\Forbidden(
+                'not allowed to restore node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_RESTORE
             );
         }
@@ -228,7 +224,8 @@ class File extends AbstractNode implements DAV\IFile
         $this->_hook->run('preRestoreFile', [$this, &$version]);
         
         if ($this->readonly) {
-            throw new Exception\Conflict('node is marked as readonly, it is not possible to change any content',
+            throw new Exception\Conflict(
+                'node is marked as readonly, it is not possible to change any content',
                 Exception\Conflict::READONLY
             );
         }
@@ -316,7 +313,8 @@ class File extends AbstractNode implements DAV\IFile
     public function delete(bool $force=false, ?string $recursion=null, bool $recursion_first=true): bool
     {
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to delete node '.$this->name,
+            throw new Exception\Forbidden(
+                'not allowed to delete node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_DELETE
             );
         }
@@ -324,7 +322,8 @@ class File extends AbstractNode implements DAV\IFile
         $this->_hook->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
 
         if ($this->readonly && $this->_user !== null) {
-            throw new Exception\Conflict('node is marked as readonly, it is not possible to delete it',
+            throw new Exception\Conflict(
+                'node is marked as readonly, it is not possible to delete it',
                 Exception\Conflict::READONLY
             );
         }
@@ -435,7 +434,7 @@ class File extends AbstractNode implements DAV\IFile
                 
                 $found = false;
                 foreach ($ref as $key => $node) {
-                    if ($node->id == $this->_id) {
+                    if ($node['id'] == $this->_id) {
                         unset($ref[$key]);
                     }
                 }
@@ -481,15 +480,6 @@ class File extends AbstractNode implements DAV\IFile
     protected function _forceDelete(): bool
     {
         try {
-            $this->deletePreview();
-        } catch (\MongoDB\GridFS\Exception\FileNotFoundException $e) {
-            $this->_logger->debug('could remove preview, preview ['.$this->thumbnail.'] does not exists', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-        }
-
-        try {
             $this->cleanHistory();
             $result = $this->_db->storage->deleteOne([
                 '_id' => $this->_id,
@@ -527,53 +517,15 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Delete preview
-     *
-     * @return bool
-     */
-    public function deletePreview(): bool
-    {
-        if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to modify node',
-                Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
-            );
-        }
-
-        $bucket = $this->_db->selectGridFSBucket(['bucketName' => 'thumbnail']);
-
-        try {
-            if ($this->thumbnail instanceof ObjectId) {
-                $bucket->delete($this->thumbnail);
-            
-                $this->_logger->debug('removed preview ['.$this->thumbnail.'] from file ['.$this->_id.']', [
-                    'category' => get_class($this),
-                ]);
-            
-                return true;
-            }
-        } catch (\Exception $e) {
-            $this->_logger->error('failed remove preview ['.$this->thumbnail.'] from file ['.$this->_id.']', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-
-            throw $e;
-        }
-
-        return true;
-    }
-
-
-    /**
      * Get Attributes
      *
-     * @param  string|array $attribute
-     * @return array|string
+     * @param  array $attributes
+     * @return array
      */
-    public function getAttribute($attribute=[])
+    public function getAttributes(array $attributes=[]): array
     {
-        if (empty($attribute)) {
-            $attribute = [
+        if (empty($attributes)) {
+            $attributes = [
                 'id',
                 'name',
                 'hash',
@@ -581,7 +533,6 @@ class File extends AbstractNode implements DAV\IFile
                 'version',
                 'meta',
                 'mime',
-                'sharelink',
                 'deleted',
                 'changed',
                 'created',
@@ -590,138 +541,18 @@ class File extends AbstractNode implements DAV\IFile
             ];
         }
         
-        $requested = (array)$attribute;
         $build = [];
-        foreach ($requested as $key => $attr) {
+        foreach ($attributes as $key => $attr) {
             switch ($attr) {
                case 'hash':
                case 'version':
-               case 'thumbnail':
                    $build[$attr] = $this->{$attr};
                break;
-            
-               case 'history':
-                   $build['history'] = $this->getHistory();
-               break;
             }
         }
 
-        if (is_string($attribute) && !empty($build)) {
-            return $build[$attribute];
-        }
-
-        $attributes = $this->_getAttribute($attribute);
-
-        if (is_string($attribute)) {
-            return $attributes;
-        } else {
-            return array_merge($build, $attributes);
-        }
-    }
-
-
-    /**
-     * Get preview
-     *
-     * @return string
-     */
-    public function getPreview(): string
-    {
-        if ($this->thumbnail instanceof ObjectId) {
-            try {
-                $stream = $this->_db->selectGridFSBucket(['bucketName' => 'thumbnail'])
-                    ->openDownloadStream($this->thumbnail);
-                $contents = stream_get_contents($stream);
-                fclose($stream);
-
-                return $contents;
-            } catch (\Exception $e) {
-                $this->_logger->warning('failed download preview from gridfs for file ['.$this->_id.']', [
-                    'category'  => get_class($this),
-                    'exception' => $e
-                ]);
-            }
-        }
-
-        throw new Exception\NotFound('preview does not exists',
-            Exception\NotFound::PREVIEW_NOT_FOUND
-        );
-    }
-
-
-    /**
-     * Set thumbnail
-     *
-     * @param  resource $thumbnail
-     * @return ObjectId
-     */
-    protected function storePreview(string $content): ObjectId
-    {
-        if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to modify node',
-                Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
-            );
-        }
-
-        try {
-            $id     = new ObjectId();
-            $bucket = $this->_db->selectGridFSBucket(['bucketName' => 'thumbnail']);
-            $stream = $bucket->openUploadStream(null, ['_id' => $id]);
-            fwrite($stream, $content);
-            fclose($stream);
- 
-            $this->thumbnail = $id;
-            $this->save('thumbnail');
-
-            $this->_logger->info('stored new preview ['.$this->thumbnail.'] for file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
- 
-            return $id;
-        } catch (\Exception $e) {
-            $this->_logger->error('failed store preview for file ['.$this->_id.']', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-
-            throw $e;
-        }
-    }
-
-
-    /**
-     * Rebuild thumbnail
-     *
-     * @return ObjectId
-     */
-    public function setPreview(string $content): ObjectId
-    {
-        $this->_logger->debug('set preview for file ['.$this->_id.']', [
-            'category' => get_class($this),
-        ]);
- 
-        try {
-            $hash = md5($content);
-
-            $found = $this->_db->{'thumbnail.files'}->findOne([
-                'md5' => $hash,
-            ], ['_id', 'thumbnail']);
-
-            if ($found) {
-                $this->_logger->debug('found preview ['.$found['_id'].'] with same hash, use stored preview', [
-                    'category' => get_class($this),
-                ]);
-
-                $this->thumbnail = $found['_id'];
-                $this->save('thumbnail');
-                return $found['_id'];
-            } else {
-                return $this->storePreview($content);
-            }
-        } catch (\Exception $e) {
-            $this->save([], 'thumbnail');
-            throw $e;
-        }
+        $attributes = parent::getAttributes($attributes);
+        return array_merge($build, $attributes);
     }
 
 
@@ -897,16 +728,6 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Unzip zip
-     *
-     * @return bool
-     */
-    public function unzip(): bool
-    {
-    }
-
-
-    /**
      * Change content
      *
      * @param   resource|string $file
@@ -921,7 +742,8 @@ class File extends AbstractNode implements DAV\IFile
         ]);
 
         if (!$this->isAllowed('w')) {
-            throw new Exception\Forbidden('not allowed to modify node',
+            throw new Exception\Forbidden(
+                'not allowed to modify node',
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
             );
         }
@@ -929,13 +751,15 @@ class File extends AbstractNode implements DAV\IFile
         $this->_hook->run('prePutFile', [$this, &$file, &$new, &$attributes]);
 
         if ($this->readonly) {
-            throw new Exception\Conflict('node is marked as readonly, it is not possible to change any content',
+            throw new Exception\Conflict(
+                'node is marked as readonly, it is not possible to change any content',
                 Exception\Conflict::READONLY
             );
         }
 
         if ($this->isShareMember() && $new === false && $this->getShareNode()->getAclPrivilege() === 'w') {
-            throw new Exception\Forbidden('not allowed to overwrite node',
+            throw new Exception\Forbidden(
+                'not allowed to overwrite node',
                 Exception\Forbidden::NOT_ALLOWED_TO_OVERWRITE
             );
         }
@@ -960,7 +784,8 @@ class File extends AbstractNode implements DAV\IFile
 
             if ($size > (int)$this->_fs->getServer()->getMaxFileSize()) {
                 unlink($tmp_file);
-                throw new Exception\InsufficientStorage('file size exceeded limit',
+                throw new Exception\InsufficientStorage(
+                    'file size exceeded limit',
                     Exception\InsufficientStorage::FILE_SIZE_LIMIT
                 );
             }
@@ -986,7 +811,9 @@ class File extends AbstractNode implements DAV\IFile
                     $this->_forceDelete();
                 }
             
-                throw new Exception\InsufficientStorage('user quota is full',
+                throw new Exception\InsufficientStorage(
+            
+                    'user quota is full',
                     Exception\InsufficientStorage::USER_QUOTA_FULL
                 );
             }
@@ -1032,11 +859,7 @@ class File extends AbstractNode implements DAV\IFile
         if (isset($attributes['mime'])) {
             $this->mime = $attributes['mime'];
         } elseif ($file !== null) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $this->mime  = finfo_file($finfo, $file);
-            if ($this->mime == 'application/zip' || $this->mime == 'application/vnd.ms-office') {
-                $this->mime = $this->getMimeTypeFromExtension($this->name);
-            }
+            $this->mime = (new Mime())->getMime($file, $this->name);
         }
        
         //Remove tmp file
@@ -1116,41 +939,6 @@ class File extends AbstractNode implements DAV\IFile
     
             throw $e;
         }
-    }
-
-
-    /**
-     * Get mimetype with string (file has not to be exists)
-     *
-     * @param  string $filename
-     * @param  string $db mimetypes
-     * @return string
-     */
-    public function getMimeTypeFromExtension(string $filename, string $db='/etc/mime.types'): string
-    {
-        if (!is_readable($db)) {
-            throw new Exception('mime database '.$db.' was not found or is not readable');
-        }
-
-        $fileext = substr(strrchr($filename, '.'), 1);
-        if (empty($fileext)) {
-            return (false);
-        }
-        $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";
-        $lines = file($db);
-
-        foreach ($lines as $line) {
-            if (substr($line, 0, 1) == '#') {
-                continue;
-            } // skip comments
-            $line = rtrim($line) . " ";
-            if (!preg_match($regex, $line, $matches)) {
-                continue;
-            } // no match to the extension
-            return $matches[1];
-        }
-    
-        return false; // no match at all
     }
 
 

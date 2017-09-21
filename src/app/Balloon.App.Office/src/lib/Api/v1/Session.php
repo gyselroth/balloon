@@ -67,9 +67,10 @@ class Session extends Controller
     {
         $node     = $this->fs->getNode($id, $p, 'File');
         $document = new Document($this->fs->getDatabase(), $node);
-    
-        $session= new WopiSession($this->fs, $document, (int)$this->config->apps->Office->config->token_ttl);
-        $member = new Member($this->fs->getUser(), (int)$this->config->apps->Office->config->token_ttl);
+        $ttl      = $this->server->getApp()->getApp('Balloon.App.Office')->getTokenTtl();
+
+        $session= new WopiSession($this->fs, $document, $ttl);
+        $member = new Member($this->fs->getUser(), $ttl);
         $session->join($member)
                 ->store();
 
@@ -108,7 +109,8 @@ class Session extends Controller
     public function postJoin(string $id): Response
     {
         $session= WopiSession::getSessionById($this->fs, $this->parseId($id));
-        $member = new Member($this->fs->getUser(), (int)$this->config->apps->Office->config->token_ttl);
+        $ttl    = $this->server->getApp()->getApp('Balloon.App.Office')->getTokenTtl();
+        $member = new Member($this->fs->getUser(), $ttl);
         $session->join($member)
                 ->store();
 
@@ -141,7 +143,7 @@ class Session extends Controller
      */
     public function delete(string $id, string $access_token): Response
     {
-        $session = WopiSession::getByAccessToken($this->fs, $this->parseId($id), $access_token);
+        $session = WopiSession::getByAccessToken($this->server, $this->parseId($id), $access_token);
         $session->leave($this->fs->getUser())
                 ->store();
 

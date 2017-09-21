@@ -17,7 +17,6 @@ use \Balloon\Hook\HookInterface;
 use \Balloon\Server;
 use \MongoDB\BSON\Binary;
 use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONDocument;
 use \Micro\Auth\Identity;
 
 class Hook extends AbstractHook
@@ -55,22 +54,22 @@ class Hook extends AbstractHook
      *
      * @param   Server $server
      * @param   Identity $identity
-     * @param   BSONDocument $attributes
+     * @param   array $attributes
      * @return  void
      */
-    public function preServerIdentity(Server $server, Identity $identity, ?BSONDocument &$attributes): void
+    public function preServerIdentity(Server $server, Identity $identity, ?array &$attributes): void
     {
         if ($attributes !== null) {
             return;
         }
 
-        $this->logger->info('found first time username ['.$identity->getIdentitfier().'], auto-create user in mongodb user collection', [
+        $this->logger->info('found first time username ['.$identity->getIdentifier().'], auto-create user in mongodb user collection', [
              'category' => get_class($this)
         ]);
 
         $attributes = [
-            'username'   => $identity->getIdentitfier(),
-            'created'    => new UTCDateTime,
+            'username'   => $identity->getIdentifier(),
+            'created'    => new UTCDateTime(),
             'deleted'    => false,
         ];
 

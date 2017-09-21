@@ -1,0 +1,10 @@
+{
+  "app": {
+    "balloon_app_shadow": {
+      "menu_title": "Shadow",
+      "choose_format": "Choose format",
+      "description": "Automatically convert file to other formats after file contents changed.",
+      "not_supported": "This file type can not be converted into other file formats."
+    }
+  }
+}

@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace Balloon\App\Sharelink;
 
 use \Balloon\Exception;
-use \Micro\Config;
 use \Balloon\App;
 use \Balloon\Filesystem;
+use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \Micro\Http\Response;
 use \Micro\Http\Router\Route;
@@ -22,6 +22,7 @@ use \Balloon\App\AbstractApp;
 use \Balloon\Hook\AbstractHook;
 use \Micro\Auth;
 use \Micro\Auth\Adapter\None as AuthNone;
+use \Balloon\App\Sharelink\Api\v1\ShareLink;
 
 class Http extends AbstractApp
 {
@@ -32,22 +33,159 @@ class Http extends AbstractApp
      */
     public function init(): bool
     {
-        $this->router->appendRoute((new Route('/share', $this, 'start')));
+        $this->router
+            ->appendRoute(new Route('/share', $this, 'start'))
+            ->prependRoute(new Route('/api/v1/(node|file|collection)/share-link', ShareLink::class))
+            ->prependRoute(new Route('/api/v1/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
 
         $this->server->getHook()->injectHook(new class($this->logger) extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
                 if (preg_match('#^/index.php/share#', $_SERVER["ORIG_SCRIPT_NAME"])) {
-                    $auth->injectAdapter('none' ,(new AuthNone((new Config()), $this->logger)) );
+                    $auth->injectAdapter('none', (new AuthNone($this->logger)));
                 }
             }
-        }, new Config());
+        });
  
         return true;
     }
 
 
+    /**
+     * Share link
+     *
+     * @param   NodeInterface $node
+     * @param   array $options
+     * @return  bool
+     */
+    public function shareLink(NodeInterface $node, array $options): bool
+    {
+        $valid = [
+            'shared',
+            'token',
+            'password',
+            'expiration',
+        ];
 
+        $set = [];
+        foreach ($options as $option => $v) {
+            if (!in_array($option, $valid, true)) {
+                throw new Exception\InvalidArgument('share option '.$option.' is not valid');
+            } else {
+                $set[$option] = $v;
+            }
+        }
+
+        if (!array_key_exists('token', $set)) {
+            $set['token'] = bin2hex(random_bytes(16));
+        }
+
+        if (array_key_exists('expiration', $set)) {
+            if (empty($set['expiration'])) {
+                unset($set['expiration']);
+            } else {
+                $set['expiration'] = (int)$set['expiration'];
+            }
+        }
+        
+        if (array_key_exists('password', $set)) {
+            if (empty($set['password'])) {
+                unset($set['password']);
+            } else {
+                $set['password'] = hash('sha256', $set['password']);
+            }
+        }
+        
+        $share = false;
+        if (!array_key_exists('shared', $set)) {
+            if (count($node->getAppAttributes($this)) === 0) {
+                $share = true;
+            }
+        } else {
+            if ($set['shared'] === 'true' || $set['shared'] === true) {
+                $share = true;
+            }
+
+            unset($set['shared']);
+        }
+        
+        if ($share === true) {
+            $node->setAppAttributes($this, $set);
+        } else {
+            $node->unsetAppAttributes($this);
+        }
+    
+        return true;
+    }
+
+
+    /**
+     * Get share options
+     *
+     * @param  NodeInterface $node
+     * @return array
+     */
+    public function getShareLink(NodeInterface $node): array
+    {
+        return $node->getAppAttributes($this);
+    }
+    
+
+    /**
+     * Get attributes
+     *
+     * @param  NodeInterface $node
+     * @param  array $attributes
+     * @return array
+     */
+    public function getAttributes(NodeInterface $node, array $attributes=[]): array
+    {
+        return ['shared' => $this->isShareLink($node)];
+    }
+
+
+    /**
+     * Check if the node is a shared link
+     *
+     * @param  NodeInterface $node
+     * @return bool
+     */
+    public function isShareLink(NodeInterface $node): bool
+    {
+        return count($node->getAppAttributes($this)) !== 0;
+    }
+
+
+    /**
+     * Get node by access token
+     *
+     * @param   string $token
+     * @return  NodeInterface
+     */
+    public function findNodeWithShareToken(string $token): NodeInterface
+    {
+        $node = $this->fs->findNodeWithCustomFilter([
+            'app_attributes.'.$this->getName().'.token' => $token,
+            'deleted' => false,
+        ]);
+
+        $attributes = $node->getAppAttributes($this);
+
+        if ($attributes['token'] !== $token) {
+            throw new Exception('token do not match');
+        }
+        
+        if (isset($attributes['expiration']) && !empty($attributes['expiration'])) {
+            $time = (int)$attributes['expiration'];
+            if ($time < time()) {
+                throw new Exception('share link for this node is expired');
+            }
+        }
+
+        return $node;
+    }
+
+        
     /**
      * Start
      *
@@ -64,8 +202,8 @@ class Http extends AbstractApp
             }
 
             try {
-                $node = $this->fs->findNodeWithShareToken($token);
-                $share = $node->getShareLink();
+                $node  = $this->findNodeWithShareToken($token);
+                $share = $node->getAppAttributes($this);
                 
                 if (array_key_exists('password', $share)) {
                     $valid = false;
@@ -117,14 +255,14 @@ class Http extends AbstractApp
                     'exception' => $e,
                 ]);
 
-                (new Response)
+                (new Response())
                     ->setOutputFormat('text')
                     ->setCode(404)
                     ->setBody('Token is invalid or share link is expired')
                     ->send();
             }
         } else {
-            (new Response)
+            (new Response())
                 ->setOutputFormat('text')
                 ->setCode(401)
                 ->setBody('No token submited')

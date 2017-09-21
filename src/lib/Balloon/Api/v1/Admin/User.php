@@ -19,7 +19,7 @@ class User extends SimpleUser
 {
     /**
      * @api {head} /api/v1/user?uid=:uid User exists?
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postQuota
      * @apiUse _getUser
      * @apiGroup User
@@ -47,7 +47,7 @@ class User extends SimpleUser
 
     /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postQuota
      * @apiUse _getUser
      * @apiGroup User
@@ -82,7 +82,7 @@ class User extends SimpleUser
 
     /**
      * @api {delete} /api/v1/user?uid=:uid Delete user
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName delete
      * @apiUse _getUser
      * @apiGroup User
@@ -120,7 +120,8 @@ class User extends SimpleUser
         $user = $this->_getUser($uid, $uname);
 
         if ($user->getId() == $this->user->getId()) {
-            throw new Exception\Conflict('can not delete yourself',
+            throw new Exception\Conflict(
+                'can not delete yourself',
                 Exception\Conflict::CAN_NOT_DELETE_OWN_ACCOUNT
             );
         }
@@ -132,7 +133,7 @@ class User extends SimpleUser
     
     /**
      * @api {post} /api/v1/user/undelete?uid=:uid Apiore user
-     * @apiVersion 1.0.6
+     * @apiVersion 1
      * @apiName postUndelete
      * @apiUse _getUser
      * @apiGroup User

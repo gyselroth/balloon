@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+//TODO: Attention this class is currently under development ans gets removed in this dev release
+
 /**
  * Balloon
  *

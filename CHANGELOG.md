@@ -5,12 +5,14 @@
 Next major release v2, includes various new features and core changes. The API is still v1 and compatible with all current implementations.
 
 * CORE: [CHANGE] php ext apc is now optional (cache configuration)
+* CORE: [CHANGE] php ext imagick is now optional (if not installed image previews will fail)
+* CORE: [CHANGE] php ext ldap is now optional (if not installed ldap authentication or ldap sync core app will not be available)
 * CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
 * CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
 * CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
 * CORE: [CHANGE] changed hook preAuthentication() first param to Auth $auth instead auth adapters
 * CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon\Plugin => \Balloon\Hook #55, \Balloon\Queue => \Balloon\Async
-* CORE: [CHANGE] renamed \Ballon\Exception\Coding to \Balloon\Exception\Internal
+* CORE: [CHANGE] PHP set_error_handler now throws ErrorException instead \Balloon\Exception\Coding
 * CORE: [CHANGE] Added new \Balloon\Server which is the new point of entry, also moved \Balloon\User to \Ballon\Server\User and made various code improvements to it
 * CORE: [CHANGE] Moved \Balloon\Filesystem\node\INode to \Balloon\Filesystem\node\NodeInterface and \Balloon\Filesystem\Node\Node to \Balloon\Filesystem\Node\AbstractNode #6
 * CORE: [CHANGE] Elasticsearch is now an app and not part of the core anymore #10
@@ -18,15 +20,32 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
 * CORE: [FEATURE] console can now be executed with command parameters
 * CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchonosuly executed non-stop #56
-* CORE: [CHANGE] Converted all core plugins from v1.0.x into apps #20
-* CORE: [CHANGE] Moved converted classe from preview into global \Balloon\Converter space
+* CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks which are now part of new core apps #20
+* CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converted is now useable to converty anything to anything
 * CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/config.dist.xml #59
+* CORE: [CHANGE] No more BSONDocument, all cursor get mapped to arrays
+* CORE: [CHANGE] Sharlink is now an entirely removed from the core and operates as an own app Balloon.App.Sharelink
+* CORE: [CHANGE] Preview is now an entirely removed from the core and operates as an own app Balloon.App.Preview
+* CORE: [CHANGE] Changed generating access token to random_bytes() for creating sharelink tokens
+* CORE: [FEATURE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes 
+* CORE: [CHANGE] added AbstractNode::getAttributes(array $attributes=[]) besides AbstractNode::getAttribute()
+* CORE: [FIX] fixed application/octet-stream mime type for office files (issue since 1.x)
+* CORE: [CHANGE] Extracted Mime detection to \Balloon\Mime 
+* CORE :[FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file shadows
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
 * API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
+* API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v1 since all timestamps are in UTC anyway #61
+* API: [FEATURE] GET /api and GET /api/v1 are now public readable #46
+* API: [CHANGE] Removed attribute history from GET /file/attributes
+* API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
+* API: [FEATURE] New api endpoints provided by Balloon.App.Convert
 * UI: [FIX] added missing german locale for view.prop.head.share_value
+* UI: [FEATURE] Possibility to configure file shadows
+* DOC: [FIX] @apiVersion is now correctly declared as api version "1"
+* Webinterface: [CHANGE] node list now gets populated without size for collections which increases performance (Collection number of children is still visible in the properties tab)
 
 
 ## 1.0.15 

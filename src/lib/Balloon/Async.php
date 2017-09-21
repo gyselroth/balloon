@@ -92,14 +92,14 @@ class Async
     
     /**
      * Get cursor
-     * 
+     *
      * @param  bool $tailable
      * @return IteratorIterator
      */
     public function getCursor(bool $tailable=false): IteratorIterator
     {
         $options = [];
-        if($tailable === true) {
+        if ($tailable === true) {
             $options['cursorType'] = Find::TAILABLE;
         }
 
@@ -124,7 +124,7 @@ class Async
         ]]);
         
         return $result->isAcknowledged();
-    }      
+    }
 
 
     /**
@@ -136,9 +136,9 @@ class Async
      */
     public function start(IteratorIterator $cursor, Server $server): bool
     {
-        while(true) {
-            if($cursor->current() === null) {
-                if($cursor->getInnerIterator()->isDead()) {
+        while (true) {
+            if ($cursor->current() === null) {
+                if ($cursor->getInnerIterator()->isDead()) {
                     return false;
                 } else {
                     $cursor->next();
@@ -161,7 +161,7 @@ class Async
                 }
 
                 $instance = new $job['class']((array)$job['data']);
-                $instance->run($server, $this->logger);
+                $instance->start($server, $this->logger);
                 $this->updateJob($job['_id'], true);
             } catch (\Exception $e) {
                 $this->logger->error("failed execute job [".$job['_id']."], failed with error", [
