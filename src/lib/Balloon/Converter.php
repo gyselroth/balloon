@@ -17,18 +17,18 @@ use \Balloon\Converter\Adapter\Imagick;
 use \Balloon\Converter\Adapter\Office;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\Converter\Adapter\AdapterInterface;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 
 class Converter
 {
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
-    
+
     /**
      * Converter
      *
@@ -51,11 +51,11 @@ class Converter
     /**
      * Initialize
      *
-     * @param  Logger $logger
+     * @param  LoggerInterface $logger
      * @param  Iterable $config
      * @return void
      */
-    public function __construct(Logger $logger, ?Iterable $config=null)
+    public function __construct(LoggerInterface $logger, ?Iterable $config=null)
     {
         $this->logger = $logger;
         $this->setOptions($config);
@@ -73,7 +73,7 @@ class Converter
         if ($config === null) {
             $config = [];
         }
-        
+
         $converter = $this->default_converter;
 
         foreach ($config as $option => $value) {
@@ -87,14 +87,14 @@ class Converter
             } else {
                 $config = null;
             }
-            
+
             $converter[$value['class']] = $config;
         }
 
         foreach ($converter as $converter => $config) {
             $this->addConverter($converter, $config);
         }
-        
+
         return $this;
     }
 
@@ -123,7 +123,7 @@ class Converter
         if ($this->hasConverter($class)) {
             throw new Exception('converter '.$class.' is already registered');
         }
-            
+
         $converter = new $class($this->logger, $config);
         if (!($converter instanceof AdapterInterface)) {
             throw new Exception('converter must include AdapterInterface interface');
@@ -147,7 +147,7 @@ class Converter
         if ($this->hasConverter($name)) {
             throw new Exception('converter '.$name.' is already registered');
         }
-            
+
         $this->converter[$name] = $converter;
         return $converter;
     }
@@ -205,7 +205,7 @@ class Converter
                 return $converter->getSupportedFormats($file);
             }
         }
-            
+
         return [];
     }
 

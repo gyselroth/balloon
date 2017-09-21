@@ -11,14 +11,14 @@ declare(strict_types=1);
 
 namespace Balloon\Converter\Adapter;
 
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 
 abstract class AbstractAdapter implements AdapterInterface
 {
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -26,11 +26,11 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * Initialize
      *
-     * @param   Logger $logger
+     * @param   LoggerInterface $logger
      * @param   Iterable $config
      * @return  void
      */
-    public function __construct(Logger $logger, ?Iterable $config=null)
+    public function __construct(LoggerInterface $logger, ?Iterable $config=null)
     {
         $this->logger  = $logger;
         $this->setOptions($config);

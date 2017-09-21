@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Async;
 
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Server;
 use \MongoDB\Database;
 use \Zend\Mail\Message;
@@ -47,10 +47,10 @@ class Mail extends AbstractJob
      * Run job
      *
      * @param   Server $server
-     * @param   Logger $logger
+     * @param   LoggerInterface $logger
      * @return  bool
      */
-    public function start(Server $server, Logger $logger): bool
+    public function start(Server $server, LoggerInterface $logger): bool
     {
         $mail = Message::fromString($this->data['mail']);
         $logger->debug('send mail ['.$mail->getSubject().']', [

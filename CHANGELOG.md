@@ -27,10 +27,10 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Sharlink is now an entirely removed from the core and operates as an own app Balloon.App.Sharelink
 * CORE: [CHANGE] Preview is now an entirely removed from the core and operates as an own app Balloon.App.Preview
 * CORE: [CHANGE] Changed generating access token to random_bytes() for creating sharelink tokens
-* CORE: [FEATURE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes 
+* CORE: [FEATURE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes
 * CORE: [CHANGE] added AbstractNode::getAttributes(array $attributes=[]) besides AbstractNode::getAttribute()
 * CORE: [FIX] fixed application/octet-stream mime type for office files (issue since 1.x)
-* CORE: [CHANGE] Extracted Mime detection to \Balloon\Mime 
+* CORE: [CHANGE] Extracted Mime detection to \Balloon\Mime
 * CORE :[FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file shadows
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
@@ -46,12 +46,13 @@ Next major release v2, includes various new features and core changes. The API i
 * UI: [FEATURE] Possibility to configure file shadows
 * DOC: [FIX] @apiVersion is now correctly declared as api version "1"
 * Webinterface: [CHANGE] node list now gets populated without size for collections which increases performance (Collection number of children is still visible in the properties tab)
+* CORE: [CHANGE] changed use \Psr\Log\LoggerInterface as Logger to use \Psr\Log\LoggerInterface
 
 
-## 1.0.15 
+## 1.0.15
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon July 31 12:55:02 CEST 2017
- 
+
 * API: [FEATURE] /node/attributes does now accept multiple id #47
 * API: [FIX] fixed XSS via X-Client header
 
@@ -64,7 +65,7 @@ Next major release v2, includes various new features and core changes. The API i
 * API: [FIX] missing delta entry if node gets moved and a new node is created at the old place #44
 
 
-## 1.0.13 
+## 1.0.13
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri June 30 16:04:32 CEST 2017
 
@@ -77,7 +78,7 @@ Next major release v2, includes various new features and core changes. The API i
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu June 22 10:04:32 CEST 2017
 
-* CORE: [FIX] fixed destroy node via cli plugin if node is a sub node of a share but destroy timestamp was set by share member 
+* CORE: [FIX] fixed destroy node via cli plugin if node is a sub node of a share but destroy timestamp was set by share member
 
 
 ## 1.0.11 RC5
@@ -99,7 +100,7 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [FIX] fixed invalid editFile delta entry during forceDeleteCollection event
 * CORE: [FIX] fixed Balloon\Exception\Coding Undefined variable: $exists after restoring file content to a version with a 0byte file
 * CORE: [CHANGE] .. and . are now invalid node names, Exception\InvalidArgument gets thrown
-* CORE: [FIX] there is now a delta entry if event unshareCollection was triggered and endpoint GET node/delta is requested 
+* CORE: [FIX] there is now a delta entry if event unshareCollection was triggered and endpoint GET node/delta is requested
 * CORE: [FIX] fixed delta entries for share children after a refernece was added but the cursor was already more further
 * CORE: [FIX] fixed parent collection /[COLLECTION_NAME] was not found instead conflict exception
 * DOC: [CHANGE] extended /user docs with some information regarding admin privilege
@@ -220,7 +221,7 @@ AppOffice-Webinterface: [FIX] code cleanup
 * CORE: [FEATURE] Plugin\Delta now stores information about the client used (webinterface/api, version, app)
 * CORE: [CHANGE] Log format variables are now encapsled with {} instead %%
 * CORE: [CHANGE] Plugin\MailNotification variables are now encapsled with {} instead %%
-* CORE: [CHANGE] format variables can now be any possible node attribute in Plugin\MailNotification 
+* CORE: [CHANGE] format variables can now be any possible node attribute in Plugin\MailNotification
 * CORE: [CHANGE] renamed configuration myaccount_filter for auth adapters to account_filter
 * CORE: [FIX] fixed write only share privilege
 * CORE: [FIX] references get now deleted after the source share gets deleted
@@ -258,7 +259,7 @@ AppOffice-Webinterface: [FIX] code cleanup
 * CORE: [FIX] restore from history does now reload the correct contents checksum
 * CORE: [FIX] fixed restore from trash into root with nodes already exists there (added $conflict to undelete())
 * CORE: [FIX] fixed restoring collections with data if collection already exists at the destination
-* CORE: [FIX] fixed recursive removal 
+* CORE: [FIX] fixed recursive removal
 * CORE: [FIX] fixed restoring share reference
 * API: [CHANGE] all api calls automatically load the share reference if the master share is requested (and the other way around), this also includes the feature that url's can be shared and loaded correctly with an other user account (this was only partially possible since 1.0.0)
 * UI: [FIX] disabled delete by keydown delete if query view (parent node) is active
@@ -398,7 +399,7 @@ AppOffice-Webinterface: [FIX] code cleanup
 * CORE: [CHANGE] Removed old unused plugin Plugin\JobQueue
 * CORE: [!BREAKER] Renamed all Plugins to a valid PSR classname (no underscores), @see upgrade guid
 * CORE: [CHANGE] Moved job queue from Memcached to MongoDB since its persistent and Memcached implementation on php7.1 is shitty, @see feature apc, apc is now required and used if any cache needed
-* CORE: [FEATURE] Added \Balloon\Resource which now includes lookup methods for user/groups (moved those methods from \Balloon\User) 
+* CORE: [FEATURE] Added \Balloon\Resource which now includes lookup methods for user/groups (moved those methods from \Balloon\User)
 * CORE: [CHANGE] Implemented more interfaces and renamed existing ones to NameInterface and abstract classes to AbstractName
 * CORE: [CHANGE] Removed Balloon\Task and moved the functionality to Balloon\Bootstrap\Cli
 * CORE: [FEATURE] Implemented new traversable/array \Balloon\Config class and moved xml stuff to \Balloon\Config\Xml, all other classes do now require Config instead \SimpleXMLElement
@@ -462,7 +463,7 @@ AppOffice-Webinterface: [FIX] code cleanup
 webinterface: [FIX] Global share link password input gets now reseted after open another node or removing the share
 * UI: [FIX] IF a node is member of a share, the attribute "shareaccess" will always gets displayed and not only on the share itself
 * UI: [FIX] Incoming shares get the correct icon under properties
-* UI: [FIX] Incoming share owner is now correct 
+* UI: [FIX] Incoming share owner is now correct
 * UI: [FIX] Fixed center position of the error window
 * UI: [FIX] Quota is now checked before uploading a file
 * UI: [FEATURE] Globally shared links gets automatically selected and copied to the clipboard
@@ -483,7 +484,7 @@ webinterface: [FIX] Global share link password input gets now reseted after open
 * UI: [FIX] fixed keyboard bindings for search views
 * UI: [FIX] trash shows now only the first deleted node from every subtree
 * UI: [CHANGE] extended search quick filter are now a combination of and/or (every group is filtery by "or") and combined groups are "and"
-* UI: [FIX] fixed emptying search results 
+* UI: [FIX] fixed emptying search results
 
 
 ## 0.4.3
@@ -551,7 +552,7 @@ STABLE RELEASE 0.4.x
 * CORE: [FEATURE] Replaced all \Sabre\DAV\Exception with \Balloon\Exception
 * CORE: [FEATURE] globally shared links do now support an additional request parameter download=1 which will enforce a download instead streaming or display
 * CORE: [FIX] Replaced Http\Response::jsonFormat() with native json_encode() JSON_PRETTY_PRINT
-* CORE: [CHANGE] Reconfigured user/group search filter to *%s* instead %s* 
+* CORE: [CHANGE] Reconfigured user/group search filter to *%s* instead %s*
 * CORE: [FEATURE] Added binary attribute mapping type for (ldap) user synchronisation
 * CORE: [FEATURE] Added new user attribute: avatar which usually holds a profile picture
 * CORE: [FIX] Fixed search interface and removed filteredSearch()
@@ -570,7 +571,7 @@ STABLE RELEASE 0.4.x
 * API: [CHANGE] Removed param $meta_attributeds from GET /collection/children, meta attribute can now be filtered via $attributes like 'meta.license' or 'meta.comment'
 * API: [FEATURE] Added GET /node/delta which returns a delta feed since a specific server state using a cursor
 * API: [FEATURE] Added GET /node/last-cursor which returns the latest cursor, usable to check if the cursor has changed on the server
-* API: [FEATURE] Added GET /user/event-log Receive a detailed event log of all modifications by the user or any share members 
+* API: [FEATURE] Added GET /user/event-log Receive a detailed event log of all modifications by the user or any share members
 * API: [FIX] PUT /file now returns the node id as documented instead boolean true during a 201 Created (If a new file was created)
 * API: [FEATURE] Added HEAD /collection/children to check if a collection has any children
 * API: [FEATURE] POST /collection, PUT /file and PUT /file/chunk accept now an optional parameter $attributes to overwrite server generated attributes like changed and or created timestamps

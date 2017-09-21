@@ -13,7 +13,6 @@ namespace Balloon\Http;
 
 use \Balloon\Exception;
 use \Balloon\Helper;
-use \Psr\Log\LoggerInterface as Logger;
 use \Micro\Http\Router\Route;
 use \ReflectionMethod;
 use \Micro\Http\Router as MicroRouter;

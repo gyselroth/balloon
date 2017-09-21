@@ -13,7 +13,7 @@ namespace Balloon;
 
 use \Balloon\App\Exception;
 use \Balloon\App\AppInterface;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Http\Router;
 use \Micro\Http\Response;
 use \Balloon\Server\User;
@@ -28,13 +28,13 @@ class App
      */
     const CONTEXT_HTTP = 'Http';
 
-    
+
     /**
      * Context: cli
      */
     const CONTEXT_CLI = 'Cli';
 
-    
+
     /**
      * Apps
      *
@@ -44,9 +44,9 @@ class App
 
 
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -54,10 +54,10 @@ class App
     /**
      * Init app manager
      *
-     * @param   Logger $logger
+     * @param   LoggerInterface $logger
      * @return  void
      */
-    public function __construct(string $context=self::CONTEXT_HTTP, Composer $composer, Server $server, Logger $logger, ?Iterable $config=null, ?Router $router=null, Auth $auth=null)
+    public function __construct(string $context=self::CONTEXT_HTTP, Composer $composer, Server $server, LoggerInterface $logger, ?Iterable $config=null, ?Router $router=null, Auth $auth=null)
     {
         $this->context  = $context;
         $this->composer = $composer;
@@ -90,7 +90,7 @@ class App
                 } else {
                     $config = null;
                 }
-                
+
                 $this->registerApp($name, $config);
             } else {
                 $this->logger->debug("skip disabled app [".$name."]", [
@@ -98,7 +98,7 @@ class App
                 ]);
             }
         }
-    
+
         return $this;
     }
 
@@ -115,19 +115,19 @@ class App
         $ns = str_replace('.', '\\', $name).'\\';
         $class = '\\'.$ns.$this->context;
         $this->composer->addPsr4($ns, APPLICATION_PATH."/src/app/$name/src/lib");
-        
+
         if (!class_exists($class)) {
             $this->logger->debug('skip non-existent class ['.$class.'] from app ['.$name.']', [
                  'category' => get_class($this),
             ]);
             return false;
         }
-            
+
         $app = new $class($this->server, $this->logger, $config, $this->router, $this->auth);
         if ($this->hasApp($name)) {
             throw new Exception('app '.$name.' is already registered');
         }
-            
+
         if (!($app instanceof AppInterface)) {
             throw new Exception('app class '.$class.' does not implement AppInterface');
         }
@@ -154,7 +154,7 @@ class App
         if ($this->hasApp($name)) {
             throw new Exception('app '.$name.' is already registered');
         }
-           
+
         $this->app[$name] = $app;
         return true;
     }

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Preview;
 
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Server;
 use \Balloon\Async\AbstractJob;
 
@@ -21,10 +21,10 @@ class Job extends AbstractJob
      * Start job
      *
      * @param  Server $server
-     * @param  Logger $logger
+     * @param  LoggerInterface $logger
      * @return bool
      */
-    public function start(Server $server, Logger $logger): bool
+    public function start(Server $server, LoggerInterface $logger): bool
     {
         $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
 

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Api;
 
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Server;
 use \Balloon\Filesystem\Node\NodeInterface;
 
@@ -26,13 +26,13 @@ class Controller
 
 
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
-    
+
     /**
      * Server
      *
@@ -40,7 +40,7 @@ class Controller
      */
     protected $server;
 
-    
+
     /**
      * User
      *
@@ -54,10 +54,10 @@ class Controller
      *
      * @param  Filesystem $fs
      * @param  Config $config
-     * @param  Logger $logger
+     * @param  LoggerInterface $logger
      * @return void
      */
-    public function __construct(Server $server, Logger $logger)
+    public function __construct(Server $server, LoggerInterface $logger)
     {
         $this->fs     = $server->getFilesystem();
         $this->user   = $server->getIdentity();
@@ -227,7 +227,7 @@ class Controller
         if ($class === null) {
             $class = join('', array_slice(explode('\\', get_class($this)), -1));
         }
-        
+
         if ($class === 'Node') {
             $class = null;
         }

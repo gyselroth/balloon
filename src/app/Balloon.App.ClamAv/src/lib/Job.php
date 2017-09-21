@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\ClamAv;
 
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Micro\Config;
 use \Balloon\Server;
 use \MongoDB\Database;
@@ -24,7 +24,7 @@ class Job extends AbstractJob
      *
      * @return bool
      */
-    public function run(Filesystem $fs, Logger $logger, Config $config): bool
+    public function run(Filesystem $fs, LoggerInterface $logger, Config $config): bool
     {
         $file = $fs->findNodeWithId($this->data['id']);
 

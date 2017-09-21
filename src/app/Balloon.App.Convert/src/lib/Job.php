@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Convert;
 
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Server;
 use \Balloon\Async\AbstractJob;
 
@@ -21,17 +21,17 @@ class Job extends AbstractJob
      * Start job
      *
      * @param  Server $server
-     * @param  Logger $logger
+     * @param  LoggerInterface $logger
      * @return bool
      */
-    public function start(Server $server, Logger $logger): bool
+    public function start(Server $server, LoggerInterface $logger): bool
     {
         $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
 
         $logger->info("create shadow for node [".$this->data['id']."]", [
             'category' => get_class($this),
         ]);
-        
+
         $app = $server->getApp()
             ->getApp('Balloon.App.Convert');
 
@@ -57,14 +57,14 @@ class Job extends AbstractJob
         $logger->debug('create non existing shadow node for ['.$this->data['id'].']', [
             'category' => get_class($this)
         ]);
-       
+
         try {
             $name = substr($file->getName(), -strlen($file->getExtension()));
             $name .= $this->data['format'];
         } catch (\Exception $e) {
             $name = $file->getName().'.'.$this->data['format'];
         }
-        
+
         $shadow = $file->getParent()->createFile($name, $result->getPath(), [
             'owner' => $file->getOwner(),
             'app'   => [

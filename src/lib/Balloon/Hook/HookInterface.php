@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Hook;
 
 use \Balloon\Exception;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Filesystem;
 use \Balloon\Server;
 use \Balloon\Server\User;
@@ -27,11 +27,11 @@ interface HookInterface
     /**
      * Create hook
      *
-     * @param  Logger $logger
+     * @param  LoggerInterface $logger
      * @param  Iterable $config
      * @return void
      */
-    public function __construct(Logger $logger, ?Iterable $config=null);
+    public function __construct(LoggerInterface $logger, ?Iterable $config=null);
 
 
     /**
@@ -52,7 +52,7 @@ interface HookInterface
      * @return  void
      */
     public function preAuthentication(Auth $auth): void;
-   
+
 
     /**
      * Run: preServerIdentity
@@ -65,7 +65,7 @@ interface HookInterface
      * @return  void
      */
     public function preServerIdentity(Server $server, Identity $identity, ?array &$attributes): void;
-    
+
 
     /**
      * Run: postCreateCollection
@@ -78,7 +78,7 @@ interface HookInterface
      */
     public function postServerIdentity(Server $server, User $user): void;
 
- 
+
     /**
      * Run: preRestoreFile
      *
@@ -143,7 +143,7 @@ interface HookInterface
      * @return  void
      */
     public function preCreateCollection(Collection $parent, string &$name, array &$attributes, bool $clone): void;
-    
+
 
     /**
      * Run: postCreateCollection
@@ -183,7 +183,7 @@ interface HookInterface
      * @return  void
      */
     public function postCreateFile(Collection $parent, File $node, bool $clone): void;
-    
+
 
     /**
      * Run: preCopyCollection
@@ -300,7 +300,7 @@ interface HookInterface
      */
     public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void;
 
-    
+
     /**
      * Run: preDeleteFile
      *
@@ -349,7 +349,7 @@ interface HookInterface
         bool $recursion_first
     ): void;
 
-    
+
     /**
      * Run: postSaveNodeAttributes
      *

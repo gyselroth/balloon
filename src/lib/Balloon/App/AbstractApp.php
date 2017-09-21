@@ -13,7 +13,7 @@ namespace Balloon\App;
 
 use \Composer\Autoload\ClassLoader as Composer;
 use \Micro\Http\Router;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Server;
 use \Micro\Auth;
 use \Balloon\Filesystem\Node\NodeInterface;
@@ -29,9 +29,9 @@ abstract class AbstractApp implements AppInterface
 
 
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -53,7 +53,7 @@ abstract class AbstractApp implements AppInterface
      */
     public function __construct(
         Server $server,
-        Logger $logger,
+        LoggerInterface $logger,
         ?Iterable $config=null,
         ?Router $router=null,
         ?Auth $auth=null
@@ -80,7 +80,7 @@ abstract class AbstractApp implements AppInterface
         return true;
     }
 
-    
+
     /**
      * Start
      *

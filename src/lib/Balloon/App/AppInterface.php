@@ -13,7 +13,7 @@ namespace Balloon\App;
 
 use \Composer\Autoload\ClassLoader as Composer;
 use \Micro\Http\Router;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Micro\Auth;
 use \Balloon\Server;
 use \Balloon\Filesystem\Node\NodeInterface;
@@ -29,7 +29,7 @@ interface AppInterface
      */
     public function __construct(
         Server $server,
-        Logger $logger,
+        LoggerInterface $logger,
         ?Iterable $config,
         ?Router $router=null,
         ?Auth $auth=null

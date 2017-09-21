@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon;
 
 use \Balloon\Exception;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Filesystem\Delta;
 use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
@@ -34,9 +34,9 @@ class Filesystem
 
 
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -85,11 +85,11 @@ class Filesystem
      * Initialize
      *
      * @param  Server $server
-     * @param  Logger $logger
+     * @param  LoggerInterface $logger
      * @param  User $user
      * @return void
      */
-    public function __construct(Server $server, Logger $logger, ?User $user=null)
+    public function __construct(Server $server, LoggerInterface $logger, ?User $user=null)
     {
         $this->user      = $user;
         $this->server    = $server;

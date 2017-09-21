@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Hook;
 
 use \Balloon\Exception;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Server;
 use \Balloon\Server\User;
 use \Balloon\Filesystem;
@@ -25,9 +25,9 @@ use \Micro\Auth\Identity;
 abstract class AbstractHook implements HookInterface
 {
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -35,11 +35,11 @@ abstract class AbstractHook implements HookInterface
     /**
      * Create plugin
      *
-     * @param  Logger $logger
+     * @param  LoggerInterface $logger
      * @param  Iterable $config
      * @return void
      */
-    public function __construct(Logger $logger, ?Iterable $config=null)
+    public function __construct(LoggerInterface $logger, ?Iterable $config=null)
     {
         $this->logger = $logger;
         $this->setOptions($config);
@@ -87,7 +87,7 @@ abstract class AbstractHook implements HookInterface
     public function preServerIdentity(Server $server, Identity $identity, ?array &$attributes): void
     {
     }
-    
+
 
     /**
      * Run: postCreateCollection
@@ -102,7 +102,7 @@ abstract class AbstractHook implements HookInterface
     {
     }
 
-    
+
     /**
      * Run: preCreateCollection
      *
@@ -117,7 +117,7 @@ abstract class AbstractHook implements HookInterface
     public function preCreateCollection(Collection $parent, string &$name, array &$attributes, bool $clone): void
     {
     }
-    
+
 
     /**
      * Run: postCreateCollection
@@ -163,7 +163,7 @@ abstract class AbstractHook implements HookInterface
     public function postCreateFile(Collection $parent, File $node, bool $clone): void
     {
     }
-    
+
 
     /**
      * Run: preCopyCollection
@@ -287,8 +287,8 @@ abstract class AbstractHook implements HookInterface
     public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
     }
-    
-    
+
+
     /**
      * Run: preRestoreFile
      *
@@ -302,7 +302,7 @@ abstract class AbstractHook implements HookInterface
     {
     }
 
-    
+
     /**
      * Run: postRestoreFile
      *
@@ -331,7 +331,7 @@ abstract class AbstractHook implements HookInterface
     public function prePutFile(File $node, $content, bool $force, array $attributes): void
     {
     }
-    
+
 
     /**
      * Run: postPutFile
@@ -347,8 +347,8 @@ abstract class AbstractHook implements HookInterface
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
     }
-   
- 
+
+
     /**
      * Run: preDeleteFile
      *
@@ -402,7 +402,7 @@ abstract class AbstractHook implements HookInterface
     ): void {
     }
 
-    
+
     /**
      * Run: postSaveNodeAttributes
      *

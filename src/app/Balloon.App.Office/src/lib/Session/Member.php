@@ -18,7 +18,7 @@ use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\Serializable as BSONSerializable;
 use \Balloon\App\Office\Session;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 
 class Member implements BSONSerializable
 {
@@ -29,7 +29,7 @@ class Member implements BSONSerializable
      */
     protected $session;
 
-    
+
     /**
      * Valid until
      *
@@ -45,7 +45,7 @@ class Member implements BSONSerializable
      */
     protected $user;
 
-        
+
     /**
      * Access token
      *
@@ -90,7 +90,7 @@ class Member implements BSONSerializable
         ];
     }
 
-    
+
     /**
      * Set session
      *
@@ -113,7 +113,7 @@ class Member implements BSONSerializable
     {
         return $this->session;
     }
-    
+
 
     /**
      * Get user
@@ -124,7 +124,7 @@ class Member implements BSONSerializable
     {
         return $this->user;
     }
-    
+
 
     /**
      * Get valid until
@@ -165,12 +165,12 @@ class Member implements BSONSerializable
      * Get Session
      *
      * @param  Server $server
-     * @param  Logger $logger
+     * @param  LoggerInterface $logger
      * @param  ObjectId $session_id
      * @param  string $access_token
      * @return Member
      */
-    public static function getByAccessToken(Server $server, Logger $logger, ObjectId $session_id, string $access_token): Member
+    public static function getByAccessToken(Server $server, LoggerInterface $logger, ObjectId $session_id, string $access_token): Member
     {
         $session = Session::getByAccessToken($server, $session_id, $access_token);
         foreach ($session->getMember() as $member) {
@@ -180,7 +180,7 @@ class Member implements BSONSerializable
         }
     }
 
-    
+
     /**
      * Create access token
      *

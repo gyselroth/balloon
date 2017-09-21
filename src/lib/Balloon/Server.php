@@ -15,7 +15,7 @@ use \MongoDB\Database;
 use \Balloon\Async;
 use \Balloon\Hook;
 use \Balloon\App;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Micro\Auth\Identity;
 use \Balloon\Server\User;
 use \Balloon\Server\Group;
@@ -30,11 +30,11 @@ class Server
      */
     protected $db;
 
-    
+
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -46,7 +46,7 @@ class Server
      */
     protected $hook;
 
-    
+
     /**
      * Async
      *
@@ -78,7 +78,7 @@ class Server
      */
     protected $temp_dir = '/tmp/balloon';
 
-    
+
     /**
      * Max file version
      *
@@ -86,7 +86,7 @@ class Server
      */
     protected $max_file_version = 8;
 
-    
+
     /**
      * Max file size
      *
@@ -100,7 +100,7 @@ class Server
      *
      * @return void
      */
-    public function __construct(Database $db, Logger $logger, Async $async, Hook $hook, ?Iterable $config=null)
+    public function __construct(Database $db, LoggerInterface $logger, Async $async, Hook $hook, ?Iterable $config=null)
     {
         $this->db     = $db;
         $this->logger = $logger;
@@ -127,11 +127,11 @@ class Server
                 case 'temp_dir':
                     $this->temp_dir = (string)$value;
                 break;
-                
+
                 case 'max_file_version':
                     $this->max_file_version = (int)$value;
                 break;
-                
+
                 case 'max_file_size':
                     $this->max_file_size = (int)$value;
                 break;
@@ -141,7 +141,7 @@ class Server
         return $this;
     }
 
-   
+
     /**
      * Get database
      *
@@ -151,7 +151,7 @@ class Server
     {
         return $this->db;
     }
-    
+
 
     /**
      * Set app
@@ -174,14 +174,14 @@ class Server
     {
         return $this->app;
     }
-    
+
 
     /**
      * Get logger
      *
-     * @return Logger
+     * @return LoggerInterface
      */
-    public function getLogger(): Logger
+    public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
@@ -230,7 +230,7 @@ class Server
         return $this->hook;
     }
 
-    
+
     /**
      * Get async
      *
@@ -271,12 +271,12 @@ class Server
         if ($this->userExists($user['username'])) {
             throw new Exception('user does already exists');
         }
-    
+
         $this->db->user->insertOne($user);
         return true;
     }
 
-    
+
     /**
      * Check if user exists
      *
@@ -299,7 +299,7 @@ class Server
         $attributes = $this->db->user->findOne([
            '_id' => $id
         ]);
-        
+
         if ($attributes === null) {
             throw new Exception('user does not exists');
         }
@@ -307,7 +307,7 @@ class Server
         return new User($attributes, $this, $this->logger);
     }
 
-    
+
     /**
      * Set Identity
      *
@@ -351,7 +351,7 @@ class Server
     public function getUserByName(string $name): User
     {
     }
-        
+
 
     /**
      * Get Filesystem

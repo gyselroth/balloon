@@ -18,7 +18,7 @@ use \Micro\Auth\Identity;
 use \MongoDB\BSON\ObjectID;
 use \MongoDB\BSON\UTCDateTime;
 use \MongoDB\BSON\Binary;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \Balloon\Helper;
 use \Balloon\Server;
 
@@ -47,7 +47,7 @@ class User
      */
     protected $groups = [];
 
-        
+
     /**
      * Last sync timestamp
      *
@@ -63,14 +63,14 @@ class User
      */
     protected $soft_quota = 0;
 
-    
+
     /**
      * Hard Quota
      *
      * @var int
      */
     protected $hard_quota = 0;
-    
+
 
     /**
      * Is user deleted?
@@ -87,7 +87,7 @@ class User
      */
     protected $admin = false;
 
-    
+
     /**
      * Created
      *
@@ -110,15 +110,15 @@ class User
      * @var string
      */
     protected $namespace;
-    
-    
+
+
     /**
      * Mail
      *
      * @var string
      */
     protected $mail;
-    
+
 
     /**
      * Db
@@ -129,12 +129,12 @@ class User
 
 
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
-    
+
 
     /**
      * Server
@@ -142,7 +142,7 @@ class User
      * @var Server
      */
     protected $server;
-    
+
 
     /**
      * Filesystem
@@ -160,7 +160,7 @@ class User
      * @param   bool $ignore_deleted
      * @return  void
      */
-    public function __construct(array $attributes, Server $server, Logger $logger, bool $ignore_deleted=true)
+    public function __construct(array $attributes, Server $server, LoggerInterface $logger, bool $ignore_deleted=true)
     {
         $this->server   = $server;
         $this->db       = $server->getDatabase();
@@ -194,7 +194,7 @@ class User
 
         $cache = ($this->last_attr_sync instanceof UTCDateTime ?
         $this->last_attr_sync->toDateTime()->format('U') : 0);
-        
+
         if (time() - $attr_sync > $cache) {
             $this->logger->info('user attribute sync cache time expired, resync with auth attributes', [
                 'category' => get_class($this),
@@ -204,9 +204,9 @@ class User
             foreach ($attributes as $attr => $value) {
                 $this->{$attr} = $value;
             }
-        
+
             $this->last_attr_sync = new UTCDateTime();
-        
+
             $save = array_keys($attributes);
             $save[] = 'last_attr_sync';
             return $this->save($save);
@@ -257,7 +257,7 @@ class User
         } elseif (is_array($attribute)) {
             $requested = $attribute;
         }
-        
+
         $resolved = [];
         foreach ($requested as $attr) {
             if (!in_array($attr, $valid)) {
@@ -268,7 +268,7 @@ class User
                 case 'id':
                     $resolved['id'] = (string)$this->_id;
                 break;
-                
+
                 case 'avatar':
                     if ($this->avatar instanceof Binary) {
                         $resolved['avatar'] = base64_encode($this->avatar->getData());
@@ -293,7 +293,7 @@ class User
         }
     }
 
-    
+
     /**
      * Find all shares with membership
      *
@@ -312,7 +312,7 @@ class User
         ]);
 
         $found  = [];
-        
+
         foreach ($item as $child) {
             if (isset($child['reference']) && $child['reference'] instanceof ObjectID) {
                 $share = $child['reference'];
@@ -326,7 +326,7 @@ class User
                 $found[] = $share;
             }
         }
-        
+
         return $found;
     }
 
@@ -390,35 +390,35 @@ class User
                 ]
             ],
         ];
-        
+
         if ($type === 'array') {
             $ops[] = [
                 '$unwind' => '$'.$attribute
             ];
         }
-        
+
         $ops[] = [
             '$group' => [
                 "_id" => '$'.$attribute,
                 "sum" => ['$sum' => 1],
             ],
         ];
-        
+
         $ops[] = [
             '$sort' => [
                "sum" => -1,
                "_id" => 1
             ],
         ];
-        
-        
+
+
         $ops[] = [
             '$limit' => $limit
         ];
-        
+
         return $mongodb->aggregate($ops)->toArray();
     }
-    
+
 
     /**
      * Get filesystem
@@ -445,7 +445,7 @@ class User
         return $this->admin;
     }
 
-    
+
     /**
      * Check if user has share
      *
@@ -462,7 +462,7 @@ class User
 
         return $result === 1;
     }
-    
+
 
     /**
      * Find new shares and create reference
@@ -497,7 +497,7 @@ class User
             $found[] = $child['_id'];
             $list[(string)$child['_id']] = $child;
         }
-        
+
         if (empty($found)) {
             return false;
         }
@@ -511,7 +511,7 @@ class User
             //    '$in' => $found
             //]
         ]);
-        
+
         $exists = [];
         foreach ($item as $child) {
             if (!in_array($child['reference'], $found)) {
@@ -531,16 +531,16 @@ class User
                 $exists[] = $child['reference'];
             }
         }
-        
+
         $new = array_diff($found, $exists);
-        
+
         foreach ($new as $add) {
             $node = $list[(string)$add];
-                
+
             $this->logger->info('found new share ['.$node['_id'].']', [
                 'category' => get_class($this),
             ]);
-            
+
             if ($node['owner'] == $this->_id) {
                 $this->logger->debug('skip creating reference to share ['.$node['_id'].'] cause share owner ['.$node['owner'].'] is the current user', [
                     'category' => get_class($this),
@@ -554,7 +554,7 @@ class User
                 'parent'    => null,
                 'reference' => $node['_id']
             ];
-            
+
             try {
                 $dir = $this->getFilesystem()->getRoot();
                 $dir->addDirectory($node['name'], $attrs);
@@ -566,15 +566,15 @@ class User
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);
-                
+
                 throw $e;
             }
-              
+
             $this->logger->info('created new share reference to share ['.$node['_id'].']', [
                 'category' => get_class($this),
             ]);
         }
-        
+
         return true;
     }
 
@@ -600,7 +600,7 @@ class User
         return $this->hard_quota;
     }
 
-    
+
     /**
      * Set hard quota
      *
@@ -614,7 +614,7 @@ class User
         return $this;
     }
 
-    
+
     /**
      * Set soft quota
      *
@@ -627,7 +627,7 @@ class User
         $this->save(['soft_quota']);
         return $this;
     }
-    
+
 
     /**
      * Save
@@ -647,7 +647,7 @@ class User
         ], [
             '$set' => $set
         ]);
-        
+
         return true;
     }
 
@@ -716,13 +716,13 @@ class User
             $result_user = $this->save(['deleted']);
         } else {
             $result_data = $this->getFilesystem()->getRoot()->delete(true);
-            
+
             $result = $this->db->user->deleteOne([
                 '_id' => $this->_id,
             ]);
             $result_user = $result->isAcknowledged();
         }
-        
+
         return $result_data && $result_user;
     }
 
@@ -738,7 +738,7 @@ class User
         return $this->save(['deleted']);
     }
 
-    
+
     /**
      * Check if user is deleted
      *
@@ -759,7 +759,7 @@ class User
     {
         return $this->username;
     }
-    
+
 
     /**
      * Get groups
@@ -770,8 +770,8 @@ class User
     {
         return $this->groups;
     }
-    
-    
+
+
     /**
      * Return username as string
      *

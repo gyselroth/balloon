@@ -16,7 +16,7 @@ namespace Balloon;
 use \Balloon\Resource\Exception;
 use \MongoDB\Database;
 use \Balloon\Server\User;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 
 class Resource
 {
@@ -25,14 +25,14 @@ class Resource
      *
      * @param   string|\MongoDB\BSON\ObjectID|Auth $user
      * @param   \MongoDB\Database $db
-     * @param   Logger $logger
+     * @param   LoggerInterface $logger
      * @param   Config $config
      * @param   Plugin $plugin
      * @param   bool $autocreate
      * @param   bool $ignore_deleted
      * @return  void
      */
-    public function __construct(User $user, Logger $logger, Filesystem $fs)
+    public function __construct(User $user, LoggerInterface $logger, Filesystem $fs)
     {
         $this->db       = $fs->getDatabase();
         $this->fs       = $fs;
@@ -40,7 +40,7 @@ class Resource
         $this->user     = $user;
     }
 
-    
+
     /**
      * Sync user
      *
@@ -54,7 +54,7 @@ class Resource
         $groups = $this->searchGroup($q, $single);
         return array_merge($groups, $users);
     }
-   
+
 
     /**
      * Sync user
@@ -77,10 +77,10 @@ class Resource
         foreach ($result as $user) {
             $list[] = new User($user['username'], $this->logger, $this->fs, true, false);
         }
-        
+
         return $list;
     }
-    
+
 
     /**
      * Sync user
@@ -100,7 +100,7 @@ class Resource
             $result = $this->db->user->findOne([
                 'username' => $q
             ]);
-            
+
             if (!empty($result)) {
                 return [
                     'type' => 'user',
@@ -127,12 +127,12 @@ class Resource
             $filter = htmlspecialchars_decode(sprintf($searchu['filter'], $q));
             $base =  sprintf($config['basedn'], $ns);
         }
-        
+
         $result_user  = ldap_search($ldap, $base, $filter, [
             $searchu['display_attr'],
             $searchu['id_attr'],
         ]);
- 
+
         $filtered = [];
 
         if ($result_user) {
@@ -148,7 +148,7 @@ class Resource
                     $this->logger->error('failed get user ['.$role['dn'].'], ether ldap attribute ['.$searchu['id_attr'].' or ['.$searchu['display_attr'].'] does not exists', [
                         'category' => get_class($this),
                     ]);
-                    
+
                     continue;
                 }
 
@@ -163,7 +163,7 @@ class Resource
                 'category' => get_class($this),
             ]);
         }
-        
+
         if (empty($filtered)) {
             return [];
         } elseif ($single) {
@@ -186,7 +186,7 @@ class Resource
         if (empty($q)) {
             return [];
         }
-        
+
 
         $q      = ldap_escape($q);
         $config = $this->user->getAuth()->getAdapter()->getLdapResources();
@@ -216,7 +216,7 @@ class Resource
         if ($result_group) {
             $data = ldap_get_entries($ldap, $result_group);
             array_shift($data);
-            
+
             if ($single && count($data) > 1) {
                 throw new Exception('found more than one user with single filter');
             }
@@ -226,10 +226,10 @@ class Resource
                     $this->logger->error('failed get group ['.$role['dn'].'], ether ldap attribute ['.$searchg['id_attr'].' or ['.$searchg['display_attr'].'] does not exists', [
                         'category' => get_class($this),
                     ]);
-                    
+
                     continue;
                 }
-                
+
                 $filtered[] = [
                     'type' => 'group',
                     'id'   => (is_array($role[$searchg['id_attr']]) ? $role[$searchg['id_attr']][0] : $role[$searchg['id_attr']]),

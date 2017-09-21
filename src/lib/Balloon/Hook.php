@@ -13,7 +13,7 @@ namespace Balloon;
 
 use \Balloon\Hook\Exception;
 use \Balloon\Hook\HookInterface;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 
 class Hook
 {
@@ -26,9 +26,9 @@ class Hook
 
 
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -36,10 +36,10 @@ class Hook
     /**
      * Init hook manager
      *
-     * @param   Logger $logger
+     * @param   LoggerInterface $logger
      * @return  void
      */
-    public function __construct(Logger $logger)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
@@ -57,12 +57,12 @@ class Hook
         if (!class_exists($class)) {
             throw new Exception("hook class $class was not found");
         }
-            
+
         $hook = new $class($this->logger, $config);
         if (isset($this->hook[$class])) {
             throw new Exception('hook '.$class.' is already registered');
         }
-            
+
         if (!($hook instanceof HookInterface)) {
             throw new Exception('hook '.$class.' does not implement HookInterface');
         }
@@ -88,7 +88,7 @@ class Hook
         if ($this->hasHook(get_class($hook))) {
             throw new Exception('hook '.get_class($hook).' is already registered');
         }
-            
+
         $this->hook[get_class($hook)] = $hook;
         return true;
     }

@@ -16,7 +16,6 @@ use \Balloon\Exception;
 use \Balloon\Helper;
 use \Balloon\Server\User;
 use \Balloon\Resource;
-use \Psr\Log\LoggerInterface as Logger;
 use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\BSON\UTCDateTime;
@@ -38,7 +37,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      */
     protected $mime = 'inode/directory';
 
-    
+
     /**
      * Children
      *
@@ -73,7 +72,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function __construct(?array $attributes, Filesystem $fs)
     {
         parent::__construct($attributes, $fs);
-        
+
         if ($attributes === null) {
             $this->_id = null;
 
@@ -81,7 +80,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 $this->owner  = $this->_user->getId();
             }
         }
-            
+
         $this->_verifyAccess();
     }
 
@@ -114,7 +113,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         } else {
             $name = $this->name;
         }
-        
+
         if ($this->_id == $parent->getId()) {
             throw new Exception\Conflict(
                 'can not copy node into itself',
@@ -214,11 +213,11 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'directory'
             ];
         }
-    
+
         return parent::getAttributes($attributes);
     }
 
-    
+
     /**
      * Get collection
      *
@@ -229,7 +228,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         $this->getZip();
     }
 
-    
+
     /**
      * Fetch children items of this collection
      *
@@ -277,10 +276,10 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             if ($this->_user !== null) {
                 $search['owner'] = $this->_user->getId();
             }
-            
+
             $node = $this->_db->storage->find($search);
         }
-        
+
         $list = [];
         foreach ($node as $child) {
             try {
@@ -292,7 +291,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 ]);
             }
         }
-        
+
         if (!empty($this->filter)) {
             foreach ($this->_fs->findNodesWithCustomFilterUser($deleted, $this->filter) as $node) {
                 yield $node;
@@ -329,7 +328,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         return !empty($this->filter);
     }
 
-    
+
     /**
      * Get number of children
      *
@@ -368,7 +367,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function getQuotaInfo(): array
     {
         $quota = $this->_user->getQuotaUsage();
-        
+
         return [
             $quota['used'],
             $quota['available']
@@ -394,7 +393,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'name'    => $name,
                 'parent'  => $this->getRealId(),
             ];
-    
+
             switch ($deleted) {
                 case NodeInterface::DELETED_EXCLUDE:
                     $search['deleted'] = false;
@@ -436,7 +435,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         $this->_logger->debug('loaded node ['.$node['_id'].' (directory='.$node['directory'].')] from parent node ['.$this->getRealId().']', [
             'category' => get_class($this),
         ]);
-        
+
         //if the item has the directory flag we create a collection else the item is file
         if ($node['directory'] == true) {
             return new Collection($node, $this->_fs);
@@ -501,20 +500,20 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             'preDeleteCollection',
             [$this, &$force, &$recursion, &$recursion_first]
         );
-        
+
         if ($this->readonly && $this->_user !== null) {
             throw new Exception\Conflict(
                 'node is marked as readonly, it is not possible to delete it',
                 Exception\Conflict::READONLY
             );
         }
-        
+
         if ($force === true) {
             return $this->_forceDelete($recursion, $recursion_first);
         }
-        
+
         $this->deleted = new UTCDateTime();
-        
+
 
         if (!$this->isReference()) {
             $this->doRecursiveAction('delete', [
@@ -557,7 +556,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'recursion_first' => false,
             ], NodeInterface::DELETED_INCLUDE);
         }
-  
+
         try {
             $result = $this->_db->storage->deleteOne(['_id' => $this->_id]);
 
@@ -568,10 +567,10 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             $this->_logger->info('force removed collection ['.$this->_id.']', [
                 'category' => get_class($this),
             ]);
-        
+
 
             $this->_hook->run(
-        
+
 
                 'postDeleteCollection',
                 [$this, true, $recursion, $recursion_first]
@@ -581,7 +580,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
                 'exception' => $e,
             ]);
-            
+
             throw $e;
         }
 
@@ -628,12 +627,12 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         if ($this->isShared()) {
             unset($find['owner']);
         }
-        
+
         $node = $this->_db->storage->findOne($find);
-    
+
         return (bool)$node;
     }
-    
+
 
     /**
      * Share collection
@@ -646,11 +645,11 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         if ($this->isReference()) {
             throw new Exception('a collection reference can not be shared');
         }
-        
+
         if ($this->isShareMember()) {
             throw new Exception('a sub node of a share can not be shared');
         }
-        
+
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden(
                 'not allowed to share node',
@@ -666,13 +665,13 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'shared' => $this->_id
             ]
         ];
-    
+
         $toset = $this->getChildrenRecursive($this->getRealId(), $shares, $files);
-        
+
         if (!empty($shares)) {
             throw new Exception('child folder contains a shared folder');
         }
-        
+
         $this->_db->storage->updateMany([
             '_id' => [
                 '$in' => $toset,
@@ -684,7 +683,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 '$in' => $toset,
             ],
         ], $action);
-        
+
         $list = [];
         $result = $this->save(['shared', 'acl']);
 
@@ -749,16 +748,16 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'owner' => $this->_user->getId()
             ]
         ];
-    
+
         $toset = $this->getChildrenRecursive($this->getRealId(), $shares, $files);
-        
-        
+
+
         $this->_db->storage->updateMany([
             '_id' => [
                 '$in' => $toset,
             ],
         ], $action);
-        
+
         $list = [];
         $result = $this->save(['shared'], ['acl']);
 
@@ -791,7 +790,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         return true;
     }
 
-    
+
     /**
      * Get children
      *
@@ -812,7 +811,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             'shared'    => 1,
             'file'      => 1
         ]);
-        
+
         foreach ($result as $node) {
             $list[] = $node['_id'];
 
@@ -825,7 +824,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 if (isset($node['reference']) || isset($node['shared']) && $node['shared'] === true) {
                     $shares[] = $node['_id'];
                 }
-        
+
                 if ($node['directory'] === true && !isset($node['reference'])) {
                     $list = array_merge($list, $this->getChildrenRecursive($node['_id'], $shares, $files));
                 }
@@ -874,14 +873,14 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 $name = $this->getDuplicateName($name);
             }
         }
-        
+
         if ($this->isDeleted()) {
             throw new Exception\Conflict(
                 'could not add node '.$name.' into a deleted parent collection',
                 Exception\Conflict::DELETED_PARENT
             );
         }
-        
+
         try {
             $meta = [
                 'name'      => $name,
@@ -893,7 +892,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'changed'   => new UTCDateTime(),
                 'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared)
             ];
-            
+
             if ($this->_user !== null) {
                 $meta['owner'] = $this->_user->getId();
             }
@@ -909,7 +908,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
             $new = new Collection($save, $this->_fs);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
-     
+
             return $new;
         } catch (\Exception $e) {
             $this->_logger->error('failed create new collection under parent ['.$this->_id.']', [
@@ -996,7 +995,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [
                 'category' => get_class($this),
             ]);
-            
+
             $file = new File($save, $this->_fs);
 
             try {
@@ -1013,7 +1012,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
                 throw $e;
             }
-            
+
             $this->_hook->run('postCreateFile', [$this, $file, $clone]);
 
             return $file;
@@ -1042,7 +1041,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     {
         return $this->addFile($name, $data)->getETag();
     }
-    
+
 
     /**
      * Create new directory wrapper

@@ -14,7 +14,7 @@ namespace Balloon;
 use \MongoDB\Database;
 use \MongoDB\BSON\ObjectId;
 use \Balloon\Async\JobInterface;
-use \Psr\Log\LoggerInterface as Logger;
+use \Psr\Log\LoggerInterface;
 use \MongoDB\Operation\Find;
 use \MongoDB\Driver\Cursor;
 use \MongoDB\BSON\UTCDateTime;
@@ -28,12 +28,12 @@ class Async
      * @var Database
      */
     protected $db;
-    
+
 
     /**
-     * Logger
+     * LoggerInterface
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -42,10 +42,10 @@ class Async
      * Init queue
      *
      * @param   Filesystem $fs
-     * @param   Logger $logger
+     * @param   LoggerInterface $logger
      * @return  void
      */
-    public function __construct(Database $db, Logger $logger)
+    public function __construct(Database $db, LoggerInterface $logger)
     {
         $this->db     = $db;
         $this->logger = $logger;
@@ -89,7 +89,7 @@ class Async
         return $result->isAcknowledged();
     }
 
-    
+
     /**
      * Get cursor
      *
@@ -122,7 +122,7 @@ class Async
             'waiting'   => false,
             'timestamp' => new UTCDateTime()
         ]]);
-        
+
         return $result->isAcknowledged();
     }
 
@@ -153,7 +153,7 @@ class Async
                 'category' => get_class($this),
                 'params'   => $job['data']
             ]);
-            
+
             try {
                 if (!class_exists($job['class'])) {
                     $this->updateJob($job['_id'], false);
@@ -168,7 +168,7 @@ class Async
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);
-                
+
                 $this->updateJob($job['_id'], false);
             }
         }
