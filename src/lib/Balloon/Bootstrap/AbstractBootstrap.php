@@ -80,7 +80,7 @@ abstract class AbstractBootstrap
      */
     protected $pluginmgr;
 
-    
+
     /**
      * Filesystem
      *
@@ -88,7 +88,7 @@ abstract class AbstractBootstrap
      */
     protected $fs;
 
-    
+
     /**
      * User
      *
@@ -104,7 +104,7 @@ abstract class AbstractBootstrap
      */
     protected $option_mongodb = 'mongodb://localhost:27017';
 
-    
+
     /**
      * Option: mongodb database
      *
@@ -189,11 +189,11 @@ abstract class AbstractBootstrap
                 'array' => 'array'
             ]
         ]);
-        
+
         $this->db = $client->{$this->option_mongodb_db};
         $this->async = new Async($this->db, $this->logger);
         $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);
-        
+
         return true;
     }
 
@@ -230,10 +230,10 @@ abstract class AbstractBootstrap
                     break;
             }
         }
-    
+
         return $this;
     }
-    
+
 
     /**
      * Set error handler
@@ -244,21 +244,21 @@ abstract class AbstractBootstrap
     {
         set_error_handler(function ($severity, $message, $file, $line) {
             $log = $message." in ".$file.":".$line;
-            switch ($errno) {
+            switch ($severity) {
                 case E_ERROR:
                 case E_USER_ERROR:
                     $this->logger->error($log, [
                         'category' => get_class($this)
                     ]);
                 break;
-            
+
                 case E_WARNING:
                 case E_USER_WARNING:
                     $this->logger->warning($log, [
                         'category' => get_class($this)
                     ]);
                 break;
-            
+
                 default:
                     $this->logger->debug($log, [
                         'category' => get_class($this)
