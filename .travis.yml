@@ -9,8 +9,6 @@ addons:
         - imagemagick
 
 before_install:
-  - npm install -g bower
-  - bower install
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - echo "\n" | pecl install imagick
   - echo "extension = imagick.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini

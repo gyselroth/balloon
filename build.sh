@@ -2,12 +2,11 @@
 
 OPT_DIR='./build'
 OPT_COMPOSER=0
-OPT_BOWER=0
+OPT_NPM=0
 OPT_TEST=0
 OPT_PHPCS_FIX=0
 OPT_PHPSTAN=0
 OPT_APIDOC=0
-OPT_MINIFY=0
 OPT_VERSION=0
 OPT_PACKAGE=0
 OPT_EXCLUDE_APPS=0
@@ -25,9 +24,6 @@ Balloon build tool $version
   -a --apidoc
     Creates the API documentation guide, available under ./doc
 
-  -b --bower
-    Install and update all javascript requirements (bower.io)
-
   -c --composer
     Install and update all php requirements (getcomposer.org)
 
@@ -35,10 +31,10 @@ Balloon build tool $version
     Per default alls apps within src/apps will be integrated into the build
 
   -d --dep
-    Installs all requiremenets, equal to "--composer --bower"
+    Installs all requiremenets, equal to "--composer --npm"
 
   -f --full-build
-    Executes a full build, equal to "--dep --minify --test --apidoc --php-cs-fixer"
+    Executes a full build, equal to "--dep --test --apidoc --php-cs-fixer"
 
   -h --help
     Shows this message
@@ -46,11 +42,11 @@ Balloon build tool $version
   -i --ignore
     Ignore any error
 
-  -m --minify
-    Executes the minify task of the user interface (yui-compressor is required)
+  -n --npm 
+    Install npm dependencies
 
   -p --package tar,deb [DEFAULT: tar,deb]
-    This generates a tar archive of a complete build, equal to "--dep --minify --test --apidoc --php-cs-fixer"
+    This generates a tar archive of a complete build, equal to "--dep --test --apidoc --php-cs-fixer"
     and creates a package with the result
 
   -P --php-cs-fixer
@@ -92,8 +88,7 @@ case $key in
     ;;
     -f|--full-build)
     OPT_COMPOSER=1
-    OPT_BOWER=1
-    OPT_MINIFY=1
+    OPT_NPM=1
     OPT_APIDOC=1
     OPT_TEST=1
     #OPT_PHPSTAN=1
@@ -107,13 +102,13 @@ case $key in
     ;;
     -d|--dep)
     OPT_COMPOSER=1
-    OPT_BOWER=1
+    OPT_NPM=1
     ;;
     -c|--composer)
     OPT_COMPOSER=1
     ;;
-    -b|--bower)
-    OPT_BOWER=1
+    -n|--npm)
+    OPT_NPM=1
     ;;
     -t|--test)
     OPT_TEST=1
@@ -123,9 +118,6 @@ case $key in
     ;;
     -a|--apidoc)
     OPT_APIDOC=1
-    ;;
-    -m|--minify)
-    OPT_MINIFY=1
     ;;
     -s|--source)
     OPT_SOURCE="$2"
@@ -175,11 +167,11 @@ if [ $OPT_COMPOSER -eq 1 ]; then
     fi
 fi
 
-if [ $OPT_BOWER -eq 1 ]; then
-    echo "[TASK] Execute bower"
-    bower update --allow-root
+if [ $OPT_NPM -eq 1 ]; then
+    echo "[TASK] Execute npm"
+    npm update
     if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
-        echo "bower requirements not met, abort build."
+        echo "npm requirements not met, abort build."
         exit 127
     fi
 fi
@@ -195,11 +187,11 @@ fi
 
 if [ $OPT_APIDOC -eq 1 ]; then
     echo "[TASK] Execute apidoc"
-    input="-i $OPT_SOURCE/src/lib/Balloon/Rest"
+    input="-i $OPT_SOURCE/src/lib/Balloon/Api"
     if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
         for app in `ls $OPT_SOURCE/src/app`; do
-            if [ -e $OPT_SOURCE/src/app/$app/src/lib/Rest ]; then
-                input="$input -i $OPT_SOURCE/src/app/$app/src/lib/Rest"
+            if [ -e $OPT_SOURCE/src/app/$app/src/lib/Api ]; then
+                input="$input -i $OPT_SOURCE/src/app/$app/src/lib/Api"
             fi
         done
     fi
@@ -239,87 +231,6 @@ if [ $OPT_PHPSTAN -eq 1 ]; then
         echo "phpstan failed, abort build."
         exit 127
     fi
-fi
-
-if [ $OPT_MINIFY -eq 1 ]; then
-    echo "[TASK] Execute yui-compressor"
-
-    for locale in `ls $OPT_SOURCE/src/httpdocs/ui/locale | grep -v build`; do
-        name=$(basename $locale)
-        cp -v $OPT_SOURCE/src/httpdocs/ui/locale/$name $OPT_SOURCE/src/httpdocs/ui/locale/build.$name
-    done
-
-    if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
-        for app in `ls src/app`; do
-            if [ -e $OPT_SOURCE/src/app/$app/src/httpdocs/locale ]; then
-                for locale in `ls $OPT_SOURCE/src/app/$app/src/httpdocs/locale`; do
-                    echo $locale;
-                    echo "---"
-                    name=$(basename $locale)
-                    echo $OPT_SOURCE/src/app/$app/src/httpdocs/locale/$locale
-                    echo $OPT_SOURCE/src/httpdocs/ui/locale/build.$name
-                    jq -s '.[0] * .[1]' $OPT_SOURCE/src/httpdocs/ui/locale/build.$name $OPT_SOURCE/src/app/$app/src/httpdocs/locale/$locale > $OPT_SOURCE/src/httpdocs/ui/locale/build.temp.$name
-                    mv $OPT_SOURCE/src/httpdocs/ui/locale/build.temp.$name $OPT_SOURCE/src/httpdocs/ui/locale/build.$name
-
-                    if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
-                        echo "locale merge for app $app failed, abort build"
-                        exit 127
-                    fi
-                done
-            fi
-        done
-    fi
-
-    js_min=$(cat $OPT_SOURCE/src/httpdocs/ui/index.html  | grep javascript | grep \.min\. | cut -d '"' -f4 | grep -v config.js)
-    js=$(cat $OPT_SOURCE/src/httpdocs/ui/index.html  | grep javascript | grep -v \.min\. | cut -d '"' -f4 | grep -v config.js)
-    css=$(cat $OPT_SOURCE/src/httpdocs/ui/index.html  | grep 'text/css' | cut -d '"' -f2)
-    ui="$OPT_SOURCE/src/httpdocs/ui"
-    #ui_src="$OPT_SOURCE/src/httpdocs/ui"
-
-    c_js_min=${js_min//\/ui/"$ui"}
-    c_js=${js//\/ui/"$ui"}
-    echo "$c_js_min"
-    echo "$c_js"
-
-    sed -e '$s/$/\n/' -s $c_js_min > $ui/lib/build.min.js
-    sed -e '$s/$/\n/' -s $c_js > $ui/lib/build.dev.js
-
-    if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
-        for app in `ls $OPT_SOURCE/src/app`; do
-            cat $OPT_SOURCE/src/app/$app/src/httpdocs/lib/* >> $ui/lib/build.dev.js
-        done
-    fi
-
-    $OPT_SOURCE/node_modules/.bin/yuicompressor -o $ui/lib/build.dev.js $ui/lib/build.dev.js
-    if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
-        echo "yui-compressor failed, abort build"
-        exit 127
-    fi
-
-    cat $ui/lib/build.dev.js >> $ui/lib/build.min.js
-    rm -fv $ui/lib/build.dev.js
-    mv $ui/lib/build.min.js $ui/lib/build.js
-
-    c_css=${css//\/ui/"$ui"}
-    echo "$c_css"
-    sed -e '$s/$/\n/' -s $c_css > $ui/themes/default/css/build.css
-
-    if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
-        for app in `ls $OPT_SOURCE/src/app`; do
-            cat $OPT_SOURCE/src/app/$app/src/httpdocs/styles/* >> $ui/themes/default/css/build.css
-        done
-    fi
-
-    $OPT_SOURCE/node_modules/.bin/yuicompressor -o $ui/themes/default/css/build.css $ui/themes/default/css/build.css
-    if [ $? -ne 0 ]; then
-        echo "yui-compressor failed, abort build"
-        exit 127
-    fi
-
-    #cp -Rpv $ui_src/index.html $ui/index.html
-    cp $OPT_SOURCE/src/httpdocs/ui/index.html $OPT_SOURCE/src/httpdocs/ui/index.build.html
-    sed -n '1h; 1!H; ${g; s/<!--css-->[^!]*<!--css-->/'\<link\ href="\"\/ui\/themes\/default\/css\/build.css?v=$ts\""\ media="\"screen\""\ rel="\"stylesheet\""\ type="\"text\/css\""\>'/g; p;}' -i $ui/index.build.html
-    sed -n '1h; 1!H; ${g; s/<!--js-->[^!]*<!--js-->/'\<script\ src="\"\/ui\/lib\/build.js?v=$ts\""\ type="\"text\/javascript\""\>\<\\/script\>'/g; p;}' -i $ui/index.build.html
 fi
 
 function generateDebianControl {

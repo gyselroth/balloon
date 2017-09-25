@@ -31,7 +31,8 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] added AbstractNode::getAttributes(array $attributes=[]) besides AbstractNode::getAttribute()
 * CORE: [FIX] fixed application/octet-stream mime type for office files (issue since 1.x)
 * CORE: [CHANGE] Extracted Mime detection to \Balloon\Mime
-* CORE :[FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file shadows
+* CORE: [FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file shadows
+* CORE: [CHANGE] changed use \Psr\Log\LoggerInterface as Logger to use \Psr\Log\LoggerInterface
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
@@ -42,11 +43,8 @@ Next major release v2, includes various new features and core changes. The API i
 * API: [CHANGE] Removed attribute history from GET /file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
 * API: [FEATURE] New api endpoints provided by Balloon.App.Convert
-* UI: [FIX] added missing german locale for view.prop.head.share_value
-* UI: [FEATURE] Possibility to configure file shadows
 * DOC: [FIX] @apiVersion is now correctly declared as api version "1"
-* Webinterface: [CHANGE] node list now gets populated without size for collections which increases performance (Collection number of children is still visible in the properties tab)
-* CORE: [CHANGE] changed use \Psr\Log\LoggerInterface as Logger to use \Psr\Log\LoggerInterface
+* UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-desktop
 
 
 ## 1.0.15
