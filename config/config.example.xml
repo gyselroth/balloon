@@ -62,12 +62,14 @@
           -     1 => set quarantine attribute on node to true
           -     2 => thrash node and set quarantine attribute to true
           -     3 => force delete node (default)
+          - app[].config.timeout: Maximal time in seconds to wait for an answer of the clamav daemon
           -->
         <ClamAv enabled="0" class="\Balloon\App\ClamAv">
             <config>
                 <socket>unix:///var/run/clamav/clamd.ctl</socket>
                 <max_stream_size>26214400</max_stream_size>
                 <aggressiveness>3</aggressiveness>
+                <timeout>30</timeout>
             </config>
         </ClamAv>
 

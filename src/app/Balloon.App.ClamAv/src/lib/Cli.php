@@ -45,6 +45,13 @@ class Cli extends AbstractApp
     protected $aggressiveness = 3;
 
     /**
+    * Timeout
+    *
+    * @var int
+    */
+    protected $timeout = 30;
+
+    /**
      * Init
      *
      * @return bool
@@ -74,9 +81,13 @@ class Cli extends AbstractApp
                     $this->max_stream_size = (int)$value;
                     break;
                 case 'aggressiveness':
-                    if ((int)$value <= 3) {
-                        $this->aggressiveness = (int)$value;
+                    if ((int)$value > 3 || (int)$value < 0) {
+                        throw new Exception('invalid config value [' . (int)$value . '] for aggressiveness');
                     }
+                    $this->aggressiveness = (int)$value;
+                    break;
+                case 'timeout':
+                    $this->timeout = (int)$value;
                     break;
             }
         }
@@ -105,7 +116,7 @@ class Cli extends AbstractApp
 
         try {
             // Create a new instance of the Client
-            $clamav = new ClamAv($socket, 30, PHP_NORMAL_READ);
+            $clamav = new ClamAv($socket, $this->timeout, PHP_NORMAL_READ);
 
             // Scan file
             $result = $clamav->scanResourceStream($file->get());
