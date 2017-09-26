@@ -1038,7 +1038,10 @@ class File extends Node implements INode, DAV\IFile
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $this->mime  = finfo_file($finfo, $file);
             if ($this->mime == 'application/zip' || $this->mime == 'application/vnd.ms-office') {
-                $this->mime = $this->getMimeTypeFromExtension($this->name);
+                $mime = $this->getMimeTypeFromExtension($this->name);
+                if($mime !== null) {
+                    $this->mime = $mime;
+                }
             }
         }
        
@@ -1129,7 +1132,7 @@ class File extends Node implements INode, DAV\IFile
      * @param  string $db mimetypes
      * @return string
      */
-    public function getMimeTypeFromExtension(string $filename, string $db='/etc/mime.types'): string
+    public function getMimeTypeFromExtension(string $filename, string $db='/etc/mime.types'): ?string
     {
         if (!is_readable($db)) {
             throw new Exception('mime database '.$db.' was not found or is not readable');
@@ -1137,7 +1140,7 @@ class File extends Node implements INode, DAV\IFile
 
         $fileext = substr(strrchr($filename, '.'), 1);
         if (empty($fileext)) {
-            return (false);
+            return null;
         }
         $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";
         $lines = file($db);
@@ -1153,7 +1156,7 @@ class File extends Node implements INode, DAV\IFile
             return $matches[1];
         }
     
-        return false; // no match at all
+        return null; // no match at all
     }
 
 
