@@ -486,6 +486,10 @@ class File extends Node
                     return (new Response())->setCode(201)->setBody($result);
                 }
             }
+        } catch (Exception\Forbidden $e) {
+            throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
+            );
         } catch (Exception\NotFound $e) {
             if ($p !== null && $id === null) {
                 if (!is_string($p) || empty($p)) {
