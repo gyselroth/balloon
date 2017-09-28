@@ -71,6 +71,18 @@ class Cli extends AbstractBootstrap
 
 
     /**
+     * Show help
+     *
+     * @return void
+     */
+    protected function showHelp(): void
+    {
+        echo "Balloon\n\n";
+        echo "-h Shows this message\n";
+    }
+
+
+    /**
      * Parse cmd options
      *
      * @return array
@@ -87,7 +99,7 @@ class Cli extends AbstractBootstrap
         $this->configureLogger($options);
 
         if (isset($options['help'])) {
-            return $this->showHelp();
+            $this->showHelp() & exit();
         }
 
         $this->logger->info('processing incomming cli request', [
@@ -143,7 +155,7 @@ class Cli extends AbstractBootstrap
     protected function start(array $options=[]): bool
     {
         $this->app = new App(App::CONTEXT_CLI, $this->composer, $this->server, $this->logger, $this->option_app);
-        
+
         if (isset($options['apps'])) {
             $apps = explode(',', $options['apps']);
         } else {
@@ -194,7 +206,7 @@ class Cli extends AbstractBootstrap
 
         return true;
     }
-    
+
 
     /**
      * Set exception handler

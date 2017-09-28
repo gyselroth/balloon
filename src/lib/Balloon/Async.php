@@ -23,6 +23,15 @@ use \IteratorIterator;
 class Async
 {
     /**
+     * Job status
+     */
+    const STATUS_WAITING = 0;
+    const STATUS_PROCESSING = 1;
+    const STATUS_DONE = 2;
+    const STATUS_FAILED = 3;
+
+
+    /**
      * Database
      *
      * @var Database
@@ -63,7 +72,7 @@ class Async
         $bson = \MongoDB\BSON\fromPHP($job);
         $result = $this->db->queue->insertOne([
             'class'     => get_class($job),
-            'waiting'   => true,
+            'status'    => self::STATUS_WAITING,
             'timestamp' => new UTCDateTime(),
             'data'      => $job->getData()
         ]);
@@ -103,7 +112,7 @@ class Async
             $options['cursorType'] = Find::TAILABLE;
         }
 
-        $cursor = $this->db->queue->find(['waiting' => true], $options);
+        $cursor = $this->db->queue->find(['waiting' => 0], $options);
         $iterator = new IteratorIterator($cursor);
         $iterator->rewind();
 
@@ -112,14 +121,16 @@ class Async
 
 
     /**
-     * Mark job as executed
+     * Update job status
      *
+     * @param  ObjectId $id
+     * @param  int $status
      * @return bool
      */
-    public function updateJob(ObjectId $id, bool $status): bool
+    public function updateJob(ObjectId $id, int $status): bool
     {
-        $result = $this->db->queue->updateOne(['_id' => $id], [ '$set' => [
-            'waiting'   => false,
+        $result = $this->db->queue->updateMany(['_id' => $id, '$isolated' => true], [ '$set' => [
+            'waiting'   => $status,
             'timestamp' => new UTCDateTime()
         ]]);
 
@@ -149,6 +160,8 @@ class Async
             $job = $cursor->current();
             $cursor->next();
 
+            $this->updateJob($job['_id'], self::STATUS_PROCESSING);
+
             $this->logger->debug("execute job [".$job['_id']."] [".$job['class']."]", [
                 'category' => get_class($this),
                 'params'   => $job['data']
@@ -156,20 +169,20 @@ class Async
 
             try {
                 if (!class_exists($job['class'])) {
-                    $this->updateJob($job['_id'], false);
+                    $this->updateJob($job['_id'], self::STATUS_FAILED);
                     continue;
                 }
 
                 $instance = new $job['class']((array)$job['data']);
                 $instance->start($server, $this->logger);
-                $this->updateJob($job['_id'], true);
+                $this->updateJob($job['_id'], self::STATUS_DONE);
             } catch (\Exception $e) {
                 $this->logger->error("failed execute job [".$job['_id']."], failed with error", [
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);
 
-                $this->updateJob($job['_id'], false);
+                $this->updateJob($job['_id'], self::STATUS_FAILED);
             }
         }
     }
