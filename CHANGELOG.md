@@ -34,6 +34,7 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file shadows
 * CORE: [CHANGE] changed use \Psr\Log\LoggerInterface as Logger to use \Psr\Log\LoggerInterface
 * CORE: [CHANGE] apps are now shipped without ui parts (ui componets got moved to balloon-client-web as separate apps)
+* CORE: [CHANGE] apps are now automatically loaded once they are placed in the app directory
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46

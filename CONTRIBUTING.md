@@ -29,8 +29,6 @@ Always verify your changes via:
 ./build.sh -t
 ```
 
-Pull requests with failing tests wont be accepted.
-
 ## Git commit 
 Please make sure that you always specify the number of your issue starting with a hastag (#) within any git commits.
 
@@ -45,6 +43,9 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 ## License
 This software is freely available under the terms of [GPL-3.0](https://github.com/gyselroth/balloon/LICENSE), please respect this license
 and do not contribute software parts which are not compatible with GPL-3.0.
+
+## Editor config
+This repository gets shipped with an .editorconfig configuration. For more information on how to configure your editor please visit [editorconfig](https://github.com/editorconfig).
 
 ## Code policy
 Please make sure that you're following:
@@ -66,6 +67,3 @@ Please also follow the following policy in addition to PSR-1 and PSR-2:
 * yield whenever possible, do not use return where it makes sense to yield values
 * log as many things as possible, clear understandable messsages (everything in lowercase), wrap variables in []
 * Do not use empty() for array checks, use count() === 0 instead (multi threading compatibilty)
-* Use Iterable instead array for method param type hint
-* webinterface: always use i18n for output messages
-* webinterface: make every call via balloon.xmlHttpRequest()
