@@ -49,6 +49,16 @@ Next major release v2, includes various new features and core changes. The API i
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-desktop
 
 
+--
+1.0.16 - Raffael Sahli <sahli@gyselroth.com>
+Tue Sept 28 14:35:32 CEST 2017
+--
+API: [FIX] POST /node/move can not move a node into a shared mailbox collection which holds a node with the same name #75 
+API: [FIX] PUT /file returns Exception\Conflict with code 19 instead Exception\Forbidden code 40 if a file gets uploaded into a shared mailbox collection and the collection already holds a node with the same name #75
+API: [FIX] PUT /file and POST /collection now create a node within a writeonly collection without a Exception\Forbidden response, his feature (writeonly) is deprecated now and will get removed in v2, replacement is the newly (v1.x) introduced permission mailbox)
+API: [FIX] PUT /file does not throw an error anymore if an application/zip file with an unknown mimetype gets uploaded
+
+
 ## 1.0.15
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon July 31 12:55:02 CEST 2017
