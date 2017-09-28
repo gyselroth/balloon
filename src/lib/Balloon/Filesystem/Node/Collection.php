@@ -624,7 +624,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
         $find = array_merge($filter, $find);
 
-        if ($this->isShared()) {
+        if ($this->isSpecial()) {
             unset($find['owner']);
         }
 
