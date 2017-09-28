@@ -123,7 +123,7 @@ abstract class AbstractBootstrap
             'class' => File::class,
             'config' => [
                 'file'  => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
-                'level' => 3,
+                'level' => 6,
                 'date_format' => 'Y-d-m H:i:s',
                 'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}'
             ]
