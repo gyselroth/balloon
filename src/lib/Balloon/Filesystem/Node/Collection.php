@@ -70,9 +70,10 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
      *
      * @param  BSONDocument $node
      * @param  Filesystem $fs
+     * @param  bool $force
      * @return void
      */
-    public function __construct(?BSONDocument $node, Filesystem $fs)
+    public function __construct(?BSONDocument $node, Filesystem $fs, bool $force=false)
     {
         parent::__construct($node, $fs);
         
@@ -84,7 +85,9 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             }
         }
             
-        $this->_verifyAccess();
+        if($force === false) {
+            $this->_verifyAccess();
+        }
     }
 
 
@@ -889,7 +892,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $new = new Collection(new BSONDocument($save), $this->_fs);
+            $new = new Collection(new BSONDocument($save), $this->_fs, true);
             $this->_pluginmgr->run('postCreateCollection', [$this, $new, $clone]);
      
             return $new;
@@ -972,7 +975,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
             
-            $file = new File(new BSONDocument($save), $this->_fs);
+            $file = new File(new BSONDocument($save), $this->_fs, true);
 
             try {
                 $file->put($data, true, $attributes);

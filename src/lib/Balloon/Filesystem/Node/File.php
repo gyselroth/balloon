@@ -120,12 +120,16 @@ class File extends Node implements INode, DAV\IFile
      *
      * @param   BSONDocument $node
      * @param   Filesystem $fs
+     * @param   bool $force
      * @return  void
      */
-    public function __construct(BSONDocument $node, Filesystem $fs)
+    public function __construct(BSONDocument $node, Filesystem $fs, bool $force=false)
     {
         parent::__construct($node, $fs);
-        $this->_verifyAccess();
+
+        if($force === false) {
+            $this->_verifyAccess();
+        }
     }
 
 

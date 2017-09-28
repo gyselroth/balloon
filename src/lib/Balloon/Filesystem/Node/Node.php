@@ -219,9 +219,10 @@ abstract class Node implements INode, DAV\INode
      *
      * @param  BSONDocument $node
      * @param  Filesystem $fs
+     * @param  bool $force
      * @return void
      */
-    public function __construct(?BSONDocument $node, Filesystem $fs)
+    public function __construct(?BSONDocument $node, Filesystem $fs, bool $force=false)
     {
         $this->_fs         = $fs;
         $this->_db         = $fs->getDatabase();
