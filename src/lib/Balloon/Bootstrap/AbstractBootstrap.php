@@ -140,6 +140,7 @@ abstract class AbstractBootstrap
         'Balloon.App.Api'           => [],
         'Balloon.App.AutoCreateUser'=> [],
         'Balloon.App.AutoDestroy'   => [],
+        'Balloon.App.ClamAv'        => [],
         'Balloon.App.CleanTemp'     => [],
         'Balloon.App.CleanTrash'    => [],
         'Balloon.App.Delta'         => [],
