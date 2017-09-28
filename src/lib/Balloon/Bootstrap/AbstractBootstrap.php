@@ -136,21 +136,7 @@ abstract class AbstractBootstrap
      *
      * @var Iterable
      */
-    protected $option_app = [
-        'Balloon.App.Api'           => [],
-        'Balloon.App.AutoCreateUser'=> [],
-        'Balloon.App.AutoDestroy'   => [],
-        'Balloon.App.ClamAv'        => [],
-        'Balloon.App.CleanTemp'     => [],
-        'Balloon.App.CleanTrash'    => [],
-        'Balloon.App.Delta'         => [],
-        'Balloon.App.Notification'  => [],
-        'Balloon.App.Convert'       => [],
-        'Balloon.App.Preview'       => [],
-        'Balloon.App.Sharelink'     => [],
-        'Balloon.App.Webdav'        => [],
-        'Balloon.App.Elasticsearch' => [],
-    ];
+    protected $option_app = [];
 
 
     /**
@@ -195,7 +181,24 @@ abstract class AbstractBootstrap
         $this->async = new Async($this->db, $this->logger);
         $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);
 
+        $this->detectApps();
+
         return true;
+    }
+
+
+    /**
+     * Find apps
+     *  
+     * @return AbstractBootstrap
+     */
+    protected function detectApps(): AbstractBootstrap
+    {
+        foreach(glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
+            $this->option_app[basename($app)] = [];
+        }
+
+        return $this;
     }
 
 
