@@ -521,14 +521,7 @@ class File extends Node
                 $collection =  $this->_getNode($collection, null, 'Collection', false, true);
 
                 if ($collection->childExists($name)) {
-                    try {
-                        $child = $collection->getChild($name);
-                    } catch(Exception\Forbidden $e) {
-                        throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
-                             Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                         );
-                    }
-
+                    $child = $collection->getChild($name);
                     $result = $child->put($content, false, $attributes);
                     return (new Response())->setCode(200)->setBody($result);
                 } else {
@@ -541,6 +534,10 @@ class File extends Node
                     return (new Response())->setCode(201)->setBody($result);
                 }
             }
+        } catch(Exception\Forbidden $e) {
+            throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
+            );
         } catch (Exception\NotFound $e) {
             if ($p !== null && $id === null) {
                 if (!is_string($p) || empty($p)) {
