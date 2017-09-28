@@ -26,6 +26,7 @@ abstract class Test extends TestCase
         'Balloon.App.Api'           => [],
         'Balloon.App.AutoCreateUser'=> [],
         'Balloon.App.AutoDestroy'   => [],
+        'Balloon.App.ClamAv'        => [],
         'Balloon.App.CleanTemp'     => [],
         'Balloon.App.CleanTrash'    => [],
         'Balloon.App.Delta'         => [],
@@ -56,12 +57,12 @@ abstract class Test extends TestCase
 
         $identity   = new Mock\Identity('testuser', [], self::$logger);
         $filesystem = new Filesystem($server, self::$logger);
-        $server->addUser(['username' => 'testuser']);  
+        $server->addUser(['username' => 'testuser']);
         $server->setIdentity($identity);
 
         global $composer;
         $app = new App('test', $composer, $server, self::$logger);
-        
+
         return $server;
     }
 
