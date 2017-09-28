@@ -1,5 +1,0 @@
-{
-    "name": "Elasticsearch",
-    "version": "1.0.0",
-    "description": "Fulltext search integration for balloon via elasticsearch"
-}

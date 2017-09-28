@@ -114,7 +114,7 @@ class App
     {
         $ns = str_replace('.', '\\', $name).'\\';
         $class = '\\'.$ns.$this->context;
-        $this->composer->addPsr4($ns, APPLICATION_PATH."/src/app/$name/src/lib");
+        $this->composer->addPsr4($ns, APPLICATION_PATH."/src/app/$name");
 
         if (!class_exists($class)) {
             $this->logger->debug('skip non-existent class ['.$class.'] from app ['.$name.']', [
