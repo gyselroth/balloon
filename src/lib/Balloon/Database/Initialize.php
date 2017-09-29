@@ -9,13 +9,14 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon;
+namespace Balloon\Database;
 
-use \Balloon\Upgrade\Exception;
+use \MongoDB\Database;
+use \Psr\Log\LoggerInterface;
 
 class Initialize
 {
-    public function __construct(Database $db, Logger $logger)
+    public function __construct(Database $db, LoggerInterface $logger)
     {
         $this->db = $db;
         $this->logger = $logger;
@@ -42,7 +43,7 @@ db.delta.createIndex({"node": 1})
 */
 
         $this->db->createCollection('user');
-        $this->db->user->createIndex('username' ['unique' => true]);
+        $this->db->user->createIndex('username', ['unique' => true]);
 
         $this->db->createCollection('fs.files');
         $this->db->selectCollection('fs.files')->createIndexes([
@@ -56,8 +57,8 @@ db.delta.createIndex({"node": 1})
             [ 'key' => [ 'acl.group.group' => 1 ] ],
             [ 'key' => [ 'acl.user.user' => 1 ] ],
             [ 'key' => [ 'hash' => 1 ] ],
-            [ 'key' => [ 'parent' => 1 ] ],
-            [ 'key' => [ 'owner' => 1 ] ],
+            [ 'key' => [ 'parent' => 1 ], ['sparse' => true] ],
+            [ 'key' => [ 'owner' => 1 ], ['sparse' => true] ],
             [ 'key' => [ 'reference' => 1 ] ],
             [ 'key' => [ 'shared' => 1 ] ],
         ]);

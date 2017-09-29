@@ -11,14 +11,15 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use \Balloon\Upgrade\Exception;
+use \Balloon\Database\Exception;
+use \Psr\Log\LoggerInterface;
+use \Balloon\Database\Initialize;
 
 class Database
 {
-    public function __construct(Database $db, App $app, Logger $logger)
+    public function __construct(Server $server, LoggerInterface $logger)
     {
-        $this->db = $db;
-        $this->app = $app;
+        $this->server = $server;
         $this->logger = $logger;
     }
 
@@ -27,21 +28,24 @@ class Database
     {
         $this->logger->info('initialize mongodb', [
             'category' => get_class($this)
-        ]),
+        ]);
 
         $collect = [
-            new Initialize($this->db, $this->logger);
+            new Initialize($this->server->getDatabase(), $this->logger)
         ];
 
         /*foreach($this->app as $app) {
 
         }*/
+
+
+        $this->executeInit($collect);
     }
 
-    protected function executeInit()
+    protected function executeInit($collection)
     {
         foreach($collection as $init) {
-            //do smth with init
+            $init->init();
         }
     }
 
@@ -49,6 +53,6 @@ class Database
     {
         $this->logger->info('upgrade mongodb', [
             'category' => get_class($this)
-        ]),
+        ]);
     }
 }

@@ -16,9 +16,24 @@ use \Balloon\App;
 use \Micro\Config;
 use \Composer\Autoload\ClassLoader as Composer;
 use \Micro\Log\Adapter\Stdout;
+use \Balloon\Console\Async;
+use \Balloon\Console\Database;
+use \Balloon\Console\ConsoleInterface;
+use \GetOpt\GetOpt;
 
 class Cli extends AbstractBootstrap
 {
+    /**
+     * Console modules
+     *
+     * @var array
+     */
+    protected $module = [
+        'async'    => Async::class,
+        'database' => Database::class
+    ];
+
+
     /**
      * Init bootstrap
      *
@@ -30,8 +45,20 @@ class Cli extends AbstractBootstrap
     {
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
-        $this->start($this->parseOptions());
-        return true;
+        $this->app = new App(App::CONTEXT_CLI, $this->composer, $this->server, $this->logger, $this->option_app);
+
+        $getopt = new \GetOpt\GetOpt([
+            ['v', 'verbose', \GetOpt\GetOpt::NO_ARGUMENT, 'Verbose'],
+        ]);
+
+        $module = $this->getModule($getopt);
+        $getopt->process();
+        if($module === null || in_array('help', $_SERVER['argv'])) {
+            die($this->getHelp($getopt, $module));
+        }
+
+        $this->initGlobalOptions($getopt);
+        $this->start($module);
     }
 
 
@@ -40,22 +67,12 @@ class Cli extends AbstractBootstrap
      *
      * @return Cli
      */
-    protected function configureLogger(array $options=[]): Cli
+    protected function configureLogger(?int $level=null): Cli
     {
-        $level = 2;
-        if (isset($options['verbose'])) {
-            $value = $options['verbose'];
-            if ($value === false) {
-                $level = 4;
-            } elseif (is_array($value) && count($value) === 2) {
-                $level = 5;
-            } elseif (is_array($value) && count($value) === 3) {
-                $level = 6;
-            } elseif (is_array($value) && count($value) === 4) {
-                $level = 7;
-            } else {
-                $level = 7;
-            }
+        if($level === null) {
+            $level = 4;
+        } else {
+            $level += 4;
         }
 
         if (!$this->logger->hasAdapter('stdout')) {
@@ -73,38 +90,66 @@ class Cli extends AbstractBootstrap
     /**
      * Show help
      *
-     * @return void
+     * @param  GetOpt $getopt
+     * @param  ConsoleInterface $module
+     * @return string
      */
-    protected function showHelp(): void
+    protected function getHelp(GetOpt $getopt, ?ConsoleInterface $module=null): string
     {
-        echo "Balloon\n\n";
-        echo "-h Shows this message\n";
+        $help  = "Balloon\n";
+        $help .= "balloon (GLOBAL OPTIONS) [MODULE] (MODULE OPTIONS)\n\n";
+
+        $help .= "Options:\n";
+        foreach($getopt->getOptionObjects() as $option) {
+            $help .= '-'.$option->short().' --'.$option->long().' '.$option->description()."\n";
+        }
+
+        if($module === null) {
+            $help .= "\nModules:\n";
+            $help .= "help (MODULE)\t Displays a reference for module\n";
+            $help .= "async\t\t Handles asynchronous jobs\n";
+            $help .= "database\t Initialize and upgrade database\n\n";
+            $help .= "Examples:\n";
+            $help .= "balloon help databse\n";
+            $help .= "balloon async -d -q\n";
+            $help .= "balloon -vvv databse -u\n";
+        }
+
+        return $help;
+    }
+
+
+    /**
+     * Get module
+     *
+     * @param  GetOpt $getopt
+     * @return ConsoleInterface
+     */
+    protected function getModule(GetOpt $getopt): ?ConsoleInterface
+    {
+        foreach($_SERVER['argv'] as $option) {
+            if(isset($this->module[$option])) {
+                return new $this->module[$option]($this->server, $this->logger, $getopt);
+            }
+        }
+
+        return null;
     }
 
 
     /**
      * Parse cmd options
      *
-     * @return array
+     * @param  GetOpt $getopt
+     * @return Cli
      */
-    protected function parseOptions(): array
+    protected function initGlobalOptions(GetOpt $getopt): Cli
     {
-        $options = $this->prepareOptions(getopt('hdqa::v::', [
-            'help',
-            'daemon',
-            'apps',
-            'queue'
-        ]));
-
-        $this->configureLogger($options);
-
-        if (isset($options['help'])) {
-            $this->showHelp() & exit();
-        }
+        $this->configureLogger($getopt->getOption('verbose'));
 
         $this->logger->info('processing incomming cli request', [
             'category' => get_class($this),
-            'options'  => $options
+            'options'  => $getopt->getOptions()
         ]);
 
         if (posix_getuid() == 0) {
@@ -113,36 +158,7 @@ class Cli extends AbstractBootstrap
             ]);
         }
 
-        return $options;
-    }
-
-
-    /**
-     * Prepare & sort options
-     *
-     * @param  array $options
-     * @return array
-     */
-    protected function prepareOptions(array $options=[]): array
-    {
-        $priority = [
-            'help'   => 'h',
-            'verbose'=> 'v',
-            'apps'   => 'a',
-            'queue'  => 'q',
-            'daemon' => 'd',
-        ];
-
-        $set = [];
-        foreach ($priority as $option => $value) {
-            if (isset($options[$option])) {
-                $set[$option] = $options[$option];
-            } elseif (isset($options[$value])) {
-                $set[$option] = $options[$value];
-            }
-        }
-
-        return $set;
+        return $this;
     }
 
 
@@ -152,59 +168,9 @@ class Cli extends AbstractBootstrap
      * @param  array $options
      * @return bool
      */
-    protected function start(array $options=[]): bool
+    protected function start(ConsoleInterface $module): bool
     {
-        $this->app = new App(App::CONTEXT_CLI, $this->composer, $this->server, $this->logger, $this->option_app);
-
-        if (isset($options['apps'])) {
-            $apps = explode(',', $options['apps']);
-        } else {
-            $apps = [];
-        }
-
-        if (!isset($options['queue'])) {
-            $this->logger->debug("skip job queue execution", [
-                'category' => get_class($this),
-            ]);
-        }
-
-        if (isset($options['daemon'])) {
-            $this->fireupDaemon($options);
-        } else {
-            if (isset($options['queue'])) {
-                $cursor = $this->async->getCursor(false);
-                $this->async->start($cursor, $this->server);
-            }
-
-            foreach ($this->app->getApps($apps) as $app) {
-                $app->start();
-            }
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Fire up daemon
-     *
-     * @param  array $options
-     * @return bool
-     */
-    protected function fireupDaemon(array $options=[]): bool
-    {
-        $this->logger->info("daemon execution requested, fire up daemon", [
-            'category' => get_class($this),
-        ]);
-
-        $cursor = $this->async->getCursor(true);
-        while (true) {
-            if (isset($options['queue'])) {
-                $this->async->start($cursor, $this->server);
-            }
-        }
-
-        return true;
+        return $module->start();
     }
 
 

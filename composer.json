@@ -34,6 +34,7 @@
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
+        "ulrichsg/getopt-php": "^3.0",
         "zendframework/zend-mail": "2.7.*"
     },
     "suggest": {
