@@ -16,7 +16,7 @@
     },
 
     "version": {
-        "name": "2.0.0-dev",
+        "name": "${version}",
         "released": "2017-10-21",
         "gpgSign": false
     },
