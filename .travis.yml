@@ -14,17 +14,23 @@ before_install:
   - echo "extension = imagick.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 script: ./build.sh --dep --test --package
 before_deploy:
-  - export RELEASE_PKG_FILE=$(ls dist/balloon-*.deb)
-  - echo "deploying $RELEASE_PKG_FILE"
+  - export RELEASE_FULL_PKG_FILE=$(ls dist/balloon-full-*.deb)
+  - export RELEASE_LIGHT_PKG_FILE=$(ls dist/balloon-*.deb)
+  - echo "deploy $RELEASE_FULL_PKG_FILE"
+  - echo "deploy $RELEASE_LIGHT_PKG_FILE"
 deploy:
   - provider: releases
-    file: "${RELEASE_PKG_FILE}"
+    file:
+      - "${RELEASE_FULL_PKG_FILE}"
+      - "${RELEASE_LIGHT_PKG_FILE}"
     skip_cleanup: true
     on:
       master: false
       tags: true
   - provider: bintray
-    file: "${RELEASE_PKG_FILE}"
+    file:
+      - "${RELEASE_FULL_PKG_FILE}"
+      - "${RELEASE_LIGHT_PKG_FILE}"
     file_glob: true
     user: raffis
     name: balloon
@@ -37,7 +43,9 @@ deploy:
       tags: true
   - provider: bintray
     file_glob: true
-    file: "${RELEASE_PKG_FILE}"
+    file:
+      - "${RELEASE_FULL_PKG_FILE}"
+      - "${RELEASE_LIGHT_PKG_FILE}"
     user: raffis
     name: balloon
     repo: balloon-unstable
