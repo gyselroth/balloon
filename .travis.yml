@@ -11,6 +11,7 @@ before_deploy:
   - cp packaging/debian/bintray-unstable.json bintray-unstable.json
   - sed -i s/'{version}'/$version/g bintray-stable.json
   - sed -i s/'{version}'/$version/g bintray-unstable.json
+  - cat bintray-unstable.json
 deploy:
   matrix:
   - provider: releases
