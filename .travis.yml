@@ -15,7 +15,7 @@ before_install:
 script: ./build.sh --dep --test --package
 before_deploy:
   - export RELEASE_FULL_PKG_FILE=$(ls dist/balloon-full-*.deb)
-  - export RELEASE_LIGHT_PKG_FILE=$(ls dist/balloon-*.deb)
+  - export RELEASE_LIGHT_PKG_FILE=$(ls dist/balloon-light-*.deb)
   - echo "deploy $RELEASE_FULL_PKG_FILE"
   - echo "deploy $RELEASE_LIGHT_PKG_FILE"
 deploy:
