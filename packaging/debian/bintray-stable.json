@@ -16,7 +16,7 @@
     },
 
     "version": {
-        "name": "${version}",
+        "name": "{version}",
         "released": "2017-10-21",
         "gpgSign": false
     },

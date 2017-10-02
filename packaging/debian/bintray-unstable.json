@@ -16,9 +16,8 @@
     },
 
     "version": {
-        "name": "${version}",
+        "name": "{version}",
         "released": "2017-10-21",
-        "vcs_tag": "2.0.0-dev",
         "gpgSign": false
     },
 
