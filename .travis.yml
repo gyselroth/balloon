@@ -31,7 +31,6 @@ deploy:
     file:
       - "${RELEASE_FULL_PKG_FILE}"
       - "${RELEASE_LIGHT_PKG_FILE}"
-    file_glob: true
     user: raffis
     name: balloon
     repo: balloon-stable
@@ -42,7 +41,6 @@ deploy:
       master: false
       tags: true
   - provider: bintray
-    file_glob: true
     file:
       - "${RELEASE_FULL_PKG_FILE}"
       - "${RELEASE_LIGHT_PKG_FILE}"
