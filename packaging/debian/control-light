@@ -1,4 +1,4 @@
-Package: balloon-server-light
+Package: balloon-light
 Version: {version}
 Architecture: all
 Maintainer: Raffael Sahli <sahli@gyselroth.com>

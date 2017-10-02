@@ -1,4 +1,4 @@
-Package: balloon-server-full
+Package: balloon-full
 Version: {version}
 Architecture: all
 Maintainer: Raffael Sahli <sahli@gyselroth.com>
