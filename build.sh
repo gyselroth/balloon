@@ -42,7 +42,7 @@ Balloon build tool $version
   -i --ignore
     Ignore any error
 
-  -n --npm 
+  -n --npm
     Install npm dependencies
 
   -p --package tar,deb [DEFAULT: tar,deb]
@@ -233,18 +233,6 @@ if [ $OPT_PHPSTAN -eq 1 ]; then
     fi
 fi
 
-function generateDebianControl {
-    echo "Package: balloon-server" > $OPT_SOURCE/build/DEBIAN/control
-    echo "Version: $version" >> $OPT_SOURCE/build/DEBIAN/control
-    echo "Architecture: all" >> $OPT_SOURCE/build/DEBIAN/control
-    echo "Maintainer: Raffael Sahli <sahli@gyselroth.com>" >>  $OPT_SOURCE/build/DEBIAN/control
-    echo 'Depends: php (>= 7.1), php-ldap (>= 7.1), php-xml (>= 7.1), php-mongodb (>= 7.1), php-opcache (>= 7.1), php-curl (>= 7.1), php-imagick (>= 7.1), php-cli (>= 7.1), php-zip (>= 7.1), php-intl (>= 7.1)' >> $OPT_SOURCE/build/DEBIAN/control
-    echo 'Recommends: php-apc (>= 7.1)' >> $OPT_SOURCE/build/DEBIAN/control
-    echo 'Suggests: php-fpm (>=7.1), nginx' >> $OPT_SOURCE/build/DEBIAN/control
-    echo "Homepage: https://github.com/gyselroth/balloon" >> $OPT_SOURCE/build/DEBIAN/control
-    echo "Description: balloon cloud server" >> $OPT_SOURCE/build/DEBIAN/control
-}
-
 function generateDebianChangelog {
     v=
     stable="stable"
@@ -292,7 +280,8 @@ function generateDebianChangelog {
 
 function buildDeb {
     mkdir -p $OPT_SOURCE/build/DEBIAN
-    generateDebianControl
+    cp $OPT_SOURCE/packaging/debian/control-$1 $OPT_SOURCE/build/DEBIAN/control
+    sed -i s/'{version}'/$version/g $OPT_SOURCE/build/DEBIAN/control
     generateDebianChangelog
     mkdir -p $OPT_SOURCE/build/usr/share/balloon-server
     mkdir -p $OPT_SOURCE/build/etc/balloon
@@ -302,7 +291,7 @@ function buildDeb {
     #cp -Rp $OPT_SOURCE/{vendor,src,doc} $OPT_SOURCE/build/usr/share/balloon-server
     dpkg-deb --build build
     mkdir $OPT_SOURCE/dist
-    mv build.deb $OPT_SOURCE/dist/balloon-server-$version.deb
+    mv build.deb $OPT_SOURCE/dist/balloon-server-$1-$version.deb
 }
 
 if [[ ! "$OPT_PACKAGE" == "0" ]]; then
@@ -326,7 +315,8 @@ if [[ ! "$OPT_PACKAGE" == "0" ]]; then
 
         if [ "$i" == "deb" ]; then
             echo "[TASK] Create deb package"
-            buildDeb
+            buildDeb light
+            buildDeb full
         fi
     done
 fi

@@ -22,22 +22,6 @@ abstract class Test extends TestCase
     protected static $controller;
     protected static $logger;
 
-    protected static $apps = [
-        'Balloon.App.Api'           => [],
-        'Balloon.App.AutoCreateUser'=> [],
-        'Balloon.App.AutoDestroy'   => [],
-        'Balloon.App.ClamAv'        => [],
-        'Balloon.App.CleanTemp'     => [],
-        'Balloon.App.CleanTrash'    => [],
-        'Balloon.App.Delta'         => [],
-        'Balloon.App.Notification'  => [],
-        'Balloon.App.Convert'       => [],
-        'Balloon.App.Preview'       => [],
-        'Balloon.App.Sharelink'     => [],
-        'Balloon.App.Webdav'        => [],
-        'Balloon.App.Elasticsearch' => [],
-    ];
-
     public static function setupMockServer()
     {
         $db = new MockDatabase('balloon', [
@@ -69,9 +53,10 @@ abstract class Test extends TestCase
     protected static function registerAppNamespaces()
     {
         global $composer;
-        foreach(self::$apps as $app => $config) {
+        foreach(glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
+            $app = basename($app);
             $ns = str_replace('.', '\\', $app).'\\';
-            $composer->addPsr4($ns, APPLICATION_PATH."/src/app/$app/src/lib");
+            $composer->addPsr4($ns, APPLICATION_PATH."/src/app/$app");
         }
     }
 

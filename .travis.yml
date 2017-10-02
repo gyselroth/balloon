@@ -12,4 +12,56 @@ before_install:
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - echo "\n" | pecl install imagick
   - echo "extension = imagick.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-script: ./build.sh --dep --test
+script: ./build.sh --dep --test --package
+before_deploy:
+  - export RELEASE_LIGHT_PKG_FILE=$(ls dist/balloon-server-common-*.deb)
+  - export RELEASE_FULL_PKG_FILE=$(ls dist/balloon-server-full-*.deb)
+  - echo "deploying $RELEASE_LIGHT_PKG_FILE"
+  - echo "deploying $RELEASE_FULL_PKG_FILE"
+deploy:
+  - provider: bintray
+    file: "${RELEASE_FULL_PKG_FILE}"
+    file_glob: true
+    user: raffis
+    name: balloon-server-full
+    repo: balloon-stable
+    subject: gyselroth
+    key:
+      secure: BWv8xZaOQsptR6/CJdvAOD5e7NmEH3aJ83xWfSrxwK52NN7QmSNYBXhM4gMiRvUJXMYIcu6OJhlo3W86M2YOeHGtmH1biLwFp7NxIMEQUouuMBoezg5jU47M4ydk/ro44du/Krvk6jnXHkgHDsnCknPP5RD/Z+Dd2mgTL+iNbvfvklW3pd0y1q1CiZfyaEvRl8OXUyzERnS7NsayjcGOOi5Ea4VYR87tkmXBguV6XQI0CbN9RJ1VQuipYVYevZzMAO1iHDj66nEJYT0XXBOHPUYsYP/iO4bLvXkbUxXi/WU4dQbAkLFD3jYRl3UCpaUvTBoAPooD9Vh8FCq8rUrXfL0TfJ3+awvct7ltKY+E+FiDuiAdlsj+C0uL8n4Do5MNNqE+e22/XrV/Lfhpu7K65173/p6qkJyo1NanqWQJTmmUs1oSVtU+V1Ze6Ybr3BI4J6H/djGkYiIdfLVocBA24gZGmNsi66YTIJeGfN2O1rGOKk/BsxXhnnvDg6XDAH10/kXzNKakDVRGY0DMCiSUwxkozVre0o3wvkwZfWWh6JcomlxDqbCTVLNijIkkoo1GX394wojoe7s8h9HLVHVOD//bACdq9twNc9jvfJJEVk1icygzK6BQxIY81AU6/iKfxUpJ586HGkQjPs+E/Sq5xExo6bpSOa/Ik5u0K19h/P4=
+    on:
+      master: false
+      tags: true
+  - provider: bintray
+    file_glob: true
+    file: "${RELEASE_FULL_PKG_FILE}"
+    user: raffis
+    name: balloon-server-full
+    repo: balloon-unstable
+    subject: gyselroth
+    key:
+      secure: BWv8xZaOQsptR6/CJdvAOD5e7NmEH3aJ83xWfSrxwK52NN7QmSNYBXhM4gMiRvUJXMYIcu6OJhlo3W86M2YOeHGtmH1biLwFp7NxIMEQUouuMBoezg5jU47M4ydk/ro44du/Krvk6jnXHkgHDsnCknPP5RD/Z+Dd2mgTL+iNbvfvklW3pd0y1q1CiZfyaEvRl8OXUyzERnS7NsayjcGOOi5Ea4VYR87tkmXBguV6XQI0CbN9RJ1VQuipYVYevZzMAO1iHDj66nEJYT0XXBOHPUYsYP/iO4bLvXkbUxXi/WU4dQbAkLFD3jYRl3UCpaUvTBoAPooD9Vh8FCq8rUrXfL0TfJ3+awvct7ltKY+E+FiDuiAdlsj+C0uL8n4Do5MNNqE+e22/XrV/Lfhpu7K65173/p6qkJyo1NanqWQJTmmUs1oSVtU+V1Ze6Ybr3BI4J6H/djGkYiIdfLVocBA24gZGmNsi66YTIJeGfN2O1rGOKk/BsxXhnnvDg6XDAH10/kXzNKakDVRGY0DMCiSUwxkozVre0o3wvkwZfWWh6JcomlxDqbCTVLNijIkkoo1GX394wojoe7s8h9HLVHVOD//bACdq9twNc9jvfJJEVk1icygzK6BQxIY81AU6/iKfxUpJ586HGkQjPs+E/Sq5xExo6bpSOa/Ik5u0K19h/P4=
+    on:
+      all_branches: true
+  - provider: bintray
+    file: "${RELEASE_LIGHT_PKG_FILE}"
+    file_glob: true
+    user: raffis
+    name: balloon-server-common
+    repo: balloon-stable
+    subject: gyselroth
+    key:
+      secure: BWv8xZaOQsptR6/CJdvAOD5e7NmEH3aJ83xWfSrxwK52NN7QmSNYBXhM4gMiRvUJXMYIcu6OJhlo3W86M2YOeHGtmH1biLwFp7NxIMEQUouuMBoezg5jU47M4ydk/ro44du/Krvk6jnXHkgHDsnCknPP5RD/Z+Dd2mgTL+iNbvfvklW3pd0y1q1CiZfyaEvRl8OXUyzERnS7NsayjcGOOi5Ea4VYR87tkmXBguV6XQI0CbN9RJ1VQuipYVYevZzMAO1iHDj66nEJYT0XXBOHPUYsYP/iO4bLvXkbUxXi/WU4dQbAkLFD3jYRl3UCpaUvTBoAPooD9Vh8FCq8rUrXfL0TfJ3+awvct7ltKY+E+FiDuiAdlsj+C0uL8n4Do5MNNqE+e22/XrV/Lfhpu7K65173/p6qkJyo1NanqWQJTmmUs1oSVtU+V1Ze6Ybr3BI4J6H/djGkYiIdfLVocBA24gZGmNsi66YTIJeGfN2O1rGOKk/BsxXhnnvDg6XDAH10/kXzNKakDVRGY0DMCiSUwxkozVre0o3wvkwZfWWh6JcomlxDqbCTVLNijIkkoo1GX394wojoe7s8h9HLVHVOD//bACdq9twNc9jvfJJEVk1icygzK6BQxIY81AU6/iKfxUpJ586HGkQjPs+E/Sq5xExo6bpSOa/Ik5u0K19h/P4=
+    on:
+      master: false
+      tags: true
+  - provider: bintray
+    file_glob: true
+    file: "${RELEASE_LIGHT_PKG_FILE}"
+    user: raffis
+    name: balloon-server-common
+    repo: balloon-unstable
+    subject: gyselroth
+    key:
+      secure: BWv8xZaOQsptR6/CJdvAOD5e7NmEH3aJ83xWfSrxwK52NN7QmSNYBXhM4gMiRvUJXMYIcu6OJhlo3W86M2YOeHGtmH1biLwFp7NxIMEQUouuMBoezg5jU47M4ydk/ro44du/Krvk6jnXHkgHDsnCknPP5RD/Z+Dd2mgTL+iNbvfvklW3pd0y1q1CiZfyaEvRl8OXUyzERnS7NsayjcGOOi5Ea4VYR87tkmXBguV6XQI0CbN9RJ1VQuipYVYevZzMAO1iHDj66nEJYT0XXBOHPUYsYP/iO4bLvXkbUxXi/WU4dQbAkLFD3jYRl3UCpaUvTBoAPooD9Vh8FCq8rUrXfL0TfJ3+awvct7ltKY+E+FiDuiAdlsj+C0uL8n4Do5MNNqE+e22/XrV/Lfhpu7K65173/p6qkJyo1NanqWQJTmmUs1oSVtU+V1Ze6Ybr3BI4J6H/djGkYiIdfLVocBA24gZGmNsi66YTIJeGfN2O1rGOKk/BsxXhnnvDg6XDAH10/kXzNKakDVRGY0DMCiSUwxkozVre0o3wvkwZfWWh6JcomlxDqbCTVLNijIkkoo1GX394wojoe7s8h9HLVHVOD//bACdq9twNc9jvfJJEVk1icygzK6BQxIY81AU6/iKfxUpJ586HGkQjPs+E/Sq5xExo6bpSOa/Ik5u0K19h/P4=
+    on:
+      all_branches: true
