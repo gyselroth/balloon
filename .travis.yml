@@ -7,11 +7,13 @@ before_install:
 script: ./build.sh --dep --test --package
 before_deploy:
   - export version=$(cat VERSION)
+  - export date=$(date +%Y-%m-%d)
   - cp packaging/debian/bintray-stable.json bintray-stable.json
   - cp packaging/debian/bintray-unstable.json bintray-unstable.json
   - sed -i s/'{version}'/$version/g bintray-stable.json
   - sed -i s/'{version}'/$version/g bintray-unstable.json
-  - cat bintray-unstable.json
+  - sed -i s/'{date}'/$date/g bintray-stable.json
+  - sed -i s/'{date}'/$date/g bintray-unstable.json
 deploy:
   - provider: releases
     file: "*.deb"

@@ -17,14 +17,14 @@
 
     "version": {
         "name": "{version}",
-        "released": "2017-10-21",
+        "released": "{date}",
         "gpgSign": false
     },
 
     "files": [
         {"includePattern": "dist/(.*\.deb)", "uploadPattern": "$1",
         "matrixParams": {
-            "deb_distribution": "all",
+            "deb_distribution": "stable",
             "deb_component": "main",
             "deb_architecture": "all"}
         }
