@@ -26,7 +26,8 @@
         "matrixParams": {
             "deb_distribution": "stable",
             "deb_component": "main",
-            "deb_architecture": "all"}
+            "deb_architecture": "all",
+            "override": 1}
         }
     ],
     "publish": true
