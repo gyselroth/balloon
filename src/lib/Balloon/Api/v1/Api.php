@@ -13,6 +13,7 @@ namespace Balloon\Api\v1;
 
 use \Balloon\Exception;
 use \Balloon\Api\Controller;
+use \Balloon\Helper;
 use \Micro\Http\Response;
 
 class Api extends Controller
@@ -50,33 +51,33 @@ class Api extends Controller
             'name'        => 'balloon',
             'api_version' => 1
         ];
-        
+
         return (new Response())->setCode(200)->setBody($data);
     }
 
 
     /**
-     * @api {get} /help API Help Reference
+     * @api {get} /reference API Help Reference
      * @apiVersion 1
-     * @apiName getAbout
+     * @apiName getReference
      * @apiGroup Api
      * @apiPermission none
      * @apiDescription API realtime reference (Automatically search all possible API methods)
      *
      * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v1/help?pretty"
+     * curl -XGET "https://SERVER/api/v1/reference?pretty"
      *
      * @apiSuccess {number} status Status Code
      * @apiSuccess {object} data API Reference
      *
      * @return Response
      */
-    public function getHelp(): Response
+    public function getReference(): Response
     {
         $api = [];
         $controllers = ['Api', 'User', 'Node', 'File', 'Collection', 'Admin\\User'];
         $prefix = ['GET', 'POST', 'DELETE', 'PUT', 'HEAD'];
-    
+
         foreach ($controllers as $controller) {
             $ref = new \ReflectionClass('Balloon\\Api\\v1\\'.$controller);
             $methods = $ref->getMethods(\ReflectionMethod::IS_PUBLIC);
@@ -88,6 +89,10 @@ class Api extends Controller
                 $func  = substr($name, strlen($verb)+1);
                 $url   = '/rest/'.strtolower($controller).'/'.$func;
                 $doc   = $this->parsePhpDoc($method->getDocComment());
+                $params = [];
+                if(array_key_exists('apiParam', $doc)) {
+                    $params = $doc['apiParam'];
+                }
 
                 if (!in_array($verb, $prefix)) {
                     continue;
@@ -96,7 +101,8 @@ class Api extends Controller
                 $api[$controller][$name] = [
                     'url'    => substr(str_replace('\\', '/', $url), 5),
                     'method' => $verb,
-                    'return' => strtoupper($doc['return'])
+                    'return' => strtoupper($doc['return']),
+                    'params' => $params
                 ];
 
                 if ($name == 'get-help') {
@@ -117,11 +123,11 @@ class Api extends Controller
      */
     protected function parsePhpDoc($data)
     {
-        $data = trim(preg_replace('/\r?\n *\* */', ' ', $data));
-        preg_match_all('/@([a-z]+)\s+(.*?)\s*(?=$|@[a-z]+\s)/s', $data, $matches);
-        $info = array_combine($matches[1], $matches[2]);
+        $data = trim(preg_replace('/\r?\n *\* *(\/$)?|\/\*\*/', ' ', $data));
+        preg_match_all('/@([a-zA-Z]+)\s+(.*?)\s*(?=$|@[a-zA-Z]+\s)/s', $data, $matches);
+        $info = Helper::array_combine_recursive($matches[1], $matches[2]);
         if (isset($info['return'])) {
-            $info['return'] = substr($info['return'], 0, -2);
+            $info['return'] = $info['return'];
         } else {
             $info['return'] = 'void';
         }
