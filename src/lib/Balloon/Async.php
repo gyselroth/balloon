@@ -112,7 +112,7 @@ class Async
             $options['cursorType'] = Find::TAILABLE;
         }
 
-        $cursor = $this->db->queue->find(['waiting' => 0], $options);
+        $cursor = $this->db->queue->find(['status' => self::STATUS_WAITING], $options);
         $iterator = new IteratorIterator($cursor);
         $iterator->rewind();
 
@@ -130,7 +130,7 @@ class Async
     public function updateJob(ObjectId $id, int $status): bool
     {
         $result = $this->db->queue->updateMany(['_id' => $id, '$isolated' => true], [ '$set' => [
-            'waiting'   => $status,
+            'status'    => $status,
             'timestamp' => new UTCDateTime()
         ]]);
 
@@ -150,6 +150,10 @@ class Async
         while (true) {
             if ($cursor->current() === null) {
                 if ($cursor->getInnerIterator()->isDead()) {
+                    $this->logger->error("job queue cursor is dead, is it a capped collection?", [
+                        'category' => get_class($this),
+                    ]);
+
                     return false;
                 } else {
                     $cursor->next();

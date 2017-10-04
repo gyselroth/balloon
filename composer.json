@@ -35,7 +35,8 @@
         "ext-zip": "*",
         "ext-intl": "*",
         "ulrichsg/getopt-php": "^3.0",
-        "zendframework/zend-mail": "2.7.*"
+        "zendframework/zend-mail": "2.7.*",
+        "symfony/console": "*"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
