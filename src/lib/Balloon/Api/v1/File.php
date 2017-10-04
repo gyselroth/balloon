@@ -123,7 +123,7 @@ class File extends Node
      * @apiGroup Node\File
      * @apiPermission none
      * @apiUse _getNode
-     * @apuUse _conflictNode
+     * @apiUse _conflictNode
      * @apiUse _writeAction
      * @apiDescription Upload a file chunk. Use this method if you have possible big files!
      * You have to manually splitt the binary data into
@@ -260,7 +260,7 @@ class File extends Node
         if (!is_string($chunkgroup) || empty($chunkgroup)) {
             throw new Exception\InvalidArgument('chunkgroup must be valid unique string');
         }
-        
+
         if ($index > $chunks) {
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
@@ -283,7 +283,7 @@ class File extends Node
                 Exception\Conflict::CHUNKS_LOST
             );
         }
-        
+
         $chunkgroup_handler = fopen($file, 'a+');
         while (!feof($input_handler)) {
             $data  = fread($input_handler, 1024);
@@ -300,7 +300,7 @@ class File extends Node
                 );
             }
         }
-    
+
         if ($index == $chunks) {
             clearstatcache();
             if (!is_readable($file)) {
@@ -309,7 +309,7 @@ class File extends Node
                     Exception\Conflict::CHUNKS_LOST
                 );
             }
-            
+
             if ($tmp_size != $size) {
                 fclose($chunkgroup_handler);
                 unlink($file);
@@ -318,7 +318,7 @@ class File extends Node
                     Exception\Conflict::CHUNKS_INVALID_SIZE
                 );
             }
-            
+
             try {
                 $attributes = $this->_verifyAttributes($attributes);
                 return $this->_put($file, $id, $p, $collection, $name, $attributes, $conflict);
@@ -501,7 +501,7 @@ class File extends Node
                 $name = basename($p);
                 try {
                     $parent = $this->fs->findNodeWithPath($parent_path, 'Collection');
-                    
+
                     if (!is_string($name) || empty($name)) {
                         throw new Exception\InvalidArgument('name must be a valid string');
                     }
