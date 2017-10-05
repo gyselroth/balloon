@@ -40,7 +40,7 @@
     },
     "repositories": [
         {
-            "type": "vcs",
+            "type": "git",
             "url": "https://github.com/raffis/php-mongomock"
         }
     ],
