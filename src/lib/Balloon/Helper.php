@@ -144,4 +144,15 @@ class Helper
         }
         return $combined;
     }
+
+    /**
+     * Convert camelCase to dashes
+     *
+     * @param  string $value
+     * @return string
+     */
+    public static function camelCase2Dashes($value)
+    {
+        return strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $value));
+    }
 }

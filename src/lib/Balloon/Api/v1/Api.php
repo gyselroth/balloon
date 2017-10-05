@@ -83,16 +83,13 @@ class Api extends Controller
             $methods = $ref->getMethods(\ReflectionMethod::IS_PUBLIC);
 
             foreach ($methods as $method) {
-                $name  = $this->camelCase2Dashes($method->name);
+                $name  = Helper::camelCase2Dashes($method->name);
                 $parts = explode('-', $name);
                 $verb  = strtoupper($parts[0]);
                 $func  = substr($name, strlen($verb)+1);
                 $url   = '/rest/'.strtolower($controller).'/'.$func;
                 $doc   = $this->parsePhpDoc($method->getDocComment());
-                $params = [];
-                if(array_key_exists('apiParam', $doc)) {
-                    $params = $doc['apiParam'];
-                }
+                $params = $this->parseApiParams($doc);
 
                 if (!in_array($verb, $prefix)) {
                     continue;
@@ -101,9 +98,14 @@ class Api extends Controller
                 $api[$controller][$name] = [
                     'url'    => substr(str_replace('\\', '/', $url), 5),
                     'method' => $verb,
-                    'return' => strtoupper($doc['return']),
-                    'params' => $params
+                    'return' => strtoupper($doc['return'])
                 ];
+
+                if (!empty($params)) {
+                    $api[$controller][$name] = [
+                        'params' => $params
+                    ];
+                }
 
                 if ($name == 'get-help') {
                     $api[$controller][$name]['url'] = '/rest/help';
@@ -114,6 +116,48 @@ class Api extends Controller
         return (new Response())->setCode(200)->setBody($api);
     }
 
+    /**
+     * Parse apiParam comments from phpDoc
+     *
+     * @param  array $phpDoc
+     * @return array
+     */
+    protected function parseApiParams(array $phpDoc): array
+    {
+        $params = [];
+        if (array_key_exists('apiParam', $phpDoc)) {
+            // ensure apiParams is array
+            $apiParams = $phpDoc['apiParam'];
+            if (!is_array($apiParams)) {
+                $apiParams = [$apiParams];
+            }
+
+            // parse each apiParam
+            foreach ($apiParams as $apiParam) {
+                // split param string by regex (intentionally have bracket in catch group 3 to decide if parameter is optional)
+                preg_match('/\(([A-Z]+) Parameter\) \{([a-zA-Z_]+(?:\[\])?)\} (\[?[a-zA-Z_\.]+)(?:=(.*))?\]? (.*)/s', $apiParam, $matches);
+
+                // check if param is optional and "clean up" parameter name
+                $optional = substr($matches[3], 0, 1) === '[';
+                $name = $optional ? substr($matches[3], 1) : $matches[3];
+
+                $param = [
+                    'type' => $matches[1],
+                    'datatype' => $matches[2],
+                    'name' => $name,
+                    'optional' => $optional
+                ];
+
+                // add default value only if set
+                if (!empty($match[4])) {
+                    $param['default'] = $match[4];
+                }
+
+                $params[] = $param;
+            }
+        }
+        return $params;
+    }
 
     /**
      * Parse php doc
@@ -132,17 +176,5 @@ class Api extends Controller
             $info['return'] = 'void';
         }
         return $info;
-    }
-
-
-    /**
-     * Convert camelCase to dashes
-     *
-     * @param  string $value
-     * @return string
-     */
-    protected function camelCase2Dashes($value)
-    {
-        return strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $value));
     }
 }
