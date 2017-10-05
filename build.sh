@@ -146,25 +146,25 @@ echo
 
 if [ $OPT_COMPOSER -eq 1 ]; then
     echo "[TASK] Execute composer"
-    php composer.phar update
+    composer update
     if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
         echo "composer requirements not met, abort build."
         exit 127
     fi
-    if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
-        for app in `ls $OPT_SOURCE/src/app`; do
-            if [ -e $OPT_SOURCE/src/app/$app/composer.json ]; then
-                cd $OPT_SOURCE/src/app/$app
-                php composer.phar update
-                if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
-                    echo "composer requirements for app $app not met, abort build."
-                    cd $OPT_SOURCE
-                    exit 127
-                fi
-                cd $OPT_SOURCE
-            fi
-        done
-    fi
+    #if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
+    #    for app in `ls $OPT_SOURCE/src/app`; do
+    #        if [ -e $OPT_SOURCE/src/app/$app/composer.json ]; then
+    #            cd $OPT_SOURCE/src/app/$app
+    #            php composer.phar update
+    #            if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
+    #                echo "composer requirements for app $app not met, abort build."
+    #                cd $OPT_SOURCE
+    #                exit 127
+    #            fi
+    #            cd $OPT_SOURCE
+    #        fi
+    #    done
+    #fi
 fi
 
 if [ $OPT_NPM -eq 1 ]; then
@@ -211,17 +211,17 @@ if [ $OPT_TEST -eq 1 ]; then
         exit 127
     fi
 
-    if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
-        for app in `ls src/app`; do
-            if [ -e $OPT_SOURCE/src/app/$app/tests ]; then
-                ./vendor/phpunit/phpunit/phpunit --bootstrap tests/Bootstrap.php $OPT_SOURCE/src/app/$app/tests
-                if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
-                    echo "unit testing for app $app failed, abort build"
-                    exit 127
-                fi
-            fi
-        done
-    fi
+    #if [ $OPT_EXCLUDE_APPS -eq 0 ]; then
+    #    for app in `ls src/app`; do
+    #        if [ -e $OPT_SOURCE/src/app/$app/tests ]; then
+    #            ./vendor/phpunit/phpunit/phpunit --bootstrap tests/Bootstrap.php $OPT_SOURCE/src/app/$app/tests
+    #            if [[ $? -ne 0 && $OPT_IGNORE -eq 0 ]]; then
+    #                echo "unit testing for app $app failed, abort build"
+    #                exit 127
+    #            fi
+    #        fi
+    #    done
+    #fi
 fi
 
 if [ $OPT_PHPSTAN -eq 1 ]; then
@@ -286,23 +286,35 @@ function buildDeb {
     mkdir -p $OPT_SOURCE/build/usr/share/balloon
     mkdir -p $OPT_SOURCE/build/etc/balloon
     mkdir -p $OPT_SOURCE/build/var/log/balloon
-    #cp -Rp $OPT_SOURCE/composer.* $OPT_SOURCE/build/usr/share/balloon-server
-    #cp -Rp $OPT_SOURCE/package.json $OPT_SOURCE/build/usr/share/balloon-server
-    #cp -Rp $OPT_SOURCE/{vendor,src,doc} $OPT_SOURCE/build/usr/share/balloon-server
+    mkdir -p $OPT_SOURCE/build/usr/bin
+    cp -Rp $OPT_SOURCE/{vendor,doc} $OPT_SOURCE/build/usr/share/balloon
+    cp -Rp $OPT_SOURCE/src/cgi-bin/cli.php $OPT_SOURCE/usr/bin/balloon
+    cp -Rp $OPT_SOURCE/src/httpdocs $OPT_SOURCE/build/usr/share/balloon
+    cp -Rp $OPT_SOURCE/src/{lib,app} $OPT_SOURCE/build/usr/share/balloon
+
+    cp $OPT_SOURCE/config/config.example.xml $OPT_SOURCE/build/etc/balloon/config.xml
     dpkg-deb --build build
     mkdir $OPT_SOURCE/dist
     mv build.deb $OPT_SOURCE/dist/balloon-$1-$version.deb
 }
 
+function prepareBuildDir {
+    rm -rf $OPT_SOURCE/build
+    mkdir $OPT_SOURCE/build
+    find $OPT_SOURCE/build -name .svn -exec rm -rf {} \;
+}
+
 if [[ ! "$OPT_PACKAGE" == "0" ]]; then
+    composer update --no-dev
+    prepareBuildDir
+
     for i in $(echo $OPT_PACKAGE | tr "," "\n"); do
         if [ "$i" == "tar" ]; then
           echo "[TASK] Create tar archive"
           rm -rfv $OPT_SOURCE/*.tar.gz
-          mkdir build
-          cp -Rp $OPT_SOURCE/* $OPT_SOURCE/build
-          rm -rf $OPT_SOURCE/build/log/*
-          find $OPT_SOURCE/build -name .svn -exec rm -rf {} \;
+          cp -Rp $OPT_SOURCE/{config,vendor,src,doc} $OPT_SOURCE/build
+          mkdir $OPT_SOURCE/log
+
           archive=balloon-build-$version.tar.gz
           tar -cvzf $OPT_SOURCE/$archive -C $OPT_SOURCE/build .
           rm -rf $OPT_SOURCE/build
