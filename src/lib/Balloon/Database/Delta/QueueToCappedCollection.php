@@ -15,6 +15,7 @@ use \MongoDB\Database;
 use \Psr\Log\LoggerInterface;
 use \Balloon\Async;
 use \MongoDB\BSON\UTCDateTime;
+use \Balloon\Database\AbstractDelta;
 
 class queueToCappedCollection extends AbstractDelta
 {
@@ -26,7 +27,7 @@ class queueToCappedCollection extends AbstractDelta
     public function postObjects(): bool
     {
         $this->db->command([
-            'convertToCapped' => 'queue'
+            'convertToCapped' => 'queue',
             'size' => 100000
         ]);
 

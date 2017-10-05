@@ -46,6 +46,7 @@ class Cli extends AbstractBootstrap
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
         $this->app = new App(App::CONTEXT_CLI, $this->composer, $this->server, $this->logger, $this->option_app);
+        $this->app->init();
 
         $getopt = new \GetOpt\GetOpt([
             ['v', 'verbose', \GetOpt\GetOpt::NO_ARGUMENT, 'Verbose'],

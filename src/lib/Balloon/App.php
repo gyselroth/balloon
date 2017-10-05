@@ -153,20 +153,36 @@ class App
 
 
     /**
+     * Init apps
+     *
+     * @return App
+     */
+    public function init(): App
+    {
+        foreach($this->app as $app) {
+            $app->init();
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Inject app
      *
      * @param  AppInterface $app
-     * @return bool
+     * @return App
      */
-    public function injectApp(AppInterface $app)
+    public function injectApp(AppInterface $app): App
     {
         $name = str_replace('_', '.', $app->getName());
         if ($this->hasApp($name)) {
             throw new Exception('app '.$name.' is already registered');
         }
 
+        $this->namespace[$name] = join('', array_slice(explode('\\', get_class($app)), -1));
         $this->app[$name] = $app;
-        return true;
+        return $this;
     }
 
 

@@ -22,7 +22,7 @@ abstract class Test extends TestCase
     protected static $controller;
     protected static $logger;
 
-    public static function setupMockServer()
+    public static function setupMockServer($context='test')
     {
         $db = new MockDatabase('balloon', [
             'typeMap' => [
@@ -45,7 +45,7 @@ abstract class Test extends TestCase
         $server->setIdentity($identity);
 
         global $composer;
-        $app = new App('test', $composer, $server, self::$logger);
+        $app = new App($context, $composer, $server, self::$logger);
 
         return $server;
     }

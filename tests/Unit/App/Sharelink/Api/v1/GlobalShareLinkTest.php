@@ -7,6 +7,7 @@ use \Micro\Http\Response;
 use \MongoDB\BSON\ObjectID;
 use \Balloon\App\Sharelink\Api\v1\ShareLink;
 use \Balloon\Api\v1\Collection;
+use \Balloon\App;
 
 class GlobalShareLinkTest extends Test
 {
@@ -14,10 +15,10 @@ class GlobalShareLinkTest extends Test
 
     public static function setUpBeforeClass()
     {
-        $server = self::setupMockServer();
+        $server = self::setupMockServer(App::CONTEXT_HTTP);
         self::$sharelink  = new ShareLink($server, $server->getLogger());
         self::$controller = new Collection($server, $server->getLogger());
-        $server->getApp()->injectApp(new HttpApp($server, $server->getLogger()));
+        var_dump($server->getApp()->registerApp('Balloon.App.Sharelink'));
     }
 
     public function testCreate()
@@ -41,7 +42,7 @@ class GlobalShareLinkTest extends Test
         $this->assertEquals(204, $res->getCode());
         return $id;
     }
-    
+
 
     /**
      * @depends testCreateShareLink
@@ -57,7 +58,7 @@ class GlobalShareLinkTest extends Test
             'id'    => $id,
         ];
     }
-    
+
     /**
      * @depends testGetShareLink
      */
@@ -70,7 +71,7 @@ class GlobalShareLinkTest extends Test
         $this->assertNotEmpty($res->getHeaderLine('Content-Disposition'));
         return $node;*/
         return $node;
-    }  
+    }
 
     /**
      * @depends testVerifyShareLink
@@ -82,7 +83,7 @@ class GlobalShareLinkTest extends Test
         $this->assertEquals(204, $res->getCode());
         return $node;
     }
-    
+
     /**
      * @depends testDeleteShareLink
      */
@@ -109,7 +110,7 @@ class GlobalShareLinkTest extends Test
             'token' => $res->getBody()['token']
         ];
     }
-    
+
     /**
      * @depends testCreateExpiredShareLink
      */

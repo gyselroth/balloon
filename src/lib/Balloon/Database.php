@@ -132,6 +132,28 @@ class Database
 
 
     /**
+     * Get server
+     *
+     * @return Server
+     */
+    public function getServer(): Server
+    {
+        return $this->server;
+    }
+
+
+    /**
+     * Get setups
+     *
+     * @return array
+     */
+    public function getSetups(): array
+    {
+        return $this->setup;
+    }
+
+
+    /**
      * Check if delta was applied
      *
      * @param  string $class
@@ -204,7 +226,7 @@ class Database
      * @return array
      */
     public function getCollections(): array
-    {
+    {var_dump($this->db->listCollections());
         $collections = [];
         foreach($this->db->listCollections() as $collection) {
             $name = explode('.', $collection->getName());
@@ -261,7 +283,7 @@ class Database
                         'category' => get_class($this)
                     ]);
 
-                    $this->db->update(['_id' => $object['_id']], $update);
+                    $this->db->{$collection}->updateOne(['_id' => $object['_id']], $update);
                 }
             }
         }

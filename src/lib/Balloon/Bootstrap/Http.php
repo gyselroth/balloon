@@ -57,6 +57,8 @@ class Http extends AbstractBootstrap
         }
 
         $this->app = new App(App::CONTEXT_HTTP, $this->composer, $this->server, $this->logger, $this->option_app, $this->router, $this->auth);
+        $this->app->init();
+
         $this->hook->run('preAuthentication', [$this->auth]);
 
         if ($this->auth->requireOne()) {
@@ -89,7 +91,7 @@ class Http extends AbstractBootstrap
             } else {
                 $code = 401;
             }
- 
+
             (new Response())
                 ->setHeader('WWW-Authenticate', 'Basic realm="balloon"')
                 ->setCode($code)
@@ -118,7 +120,7 @@ class Http extends AbstractBootstrap
                 break;
             }
         }
-    
+
         return parent::setOptions($config);
     }
 

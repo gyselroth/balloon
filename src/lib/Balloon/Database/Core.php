@@ -13,6 +13,7 @@ namespace Balloon\Database;
 
 use \MongoDB\Database;
 use \Psr\Log\LoggerInterface;
+use \Balloon\Database\Delta\QueueToCappedCollection;
 
 class Core extends AbstractDatabase
 {
@@ -24,17 +25,15 @@ class Core extends AbstractDatabase
     public function init(): bool
     {
         /*
-        db.storage.ensureIndex( { "share.token": 1 }, { unique: true, sparse: true } )
-        db.storage.ensureIndex( { "hash": 1, "thumbnail": 1 }, { sparse: true })
         db.delta.createIndex({"owner": 1})
         db.delta.createIndex({"timestamp": 1})
         db.delta.createIndex({"node": 1})
         */
-
         $collections = [];
         foreach($this->db->listCollections() as $collection) {
             $collections[] = $collection->getName();
         }
+
 
         $this->db->user->createIndex(['username' => 1], ['unique' => true]);
         $this->db->selectCollection('fs.files')->createIndex(['md5' => 1], ['unique' => true]);
@@ -67,7 +66,7 @@ class Core extends AbstractDatabase
     public function getDeltas(): array
     {
         return [
-
+            QueueToCappedCollection::class
         ];
     }
 }
