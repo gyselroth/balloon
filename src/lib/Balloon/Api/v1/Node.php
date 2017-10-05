@@ -70,7 +70,7 @@ class Node extends Controller
      * }
      */
 
-    
+
     /**
      * @apiDefine _multiError
      *
@@ -110,13 +110,13 @@ class Node extends Controller
     /**
      * @apiDefine _conflictNode
      * @apiParam (GET Parameter) {number} [conflict=0] Decides how to handle a conflict if a node with the same name already exists at the destination.
-     * Possible values are:</br>
-     *  - 0 No action</br>
-     *  - 1 Automatically rename the node</br>
-     *  - 2 Overwrite the destination (merge)</br>
+     * Possible values are:<br />
+     *  - 0 No action<br />
+     *  - 1 Automatically rename the node<br />
+     *  - 2 Overwrite the destination (merge)<br />
      */
 
-    
+
     /**
      * @apiDefine _getNodes
      *
@@ -186,14 +186,14 @@ class Node extends Controller
         if ($class === null) {
             $class = join('', array_slice(explode('\\', get_class($this)), -1));
         }
-        
+
         if ($class === 'Node') {
             $class = null;
         }
 
         return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
     }
-    
+
 
     /**
      * @api {head} /api/v1/node?id=:id Node exists?
@@ -210,10 +210,10 @@ class Node extends Controller
      * curl -XHEAD "https://SERVER/api/v1/node/544627ed3c58891f058b4686"
      * curl -XHEAD "https://SERVER/api/v1/node?p=/absolute/path/to/my/node"
 
-     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted node or not, possible values:</br>
-     * - 0 Exclude deleted</br>
-     * - 1 Only deleted</br>
-     * - 2 Include deleted</br>
+     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted node or not, possible values:<br />
+     * - 0 Exclude deleted<br />
+     * - 1 Only deleted<br />
+     * - 2 Include deleted<br />
      *
      * @apiSuccessExample {json} Success-Response (Node does exist):
      * HTTP/1.1 200 OK
@@ -300,7 +300,7 @@ class Node extends Controller
                 );
             }
         }
-        
+
         if (is_array($id)) {
             $failures = [];
             foreach ($this->fs->findNodes($id) as $node) {
@@ -410,14 +410,14 @@ class Node extends Controller
         if (is_array($id)) {
             return $this->_combine($id, $p, $name);
         }
-         
+
         $node = $this->_getNode($id, $p);
         if ($node instanceof Collection) {
             return (new Response())->setBody(function () use ($node) {
                 $node->getZip();
             });
         }
-     
+
         $response = new Response();
 
         if ($download == true) {
@@ -436,7 +436,7 @@ class Node extends Controller
               $mime  = $node->getMime();
               $stream = $node->get();
               $name  = $node->getName();
-        
+
               if ($stream === null) {
                   return;
               }
@@ -555,7 +555,7 @@ class Node extends Controller
 
         ZipStream::$temp = $temp;
         $archive = new ZipStream($name.".zip", "application/zip", $name.".zip");
-        
+
         foreach ($this->fs->findNodes($id) as $node) {
             try {
                 $node->zip($archive);
@@ -682,7 +682,7 @@ class Node extends Controller
             $result = Helper::escape(
                 $this->_getNode($id, $p)->getAttributes($attributes)
             );
-        
+
             return (new Response())->setCode(200)->setBody($result);
         }
     }
@@ -709,7 +709,7 @@ class Node extends Controller
         }
 
         $check = array_merge(array_flip($valid_attributes), $attributes);
-        
+
         if ($this instanceof ApiCollection && count($check) > 6) {
             throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, filter, readonly and/or meta attributes may be overwritten');
         } elseif ($this instanceof ApiFile && count($check) > 5) {
@@ -721,11 +721,11 @@ class Node extends Controller
                 case 'meta':
                     $attributes['meta'] = CoreNode::validateMetaAttribute($attributes['meta']);
                 break;
-            
+
                 case 'filter':
                     $attributes['filter'] = (array)$attributes['filter'];
                 break;
-                   
+
                 case 'destroy':
                     if (!Helper::isValidTimestamp($value)) {
                         throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
@@ -805,11 +805,11 @@ class Node extends Controller
                  ->getParent()
                  ->getAttributes($attributes)
         );
-        
+
         return (new Response())->setCode(200)->setBody($result);
     }
 
-    
+
     /**
      * @api {get} /api/v1/node/parents?id=:id Get parent nodes
      * @apiVersion 1
@@ -885,11 +885,11 @@ class Node extends Controller
         $request = $this->_getNode($id, $p);
         $parents = $request->getParents();
         $result = [];
-        
+
         if ($self === true && $request instanceof Collection) {
             $result[] = $request->getAttributes($attributes);
         }
-        
+
         foreach ($parents as $node) {
             $result[] = $node->getAttributes($attributes);
         }
@@ -934,7 +934,7 @@ class Node extends Controller
         return (new Response())->setCode(204);
     }
 
-    
+
     /**
      * @api {post} /api/v1/node/name?id=:id Rename node
      * @apiVersion 1
@@ -966,7 +966,7 @@ class Node extends Controller
         $this->_getNode($id, $p)->setName($name);
         return (new Response())->setCode(204);
     }
-    
+
 
     /**
      * @api {post} /api/v1/node/clone?id=:id Clone node
@@ -1013,7 +1013,7 @@ class Node extends Controller
                 Exception\NotFound::DESTINATION_NOT_FOUND
             );
         }
-        
+
         if (is_array($id)) {
             $failures = [];
             foreach ($this->fs->findNodes($id) as $node) {
@@ -1121,7 +1121,7 @@ class Node extends Controller
                     ]);
                 }
             }
-            
+
             if (empty($failures)) {
                 return (new Response())->setCode(204);
             } else {
@@ -1130,7 +1130,7 @@ class Node extends Controller
         } else {
             $node   = $this->_getNode($id, $p);
             $result = $node->setParent($parent, $conflict);
-            
+
             if ($conflict == NodeInterface::CONFLICT_RENAME) {
                 return (new Response())->setCode(200)->setBody($node->getName());
             } else {
@@ -1178,7 +1178,7 @@ class Node extends Controller
         ?string $at=null
     ): Response {
         $failures = [];
-            
+
         if ($at !== null && $at !== '0') {
             $at = $this->_verifyAttributes(['destroy' => $at])['destroy'];
         }
@@ -1209,7 +1209,7 @@ class Node extends Controller
                     ]);
                 }
             }
-            
+
             if (empty($failures)) {
                 return (new Response())->setCode(204);
             } else {
@@ -1222,7 +1222,7 @@ class Node extends Controller
                 if ($at === '0') {
                     $at = null;
                 }
-                
+
                 $result = $this->_getNode($id, $p)->setDestroyable($at);
             }
 
@@ -1249,10 +1249,10 @@ class Node extends Controller
      *
      * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
      * @apiParam (GET Parameter) {string[]} [filter] Filter nodes
-     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
-     * - 0 Exclude deleted</br>
-     * - 1 Only deleted</br>
-     * - 2 Include deleted</br>
+     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:<br />
+     * - 0 Exclude deleted<br />
+     * - 1 Only deleted<br />
+     * - 2 Include deleted<br />
      *
      * @apiSuccess (200 OK) {number} status Status Code
      * @apiSuccess (200 OK) {object[]} data Children
@@ -1272,16 +1272,16 @@ class Node extends Controller
     {
         $children = [];
         $nodes = $this->fs->findNodesWithCustomFilterUser($deleted, $filter);
-        
+
         foreach ($nodes as $node) {
             $child = Helper::escape($node->getAttributes($attributes));
             $children[] = $child;
         }
-        
+
         return (new Response())->setCode(200)->setBody($children);
     }
 
-    
+
     /**
      * @api {get} /api/v1/node/trash Get trash
      * @apiName getTrash
@@ -1326,7 +1326,7 @@ class Node extends Controller
             $child = Helper::escape($node->getAttributes($attributes));
             $children[] = $child;
         }
-        
+
         return (new Response())->setCode(200)->setBody(array_values($children));
     }
 
@@ -1365,10 +1365,10 @@ class Node extends Controller
      *
      * @apiParam (GET Parameter) {object} query Elasticsearch query object
      * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
-     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
-     * - 0 Exclude deleted</br>
-     * - 1 Only deleted</br>
-     * - 2 Include deleted</br>
+     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:<br />
+     * - 0 Exclude deleted<br />
+     * - 1 Only deleted<br />
+     * - 2 Include deleted<br />
      *
      * @apiSuccess (200 OK) {object[]} data Node list (matched nodes)
      * @apiSuccessExample {json} Success-Response:
@@ -1400,7 +1400,7 @@ class Node extends Controller
                 ]);
             }
         }
- 
+
         return (new Response())->setCode(200)->setBody($children);
     }
 
@@ -1505,7 +1505,7 @@ class Node extends Controller
         } else {
             $node = null;
         }
-        
+
         $result= $this->fs->getDelta()->getDeltaFeed($cursor, $limit, $attributes, $node);
 
         return (new Response())->setCode(200)->setBody($result);
@@ -1625,7 +1625,7 @@ class Node extends Controller
         $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);
         return (new Response())->setCode(200)->setBody($result);
     }
-    
+
 
     /**
      * @api {get} /api/v1/node/last-cursor Get last Cursor

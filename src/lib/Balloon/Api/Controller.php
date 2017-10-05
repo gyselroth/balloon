@@ -151,10 +151,10 @@ class Controller
     /**
      * @apiDefine _conflictNode
      * @apiParam (GET Parameter) {number} [conflict=0] Decides how to handle a conflict if a node with the same name already exists at the destination.
-     * Possible values are:</br>
-     *  - 0 No action</br>
-     *  - 1 Automatically rename the node</br>
-     *  - 2 Overwrite the destination (merge)</br>
+     * Possible values are:<br />
+     *  - 0 No action<br />
+     *  - 1 Automatically rename the node<br />
+     *  - 2 Overwrite the destination (merge)<br />
      */
 
 

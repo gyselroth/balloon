@@ -75,10 +75,10 @@ class Collection extends Node
      *
      * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
      * @apiParam (GET Parameter) {string[]} [filter] Filter nodes
-     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
-     * - 0 Exclude deleted</br>
-     * - 1 Only deleted</br>
-     * - 2 Include deleted</br>
+     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:<br />
+     * - 0 Exclude deleted<br />
+     * - 1 Only deleted<br />
+     * - 2 Include deleted<br />
      *
      * @apiSuccess (200 OK) {number} status Status Code
      * @apiSuccess (200 OK) {object[]} data Children
@@ -174,11 +174,11 @@ class Collection extends Node
      * @apiParam (POST Parameter) {object} acl Share ACL
      * @apiParam (POST Parameter) {object[]} acl.user User ACL rules
      * @apiParam (POST Parameter) {string} acl.user.user Username which should match ACL rule
-     * @apiParam (POST Parameter) {string} acl.user.priv Permission to access share, could be on of the following:</br>
-     *  rw - READ/WRITE </br>
-     *  r - READONLY </br>
-     *  w - WRITEONLY </br>
-     *  d - DENY </br>
+     * @apiParam (POST Parameter) {string} acl.user.priv Permission to access share, could be on of the following:<br />
+     *  rw - READ/WRITE <br />
+     *  r - READONLY <br />
+     *  w - WRITEONLY <br />
+     *  d - DENY <br />
      * @apiParam (POST Parameter) {object[]} acl.group Group ACL rules
      * @apiParam (POST Parameter) {string} acl.group Groupname which should match ACL rule
      * @apiParam (POST Parameter) {string} acl.priv Permission to access share, see possible permissions above

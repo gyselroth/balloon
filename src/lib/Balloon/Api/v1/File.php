@@ -40,11 +40,11 @@ class File extends Node
      * @apiSuccess (200 OK) {number} data.changed.sec Changed timestamp in Unix time
      * @apiSuccess (200 OK) {number} data.changed.usec Additional microseconds to changed Unix timestamp
      * @apiSuccess (200 OK) {string} data.user User which changed the version
-     * @apiSuccess (200 OK) {number} data.type Change type, there are five different change types including:</br>
-     *  0 - Initially added</br>
-     *  1 - Content modified</br>
-     *  2 - Version rollback</br>
-     *  3 - Deleted</br>
+     * @apiSuccess (200 OK) {number} data.type Change type, there are five different change types including:<br />
+     *  0 - Initially added<br />
+     *  1 - Content modified<br />
+     *  2 - Version rollback<br />
+     *  3 - Deleted<br />
      *  4 - Undeleted
      * @apiSuccess (200 OK) {object} data.file Reference to the content
      * @apiSuccess (200 OK) {string} data.file.id Content reference ID
