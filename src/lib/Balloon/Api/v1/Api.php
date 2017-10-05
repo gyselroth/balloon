@@ -89,7 +89,6 @@ class Api extends Controller
                 $func  = substr($name, strlen($verb)+1);
                 $url   = '/rest/'.strtolower($controller).'/'.$func;
                 $doc   = $this->parsePhpDoc($method->getDocComment());
-                $params = $this->parseApiParams($doc);
 
                 if (!in_array($verb, $prefix)) {
                     continue;
@@ -101,10 +100,10 @@ class Api extends Controller
                     'return' => strtoupper($doc['return'])
                 ];
 
+                // add api parameters
+                $params = $this->parseApiParams($doc);
                 if (!empty($params)) {
-                    $api[$controller][$name] = [
-                        'params' => $params
-                    ];
+                    $api[$controller][$name]['params'] = $params;
                 }
 
                 if ($name == 'get-help') {
