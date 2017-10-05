@@ -38,6 +38,12 @@
         "zendframework/zend-mail": "2.7.*",
         "symfony/console": "*"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/raffis/php-mongomock"
+        }
+    ],
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
         "ext-imagick": "Required for image previews and converter",

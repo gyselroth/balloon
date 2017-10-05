@@ -15,9 +15,9 @@ use \Micro\Http\Response;
 
 abstract class Test extends UnitTest
 {
-    public static function setupMockServer()
+    public static function setupMockServer($context='cli')
     {
-        $server = parent::setupMockServer();
+        $server = parent::setupMockServer($context);
         $server->getHook()->registerHook(Delta\Hook::class);
         return $server;
     }
