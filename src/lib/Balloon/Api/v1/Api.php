@@ -106,6 +106,16 @@ class Api extends Controller
                     $api[$controller][$name]['params'] = $params;
                 }
 
+                // add api aliases
+                if (array_key_exists('apiAlias', $doc)) {
+                    // ensure aliases is array
+                    $aliases = $doc['apiAlias'];
+                    if (!is_array($aliases)) {
+                        $aliases = [$aliases];
+                    }
+                    $api[$controller][$name]['aliases'] = $aliases;
+                }
+
                 if ($name == 'get-help') {
                     $api[$controller][$name]['url'] = '/rest/help';
                 }
