@@ -12,6 +12,7 @@ use \Balloon\Testsuite\Unit\Mock;
 use \Helmich\MongoMock\MockDatabase;
 use \Balloon\App\Delta;
 use \Micro\Http\Response;
+use \Balloon\Filesystem\Storage;
 
 abstract class Test extends TestCase
 {
@@ -36,8 +37,9 @@ abstract class Test extends TestCase
         self::$logger = new Mock\Log();
         $async = new Async($db, self::$logger);
         $hook  = new Hook(self::$logger);
+        $storage = new Storage(self::$logger);
 
-        $server= new Server($db, self::$logger, $async, $hook);
+        $server= new Server($db, $storage, self::$logger, $async, $hook);
 
         $identity   = new Mock\Identity('testuser', [], self::$logger);
         $filesystem = new Filesystem($server, self::$logger);

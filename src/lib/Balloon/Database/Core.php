@@ -14,6 +14,7 @@ namespace Balloon\Database;
 use \MongoDB\Database;
 use \Psr\Log\LoggerInterface;
 use \Balloon\Database\Delta\QueueToCappedCollection;
+use \Balloon\Database\Delta\FileToStorageAdapter;
 
 class Core extends AbstractDatabase
 {
@@ -33,7 +34,6 @@ class Core extends AbstractDatabase
         foreach($this->db->listCollections() as $collection) {
             $collections[] = $collection->getName();
         }
-
 
         $this->db->user->createIndex(['username' => 1], ['unique' => true]);
         $this->db->selectCollection('fs.files')->createIndex(['md5' => 1], ['unique' => true]);
@@ -66,7 +66,8 @@ class Core extends AbstractDatabase
     public function getDeltas(): array
     {
         return [
-            QueueToCappedCollection::class
+            QueueToCappedCollection::class,
+            FileToStorageAdapter::class,
         ];
     }
 }

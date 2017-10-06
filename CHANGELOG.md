@@ -35,6 +35,11 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] changed use \Psr\Log\LoggerInterface as Logger to use \Psr\Log\LoggerInterface
 * CORE: [CHANGE] apps are now shipped without ui parts (ui componets got moved to balloon-client-web as separate apps)
 * CORE: [CHANGE] apps are now automatically loaded once they are placed in the app directory
+* CORE: [CHANGE] Implemented new \Balloon\Filesystem\Storage mechanism which allows to store file blobs via an interface everywhere if an adapter exists
+* CORE: [CHANGE] Various code cleanup and refactoring within \Balloon\Filesystem
+* CORE: [FEATURE] New module based cli implementation
+* CORE: [FEATURE] Database init and delta migration support
+* CORE: [FEATURE] Added various db delta upgrade scripts from v1 => v2
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46

@@ -89,14 +89,6 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * GridFS file id
-     *
-     * @var ObjectId
-     */
-    protected $file;
-
-
-    /**
      * History
      *
      * @var array
@@ -126,15 +118,15 @@ class File extends AbstractNode implements DAV\IFile
     public function get()
     {
         try {
-            if ($this->file === null) {
+            if ($this->storage === null || !isset($this->storage['attributes'])) {
                 return null;
             } else {
-                return $this->_db->selectGridFSBucket()->openDownloadStream($this->file);
+                return $this->storage_handler->getFile($this, $this->storage);
             }
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'content not found',
-                Exception\NotFound::CONTENT_NOT_FOUND
+                Exception\NotFound::CONTENTS_NOT_FOUND
             );
         }
     }
@@ -233,16 +225,17 @@ class File extends AbstractNode implements DAV\IFile
             throw new Exception('file is already version '.$version);
         }
 
-        $v = Helper::searchArray($version, 'version', $this->history);
+        $v = array_search($version, array_column($this->history, 'version'));
         if ($v === null) {
             throw new Exception('failed restore file to version '.$version.', version was not found');
         }
 
-        $file = $this->history[$v]['file'];
+        $file = $this->history[$v]['storage'];
         if ($file !== null) {
-            $exists = $this->_db->{'fs.files'}->findOne(['_id' => $file]);
-            if ($exists === null) {
-                throw new Exception('could not restore to version '.$v.', version content does not exists anymore');
+            $exists = $this->storage_handler->hasFile($this, $this->history[$v]['storage']);
+
+            if (!$exists) {
+                throw new Exception('could not restore to version '.$version.', version content does not exists');
             }
         }
 
@@ -255,7 +248,7 @@ class File extends AbstractNode implements DAV\IFile
             'user'    => $this->owner,
             'type'    => self::HISTORY_RESTORE,
             'origin'  => $this->history[$v]['version'],
-            'file'    => $this->history[$v]['file'],
+            'storage' => $this->history[$v]['storage'],
             'size'    => $this->history[$v]['size'],
             'mime'    => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
         ];
@@ -263,7 +256,7 @@ class File extends AbstractNode implements DAV\IFile
         try {
             $this->deleted = false;
             $this->version = $new;
-            $this->file    = $this->history[$v]['file'];
+            $this->storage = $this->history[$v]['storage'];
             $this->hash    = $file === null ? self::EMPTY_CONTENT : $exists['md5'];
             $this->mime    = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
             $this->size    = $this->history[$v]['size'];
@@ -272,7 +265,7 @@ class File extends AbstractNode implements DAV\IFile
             $this->save([
                 'deleted',
                 'version',
-                'file',
+                'storage',
                 'hash',
                 'mime',
                 'size',
@@ -334,7 +327,7 @@ class File extends AbstractNode implements DAV\IFile
         }
 
         $ts = new UTCDateTime();
-        $this->deleted  = $ts;
+        $this->deleted = $ts;
         $this->increaseVersion();
 
         $this->history[] = [
@@ -342,7 +335,7 @@ class File extends AbstractNode implements DAV\IFile
             'changed' => $ts,
             'user'    => $this->_user->getId(),
             'type'    => self::HISTORY_DELETE,
-            'file'    => $this->file,
+            'storage' => $this->storage,
             'size'    => $this->size,
         ];
 
@@ -382,18 +375,18 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function deleteVersion(int $version): bool
     {
-        $v = Helper::searchArray($version, 'version', $this->history);
+        $key = array_search($version, array_column($this->history, 'version'));
 
-        if ($v === null) {
+        if ($key === false) {
             throw new Exception('version '.$version.' does not exists');
         }
 
         try {
-            if ($this->history[$v]['file'] !== null) {
-                $result = $this->_removeBlob($this->history[$v]['file']);
+            if ($this->history[$key]['storage'] !== null) {
+                $this->storage_handler->deleteFile($this, $this->history[$key]['storage']);
             }
 
-            array_splice($this->history, $v, 1);
+            array_splice($this->history, $key, 1);
 
             $this->_logger->debug('removed version ['.$version.'] from file ['.$this->_id.']', [
                 'category' => get_class($this),
@@ -412,66 +405,6 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Remove blob from gridfs
-     *
-     * @param   ObjectId $file_id
-     * @return  bool
-     */
-    protected function _removeBlob(ObjectId $file_id): bool
-    {
-        try {
-            $bucket = $this->_db->selectGridFSBucket();
-            $file   = $bucket->findOne(['_id' => $file_id]);
-
-            if ($file) {
-                if (!isset($file['metadata'])) {
-                    $bucket->delete($file_id);
-                    return true;
-                }
-
-                $ref  = $file['metadata']['ref'];
-
-                $found = false;
-                foreach ($ref as $key => $node) {
-                    if ($node['id'] == $this->_id) {
-                        unset($ref[$key]);
-                    }
-                }
-
-                if (count($ref) >= 1) {
-                    $this->_logger->debug('gridfs content node ['.$file['_id'].'] still has references left, just remove the reference ['.$this->_id.']', [
-                        'category' => get_class($this),
-                    ]);
-
-                    $this->_db->{'fs.files'}->updateOne(['_id' => $file_id], [
-                        '$set' => ['metadata.ref' => $ref]
-                    ]);
-                } else {
-                    $this->_logger->debug('gridfs content node ['.$file['_id'].'] has no references left, delete node completley', [
-                        'category' => get_class($this),
-                    ]);
-
-                    $bucket->delete($file_id);
-                }
-            } else {
-                $this->_logger->debug('gridfs content node ['.$file_id.'] was not found, reference=['.$this->_id.']', [
-                    'category' => get_class($this),
-                ]);
-            }
-
-            return true;
-        } catch (\Exception $e) {
-            $this->_logger->error('failed remove gridfs content node ['.$file_id.']', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-
-            throw $e;
-        }
-    }
-
-
-    /**
      * Completly remove file
      *
      * @return bool
@@ -480,7 +413,7 @@ class File extends AbstractNode implements DAV\IFile
     {
         try {
             $this->cleanHistory();
-            $result = $this->_db->storage->deleteOne([
+            $this->_db->storage->deleteOne([
                 '_id' => $this->_id,
             ]);
 
@@ -618,98 +551,6 @@ class File extends AbstractNode implements DAV\IFile
 
 
     /**
-     * Write content to storage
-     *
-     * @param   resource $contents
-     * @return  ObjectId
-     */
-    protected function _storeFile($contents): ObjectId
-    {
-        $file = [
-            'ref' => [
-                [
-                    'id'    => $this->_id,
-                    'owner' => $this->owner
-                ]
-            ],
-        ];
-
-        if ($this->isShareMember()) {
-            $file['share_ref'] = [[
-                'id'    => $this->_id,
-                'share' => $this->shared
-            ]];
-        } else {
-            $file['share_ref'] = [];
-        }
-
-        $bucket = $this->_db->selectGridFSBucket();
-        $exists = $bucket->findOne(['md5' => $this->hash]);
-
-        if ($exists) {
-            $ref = $exists['metadata']['ref'];
-            $set = [];
-
-            $found = false;
-            foreach ($ref as $node) {
-                if ($node['id'] == (string)$this->_id) {
-                    $found = true;
-                }
-            }
-
-            if ($found === false) {
-                $ref[] = [
-                    'id'    => $this->_id,
-                    'owner' => $this->owner
-                ];
-            }
-            $set['metadata']['ref'] = $ref;
-
-            $share_ref = $exists['metadata']['share_ref'];
-            $found = false;
-            foreach ((array)$share_ref as $node) {
-                if ($node['id'] == (string)$this->_id) {
-                    $found = true;
-                }
-            }
-
-            if ($found === false && $this->isShareMember()) {
-                $share_ref[] = [
-                    'id'    => $this->_id,
-                    'share' => $this->shared
-                ];
-            }
-
-            $set['metadata']['share_ref'] = $share_ref;
-            $this->_db->{'fs.files'}->updateOne(['md5' => $this->hash], [
-                '$set' => $set
-            ]);
-
-            $this->_logger->info('gridfs content node with hash ['.$this->hash.'] does already exists, add new file reference for ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-            return $exists['_id'];
-        } else {
-            set_time_limit((int)($this->size / 15339168));
-            $id     = new \MongoDB\BSON\ObjectId();
-
-            //somehow mongo-connector does not catch metadata when set during uploadFromStream()
-            $stream = $bucket->uploadFromStream($id, $contents, ['_id' => $id/*, 'metadata' => $file*/]);
-            $this->_db->{'fs.files'}->updateOne(['_id' => $id], [
-              '$set' => ['metadata'=> $file]
-            ]);
-
-            $this->_logger->info('added new gridfs content node ['.$id.'] for file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-            return $id;
-        }
-    }
-
-
-    /**
      * Create uuidv4
      *
      * @param  string $data
@@ -736,10 +577,84 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function put($file, bool $new=false, array $attributes=[]): int
     {
-        $this->_logger->debug('PUT new content data for ['.$this->_id.']', [
+        $this->_logger->debug('add contents for file ['.$this->_id.']', [
             'category' => get_class($this),
         ]);
 
+        $this->validatePutRequest($file, $new, $attributes);
+        $file = $this->createTemporaryFile($file, $stream);
+        $new_hash = $this->verifyFile($file, $new);
+
+        if ($this->hash == $new_hash) {
+            $this->_logger->info('stop PUT execution, content checksums are equal for file ['.$this->_id.']', [
+                'category' => get_class($this),
+            ]);
+
+            //Remove tmp file
+            if ($file !== null) {
+                unlink($file);
+                fclose($stream);
+            }
+
+            return $this->version;
+        }
+
+        $this->hash = $new_hash;
+        $max = (int)(string)$this->_fs->getServer()->getMaxFileVersion();
+        if (count($this->history) >= $max) {
+            $del = key($this->history);
+            $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [
+                'category' => get_class($this),
+            ]);
+
+            $this->deleteVersion($this->history[$del]['version']);
+        }
+
+        //Write new content
+        if ($this->size > 0) {
+            $options = $this->storage_handler->storeFile($this, $this->storage, $stream);
+            $this->storage['attributes'] = $options;
+        } else {
+            unset($this->storage['attributes']);
+        }
+
+        //Update current version
+        $this->increaseVersion();
+
+        //Get meta attributes
+        if (isset($attributes['mime'])) {
+            $this->mime = $attributes['mime'];
+        } elseif ($file !== null) {
+            $this->mime = (new Mime())->getMime($file, $this->name);
+        }
+
+        //Remove tmp file
+        if ($file !== null) {
+            unlink($file);
+            fclose($stream);
+        }
+
+        $this->_logger->debug('set mime ['.$this->mime.'] for content, file=['.$this->_id.']', [
+            'category' => get_class($this),
+        ]);
+
+        $this->addVersion($attributes)
+             ->postPutFile($file, $new, $attributes);
+
+        return $this->version;
+    }
+
+
+    /**
+     * Change content
+     *
+     * @param   resource|string $file
+     * @param   bool $new
+     * @param   array $attributes
+     * @return  bool
+     */
+    protected function validatePutRequest($file, bool $new=false, array $attributes=[]): bool
+    {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden(
                 'not allowed to modify node',
@@ -763,6 +678,56 @@ class File extends AbstractNode implements DAV\IFile
             );
         }
 
+        return true;
+    }
+
+
+    /**
+     * Verify content to be added
+     *
+     * @param  string $path
+     * @param  bool $new
+     * @return bool
+     */
+    protected function verifyFile(?string $path, bool $new=false): string
+    {
+        if ($path === null) {
+            $this->size = 0;
+            $new_hash  = self::EMPTY_CONTENT;
+        } else {
+            $size       = filesize($path);
+            $this->size = $size;
+            $new_hash   = md5_file($path);
+
+            if (!$this->_user->checkQuota($size)) {
+                $this->_logger->warning('could not execute PUT, user quota is full', [
+                    'category' => get_class($this),
+                ]);
+
+                if ($new === true) {
+                    $this->_forceDelete();
+                }
+
+                throw new Exception\InsufficientStorage(
+                    'user quota is full',
+                    Exception\InsufficientStorage::USER_QUOTA_FULL
+                );
+            }
+        }
+
+        return $new_hash;
+    }
+
+
+    /**
+     * Create temporary file
+     *
+     * @param  string|resource $file
+     * @param  resource $stream
+     * @return string
+     */
+    protected function createTemporaryFile($file, &$stream): ?string
+    {
         if (is_string($file)) {
             if (!is_readable($file)) {
                 throw new Exception('file does not exists or is not readable');
@@ -790,87 +755,22 @@ class File extends AbstractNode implements DAV\IFile
             }
 
             $file  = $tmp_file;
-        }
-
-
-        if ($file === null) {
-            $size     = 0;
-            $new_hash = self::EMPTY_CONTENT;
         } else {
-            $size       = filesize($file);
-            $this->size = $size;
-            $new_hash   = md5_file($file);
-
-            if (!$this->_user->checkQuota($size)) {
-                $this->_logger->warning('could not execute PUT, user quota is full', [
-                    'category' => get_class($this),
-                ]);
-
-                if ($new === true) {
-                    $this->_forceDelete();
-                }
-
-                throw new Exception\InsufficientStorage(
-
-                    'user quota is full',
-                    Exception\InsufficientStorage::USER_QUOTA_FULL
-                );
-            }
+            $file = null;
         }
 
-        if ($this->hash == $new_hash) {
-            $this->_logger->info('stop PUT execution, put content and exists checksums are equal for file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
+        return $file;
+    }
 
-            //Remove tmp file
-            if ($file !== null) {
-                unlink($file);
-                fclose($stream);
-            }
 
-            return $this->version;
-        }
-
-        $this->hash = $new_hash;
-        $max = (int)(string)$this->_fs->getServer()->getMaxFileVersion();
-        if (count($this->history) >= $max) {
-            $del = key($this->history);
-            $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-            $this->deleteVersion($this->history[$del]['version']);
-        }
-
-        //Write new content
-        if ($this->size > 0) {
-            $file_id = $this->_storeFile($stream);
-            $this->file = $file_id;
-        } else {
-            $this->file = null;
-        }
-
-        //Update current version
-        $this->increaseVersion();
-
-        //Get meta attributes
-        if (isset($attributes['mime'])) {
-            $this->mime = $attributes['mime'];
-        } elseif ($file !== null) {
-            $this->mime = (new Mime())->getMime($file, $this->name);
-        }
-
-        //Remove tmp file
-        if ($file !== null) {
-            unlink($file);
-            fclose($stream);
-        }
-
-        $this->_logger->debug('set mime ['.$this->mime.'] for content, file=['.$this->_id.']', [
-            'category' => get_class($this),
-        ]);
-
+    /**
+     * Add new version
+     *
+     * @param  array $attributes
+     * @return File
+     */
+    protected function addVersion(array $attributes=[]): File
+    {
         if ($this->version != 1) {
             if (isset($attributes['changed'])) {
                 if (!($attributes['changed'] instanceof UTCDateTime)) {
@@ -891,8 +791,8 @@ class File extends AbstractNode implements DAV\IFile
                 'changed' => $this->changed,
                 'user'    => $this->_user->getId(),
                 'type'    => self::HISTORY_EDIT,
-                'file'    => $this->file,
-                'size'    => $size,
+                'storage' => $this->storage,
+                'size'    => $this->size,
                 'mime'    => $this->mime,
             ];
         } else {
@@ -905,13 +805,26 @@ class File extends AbstractNode implements DAV\IFile
                 'changed' => isset($attributes['changed']) ? $attributes['changed'] : new UTCDateTime(),
                 'user'    => $this->owner,
                 'type'    => self::HISTORY_CREATE,
-                'file'    => $this->file,
-                'size'    => $size,
+                'storage' => $this->storage,
+                'size'    => $this->size,
                 'mime'    => $this->mime,
             ];
         }
 
-        //Update vfs
+        return $this;
+    }
+
+
+    /**
+     * Finalize put request
+     *
+     * @param string|resource $file
+     * @param bool $new
+     * @param array $attributes
+     * @return File
+     */
+    protected function postPutFile($file, bool $new, array $attributes): File
+    {
         try {
             $this->save([
                 'size',
@@ -920,7 +833,7 @@ class File extends AbstractNode implements DAV\IFile
                 'hash',
                 'version',
                 'history',
-                'file'
+                'storage'
             ]);
 
             $this->_logger->debug('modifed file metadata ['.$this->_id.']', [
@@ -929,7 +842,7 @@ class File extends AbstractNode implements DAV\IFile
 
             $this->_hook->run('postPutFile', [$this, $file, $new, $attributes]);
 
-            return $this->version;
+            return $this;
         } catch (\Exception $e) {
             $this->_logger->error('failed modify file metadata ['.$this->_id.']', [
                 'category' => get_class($this),
@@ -938,17 +851,5 @@ class File extends AbstractNode implements DAV\IFile
 
             throw $e;
         }
-    }
-
-
-    /**
-     * Forbidden to load a child here
-     *
-     * @param   string $name
-     * @return  void
-     */
-    public function getChild(string $name): void
-    {
-        throw new Exception('a file can not have children');
     }
 }

@@ -20,6 +20,7 @@ use \Micro\Auth\Identity;
 use \Balloon\Server\User;
 use \Balloon\Server\Group;
 use \MongoDB\BSON\ObjectId;
+use \Balloon\Filesystem\Storage;
 
 class Server
 {
@@ -29,6 +30,14 @@ class Server
      * @var Database
      */
     protected $db;
+
+
+    /**
+     * Storage
+     *
+     * @var Storage
+     */
+    protected $storage;
 
 
     /**
@@ -98,11 +107,17 @@ class Server
     /**
      * Initialize
      *
-     * @return void
+     * @param Database $db
+     * @param Storage $storage
+     * @param LoggerInterface $logger
+     * @param Async $async
+     * @param Hook $hook
+     * @param Iterable $config
      */
-    public function __construct(Database $db, LoggerInterface $logger, Async $async, Hook $hook, ?Iterable $config=null)
+    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Async $async, Hook $hook, ?Iterable $config=null)
     {
         $this->db     = $db;
+        $this->storage= $storage;
         $this->logger = $logger;
         $this->async  = $async;
         $this->hook   = $hook;
@@ -150,6 +165,17 @@ class Server
     public function getDatabase(): Database
     {
         return $this->db;
+    }
+
+
+    /**
+     * Get storage
+     *
+     * @return Storage
+     */
+    public function getStorage(): Storage
+    {
+        return $this->storage;
     }
 
 
@@ -256,8 +282,6 @@ class Server
         } else {
             return new Filesystem($this, $this->logger);
         }
-
-        return $this->fs;
     }
 
 

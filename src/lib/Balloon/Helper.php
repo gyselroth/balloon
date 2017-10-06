@@ -40,26 +40,6 @@ class Helper
 
 
     /**
-     * Search array element
-     *
-     * @param   mixed $values
-     * @param   mixed $key
-     * @param   array $array
-     * @return  void
-     */
-    public static function searchArray($value, $key, array $array)
-    {
-        foreach ($array as $k => $val) {
-            if ($val[$key] == $value) {
-                return $k;
-            }
-        }
-
-        return null;
-    }
-
-
-    /**
      * Filter data
      *
      * @param  mixed $data
@@ -74,7 +54,7 @@ class Helper
         } else {
             $data = strip_tags($data);
         }
- 
+
         return $data;
     }
 
@@ -94,7 +74,7 @@ class Helper
         } elseif (is_string($data)) {
             $data = htmlspecialchars($data, ENT_COMPAT, 'UTF-8');
         }
- 
+
         return $data;
     }
 
