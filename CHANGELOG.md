@@ -38,7 +38,7 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Implemented new \Balloon\Filesystem\Storage mechanism which allows to store file blobs via an interface everywhere if an adapter exists
 * CORE: [CHANGE] Various code cleanup and refactoring within \Balloon\Filesystem
 * CORE: [FEATURE] New module based cli implementation
-* CORE: [FEATURE] Database init and delta migration support
+* CORE: [FEATURE] Database init and delta migration support #78
 * CORE: [FEATURE] Added various db delta upgrade scripts from v1 => v2
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
