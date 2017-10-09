@@ -227,6 +227,9 @@ $(PHPCS_FIXER_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
 	@touch $@
 
 
+.PHONY: test
+test: $(PHPUNIT_TARGET)
+
 .PHONY: phpunit
 phpunit: $(PHPUNIT_TARGET)
 
