@@ -20,7 +20,7 @@ class Resource extends Controller
 {
     /**
      * @api {get} /resource/acl-roles?q=:query&namespace=:namespace Query available acl roles
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName getAclRoles
      * @apiGroup Resource
      * @apiPermission none

@@ -20,7 +20,7 @@ class ShareLink extends Controller
 {
     /**
      * @api {post} /api/v1/node/share-link?id=:id Create sharing link
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName postShareLink
      * @apiGroup Node
      * @apiPermission none
@@ -59,7 +59,7 @@ class ShareLink extends Controller
 
     /**
      * @api {delete} /api/v1/node/share-link?id=:id Delete sharing link
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName deleteShareLink
      * @apiGroup Node
      * @apiPermission none
@@ -89,7 +89,7 @@ class ShareLink extends Controller
 
     /**
      * @api {get} /api/v1/node/share-link?id=:id Get sharing link
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName getShareLink
      * @apiGroup Node
      * @apiPermission none
