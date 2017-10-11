@@ -97,6 +97,7 @@ dist: tar deb
 deb: $(DIST_DIR)/balloon-light-$(VERSION).deb $(DIST_DIR)/balloon-full-$(VERSION).deb
 
 $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
+	$(COMPOSER_BIN) update --no-dev
 	@mkdir -p $(BUILD_DIR)/DEBIAN
 	@cp $(BASE_DIR)/packaging/debian/control-$* $(BUILD_DIR)/DEBIAN/control
 	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
@@ -119,6 +120,7 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 tar: $(TAR)
 
 $(TAR): $(BUILD_TARGET)
+	$(COMPOSER_BIN) update --no-dev
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
 	@mkdir $(BUILD_DIR)

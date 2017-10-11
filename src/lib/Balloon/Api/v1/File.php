@@ -487,7 +487,8 @@ class File extends Node
                 }
             }
         } catch (Exception\Forbidden $e) {
-            throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+            throw new Exception\Conflict(
+                'a node called '.$name.' does already exists in this collection',
                 Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
             );
         } catch (Exception\NotFound $e) {

@@ -31,7 +31,7 @@ class Core extends AbstractDatabase
         db.delta.createIndex({"node": 1})
         */
         $collections = [];
-        foreach($this->db->listCollections() as $collection) {
+        foreach ($this->db->listCollections() as $collection) {
             $collections[] = $collection->getName();
         }
 
@@ -47,8 +47,10 @@ class Core extends AbstractDatabase
             [ 'key' => [ 'deleted' => 1 ] ],
         ]);
 
-        if(!in_array('queue', $collections)) {
-            $this->db->createCollection('queue', [
+        if (!in_array('queue', $collections)) {
+            $this->db->createCollection(
+                'queue',
+                [
                 'capped' => true,
                 'size' => 100000]
             );

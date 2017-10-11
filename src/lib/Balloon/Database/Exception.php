@@ -15,5 +15,4 @@ use \Balloon\Upgrade\Exception;
 
 class Upgrade
 {
-
 }

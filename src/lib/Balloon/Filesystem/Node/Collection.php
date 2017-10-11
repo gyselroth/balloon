@@ -701,7 +701,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'share' => $this->_id,
             ];
 
-            $this->_db->{'fs.files'}->updateOne($node['storage']['attributes'],
+            $this->_db->{'fs.files'}->updateOne(
+                $node['storage']['attributes'],
                 [
                     '$addToSet' => [
                         'metadata.share_ref' => $share_ref,
@@ -772,7 +773,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'share' => $this->_id,
             ];
 
-            $this->_db->{'fs.files'}->updateOne($node['storage']['attributes'], [
+            $this->_db->{'fs.files'}->updateOne(
+                $node['storage']['attributes'],
+                [
                 '$pull' => [
                     'metadata.share_ref' => $share_ref,
                     ]

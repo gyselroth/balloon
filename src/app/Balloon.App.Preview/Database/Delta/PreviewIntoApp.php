@@ -35,7 +35,7 @@ class PreviewIntoApp extends AbstractDelta
      */
     public function upgradeObject(array $object): array
     {
-        if(isset($object['thumbnail'])) {
+        if (isset($object['thumbnail'])) {
             return [
                 '$unset' => 'thumbnail',
                 '$set'  => ['app_attributes.Balloon_App_Preview.preview' => $object['thumbnail']]
