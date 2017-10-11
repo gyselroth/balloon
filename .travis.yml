@@ -4,7 +4,7 @@ php:
 sudo: false
 before_install:
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-script: ./build.sh --dep --test --package
+script: make deb
 before_deploy:
   - export version=$(cat VERSION)
   - export date=$(date +%Y-%m-%d)
