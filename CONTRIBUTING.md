@@ -8,8 +8,44 @@ If you just want to fill a bug report, please open your [issue](https://github.c
 We are encouraged to fix your bug to provide best software in the opensource community.
 
 ## Security flaw
-Do not open an issue for a possible security vulnerability, to protect yourself and others please contact <maint@gyselroth.net>
+Do not open an issue for a possible security vulnerability, to protect yourself and others please contact <opensource@gyselroth.net>
 to report your concern.
+
+### Get the base
+```
+git clone https://github.com/gyselroth/balloon.git
+```
+
+### Container
+The easiest way is to grab the balloon docker container and build it for development:
+```
+git clone https://github.com/gyselroth/balloon-dockerimage
+cd balloon-dockerimage
+docker build -t balloon .
+cd ..
+```
+
+### Start server
+Now you can start the server and inject the local balloon git reposiory into your docker container:
+```
+docker run -p 8081:443 -v /path/to/balloon:/srv/www/balloon balloon
+```
+
+### Install dependencies
+To setup your development base you can make use of the the make buildtool to install all dependencies:
+```
+docker exec INSTANCE make -C /srv/www/balloon deps
+```
+
+### Make
+Always execute make via `docker exec` if your are developing with the balloon docker image.
+
+
+## Testsuite
+Execute the testsuite before push:
+```
+make test
+```
 
 ## Git
 You can clone the repository from:
@@ -17,17 +53,17 @@ You can clone the repository from:
 git clone https://github.com/gyselroth/balloon.git
 ```
 
-## Install dependencies
-To setup your development base you can make use of the build.sh script:
-```
-./build.sh --dep
-```
-
-## Execute testsuite
-Always verify your changes via:
-```
-./build.sh -t
-```
+## Building
+Besides npm scripts like build and start you can use make to build this software. The following make targets are supported:
+* `build` Build software, but do not package
+* `clean` Clear build and dependencies
+* `deb` Create debian packages
+* `deps` Install dependencies
+* `dist` Distribute (Create tar and deb packages)
+* `tar` Create tar package
+* `test` Execute testsuite
+* `phpcs-fix` Execute phpcs
+* `phpstan` Execute phpstan
 
 ## Git commit 
 Please make sure that you always specify the number of your issue starting with a hastag (#) within any git commits.
