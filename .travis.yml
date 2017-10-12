@@ -18,7 +18,8 @@ deploy:
   - provider: releases
     api_key:
         secure: gcN1ajquIROH2NFCYqF8mksjjCJiczH8PxqALsQQEiZDqq3aCIXJZ3ZE6LjeaBQcmpqE3++EveHC5wmbv2GN3pk8gJ9rPyKc+pjrVbQlwbJv2ioKcQ9JvK7YRn5DCoXBhIh2UN9CK8/ttrQ8Tbc0oArDXvd+KFI7SAoionNqzzc5B/7X/GgN2H3K5KVXtlAsiVlGWgBEZTPKpbnp5KRpGGuERB+FRQg4mru+LT/8PEk/JEZUY5SQYrjwJCB9YFhGh7+vr2Pe6JUyohZBiBGgHDumd5b6jWVb8QmtkxRTm+3WhopZVk8p5TFg50uuhQr7+RNb1xA4ozM5/hEJwmt8nHdh45mkvmrIzeahwnQFQOQl09tzjPPr+zEvqZj5SyIelTnoR9xNzr7r69U40VWyk727NgqXcMHeF5IaskM3fZ3WJbmU4SdALUAPUx9T3tG1nS864mZc41cSNgBkSy8IfYqsXrgUKOyG8BV/usKy9cd+q7Y2x6PsVD5sysT0R7Jfx/dbXUsd1cdMf50Zms8AZ/6tMtI5KxR2n9wAFJNG2E5PSwg8YiG6TXYPkx09TT+H2PGlXqMiSF/uaHYKaUPN1VEa6fR1p+lMTXI2uqutj95P8gSSBJChg6sAqzA/bjrLh7Qjh+URheGJuGhBiksw7ixwAFmFW4ZW+VsKRG0T5Jo=
-    file: dist/*.deb
+    file: dist/balloon-full-2.0.0-dev.deb
+    skip_cleanup: true
     on:
         repo: gyselroth/balloon
         branch: v2
