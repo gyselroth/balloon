@@ -1,6 +1,5 @@
 {
   "name": "Balloon",
-  "version": "2.0.0-dev",
   "description": "",
   "title": "balloon",
   "apidoc": {
@@ -14,6 +13,6 @@
     }
   },
   "dependencies": {
-    "apidoc": "*",
+    "apidoc": "*"
   }
 }

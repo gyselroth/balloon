@@ -38,7 +38,7 @@ class Async extends AbstractConsole
      */
     public function start(): bool
     {
-        if ($this->getopt->getOption('queue') !== null) {
+        if ($this->getopt->getOption('queue') === null) {
             $this->logger->debug("skip job queue execution", [
                 'category' => get_class($this),
             ]);

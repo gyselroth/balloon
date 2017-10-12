@@ -21,7 +21,7 @@ class File extends Node
 {
     /**
      * @api {get} /api/v1/file/history?id=:id Get history
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName getHistory
      * @apiGroup Node\File
      * @apiPermission none
@@ -87,7 +87,7 @@ class File extends Node
 
     /**
      * @api {post} /api/v1/file/restore?id=:id Rollback version
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName postRestore
      * @apiGroup Node\File
      * @apiPermission none
@@ -118,7 +118,7 @@ class File extends Node
 
     /**
      * @api {put} /api/v1/file/chunk Upload file chunk
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName putChunk
      * @apiGroup Node\File
      * @apiPermission none
@@ -334,7 +334,7 @@ class File extends Node
 
     /**
      * @api {put} /api/v1/file Upload file
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName put
      * @apiGroup Node\File
      * @apiPermission none
@@ -487,7 +487,8 @@ class File extends Node
                 }
             }
         } catch (Exception\Forbidden $e) {
-            throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+            throw new Exception\Conflict(
+                'a node called '.$name.' does already exists in this collection',
                 Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
             );
         } catch (Exception\NotFound $e) {

@@ -20,8 +20,8 @@ use \Balloon\Filesystem\Node\File;
 use \MongoDB\Database;
 use \MongoDB\BSON\ObjectID;
 use \Generator;
-use \Micro\Config;
 use \Balloon\Server\User;
+use \Balloon\Filesystem\Storage\StorageInterface;
 
 class Filesystem
 {

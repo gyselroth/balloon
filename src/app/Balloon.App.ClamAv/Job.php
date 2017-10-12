@@ -31,12 +31,12 @@ class Job extends AbstractJob
         ]);
 
         try {
-          $result = $server->getApp()->getApp('Balloon.App.ClamAv')->scan($file);
+            $result = $server->getApp()->getApp('Balloon.App.ClamAv')->scan($file);
         } catch (Exception $e) {
-          $logger->error($e->getMessage(), [
+            $logger->error($e->getMessage(), [
               'category' => get_class($this),
           ]);
-          return false;
+            return false;
         }
 
         $infected = $result === Cli::FILE_INFECTED;

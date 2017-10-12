@@ -20,7 +20,7 @@ class Api extends Controller
 {
     /**
      * @api {get} / Server & API Status
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName get
      * @apiGroup Api
      * @apiPermission none
@@ -58,7 +58,7 @@ class Api extends Controller
 
     /**
      * @api {get} /reference API Help Reference
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName getReference
      * @apiGroup Api
      * @apiPermission none

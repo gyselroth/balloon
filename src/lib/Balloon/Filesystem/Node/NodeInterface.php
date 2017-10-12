@@ -27,7 +27,7 @@ interface NodeInterface
     const CONFLICT_NOACTION = 0;
     const CONFLICT_RENAME   = 1;
     const CONFLICT_MERGE    = 2;
-  
+
 
     /**
      * Meta attributes

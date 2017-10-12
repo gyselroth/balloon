@@ -66,7 +66,6 @@ abstract class AbstractApp implements AppInterface
         $this->auth     = $auth;
 
         $this->setOptions($config);
-        $this->init();
     }
 
 

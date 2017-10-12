@@ -692,7 +692,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         foreach ($files as $node) {
-            if ($node['file'] === null) {
+            if ($node['storage'] === null) {
                 continue;
             }
 
@@ -702,9 +702,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             ];
 
             $this->_db->{'fs.files'}->updateOne(
-                [
-                    '_id' => $node['file']
-                ],
+                $node['storage']['attributes'],
                 [
                     '$addToSet' => [
                         'metadata.share_ref' => $share_ref,
@@ -766,7 +764,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         foreach ($files as $node) {
-            if ($node['file'] === null) {
+            if ($node['storage'] === null) {
                 continue;
             }
 
@@ -776,9 +774,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             ];
 
             $this->_db->{'fs.files'}->updateOne(
-                [
-                    '_id' => $node['file']
-                ],
+                $node['storage']['attributes'],
                 [
                 '$pull' => [
                     'metadata.share_ref' => $share_ref,
@@ -809,7 +805,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             'directory' => 1,
             'reference' => 1,
             'shared'    => 1,
-            'file'      => 1
+            'storage'   => 1
         ]);
 
         foreach ($result as $node) {
@@ -817,8 +813,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
             if ($node['directory'] === false) {
                 $files[] = [
-                    'id'    => $node['_id'],
-                    'file'  => isset($node['file']) ? $node['file'] : null,
+                    'id'     => $node['_id'],
+                    'storage'=> isset($node['storage']) ? $node['storage'] : null,
                 ];
             } else {
                 if (isset($node['reference']) || isset($node['shared']) && $node['shared'] === true) {
@@ -890,7 +886,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'meta'      => [],
                 'created'   => new UTCDateTime(),
                 'changed'   => new UTCDateTime(),
-                'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared)
+                'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared),
             ];
 
             if ($this->_user !== null) {
@@ -981,6 +977,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'history'   => [],
                 'version'   => 0,
                 'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared),
+                'storage'   => $this->storage
             ];
 
             if ($this->_user !== null) {

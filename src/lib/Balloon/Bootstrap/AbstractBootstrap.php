@@ -22,6 +22,8 @@ use \Composer\Autoload\ClassLoader as Composer;
 use \MongoDB\Client;
 use \Micro\Log\Adapter\File;
 use \ErrorException;
+use \Balloon\Filesystem\Storage;
+use \Balloon\Filesystem\Storage\Adapter\Gridfs;
 
 abstract class AbstractBootstrap
 {
@@ -179,7 +181,9 @@ abstract class AbstractBootstrap
 
         $this->db = $client->{$this->option_mongodb_db};
         $this->async = new Async($this->db, $this->logger);
-        $this->server = new Server($this->db, $this->logger, $this->async, $this->hook);
+        $storage = new Storage($this->logger);
+        $storage->injectAdapter('gridfs', new Gridfs($this->db, $this->logger));
+        $this->server = new Server($this->db, $storage, $this->logger, $this->async, $this->hook);
 
         $this->detectApps();
 
@@ -189,12 +193,12 @@ abstract class AbstractBootstrap
 
     /**
      * Find apps
-     *  
+     *
      * @return AbstractBootstrap
      */
     protected function detectApps(): AbstractBootstrap
     {
-        foreach(glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
+        foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
             $this->option_app[basename($app)] = [];
         }
 

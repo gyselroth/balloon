@@ -35,8 +35,15 @@
         "ext-zip": "*",
         "ext-intl": "*",
         "ulrichsg/getopt-php": "^3.0",
-        "zendframework/zend-mail": "2.7.*"
+        "zendframework/zend-mail": "2.7.*",
+        "symfony/console": "*"
     },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/raffis/php-mongomock"
+        }
+    ],
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
         "ext-imagick": "Required for image previews and converter",

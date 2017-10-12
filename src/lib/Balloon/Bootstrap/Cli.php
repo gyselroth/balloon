@@ -46,6 +46,7 @@ class Cli extends AbstractBootstrap
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
         $this->app = new App(App::CONTEXT_CLI, $this->composer, $this->server, $this->logger, $this->option_app);
+        $this->app->init();
 
         $getopt = new \GetOpt\GetOpt([
             ['v', 'verbose', \GetOpt\GetOpt::NO_ARGUMENT, 'Verbose'],
@@ -53,7 +54,7 @@ class Cli extends AbstractBootstrap
 
         $module = $this->getModule($getopt);
         $getopt->process();
-        if($module === null || in_array('help', $_SERVER['argv'])) {
+        if ($module === null || in_array('help', $_SERVER['argv'])) {
             die($this->getHelp($getopt, $module));
         }
 
@@ -69,7 +70,7 @@ class Cli extends AbstractBootstrap
      */
     protected function configureLogger(?int $level=null): Cli
     {
-        if($level === null) {
+        if ($level === null) {
             $level = 4;
         } else {
             $level += 4;
@@ -100,11 +101,11 @@ class Cli extends AbstractBootstrap
         $help .= "balloon (GLOBAL OPTIONS) [MODULE] (MODULE OPTIONS)\n\n";
 
         $help .= "Options:\n";
-        foreach($getopt->getOptionObjects() as $option) {
+        foreach ($getopt->getOptionObjects() as $option) {
             $help .= '-'.$option->short().' --'.$option->long().' '.$option->description()."\n";
         }
 
-        if($module === null) {
+        if ($module === null) {
             $help .= "\nModules:\n";
             $help .= "help (MODULE)\t Displays a reference for module\n";
             $help .= "async\t\t Handles asynchronous jobs\n";
@@ -127,8 +128,8 @@ class Cli extends AbstractBootstrap
      */
     protected function getModule(GetOpt $getopt): ?ConsoleInterface
     {
-        foreach($_SERVER['argv'] as $option) {
-            if(isset($this->module[$option])) {
+        foreach ($_SERVER['argv'] as $option) {
+            if (isset($this->module[$option])) {
                 return new $this->module[$option]($this->server, $this->logger, $getopt);
             }
         }

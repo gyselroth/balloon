@@ -36,6 +36,14 @@ class App
 
 
     /**
+     * App namespaces
+     *
+     * @var array
+     */
+    protected $namespace = [];
+
+
+    /**
      * Apps
      *
      * @var array
@@ -115,11 +123,13 @@ class App
         $ns = str_replace('.', '\\', $name).'\\';
         $class = '\\'.$ns.$this->context;
         $this->composer->addPsr4($ns, APPLICATION_PATH."/src/app/$name");
+        $this->namespace[$name] = $ns;
 
         if (!class_exists($class)) {
-            $this->logger->debug('skip non-existent class ['.$class.'] from app ['.$name.']', [
+            $this->logger->debug('skip non-existent initialize class ['.$class.'] from app ['.$name.']', [
                  'category' => get_class($this),
             ]);
+
             return false;
         }
 
@@ -143,48 +153,76 @@ class App
 
 
     /**
+     * Init apps
+     *
+     * @return App
+     */
+    public function init(): App
+    {
+        foreach ($this->app as $app) {
+            $app->init();
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Inject app
      *
      * @param  AppInterface $app
-     * @return bool
+     * @return App
      */
-    public function injectApp(AppInterface $app)
+    public function injectApp(AppInterface $app): App
     {
         $name = str_replace('_', '.', $app->getName());
         if ($this->hasApp($name)) {
             throw new Exception('app '.$name.' is already registered');
         }
 
+        $this->namespace[$name] = join('', array_slice(explode('\\', get_class($app)), -1));
         $this->app[$name] = $app;
-        return true;
+        return $this;
+    }
+
+
+    /**
+     * Has app namespace
+     *
+     * @param  string $name
+     * @return bool
+     */
+    public function hasAppNamespace(string $name): bool
+    {
+        return isset($this->namespace[$name]);
     }
 
 
     /**
      * Has app
      *
-     * @param  string $class
+     * @param  string $name
      * @return bool
      */
-    public function hasApp(string $class): bool
+    public function hasApp(string $name): bool
     {
-        return isset($this->app[$class]);
+        return isset($this->app[$name]);
     }
 
 
     /**
      * Get app
      *
-     * @param  string $class
+     * @param  string $name
      * @return AppInterface
      */
-    public function getApp(string $class): AppInterface
+    public function getApp(string $name): AppInterface
     {
-        if (!$this->hasApp($class)) {
-            throw new Exception('app '.$class.' is not registered');
+        if (!$this->hasApp($name)) {
+            throw new Exception('app '.$name.' is not registered');
         }
 
-        return $this->app[$class];
+        return $this->app[$name];
     }
 
 
@@ -200,11 +238,35 @@ class App
             return $this->app;
         } else {
             $list = [];
-            foreach ($app as $class) {
-                if (!$this->hasApp($class)) {
-                    throw new Exception('app '.$class.' is not registered');
+            foreach ($apps as $name) {
+                if (!$this->hasApp($name)) {
+                    throw new Exception('app '.$name.' is not registered');
                 }
-                $list[$class] = $this->app[$class];
+                $list[$name] = $this->app[$name];
+            }
+
+            return $list;
+        }
+    }
+
+
+    /**
+     * Get app namespaces
+     *
+     * @param  array $apps
+     * @return array
+     */
+    public function getAppNamespaces(array $apps = []): array
+    {
+        if (empty($app)) {
+            return $this->namespace;
+        } else {
+            $list = [];
+            foreach ($app as $name) {
+                if (!$this->hasAppNamespace($name)) {
+                    throw new Exception('app '.$name.' is not registered');
+                }
+                $list[$name] = $this->app[$name];
             }
 
             return $list;

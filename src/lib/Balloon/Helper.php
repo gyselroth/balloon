@@ -40,26 +40,6 @@ class Helper
 
 
     /**
-     * Search array element
-     *
-     * @param   mixed $values
-     * @param   mixed $key
-     * @param   array $array
-     * @return  void
-     */
-    public static function searchArray($value, $key, array $array)
-    {
-        foreach ($array as $k => $val) {
-            if ($val[$key] == $value) {
-                return $k;
-            }
-        }
-
-        return null;
-    }
-
-
-    /**
      * Filter data
      *
      * @param  mixed $data
