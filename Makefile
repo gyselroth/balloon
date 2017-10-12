@@ -69,11 +69,15 @@ all: dist
 
 
 .PHONY: clean
-clean:
+clean: mostlyclean
+	@-test ! -d $(VENDOR_DIR) || rm -rfv $(VENDOR_DIR)/*
+
+
+.PHONY: mostlyclean
+mostlyclean:
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
 	@-test ! -d $(NODE_MODULES_DIR) || rm -rfv $(NODE_MODULES_DIR)
-	@-test ! -d $(VENDOR_DIR) || rm -rfv $(VENDOR_DIR)/*
 	@-test ! -f $(DIST_DIR)/*.deb || rm -fv $(DIST_DIR)/*.deb
 	@-test ! -f $(COMPOSER_LOCK) || rm -fv $(COMPOSER_LOCK)
 	@-test ! -f $(PHPCS_FIXER_LOCK) || rm -fv $(PHPCS_FIXER_LOCK)
