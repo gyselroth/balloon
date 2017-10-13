@@ -110,10 +110,6 @@ class Cli extends AbstractBootstrap
             $help .= "help (MODULE)\t Displays a reference for module\n";
             $help .= "async\t\t Handles asynchronous jobs\n";
             $help .= "database\t Initialize and upgrade database\n\n";
-            $help .= "Examples:\n";
-            $help .= "balloon help databse\n";
-            $help .= "balloon async -d -q\n";
-            $help .= "balloon -vvv databse -u\n";
         }
 
         return $help;

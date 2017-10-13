@@ -16,6 +16,7 @@ use \Psr\Log\LoggerInterface;
 use \Balloon\Async;
 use \MongoDB\BSON\UTCDateTime;
 use \Balloon\Database\AbstractDelta;
+use \MongoDB\Driver\Exception\RuntimeException;
 
 class queueToCappedCollection extends AbstractDelta
 {
@@ -26,10 +27,20 @@ class queueToCappedCollection extends AbstractDelta
      */
     public function postObjects(): bool
     {
-        $this->db->command([
-            'convertToCapped' => 'queue',
-            'size' => 100000
-        ]);
+        try {
+            $this->db->command([
+                'convertToCapped' => 'queue',
+                'size' => 100000
+            ]);
+        } catch(RuntimeException $e) {
+            if($e->getCode() === 26) {
+                $this->logger->debug('queue collection does not exists, skip upgrade', [
+                    'category' => get_class($this)
+                ]);
+            } else {
+                throw $e;
+            }
+        }
 
         return true;
     }

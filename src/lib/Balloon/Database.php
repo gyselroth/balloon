@@ -227,7 +227,6 @@ class Database
      */
     public function getCollections(): array
     {
-        var_dump($this->db->listCollections());
         $collections = [];
         foreach ($this->db->listCollections() as $collection) {
             $name = explode('.', $collection->getName());
