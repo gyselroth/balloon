@@ -126,6 +126,7 @@ tar: $(TAR)
 $(TAR): $(BUILD_TARGET)
 	$(COMPOSER_BIN) update --no-dev
 	@-test ! -f $(TAR) || rm -fv $(TAR)
+	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
 	@mkdir $(BUILD_DIR)
 	@cp -Rp $(CONFIG_DIR) $(BUILD_DIR)
