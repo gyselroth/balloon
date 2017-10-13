@@ -22,8 +22,7 @@ deploy:
     file: dist/*
     skip_cleanup: true
     on:
-        repo: gyselroth/balloon
-        branch: v2
+        tags: true
   - provider: bintray
     file: bintray-stable.json
     user: raffis
