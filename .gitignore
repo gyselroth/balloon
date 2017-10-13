@@ -4,6 +4,7 @@ src/httpdocs/ui/vendor
 config/config.xml
 config/local.xml
 build
+dist
 log/*
 src/httpdocs/ui/config.js
 src/httpdocs/ui/index.build.html

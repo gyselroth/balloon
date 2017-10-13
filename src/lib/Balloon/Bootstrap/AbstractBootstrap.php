@@ -198,7 +198,7 @@ abstract class AbstractBootstrap
      */
     protected function detectApps(): AbstractBootstrap
     {
-        foreach(glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
+        foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
             $this->option_app[basename($app)] = [];
         }
 

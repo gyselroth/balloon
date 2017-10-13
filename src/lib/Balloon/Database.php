@@ -79,7 +79,7 @@ class Database
             'category' => get_class($this)
         ]);
 
-        foreach($this->setup as $setup) {
+        foreach ($this->setup as $setup) {
             $this->logger->info('initialize database setup ['.get_class($setup).']', [
                 'category' => get_class($this)
             ]);
@@ -106,22 +106,22 @@ class Database
             new Core($this->db, $this->logger)
         ];
 
-        foreach($this->server->getApp()->getAppNamespaces() as $app => $namespace) {
+        foreach ($this->server->getApp()->getAppNamespaces() as $app => $namespace) {
             $class = $namespace.'Database';
 
-            if(class_exists($class)) {
-                $this->logger->debug('found database class ['.$class.'] from app ['.$app.']',[
+            if (class_exists($class)) {
+                $this->logger->debug('found database class ['.$class.'] from app ['.$app.']', [
                     'category' => get_class($this)
                 ]);
 
                 $db = new $class($this->db, $this->logger);
-                if(!($db instanceof DatabaseInterface)) {
+                if (!($db instanceof DatabaseInterface)) {
                     throw new Exception('database must include DatabaseInterface');
                 }
 
                 $collect[] = $db;
             } else {
-                $this->logger->debug('no database class ['.$class.'] from app ['.$app.'] found',[
+                $this->logger->debug('no database class ['.$class.'] from app ['.$app.'] found', [
                     'category' => get_class($this)
                 ]);
             }
@@ -178,14 +178,14 @@ class Database
 
         $instances = [];
 
-        foreach($this->setup as $setup) {
+        foreach ($this->setup as $setup) {
             $deltas = $setup->getDeltas();
             $this->logger->info('found ['.count($deltas).'] deltas from ['.get_class($setup).']', [
                 'category' => get_class($this)
             ]);
 
-            foreach($deltas as $delta) {
-                if(false && $this->hasDelta($delta)) {
+            foreach ($deltas as $delta) {
+                if (false && $this->hasDelta($delta)) {
                     $this->logger->debug('skip already appended delta ['.$delta.']', [
                         'category' => get_class($this)
                     ]);
@@ -195,7 +195,7 @@ class Database
                     ]);
 
                     $delta = new $delta($this->db, $this->logger);
-                    if(!($delta instanceof DeltaInterface)) {
+                    if (!($delta instanceof DeltaInterface)) {
                         throw new Exception('delta must include DeltaInterface');
                     }
 
@@ -207,7 +207,7 @@ class Database
 
         $this->upgradeObjects($instances);
 
-        foreach($instances as $delta) {
+        foreach ($instances as $delta) {
             $delta->postObjects();
             $this->db->delta->insertOne(['class' => get_class($delta)]);
         }
@@ -226,11 +226,12 @@ class Database
      * @return array
      */
     public function getCollections(): array
-    {var_dump($this->db->listCollections());
+    {
+        var_dump($this->db->listCollections());
         $collections = [];
-        foreach($this->db->listCollections() as $collection) {
+        foreach ($this->db->listCollections() as $collection) {
             $name = explode('.', $collection->getName());
-            if(array_shift($name) !== 'system') {
+            if (array_shift($name) !== 'system') {
                 $collections[] = $collection->getName();
             }
         }
@@ -249,32 +250,32 @@ class Database
         $output = new ConsoleOutput();
 
         $count = 0;
-        foreach($this->getCollections() as $collection) {
+        foreach ($this->getCollections() as $collection) {
             $count += $this->db->{$collection}->count();
         }
 
         $bar = new ProgressBar($output, $count);
 
-        foreach($this->getCollections() as $collection) {
+        foreach ($this->getCollections() as $collection) {
             $this->logger->info('execute deltas for collection ['.$collection.']', [
                 'category' => get_class($this)
             ]);
 
-            foreach($this->db->{$collection}->find() as $object) {
+            foreach ($this->db->{$collection}->find() as $object) {
                 $update = [];
                 $this->logger->debug('find deltas for object ['.$object['_id'].'] from ['.$collection.']', [
                     'category' => get_class($this)
                 ]);
 
-                foreach($deltas as $delta) {
-                    if($delta->getCollection() === $collection) {
+                foreach ($deltas as $delta) {
+                    if ($delta->getCollection() === $collection) {
                         $update = array_merge($update, $delta->upgradeObject($object));
                     }
                 }
 
                 $bar->advance();
 
-                if(count($update) === 0) {
+                if (count($update) === 0) {
                     $this->logger->debug('object ['.$object['_id'].'] from ['.$collection.'] does not need to be updated', [
                         'category' => get_class($this)
                     ]);

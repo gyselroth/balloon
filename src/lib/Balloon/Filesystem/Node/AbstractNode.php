@@ -1068,7 +1068,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             ], [], $recursion, $recursion_first);
 
             return $this->doRecursiveAction(
-                'undelete', [
+                'undelete',
+                [
                     'conflict'        => $conflict,
                     'recursion'       => $recursion,
                     'recursion_first' => false

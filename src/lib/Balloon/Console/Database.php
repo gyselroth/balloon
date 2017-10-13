@@ -39,9 +39,9 @@ class Database extends AbstractConsole
     public function start(): bool
     {
         $db = new BalloonDatabase($this->server, $this->logger);
-        if($this->getopt->getOption('init') !== null) {
+        if ($this->getopt->getOption('init') !== null) {
             return $db->init();
-        } elseif($this->getopt->getOption('upgrade') !== null) {
+        } elseif ($this->getopt->getOption('upgrade') !== null) {
             return $db->upgrade();
         }
 

@@ -37,11 +37,11 @@ class FileToStorageAdapter extends AbstractDelta
      */
     public function upgradeObject(array $object): array
     {
-        if($object['directory'] === true) {
+        if ($object['directory'] === true) {
             return [];
         }
 
-        if(isset($object['file'])) {
+        if (isset($object['file'])) {
             $file = $object['file'];
         } else {
             $file = null;

@@ -35,7 +35,7 @@ class SharelinkIntoApp extends AbstractDelta
      */
     public function upgradeObject(array $object): array
     {
-        if(isset($object['sharelink'])) {
+        if (isset($object['sharelink'])) {
             return [
                 '$unset' => 'sharelink',
                 '$set'  => ['app_attributes.Balloon_App_Sharelink' => $object['sharelink']]

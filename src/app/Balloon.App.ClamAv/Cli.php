@@ -68,12 +68,12 @@ class Cli extends AbstractApp
      */
     public function setOptions(?Iterable $config=null): AppInterface
     {
-        if($config === null) {
+        if ($config === null) {
             return $this;
         }
 
-        foreach($config as $option => $value) {
-            switch($option) {
+        foreach ($config as $option => $value) {
+            switch ($option) {
                 case 'socket':
                     $this->socket = (string)$value;
                     break;

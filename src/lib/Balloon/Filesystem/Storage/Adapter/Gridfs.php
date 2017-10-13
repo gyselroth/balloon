@@ -81,7 +81,7 @@ class Gridfs implements AdapterInterface
     {
         $exists = $this->getFileById($attributes['_id']);
 
-        if($exists === null) {
+        if ($exists === null) {
             $this->logger->debug('gridfs content node ['.$exists['_id'].'] was not found, file reference=['.$file->getId().']', [
                 'category' => get_class($this),
             ]);
@@ -96,7 +96,7 @@ class Gridfs implements AdapterInterface
 
         $ref  = $exists['metadata']['ref'];
 
-        if($key = array_search((string)$file->getId(), array_column($ref, 'id'))) {
+        if ($key = array_search((string)$file->getId(), array_column($ref, 'id'))) {
             unset($ref[$key]);
         }
 
@@ -184,7 +184,7 @@ class Gridfs implements AdapterInterface
             ]
         ];
 
-        if($file->isShareMember()) {
+        if ($file->isShareMember()) {
             $action['$addToSet']['metadata.share_ref'] = [
                 'id'    => $file->getId(),
                 'share' => $file->getShared()

@@ -139,11 +139,11 @@ class Storage
      */
     protected function isValidStorageRequest(array $options): bool
     {
-        if(!isset($options['adapter'])) {
+        if (!isset($options['adapter'])) {
             throw new Exception('no storage adapter given');
         }
 
-        if(!isset($options['attributes'])) {
+        if (!isset($options['attributes'])) {
             throw new Exception('no storage adapter attributes given');
         }
 
@@ -159,7 +159,7 @@ class Storage
      */
     public function hasFile(File $file, array $options): bool
     {
-        if($this->isValidStorageRequest($options)) {
+        if ($this->isValidStorageRequest($options)) {
             return $this->getAdapter($options['adapter'])->hasFile($file, $options['attributes']);
         }
     }
@@ -173,7 +173,7 @@ class Storage
      */
     public function deleteFile(File $file, array $options): bool
     {
-        if($this->isValidStorageRequest($options)) {
+        if ($this->isValidStorageRequest($options)) {
             return $this->getAdapter($options['adapter'])->deleteFile($file, $options['attributes']);
         }
     }
@@ -187,7 +187,7 @@ class Storage
      */
     public function getFile(File $file, array $options)
     {
-        if($this->isValidStorageRequest($options)) {
+        if ($this->isValidStorageRequest($options)) {
             return $this->getAdapter($options['adapter'])->getFile($file, $options['attributes']);
         }
     }
@@ -203,7 +203,7 @@ class Storage
     public function storeFile(File $file, array $options, $contents)
     {
         $options['attributes'] = [];
-        if($this->isValidStorageRequest($options)) {
+        if ($this->isValidStorageRequest($options)) {
             return $this->getAdapter($options['adapter'])->storeFile($file, $contents);
         }
     }

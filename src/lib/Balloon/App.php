@@ -159,7 +159,7 @@ class App
      */
     public function init(): App
     {
-        foreach($this->app as $app) {
+        foreach ($this->app as $app) {
             $app->init();
         }
 

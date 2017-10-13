@@ -20,7 +20,7 @@ class Convert extends Controller
 {
     /**
      * @api {get} /api/v1/file/preview?id=:id Get Convert
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName get
      * @apiGroup Node\File
      * @apiPermission none
