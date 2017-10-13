@@ -9,7 +9,7 @@
     },
     "header": {
       "title": "Getting Started",
-      "filename": "doc/header.md"
+      "filename": "src/doc_header.html"
     }
   },
   "dependencies": {

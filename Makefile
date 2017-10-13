@@ -21,7 +21,7 @@ VERSION = $(shell cat $(BASE_DIR)/VERSION)
 # PACKAGES
 DEB_LIGHT = $(DIST_DIR)/balloon-light-$(VERSION).deb
 DEB_FULL = $(DIST_DIR)/balloon-full-$(VERSION).deb
-TAR = $(BASE_DIR)/balloon-build-$(VERSION).tar.gz
+TAR = $(DIST_DIR)/balloon-$(VERSION).tar.gz
 
 # PHP BINARY
 PHP_BIN = php
