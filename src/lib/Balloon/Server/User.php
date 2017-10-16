@@ -187,9 +187,11 @@ class User
         $this->db       = $server->getDatabase();
         $this->logger   = $logger;
 
+        $internal_attributes = ['_id', 'password'];
+
         foreach ($attributes as $attr => $value) {
-            if ($attr !== '_id' && !in_array($attr, self::$valid_attributes)) {
-                throw new Exception\InvalidArgument('requested attribute '.$attr.' does not exists');
+            if (!in_array($attr, $internal_attributes) && !in_array($attr, self::$valid_attributes)) {
+                throw new Exception\InvalidArgument('attribute '.$attr.' does not exists');
             }
             $this->{$attr} = $value;
         }
