@@ -127,7 +127,7 @@ class User extends SimpleUser
      */
     public function postAttributes(array $attributes=[], ?string $uid=null, ?string $uname=null): Response
     {
-        $this->_getUser($uid, $uname)->setAttribute($attributes)->save();
+        $this->_getUser($uid, $uname)->setAttribute($attributes)->save(array_keys($attributes));
         return (new Response())->setCode(204);
     }
 
