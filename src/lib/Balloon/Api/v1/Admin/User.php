@@ -78,7 +78,7 @@ class User extends SimpleUser
      * @param   int $soft_quota
      * @return  Response
      */
-    public function post(string $username, string $mail, ?string $namespace=null, int $hard_quota=10000000, int $soft_quota=10000000): Response
+    public function post(string $username, string $mail, ?string $namespace=null, ?string $password=null, int $hard_quota=10000000, int $soft_quota=10000000): Response
     {
         if ($this->server->userExists($username)) {
             throw new Exception\Conflict(
@@ -93,7 +93,7 @@ class User extends SimpleUser
             'namespace' => $namespace,
             'hard_quota' => $hard_quota,
             'soft_quota' => $soft_quota
-        ]);
+        ], $password);
 
         return (new Response())->setCode(204);
     }

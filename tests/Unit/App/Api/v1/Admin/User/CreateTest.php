@@ -27,7 +27,7 @@ class CreateTest extends Test
             'hard_quota' => 123
         ];
         // execute SUT
-        $res = self::$controller->post($user['username'], $user['mail'], $user['namespace'], $user['hard_quota'], $user['soft_quota']);
+        $res = self::$controller->post($user['username'], $user['mail'], $user['namespace'], null, $user['hard_quota'], $user['soft_quota']);
 
         // assertions
         $this->assertInstanceOf(Response::class, $res);

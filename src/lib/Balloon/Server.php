@@ -288,16 +288,19 @@ class Server
     /**
      * Add user
      *
-     * @return bool
+     * @throws Exception if the user already exists
      */
-    public function addUser(array $user): bool
+    public function addUser(array $user, ?string $password=null)
     {
         if ($this->userExists($user['username'])) {
             throw new Exception('user does already exists');
         }
 
+        if ($password) {
+            $user['password'] = password_hash($password, PASSWORD_DEFAULT);
+        }
+
         $this->db->user->insertOne($user);
-        return true;
     }
 
 
