@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Api\v1;
 
 use \Balloon\Exception;
+use \Balloon\Server\User as CoreUser;
 use \Balloon\Api\Controller;
 use \Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -83,14 +84,14 @@ class User extends Controller
                 }
 
                 if ($uid !== null) {
-                    $user = new ObjectId($uid);
+                    $user = ['_id' => new ObjectId($uid)];
                 } else {
-                    $user = $uname;
+                    $user = ['username' => $uname];
                 }
-                
+
                 try {
-                    $user = new CoreUser($user, $this->logger, $this->fs, false, true);
-                    $this->fs->setUser($user);
+                    $user = new CoreUser($user, $this->server, $this->logger, false);
+                    // $this->fs->setUser($user);
                     return $user;
                 } catch (\Exception $e) {
                     throw new Exception\NotFound(
@@ -145,7 +146,7 @@ class User extends Controller
         return (new Response())->setCode(200)->setBody($result);
     }
 
-    
+
     /**
      * @api {get} /api/v1/user/whoami Who am I?
      * @apiVersion 1
@@ -180,8 +181,8 @@ class User extends Controller
         $result = $this->_getUser($uid, $uname)->getUsername();
         return (new Response())->setCode(200)->setBody($result);
     }
-   
- 
+
+
     /**
      * @api {get} /api/v1/user/node-attribute-summary Node attribute summary
      * @apiVersion 1
@@ -219,7 +220,7 @@ class User extends Controller
         return (new Response())->setCode(200)->setBody($result);
     }
 
-    
+
     /**
      * @api {get} /api/v1/user/groups Group membership
      * @apiVersion 1
