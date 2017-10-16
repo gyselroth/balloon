@@ -43,7 +43,61 @@ class User extends SimpleUser
         $result = $this->_getUser($uid, $uname);
         return (new Response())->setCode(204);
     }
-    
+
+
+    /**
+     * @api {post} /api/v1/user
+     * @apiVersion 1
+     * @apiName postUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Create user
+     *
+     * @apiExample Example usage:
+     * curl -XPOST "https://SERVER/api/v1/user"
+     *
+     * @apiParam (POST Parameter) {string} username Name of the new user
+     * @apiParam (POST Parameter) {string} mail Mail address of the new user
+     * @apiParam (POST Parameter) {string} [namespace] Namespace of the new user
+     * @apiParam (POST Parameter) {number} [hard] The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} [soft] The new soft quota in bytes
+     *
+     * @apiSuccess (200 OK) {number} status Status Code
+     * @apiSuccess (200 OK) {object[]} user attributes
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "status": 200,
+     *      "data": [] //shortened
+     * }
+     *
+     * @param   string $username
+     * @param   string $mail
+     * @param   int $hard_quota
+     * @param   int $soft_quota
+     * @return  Response
+     */
+    public function post(string $username, string $mail, ?string $namespace=null, int $hard_quota=10000000, int $soft_quota=10000000): Response
+    {
+        if ($this->server->userExists($username)) {
+            throw new Exception\Conflict(
+                'user already exists',
+                Exception\Conflict::ALREADY_THERE
+            );
+        }
+
+        $this->server->addUser([
+            'username' => $username,
+            'mail' => $mail,
+            'namespace' => $namespace,
+            'hard_quota' => $hard_quota,
+            'soft_quota' => $soft_quota
+        ]);
+
+        return (new Response())->setCode(204);
+    }
+
 
     /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
@@ -59,8 +113,8 @@ class User extends SimpleUser
      * curl -XPOST -d hard=10000000 -d soft=999999 "https://SERVER/api/v1/user/544627ed3c58891f058b4611/quota"
      * curl -XPOST -d hard=10000000 -d soft=999999 "https://SERVER/api/v1/user/quota?uname=loginuser"
      *
-     * @apiParam (GET Parameter) {number} hard The new hard quota in bytes
-     * @apiParam (GET Parameter) {number} soft The new soft quota in bytes
+     * @apiParam (POST Parameter) {number} hard The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} soft The new soft quota in bytes
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
@@ -78,7 +132,7 @@ class User extends SimpleUser
             ->setSoftQuota($soft);
         return (new Response())->setCode(204);
     }
-    
+
 
     /**
      * @api {delete} /api/v1/user?uid=:uid Delete user
@@ -130,7 +184,7 @@ class User extends SimpleUser
         return (new Response())->setCode(204);
     }
 
-    
+
     /**
      * @api {post} /api/v1/user/undelete?uid=:uid Apiore user
      * @apiVersion 1
