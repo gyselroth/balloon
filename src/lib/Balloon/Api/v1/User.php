@@ -82,16 +82,13 @@ class User extends Controller
                 if ($uid !== null && $uname !== null) {
                     throw new Exception\InvalidArgument('provide either uid (user id) or uname (username)');
                 }
-
-                if ($uid !== null) {
-                    $user = ['_id' => new ObjectId($uid)];
-                } else {
-                    $user = ['username' => $uname];
-                }
-
+                
                 try {
-                    $user = new CoreUser($user, $this->server, $this->logger, false);
-                    // $this->fs->setUser($user);
+                    if ($uid !== null) {
+                        $user = $this->server->getUserById(new ObjectId($uid));
+                    } else {
+                        $user = $this->server->getUserByName($uname);
+                    }
                     return $user;
                 } catch (\Exception $e) {
                     throw new Exception\NotFound(
