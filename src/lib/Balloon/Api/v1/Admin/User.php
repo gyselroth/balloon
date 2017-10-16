@@ -100,6 +100,39 @@ class User extends SimpleUser
 
 
     /**
+     * @api {post} /api/v1/user/attributes?uid=:uid Set attributes
+     * @apiVersion 1
+     * @apiName postAttributes
+     * @apiUse _getUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Set attributes for user
+     *
+     * @apiExample Example usage:
+     * curl -XPOST "https://SERVER/api/v1/user/attributes" -d '{"attributes": ["mail": "user@example.com"]}'
+     * curl -XPOST "https://SERVER/api/v1/user/attributes?{%22attributes%22:[%22mail%22:%22user@example.com%22]}""
+     * curl -XPOST "https://SERVER/api/v1/user/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
+     * curl -XPOST "https://SERVER/api/v1/user/quota?uname=loginuser"  -d '{"attributes": ["admin": "false"]}'
+     *
+     * @apiParam (POST Parameter) {number} hard The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} soft The new soft quota in bytes
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 204 No Content
+     *
+     * @param   string $uname
+     * @param   string $uid
+     * @param   array $attributes
+     * @return  Response
+     */
+    public function postAttributes(array $attributes=[], ?string $uid=null, ?string $uname=null): Response
+    {
+        $this->_getUser($uid, $uname)->setAttribute($attributes)->save();
+        return (new Response())->setCode(204);
+    }
+
+
+    /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
      * @apiVersion 1
      * @apiName postQuota
