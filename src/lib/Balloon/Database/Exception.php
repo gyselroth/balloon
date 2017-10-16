@@ -9,10 +9,8 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon;
+namespace Balloon\Database;
 
-use \Balloon\Upgrade\Exception;
-
-class Upgrade
+class Exception extends \Balloon\Exception
 {
 }
