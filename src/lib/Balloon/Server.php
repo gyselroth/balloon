@@ -374,6 +374,15 @@ class Server
      */
     public function getUserByName(string $name): User
     {
+        $attributes = $this->db->user->findOne([
+           'username' => $name
+        ]);
+
+        if ($attributes === null) {
+            throw new Exception('user does not exists');
+        }
+
+        return new User($attributes, $this, $this->logger);
     }
 
 
