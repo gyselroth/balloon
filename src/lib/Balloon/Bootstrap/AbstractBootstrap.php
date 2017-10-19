@@ -30,6 +30,7 @@ use \Balloon\App;
 use \Balloon\Filesystem\Storage;
 use \Balloon\Filesystem\Storage\Adapter\Gridfs;
 use \Psr\Log\LoggerInterface;
+use \Balloon\Converter;
 
 abstract class AbstractBootstrap
 {
@@ -49,7 +50,7 @@ abstract class AbstractBootstrap
             'use' => Log::class,
             'adapter' => [
                 'file' => [
-                    'name' => File::class,
+                    'use' => File::class,
                     'options' => [
                         'config' => [
                             'file'  => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
@@ -61,18 +62,20 @@ abstract class AbstractBootstrap
                 ]
             ]
         ],
+        Storage::class => [
+            'adapter' => [
+                'gridfs' => [
+                    'use' => Gridfs::class
+                ]
+            ]
+        ],
+        Converter::class => [
+            'adapter' => Converter::DEFAULT_ADAPTER
+        ],
         Auth::class => [
             'adapter' => [
                 'basic_db' => [
-                    'name' => Db::class,
-                    /*'service' => [
-                        Database::class => [
-                            'options' => [
-                                'uri' => 'mongodb://tetetetetete:27017',
-                                'db' => 'gegegegege'
-                            ]
-                        ]
-                    ]*/
+                    'use' => Db::class,
                 ]
             ],
         ],
@@ -152,7 +155,7 @@ abstract class AbstractBootstrap
                 $options = $config['config'];
             }
 
-            $manager->registerApp($this->container, $name, $config['use'], $options);
+            $manager->registerApp($this->container, $name, $config['name'], $config['use'], $options);
         }
 
         return $this;
@@ -173,10 +176,13 @@ abstract class AbstractBootstrap
         }
 
         foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
-            $this->config[App::class]['adapter'][basename($app)] = [];
+            //$this->config[App::class]['adapter'][basename($app)] = [];
             $ns = str_replace('.', '\\', basename($app)).'\\';
             $class = '\\'.$ns.$context;
+            $this->config[App::class]['adapter'][basename($app)]['name'] = $ns.'\AbstractApp';
             $this->config[App::class]['adapter'][basename($app)]['use'] = $class;
+            //$this->config[App::class]['adapter'][$class] = [];
+            //$this->config[App::class]['adapter'][basename($app)]['use'] = $class;
         }
 
         return $this;

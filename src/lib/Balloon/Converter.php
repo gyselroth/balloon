@@ -23,6 +23,17 @@ use \Micro\Container\AdapterAwareInterface;
 class Converter implements AdapterAwareInterface
 {
     /**
+     * Default adapter
+     *
+     * @var array
+     */
+    const DEFAULT_ADAPTER = [
+        Imagick::class => [],
+        Office::class => [],
+    ];
+
+
+    /**
      * LoggerInterface
      *
      * @var LoggerInterface
@@ -36,17 +47,6 @@ class Converter implements AdapterAwareInterface
      * @var array
      */
     protected $adapter = [];
-
-
-    /**
-     * Default adapter
-     *
-     * @var array
-     */
-    protected $default_adapter = [
-        Imagick::class => [],
-        Office::class => [],
-    ];
 
 
     /**
@@ -75,7 +75,6 @@ class Converter implements AdapterAwareInterface
             $config = [];
         }
 
-        //$adapter = $this->default_adapter;
         foreach ($config as $option => $value) {
             $this->injectAdapter($value);
         }

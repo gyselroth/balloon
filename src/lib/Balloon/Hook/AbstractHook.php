@@ -39,7 +39,7 @@ abstract class AbstractHook implements HookInterface
      * @param  Iterable $config
      * @return void
      */
-    public function __construct(LoggerInterface $logger, ?Iterable $config=null)
+    /*public function __construct(LoggerInterface $logger, ?Iterable $config=null)
     {
         $this->logger = $logger;
         $this->setOptions($config);
@@ -47,7 +47,7 @@ abstract class AbstractHook implements HookInterface
         if (is_callable([&$this, 'init'])) {
             $this->init();
         }
-    }
+    }*/
 
 
     /**
@@ -56,10 +56,10 @@ abstract class AbstractHook implements HookInterface
      * @param  Iterable $config
      * @return HookInterface
      */
-    public function setOptions(?Iterable $config=null): HookInterface
+    /*public function setOptions(?Iterable $config=null): HookInterface
     {
         return $this;
-    }
+    }*/
 
 
     /**

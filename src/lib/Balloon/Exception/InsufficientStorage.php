@@ -13,6 +13,8 @@ namespace Balloon\Exception;
 
 class InsufficientStorage extends \Sabre\DAV\Exception\InsufficientStorage
 {
+    const HTTP_CODE = 507;
+
     const USER_QUOTA_FULL = 65;
     const FILE_SIZE_LIMIT = 66;
 }

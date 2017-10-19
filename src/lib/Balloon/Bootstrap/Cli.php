@@ -20,6 +20,7 @@ use \Balloon\Console\Async;
 use \Balloon\Console\Database;
 use \Balloon\Console\ConsoleInterface;
 use \GetOpt\GetOpt;
+use \Psr\Log\LoggerInterface;
 
 class Cli extends AbstractBootstrap
 {
@@ -45,15 +46,17 @@ class Cli extends AbstractBootstrap
     {
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
-        $this->app = new App(App::CONTEXT_CLI, $this->composer, $this->server, $this->logger, $this->option_app);
-        $this->app->init();
 
-        $getopt = new \GetOpt\GetOpt([
-            ['v', 'verbose', \GetOpt\GetOpt::NO_ARGUMENT, 'Verbose'],
-        ]);
+        $this->container->add(GetOpt::class, function(){
+            return new GetOpt([
+                ['v', 'verbose', GetOpt::NO_ARGUMENT, 'Verbose'],
+            ]);
+        });
 
+        $getopt = $this->container->get(getopt::class);
         $module = $this->getModule($getopt);
         $getopt->process();
+
         if ($module === null || in_array('help', $_SERVER['argv'])) {
             die($this->getHelp($getopt, $module));
         }
@@ -76,12 +79,14 @@ class Cli extends AbstractBootstrap
             $level += 4;
         }
 
-        if (!$this->logger->hasAdapter('stdout')) {
-            $this->logger->addAdapter('stdout', Stdout::class, [
+        $logger = $this->container->get(LoggerInterface::class);
+
+        if (!$logger->hasAdapter('stdout')) {
+            $logger->addAdapter('stdout', Stdout::class, [
                 'level'  => $level,
                 'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}']);
         } else {
-            $this->logger->getAdapter('stdout')->setOptions(['level' => $level]);
+            $logger->getAdapter('stdout')->setOptions(['level' => $level]);
         }
 
         return $this;
@@ -126,7 +131,7 @@ class Cli extends AbstractBootstrap
     {
         foreach ($_SERVER['argv'] as $option) {
             if (isset($this->module[$option])) {
-                return new $this->module[$option]($this->server, $this->logger, $getopt);
+                return $this->container->get($this->module[$option]);
             }
         }
 
@@ -144,13 +149,14 @@ class Cli extends AbstractBootstrap
     {
         $this->configureLogger($getopt->getOption('verbose'));
 
-        $this->logger->info('processing incomming cli request', [
+        $logger = $this->container->get(LoggerInterface::class);
+        $logger->info('processing incomming cli request', [
             'category' => get_class($this),
             'options'  => $getopt->getOptions()
         ]);
 
         if (posix_getuid() == 0) {
-            $this->logger->warning('cli should not be executed as root', [
+            $logger->warning('cli should not be executed as root', [
                 'category' => get_class($this),
             ]);
         }
@@ -179,7 +185,8 @@ class Cli extends AbstractBootstrap
     protected function setExceptionHandler(): Cli
     {
         set_exception_handler(function ($e) {
-            $this->logger->emergency('uncaught exception: '.$e->getMessage(), [
+            $logger = $this->container->get(LoggerInterface::class);
+            $logger->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),
                 'exception' => $e
             ]);

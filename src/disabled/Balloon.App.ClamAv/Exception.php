@@ -9,9 +9,8 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Exception;
+namespace Balloon\App\ClamAv;
 
-class InvalidArgument extends \Balloon\Exception
+class Exception extends \Balloon\Exception
 {
-    const HTTP_CODE = 400;
 }

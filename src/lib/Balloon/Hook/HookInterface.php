@@ -25,22 +25,12 @@ use \Micro\Auth\Identity;
 interface HookInterface
 {
     /**
-     * Create hook
-     *
-     * @param  LoggerInterface $logger
-     * @param  Iterable $config
-     * @return void
-     */
-    public function __construct(LoggerInterface $logger, ?Iterable $config=null);
-
-
-    /**
      * Set options
      *
      * @param  Iterable $config
      * @return HookInterface
      */
-    public function setOptions(?Iterable $config): HookInterface;
+    //public function setOptions(?Iterable $config): HookInterface;
 
 
     /**

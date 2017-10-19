@@ -48,7 +48,7 @@ class FileToStorageAdapter extends AbstractDelta
         }
 
         return [
-            '$unset' => 'file',
+            '$unset' => ['file' => 1],
             '$set' => [
                 'storage' => [
                     'adapter' => 'gridfs',

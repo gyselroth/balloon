@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App;
 
 use \Composer\Autoload\ClassLoader as Composer;
-use \Micro\Http\Router;
 use \Psr\Log\LoggerInterface;
 use \Balloon\Server;
 use \Micro\Auth;
@@ -20,55 +19,6 @@ use \Balloon\Filesystem\Node\NodeInterface;
 
 abstract class AbstractApp implements AppInterface
 {
-    /**
-     * Router
-     *
-     * @var Router
-     */
-    protected $router;
-
-
-    /**
-     * LoggerInterface
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-
-    /**
-     * Server
-     *
-     * @var Server
-     */
-    protected $server;
-
-
-    /**
-     * Init bootstrap
-     *
-     * @param   \Composer\Autoload\ClassLoader $composer
-     * @param   \Balloon\Http\Router $router
-     * @return  void
-     */
-    public function __construct(
-        Server $server,
-        LoggerInterface $logger,
-        ?Iterable $config=null,
-        ?Router $router=null,
-        ?Auth $auth=null
-    ) {
-        $this->config   = $config;
-        $this->router   = $router;
-        $this->logger   = $logger;
-        $this->server   = $server;
-        $this->fs       = $server->getFilesystem();
-        $this->auth     = $auth;
-
-        $this->setOptions($config);
-    }
-
-
     /**
      * Init
      *
@@ -113,17 +63,5 @@ abstract class AbstractApp implements AppInterface
     public function getAttributes(NodeInterface $node, array $attributes=[]): array
     {
         return [];
-    }
-
-
-    /**
-     * Set options
-     *
-     * @param  Iterable $config
-     * @return AppInterface
-     */
-    public function setOptions(?Iterable $config=null): AppInterface
-    {
-        return $this;
     }
 }

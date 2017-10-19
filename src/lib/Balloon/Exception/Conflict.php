@@ -13,6 +13,8 @@ namespace Balloon\Exception;
 
 class Conflict extends \Sabre\DAV\Exception\Conflict
 {
+    const HTTP_CODE = 400;
+
     const ALREADY_THERE                      = 17;
     const CANT_BE_CHILD_OF_ITSELF            = 18;
     const NODE_WITH_SAME_NAME_ALREADY_EXISTS = 19;

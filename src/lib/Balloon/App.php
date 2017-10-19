@@ -16,6 +16,7 @@ use \Balloon\App\AppInterface;
 use \Psr\Log\LoggerInterface;
 use \Composer\Autoload\ClassLoader as Composer;
 use \Micro\Container;
+use \Balloon\Hook;
 
 class App
 {
@@ -44,16 +45,25 @@ class App
 
 
     /**
+     * Hook
+     *
+     * @var Hook
+     */
+    protected $hook;
+
+
+    /**
      * Init app manager
      *
      * @param   Composer $composer
      * @param   LoggerInterface $logger
      * @param   Iterable $config
      */
-    public function __construct(Composer $composer, LoggerInterface $logger, ?Iterable $config=null)
+    public function __construct(Composer $composer, LoggerInterface $logger, Hook $hook, ?Iterable $config=null)
     {
         $this->composer = $composer;
         $this->logger   = $logger;
+        $this->hook     = $hook;
         $this->setOptions($config);
     }
 
@@ -85,7 +95,7 @@ class App
      * @param   Iterable $config
      * @return  bool
      */
-    public function registerApp(Container $container, string $name, string $class, ?Iterable $config=null): bool
+    public function registerApp(Container $container, string $name, string $abstract, string $class, ?Iterable $config=null): bool
     {
         $ns = str_replace('.', '\\', $name).'\\';
         //$class = '\\'.$ns.$this->context;
@@ -104,10 +114,16 @@ class App
             throw new Exception('app '.$name.' is already registered');
         }
 
-        $app = $container->get($name);
+        $app = $container->get($abstract);
 
         if (!($app instanceof AppInterface)) {
             throw new Exception('app class '.$class.' does not implement AppInterface');
+        }
+
+        if(is_callable([$app, 'getHooks'])) {
+            foreach($app->getHooks() as $hook) {
+                $this->hook->injectHook($container->get($hook));
+            }
         }
 
         $this->logger->info('register ['.$class.'] from app ['.$name.']', [

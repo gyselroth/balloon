@@ -13,6 +13,8 @@ namespace Balloon\Exception;
 
 class NotFound extends \Sabre\DAV\Exception\NotFound
 {
+    const HTTP_CODE = 404;
+
     const NODE_NOT_FOUND        = 49;
     const SHARE_NOT_FOUND       = 50;
     const REFERENCE_NOT_FOUND   = 51;

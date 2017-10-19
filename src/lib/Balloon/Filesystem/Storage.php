@@ -63,6 +63,11 @@ class Storage implements AdapterAwareInterface
             throw new Exception('storage adapter '.$name.' is already registered');
         }
 
+
+        $this->logger->debug('inject storage adapter ['.$name.'] of type ['.get_class($adapter).']', [
+            'category' => get_class($this)
+        ]);
+
         $this->adapter[$name] = $adapter;
         return $adapter;
     }

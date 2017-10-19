@@ -1,6 +1,4 @@
-<?php
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 /**
  * Balloon
  *
@@ -9,9 +7,8 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Exception;
+namespace Balloon\App\Convert;
 
-class InvalidArgument extends \Balloon\Exception
+class Exception extends \Balloon\Exception
 {
-    const HTTP_CODE = 400;
 }

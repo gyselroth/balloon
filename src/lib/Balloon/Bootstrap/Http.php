@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Bootstrap;
 
-use \Balloon\Http\Router;
+use \Micro\Http\Router;
 use \Micro\Http\Response;
 use \Balloon\Server\User;
 use \Micro\Auth;
@@ -45,13 +45,10 @@ class Http extends AbstractBootstrap
 
         if ($auth->requireOne()) {
             if (!($auth->getIdentity()->getAdapter() instanceof AuthNone)) {
-                $this->server->setIdentity($auth->getIdentity());
+                $this->container->get(Server::class)->setIdentity($auth->getIdentity());
             }
 
-            return $this->container->get(Router::class)->run([
-                $this->container->get(Server::class),
-                $this->container->get(LoggerInterface::class)
-            ]);
+            return $this->container->get(Router::class)->run();
         } else {
             return $this->invalidAuthentication();
         }
@@ -65,7 +62,6 @@ class Http extends AbstractBootstrap
      */
     protected function invalidAuthentication(): void
     {
-exit();
         if (isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] == '_logout') {
             (new Response())
                 ->setCode(401)

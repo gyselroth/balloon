@@ -58,11 +58,11 @@ class Http extends AbstractApp
     public function init(): bool
     {
         $this->router->appendRoute((new Route('/api', $this, 'start')));
-        $this->hook->injectHook(new class($this->logger) extends AbstractHook {
+        $this->hook->injectHook(new class extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
                 if ($_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api' ||  $_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api/v1') {
-                    $auth->injectAdapter('none', (new AuthNone($this->logger)));
+                    $auth->injectAdapter('none', (new AuthNone()));
                 }
             }
         });
@@ -95,6 +95,6 @@ class Http extends AbstractApp
             ->appendRoute(new Route('/api/v1', 'Balloon\Api\v1\Api'))
             ->appendRoute(new Route('/api$', 'Balloon\Api\v1\Api'));
 
-        return $this->router->run([$this->server, $this->logger]);
+        return $this->router->run();
     }
 }
