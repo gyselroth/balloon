@@ -20,125 +20,74 @@ use \Balloon\Filesystem;
 use \Balloon\Server;
 use \Composer\Autoload\ClassLoader as Composer;
 use \MongoDB\Client;
+use \MongoDB\Database;
+use \Micro\Auth;
+use \Balloon\Auth\Adapter\Basic\Db;
+use \Micro\Container;
 use \Micro\Log\Adapter\File;
 use \ErrorException;
+use \Balloon\App;
 use \Balloon\Filesystem\Storage;
 use \Balloon\Filesystem\Storage\Adapter\Gridfs;
+use \Psr\Log\LoggerInterface;
 
 abstract class AbstractBootstrap
 {
     /**
      * Config
      *
-     * @var Config
+     * @var array
      */
-    protected $config;
-
-
-    /**
-     * Composer
-     *
-     * @var Composer
-     */
-    protected $composer;
-
-
-    /**
-     * Router
-     *
-     * @var Router
-     */
-    protected $router;
-
-
-    /**
-     * Logger
-     *
-     * @var Logger
-     */
-    protected $logger;
-
-
-    /**
-     * Database
-     *
-     * @var Database
-     */
-    protected $db;
-
-
-    /**
-     * Queue
-     *
-     * @var Queue
-     */
-    protected $queuemgr;
-
-
-    /**
-     * Plugin
-     *
-     * @var Plugin
-     */
-    protected $pluginmgr;
-
-
-    /**
-     * Filesystem
-     *
-     * @var Filesystem
-     */
-    protected $fs;
-
-
-    /**
-     * User
-     *
-     * @var User
-     */
-    protected $user;
-
-
-    /**
-     * Option: mongodb
-     *
-     * @var string
-     */
-    protected $option_mongodb = 'mongodb://localhost:27017';
-
-
-    /**
-     * Option: mongodb database
-     *
-     * @var string
-     */
-    protected $option_mongodb_db = 'balloon';
-
-
-    /**
-     * Option: log
-     *
-     * @var Iterable
-     */
-    protected $option_log = [
-        'file' => [
-            'class' => File::class,
-            'config' => [
-                'file'  => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
-                'level' => 6,
-                'date_format' => 'Y-d-m H:i:s',
-                'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}'
+    protected $config = [
+        Client::class => [
+            'options' => [
+                'uri' => 'mongodb://localhost:27017',
+                'db' => 'balloon'
             ]
+        ],
+        LoggerInterface::class => [
+            'use' => Log::class,
+            'adapter' => [
+                'file' => [
+                    'name' => File::class,
+                    'options' => [
+                        'config' => [
+                            'file'  => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
+                            'level' => 10,
+                            'date_format' => 'Y-d-m H:i:s',
+                            'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}'
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        Auth::class => [
+            'adapter' => [
+                'basic_db' => [
+                    'name' => Db::class,
+                    /*'service' => [
+                        Database::class => [
+                            'options' => [
+                                'uri' => 'mongodb://tetetetetete:27017',
+                                'db' => 'gegegegege'
+                            ]
+                        ]
+                    ]*/
+                ]
+            ],
+        ],
+        App::class => [
+            'adapter' => []
         ]
     ];
 
 
     /**
-     * Option: apps
+     * Dependency container
      *
-     * @var Iterable
+     * @var Container
      */
-    protected $option_app = [];
+    protected $container;
 
 
     /**
@@ -150,44 +99,63 @@ abstract class AbstractBootstrap
      */
     public function __construct(Composer $composer, ?Config $config)
     {
-        $this->composer = $composer;
-        $this->config   = $config;
-
-        $this->setOptions($this->config);
-
-        $this->logger = new Log($this->option_log);
-        $this->logger->info('----------------------------------------------------------------------------> PROCESS', [
+        $this->setOptions($config);
+        $this->detectApps();
+        $this->setErrorHandler();
+        $this->container = new Container($this->config);
+        $this->container->get(LoggerInterface::class)->info('--------------------------------------------------> PROCESS', [
             'category' => get_class($this)
         ]);
 
-        $this->logger->info('use ['.APPLICATION_ENV.'] environment', [
+        $this->container->get(LoggerInterface::class)->info('use ['.APPLICATION_ENV.'] environment', [
             'category' => get_class($this),
         ]);
 
-        $this->setErrorHandler();
+        $this->container->add(get_class($composer), function() use($composer) {
+            return $composer;
+        });
 
-        $this->hook = new Hook($this->logger);
-        $this->logger->info('connect to mongodb ['.$this->option_mongodb.']', [
-            'category' => get_class($this),
-        ]);
+        $this->container->add(Client::class, function(){
+            return new Client($this->getParam(Client::class, 'uri'), [], [
+                'typeMap' => [
+                    'root' => 'array',
+                    'document' => 'array',
+                    'array' => 'array'
+                ]
+            ]);
+        });
 
-        $client = new Client($this->option_mongodb, [], [
-            'typeMap' => [
-                'root' => 'array',
-                'document' => 'array',
-                'array' => 'array'
-            ]
-        ]);
+        $this->container->add(Database::class, function(){
+            return $this->get(Client::class)->balloon;
+        });
 
-        $this->db = $client->{$this->option_mongodb_db};
-        $this->async = new Async($this->db, $this->logger);
-        $storage = new Storage($this->logger);
-        $storage->injectAdapter('gridfs', new Gridfs($this->db, $this->logger));
-        $this->server = new Server($this->db, $storage, $this->logger, $this->async, $this->hook);
+        $this->registerApps();
 
-        $this->detectApps();
+        $this->container->get(Server::class)
+            ->start();
 
         return true;
+    }
+
+
+    /**
+     * Register apps
+     *
+     * @return AbstractBootstrap
+     */
+    protected function registerApps(): AbstractBootstrap
+    {
+        $manager = $this->container->get(App::class);
+        foreach($this->config[App::class]['adapter'] as $name => $config) {
+            $options = null;
+            if(isset($config['config'])) {
+                $options = $config['config'];
+            }
+
+            $manager->registerApp($this->container, $name, $config['use'], $options);
+        }
+
+        return $this;
     }
 
 
@@ -198,8 +166,17 @@ abstract class AbstractBootstrap
      */
     protected function detectApps(): AbstractBootstrap
     {
+        if($this instanceof Http) {
+            $context = 'Http';
+        } else {
+            $context = 'Cli';
+        }
+
         foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
-            $this->option_app[basename($app)] = [];
+            $this->config[App::class]['adapter'][basename($app)] = [];
+            $ns = str_replace('.', '\\', basename($app)).'\\';
+            $class = '\\'.$ns.$context;
+            $this->config[App::class]['adapter'][basename($app)]['use'] = $class;
         }
 
         return $this;
@@ -219,23 +196,26 @@ abstract class AbstractBootstrap
         }
 
         foreach ($config->children() as $option => $value) {
-            switch ($option) {
-                case 'mongodb':
-                    if (isset($value['server'])) {
-                        $this->option_mongodb = $value->server;
-                    }
-                    if (isset($value['db'])) {
-                        $this->option_mongodb_db = $value->db;
-                    }
+            /*if(!isset($value['name'])) {
+                throw new Exception('invalid configuration given, objects needs service name';
+            }*/
+
+            if(!isset($this->config[$value['name']])) {
+                $this->config[$value['name']] = [];
+            }
+
+            foreach($value as $type => $config) {
+                switch($type) {
+                    case 'class':
+                        $this->config[$value['service']]['class'] = $config;
                     break;
-                case 'app':
-                    foreach ($value as $app => $options) {
-                        $this->option_app[$app] = $options;
-                    }
+                    case 'adapter':
+                        $this->config[$value['service']]['adapter'] = $config;
                     break;
-                case 'log':
-                    $this->option_log = $value;
+                    case 'options':
+                        $this->config[$value['service']]['options'] = $config;
                     break;
+                }
             }
         }
 
@@ -255,20 +235,20 @@ abstract class AbstractBootstrap
             switch ($severity) {
                 case E_ERROR:
                 case E_USER_ERROR:
-                    $this->logger->error($log, [
+                    $this->container->get(LoggerInterface::class)->error($log, [
                         'category' => get_class($this)
                     ]);
                 break;
 
                 case E_WARNING:
                 case E_USER_WARNING:
-                    $this->logger->warning($log, [
+                    $this->container->get(LoggerInterface::class)->warning($log, [
                         'category' => get_class($this)
                     ]);
                 break;
 
                 default:
-                    $this->logger->debug($log, [
+                    $this->container->get(LoggerInterface::class)->debug($log, [
                         'category' => get_class($this)
                     ]);
                 break;

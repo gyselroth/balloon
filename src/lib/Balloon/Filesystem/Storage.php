@@ -15,8 +15,9 @@ use \Balloon\Filesystem\Exception;
 use \Psr\Log\LoggerInterface;
 use \Balloon\Filesystem\Storage\Adapter\AdapterInterface;
 use \Balloon\Filesystem\Node\File;
+use \Micro\Container\AdapterAwareInterface;
 
-class Storage
+class Storage implements AdapterAwareInterface
 {
     /**
      * Storage adapter
@@ -46,30 +47,6 @@ class Storage
     public function hasAdapter(string $name): bool
     {
         return isset($this->adapter[$name]);
-    }
-
-
-    /**
-     * Add adapter
-     *
-     * @param  string $name
-     * @param  string $class
-     * @param  Iterable $config
-     * @return AdapterInterface
-     */
-    public function addAdapter(string $name, string $class, ? Iterable $config = null) : AdapterInterface
-    {
-        if ($this->hasAdapter($name)) {
-            throw new Exception('storage adapter '.$name.' is already registered');
-        }
-
-        $adapter = new $class($this->logger, $config);
-        if (!($adapter instanceof AdapterInterface)) {
-            throw new Exception('storage adapter must include AdapterInterface interface');
-        }
-
-        $this->adapter[$name] = $adapter;
-        return $adapter;
     }
 
 

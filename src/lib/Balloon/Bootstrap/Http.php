@@ -16,25 +16,16 @@ use \Micro\Http\Response;
 use \Balloon\Server\User;
 use \Micro\Auth;
 use \Micro\Auth\Adapter\None as AuthNone;
+use \Balloon\Server;
+use \Psr\Log\LoggerInterface;
 use \Micro\Config;
 use \Composer\Autoload\ClassLoader as Composer;
 use \Balloon\Auth\Adapter\Basic\Db;
 use \Balloon\App;
+use \Balloon\Hook;
 
 class Http extends AbstractBootstrap
 {
-    /**
-     * option: auth
-     *
-     * @var Iterable
-     */
-    protected $option_auth = [
-        'basic_db' => [
-            'class' => Db::class,
-        ]
-    ];
-
-
     /**
      * Init bootstrap
      *
@@ -45,28 +36,22 @@ class Http extends AbstractBootstrap
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
 
-        $this->logger->info('processing incoming http ['. $_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [
+        $this->container->get(LoggerInterface::class)->info('processing incoming http ['. $_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [
             'category' => get_class($this),
         ]);
 
-        $this->router = new Router($this->logger, $_SERVER);
-        $this->auth = new Auth($this->logger, $this->option_auth);
+        $auth = $this->container->get(Auth::class);
+        $this->container->get(Hook::class)->run('preAuthentication', [$auth]);
 
-        if ($this->auth->hasAdapter('basic_db')) {
-            $this->auth->getAdapter('basic_db')->setOptions(['mongodb' => $this->db]);
-        }
-
-        $this->app = new App(App::CONTEXT_HTTP, $this->composer, $this->server, $this->logger, $this->option_app, $this->router, $this->auth);
-        $this->app->init();
-
-        $this->hook->run('preAuthentication', [$this->auth]);
-
-        if ($this->auth->requireOne()) {
-            if (!($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
-                $this->server->setIdentity($this->auth->getIdentity());
+        if ($auth->requireOne()) {
+            if (!($auth->getIdentity()->getAdapter() instanceof AuthNone)) {
+                $this->server->setIdentity($auth->getIdentity());
             }
 
-            return $this->router->run([$this->server, $this->logger]);
+            return $this->container->get(Router::class)->run([
+                $this->container->get(Server::class),
+                $this->container->get(LoggerInterface::class)
+            ]);
         } else {
             return $this->invalidAuthentication();
         }
@@ -80,6 +65,7 @@ class Http extends AbstractBootstrap
      */
     protected function invalidAuthentication(): void
     {
+exit();
         if (isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] == '_logout') {
             (new Response())
                 ->setCode(401)
@@ -102,30 +88,6 @@ class Http extends AbstractBootstrap
 
 
     /**
-     * Set options
-     *
-     * @param  Config $config
-     * @return AbstractBootstrap
-     */
-    public function setOptions(?Config $config): AbstractBootstrap
-    {
-        if ($config === null) {
-            return $this;
-        }
-
-        foreach ($config->children() as $option => $value) {
-            switch ($option) {
-                case 'auth':
-                    $this->option_auth = $value;
-                break;
-            }
-        }
-
-        return parent::setOptions($config);
-    }
-
-
-    /**
      * Set exception handler
      *
      * @return Http
@@ -133,11 +95,11 @@ class Http extends AbstractBootstrap
     protected function setExceptionHandler(): Http
     {
         set_exception_handler(function ($e) {
-            $this->logger->emergency('uncaught exception: '.$e->getMessage(), [
+            $this->container->get(LoggerInterface::class)->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),
                 'exception' => $e
             ]);
-
+var_dump($e);
             (new Response())
                 ->setCode(500)
                 ->setBody([

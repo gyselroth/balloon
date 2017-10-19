@@ -14,27 +14,11 @@ namespace Balloon;
 use \Balloon\App\Exception;
 use \Balloon\App\AppInterface;
 use \Psr\Log\LoggerInterface;
-use \Balloon\Http\Router;
-use \Micro\Http\Response;
-use \Balloon\Server\User;
-use \Micro\Auth;
-use \Micro\Auth\Adapter\None as AuthNone;
 use \Composer\Autoload\ClassLoader as Composer;
+use \Micro\Container;
 
 class App
 {
-    /**
-     * Context: http
-     */
-    const CONTEXT_HTTP = 'Http';
-
-
-    /**
-     * Context: cli
-     */
-    const CONTEXT_CLI = 'Cli';
-
-
     /**
      * App namespaces
      *
@@ -62,19 +46,14 @@ class App
     /**
      * Init app manager
      *
+     * @param   Composer $composer
      * @param   LoggerInterface $logger
-     * @return  void
+     * @param   Iterable $config
      */
-    public function __construct(string $context=self::CONTEXT_HTTP, Composer $composer, Server $server, LoggerInterface $logger, ?Iterable $config=null, ?Router $router=null, Auth $auth=null)
+    public function __construct(Composer $composer, LoggerInterface $logger, ?Iterable $config=null)
     {
-        $this->context  = $context;
         $this->composer = $composer;
-        $this->server   = $server;
-        $this->router   = $router;
-        $this->auth     = $auth;
         $this->logger   = $logger;
-
-        $this->server->setApp($this);
         $this->setOptions($config);
     }
 
@@ -92,19 +71,7 @@ class App
         }
 
         foreach ($config as $name => $app) {
-            if (!isset($app['enabled']) || $app['enabled'] === '1') {
-                if (isset($app['config'])) {
-                    $config = $app['config'];
-                } else {
-                    $config = null;
-                }
-
-                $this->registerApp($name, $config);
-            } else {
-                $this->logger->debug("skip disabled app [".$name."]", [
-                    'category' => get_class($this)
-                ]);
-            }
+            $this->injectApp($name, $app);
         }
 
         return $this;
@@ -118,10 +85,10 @@ class App
      * @param   Iterable $config
      * @return  bool
      */
-    public function registerApp(string $name, ?Iterable $config=null): bool
+    public function registerApp(Container $container, string $name, string $class, ?Iterable $config=null): bool
     {
         $ns = str_replace('.', '\\', $name).'\\';
-        $class = '\\'.$ns.$this->context;
+        //$class = '\\'.$ns.$this->context;
         $this->composer->addPsr4($ns, APPLICATION_PATH."/src/app/$name");
         $this->namespace[$name] = $ns;
 
@@ -133,10 +100,11 @@ class App
             return false;
         }
 
-        $app = new $class($this->server, $this->logger, $config, $this->router, $this->auth);
         if ($this->hasApp($name)) {
             throw new Exception('app '.$name.' is already registered');
         }
+
+        $app = $container->get($name);
 
         if (!($app instanceof AppInterface)) {
             throw new Exception('app class '.$class.' does not implement AppInterface');
@@ -153,17 +121,17 @@ class App
 
 
     /**
-     * Init apps
+     * Start apps
      *
-     * @return App
+     * @return bool
      */
-    public function init(): App
+    public function start(): bool
     {
         foreach ($this->app as $app) {
             $app->init();
         }
 
-        return $this;
+        return true;
     }
 
 
@@ -271,5 +239,54 @@ class App
 
             return $list;
         }
+    }
+
+
+    /**
+     * Has adapter
+     *
+     * @param  string $name
+     * @return bool
+     */
+    public function hasAdapter(string $name): bool
+    {
+        return $this->hasApp($name);
+    }
+
+
+    /**
+     * Inject adapter
+     *
+     * @param  string $name
+     * @param  AdapterInterface $adapter
+     * @return AdapterInterface
+     */
+    public function injectAdapter(string $name, AppInterface $adapter): App
+    {
+        return $this->injectApp($name, $adapter);
+    }
+
+
+    /**
+     * Get adapter
+     *
+     * @param  string $name
+     * @return AdapterInterface
+     */
+    public function getAdapter(string $name): AppInterface
+    {
+        return $this->getApp($name);
+    }
+
+
+    /**
+     * Get adapters
+     *
+     * @param  array $adapters
+     * @return array
+     */
+    public function getAdapters(array $adapters = []): array
+    {
+        return $this->getApps($adapters);
     }
 }

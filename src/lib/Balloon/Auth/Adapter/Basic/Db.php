@@ -14,7 +14,7 @@ namespace Balloon\Auth\Adapter\Basic;
 use \Micro\Auth\Adapter\Basic\AbstractBasic;
 use \Micro\Auth\Adapter\AdapterInterface;
 use \MongoDB\Database;
-use \Balloon\Helper;
+use \Psr\Log\LoggerInterface;
 
 class Db extends AbstractBasic
 {
@@ -29,27 +29,16 @@ class Db extends AbstractBasic
     /**
      * Set options
      *
-     * @param   Iterable $config
+     * @param   Database $db
      * @return  AdapterInterface
      */
-    public function setOptions(?Iterable $config=null): AdapterInterface
+    public function __construct(LoggerInterface $logger, Database $db)
     {
-        if ($config === null) {
-            return $this;
-        }
-    
-        foreach ($config as $option => $value) {
-            switch ($option) {
-                case 'mongodb':
-                    $this->db = $value;
-                break;
-            }
-        }
-
-        return $this;
+        $this->logger = $logger;
+        $this->db = $db;
     }
-    
-      
+
+
     /**
      * Find identity
      *

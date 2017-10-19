@@ -21,22 +21,6 @@ use \Balloon\Filesystem\Node\NodeInterface;
 interface AppInterface
 {
     /**
-     * Init bootstrap
-     *
-     * @param   \Composer\Autoload\ClassLoader $composer
-     * @param   \Balloon\Http\Router $router
-     * @return  void
-     */
-    public function __construct(
-        Server $server,
-        LoggerInterface $logger,
-        ?Iterable $config,
-        ?Router $router=null,
-        ?Auth $auth=null
-    );
-
-
-    /**
      * Init app
      *
      * @return bool

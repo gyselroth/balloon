@@ -114,13 +114,15 @@ class Server
      * @param Hook $hook
      * @param Iterable $config
      */
-    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Async $async, Hook $hook, ?Iterable $config=null)
+    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Async $async, Hook $hook, App $app, ?Iterable $config=null)
     {
         $this->db     = $db;
         $this->storage= $storage;
         $this->logger = $logger;
         $this->async  = $async;
         $this->hook   = $hook;
+        $this->app    = $app;
+
         $this->setOptions($config);
     }
 
@@ -154,6 +156,17 @@ class Server
         }
 
         return $this;
+    }
+
+
+    /**
+     * Start server (Actually just execute all apps, we do nothing else here)
+     *
+     * @return bool
+     */
+    public function start(): bool
+    {
+        return $this->app->start();
     }
 
 

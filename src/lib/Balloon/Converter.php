@@ -18,8 +18,9 @@ use \Balloon\Converter\Adapter\Office;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\Converter\Adapter\AdapterInterface;
 use \Psr\Log\LoggerInterface;
+use \Micro\Container\AdapterAwareInterface;
 
-class Converter
+class Converter implements AdapterAwareInterface
 {
     /**
      * LoggerInterface
@@ -30,19 +31,19 @@ class Converter
 
 
     /**
-     * Converter
+     * Adapter
      *
      * @var array
      */
-    protected $converter = [];
+    protected $adapter = [];
 
 
     /**
-     * Default converter
+     * Default adapter
      *
      * @var array
      */
-    protected $default_converter = [
+    protected $default_adapter = [
         Imagick::class => [],
         Office::class => [],
     ];
@@ -74,25 +75,9 @@ class Converter
             $config = [];
         }
 
-        $converter = $this->default_converter;
-
+        //$adapter = $this->default_adapter;
         foreach ($config as $option => $value) {
-            if (!isset($value['class'])) {
-                throw new Exception('option class is required');
-            }
-
-            $converter[$value['class']] = [];
-            if (isset($value['config'])) {
-                $config = $value['config'];
-            } else {
-                $config = null;
-            }
-
-            $converter[$value['class']] = $config;
-        }
-
-        foreach ($converter as $converter => $config) {
-            $this->addConverter($converter, $config);
+            $this->injectAdapter($value);
         }
 
         return $this;
@@ -100,92 +85,67 @@ class Converter
 
 
     /**
-     * Has converter
+     * Has adapter
      *
      * @param  string $name
      * @return bool
      */
-    public function hasConverter(string $name): bool
+    public function hasAdapter(string $name): bool
     {
-        return isset($this->converter[$name]);
+        return isset($this->adapter[$name]);
     }
 
 
     /**
-     * Add converter
-     *
-     * @param  string $class
-     * @param  Iterable $config
-     * @return AdapterInterface
-     */
-    public function addConverter(string $class, ? Iterable $config = null) : AdapterInterface
-    {
-        if ($this->hasConverter($class)) {
-            throw new Exception('converter '.$class.' is already registered');
-        }
-
-        $converter = new $class($this->logger, $config);
-        if (!($converter instanceof AdapterInterface)) {
-            throw new Exception('converter must include AdapterInterface interface');
-        }
-
-        $this->converter[$class] = $converter;
-        return $converter;
-    }
-
-
-    /**
-     * Inject converter
+     * Inject adapter
      *
      * @param  AdapterInterface $adapter
      * @return AdapterInterface
      */
-    public function injectConverter(AdapterInterface $adapter) : AdapterInterface
+    public function injectAdapter(string $name, AdapterInterface $adapter) : AdapterInterface
     {
-        $name = get_class($adapter);
-
-        if ($this->hasConverter($name)) {
-            throw new Exception('converter '.$name.' is already registered');
+        if ($this->hasAdapter($name)) {
+            throw new Exception('adapter '.$name.' is already registered');
         }
 
-        $this->converter[$name] = $converter;
-        return $converter;
+        $this->adapter[$name] = $adapter;
+        return $adapter;
     }
 
 
     /**
-     * Get converter
+     * Get adapter
      *
      * @param  string $name
      * @return AdapterInterface
      */
-    public function getConverter(string $name): AdapterInterface
+    public function getAdapter(string $name): AdapterInterface
     {
-        if (!$this->hasConverter($name)) {
-            throw new Exception('converter '.$name.' is not registered');
+        if (!$this->hasAdapter($name)) {
+            throw new Exception('adapter '.$name.' is not registered');
         }
 
-        return $this->converter[$name];
+        return $this->adapter[$name];
     }
 
 
     /**
-     * Get converters
+     * Get adapters
      *
-     * @param  array $converters
+     * @param  array $adapters
      * @return array
      */
-    public function getConverters(array $converters = []): array
+    public function getAdapters(array $adapters = []): array
     {
-        if (empty($converter)) {
-            return $this->converter;
+        if (empty($adapter)) {
+            return $this->adapter;
         } else {
             $list = [];
-            foreach ($converter as $name) {
-                if (!$this->hasConverter($name)) {
-                    throw new Exception('converter '.$name.' is not registered');
+            foreach ($adapter as $name) {
+                if (!$this->hasAdapter($name)) {
+                    throw new Exception('adapter '.$name.' is not registered');
                 }
-                $list[$name] = $this->converter[$name];
+                $list[$name] = $this->adapter[$name];
             }
 
             return $list;
@@ -200,9 +160,9 @@ class Converter
      */
     public function getSupportedFormats(File $file): array
     {
-        foreach ($this->converter as $converter) {
-            if ($converter->match($file)) {
-                return $converter->getSupportedFormats($file);
+        foreach ($this->adapter as $adapter) {
+            if ($adapter->match($file)) {
+                return $adapter->getSupportedFormats($file);
             }
         }
 
@@ -219,19 +179,19 @@ class Converter
      */
     public function convert(File $file, string $format): Result
     {
-        foreach ($this->converter as $converter) {
+        foreach ($this->adapter as $adapter) {
             try {
-                if ($converter->match($file)) {
-                    return $converter->convert($file, $format);
+                if ($adapter->match($file)) {
+                    return $adapter->convert($file, $format);
                 }
             } catch (\Exception $e) {
-                $this->logger->error('failed execute converter ['.get_class($converter).']', [
+                $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
                     'category' => get_class($this),
                     'exception'=>$e
                 ]);
             }
         }
 
-        throw new Exception('all converter failed');
+        throw new Exception('all adapter failed');
     }
 }

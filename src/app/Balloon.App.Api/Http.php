@@ -17,9 +17,39 @@ use \Micro\Http\Router\Route;
 use \Micro\Auth\Adapter\None as AuthNone;
 use \Balloon\Hook\AbstractHook;
 use \Micro\Auth;
+use \Balloon\Hook;
 
 class Http extends AbstractApp
 {
+    /**
+     * Router
+     *
+     * @var Router
+     */
+    protected $router;
+
+
+    /**
+     * Hook
+     *
+     * @var Hook
+     */
+    protected $hook;
+
+
+    /**
+     * Constructor
+     *
+     * @param Router $router
+     * @param Hook $hook
+     */
+    public function __construct(Router $router, Hook $hook)
+    {
+        $this->router = $router;
+        $this->hook = $hook;
+    }
+
+
     /**
      * Init
      *
@@ -28,7 +58,7 @@ class Http extends AbstractApp
     public function init(): bool
     {
         $this->router->appendRoute((new Route('/api', $this, 'start')));
-        $this->server->getHook()->injectHook(new class($this->logger) extends AbstractHook {
+        $this->hook->injectHook(new class($this->logger) extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
                 if ($_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api' ||  $_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api/v1') {
