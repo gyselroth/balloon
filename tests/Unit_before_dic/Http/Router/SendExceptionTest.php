@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\Http\Router;
 
-use Micro\Http\Router;
 use Balloon\Testsuite\Unit\Mock;
 use Balloon\Testsuite\Unit\Test;
+use Micro\Http\Router;
 
 class TestException extends \Exception
 {

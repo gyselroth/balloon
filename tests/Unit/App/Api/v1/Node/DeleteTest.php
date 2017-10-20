@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\Api\v1\Node;
 
-use Balloon\Api\v1\Node;
 use Balloon\Testsuite\Unit\App\Api\v1\Test;
 use Micro\Http\Response;
 
@@ -153,7 +152,7 @@ abstract class DeleteTest extends Test
 
     /**
      * @depends testRestoreFromTrash
-     * @expectedException Balloon\Exception\NotFound
+     * @expectedException \Balloon\Exception\NotFound
      * @expectedExceptionCode 49
      *
      * @param mixed $id

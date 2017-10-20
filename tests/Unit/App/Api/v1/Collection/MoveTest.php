@@ -70,7 +70,7 @@ class MoveTest extends Test
 
     /**
      * @depends testCreate
-     * @expectedException Balloon\Exception\Conflict
+     * @expectedException \Balloon\Exception\Conflict
      * @expectedExceptionCode 18
      *
      * @param mixed $node
@@ -82,7 +82,7 @@ class MoveTest extends Test
 
     /**
      * @depends testCreate
-     * @expectedException Balloon\Exception\Conflict
+     * @expectedException \Balloon\Exception\Conflict
      * @expectedExceptionCode 17
      *
      * @param mixed $node
@@ -126,7 +126,7 @@ class MoveTest extends Test
 
     /**
      * @depends testMoveCollectionIntoOtherCollection
-     * @expectedException Balloon\Exception\Conflict
+     * @expectedException \Balloon\Exception\Conflict
      * @expectedExceptionCode 18
      *
      * @param mixed $nodes
@@ -230,7 +230,7 @@ class MoveTest extends Test
 
     /**
      * @depends testCreateAUnderB
-     * @expectedException Balloon\Exception\Conflict
+     * @expectedException \Balloon\Exception\Conflict
      * @expectedExceptionCode 19
      *
      * @param mixed $nodes

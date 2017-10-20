@@ -15,8 +15,8 @@ namespace Balloon\Testsuite\Unit\App\Api\v1\Collection;
 use Balloon\Api\v1\Collection;
 use Balloon\Testsuite\Unit\App\Api\v1\Node;
 use Micro\Http\Response;
-use Psr\Log\LoggerInterface;
 use MongoDB\BSON\ObjectId;
+use Psr\Log\LoggerInterface;
 
 /**
  * @coversNothing
@@ -38,6 +38,6 @@ class RenameTest extends Node\RenameTest
         $id = new ObjectID($res->getBody());
         $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
 
-        return (string)$id;
+        return (string) $id;
     }
 }

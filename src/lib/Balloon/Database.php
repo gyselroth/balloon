@@ -62,7 +62,7 @@ class Database
      * @param Server          $server
      * @param LoggerInterface $logger
      */
-    public function __construct(Server $server, Database $db, LoggerInterface $logger, ?ProgressBar $bar=null)
+    public function __construct(Server $server, Database $db, LoggerInterface $logger, ?ProgressBar $bar = null)
     {
         $this->server = $server;
         $this->db = $db;
@@ -243,7 +243,7 @@ class Database
      */
     public function upgradeObjects(array $deltas)
     {
-        if($this->bar !== null) {
+        if (null !== $this->bar) {
             $count = 0;
             foreach ($this->getCollections() as $collection) {
                 $count += $this->db->{$collection}->count();
@@ -268,7 +268,7 @@ class Database
                     }
                 }
 
-                if($this->bar !== null) {
+                if (null !== $this->bar) {
                     $this->bar->advance();
                 }
 
@@ -286,7 +286,7 @@ class Database
             }
         }
 
-        if($this->bar !== null) {
+        if (null !== $this->bar) {
             $this->bar->finish();
         }
 

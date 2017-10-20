@@ -19,7 +19,6 @@ use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Auth;
 use Micro\Auth\Identity;
-use Psr\Log\LoggerInterface;
 
 abstract class AbstractHook implements HookInterface
 {

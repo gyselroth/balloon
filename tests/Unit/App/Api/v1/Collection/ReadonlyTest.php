@@ -57,7 +57,7 @@ class ReadonlyTest extends Test
 
     /**
      * @depends testSetReadonly
-     * @expectedException Balloon\Exception\Conflict
+     * @expectedException \Balloon\Exception\Conflict
      * @expectedExceptionCode 25
      *
      * @param mixed $id

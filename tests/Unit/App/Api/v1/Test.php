@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\Api\v1;
 
-use Balloon\App\Delta;
 use Balloon\Testsuite\Unit\Test as UnitTest;
 
 abstract class Test extends UnitTest

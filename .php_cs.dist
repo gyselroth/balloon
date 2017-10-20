@@ -22,7 +22,6 @@ $config = PhpCsFixer\Config::create()
         'declare_strict_types' => true,
         'dir_constant' => true,
         'function_to_constant' => true,
-        'general_phpdoc_annotation_remove' => ['annotations' => ['expectedException', 'expectedExceptionMessage', 'expectedExceptionMessageRegExp']],
         'header_comment' => ['header' => $header, 'commentType' => 'PHPDoc'],
         'heredoc_to_nowdoc' => true,
         'list_syntax' => ['syntax' => 'long'],

@@ -45,7 +45,7 @@ class CloneTest extends Test
         $this->assertSame(201, $res->getCode());
         $id = new ObjectID($res->getBody());
         $this->assertInstanceOf(ObjectID::class, $id);
-        self::$delta[] = (string)$id;
+        self::$delta[] = (string) $id;
 
         return (string) $id;
     }
@@ -57,7 +57,7 @@ class CloneTest extends Test
 
     /**
      * @depends testCreate
-     * @expectedException Balloon\Exception\Conflict
+     * @expectedException \Balloon\Exception\Conflict
      * @expectedExceptionCode 272
      *
      * @param mixed $id
@@ -69,7 +69,7 @@ class CloneTest extends Test
 
     /**
      * @depends testCreate
-     * @expectedException Balloon\Exception\Conflict
+     * @expectedException \Balloon\Exception\Conflict
      * @expectedExceptionCode 19
      *
      * @param mixed $id
@@ -92,7 +92,7 @@ class CloneTest extends Test
         $this->assertSame(201, $res->getCode());
         $id = new ObjectID($res->getBody());
         $this->assertInstanceOf(ObjectID::class, $id);
-        self::$delta[] = (string)$id;
+        self::$delta[] = (string) $id;
     }
 
     public function testDelta()

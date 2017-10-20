@@ -35,7 +35,7 @@ abstract class Test extends TestCase
 
     public static function getMockDatabase()
     {
-        if(self::$db instanceof MockDatabase) {
+        if (self::$db instanceof MockDatabase) {
             return self::$db;
         }
 
@@ -47,7 +47,6 @@ abstract class Test extends TestCase
             ],
         ]);
     }
-
 
     public static function setupMockServer($context = 'test')
     {
@@ -81,7 +80,7 @@ abstract class Test extends TestCase
     public function getMockServer()
     {
         global $composer;
-        $app = new App($composer,  $this->createMock(LoggerInterface::class), $this->createMock(Hook::class));
+        $app = new App($composer, $this->createMock(LoggerInterface::class), $this->createMock(Hook::class));
 
         $server = new Server(
             self::getMockDatabase(),

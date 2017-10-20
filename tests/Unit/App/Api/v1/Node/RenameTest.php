@@ -15,7 +15,6 @@ namespace Balloon\Testsuite\Unit\App\Api\v1\Node;
 use Balloon\Exception;
 use Balloon\Testsuite\Unit\App\Api\v1\Test;
 use Micro\Http\Response;
-use Psr\Log\LoggerInterface;
 
 abstract class RenameTest extends Test
 {

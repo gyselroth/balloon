@@ -17,12 +17,12 @@ use Balloon\Async;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
+use Balloon\Hook\Delta;
 use Balloon\Server;
 use Helmich\MongoMock\MockDatabase;
 use Micro\Http\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Balloon\Hook\Delta;
 
 abstract class Test extends TestCase
 {
@@ -35,7 +35,7 @@ abstract class Test extends TestCase
 
     public static function getMockDatabase()
     {
-        if(self::$db instanceof MockDatabase) {
+        if (self::$db instanceof MockDatabase) {
             return self::$db;
         }
 
@@ -51,7 +51,7 @@ abstract class Test extends TestCase
     public function getMockServer()
     {
         global $composer;
-        $app = new App($composer,  $this->createMock(LoggerInterface::class), $this->createMock(Hook::class));
+        $app = new App($composer, $this->createMock(LoggerInterface::class), $this->createMock(Hook::class));
 
         $hook = new Hook($this->createMock(LoggerInterface::class));
         $hook->injectHook(new Delta());
@@ -68,7 +68,7 @@ abstract class Test extends TestCase
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
         $filesystem = new Filesystem($server, $this->createMock(LoggerInterface::class));
 
-        if(!$server->userExists('testuser')) {
+        if (!$server->userExists('testuser')) {
             $server->addUser(['username' => 'testuser']);
         }
 
