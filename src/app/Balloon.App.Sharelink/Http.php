@@ -17,12 +17,15 @@ use \Balloon\Filesystem;
 use \Balloon\Filesystem\Node\NodeInterface;
 use \Balloon\Filesystem\Node\Collection;
 use \Micro\Http\Response;
+use \Micro\Http\Router;
 use \Micro\Http\Router\Route;
 use \Balloon\App\AbstractApp;
 use \Balloon\Hook\AbstractHook;
 use \Micro\Auth;
 use \Micro\Auth\Adapter\None as AuthNone;
 use \Balloon\App\Sharelink\Api\v1\ShareLink;
+use \Balloon\Hook;
+use \Balloon\Server;
 
 class Http extends AbstractApp
 {
@@ -36,17 +39,15 @@ class Http extends AbstractApp
 
     /**
      * Init
-     *
-     * @return bool
      */
-    public function __construct(Router $router, Hook $hook, Server $server): bool
+    public function __construct(Router $router, Hook $hook, Server $server)
     {
         $router
             ->appendRoute(new Route('/share', $this, 'start'))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/share-link', ShareLink::class))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
 
-        $hook->injectHook(new class($this->logger) extends AbstractHook {
+        $hook->injectHook(new class extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
                 if (preg_match('#^/index.php/share#', $_SERVER["ORIG_SCRIPT_NAME"])) {
@@ -56,8 +57,6 @@ class Http extends AbstractApp
         });
 
         $this->fs = $server->getFilesystem();
-
-        return true;
     }
 
 

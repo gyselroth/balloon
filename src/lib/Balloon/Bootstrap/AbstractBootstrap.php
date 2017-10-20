@@ -73,11 +73,7 @@ abstract class AbstractBootstrap
             'adapter' => Converter::DEFAULT_ADAPTER
         ],
         Hook::class => [
-            'adapter' => [
-                'delta' => [
-                    'use' => Delta::class,
-                ],
-            ]
+            'adapter' => Hook::DEFAULT_ADAPTER
         ],
         Auth::class => [
             'adapter' => [

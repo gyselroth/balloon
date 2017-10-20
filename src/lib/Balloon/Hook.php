@@ -17,12 +17,12 @@ use \Psr\Log\LoggerInterface;
 use \Micro\Container\AdapterAwareInterface;
 use \Balloon\Hook\Delta;
 
-class Hook implements AdpaterAwareInterface
+class Hook implements AdapterAwareInterface
 {
     /**
      * Default hooks
      */
-    const DEFAULT_HOOKS = [
+    const DEFAULT_ADAPTER = [
         Delta::class => []
     ];
 
@@ -59,16 +59,16 @@ class Hook implements AdpaterAwareInterface
      * Inject hook
      *
      * @param  HookInterface $adapter
-     * @return bool
+     * @return Hook
      */
-    public function injectHook(HookInterface $hook) : bool
+    public function injectHook(HookInterface $hook) : Hook
     {
         if ($this->hasHook(get_class($hook))) {
             throw new Exception('hook '.get_class($hook).' is already registered');
         }
 
         $this->hook[get_class($hook)] = $hook;
-        return true;
+        return $this;
     }
 
 
@@ -173,7 +173,7 @@ class Hook implements AdpaterAwareInterface
      * @param  AdapterInterface $adapter
      * @return AdapterInterface
      */
-    public function injectAdapter(string $name, AppInterface $adapter): App
+    public function injectAdapter(string $name, HookInterface $adapter): Hook
     {
         return $this->injectHook($adapter);
     }

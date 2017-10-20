@@ -24,7 +24,7 @@ class App extends AbstractApp
     public function getHooks(): array
     {
         return [
-            Hook:class
+            Hook::class
         ];
     }
 }
