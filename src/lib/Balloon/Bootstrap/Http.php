@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,37 +7,32 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Bootstrap;
 
-use \Micro\Http\Router;
-use \Micro\Http\Response;
-use \Balloon\Server\User;
-use \Micro\Auth;
-use \Micro\Auth\Adapter\None as AuthNone;
-use \Balloon\Server;
-use \Psr\Log\LoggerInterface;
-use \Micro\Config;
-use \Composer\Autoload\ClassLoader as Composer;
-use \Balloon\Auth\Adapter\Basic\Db;
-use \Balloon\App;
-use \Balloon\Hook;
+use Balloon\Hook;
+use Balloon\Server;
+use Composer\Autoload\ClassLoader as Composer;
+use Micro\Auth;
+use Micro\Auth\Adapter\None as AuthNone;
+use Micro\Config;
+use Micro\Http\Response;
+use Micro\Http\Router;
+use Psr\Log\LoggerInterface;
 
 class Http extends AbstractBootstrap
 {
     /**
-     * Init bootstrap
-     *
-     * @return void
+     * Init bootstrap.
      */
-    public function __construct(Composer $composer, ?Config $config=null)
+    public function __construct(Composer $composer, ?Config $config = null)
     {
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
 
-        $this->container->get(LoggerInterface::class)->info('processing incoming http ['. $_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [
+        $this->container->get(LoggerInterface::class)->info('processing incoming http ['.$_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [
             'category' => get_class($this),
         ]);
 
@@ -49,26 +45,23 @@ class Http extends AbstractBootstrap
             }
 
             return $this->container->get(Router::class)->run();
-        } else {
-            return $this->invalidAuthentication();
         }
+
+        return $this->invalidAuthentication();
     }
 
-
     /**
-     * Send invalid authentication response
-     *
-     * @return void
+     * Send invalid authentication response.
      */
     protected function invalidAuthentication(): void
     {
-        if (isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] == '_logout') {
+        if (isset($_SERVER['PHP_AUTH_USER']) && '_logout' === $_SERVER['PHP_AUTH_USER']) {
             (new Response())
                 ->setCode(401)
                 ->setBody('Unauthorized')
                 ->send();
         } else {
-            if ($_SERVER['PATH_INFO'] === '/api/auth') {
+            if ('/api/auth' === $_SERVER['PATH_INFO']) {
                 $code = 403;
             } else {
                 $code = 401;
@@ -82,9 +75,8 @@ class Http extends AbstractBootstrap
         }
     }
 
-
     /**
-     * Set exception handler
+     * Set exception handler.
      *
      * @return Http
      */
@@ -93,14 +85,14 @@ class Http extends AbstractBootstrap
         set_exception_handler(function ($e) {
             $this->container->get(LoggerInterface::class)->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),
-                'exception' => $e
+                'exception' => $e,
             ]);
-var_dump($e);
+            var_dump($e);
             (new Response())
                 ->setCode(500)
                 ->setBody([
-                    'error'   => get_class($e),
-                    'message' => $e->getMessage()
+                    'error' => get_class($e),
+                    'message' => $e->getMessage(),
                 ])
                 ->send();
         });

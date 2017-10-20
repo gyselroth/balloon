@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,66 +7,60 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Filesystem;
 
-use \Sabre\DAV;
-use \Balloon\Filesystem\Delta\Exception;
-use \Balloon\Filesystem;
-use \Balloon\Helper;
-use \Balloon\Server\User;
-use \Balloon\Filesystem\Node\NodeInterface;
-use \Balloon\Filesystem\Node\Collection;
-use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\BSON\ObjectID;
+use Balloon\Filesystem;
+use Balloon\Filesystem\Delta\Exception;
+use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Helper;
+use Balloon\Server\User;
+use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\UTCDateTime;
 
 class Delta
 {
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
     protected $fs;
 
-
     /**
-     * Db
+     * Db.
      *
      * @var \MongoDB\Database
      */
     protected $db;
 
-
     /**
-     * User
+     * User.
      *
      * @var User
      */
     protected $user;
 
-
     /**
-     * Initialize delta
+     * Initialize delta.
      *
-     * @param   Filesystem $fs
-     * @return  void
+     * @param Filesystem $fs
      */
     public function __construct(Filesystem $fs)
     {
-        $this->fs    = $fs;
-        $this->db    = $fs->getDatabase();
-        $this->user  = $fs->getUser();
+        $this->fs = $fs;
+        $this->db = $fs->getDatabase();
+        $this->user = $fs->getUser();
     }
 
-
     /**
-     * Add delta event
+     * Add delta event.
      *
-     * @param   array $options
-     * @return  bool
+     * @param array $options
+     *
+     * @return bool
      */
     public function add(array $options): bool
     {
@@ -78,73 +73,31 @@ class Delta
         }
 
         $result = $this->db->delta->insertOne($options);
+
         return $result->isAcknowledged();
     }
 
-
     /**
-     * Verify delta structure
+     * Build a single dimension array with all nodes.
      *
-     * @param   array $options
-     * @return  bool
-     */
-    protected function isValidDeltaEvent(array $options): bool
-    {
-        if (!array_key_exists('operation', $options)) {
-            return false;
-        }
-
-        return array_key_exists('owner', $options) || array_key_exists('share', $options);
-    }
-
-
-    /**
-     * Decode cursor
+     * @param array         $cursor
+     * @param int           $limit
+     * @param array         $attributes
+     * @param NodeInterface $node
      *
-     * @param   string $cursor
-     * @return  array
+     * @return array
      */
-    protected function decodeCursor(?string $cursor): ?array
-    {
-        if ($cursor === null) {
-            return null;
-        }
-
-        $cursor = base64_decode($cursor);
-        if ($cursor === false) {
-            return null;
-        }
-
-        $cursor = explode('|', $cursor);
-        if (count($cursor) !== 5) {
-            return null;
-        } else {
-            $cursor[1] = (int)$cursor[1];
-            return $cursor;
-        }
-    }
-
-
-    /**
-     * Build a single dimension array with all nodes
-     *
-     * @param   array $cursor
-     * @param   int $limit
-     * @param   array $attributes
-     * @param   NodeInterface $node
-     * @return  array
-     */
-    public function buildFeedFromCurrentState(?array $cursor=null, int $limit=100, array $attributes=[], ?NodeInterface $node=null): array
+    public function buildFeedFromCurrentState(?array $cursor = null, int $limit = 100, array $attributes = [], ?NodeInterface $node = null): array
     {
         $current_cursor = 0;
         $filter = ['$and' => [
             ['$or' => [
-                ['shared'  => [
-                    '$in' => $this->user->getShares()
+                ['shared' => [
+                    '$in' => $this->user->getShares(),
                 ]],
-                ['owner' => $this->user->getId()]
+                ['owner' => $this->user->getId()],
             ]],
-            ['deleted' => false]
+            ['deleted' => false],
         ]];
 
         if (is_array($cursor)) {
@@ -162,24 +115,24 @@ class Delta
 
         $reset = false;
 
-        if ($cursor === null) {
+        if (null === $cursor) {
             $last = $this->getLastRecord();
-            if ($last === null) {
+            if (null === $last) {
                 $delta_id = 0;
-                $ts       = new UTCDateTime();
+                $ts = new UTCDateTime();
             } else {
                 $delta_id = $last['_id'];
-                $ts       = $last['timestamp'];
+                $ts = $last['timestamp'];
             }
 
-            $reset  = true;
-            if ($has_more === false) {
+            $reset = true;
+            if (false === $has_more) {
                 $cursor = base64_encode('delta|0|0|'.$delta_id.'|'.$ts);
             } else {
                 $cursor = base64_encode('initial|'.$current_cursor.'|'.end($children)['id'].'|'.$delta_id.'|'.$ts);
             }
         } else {
-            if ($has_more === false) {
+            if (false === $has_more) {
                 $cursor = base64_encode('delta|0|0|'.$cursor[3].'|'.$cursor[4]);
             } else {
                 $cursor = base64_encode('initial|'.$current_cursor.'|'.end($children)['id'].'|'.$cursor[3].'|'.$cursor[4]);
@@ -187,85 +140,67 @@ class Delta
         }
 
         return [
-            'reset'    => $reset,
-            'cursor'   => $cursor,
+            'reset' => $reset,
+            'cursor' => $cursor,
             'has_more' => $has_more,
-            'nodes'    => $children
+            'nodes' => $children,
         ];
     }
 
-
     /**
-     * Get delta filter for db query
+     * Get last delta event.
+     *
+     * @param NodeInterface $node
      *
      * @return array
      */
-    protected function getDeltaFilter(): array
-    {
-        return [
-            '$or' => [
-                ['share'  => [
-                    '$in' => $this->user->getShares()
-                ]], [
-                    'owner' => $this->user->getId()
-                ]
-            ],
-        ];
-    }
-
-
-    /**
-     * Get last delta event
-     *
-     * @param  NodeInterface $node
-     * @return array
-     */
-    public function getLastRecord(?NodeInterface $node=null): ?array
+    public function getLastRecord(?NodeInterface $node = null): ?array
     {
         $filter = $this->getDeltaFilter();
 
-        if ($node !== null) {
+        if (null !== $node) {
             $filter = [
                 '$and' => [
                     ['node' => $node->getId()],
-                    $filter
-                ]
+                    $filter,
+                ],
             ];
         }
 
         $cursor = $this->db->delta->find($filter, [
-            'sort'  => ['timestamp' => -1],
-            'limit' => 1
+            'sort' => ['timestamp' => -1],
+            'limit' => 1,
         ]);
 
         $last = $cursor->toArray();
+
         return array_shift($last);
     }
 
-
     /**
-     * Get last cursor
+     * Get last cursor.
      *
-     * @param  NodeInterface $node
+     * @param NodeInterface $node
+     *
      * @return string
      */
-    public function getLastCursor(?NodeInterface $node=null): string
+    public function getLastCursor(?NodeInterface $node = null): string
     {
         $filter = $this->getDeltaFilter();
 
-        if ($node !== null) {
+        if (null !== $node) {
             $filter = [
                 '$and' => [
                     ['node' => $node->getId()],
-                    $filter
-                ]
+                    $filter,
+                ],
             ];
         }
 
-        $count  = $this->db->delta->count($filter);
-        $last   = $this->getLastRecord($node);
+        $count = $this->db->delta->count($filter);
+        $last = $this->getLastRecord($node);
 
-        if ($last === null) {
+        if (null === $last) {
             $cursor = base64_encode('delta|0|0|0|'.new UTCDateTime());
         } else {
             $cursor = base64_encode('delta|0|0|'.$last['_id'].'|'.$last['timestamp']);
@@ -274,17 +209,17 @@ class Delta
         return $cursor;
     }
 
-
     /**
-     * Get delta feed with changes and cursor
+     * Get delta feed with changes and cursor.
      *
-     * @param   string $cursor
-     * @param   int $limit
-     * @param   array $attributes
-     * @param   NodeInterface $node
-     * @return  array
+     * @param string        $cursor
+     * @param int           $limit
+     * @param array         $attributes
+     * @param NodeInterface $node
+     *
+     * @return array
      */
-    public function getDeltaFeed(?string $cursor=null, int $limit=250, array $attributes=[], ?NodeInterface $node=null): array
+    public function getDeltaFeed(?string $cursor = null, int $limit = 250, array $attributes = [], ?NodeInterface $node = null): array
     {
         $this->user->findNewShares();
 
@@ -295,16 +230,16 @@ class Delta
 
         $cursor = $this->decodeCursor($cursor);
 
-        if ($cursor === null || $cursor[0] == 'initial') {
+        if (null === $cursor || 'initial' === $cursor[0]) {
             return $this->buildFeedFromCurrentState($cursor, $limit, $attributes, $node);
         }
 
         try {
-            if ($cursor[3] == 0) {
+            if (0 === $cursor[3]) {
                 $filter = $this->getDeltaFilter();
             } else {
                 //check if delta entry actually exists
-                if ($this->db->delta->count(['_id' => new ObjectID($cursor[3])]) === 0) {
+                if (0 === $this->db->delta->count(['_id' => new ObjectID($cursor[3])])) {
                     return $this->buildFeedFromCurrentState(null, $limit, $attributes, $node);
                 }
 
@@ -313,25 +248,25 @@ class Delta
                     '$and' => [
                         ['timestamp' => ['$gte' => new UTCDateTime($cursor[4])]],
                         ['_id' => ['$gt' => new ObjectId($cursor[3])]],
-                        $filter
-                    ]
+                        $filter,
+                    ],
                 ];
             }
 
             $result = $this->db->delta->find($filter, [
-                'skip'  => (int)$cursor[1],
-                'limit' => (int)$limit,
-                'sort'  => ['timestamp' => 1]
+                'skip' => (int) $cursor[1],
+                'limit' => (int) $limit,
+                'sort' => ['timestamp' => 1],
             ]);
 
             $left = $this->db->delta->count($filter, [
-                'skip'  => (int)$cursor[1],
-                'sort'  => ['timestamp' => 1]
+                'skip' => (int) $cursor[1],
+                'sort' => ['timestamp' => 1],
             ]);
 
-            $result  = $result->toArray();
-            $count   = count($result);
-            $list    = [];
+            $result = $result->toArray();
+            $count = count($result);
+            $list = [];
             $last_id = $cursor[3];
             $last_ts = $cursor[4];
         } catch (\Exception $e) {
@@ -340,25 +275,25 @@ class Delta
 
         $cursor = $cursor[1] += $limit;
         $has_more = ($left - $count) > 0;
-        if ($has_more === false) {
+        if (false === $has_more) {
             $cursor = 0;
         }
 
         foreach ($result as $log) {
-            if ($has_more === false) {
-                $last_id = (string)$log['_id'];
-                $last_ts = (string)$log['timestamp'];
+            if (false === $has_more) {
+                $last_id = (string) $log['_id'];
+                $last_ts = (string) $log['timestamp'];
             }
 
             try {
                 $log_node = $this->fs->findNodeWithId($log['node'], null, NodeInterface::DELETED_EXCLUDE);
-                if ($node !== null && !$node->isSubNode($log_node)) {
+                if (null !== $node && !$node->isSubNode($log_node)) {
                     continue;
                 }
 
                 //include share children after a new reference was added, otherwise the children would be lost if the cursor is newer
                 //than the create timestamp of the share reference
-                if ($log['operation'] === 'addCollectionReference' && $log_node->isReference()) {
+                if ('addCollectionReference' === $log['operation'] && $log_node->isReference()) {
                     foreach ($this->fs->findNodesWithCustomFilter(['shared' => $log_node->getShareId()]) as $share_member) {
                         $member_attrs = $share_member->getAttributes($attributes);
                         $list[$member_attrs['path']] = $member_attrs;
@@ -376,7 +311,7 @@ class Delta
                             $previous_path = $parent->getPath().DIRECTORY_SEPARATOR.$log['name'];
                         }
                     } elseif (array_key_exists('name', $log['previous'])) {
-                        if ($log['parent'] === null) {
+                        if (null === $log['parent']) {
                             $previous_path = DIRECTORY_SEPARATOR.$log['previous']['name'];
                         } else {
                             $parent = $this->fs->findNodeWithId($log['parent']);
@@ -384,43 +319,44 @@ class Delta
                         }
                     } else {
                         $list[$fields['path']] = $fields;
+
                         continue;
                     }
 
                     $deleted_node = [
-                        'id'        => (string)$log['node'],
-                        'deleted'   => true,
-                        'created'   => null,
-                        'changed'   => Helper::DateTimeToUnix($log['timestamp']),
-                        'path'      => $previous_path,
-                        'directory' => $fields['directory']
+                        'id' => (string) $log['node'],
+                        'deleted' => true,
+                        'created' => null,
+                        'changed' => Helper::DateTimeToUnix($log['timestamp']),
+                        'path' => $previous_path,
+                        'directory' => $fields['directory'],
                     ];
 
-                    $list[$previous_path]  = $deleted_node;
+                    $list[$previous_path] = $deleted_node;
                     $list[$fields['path']] = $fields;
                 } else {
                     $list[$fields['path']] = $fields;
                 }
             } catch (\Exception $e) {
                 try {
-                    if ($log['parent'] === null) {
+                    if (null === $log['parent']) {
                         $path = DIRECTORY_SEPARATOR.$log['name'];
                     } else {
                         $parent = $this->fs->findNodeWithId($log['parent']);
-                        $path   = $parent->getPath().DIRECTORY_SEPARATOR.$log['name'];
+                        $path = $parent->getPath().DIRECTORY_SEPARATOR.$log['name'];
                     }
 
                     $entry = [
-                        'id'      => (string)$log['node'],
+                        'id' => (string) $log['node'],
                         'deleted' => true,
                         'created' => null,
                         'changed' => Helper::DateTimeToUnix($log['timestamp']),
-                        'path'    => $path,
+                        'path' => $path,
                     ];
 
-                    if (substr($log['operation'], 0, 16) == 'deleteCollection') {
+                    if ('deleteCollection' === substr($log['operation'], 0, 16)) {
                         $entry['directory'] = true;
-                    } elseif (substr($log['operation'], 0, 10) == 'deleteFile') {
+                    } elseif ('deleteFile' === substr($log['operation'], 0, 10)) {
                         $entry['directory'] = false;
                     }
 
@@ -433,56 +369,56 @@ class Delta
         $cursor = base64_encode('delta|'.$cursor.'|0|'.$last_id.'|'.$last_ts);
 
         return [
-            'reset'     => false,
-            'cursor'    => $cursor,
-            'has_more'  => $has_more,
-            'nodes'     => array_values($list)
+            'reset' => false,
+            'cursor' => $cursor,
+            'has_more' => $has_more,
+            'nodes' => array_values($list),
         ];
     }
 
-
     /**
-     * Get event log
+     * Get event log.
      *
-     * @param   int $limit
-     * @param   int $skip
-     * @param   NodeInterface $node
-     * @return  array
+     * @param int           $limit
+     * @param int           $skip
+     * @param NodeInterface $node
+     *
+     * @return array
      */
-    public function getEventLog(int $limit=100, int $skip=0, ?NodeInterface $node=null): array
+    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null): array
     {
         $filter = $this->getDeltaFilter();
 
-        if ($node !== null) {
+        if (null !== $node) {
             $old = $filter;
             $filter = ['$and' => [[
-                'node' => $node->getId()
+                'node' => $node->getId(),
             ],
-            $old]];
+            $old, ]];
         }
 
         $result = $this->db->delta->find($filter, [
-            'sort'   => ['_id' => -1],
-            'skip'  => $skip,
-            'limit' => $limit
+            'sort' => ['_id' => -1],
+            'skip' => $skip,
+            'limit' => $limit,
         ]);
 
         $client = [
-            'type'=> null,
+            'type' => null,
             'app' => null,
-            'v'   => null,
-            'hostname' => null
+            'v' => null,
+            'hostname' => null,
         ];
 
         $events = [];
         foreach ($result as $log) {
-            $id    = (string)$log['_id'];
+            $id = (string) $log['_id'];
             $events[$id] = [
-                'event'     => $id,
+                'event' => $id,
                 'timestamp' => Helper::DateTimeToUnix($log['timestamp']),
                 'operation' => $log['operation'],
-                'name'      => $log['name'],
-                'client'    => isset($log['client']) ? $log['client'] : $client,
+                'name' => $log['name'],
+                'client' => isset($log['client']) ? $log['client'] : $client,
             ];
 
             if (isset($log['previous'])) {
@@ -491,15 +427,15 @@ class Delta
                 if (array_key_exists('parent', $events[$id]['previous'])) {
                     if ($events[$id]['previous']['parent'] === null) {
                         $events[$id]['previous']['parent'] = [
-                            'id'   => null,
-                            'name' => null
+                            'id' => null,
+                            'name' => null,
                         ];
                     } else {
                         try {
                             $node = $this->fs->findNodeWithId($events[$id]['previous']['parent'], null, NodeInterface::DELETED_INCLUDE);
                             $events[$id]['previous']['parent'] = [
-                                'id'      => (string)$node->getId(),
-                                'name'    => $node->getName(),
+                                'id' => (string) $node->getId(),
+                                'name' => $node->getName(),
                             ];
                         } catch (\Exception $e) {
                             $events[$id]['previous']['parent'] = null;
@@ -513,26 +449,26 @@ class Delta
             try {
                 $node = $this->fs->findNodeWithId($log['node'], null, NodeInterface::DELETED_INCLUDE);
                 $events[$id]['node'] = [
-                    'id'      => (string)$node->getId(),
-                    'name'    => $node->getName(),
-                    'deleted' => $node->isDeleted()
+                    'id' => (string) $node->getId(),
+                    'name' => $node->getName(),
+                    'deleted' => $node->isDeleted(),
                 ];
             } catch (\Exception $e) {
                 $events[$id]['node'] = null;
             }
 
             try {
-                if ($log['parent'] === null) {
+                if (null === $log['parent']) {
                     $events[$id]['parent'] = [
-                        'id'   => null,
-                        'name' => null
+                        'id' => null,
+                        'name' => null,
                     ];
                 } else {
                     $node = $this->fs->findNodeWithId($log['parent'], null, NodeInterface::DELETED_INCLUDE);
                     $events[$id]['parent'] = [
-                        'id'      => (string)$node->getId(),
-                        'name'    => $node->getName(),
-                        'deleted' => $node->isDeleted()
+                        'id' => (string) $node->getId(),
+                        'name' => $node->getName(),
+                        'deleted' => $node->isDeleted(),
                     ];
                 }
             } catch (\Exception $e) {
@@ -542,22 +478,22 @@ class Delta
             try {
                 $user = $this->fs->getServer()->getUserById($log['owner']);
                 $events[$id]['user'] = [
-                    'id' => (string)$user->getId(),
-                    'username' => $user->getUsername()
+                    'id' => (string) $user->getId(),
+                    'username' => $user->getUsername(),
                 ];
             } catch (\Exception $e) {
                 $events[$id]['user'] = null;
             }
 
             try {
-                if (isset($log['share']) && $log['share'] === false || !isset($log['share'])) {
+                if (isset($log['share']) && false === $log['share'] || !isset($log['share'])) {
                     $events[$id]['share'] = null;
                 } else {
                     $node = $this->fs->findNodeWithId($log['share'], null, NodeInterface::DELETED_INCLUDE);
                     $events[$id]['share'] = [
-                        'id'      => (string)$node->getId(),
-                        'name'    => $node->getName(),
-                        'deleted' => $node->isDeleted()
+                        'id' => (string) $node->getId(),
+                        'name' => $node->getName(),
+                        'deleted' => $node->isDeleted(),
                     ];
                 }
             } catch (\Exception $e) {
@@ -566,5 +502,66 @@ class Delta
         }
 
         return array_values($events);
+    }
+
+    /**
+     * Verify delta structure.
+     *
+     * @param array $options
+     *
+     * @return bool
+     */
+    protected function isValidDeltaEvent(array $options): bool
+    {
+        if (!array_key_exists('operation', $options)) {
+            return false;
+        }
+
+        return array_key_exists('owner', $options) || array_key_exists('share', $options);
+    }
+
+    /**
+     * Decode cursor.
+     *
+     * @param string $cursor
+     *
+     * @return array
+     */
+    protected function decodeCursor(?string $cursor): ?array
+    {
+        if (null === $cursor) {
+            return null;
+        }
+
+        $cursor = base64_decode($cursor, true);
+        if (false === $cursor) {
+            return null;
+        }
+
+        $cursor = explode('|', $cursor);
+        if (5 !== count($cursor)) {
+            return null;
+        }
+        $cursor[1] = (int) $cursor[1];
+
+        return $cursor;
+    }
+
+    /**
+     * Get delta filter for db query.
+     *
+     * @return array
+     */
+    protected function getDeltaFilter(): array
+    {
+        return [
+            '$or' => [
+                ['share' => [
+                    '$in' => $this->user->getShares(),
+                ]], [
+                    'owner' => $this->user->getId(),
+                ],
+            ],
+        ];
     }
 }

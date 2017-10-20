@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,52 +7,52 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Filesystem\Storage\Adapter;
 
-use \Balloon\Filesystem\Exception;
-use \Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\File;
 
 interface AdapterInterface
 {
     /**
-     * Check if file exists
+     * Check if file exists.
      *
-     * @param   File $file
-     * @param   array $attributes
-     * @return  bool
+     * @param File  $file
+     * @param array $attributes
+     *
+     * @return bool
      */
     public function hasFile(File $file, array $attributes): bool;
 
-
     /**
-     * Delete file
+     * Delete file.
      *
-     * @param   string $id
-     * @param   array $attributes
-     * @return  bool
+     * @param string $id
+     * @param array  $attributes
+     *
+     * @return bool
      */
     public function deleteFile(File $file, array $attributes): bool;
 
-
     /**
-     * Get stored file
+     * Get stored file.
      *
-     * @param  File $file
-     * @param  array $attributes
+     * @param File  $file
+     * @param array $attributes
+     *
      * @return resource
      */
     public function getFile(File $file, array $attributes);
 
-
     /**
-     * Store file
+     * Store file.
      *
-     * @param   File $file
-     * @param   resource $contents
-     * @return  mixed
+     * @param File     $file
+     * @param resource $contents
+     *
+     * @return mixed
      */
     public function storeFile(File $file, $contents);
 }

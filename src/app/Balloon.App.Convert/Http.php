@@ -1,24 +1,25 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
 /**
  * Balloon
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Convert;
 
-use \Balloon\App\Convert\Hook;
-use \Micro\Http\Router;
-use \Micro\Http\Router\Route;
-use \Balloon\App\Convert\Api\v1\Convert;
-use \Balloon\Converter;
+use Balloon\App\Convert\Api\v1\Convert;
+use Micro\Http\Router;
+use Micro\Http\Router\Route;
 
 class Http extends App
 {
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Router $router
      */

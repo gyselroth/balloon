@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,71 +7,65 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Server;
 
-use \Balloon\Filesystem;
-use \Balloon\Exception;
-use \Balloon\Filesystem\Node\Collection;
-use \Micro\Auth\Identity;
-use \MongoDB\BSON\ObjectID;
-use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\BSON\Binary;
-use \Psr\Log\LoggerInterface;
-use \Balloon\Helper;
-use \Balloon\Server;
+use Balloon\Exception;
+use Balloon\Filesystem;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Helper;
+use Balloon\Server;
+use Micro\Auth\Identity;
+use MongoDB\BSON\Binary;
+use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\UTCDateTime;
+use Psr\Log\LoggerInterface;
 
 class User
 {
     /**
-     * User unique id
+     * User unique id.
      *
      * @var ObjectID
      */
     protected $_id;
 
-
     /**
-     * Username
+     * Username.
      *
      * @var string
      */
     protected $username;
 
-
     /**
-     * Groups
+     * Groups.
      *
      * @var array
      */
     protected $groups = [];
 
-
     /**
-     * Last sync timestamp
+     * Last sync timestamp.
      *
      * @var UTCDateTime
      */
     protected $last_attr_sync;
 
-
     /**
-     * Soft Quota
+     * Soft Quota.
      *
      * @var int
      */
     protected $soft_quota = 0;
 
-
     /**
-     * Hard Quota
+     * Hard Quota.
      *
      * @var int
      */
     protected $hard_quota = 0;
-
 
     /**
      * Is user deleted?
@@ -79,98 +74,87 @@ class User
      */
     protected $deleted = false;
 
-
     /**
-     * Admin
+     * Admin.
      *
      * @var bool
      */
     protected $admin = false;
 
-
     /**
-     * Created
+     * Created.
      *
      * @var UTCDateTime
      */
     protected $created;
 
-
     /**
-     * avatar
+     * avatar.
      *
      * @var Binary
      */
     protected $avatar;
 
-
     /**
-     * Namespace
+     * Namespace.
      *
      * @var string
      */
     protected $namespace;
 
-
     /**
-     * Mail
+     * Mail.
      *
      * @var string
      */
     protected $mail;
 
-
     /**
-     * Db
+     * Db.
      *
      * @var Database
      */
     protected $db;
 
-
     /**
-     * LoggerInterface
+     * LoggerInterface.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
-
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
     protected $fs;
 
-
     /**
-     * Instance user
+     * Instance user.
      *
-     * @param   array $attributes
-     * @param   Server $server
-     * @param   bool $ignore_deleted
-     * @return  void
+     * @param array  $attributes
+     * @param Server $server
+     * @param bool   $ignore_deleted
      */
-    public function __construct(array $attributes, Server $server, LoggerInterface $logger, bool $ignore_deleted=true)
+    public function __construct(array $attributes, Server $server, LoggerInterface $logger, bool $ignore_deleted = true)
     {
-        $this->server   = $server;
-        $this->db       = $server->getDatabase();
-        $this->logger   = $logger;
+        $this->server = $server;
+        $this->db = $server->getDatabase();
+        $this->logger = $logger;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
         }
 
-        if ($this->deleted === true && $ignore_deleted === false) {
+        if (true === $this->deleted && false === $ignore_deleted) {
             throw new Exception\NotAuthenticated(
                 'user '.$username.' is deleted',
                 Exception\NotAuthenticated::USER_DELETED
@@ -178,17 +162,27 @@ class User
         }
     }
 
+    /**
+     * Return username as string.
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->username;
+    }
 
     /**
-     * Update user with identity attributes
+     * Update user with identity attributes.
      *
-     * @param  Identity $identity
+     * @param Identity $identity
+     *
      * @return bool
      */
     public function updateIdentity(Identity $identity): bool
     {
         $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
-        if ($attr_sync == -1) {
+        if ($attr_sync === -1) {
             return true;
         }
 
@@ -209,23 +203,24 @@ class User
 
             $save = array_keys($attributes);
             $save[] = 'last_attr_sync';
+
             return $this->save($save);
-        } else {
-            $this->logger->debug('user auth attribute sync cache is in time', [
+        }
+        $this->logger->debug('user auth attribute sync cache is in time', [
                 'category' => get_class($this),
             ]);
-            return true;
-        }
+
+        return true;
     }
 
-
     /**
-     * Get user attribute
+     * Get user attribute.
      *
-     * @param  string|array $attribute
+     * @param array|string $attribute
+     *
      * @return mixed
      */
-    public function getAttribute($attribute=null)
+    public function getAttribute($attribute = null)
     {
         $valid = [
             'id',
@@ -253,65 +248,66 @@ class User
         if (empty($attribute)) {
             $requested = $default;
         } elseif (is_string($attribute)) {
-            $requested = (array)$attribute;
+            $requested = (array) $attribute;
         } elseif (is_array($attribute)) {
             $requested = $attribute;
         }
 
         $resolved = [];
         foreach ($requested as $attr) {
-            if (!in_array($attr, $valid)) {
+            if (!in_array($attr, $valid, true)) {
                 throw new Exception\InvalidArgument('requested attribute '.$attr.' does not exists');
             }
 
             switch ($attr) {
                 case 'id':
-                    $resolved['id'] = (string)$this->_id;
-                break;
+                    $resolved['id'] = (string) $this->_id;
 
+                break;
                 case 'avatar':
                     if ($this->avatar instanceof Binary) {
                         $resolved['avatar'] = base64_encode($this->avatar->getData());
                     }
-                break;
 
+                break;
                 case 'created':
                 case 'last_attr_sync':
                     $resolved[$attr] = Helper::DateTimeToUnix($this->{$attr});
-                break;
 
+                break;
                 default:
                     $resolved[$attr] = $this->{$attr};
+
                 break;
             }
         }
 
         if (is_string($attribute)) {
             return $resolved[$attribute];
-        } else {
-            return $resolved;
         }
+
+        return $resolved;
     }
 
-
     /**
-     * Find all shares with membership
+     * Find all shares with membership.
      *
-     * @param  bool $string
+     * @param bool $string
+     *
      * @return array
      */
-    public function getShares(bool $string=false): array
+    public function getShares(bool $string = false): array
     {
         $item = $this->db->storage->find([
-            'deleted'   => false,
-            'shared'    => true,
-            'owner'     => $this->_id,
+            'deleted' => false,
+            'shared' => true,
+            'owner' => $this->_id,
         ], [
             '_id' => 1,
             'reference' => 1,
         ]);
 
-        $found  = [];
+        $found = [];
 
         foreach ($item as $child) {
             if (isset($child['reference']) && $child['reference'] instanceof ObjectID) {
@@ -320,8 +316,8 @@ class User
                 $share = $child['_id'];
             }
 
-            if ($string === true) {
-                $found[] = (string)$share;
+            if (true === $string) {
+                $found[] = (string) $share;
             } else {
                 $found[] = $share;
             }
@@ -331,13 +327,14 @@ class User
     }
 
     /**
-     * Get node attribute usage
+     * Get node attribute usage.
      *
-     * @param   string|array $attributes
-     * @param   int $limit
-     * @return  array
+     * @param array|string $attributes
+     * @param int          $limit
+     *
+     * @return array
      */
-    public function getNodeAttributeSummary($attributes=[], int $limit=25): array
+    public function getNodeAttributeSummary($attributes = [], int $limit = 25): array
     {
         $mongodb = $this->db->storage;
 
@@ -366,62 +363,8 @@ class User
         return $result;
     }
 
-
     /**
-     * Get attribute usage summary
-     *
-     * @param   string $attribute
-     * @param   string $type
-     * @param   int $limit
-     * @return  array
-     */
-    protected function _getAttributeSummary(string $attribute, string $type='string', int $limit=25): array
-    {
-        $mongodb = $this->db->storage;
-
-        $ops = [
-            [
-                '$match' => [
-                    '$and' => [
-                        ['owner' => $this->_id],
-                        ['deleted' => false],
-                        [$attribute => ['$exists' => true] ]
-                    ]
-                ]
-            ],
-        ];
-
-        if ($type === 'array') {
-            $ops[] = [
-                '$unwind' => '$'.$attribute
-            ];
-        }
-
-        $ops[] = [
-            '$group' => [
-                "_id" => '$'.$attribute,
-                "sum" => ['$sum' => 1],
-            ],
-        ];
-
-        $ops[] = [
-            '$sort' => [
-               "sum" => -1,
-               "_id" => 1
-            ],
-        ];
-
-
-        $ops[] = [
-            '$limit' => $limit
-        ];
-
-        return $mongodb->aggregate($ops)->toArray();
-    }
-
-
-    /**
-     * Get filesystem
+     * Get filesystem.
      *
      * @return Filesystem
      */
@@ -434,7 +377,6 @@ class User
         return $this->fs = $this->server->getFilesystem($this);
     }
 
-
     /**
      * Is Admin user?
      *
@@ -445,57 +387,56 @@ class User
         return $this->admin;
     }
 
-
     /**
-     * Check if user has share
+     * Check if user has share.
      *
-     * @param   Collection $node
-     * @return  bool
+     * @param Collection $node
+     *
+     * @return bool
      */
     public function hasShare(Collection $node): bool
     {
         $result = $this->db->storage->count([
             'reference' => $node->getId(),
             'directory' => true,
-            'owner'     => $this->_id
+            'owner' => $this->_id,
         ]);
 
-        return $result === 1;
+        return 1 === $result;
     }
 
-
     /**
-     * Find new shares and create reference
+     * Find new shares and create reference.
      *
      * @return bool
      */
     public function findNewShares(): bool
     {
         $item = $this->db->storage->find([
-            'deleted'   => false,
-            'shared'    => true,
+            'deleted' => false,
+            'shared' => true,
             'directory' => true,
             '$or' => [
-                ['acl.user'  => [
+                ['acl.user' => [
                     '$elemMatch' => [
                         'user' => $this->username,
-                    ]
+                    ],
                 ]],
-                ['acl.group'  => [
+                ['acl.group' => [
                     '$elemMatch' => [
                         'group' => [
                             '$in' => $this->groups,
-                        ]
-                    ]
+                        ],
+                    ],
                 ]],
-            ]
+            ],
         ]);
 
-        $found  = [];
-        $list   = [];
+        $found = [];
+        $list = [];
         foreach ($item as $child) {
             $found[] = $child['_id'];
-            $list[(string)$child['_id']] = $child;
+            $list[(string) $child['_id']] = $child;
         }
 
         if (empty($found)) {
@@ -505,16 +446,16 @@ class User
         //check for references
         $item = $this->db->storage->find([
             'directory' => true,
-            'shared'    => true,
-            'owner'     => $this->_id,
-            'reference' => ['$exists' => 1]
+            'shared' => true,
+            'owner' => $this->_id,
+            'reference' => ['$exists' => 1],
             //    '$in' => $found
             //]
         ]);
 
         $exists = [];
         foreach ($item as $child) {
-            if (!in_array($child['reference'], $found)) {
+            if (!in_array($child['reference'], $found, true)) {
                 $this->logger->debug('found dead reference ['.$child['_id'].'] pointing to share ['.$child['reference'].']', [
                     'category' => get_class($this),
                 ]);
@@ -535,13 +476,13 @@ class User
         $new = array_diff($found, $exists);
 
         foreach ($new as $add) {
-            $node = $list[(string)$add];
+            $node = $list[(string) $add];
 
             $this->logger->info('found new share ['.$node['_id'].']', [
                 'category' => get_class($this),
             ]);
 
-            if ($node['owner'] == $this->_id) {
+            if ($node['owner'] === $this->_id) {
                 $this->logger->debug('skip creating reference to share ['.$node['_id'].'] cause share owner ['.$node['owner'].'] is the current user', [
                     'category' => get_class($this),
                 ]);
@@ -550,9 +491,9 @@ class User
             }
 
             $attrs = [
-                'shared'    => true,
-                'parent'    => null,
-                'reference' => $node['_id']
+                'shared' => true,
+                'parent' => null,
+                'reference' => $node['_id'],
             ];
 
             try {
@@ -578,9 +519,8 @@ class User
         return true;
     }
 
-
     /**
-     * Get unique id
+     * Get unique id.
      *
      * @return ObjectID
      */
@@ -589,9 +529,8 @@ class User
         return $this->_id;
     }
 
-
     /**
-     * Get hard quota
+     * Get hard quota.
      *
      * @return int
      */
@@ -600,42 +539,44 @@ class User
         return $this->hard_quota;
     }
 
-
     /**
-     * Set hard quota
+     * Set hard quota.
      *
-     * @param   int $quota In Bytes
-     * @return  User
+     * @param int $quota In Bytes
+     *
+     * @return User
      */
     public function setHardQuota(int $quota): User
     {
-        $this->hard_quota = (int)$quota;
+        $this->hard_quota = (int) $quota;
         $this->save(['hard_quota']);
+
         return $this;
     }
 
-
     /**
-     * Set soft quota
+     * Set soft quota.
      *
-     * @param   int $quota In Bytes
-     * @return  User
+     * @param int $quota In Bytes
+     *
+     * @return User
      */
     public function setSoftQuota(int $quota): User
     {
-        $this->soft_quota = (int)$quota;
+        $this->soft_quota = (int) $quota;
         $this->save(['soft_quota']);
+
         return $this;
     }
 
-
     /**
-     * Save
+     * Save.
      *
-     * @param   array $attributes
-     * @return  bool
+     * @param array $attributes
+     *
+     * @return bool
      */
-    public function save(array $attributes=[]): bool
+    public function save(array $attributes = []): bool
     {
         $set = [];
         foreach ($attributes as $attr) {
@@ -645,15 +586,14 @@ class User
         $result = $this->db->user->updateOne([
             '_id' => $this->_id,
         ], [
-            '$set' => $set
+            '$set' => $set,
         ]);
 
         return true;
     }
 
-
     /**
-     * Get used qota
+     * Get used qota.
      *
      * @return array
      */
@@ -661,9 +601,9 @@ class User
     {
         $result = $this->db->storage->find(
             [
-                'owner'     => $this->_id,
+                'owner' => $this->_id,
                 'directory' => false,
-                'deleted'   => false,
+                'deleted' => false,
             ],
             ['size']
         );
@@ -676,41 +616,41 @@ class User
         }
 
         return [
-            'used'        => $sum,
-            'available'   => ($this->hard_quota - $sum),
-            'hard_quota'  => $this->hard_quota,
-            'soft_quota'  => $this->soft_quota,
+            'used' => $sum,
+            'available' => ($this->hard_quota - $sum),
+            'hard_quota' => $this->hard_quota,
+            'soft_quota' => $this->soft_quota,
         ];
     }
 
-
     /**
-     * Check quota
+     * Check quota.
      *
-     * @param   int $add Size in bytes
-     * @return  bool
+     * @param int $add Size in bytes
+     *
+     * @return bool
      */
     public function checkQuota(int $add): bool
     {
         $quota = $this->getQuotaUsage();
 
-        if (($quota['used']+$add) > $quota['hard_quota']) {
+        if (($quota['used'] + $add) > $quota['hard_quota']) {
             return false;
         }
 
         return true;
     }
 
-
     /**
-     * Delete user
+     * Delete user.
      *
-     * @param  bool $force
+     * @param bool $force
+     *
      * @return bool
      */
-    public function delete(bool $force=false): bool
+    public function delete(bool $force = false): bool
     {
-        if ($force === false) {
+        if (false === $force) {
             $result_data = $this->getFilesystem()->getRoot()->delete();
             $this->deleted = true;
             $result_user = $this->save(['deleted']);
@@ -726,21 +666,20 @@ class User
         return $result_data && $result_user;
     }
 
-
     /**
-     * Undelete user
+     * Undelete user.
      *
      * @return bool
      */
     public function undelete(): bool
     {
         $this->deleted = false;
+
         return $this->save(['deleted']);
     }
 
-
     /**
-     * Check if user is deleted
+     * Check if user is deleted.
      *
      * @return bool
      */
@@ -749,9 +688,8 @@ class User
         return $this->deleted;
     }
 
-
     /**
-     * Get Username
+     * Get Username.
      *
      * @return string
      */
@@ -760,9 +698,8 @@ class User
         return $this->username;
     }
 
-
     /**
-     * Get groups
+     * Get groups.
      *
      * @return array
      */
@@ -771,14 +708,55 @@ class User
         return $this->groups;
     }
 
-
     /**
-     * Return username as string
+     * Get attribute usage summary.
      *
-     * @return string
+     * @param string $attribute
+     * @param string $type
+     * @param int    $limit
+     *
+     * @return array
      */
-    public function __toString(): string
+    protected function _getAttributeSummary(string $attribute, string $type = 'string', int $limit = 25): array
     {
-        return $this->username;
+        $mongodb = $this->db->storage;
+
+        $ops = [
+            [
+                '$match' => [
+                    '$and' => [
+                        ['owner' => $this->_id],
+                        ['deleted' => false],
+                        [$attribute => ['$exists' => true]],
+                    ],
+                ],
+            ],
+        ];
+
+        if ('array' === $type) {
+            $ops[] = [
+                '$unwind' => '$'.$attribute,
+            ];
+        }
+
+        $ops[] = [
+            '$group' => [
+                '_id' => '$'.$attribute,
+                'sum' => ['$sum' => 1],
+            ],
+        ];
+
+        $ops[] = [
+            '$sort' => [
+               'sum' => -1,
+               '_id' => 1,
+            ],
+        ];
+
+        $ops[] = [
+            '$limit' => $limit,
+        ];
+
+        return $mongodb->aggregate($ops)->toArray();
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,19 +7,18 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Sharelink\Database\Delta;
 
-use \MongoDB\Database;
-use \Psr\Log\LoggerInterface;
-use \Balloon\Database\AbstractDelta;
+use Balloon\Database\AbstractDelta;
+use MongoDB\Database;
 
 class SharelinkIntoApp extends AbstractDelta
 {
     /**
-     * Upgrade database
+     * Upgrade database.
      *
      * @return bool
      */
@@ -27,9 +27,8 @@ class SharelinkIntoApp extends AbstractDelta
         return 'storage';
     }
 
-
     /**
-     * Upgrade object
+     * Upgrade object.
      *
      * @return array
      */
@@ -38,7 +37,7 @@ class SharelinkIntoApp extends AbstractDelta
         if (isset($object['sharelink'])) {
             return [
                 '$unset' => 'sharelink',
-                '$set'  => ['app_attributes.Balloon_App_Sharelink' => $object['sharelink']]
+                '$set' => ['app_attributes.Balloon_App_Sharelink' => $object['sharelink']],
             ];
         }
 

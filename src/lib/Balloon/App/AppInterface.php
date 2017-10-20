@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,48 +7,41 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App;
 
-use \Composer\Autoload\ClassLoader as Composer;
-use \Micro\Http\Router;
-use \Psr\Log\LoggerInterface;
-use \Micro\Auth;
-use \Balloon\Server;
-use \Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Node\NodeInterface;
 
 interface AppInterface
 {
     /**
-     * Init app
+     * Init app.
      *
      * @return bool
      */
     public function init(): bool;
 
-
     /**
-     * Start
+     * Start.
      *
      * @return bool
      */
     public function start(): bool;
 
-
     /**
-     * Get attributes
+     * Get attributes.
      *
-     * @param  NodeInterface $node
-     * @param  array $attributes
+     * @param NodeInterface $node
+     * @param array         $attributes
+     *
      * @return array
      */
-    public function getAttributes(NodeInterface $node, array $attributes=[]): array;
-
+    public function getAttributes(NodeInterface $node, array $attributes = []): array;
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */

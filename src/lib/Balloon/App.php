@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,77 +7,72 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon;
 
-use \Balloon\App\Exception;
-use \Balloon\App\AppInterface;
-use \Psr\Log\LoggerInterface;
-use \Composer\Autoload\ClassLoader as Composer;
-use \Micro\Container;
-use \Balloon\Hook;
+use Balloon\App\AppInterface;
+use Balloon\App\Exception;
+use Composer\Autoload\ClassLoader as Composer;
+use Micro\Container;
+use Psr\Log\LoggerInterface;
 
 class App
 {
     /**
-     * App namespaces
+     * App namespaces.
      *
      * @var array
      */
     protected $namespace = [];
 
-
     /**
-     * Apps
+     * Apps.
      *
      * @var array
      */
     protected $app = [];
 
-
     /**
-     * LoggerInterface
+     * LoggerInterface.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Hook
+     * Hook.
      *
      * @var Hook
      */
     protected $hook;
 
-
     /**
-     * Init app manager
+     * Init app manager.
      *
-     * @param   Composer $composer
-     * @param   LoggerInterface $logger
-     * @param   Iterable $config
+     * @param Composer        $composer
+     * @param LoggerInterface $logger
+     * @param iterable        $config
      */
-    public function __construct(Composer $composer, LoggerInterface $logger, Hook $hook, ?Iterable $config=null)
+    public function __construct(Composer $composer, LoggerInterface $logger, Hook $hook, ?Iterable $config = null)
     {
         $this->composer = $composer;
-        $this->logger   = $logger;
-        $this->hook     = $hook;
+        $this->logger = $logger;
+        $this->hook = $hook;
         $this->setOptions($config);
     }
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param  Iterable $config
+     * @param iterable $config
+     *
      * @return App
      */
     public function setOptions(?Iterable $config = null): App
     {
-        if ($config === null) {
+        if (null === $config) {
             return $this;
         }
 
@@ -87,15 +83,15 @@ class App
         return $this;
     }
 
-
     /**
-     * Register app
+     * Register app.
      *
-     * @param   string $name
-     * @param   Iterable $config
-     * @return  bool
+     * @param string   $name
+     * @param iterable $config
+     *
+     * @return bool
      */
-    public function registerApp(Container $container, string $name, string $abstract, string $class, ?Iterable $config=null): bool
+    public function registerApp(Container $container, string $name, string $abstract, string $class, ?Iterable $config = null): bool
     {
         $ns = str_replace('.', '\\', $name).'\\';
         //$class = '\\'.$ns.$this->context;
@@ -120,8 +116,8 @@ class App
             throw new Exception('app class '.$class.' does not implement AppInterface');
         }
 
-        if(is_callable([$app, 'getHooks'])) {
-            foreach($app->getHooks() as $hook) {
+        if (is_callable([$app, 'getHooks'])) {
+            foreach ($app->getHooks() as $hook) {
                 $this->hook->injectHook($container->get($hook));
             }
         }
@@ -135,9 +131,8 @@ class App
         return true;
     }
 
-
     /**
-     * Start apps
+     * Start apps.
      *
      * @return bool
      */
@@ -150,11 +145,11 @@ class App
         return true;
     }
 
-
     /**
-     * Inject app
+     * Inject app.
      *
-     * @param  AppInterface $app
+     * @param AppInterface $app
+     *
      * @return App
      */
     public function injectApp(AppInterface $app): App
@@ -166,14 +161,15 @@ class App
 
         $this->namespace[$name] = join('', array_slice(explode('\\', get_class($app)), -1));
         $this->app[$name] = $app;
+
         return $this;
     }
 
-
     /**
-     * Has app namespace
+     * Has app namespace.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return bool
      */
     public function hasAppNamespace(string $name): bool
@@ -181,11 +177,11 @@ class App
         return isset($this->namespace[$name]);
     }
 
-
     /**
-     * Has app
+     * Has app.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return bool
      */
     public function hasApp(string $name): bool
@@ -193,11 +189,11 @@ class App
         return isset($this->app[$name]);
     }
 
-
     /**
-     * Get app
+     * Get app.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return AppInterface
      */
     public function getApp(string $name): AppInterface
@@ -209,59 +205,57 @@ class App
         return $this->app[$name];
     }
 
-
     /**
-     * Get apps
+     * Get apps.
      *
-     * @param  array $apps
+     * @param array $apps
+     *
      * @return array
      */
     public function getApps(array $apps = []): array
     {
         if (empty($app)) {
             return $this->app;
-        } else {
-            $list = [];
-            foreach ($apps as $name) {
-                if (!$this->hasApp($name)) {
-                    throw new Exception('app '.$name.' is not registered');
-                }
-                $list[$name] = $this->app[$name];
-            }
-
-            return $list;
         }
+        $list = [];
+        foreach ($apps as $name) {
+            if (!$this->hasApp($name)) {
+                throw new Exception('app '.$name.' is not registered');
+            }
+            $list[$name] = $this->app[$name];
+        }
+
+        return $list;
     }
 
-
     /**
-     * Get app namespaces
+     * Get app namespaces.
      *
-     * @param  array $apps
+     * @param array $apps
+     *
      * @return array
      */
     public function getAppNamespaces(array $apps = []): array
     {
         if (empty($app)) {
             return $this->namespace;
-        } else {
-            $list = [];
-            foreach ($app as $name) {
-                if (!$this->hasAppNamespace($name)) {
-                    throw new Exception('app '.$name.' is not registered');
-                }
-                $list[$name] = $this->app[$name];
-            }
-
-            return $list;
         }
+        $list = [];
+        foreach ($app as $name) {
+            if (!$this->hasAppNamespace($name)) {
+                throw new Exception('app '.$name.' is not registered');
+            }
+            $list[$name] = $this->app[$name];
+        }
+
+        return $list;
     }
 
-
     /**
-     * Has adapter
+     * Has adapter.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return bool
      */
     public function hasAdapter(string $name): bool
@@ -269,12 +263,12 @@ class App
         return $this->hasApp($name);
     }
 
-
     /**
-     * Inject adapter
+     * Inject adapter.
      *
-     * @param  string $name
-     * @param  AdapterInterface $adapter
+     * @param string           $name
+     * @param AdapterInterface $adapter
+     *
      * @return AdapterInterface
      */
     public function injectAdapter(string $name, AppInterface $adapter): App
@@ -282,11 +276,11 @@ class App
         return $this->injectApp($name, $adapter);
     }
 
-
     /**
-     * Get adapter
+     * Get adapter.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return AdapterInterface
      */
     public function getAdapter(string $name): AppInterface
@@ -294,11 +288,11 @@ class App
         return $this->getApp($name);
     }
 
-
     /**
-     * Get adapters
+     * Get adapters.
      *
-     * @param  array $adapters
+     * @param array $adapters
+     *
      * @return array
      */
     public function getAdapters(array $adapters = []): array

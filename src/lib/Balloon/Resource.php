@@ -1,10 +1,17 @@
 <?php
-declare(strict_types=1);
 
-//TODO: Attention this class is currently under development ans gets removed in this dev release
+declare(strict_types=1);
 
 /**
  * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
+ */
+
+/**
+ * Balloon.
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
@@ -13,54 +20,53 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use \Balloon\Resource\Exception;
-use \MongoDB\Database;
-use \Balloon\Server\User;
-use \Psr\Log\LoggerInterface;
+use Balloon\Resource\Exception;
+use Balloon\Server\User;
+use Psr\Log\LoggerInterface;
 
 class Resource
 {
     /**
-     * Load user object with name or with id
+     * Load user object with name or with id.
      *
-     * @param   string|\MongoDB\BSON\ObjectID|Auth $user
-     * @param   \MongoDB\Database $db
-     * @param   LoggerInterface $logger
-     * @param   Config $config
-     * @param   Plugin $plugin
-     * @param   bool $autocreate
-     * @param   bool $ignore_deleted
-     * @return  void
+     * @param Auth|\MongoDB\BSON\ObjectID|string $user
+     * @param \MongoDB\Database                  $db
+     * @param LoggerInterface                    $logger
+     * @param Config                             $config
+     * @param Plugin                             $plugin
+     * @param bool                               $autocreate
+     * @param bool                               $ignore_deleted
      */
     public function __construct(User $user, LoggerInterface $logger, Filesystem $fs)
     {
-        $this->db       = $fs->getDatabase();
-        $this->fs       = $fs;
-        $this->logger   = $logger;
-        $this->user     = $user;
+        $this->db = $fs->getDatabase();
+        $this->fs = $fs;
+        $this->logger = $logger;
+        $this->user = $user;
     }
 
-
     /**
-     * Sync user
+     * Sync user.
      *
-     * @param  string $q
-     * @param  bool $single
+     * @param string $q
+     * @param bool   $single
+     *
      * @return array
      */
     public function searchRole(string $q, bool $single): array
     {
-        $users  = $this->searchUser($q, $single);
+        $users = $this->searchUser($q, $single);
         $groups = $this->searchGroup($q, $single);
+
         return array_merge($groups, $users);
     }
 
-
     /**
-     * Sync user
+     * Sync user.
      *
-     * @param  string $q
-     * @param  bool $single
+     * @param string $q
+     * @param bool   $single
+     *
      * @return array
      */
     public function getUsersByGroup(string $group): array
@@ -68,9 +74,9 @@ class Resource
         $result = $this->db->user->find([
             'groups' => [
                 '$elemMatch' => [
-                    '$eq' => $group
-                ]
-            ]
+                    '$eq' => $group,
+                ],
+            ],
         ], ['username']);
 
         $list = [];
@@ -81,54 +87,54 @@ class Resource
         return $list;
     }
 
-
     /**
-     * Sync user
+     * Sync user.
      *
-     * @param  string $q
-     * @param  bool $single
-     * @param  bool $ignore_namespace
+     * @param string $q
+     * @param bool   $single
+     * @param bool   $ignore_namespace
+     *
      * @return array
      */
-    public function searchUser(string $q, bool $single=false, bool $ignore_namespace=false): array
+    public function searchUser(string $q, bool $single = false, bool $ignore_namespace = false): array
     {
         if (empty($q)) {
             return [];
         }
 
-        if ($single === true) {
+        if (true === $single) {
             $result = $this->db->user->findOne([
-                'username' => $q
+                'username' => $q,
             ]);
 
             if (!empty($result)) {
                 return [
                     'type' => 'user',
-                    'id'   => $q,
+                    'id' => $q,
                     'name' => $q,
                 ];
             }
         }
 
-        $q      = ldap_escape($q);
+        $q = ldap_escape($q);
         $config = $this->user->getAuth()->getAdapter()->getLdapResources();
         if (empty($config)) {
             return [];
         }
 
         $searchu = $config['user'];
-        $ldap    = (new Ldap($config['ldap'], $this->logger))->getResource();
+        $ldap = (new Ldap($config['ldap'], $this->logger))->getResource();
 
-        if ($single == true) {
+        if (true === $single) {
             $base = $config['ldap']['basedn'];
             $filter = htmlspecialchars_decode(sprintf($searchu['filter_single'], $q));
         } else {
             $ns = $this->user->getAttribute('namespace');
             $filter = htmlspecialchars_decode(sprintf($searchu['filter'], $q));
-            $base =  sprintf($config['basedn'], $ns);
+            $base = sprintf($config['basedn'], $ns);
         }
 
-        $result_user  = ldap_search($ldap, $base, $filter, [
+        $result_user = ldap_search($ldap, $base, $filter, [
             $searchu['display_attr'],
             $searchu['id_attr'],
         ]);
@@ -154,7 +160,7 @@ class Resource
 
                 $filtered[] = [
                     'type' => 'user',
-                    'id'   => (is_array($role[$searchu['id_attr']]) ? $role[$searchu['id_attr']][0] : $role[$searchu['id_attr']]),
+                    'id' => (is_array($role[$searchu['id_attr']]) ? $role[$searchu['id_attr']][0] : $role[$searchu['id_attr']]),
                     'name' => (is_array($role[$searchu['display_attr']]) ? $role[$searchu['display_attr']][0] : $role[$searchu['display_attr']]),
                 ];
             }
@@ -166,47 +172,47 @@ class Resource
 
         if (empty($filtered)) {
             return [];
-        } elseif ($single) {
-            return array_shift($filtered);
-        } else {
-            return $filtered;
         }
+        if ($single) {
+            return array_shift($filtered);
+        }
+
+        return $filtered;
     }
 
-
     /**
-     * Search groups
+     * Search groups.
      *
-     * @param  string $q
-     * @param  bool $single
+     * @param string $q
+     * @param bool   $single
+     *
      * @return array
      */
-    public function searchGroup(string $q, bool $single=false): array
+    public function searchGroup(string $q, bool $single = false): array
     {
         if (empty($q)) {
             return [];
         }
 
-
-        $q      = ldap_escape($q);
+        $q = ldap_escape($q);
         $config = $this->user->getAuth()->getAdapter()->getLdapResources();
         if (empty($config)) {
             return [];
         }
 
         $searchg = $config['group'];
-        $ldap    = (new Ldap($config['ldap'], $this->logger))->getResource();
+        $ldap = (new Ldap($config['ldap'], $this->logger))->getResource();
 
-        if ($single == true) {
+        if (true === $single) {
             $filter = htmlspecialchars_decode(sprintf($searchg['filter_single'], $q));
             $base = $config['ldap']['basedn'];
         } else {
             $ns = $this->user->getAttribute('namespace');
             $filter = htmlspecialchars_decode(sprintf($searchg['filter'], $q));
-            $base =  sprintf($config['basedn'], $ns);
+            $base = sprintf($config['basedn'], $ns);
         }
 
-        $result_group  = ldap_search($ldap, $base, $filter, [
+        $result_group = ldap_search($ldap, $base, $filter, [
             $searchg['display_attr'],
             $searchg['id_attr'],
         ]);
@@ -232,7 +238,7 @@ class Resource
 
                 $filtered[] = [
                     'type' => 'group',
-                    'id'   => (is_array($role[$searchg['id_attr']]) ? $role[$searchg['id_attr']][0] : $role[$searchg['id_attr']]),
+                    'id' => (is_array($role[$searchg['id_attr']]) ? $role[$searchg['id_attr']][0] : $role[$searchg['id_attr']]),
                     'name' => (is_array($role[$searchg['display_attr']]) ? $role[$searchg['display_attr']][0] : $role[$searchg['display_attr']]),
                 ];
             }
@@ -244,10 +250,11 @@ class Resource
 
         if (empty($filtered)) {
             return [];
-        } elseif ($single) {
-            return array_shift($filtered);
-        } else {
-            return $filtered;
         }
+        if ($single) {
+            return array_shift($filtered);
+        }
+
+        return $filtered;
     }
 }

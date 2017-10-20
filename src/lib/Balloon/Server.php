@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,151 +7,139 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon;
 
-use \MongoDB\Database;
-use \Balloon\Async;
-use \Balloon\Hook;
-use \Balloon\App;
-use \Psr\Log\LoggerInterface;
-use \Micro\Auth\Identity;
-use \Balloon\Server\User;
-use \Balloon\Server\Group;
-use \MongoDB\BSON\ObjectId;
-use \Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Storage;
+use Balloon\Server\Group;
+use Balloon\Server\User;
+use Micro\Auth\Identity;
+use MongoDB\BSON\ObjectId;
+use MongoDB\Database;
+use Psr\Log\LoggerInterface;
 
 class Server
 {
     /**
-     * Database
+     * Database.
      *
      * @var Database
      */
     protected $db;
 
-
     /**
-     * Storage
+     * Storage.
      *
      * @var Storage
      */
     protected $storage;
 
-
     /**
-     * LoggerInterface
+     * LoggerInterface.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Hook
+     * Hook.
      *
      * @var Hook
      */
     protected $hook;
 
-
     /**
-     * Async
+     * Async.
      *
      * @var Async
      */
     protected $async;
 
-
     /**
-     * App
+     * App.
      *
      * @var App
      */
     protected $app;
 
-
     /**
-     * Authenticated identity
+     * Authenticated identity.
      *
      * @var User
      */
     protected $identity;
 
-
     /**
-     * Temporary store
+     * Temporary store.
      *
      * @var string
      */
     protected $temp_dir = '/tmp/balloon';
 
-
     /**
-     * Max file version
+     * Max file version.
      *
      * @var int
      */
     protected $max_file_version = 8;
 
-
     /**
-     * Max file size
+     * Max file size.
      *
      * @var int
      */
     protected $max_file_size = 1073741824;
 
-
     /**
-     * Initialize
+     * Initialize.
      *
-     * @param Database $db
-     * @param Storage $storage
+     * @param Database        $db
+     * @param Storage         $storage
      * @param LoggerInterface $logger
-     * @param Async $async
-     * @param Hook $hook
-     * @param Iterable $config
+     * @param Async           $async
+     * @param Hook            $hook
+     * @param iterable        $config
      */
-    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Async $async, Hook $hook, App $app, ?Iterable $config=null)
+    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Async $async, Hook $hook, App $app, ?Iterable $config = null)
     {
-        $this->db     = $db;
-        $this->storage= $storage;
+        $this->db = $db;
+        $this->storage = $storage;
         $this->logger = $logger;
-        $this->async  = $async;
-        $this->hook   = $hook;
-        $this->app    = $app;
+        $this->async = $async;
+        $this->hook = $hook;
+        $this->app = $app;
 
         $this->setOptions($config);
     }
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param  Iterable $config
+     * @param iterable $config
+     *
      * @return Server
      */
-    public function setOptions(?Iterable $config=null): Server
+    public function setOptions(?Iterable $config = null): Server
     {
-        if ($config === null) {
+        if (null === $config) {
             return $this;
         }
 
         foreach ($config as $name => $value) {
             switch ($name) {
                 case 'temp_dir':
-                    $this->temp_dir = (string)$value;
-                break;
+                    $this->temp_dir = (string) $value;
 
+                break;
                 case 'max_file_version':
-                    $this->max_file_version = (int)$value;
-                break;
+                    $this->max_file_version = (int) $value;
 
+                break;
                 case 'max_file_size':
-                    $this->max_file_size = (int)$value;
+                    $this->max_file_size = (int) $value;
+
                 break;
             }
         }
@@ -158,9 +147,8 @@ class Server
         return $this;
     }
 
-
     /**
-     * Start server (Actually just execute all apps, we do nothing else here)
+     * Start server (Actually just execute all apps, we do nothing else here).
      *
      * @return bool
      */
@@ -169,9 +157,8 @@ class Server
         return $this->app->start();
     }
 
-
     /**
-     * Get database
+     * Get database.
      *
      * @return Database
      */
@@ -180,9 +167,8 @@ class Server
         return $this->db;
     }
 
-
     /**
-     * Get storage
+     * Get storage.
      *
      * @return Storage
      */
@@ -191,21 +177,20 @@ class Server
         return $this->storage;
     }
 
-
     /**
-     * Set app
+     * Set app.
      *
      * @return Server
      */
     public function setApp(App $app): Server
     {
         $this->app = $app;
+
         return $this;
     }
 
-
     /**
-     * Get app
+     * Get app.
      *
      * @return App
      */
@@ -214,9 +199,8 @@ class Server
         return $this->app;
     }
 
-
     /**
-     * Get logger
+     * Get logger.
      *
      * @return LoggerInterface
      */
@@ -225,9 +209,8 @@ class Server
         return $this->logger;
     }
 
-
     /**
-     * Get temporary directory
+     * Get temporary directory.
      *
      * @return string
      */
@@ -236,9 +219,8 @@ class Server
         return $this->temp_dir;
     }
 
-
     /**
-     * Get max file version
+     * Get max file version.
      *
      * @return int
      */
@@ -247,9 +229,8 @@ class Server
         return $this->max_file_version;
     }
 
-
     /**
-     * Get max file size
+     * Get max file size.
      *
      * @return int
      */
@@ -258,9 +239,8 @@ class Server
         return $this->max_file_size;
     }
 
-
     /**
-     * Get hook
+     * Get hook.
      *
      * @return Hook
      */
@@ -269,9 +249,8 @@ class Server
         return $this->hook;
     }
 
-
     /**
-     * Get async
+     * Get async.
      *
      * @return Async
      */
@@ -280,26 +259,25 @@ class Server
         return $this->async;
     }
 
-
     /**
-     * Filesystem factory
+     * Filesystem factory.
      *
      * @return Filesystem
      */
-    public function getFilesystem(?User $user=null): Filesystem
+    public function getFilesystem(?User $user = null): Filesystem
     {
-        if ($user !== null) {
+        if (null !== $user) {
             return new Filesystem($this, $this->logger, $user);
-        } elseif ($this->identity instanceof User) {
-            return new Filesystem($this, $this->logger, $this->identity);
-        } else {
-            return new Filesystem($this, $this->logger);
         }
+        if ($this->identity instanceof User) {
+            return new Filesystem($this, $this->logger, $this->identity);
+        }
+
+        return new Filesystem($this, $this->logger);
     }
 
-
     /**
-     * Add user
+     * Add user.
      *
      * @return bool
      */
@@ -310,45 +288,45 @@ class Server
         }
 
         $this->db->user->insertOne($user);
+
         return true;
     }
 
-
     /**
-     * Check if user exists
+     * Check if user exists.
      *
      * @return bool
      */
     public function userExists(string $username): bool
     {
-        return $this->db->user->findOne(['username' => $username]) !== null;
+        return null !== $this->db->user->findOne(['username' => $username]);
     }
 
-
     /**
-     * Get user by id
+     * Get user by id.
      *
-     * @param  ObjectId $id
+     * @param ObjectId $id
+     *
      * @return User
      */
     public function getUserById(ObjectId $id): User
     {
         $attributes = $this->db->user->findOne([
-           '_id' => $id
+           '_id' => $id,
         ]);
 
-        if ($attributes === null) {
+        if (null === $attributes) {
             throw new Exception('user does not exists');
         }
 
         return new User($attributes, $this, $this->logger);
     }
 
-
     /**
-     * Set Identity
+     * Set Identity.
      *
-     * @param  Identity $identity
+     * @param Identity $identity
+     *
      * @return bool
      */
     public function setIdentity(Identity $identity): bool
@@ -356,20 +334,19 @@ class Server
         $result = $this->db->user->findOne(['username' => $identity->getIdentifier()]);
         $this->hook->run('preServerIdentity', [$this, $identity, &$result]);
 
-        if ($result === null) {
+        if (null === $result) {
             throw new Exception('user does not exists');
-        } else {
-            $user = new User($result, $this, $this->logger);
-            $this->identity = $user;
-            $user->updateIdentity($identity);
-            $this->hook->run('postServerIdentity', [$this, $user]);
-            return true;
         }
+        $user = new User($result, $this, $this->logger);
+        $this->identity = $user;
+        $user->updateIdentity($identity);
+        $this->hook->run('postServerIdentity', [$this, $user]);
+
+        return true;
     }
 
-
     /**
-     * Get authenticated user
+     * Get authenticated user.
      *
      * @return User
      */
@@ -378,20 +355,19 @@ class Server
         return $this->identity;
     }
 
-
     /**
-     * Get user by name
+     * Get user by name.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return User
      */
     public function getUserByName(string $name): User
     {
     }
 
-
     /**
-     * Get Filesystem
+     * Get Filesystem.
      *
      * @return Filesystem
      */

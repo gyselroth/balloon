@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,97 +7,90 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Filesystem\Node;
 
-use \Sabre\DAV;
-use \Balloon\Exception;
-use \Balloon\Helper;
-use \Balloon\Server\User;
-use \Balloon\Resource;
-use \Balloon\Filesystem;
-use \MongoDB\BSON\ObjectId;
-use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\BSON\Regex;
-use \Generator;
+use Balloon\Exception;
+use Balloon\Filesystem;
+use Balloon\Resource;
+use Balloon\Server\User;
+use Generator;
+use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\Regex;
+use MongoDB\BSON\UTCDateTime;
+use Sabre\DAV;
 
 class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 {
     /**
-     * Root folder
+     * Root folder.
      */
     const ROOT_FOLDER = '/';
 
-
     /**
-     * Mime type
+     * Mime type.
      *
      * @var string
      */
     protected $mime = 'inode/directory';
 
-
     /**
-     * Children
+     * Children.
      *
      * @var array
      */
     protected $children = [];
 
-
     /**
-     * Share acl
+     * Share acl.
      *
      * @var array
      */
     protected $acl;
 
-
     /**
-     * filter
+     * filter.
      *
      * @param array
      */
     protected $filter = [];
 
-
     /**
-     * Initialize
+     * Initialize.
      *
-     * @param  array $attributes
-     * @param  Filesystem $fs
-     * @return void
+     * @param array      $attributes
+     * @param Filesystem $fs
      */
     public function __construct(?array $attributes, Filesystem $fs)
     {
         parent::__construct($attributes, $fs);
 
-        if ($attributes === null) {
+        if (null === $attributes) {
             $this->_id = null;
 
             if ($this->_user instanceof User) {
-                $this->owner  = $this->_user->getId();
+                $this->owner = $this->_user->getId();
             }
         }
 
         $this->_verifyAccess();
     }
 
-
     /**
-     * Copy node with children
+     * Copy node with children.
      *
-     * @param  Collection $parent
-     * @param  int $conflict
-     * @param  string $recursion
-     * @param  bool $recursion_first
+     * @param Collection $parent
+     * @param int        $conflict
+     * @param string     $recursion
+     * @param bool       $recursion_first
+     *
      * @return NodeInterface
      */
-    public function copyTo(Collection $parent, int $conflict=NodeInterface::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): NodeInterface
+    public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
     {
-        if ($recursion === null) {
+        if (null === $recursion) {
             $recursion_first = true;
             $recursion = uniqid();
         } else {
@@ -108,28 +102,28 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             [$this, $parent, &$conflict, &$recursion, &$recursion_first]
         );
 
-        if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
+        if (NodeInterface::CONFLICT_RENAME === $conflict && $parent->childExists($this->name)) {
             $name = $this->getDuplicateName();
         } else {
             $name = $this->name;
         }
 
-        if ($this->_id == $parent->getId()) {
+        if ($this->_id === $parent->getId()) {
             throw new Exception\Conflict(
                 'can not copy node into itself',
                 Exception\Conflict::CANT_COPY_INTO_ITSELF
             );
         }
 
-        if ($conflict === NodeInterface::CONFLICT_MERGE && $parent->childExists($this->name)) {
+        if (NodeInterface::CONFLICT_MERGE === $conflict && $parent->childExists($this->name)) {
             $new_parent = $parent->getChild($this->name);
         } else {
             $new_parent = $parent->addDirectory($name, [
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
-                'filter'  => $this->filter,
-                'app_attributes' => $this->app_attributes
+                'filter' => $this->filter,
+                'app_attributes' => $this->app_attributes,
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
@@ -145,9 +139,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         return $new_parent;
     }
 
-
     /**
-     * Get share
+     * Get share.
      *
      * @return array|bool
      */
@@ -155,49 +148,49 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     {
         if (!$this->isShared()) {
             return false;
-        } else {
-            if (is_array($this->acl)) {
-                $resource = new Resource($this->_user, $this->_logger, $this->_fs);
-                $return = [];
-                if (array_key_exists('user', $this->acl)) {
-                    foreach ((array)$this->acl['user'] as $user) {
-                        $data = $resource->searchUser($user['user'], true);
-
-                        if (empty($data)) {
-                            continue;
-                        }
-
-                        $data['priv'] = $user['priv'];
-                        $return[] = $data;
-                    }
-                }
-                if (array_key_exists('group', $this->acl)) {
-                    foreach ((array)$this->acl['group'] as $group) {
-                        $data = $resource->searchGroup($group['group'], true);
-
-                        if (empty($data)) {
-                            continue;
-                        }
-
-                        $data['priv'] = $group['priv'];
-                        $return[] = $data;
-                    }
-                }
-                return $return;
-            } else {
-                return false;
-            }
         }
+        if (is_array($this->acl)) {
+            $resource = new Resource($this->_user, $this->_logger, $this->_fs);
+            $return = [];
+            if (array_key_exists('user', $this->acl)) {
+                foreach ((array) $this->acl['user'] as $user) {
+                    $data = $resource->searchUser($user['user'], true);
+
+                    if (empty($data)) {
+                        continue;
+                    }
+
+                    $data['priv'] = $user['priv'];
+                    $return[] = $data;
+                }
+            }
+            if (array_key_exists('group', $this->acl)) {
+                foreach ((array) $this->acl['group'] as $group) {
+                    $data = $resource->searchGroup($group['group'], true);
+
+                    if (empty($data)) {
+                        continue;
+                    }
+
+                    $data['priv'] = $group['priv'];
+                    $return[] = $data;
+                }
+            }
+
+            return $return;
+        }
+
+        return false;
     }
 
-
     /**
-     * Get Attribute
+     * Get Attribute.
      *
-     * @param  array $attributes
+     * @param array $attributes
+     *
      * @return array
      */
-    public function getAttributes(array $attributes=[]): array
+    public function getAttributes(array $attributes = []): array
     {
         if (empty($attributes)) {
             $attributes = [
@@ -210,38 +203,35 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'changed',
                 'created',
                 'share',
-                'directory'
+                'directory',
             ];
         }
 
         return parent::getAttributes($attributes);
     }
 
-
     /**
-     * Get collection
-     *
-     * @return void
+     * Get collection.
      */
     public function get(): void
     {
         $this->getZip();
     }
 
-
     /**
-     * Fetch children items of this collection
+     * Fetch children items of this collection.
      *
      * Deleted:
      *  0 - Exclude deleted
      *  1 - Only deleted
      *  2 - Include deleted
      *
-     * @param   int $deleted
-     * @param   array $filter
-     * @return  Generator
+     * @param int   $deleted
+     * @param array $filter
+     *
+     * @return Generator
      */
-    public function getChildNodes(int $deleted=NodeInterface::DELETED_EXCLUDE, array $filter=[]): Generator
+    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): Generator
     {
         if ($this->_user instanceof User) {
             $this->_user->findNewShares();
@@ -251,9 +241,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             'parent' => $this->getRealId(),
         ];
 
-        if ($deleted === NodeInterface::DELETED_EXCLUDE) {
+        if (NodeInterface::DELETED_EXCLUDE === $deleted) {
             $search['deleted'] = false;
-        } elseif ($deleted === NodeInterface::DELETED_ONLY) {
+        } elseif (NodeInterface::DELETED_ONLY === $deleted) {
             $search['deleted'] = ['$type' => 9];
         }
 
@@ -268,12 +258,12 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                             ['shared' => $this->reference],
                             ['shared' => $this->shared],
                             ['shared' => $this->_id],
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]);
         } else {
-            if ($this->_user !== null) {
+            if (null !== $this->_user) {
                 $search['owner'] = $this->_user->getId();
             }
 
@@ -286,8 +276,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 yield $this->getChild($child);
             } catch (\Exception $e) {
                 $this->_logger->info('remove node from children list, failed load node', [
-                    'category'  => get_class($this),
-                    'exception' => $e
+                    'category' => get_class($this),
+                    'exception' => $e,
                 ]);
             }
         }
@@ -299,27 +289,26 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
     }
 
-
     /**
-     * Fetch children items of this collection (as array)
+     * Fetch children items of this collection (as array).
      *
      * Deleted:
      *  0 - Exclude deleted
      *  1 - Only deleted
      *  2 - Include deleted
      *
-     * @param   int $deleted
-     * @param   array $filter
-     * @return  Generator
+     * @param int   $deleted
+     * @param array $filter
+     *
+     * @return Generator
      */
-    public function getChildren(int $deleted=NodeInterface::DELETED_EXCLUDE, array $filter=[]): array
+    public function getChildren(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
     {
         return iterator_to_array($this->getChildNodes($deleted, $filter));
     }
 
-
     /**
-     * Is custom filter node
+     * Is custom filter node.
      *
      * @return bool
      */
@@ -328,9 +317,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         return !empty($this->filter);
     }
 
-
     /**
-     * Get number of children
+     * Get number of children.
      *
      * @return int
      */
@@ -338,29 +326,27 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     {
         if ($this->isDeleted()) {
             return count(iterator_to_array($this->getChildNodes(NodeInterface::DELETED_INCLUDE)));
-        } else {
-            return count(iterator_to_array($this->getChildNodes()));
         }
+
+        return count(iterator_to_array($this->getChildNodes()));
     }
 
-
     /**
-     * Get real id (reference)
+     * Get real id (reference).
      *
      * @return ObjectId
      */
     public function getRealId(): ?ObjectId
     {
-        if ($this->shared == true && $this->isReference()) {
+        if (true === $this->shared && $this->isReference()) {
             return $this->reference;
-        } else {
-            return $this->_id;
         }
+
+        return $this->_id;
     }
 
-
     /**
-     * Get user quota information
+     * Get user quota information.
      *
      * @return array
      */
@@ -370,39 +356,40 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
         return [
             $quota['used'],
-            $quota['available']
+            $quota['available'],
         ];
     }
 
-
     /**
-     * Fetch children items of this collection
+     * Fetch children items of this collection.
      *
-     * @param  Collection|File|string $node
-     * @param  int $deleted
-     * @param  array $filter
+     * @param Collection|File|string $node
+     * @param int                    $deleted
+     * @param array                  $filter
+     *
      * @return NodeInterface
      */
-    public function getChild($node, int $deleted=NodeInterface::DELETED_EXCLUDE, array $filter=[]): NodeInterface
+    public function getChild($node, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
     {
         //if $node is string load the object from the backend based on the current parent (the name
         //is unique per depth, so we can load the object)
         if (is_string($node)) {
             $name = $node;
             $search = [
-                'name'    => $name,
-                'parent'  => $this->getRealId(),
+                'name' => $name,
+                'parent' => $this->getRealId(),
             ];
 
             switch ($deleted) {
                 case NodeInterface::DELETED_EXCLUDE:
                     $search['deleted'] = false;
+
                     break;
                 case NodeInterface::DELETED_ONLY:
                     $search['deleted'] = ['$type' => '9'];
+
                     break;
             }
-
 
             $search = array_merge($filter, $search);
 
@@ -414,17 +401,17 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                             '$or' => [
                                 ['shared' => $this->reference],
                                 ['shared' => $this->shared],
-                                ['shared' => $this->_id]
-                            ]
-                        ]
-                    ]
+                                ['shared' => $this->_id],
+                            ],
+                        ],
+                    ],
                 ]);
             } else {
                 $search['owner'] = $this->_user->getId();
                 $node = $this->_db->storage->findOne($search);
             }
 
-            if ($node === null) {
+            if (null === $node) {
                 throw new Exception\NotFound(
                     'node called '.$name.' does not exists here',
                     Exception\NotFound::NODE_NOT_FOUND
@@ -437,50 +424,26 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         ]);
 
         //if the item has the directory flag we create a collection else the item is file
-        if ($node['directory'] == true) {
-            return new Collection($node, $this->_fs);
-        } else {
-            return new File($node, $this->_fs);
+        if (true === $node['directory']) {
+            return new self($node, $this->_fs);
         }
+
+        return new File($node, $this->_fs);
     }
 
-
     /**
-     * Do recursive Action
-     *
-     * @param   string $method
-     * @param   array $params
-     * @param   int $deleted
-     * @return  bool
-     */
-    protected function doRecursiveAction(string $method, array $params=[], int $deleted=NodeInterface::DELETED_EXCLUDE): bool
-    {
-        if (!is_callable([$this, $method])) {
-            throw new Exception("method $method is not callable in ".__CLASS__);
-        }
-
-        $children = $this->getChildNodes($deleted);
-
-        foreach ($children as $child) {
-            call_user_func_array([$child, $method], $params);
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Delete node
+     * Delete node.
      *
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
      *
-     * @param   bool $force
-     * @param   string $recursion Identifier to identify a recursive action
-     * @param   bool $recursion_first
-     * @return  bool
+     * @param bool   $force
+     * @param string $recursion       Identifier to identify a recursive action
+     * @param bool   $recursion_first
+     *
+     * @return bool
      */
-    public function delete(bool $force=false, ?string $recursion=null, bool $recursion_first=true): bool
+    public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->isAllowed('w') && !$this->isReference()) {
             throw new Exception\Forbidden(
@@ -489,7 +452,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             );
         }
 
-        if ($recursion === null) {
+        if (null === $recursion) {
             $recursion_first = true;
             $recursion = uniqid();
         } else {
@@ -501,29 +464,28 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             [$this, &$force, &$recursion, &$recursion_first]
         );
 
-        if ($this->readonly && $this->_user !== null) {
+        if ($this->readonly && null !== $this->_user) {
             throw new Exception\Conflict(
                 'node is marked as readonly, it is not possible to delete it',
                 Exception\Conflict::READONLY
             );
         }
 
-        if ($force === true) {
+        if (true === $force) {
             return $this->_forceDelete($recursion, $recursion_first);
         }
 
         $this->deleted = new UTCDateTime();
 
-
         if (!$this->isReference()) {
             $this->doRecursiveAction('delete', [
-                'force'     => false,
+                'force' => false,
                 'recursion' => $recursion,
                 'recursion_first' => false,
             ]);
         }
 
-        if ($this->_id !== null) {
+        if (null !== $this->_id) {
             $result = $this->save([
                 'deleted',
             ], [], $recursion, false);
@@ -539,57 +501,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         return $result;
     }
 
-
     /**
-     * Completely remove node
-     *
-     * @param   string $recursion Identifier to identify a recursive action
-     * @param   bool $recursion_first
-     * @return  bool
-     */
-    protected function _forceDelete(?string $recursion=null, bool $recursion_first=true): bool
-    {
-        if (!$this->isReference()) {
-            $this->doRecursiveAction('delete', [
-                'force'     => true,
-                'recursion' => $recursion,
-                'recursion_first' => false,
-            ], NodeInterface::DELETED_INCLUDE);
-        }
-
-        try {
-            $result = $this->_db->storage->deleteOne(['_id' => $this->_id]);
-
-            if ($this->isShared()) {
-                $result = $this->_db->storage->deleteMany(['reference' => $this->_id]);
-            }
-
-            $this->_logger->info('force removed collection ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-
-            $this->_hook->run(
-
-
-                'postDeleteCollection',
-                [$this, true, $recursion, $recursion_first]
-            );
-        } catch (\Exception $e) {
-            $this->_logger->error('failed force remove collection ['.$this->_id.']', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-
-            throw $e;
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Check if this collection has child named $name
+     * Check if this collection has child named $name.
      *
      * deleted:
      *
@@ -597,28 +510,31 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      *  1 - Only deleted
      *  2 - Include deleted
      *
-     * @param   string $name
-     * @param   int $deleted
-     * @param   array $filter
-     * @return  bool
+     * @param string $name
+     * @param int    $deleted
+     * @param array  $filter
+     *
+     * @return bool
      */
-    public function childExists($name, $deleted=NodeInterface::DELETED_EXCLUDE, array $filter=[]): bool
+    public function childExists($name, $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): bool
     {
         $find = [
-            'parent'  => $this->getRealId(),
-            'name'    => new Regex('^'.preg_quote($name).'$', 'i'),
+            'parent' => $this->getRealId(),
+            'name' => new Regex('^'.preg_quote($name).'$', 'i'),
         ];
 
-        if ($this->_user !== null) {
+        if (null !== $this->_user) {
             $find['owner'] = $this->_user->getId();
         }
 
         switch ($deleted) {
             case NodeInterface::DELETED_EXCLUDE:
                 $find['deleted'] = false;
+
                 break;
             case NodeInterface::DELETED_ONLY:
                 $find['deleted'] = ['$type' => 9];
+
                 break;
         }
 
@@ -630,15 +546,15 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
         $node = $this->_db->storage->findOne($find);
 
-        return (bool)$node;
+        return (bool) $node;
     }
 
-
     /**
-     * Share collection
+     * Share collection.
      *
-     * @param   array $acl
-     * @return  bool
+     * @param array $acl
+     *
+     * @return bool
      */
     public function share(array $acl): bool
     {
@@ -662,8 +578,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         $this->acl = $acl;
         $action = [
             '$set' => [
-                'shared' => $this->_id
-            ]
+                'shared' => $this->_id,
+            ],
         ];
 
         $toset = $this->getChildrenRecursive($this->getRealId(), $shares, $files);
@@ -692,12 +608,12 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         foreach ($files as $node) {
-            if ($node['storage'] === null) {
+            if (null === $node['storage']) {
                 continue;
             }
 
             $share_ref = [
-                'id'    => $node['id'],
+                'id' => $node['id'],
                 'share' => $this->_id,
             ];
 
@@ -706,7 +622,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 [
                     '$addToSet' => [
                         'metadata.share_ref' => $share_ref,
-                    ]
+                    ],
                 ]
             );
         }
@@ -714,11 +630,10 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         return true;
     }
 
-
     /**
-     * Unshare collection
+     * Unshare collection.
      *
-     * @return  bool
+     * @return bool
      */
     public function unshare(): bool
     {
@@ -729,7 +644,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             );
         }
 
-        if ($this->shared !== true) {
+        if (true !== $this->shared) {
             throw new Exception\Conflict(
                 'Can not unshare a none shared collection',
                 Exception\Conflict::NOT_SHARED
@@ -737,18 +652,17 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         $this->shared = false;
-        $this->acl   = null;
+        $this->acl = null;
         $action = [
             '$unset' => [
-                'shared' => $this->_id
+                'shared' => $this->_id,
             ],
             '$set' => [
-                'owner' => $this->_user->getId()
-            ]
+                'owner' => $this->_user->getId(),
+            ],
         ];
 
         $toset = $this->getChildrenRecursive($this->getRealId(), $shares, $files);
-
 
         $this->_db->storage->updateMany([
             '_id' => [
@@ -764,12 +678,12 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         foreach ($files as $node) {
-            if ($node['storage'] === null) {
+            if (null === $node['storage']) {
                 continue;
             }
 
             $share_ref = [
-                'id'    => $node['id'],
+                'id' => $node['id'],
                 'share' => $this->_id,
             ];
 
@@ -778,7 +692,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 [
                 '$pull' => [
                     'metadata.share_ref' => $share_ref,
-                    ]
+                    ],
                 ]
             );
         }
@@ -786,16 +700,16 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         return true;
     }
 
-
     /**
-     * Get children
+     * Get children.
      *
-     * @param   ObjectId $id
-     * @param   array $shares
-     * @param   arary $files
-     * @return  array
+     * @param ObjectId $id
+     * @param array    $shares
+     * @param arary    $files
+     *
+     * @return array
      */
-    public function getChildrenRecursive(?ObjectId $id=null, ?array &$shares=[], ?array &$files=[]): array
+    public function getChildrenRecursive(?ObjectId $id = null, ?array &$shares = [], ?array &$files = []): array
     {
         $list = [];
         $result = $this->_db->storage->find([
@@ -804,42 +718,43 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             '_id' => 1,
             'directory' => 1,
             'reference' => 1,
-            'shared'    => 1,
-            'storage'   => 1
+            'shared' => 1,
+            'storage' => 1,
         ]);
 
         foreach ($result as $node) {
             $list[] = $node['_id'];
 
-            if ($node['directory'] === false) {
+            if (false === $node['directory']) {
                 $files[] = [
-                    'id'     => $node['_id'],
-                    'storage'=> isset($node['storage']) ? $node['storage'] : null,
+                    'id' => $node['_id'],
+                    'storage' => isset($node['storage']) ? $node['storage'] : null,
                 ];
             } else {
-                if (isset($node['reference']) || isset($node['shared']) && $node['shared'] === true) {
+                if (isset($node['reference']) || isset($node['shared']) && true === $node['shared']) {
                     $shares[] = $node['_id'];
                 }
 
-                if ($node['directory'] === true && !isset($node['reference'])) {
+                if (true === $node['directory'] && !isset($node['reference'])) {
                     $list = array_merge($list, $this->getChildrenRecursive($node['_id'], $shares, $files));
                 }
             }
         }
+
         return $list;
     }
 
-
     /**
-     * Create new directory
+     * Create new directory.
      *
-     * @param   string $name
-     * @param   arracy $attributes
-     * @param   int $conflict
-     * @param   bool $clone
-     * @return  Collection
+     * @param string $name
+     * @param arracy $attributes
+     * @param int    $conflict
+     * @param bool   $clone
+     *
+     * @return Collection
      */
-    public function addDirectory($name, array $attributes=[], int $conflict=NodeInterface::CONFLICT_NOACTION, bool $clone=false): Collection
+    public function addDirectory($name, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): Collection
     {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden(
@@ -860,12 +775,13 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         $name = $this->checkName($name);
 
         if ($this->childExists($name)) {
-            if ($conflict === NodeInterface::CONFLICT_NOACTION) {
+            if (NodeInterface::CONFLICT_NOACTION === $conflict) {
                 throw new Exception\Conflict(
                     'a node called '.$name.' does already exists in this collection',
                     Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
                 );
-            } elseif ($conflict === NodeInterface::CONFLICT_RENAME) {
+            }
+            if (NodeInterface::CONFLICT_RENAME === $conflict) {
                 $name = $this->getDuplicateName($name);
             }
         }
@@ -879,21 +795,21 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
         try {
             $meta = [
-                'name'      => $name,
-                'deleted'   => false,
-                'parent'    => $this->getRealId(),
+                'name' => $name,
+                'deleted' => false,
+                'parent' => $this->getRealId(),
                 'directory' => true,
-                'meta'      => [],
-                'created'   => new UTCDateTime(),
-                'changed'   => new UTCDateTime(),
-                'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared),
+                'meta' => [],
+                'created' => new UTCDateTime(),
+                'changed' => new UTCDateTime(),
+                'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
             ];
 
-            if ($this->_user !== null) {
+            if (null !== $this->_user) {
                 $meta['owner'] = $this->_user->getId();
             }
 
-            $save  = array_merge($meta, $attributes);
+            $save = array_merge($meta, $attributes);
 
             $result = $this->_db->storage->insertOne($save);
             $save['_id'] = $result->getInsertedId();
@@ -902,14 +818,14 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $new = new Collection($save, $this->_fs);
+            $new = new self($save, $this->_fs);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
 
             return $new;
         } catch (\Exception $e) {
             $this->_logger->error('failed create new collection under parent ['.$this->_id.']', [
                 'category' => get_class($this),
-                'exception'=> $e,
+                'exception' => $e,
             ]);
 
             throw $e;
@@ -917,16 +833,17 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     }
 
     /**
-     * Create new file as a child from this collection
+     * Create new file as a child from this collection.
      *
-     * @param   string $name
-     * @param   ressource|string $data
-     * @param   array $attributes
-     * @param   int $conflict
-     * @param   bool $clone
-     * @return  File
+     * @param string           $name
+     * @param ressource|string $data
+     * @param array            $attributes
+     * @param int              $conflict
+     * @param bool             $clone
+     *
+     * @return File
      */
-    public function addFile($name, $data=null, array $attributes=[], int $conflict=NodeInterface::CONFLICT_NOACTION, bool $clone=false): File
+    public function addFile($name, $data = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden(
@@ -947,12 +864,13 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         $name = $this->checkName($name);
 
         if ($this->childExists($name)) {
-            if ($conflict === NodeInterface::CONFLICT_NOACTION) {
+            if (NodeInterface::CONFLICT_NOACTION === $conflict) {
                 throw new Exception\Conflict(
                     'a node called '.$name.' does already exists in this collection',
                     Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
                 );
-            } elseif ($conflict === NodeInterface::CONFLICT_RENAME) {
+            }
+            if (NodeInterface::CONFLICT_RENAME === $conflict) {
                 $name = $this->getDuplicateName($name);
             }
         }
@@ -966,25 +884,25 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
         try {
             $meta = [
-                'name'      => $name,
-                'deleted'   => false,
-                'parent'    => $this->getRealId(),
+                'name' => $name,
+                'deleted' => false,
+                'parent' => $this->getRealId(),
                 'directory' => false,
-                'hash'      => null,
-                'meta'      => [],
-                'created'   => new UTCDateTime(),
-                'changed'   => new UTCDateTime(),
-                'history'   => [],
-                'version'   => 0,
-                'shared'    => ($this->shared === true ? $this->getRealId() : $this->shared),
-                'storage'   => $this->storage
+                'hash' => null,
+                'meta' => [],
+                'created' => new UTCDateTime(),
+                'changed' => new UTCDateTime(),
+                'history' => [],
+                'version' => 0,
+                'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
+                'storage' => $this->storage,
             ];
 
-            if ($this->_user !== null) {
+            if (null !== $this->_user) {
                 $meta['owner'] = $this->_user->getId();
             }
 
-            $save  = array_merge($meta, $attributes);
+            $save = array_merge($meta, $attributes);
 
             $result = $this->_db->storage->insertOne($save);
             $save['_id'] = $result->getInsertedId();
@@ -1004,7 +922,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 ]);
 
                 $this->_db->storage->deleteOne([
-                    '_id' => $save['_id']
+                    '_id' => $save['_id'],
                 ]);
 
                 throw $e;
@@ -1023,34 +941,101 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
     }
 
-
     /**
      * Create new file wrapper
-     * (Sabe\DAV compatible method, elsewhere use addFile()
+     * (Sabe\DAV compatible method, elsewhere use addFile().
      *
      * Sabre\DAV requires that createFile() returns the ETag instead the newly created file instance
      *
-     * @param   string $name
-     * @param   string $data
-     * @return  File
+     * @param string $name
+     * @param string $data
+     *
+     * @return File
      */
-    public function createFile($name, $data=null): String
+    public function createFile($name, $data = null): String
     {
         return $this->addFile($name, $data)->getETag();
     }
 
-
     /**
      * Create new directory wrapper
-     * (Sabe\DAV compatible method, elsewhere use addDirectory()
+     * (Sabe\DAV compatible method, elsewhere use addDirectory().
      *
      * Sabre\DAV requires that createDirectory() returns void
      *
-     * @param   string $name
-     * @return  void
+     * @param string $name
      */
     public function createDirectory($name): void
     {
         $this->addDirectory($name);
+    }
+
+    /**
+     * Do recursive Action.
+     *
+     * @param string $method
+     * @param array  $params
+     * @param int    $deleted
+     *
+     * @return bool
+     */
+    protected function doRecursiveAction(string $method, array $params = [], int $deleted = NodeInterface::DELETED_EXCLUDE): bool
+    {
+        if (!is_callable([$this, $method])) {
+            throw new Exception("method $method is not callable in ".__CLASS__);
+        }
+
+        $children = $this->getChildNodes($deleted);
+
+        foreach ($children as $child) {
+            call_user_func_array([$child, $method], $params);
+        }
+
+        return true;
+    }
+
+    /**
+     * Completely remove node.
+     *
+     * @param string $recursion       Identifier to identify a recursive action
+     * @param bool   $recursion_first
+     *
+     * @return bool
+     */
+    protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
+    {
+        if (!$this->isReference()) {
+            $this->doRecursiveAction('delete', [
+                'force' => true,
+                'recursion' => $recursion,
+                'recursion_first' => false,
+            ], NodeInterface::DELETED_INCLUDE);
+        }
+
+        try {
+            $result = $this->_db->storage->deleteOne(['_id' => $this->_id]);
+
+            if ($this->isShared()) {
+                $result = $this->_db->storage->deleteMany(['reference' => $this->_id]);
+            }
+
+            $this->_logger->info('force removed collection ['.$this->_id.']', [
+                'category' => get_class($this),
+            ]);
+
+            $this->_hook->run(
+                'postDeleteCollection',
+                [$this, true, $recursion, $recursion_first]
+            );
+        } catch (\Exception $e) {
+            $this->_logger->error('failed force remove collection ['.$this->_id.']', [
+                'category' => get_class($this),
+                'exception' => $e,
+            ]);
+
+            throw $e;
+        }
+
+        return true;
     }
 }

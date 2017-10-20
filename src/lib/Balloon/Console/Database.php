@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,43 +7,40 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Console;
 
-use \Balloon\Database as BalloonDatabase;
+use Balloon\Database as BalloonDatabase;
 
 class Database implements ConsoleInterface
 {
     /**
-     * Getopt
+     * Getopt.
      *
      * @var GetOpt
      */
     protected $getopt;
 
-
     /**
-     * Async
+     * Async.
      *
      * @var Async
      */
     protected $async;
 
-
     /**
-     * Container
+     * Container.
      *
      * @var ContainerInterface
      */
     protected $container;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param App $app
+     * @param App   $app
      * @param Async $async
      */
     public function __construct(App $app, Async $async, LoggerInterface $logger, ContainerInterface $container, GetOpt $getopt)
@@ -53,9 +51,8 @@ class Database implements ConsoleInterface
         $this->setOptions();
     }
 
-
     /**
-     * Set options
+     * Set options.
      *
      * @return ConsoleInterface
      */
@@ -63,24 +60,24 @@ class Database implements ConsoleInterface
     {
         $this->getopt->addOptions([
             \GetOpt\Option::create('i', 'init'),
-            \GetOpt\Option::create('u', 'upgrade')
+            \GetOpt\Option::create('u', 'upgrade'),
         ]);
 
         return $this;
     }
 
-
     /**
-     * Start
+     * Start.
      *
      * @return bool
      */
     public function start(): bool
     {
         $db = new BalloonDatabase($this->server, $this->logger);
-        if ($this->getopt->getOption('init') !== null) {
+        if (null !== $this->getopt->getOption('init')) {
             return $db->init();
-        } elseif ($this->getopt->getOption('upgrade') !== null) {
+        }
+        if (null !== $this->getopt->getOption('upgrade')) {
             return $db->upgrade();
         }
 

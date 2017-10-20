@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,109 +7,106 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon;
 
-use \MongoDB\Database;
-use \MongoDB\BSON\ObjectId;
-use \Balloon\Async\JobInterface;
-use \Psr\Log\LoggerInterface;
-use \MongoDB\Operation\Find;
-use \MongoDB\Driver\Cursor;
-use \MongoDB\BSON\UTCDateTime;
-use \IteratorIterator;
-use \Psr\Container\ContainerInterface;
+use Balloon\Async\JobInterface;
+use IteratorIterator;
+use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
+use MongoDB\Database;
+use MongoDB\Driver\Cursor;
+use MongoDB\Operation\Find;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 class Async
 {
     /**
-     * Job status
+     * Job status.
      */
     const STATUS_WAITING = 0;
     const STATUS_PROCESSING = 1;
     const STATUS_DONE = 2;
     const STATUS_FAILED = 3;
 
-
     /**
-     * Database
+     * Database.
      *
      * @var Database
      */
     protected $db;
 
-
     /**
-     * LoggerInterface
+     * LoggerInterface.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Init queue
+     * Init queue.
      *
-     * @param   Filesystem $fs
-     * @param   LoggerInterface $logger
-     * @return  void
+     * @param Filesystem      $fs
+     * @param LoggerInterface $logger
      */
     public function __construct(Database $db, LoggerInterface $logger)
     {
-        $this->db     = $db;
+        $this->db = $db;
         $this->logger = $logger;
     }
 
-
     /**
-     * Register job
+     * Register job.
      *
-     * @param   JobInterface $job
-     * @return  bool
+     * @param JobInterface $job
+     *
+     * @return bool
      */
     public function addJob(string $class, array $data): bool
     {
         $result = $this->db->queue->insertOne([
-            'class'     => $class,
-            'status'    => self::STATUS_WAITING,
+            'class' => $class,
+            'status' => self::STATUS_WAITING,
             'timestamp' => new UTCDateTime(),
-            'data'      => $data
+            'data' => $data,
         ]);
 
-        $this->logger->debug("queue job [".$result->getInsertedId()."] added to [".$class."]", [
+        $this->logger->debug('queue job ['.$result->getInsertedId().'] added to ['.$class.']', [
             'category' => get_class($this),
-            'params'   => $data
+            'params' => $data,
         ]);
 
         return $result->isAcknowledged();
     }
 
-
     /**
-     * Remove job
+     * Remove job.
      *
-     * @param   ObjectId $id
-     * @return  bool
+     * @param ObjectId $id
+     *
+     * @return bool
      */
     public function removeJob(ObjectId $id): bool
     {
         $result = $this->db->queue->deleteOne(['_id' => $id]);
+
         return $result->isAcknowledged();
     }
 
-
     /**
-     * Get cursor
+     * Get cursor.
      *
-     * @param  bool $tailable
+     * @param bool $tailable
+     *
      * @return IteratorIterator
      */
-    public function getCursor(bool $tailable=false): IteratorIterator
+    public function getCursor(bool $tailable = false): IteratorIterator
     {
         $options = [];
-        if ($tailable === true) {
+        if (true === $tailable) {
             $options['cursorType'] = Find::TAILABLE;
         }
 
@@ -119,46 +117,46 @@ class Async
         return $iterator;
     }
 
-
     /**
-     * Update job status
+     * Update job status.
      *
-     * @param  ObjectId $id
-     * @param  int $status
+     * @param ObjectId $id
+     * @param int      $status
+     *
      * @return bool
      */
     public function updateJob(ObjectId $id, int $status): bool
     {
-        $result = $this->db->queue->updateMany(['_id' => $id, '$isolated' => true], [ '$set' => [
-            'status'    => $status,
-            'timestamp' => new UTCDateTime()
+        $result = $this->db->queue->updateMany(['_id' => $id, '$isolated' => true], ['$set' => [
+            'status' => $status,
+            'timestamp' => new UTCDateTime(),
         ]]);
 
         return $result->isAcknowledged();
     }
 
-
     /**
-     * Execute job queue
+     * Execute job queue.
      *
-     * @param  IteratorIterator $cursor
-     * @param  ContainerInterface $container
+     * @param IteratorIterator   $cursor
+     * @param ContainerInterface $container
+     *
      * @return bool
      */
     public function start(IteratorIterator $cursor, ContainerInterface $container): bool
     {
         while (true) {
-            if ($cursor->current() === null) {
+            if (null === $cursor->current()) {
                 if ($cursor->getInnerIterator()->isDead()) {
-                    $this->logger->error("job queue cursor is dead, is it a capped collection?", [
+                    $this->logger->error('job queue cursor is dead, is it a capped collection?', [
                         'category' => get_class($this),
                     ]);
 
                     return false;
-                } else {
-                    $cursor->next();
-                    return true;
                 }
+                $cursor->next();
+
+                return true;
             }
 
             $job = $cursor->current();
@@ -166,14 +164,15 @@ class Async
 
             $this->updateJob($job['_id'], self::STATUS_PROCESSING);
 
-            $this->logger->debug("execute job [".$job['_id']."] [".$job['class']."]", [
+            $this->logger->debug('execute job ['.$job['_id'].'] ['.$job['class'].']', [
                 'category' => get_class($this),
-                'params'   => $job['data']
+                'params' => $job['data'],
             ]);
 
             try {
                 if (!class_exists($job['class'])) {
                     $this->updateJob($job['_id'], self::STATUS_FAILED);
+
                     continue;
                 }
 
@@ -182,7 +181,7 @@ class Async
                     ->start();
                 $this->updateJob($job['_id'], self::STATUS_DONE);
             } catch (\Exception $e) {
-                $this->logger->error("failed execute job [".$job['_id']."], failed with error", [
+                $this->logger->error('failed execute job ['.$job['_id'].'], failed with error', [
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,39 +7,40 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Converter\Adapter;
 
-use \Balloon\Filesystem\Node\File;
-use \Balloon\Converter\Result;
+use Balloon\Converter\Result;
+use Balloon\Filesystem\Node\File;
 
 interface AdapterInterface
 {
     /**
-     * Return match
+     * Return match.
      *
-     * @param   File $file
-     * @return  bool
+     * @param File $file
+     *
+     * @return bool
      */
     public function match(File $file): bool;
-    
 
     /**
-     * Supported formats
+     * Supported formats.
      *
-     * @param   File $file
-     * @return  array
+     * @param File $file
+     *
+     * @return array
      */
     public function getSupportedFormats(File $file): array;
 
-
     /**
-     * Convert
+     * Convert.
      *
-     * @param  File $file
-     * @param  string $format
+     * @param File   $file
+     * @param string $format
+     *
      * @return Result
      */
     public function convert(File $file, string $format): Result;

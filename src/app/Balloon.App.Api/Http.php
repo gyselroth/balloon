@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,42 +7,40 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Api;
 
-use \Balloon\App\AbstractApp;
-use \Micro\Http\Router;
-use \Micro\Http\Router\Route;
-use \Micro\Auth\Adapter\None as AuthNone;
-use \Balloon\Hook\AbstractHook;
-use \Micro\Auth;
-use \Balloon\Hook;
+use Balloon\App\AbstractApp;
+use Balloon\Hook;
+use Balloon\Hook\AbstractHook;
+use Micro\Auth;
+use Micro\Auth\Adapter\None as AuthNone;
+use Micro\Http\Router;
+use Micro\Http\Router\Route;
 
 class Http extends AbstractApp
 {
     /**
-     * Router
+     * Router.
      *
      * @var Router
      */
     protected $router;
 
-
     /**
-     * Hook
+     * Hook.
      *
      * @var Hook
      */
     protected $hook;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Router $router
-     * @param Hook $hook
+     * @param Hook   $hook
      */
     public function __construct(Router $router, Hook $hook)
     {
@@ -49,19 +48,18 @@ class Http extends AbstractApp
         $this->hook = $hook;
     }
 
-
     /**
-     * Init
+     * Init.
      *
      * @return bool
      */
     public function init(): bool
     {
         $this->router->appendRoute((new Route('/api', $this, 'start')));
-        $this->hook->injectHook(new class extends AbstractHook {
+        $this->hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
-                if ($_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api' ||  $_SERVER["ORIG_SCRIPT_NAME"] === '/index.php/api/v1') {
+                if ('/index.php/api' === $_SERVER['ORIG_SCRIPT_NAME'] || '/index.php/api/v1' === $_SERVER['ORIG_SCRIPT_NAME']) {
                     $auth->injectAdapter('none', (new AuthNone()));
                 }
             }
@@ -70,9 +68,8 @@ class Http extends AbstractApp
         return true;
     }
 
-
     /**
-     * Start
+     * Start.
      *
      *  @return bool
      */

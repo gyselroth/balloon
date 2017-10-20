@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,15 +7,14 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Api\v1;
 
-use \Balloon\Exception;
-use \Balloon\Api\Controller;
-use \Balloon\Resource as UserResource;
-use \Micro\Http\Response;
+use Balloon\Api\Controller;
+use Balloon\Resource as UserResource;
+use Micro\Http\Response;
 
 class Resource extends Controller
 {
@@ -54,14 +54,16 @@ class Resource extends Controller
      *      ]
      * }
      *
-     * @param  string $q
-     * @param  bool $single
+     * @param string $q
+     * @param bool   $single
+     *
      * @return Response
      */
-    public function getAclRoles(string $q, bool $single=false): Response
+    public function getAclRoles(string $q, bool $single = false): Response
     {
         $resource = new UserResource($this->user, $this->logger, $this->fs);
-        $result   = $resource->searchRole($q, $single);
+        $result = $resource->searchRole($q, $single);
+
         return (new Response())->setCode(200)->setBody($result);
     }
 }

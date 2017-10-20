@@ -1,36 +1,35 @@
 <?php
+
 declare(strict_types=1);
 
 /**
  * Balloon
  *
- * @category    Balloon
  * @author      Raffael Sahli <sahli@gyselroth.net>
- * @copyright   copryright (c) 2012-2016 gyselroth GmbH
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Preview\Api\v1;
 
-use \Balloon\Exception;
-use \Micro\Http\Response;
-use \Balloon\Api\Controller;
-use \Balloon\App\Preview\App;
-use \Balloon\Server;
+use Balloon\Api\Controller;
+use Balloon\App\Preview\App;
+use Balloon\Server;
+use Micro\Http\Response;
 
 class Preview extends Controller
 {
     /**
-     * App
+     * App.
      *
      * @var App
      */
     protected $app;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param App $app
+     * @param App    $app
      * @param Server $server
      */
     public function __construct(App $app, Server $server)
@@ -38,7 +37,6 @@ class Preview extends Controller
         parent::__construct($server);
         $this->app = $app;
     }
-
 
     /**
      * @api {get} /api/v1/file/preview?id=:id Get Preview
@@ -72,12 +70,11 @@ class Preview extends Controller
      *      }
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  string $encode
-     * @return void
+     * @param string $id
+     * @param string $p
+     * @param string $encode
      */
-    public function get(?string $id=null, ?string $p=null, ?string $encode=null): Response
+    public function get(?string $id = null, ?string $p = null, ?string $encode = null): Response
     {
         $node = $this->fs->getNode($id, $p, 'File');
         $data = $this->app->getPreview($node);
@@ -85,7 +82,7 @@ class Preview extends Controller
             ->setHeader('Content-Type', 'image/png')
             ->setOutputFormat('text');
 
-        if ($encode === 'base64') {
+        if ('base64' === $encode) {
             $response->setBody(base64_encode($data), true);
         } else {
             $response->setBody($data, true);

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,195 +7,25 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Api\v1;
 
-use \Balloon\Exception;
-use \Balloon\Api\Controller;
-use \Balloon\Helper;
-use \Balloon\Filesystem\Node\NodeInterface;
-use \Balloon\Filesystem\Node\Root;
-use \Balloon\Filesystem\Node\Collection;
-use \Balloon\Filesystem\Node\Node as CoreNode;
-use \Micro\Http\Response;
-use \Balloon\Api\v1\Collection as ApiCollection;
-use \Balloon\Api\v1\File as ApiFile;
-use \PHPZip\Zip\Stream\ZipStream;
+use Balloon\Api\Controller;
+use Balloon\Api\v1\Collection as ApiCollection;
+use Balloon\Api\v1\File as ApiFile;
+use Balloon\Exception;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\Node as CoreNode;
+use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Node\Root;
+use Balloon\Helper;
+use Micro\Http\Response;
+use PHPZip\Zip\Stream\ZipStream;
 
 class Node extends Controller
 {
-    /**
-     * @apiDefine _getNode
-     *
-     * @apiParam (GET Parameter) {string} id Either id or p (path) of a node must be given.
-     * @apiParam (GET Parameter) {string} p Either id or p (path) of a node must be given.
-     * @apiError (General Error Response) {number} status Status Code
-     * @apiError (General Error Response) {object[]} data Error body
-     * @apiError (General Error Response) {string} data.error Exception
-     * @apiError (General Error Response) {string} data.message Message
-     * @apiError (General Error Response) {number} data.code Error code
-     *
-     * @apiErrorExample {json} Error-Response (Invalid Parameter):
-     * HTTP/1.1 400 Bad Request
-     * {
-     *      "status": 400,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\InvalidArgument",
-     *          "message": "invalid node id specified",
-     *          "code": 0
-     *      }
-     * }
-     *
-     * @apiErrorExample {json} Error-Response (Insufficient Access):
-     * HTTP/1.1 403 Forbidden
-     * {
-     *      "status": 403,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\Forbidden",
-     *          "message": "not allowed to read node 51354d073c58891f058b4580",
-     *          "code": 40
-     *      }
-     * }
-     *
-     * @apiErrorExample {json} Error-Response (Not found):
-     * HTTP/1.1 404 Not Found
-     * {
-     *      "status": 404,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\NotFound",
-     *          "message": "node 51354d073c58891f058b4580 not found",
-     *          "code": 49
-     *      }
-     * }
-     */
-
-    
-    /**
-     * @apiDefine _multiError
-     *
-     * @apiErrorExample {json} Error-Response (Multi node error):
-     * HTTP/1.1 400 Bad Request
-     * {
-     *     "status": 400,
-     *     "data": [
-     *         {
-     *              id: "51354d073c58891f058b4580",
-     *              name: "file.zip",
-     *              error: "Balloon\\Exception\\Conflict",
-     *              message: "node already exists",
-     *              code: 30
-     *         }
-     *     ]
-     * }
-     */
-
-
-    /**
-     * @apiDefine _writeAction
-     *
-     * @apiErrorExample {json} Error-Response (Conflict):
-     * HTTP/1.1 400 Bad Request
-     * {
-     *      "status": 400,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\Conflict",
-     *          "message": "a node called myname does already exists",
-     *          "code": 17
-     *      }
-     * }
-     */
-
-
-    /**
-     * @apiDefine _conflictNode
-     * @apiParam (GET Parameter) {number} [conflict=0] Decides how to handle a conflict if a node with the same name already exists at the destination.
-     * Possible values are:</br>
-     *  - 0 No action</br>
-     *  - 1 Automatically rename the node</br>
-     *  - 2 Overwrite the destination (merge)</br>
-     */
-
-    
-    /**
-     * @apiDefine _getNodes
-     *
-     * @apiParam (GET Parameter) {string[]} id Either a single id as string or multiple as an array or a single p (path) as string or multiple paths as array must be given.
-     * @apiParam (GET Parameter) {string[]} p Either a single id as string or multiple as an array or a single p (path) as string or multiple paths as array must be given.
-     * @apiError (General Error Response) {number} status Status Code
-     * @apiError (General Error Response) {object[]} data Error body
-     * @apiError (General Error Response) {string} data.error Exception
-     * @apiError (General Error Response) {string} data.message Message
-     * @apiError (General Error Response) {number} data.code General error messages of type  Balloon\\Exception do not usually have an error code
-     *
-     * @apiErrorExample {json} Error-Response (Invalid Parameter):
-     * HTTP/1.1 400 Bad Request
-     * {
-     *      "status": 400,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\InvalidArgument",
-     *          "message": "invalid node id specified",
-     *          "code": 0
-     *      }
-     * }
-     *
-     * @apiErrorExample {json} Error-Response (Insufficient Access):
-     * HTTP/1.1 403 Forbidden
-     * {
-     *      "status": 403,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\Forbidden",
-     *          "message": "not allowed to read node 51354d073c58891f058b4580",
-     *          "code": 40
-     *      }
-     * }
-     *
-     * @apiErrorExample {json} Error-Response (Not found):
-     * HTTP/1.1 404 Not Found
-     * {
-     *      "status": 404,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\NotFound",
-     *          "message": "node 51354d073c58891f058b4580 not found",
-     *          "code": 49
-     *      }
-     * }
-     */
-
-
-    /**
-     * Get node
-     *
-     * @param   string $id
-     * @param   string $path
-     * @param   string $class Force set node type
-     * @param   bool $deleted
-     * @param   bool $multiple Allow $id to be an array
-     * @param   bool $allow_root Allow instance of root collection
-     * @param   bool $deleted How to handle deleted node
-     * @return  NodeInterface
-     */
-    protected function _getNode(
-        ?string $id=null,
-        ?string $path=null,
-        ?string $class=null,
-        bool $multiple=false,
-        bool $allow_root=false,
-        int $deleted=2
-    ): NodeInterface {
-        if ($class === null) {
-            $class = join('', array_slice(explode('\\', get_class($this)), -1));
-        }
-        
-        if ($class === 'Node') {
-            $class = null;
-        }
-
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
-    }
-    
-
     /**
      * @api {head} /api/v1/node?id=:id Node exists?
      * @apiVersion 1.0.0
@@ -209,7 +40,7 @@ class Node extends Controller
      * curl -XHEAD "https://SERVER/api/v1/node?id=544627ed3c58891f058b4686"
      * curl -XHEAD "https://SERVER/api/v1/node/544627ed3c58891f058b4686"
      * curl -XHEAD "https://SERVER/api/v1/node?p=/absolute/path/to/my/node"
-
+     *
      * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted node or not, possible values:</br>
      * - 0 Exclude deleted</br>
      * - 1 Only deleted</br>
@@ -221,26 +52,27 @@ class Node extends Controller
      * @apiSuccessExample {json} Success-Response (Node does not exist):
      * HTTP/1.1 404 Not Found
      *
-     * @param   string $id
-     * @param   string $p
-     * @param   int $deleted
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     * @param int    $deleted
+     *
+     * @return Response
      */
-    public function head(?string $id=null, ?string $p=null, int $deleted=0): Response
+    public function head(?string $id = null, ?string $p = null, int $deleted = 0): Response
     {
         try {
             $result = $this->_getNode($id, $p, null, false, false, $deleted);
 
             $response = (new Response())
-                ->setHeader('Content-Length', (string)$result->getSize())
+                ->setHeader('Content-Length', (string) $result->getSize())
                 ->setHeader('Content-Type', $result->getMime())
                 ->setCode(200);
+
             return $response;
         } catch (\Exception $e) {
             return (new Response())->setCode(404);
         }
     }
-
 
     /**
      * @api {post} /api/v1/node/undelete?id=:id Undelete node
@@ -274,23 +106,22 @@ class Node extends Controller
      *      }
      * }
      *
-     * @param   string $id
-     * @param   string $p
-     * @param   bool $move
-     * @param   string $destid
-     * @param   string $destp
-     * @param   int $conflict
-     * @return  void
+     * @param string $id
+     * @param string $p
+     * @param bool   $move
+     * @param string $destid
+     * @param string $destp
+     * @param int    $conflict
      */
     public function postUndelete(
-        $id=null,
-        ?string $p=null,
-        bool $move=false,
-        ?string $destid=null,
-        ?string $destp=null,
-        int $conflict=0
+        $id = null,
+        ?string $p = null,
+        bool $move = false,
+        ?string $destid = null,
+        ?string $destp = null,
+        int $conflict = 0
     ): Response {
-        if ($move == true) {
+        if (true === $move) {
             try {
                 $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
             } catch (Exception\NotFound $e) {
@@ -300,12 +131,12 @@ class Node extends Controller
                 );
             }
         }
-        
+
         if (is_array($id)) {
             $failures = [];
             foreach ($this->fs->findNodes($id) as $node) {
                 try {
-                    if ($move == true) {
+                    if (true === $move) {
                         $node = $node->setParent($parent, $conflict);
                     }
 
@@ -314,11 +145,11 @@ class Node extends Controller
                     }
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id'      => (string)$node->getId(),
-                        'name'    => $node->getName(),
-                        'error'   => get_class($e),
+                        'id' => (string) $node->getId(),
+                        'name' => $node->getName(),
+                        'error' => get_class($e),
                         'message' => $e->getMessage(),
-                        'code'    => $e->getCode()
+                        'code' => $e->getCode(),
                     ];
 
                     $this->logger->debug('failed undelete node in multi node request ['.$node->getId().']', [
@@ -330,28 +161,26 @@ class Node extends Controller
 
             if (empty($failures)) {
                 return (new Response())->setCode(204);
-            } else {
-                return (new Response())->setCode(400)->setBody($failures);
-            }
-        } else {
-            $node = $this->_getNode($id, $p);
-
-            if ($move == true) {
-                $node = $node->setParent($parent, $conflict);
             }
 
-            if ($node->isDeleted()) {
-                $result = $node->undelete($conflict);
-            }
-
-            if ($move == true && $conflict == NodeInterface::CONFLICT_RENAME) {
-                return (new Response())->setCode(200)->setBody($node->getName());
-            } else {
-                return (new Response())->setCode(204);
-            }
+            return (new Response())->setCode(400)->setBody($failures);
         }
-    }
+        $node = $this->_getNode($id, $p);
 
+        if (true === $move) {
+            $node = $node->setParent($parent, $conflict);
+        }
+
+        if ($node->isDeleted()) {
+            $result = $node->undelete($conflict);
+        }
+
+        if (true === $move && NodeInterface::CONFLICT_RENAME === $conflict) {
+            return (new Response())->setCode(200)->setBody($node->getName());
+        }
+
+        return (new Response())->setCode(204);
+    }
 
     /**
      * @api {get} /api/v1/node?id=:id Download stream
@@ -390,58 +219,58 @@ class Node extends Controller
      *      }
      * }
      *
-     * @param   string $p
-     * @param   int $offset
-     * @param   int $legnth
-     * @param   string $encode
-     * @param   bool $download
-     * @param   string $name
-     * @return  void
+     * @param string     $p
+     * @param int        $offset
+     * @param int        $legnth
+     * @param string     $encode
+     * @param bool       $download
+     * @param string     $name
+     * @param null|mixed $id
      */
     public function get(
-        $id=null,
-        ?string $p=null,
-        int $offset=0,
-        int $length=0,
-        ?string $encode=null,
-        bool $download=false,
-        string $name='selected'
+        $id = null,
+        ?string $p = null,
+        int $offset = 0,
+        int $length = 0,
+        ?string $encode = null,
+        bool $download = false,
+        string $name = 'selected'
     ): Response {
         if (is_array($id)) {
             return $this->_combine($id, $p, $name);
         }
-         
+
         $node = $this->_getNode($id, $p);
         if ($node instanceof Collection) {
             return (new Response())->setBody(function () use ($node) {
                 $node->getZip();
             });
         }
-     
+
         $response = new Response();
 
-        if ($download == true) {
-            $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\'' .rawurlencode($name));
+        if (true === $download) {
+            $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\''.rawurlencode($name));
             $response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
             $response->setHeader('Content-Type', 'application/octet-stream');
-            $response->setHeader('Content-Length', (string)$node->getSize());
+            $response->setHeader('Content-Length', (string) $node->getSize());
             $response->setHeader('Content-Transfer-Encoding', 'binary');
         } else {
-            $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\'' .rawurlencode($name));
+            $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\''.rawurlencode($name));
         }
 
         return (new Response())
           ->setOutputFormat(null)
           ->setBody(function () use ($node, $encode, $offset, $length, $download) {
-              $mime  = $node->getMime();
+              $mime = $node->getMime();
               $stream = $node->get();
-              $name  = $node->getName();
-        
-              if ($stream === null) {
+              $name = $node->getName();
+
+              if (null === $stream) {
                   return;
               }
 
-              if ($offset !== 0) {
+              if (0 !== $offset) {
                   if (fseek($stream, $offset) === -1) {
                       throw new Exception\Conflict(
                         'invalid offset requested',
@@ -452,10 +281,10 @@ class Node extends Controller
 
               $read = 0;
               header('Content-Type: '.$mime.'');
-              if ($encode === 'base64') {
+              if ('base64' === $encode) {
                   header('Content-Encoding: base64');
                   while (!feof($stream)) {
-                      if ($length !== 0 && $read + 8192 > $length) {
+                      if (0 !== $length && $read + 8192 > $length) {
                           echo base64_encode(fread($stream, $length - $read));
                           exit();
                       }
@@ -465,7 +294,7 @@ class Node extends Controller
                   }
               } else {
                   while (!feof($stream)) {
-                      if ($length !== 0 && $read + 8192 > $length) {
+                      if (0 !== $length && $read + 8192 > $length) {
                           echo fread($stream, $length - $read);
                           exit();
                       }
@@ -476,7 +305,6 @@ class Node extends Controller
               }
           });
     }
-
 
     /**
      * @api {post} /api/v1/node/readonly?id=:id Mark node as readonly
@@ -499,11 +327,12 @@ class Node extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $id
-     * @param   string $p
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     *
+     * @return Response
      */
-    public function postReadonly($id=null, ?string $p=null, bool $readonly=true): Response
+    public function postReadonly($id = null, ?string $p = null, bool $readonly = true): Response
     {
         if (is_array($id)) {
             $failures = [];
@@ -512,11 +341,11 @@ class Node extends Controller
                     $node->setReadonly($readonly);
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id'      => (string)$node->getId(),
-                        'name'    => $node->getName(),
-                        'error'   => get_class($e),
+                        'id' => (string) $node->getId(),
+                        'name' => $node->getName(),
+                        'error' => get_class($e),
                         'message' => $e->getMessage(),
-                        'code'    => $e->getCode()
+                        'code' => $e->getCode(),
                     ];
 
                     $this->logger->debug('failed set readonly node in multi node request ['.$node->getId().']', [
@@ -528,49 +357,14 @@ class Node extends Controller
 
             if (empty($failures)) {
                 return (new Response())->setCode(204);
-            } else {
-                return (new Response())->setCode(400)->setBody($failures);
             }
-        } else {
-            $result = $this->_getNode($id, $p)->setReadonly($readonly);
-            return (new Response())->setCode(204);
+
+            return (new Response())->setCode(400)->setBody($failures);
         }
+        $result = $this->_getNode($id, $p)->setReadonly($readonly);
+
+        return (new Response())->setCode(204);
     }
-
-
-    /**
-     * Merge multiple nodes into one zip archive
-     *
-     * @param   string $id
-     * @param   string $path
-     * @param   string $name
-     * @return  void
-     */
-    protected function _combine($id=null, ?string $path=null, string $name='selected'): void
-    {
-        $temp = $this->config->dir->temp.DIRECTORY_SEPARATOR.'zip';
-        if (!file_exists($temp)) {
-            mkdir($temp, 0700, true);
-        }
-
-        ZipStream::$temp = $temp;
-        $archive = new ZipStream($name.".zip", "application/zip", $name.".zip");
-        
-        foreach ($this->fs->findNodes($id) as $node) {
-            try {
-                $node->zip($archive);
-            } catch (\Exception $e) {
-                $this->logger->debug('failed zip node in multi node request ['.$node->getId().']', [
-                   'category' => get_class($this),
-                   'exception' => $e,
-               ]);
-            }
-        }
-
-        $archive->finalize();
-        exit();
-    }
-
 
     /**
      * @apiDefine _nodeAttributes
@@ -613,8 +407,9 @@ class Node extends Controller
      * @apiSuccess (200 OK - additional attributes) {boolean} data.readonly Node is readonly
      *
      * @apiParam (GET Parameter) {string[]} [attributes] Filter attributes, per default not all attributes would be returned
+     *
+     * @param null|mixed $id
      */
-
 
     /**
      * @api {get} /api/v1/node/attributes?id=:id Get attributes
@@ -664,94 +459,28 @@ class Node extends Controller
      *      }
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  array $attributes
+     * @param string $id
+     * @param string $p
+     * @param array  $attributes
+     *
      * @return Response
      */
-    public function getAttributes($id=null, ?string $p=null, array $attributes=[]): Response
+    public function getAttributes($id = null, ?string $p = null, array $attributes = []): Response
     {
         if (is_array($id)) {
-            $nodes    = [];
+            $nodes = [];
             foreach ($this->fs->findNodes($id) as $node) {
                 $nodes[] = Helper::escape($node->getAttributes($attributes));
             }
 
             return (new Response())->setCode(200)->setBody($nodes);
-        } else {
-            $result = Helper::escape(
+        }
+        $result = Helper::escape(
                 $this->_getNode($id, $p)->getAttributes($attributes)
             );
-        
-            return (new Response())->setCode(200)->setBody($result);
-        }
+
+        return (new Response())->setCode(200)->setBody($result);
     }
-
-
-    /**
-     * Check custom node attributes which have to be written
-     *
-     * @param   array $attributes
-     * @return  array
-     */
-    protected function _verifyAttributes(array $attributes): array
-    {
-        $valid_attributes = [
-            'changed',
-            'destroy',
-            'created',
-            'meta',
-            'readonly'
-        ];
-
-        if ($this instanceof ApiCollection) {
-            $valid_attributes[] = 'filter';
-        }
-
-        $check = array_merge(array_flip($valid_attributes), $attributes);
-        
-        if ($this instanceof ApiCollection && count($check) > 6) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, filter, readonly and/or meta attributes may be overwritten');
-        } elseif ($this instanceof ApiFile && count($check) > 5) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, readonly and/or meta attributes may be overwritten');
-        }
-
-        foreach ($attributes as $attribute => $value) {
-            switch ($attribute) {
-                case 'meta':
-                    $attributes['meta'] = CoreNode::validateMetaAttribute($attributes['meta']);
-                break;
-            
-                case 'filter':
-                    $attributes['filter'] = (array)$attributes['filter'];
-                break;
-                   
-                case 'destroy':
-                    if (!Helper::isValidTimestamp($value)) {
-                        throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
-                    }
-                    $attributes[$attribute] = new \MongoDB\BSON\UTCDateTime($value.'000');
-                break;
-
-                case 'changed':
-                case 'created':
-                    if (!Helper::isValidTimestamp($value)) {
-                        throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
-                    } elseif ((int)$value > time()) {
-                        throw new Exception\InvalidArgument($attribute.' timestamp can not be set greater than the server time');
-                    }
-                    $attributes[$attribute] = new \MongoDB\BSON\UTCDateTime($value.'000');
-                break;
-
-                case 'readonly':
-                    $attributes['readonly'] = (bool)$attributes['readonly'];
-                break;
-            }
-        }
-
-        return $attributes;
-    }
-
 
     /**
      * @api {get} /api/v1/node/parent?id=:id Get parent node
@@ -793,23 +522,23 @@ class Node extends Controller
      *      }
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  array $attributes
+     * @param string $id
+     * @param string $p
+     * @param array  $attributes
+     *
      * @return Response
      */
-    public function getParent(?string $id=null, ?string $p=null, array $attributes=[]): Response
+    public function getParent(?string $id = null, ?string $p = null, array $attributes = []): Response
     {
         $result = Helper::escape(
             $this->_getNode($id, $p)
                  ->getParent()
                  ->getAttributes($attributes)
         );
-        
+
         return (new Response())->setCode(200)->setBody($result);
     }
 
-    
     /**
      * @api {get} /api/v1/node/parents?id=:id Get parent nodes
      * @apiVersion 1.0.0
@@ -835,7 +564,7 @@ class Node extends Controller
      * {
      *     "status": 200,
      *     "data": [
-                {
+     * {
      *              "id": "544627ed3c58891f058bbbaa",
      *              "name": "rootdir",
      *              "meta": {},
@@ -875,29 +604,30 @@ class Node extends Controller
      *      ]
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  array $attributes
+     * @param string $id
+     * @param string $p
+     * @param array  $attributes
+     *
      * @return Response
      */
-    public function getParents(?string $id=null, ?string $p=null, array $attributes=[], bool $self=false): Response
+    public function getParents(?string $id = null, ?string $p = null, array $attributes = [], bool $self = false): Response
     {
         $request = $this->_getNode($id, $p);
         $parents = $request->getParents();
         $result = [];
-        
-        if ($self === true && $request instanceof Collection) {
+
+        if (true === $self && $request instanceof Collection) {
             $result[] = $request->getAttributes($attributes);
         }
-        
+
         foreach ($parents as $node) {
             $result[] = $node->getAttributes($attributes);
         }
 
         $result = Helper::escape($result);
+
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {post} /api/v1/node/meta-attributes?id=:id Write meta attributes
@@ -924,17 +654,18 @@ class Node extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $id
-     * @param   string $p
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     *
+     * @return Response
      */
-    public function postMetaAttributes(?string $id=null, ?string $p=null): Response
+    public function postMetaAttributes(?string $id = null, ?string $p = null): Response
     {
         $this->_getNode($id, $p)->setMetaAttribute(Helper::filter($_POST));
+
         return (new Response())->setCode(204);
     }
 
-    
     /**
      * @api {post} /api/v1/node/name?id=:id Rename node
      * @apiVersion 1.0.0
@@ -956,17 +687,18 @@ class Node extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $id
-     * @param   string $p
-     * @param   string $name
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     * @param string $name
+     *
+     * @return Response
      */
-    public function postName(string $name, ?string $id=null, ?string $p=null): Response
+    public function postName(string $name, ?string $id = null, ?string $p = null): Response
     {
         $this->_getNode($id, $p)->setName($name);
+
         return (new Response())->setCode(204);
     }
-    
 
     /**
      * @api {post} /api/v1/node/clone?id=:id Clone node
@@ -991,19 +723,20 @@ class Node extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $id
-     * @param   string $p
-     * @param   string $destid
-     * @param   string $destp
-     * @param   int $conflict
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     * @param string $destid
+     * @param string $destp
+     * @param int    $conflict
+     *
+     * @return Response
      */
     public function postClone(
-        $id=null,
-        ?string $p=null,
-        ?string $destid=null,
-        ?string $destp=null,
-        int $conflict=0
+        $id = null,
+        ?string $p = null,
+        ?string $destid = null,
+        ?string $destp = null,
+        int $conflict = 0
     ): Response {
         try {
             $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
@@ -1013,7 +746,7 @@ class Node extends Controller
                 Exception\NotFound::DESTINATION_NOT_FOUND
             );
         }
-        
+
         if (is_array($id)) {
             $failures = [];
             foreach ($this->fs->findNodes($id) as $node) {
@@ -1021,11 +754,11 @@ class Node extends Controller
                     $node->copyTo($parent, $conflict);
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id'      => (string)$node->getId(),
-                        'name'    => $node->getName(),
-                        'error'   => get_class($e),
+                        'id' => (string) $node->getId(),
+                        'name' => $node->getName(),
+                        'error' => get_class($e),
                         'message' => $e->getMessage(),
-                        'code'    => $e->getCode()
+                        'code' => $e->getCode(),
                     ];
 
                     $this->logger->debug('failed clone node in multi node request ['.$node->getId().']', [
@@ -1033,19 +766,18 @@ class Node extends Controller
                         'exception' => $e,
                     ]);
                 }
-            };
+            }
 
             if (empty($failures)) {
                 return (new Response())->setCode(204);
-            } else {
-                return(new Response())->setCode(400)->setBody($failures);
             }
-        } else {
-            $result = $this->_getNode($id, $p)->copyTo($parent, $conflict);
-            return (new Response())->setCode(201)->setBody((string)$result->getId());
-        }
-    }
 
+            return(new Response())->setCode(400)->setBody($failures);
+        }
+        $result = $this->_getNode($id, $p)->copyTo($parent, $conflict);
+
+        return (new Response())->setCode(201)->setBody((string) $result->getId());
+    }
 
     /**
      * @api {post} /api/v1/node/move?id=:id Move node
@@ -1077,20 +809,21 @@ class Node extends Controller
      *      "data": "renamed (xy23)"
      * }
      *
-     * @param   string $id
-     * @param   string $id
-     * @param   string $p
-     * @param   string $destid
-     * @param   string $destp
-     * @param   int $conflict
-     * @return  Response
+     * @param string $id
+     * @param string $id
+     * @param string $p
+     * @param string $destid
+     * @param string $destp
+     * @param int    $conflict
+     *
+     * @return Response
      */
     public function postMove(
-        $id=null,
-        ?string $p=null,
-        ?string $destid=null,
-        ?string $destp=null,
-        int $conflict=0
+        $id = null,
+        ?string $p = null,
+        ?string $destid = null,
+        ?string $destp = null,
+        int $conflict = 0
     ): Response {
         try {
             $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
@@ -1108,11 +841,11 @@ class Node extends Controller
                     $node->setParent($parent, $conflict);
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id'      => (string)$node->getId(),
-                        'name'    => $node->getName(),
-                        'error'   => get_class($e),
+                        'id' => (string) $node->getId(),
+                        'name' => $node->getName(),
+                        'error' => get_class($e),
                         'message' => $e->getMessage(),
-                        'code'    => $e->getCode()
+                        'code' => $e->getCode(),
                     ];
 
                     $this->logger->debug('failed move node in multi node request ['.$node->getId().']', [
@@ -1121,24 +854,22 @@ class Node extends Controller
                     ]);
                 }
             }
-            
+
             if (empty($failures)) {
                 return (new Response())->setCode(204);
-            } else {
-                return (new Response())->setCode(400)->setBody($failures);
             }
-        } else {
-            $node   = $this->_getNode($id, $p);
-            $result = $node->setParent($parent, $conflict);
-            
-            if ($conflict == NodeInterface::CONFLICT_RENAME) {
-                return (new Response())->setCode(200)->setBody($node->getName());
-            } else {
-                return (new Response())->setCode(204);
-            }
-        }
-    }
 
+            return (new Response())->setCode(400)->setBody($failures);
+        }
+        $node = $this->_getNode($id, $p);
+        $result = $node->setParent($parent, $conflict);
+
+        if (NodeInterface::CONFLICT_RENAME === $conflict) {
+            return (new Response())->setCode(200)->setBody($node->getName());
+        }
+
+        return (new Response())->setCode(204);
+    }
 
     /**
      * @api {delete} /api/v1/node?id=:id Delete node
@@ -1163,44 +894,45 @@ class Node extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $id
-     * @param   string $p
-     * @param   bool $force
-     * @param   bool $ignore_flag
-     * @param   int $at
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     * @param bool   $force
+     * @param bool   $ignore_flag
+     * @param int    $at
+     *
+     * @return Response
      */
     public function delete(
-        $id=null,
-        ?string $p=null,
-        bool $force=false,
-        bool $ignore_flag=false,
-        ?string $at=null
+        $id = null,
+        ?string $p = null,
+        bool $force = false,
+        bool $ignore_flag = false,
+        ?string $at = null
     ): Response {
         $failures = [];
-            
-        if ($at !== null && $at !== '0') {
+
+        if (null !== $at && '0' !== $at) {
             $at = $this->_verifyAttributes(['destroy' => $at])['destroy'];
         }
 
         if (is_array($id)) {
             foreach ($this->fs->findNodes($id) as $node) {
                 try {
-                    if ($at === null) {
+                    if (null === $at) {
                         $node->delete($force && $node->isDeleted() || $force && $ignore_flag);
                     } else {
-                        if ($at === '0') {
+                        if ('0' === $at) {
                             $at = null;
                         }
                         $node->setDestroyable($at);
                     }
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id'      => (string)$node->getId(),
-                        'name'    => $node->getName(),
-                        'error'   => get_class($e),
+                        'id' => (string) $node->getId(),
+                        'name' => $node->getName(),
+                        'error' => get_class($e),
                         'message' => $e->getMessage(),
-                        'code'    => $e->getCode()
+                        'code' => $e->getCode(),
                     ];
 
                     $this->logger->debug('failed delete node in multi node request ['.$node->getId().']', [
@@ -1209,27 +941,25 @@ class Node extends Controller
                     ]);
                 }
             }
-            
+
             if (empty($failures)) {
                 return (new Response())->setCode(204);
-            } else {
-                return (new Response())->setcode(400)->setBody($failures);
-            }
-        } else {
-            if ($at === null) {
-                $result = $this->_getNode($id, $p)->delete($force);
-            } else {
-                if ($at === '0') {
-                    $at = null;
-                }
-                
-                $result = $this->_getNode($id, $p)->setDestroyable($at);
             }
 
-            return (new Response())->setCode(204);
+            return (new Response())->setcode(400)->setBody($failures);
         }
-    }
+        if (null === $at) {
+            $result = $this->_getNode($id, $p)->delete($force);
+        } else {
+            if ('0' === $at) {
+                $at = null;
+            }
 
+            $result = $this->_getNode($id, $p)->setDestroyable($at);
+        }
+
+        return (new Response())->setCode(204);
+    }
 
     /**
      * @api {get} /api/v1/node/query Custom query
@@ -1263,25 +993,25 @@ class Node extends Controller
      *      "data": [{..}, {...}] //Shorted
      * }
      *
-     * @param  int $deleted
-     * @param  array $filter
-     * @param  array $attributes
+     * @param int   $deleted
+     * @param array $filter
+     * @param array $attributes
+     *
      * @return Response
      */
-    public function getQuery(int $deleted=0, array $filter=[], array $attributes=[]): Response
+    public function getQuery(int $deleted = 0, array $filter = [], array $attributes = []): Response
     {
         $children = [];
         $nodes = $this->fs->findNodesWithCustomFilterUser($deleted, $filter);
-        
+
         foreach ($nodes as $node) {
             $child = Helper::escape($node->getAttributes($attributes));
             $children[] = $child;
         }
-        
+
         return (new Response())->setCode(200)->setBody($children);
     }
 
-    
     /**
      * @api {get} /api/v1/node/trash Get trash
      * @apiName getTrash
@@ -1306,10 +1036,11 @@ class Node extends Controller
      *      "data": [{..}, {...}] //Shorted
      * }
      *
-     * @param  array $attributes
+     * @param array $attributes
+     *
      * @return Response
      */
-    public function getTrash(array $attributes=[]): Response
+    public function getTrash(array $attributes = []): Response
     {
         $children = [];
         $nodes = $this->fs->findNodesWithCustomFilterUser(NodeInterface::DELETED_ONLY, ['deleted' => ['$type' => 9]]);
@@ -1317,7 +1048,7 @@ class Node extends Controller
         foreach ($nodes as $node) {
             try {
                 $parent = $node->getParent();
-                if ($parent !== null && $parent->isDeleted()) {
+                if (null !== $parent && $parent->isDeleted()) {
                     continue;
                 }
             } catch (\Exception $e) {
@@ -1326,10 +1057,9 @@ class Node extends Controller
             $child = Helper::escape($node->getAttributes($attributes));
             $children[] = $child;
         }
-        
+
         return (new Response())->setCode(200)->setBody(array_values($children));
     }
-
 
     /**
      * @api {get} /api/v1/node/search Search
@@ -1379,12 +1109,13 @@ class Node extends Controller
      *      }
      * }
      *
-     * @param  array $query
-     * @param  array $attributes
-     * @param  int $deleted
+     * @param array $query
+     * @param array $attributes
+     * @param int   $deleted
+     *
      * @return Response
      */
-    public function getSearch(array $query, array $attributes=[], int $deleted=0): Response
+    public function getSearch(array $query, array $attributes = [], int $deleted = 0): Response
     {
         $children = [];
         $nodes = $this->fs->search($query, $deleted);
@@ -1396,14 +1127,13 @@ class Node extends Controller
             } catch (\Exception $e) {
                 $this->logger->info('error occured during loading attributes, skip search result node', [
                     'category' => get_class($this),
-                    'exception' => $e
+                    'exception' => $e,
                 ]);
             }
         }
- 
+
         return (new Response())->setCode(200)->setBody($children);
     }
-
 
     /**
      * @api {get} /api/v1/node/delta Get delta
@@ -1486,31 +1216,31 @@ class Node extends Controller
      *      }
      * }
      *
-     * @param   string $id
-     * @param   string $p
-     * @param   string $cursor
-     * @param   int $limit
-     * @param   array $attributes
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     * @param string $cursor
+     * @param int    $limit
+     * @param array  $attributes
+     *
+     * @return Response
      */
     public function getDelta(
-        ?string $id=null,
-        ?string $p=null,
-        ?string $cursor=null,
-        int $limit=250,
-        array $attributes=[]
+        ?string $id = null,
+        ?string $p = null,
+        ?string $cursor = null,
+        int $limit = 250,
+        array $attributes = []
     ): Response {
-        if ($id !== null || $p !== null) {
+        if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
         } else {
             $node = null;
         }
-        
-        $result= $this->fs->getDelta()->getDeltaFeed($cursor, $limit, $attributes, $node);
+
+        $result = $this->fs->getDelta()->getDeltaFeed($cursor, $limit, $attributes, $node);
 
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {get} /api/v1/node/event-log?id=:id Event log
@@ -1545,7 +1275,7 @@ class Node extends Controller
      * - moveCollection
      * - moveCollectionReference
      * - moveCollectionShare
-
+     *
      * @apiExample (cURL) example:
      * curl -XGET "https://SERVER/api/v1/node/event-log?pretty"
      * curl -XGET "https://SERVER/api/v1/node/event-log?id=544627ed3c58891f058b4686&pretty"
@@ -1608,24 +1338,25 @@ class Node extends Controller
      *      ]
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  int $skip
-     * @param  int $limit
+     * @param string $id
+     * @param string $p
+     * @param int    $skip
+     * @param int    $limit
+     *
      * @return Response
      */
-    public function getEventLog(?string $id=null, ?string $p=null, int $skip=0, int $limit=100): Response
+    public function getEventLog(?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100): Response
     {
-        if ($id !== null || $p !== null) {
+        if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
         } else {
             $node = null;
         }
 
         $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);
+
         return (new Response())->setCode(200)->setBody($result);
     }
-    
 
     /**
      * @api {get} /api/v1/node/last-cursor Get last Cursor
@@ -1650,19 +1381,286 @@ class Node extends Controller
      *      "data": "aW5pdGlhbHwxMDB8NTc1YTlhMGIzYzU4ODkwNTE0OGI0NTZifDU3NWE5YTBiM2M1ODg5MDUxNDhiNDU2Yw=="
      * }
      *
-     * @param   string $id
-     * @param   string $p
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     *
+     * @return Response
      */
-    public function getLastCursor(?string $id=null, ?string $p=null): Response
+    public function getLastCursor(?string $id = null, ?string $p = null): Response
     {
-        if ($id !== null || $p !== null) {
+        if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
         } else {
             $node = null;
         }
 
-        $result= $this->fs->getDelta()->getLastCursor();
+        $result = $this->fs->getDelta()->getLastCursor();
+
         return (new Response())->setCode(200)->setBody($result);
+    }
+
+    /**
+     * @apiDefine _getNode
+     *
+     * @apiParam (GET Parameter) {string} id Either id or p (path) of a node must be given.
+     * @apiParam (GET Parameter) {string} p Either id or p (path) of a node must be given.
+     * @apiError (General Error Response) {number} status Status Code
+     * @apiError (General Error Response) {object[]} data Error body
+     * @apiError (General Error Response) {string} data.error Exception
+     * @apiError (General Error Response) {string} data.message Message
+     * @apiError (General Error Response) {number} data.code Error code
+     *
+     * @apiErrorExample {json} Error-Response (Invalid Parameter):
+     * HTTP/1.1 400 Bad Request
+     * {
+     *      "status": 400,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\InvalidArgument",
+     *          "message": "invalid node id specified",
+     *          "code": 0
+     *      }
+     * }
+     *
+     * @apiErrorExample {json} Error-Response (Insufficient Access):
+     * HTTP/1.1 403 Forbidden
+     * {
+     *      "status": 403,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\Forbidden",
+     *          "message": "not allowed to read node 51354d073c58891f058b4580",
+     *          "code": 40
+     *      }
+     * }
+     *
+     * @apiErrorExample {json} Error-Response (Not found):
+     * HTTP/1.1 404 Not Found
+     * {
+     *      "status": 404,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\NotFound",
+     *          "message": "node 51354d073c58891f058b4580 not found",
+     *          "code": 49
+     *      }
+     * }
+     */
+
+    /**
+     * @apiDefine _multiError
+     *
+     * @apiErrorExample {json} Error-Response (Multi node error):
+     * HTTP/1.1 400 Bad Request
+     * {
+     *     "status": 400,
+     *     "data": [
+     *         {
+     *              id: "51354d073c58891f058b4580",
+     *              name: "file.zip",
+     *              error: "Balloon\\Exception\\Conflict",
+     *              message: "node already exists",
+     *              code: 30
+     *         }
+     *     ]
+     * }
+     */
+
+    /**
+     * @apiDefine _writeAction
+     *
+     * @apiErrorExample {json} Error-Response (Conflict):
+     * HTTP/1.1 400 Bad Request
+     * {
+     *      "status": 400,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\Conflict",
+     *          "message": "a node called myname does already exists",
+     *          "code": 17
+     *      }
+     * }
+     */
+
+    /**
+     * @apiDefine _conflictNode
+     * @apiParam (GET Parameter) {number} [conflict=0] Decides how to handle a conflict if a node with the same name already exists at the destination.
+     * Possible values are:</br>
+     *  - 0 No action</br>
+     *  - 1 Automatically rename the node</br>
+     *  - 2 Overwrite the destination (merge)</br>
+     */
+
+    /**
+     * @apiDefine _getNodes
+     *
+     * @apiParam (GET Parameter) {string[]} id Either a single id as string or multiple as an array or a single p (path) as string or multiple paths as array must be given.
+     * @apiParam (GET Parameter) {string[]} p Either a single id as string or multiple as an array or a single p (path) as string or multiple paths as array must be given.
+     * @apiError (General Error Response) {number} status Status Code
+     * @apiError (General Error Response) {object[]} data Error body
+     * @apiError (General Error Response) {string} data.error Exception
+     * @apiError (General Error Response) {string} data.message Message
+     * @apiError (General Error Response) {number} data.code General error messages of type  Balloon\\Exception do not usually have an error code
+     *
+     * @apiErrorExample {json} Error-Response (Invalid Parameter):
+     * HTTP/1.1 400 Bad Request
+     * {
+     *      "status": 400,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\InvalidArgument",
+     *          "message": "invalid node id specified",
+     *          "code": 0
+     *      }
+     * }
+     *
+     * @apiErrorExample {json} Error-Response (Insufficient Access):
+     * HTTP/1.1 403 Forbidden
+     * {
+     *      "status": 403,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\Forbidden",
+     *          "message": "not allowed to read node 51354d073c58891f058b4580",
+     *          "code": 40
+     *      }
+     * }
+     *
+     * @apiErrorExample {json} Error-Response (Not found):
+     * HTTP/1.1 404 Not Found
+     * {
+     *      "status": 404,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\NotFound",
+     *          "message": "node 51354d073c58891f058b4580 not found",
+     *          "code": 49
+     *      }
+     * }
+     */
+
+    /**
+     * Get node.
+     *
+     * @param string $id
+     * @param string $path
+     * @param string $class      Force set node type
+     * @param bool   $deleted
+     * @param bool   $multiple   Allow $id to be an array
+     * @param bool   $allow_root Allow instance of root collection
+     * @param bool   $deleted    How to handle deleted node
+     *
+     * @return NodeInterface
+     */
+    protected function _getNode(
+        ?string $id = null,
+        ?string $path = null,
+        ?string $class = null,
+        bool $multiple = false,
+        bool $allow_root = false,
+        int $deleted = 2
+    ): NodeInterface {
+        if (null === $class) {
+            $class = join('', array_slice(explode('\\', get_class($this)), -1));
+        }
+
+        if ('Node' === $class) {
+            $class = null;
+        }
+
+        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
+    }
+
+    /**
+     * Merge multiple nodes into one zip archive.
+     *
+     * @param string $id
+     * @param string $path
+     * @param string $name
+     */
+    protected function _combine($id = null, ?string $path = null, string $name = 'selected'): void
+    {
+        $temp = $this->config->dir->temp.DIRECTORY_SEPARATOR.'zip';
+        if (!file_exists($temp)) {
+            mkdir($temp, 0700, true);
+        }
+
+        ZipStream::$temp = $temp;
+        $archive = new ZipStream($name.'.zip', 'application/zip', $name.'.zip');
+
+        foreach ($this->fs->findNodes($id) as $node) {
+            try {
+                $node->zip($archive);
+            } catch (\Exception $e) {
+                $this->logger->debug('failed zip node in multi node request ['.$node->getId().']', [
+                   'category' => get_class($this),
+                   'exception' => $e,
+               ]);
+            }
+        }
+
+        $archive->finalize();
+        exit();
+    }
+
+    /**
+     * Check custom node attributes which have to be written.
+     *
+     * @param array $attributes
+     *
+     * @return array
+     */
+    protected function _verifyAttributes(array $attributes): array
+    {
+        $valid_attributes = [
+            'changed',
+            'destroy',
+            'created',
+            'meta',
+            'readonly',
+        ];
+
+        if ($this instanceof ApiCollection) {
+            $valid_attributes[] = 'filter';
+        }
+
+        $check = array_merge(array_flip($valid_attributes), $attributes);
+
+        if ($this instanceof ApiCollection && count($check) > 6) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, filter, readonly and/or meta attributes may be overwritten');
+        }
+        if ($this instanceof ApiFile && count($check) > 5) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, readonly and/or meta attributes may be overwritten');
+        }
+
+        foreach ($attributes as $attribute => $value) {
+            switch ($attribute) {
+                case 'meta':
+                    $attributes['meta'] = CoreNode::validateMetaAttribute($attributes['meta']);
+
+                break;
+                case 'filter':
+                    $attributes['filter'] = (array) $attributes['filter'];
+
+                break;
+                case 'destroy':
+                    if (!Helper::isValidTimestamp($value)) {
+                        throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
+                    }
+                    $attributes[$attribute] = new \MongoDB\BSON\UTCDateTime($value.'000');
+
+                break;
+                case 'changed':
+                case 'created':
+                    if (!Helper::isValidTimestamp($value)) {
+                        throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
+                    }
+                    if ((int) $value > time()) {
+                        throw new Exception\InvalidArgument($attribute.' timestamp can not be set greater than the server time');
+                    }
+                    $attributes[$attribute] = new \MongoDB\BSON\UTCDateTime($value.'000');
+
+                break;
+                case 'readonly':
+                    $attributes['readonly'] = (bool) $attributes['readonly'];
+
+                break;
+            }
+        }
+
+        return $attributes;
     }
 }

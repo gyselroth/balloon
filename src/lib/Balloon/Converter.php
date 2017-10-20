@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,24 +7,24 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon;
 
-use \Balloon\Converter\Exception;
-use \Balloon\Converter\Result;
-use \Balloon\Converter\Adapter\Imagick;
-use \Balloon\Converter\Adapter\Office;
-use \Balloon\Filesystem\Node\File;
-use \Balloon\Converter\Adapter\AdapterInterface;
-use \Psr\Log\LoggerInterface;
-use \Micro\Container\AdapterAwareInterface;
+use Balloon\Converter\Adapter\AdapterInterface;
+use Balloon\Converter\Adapter\Imagick;
+use Balloon\Converter\Adapter\Office;
+use Balloon\Converter\Exception;
+use Balloon\Converter\Result;
+use Balloon\Filesystem\Node\File;
+use Micro\Container\AdapterAwareInterface;
+use Psr\Log\LoggerInterface;
 
 class Converter implements AdapterAwareInterface
 {
     /**
-     * Default adapter
+     * Default adapter.
      *
      * @var array
      */
@@ -32,46 +33,42 @@ class Converter implements AdapterAwareInterface
         Office::class => [],
     ];
 
-
     /**
-     * LoggerInterface
+     * LoggerInterface.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Adapter
+     * Adapter.
      *
      * @var array
      */
     protected $adapter = [];
 
-
     /**
-     * Initialize
+     * Initialize.
      *
-     * @param  LoggerInterface $logger
-     * @param  Iterable $config
-     * @return void
+     * @param LoggerInterface $logger
+     * @param iterable        $config
      */
-    public function __construct(LoggerInterface $logger, ?Iterable $config=null)
+    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->logger = $logger;
         $this->setOptions($config);
     }
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param  Iterable $config
+     * @param iterable $config
+     *
      * @return Converter
      */
     public function setOptions(? Iterable $config = null): Converter
     {
-        if ($config === null) {
+        if (null === $config) {
             $config = [];
         }
 
@@ -82,11 +79,11 @@ class Converter implements AdapterAwareInterface
         return $this;
     }
 
-
     /**
-     * Has adapter
+     * Has adapter.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return bool
      */
     public function hasAdapter(string $name): bool
@@ -94,28 +91,29 @@ class Converter implements AdapterAwareInterface
         return isset($this->adapter[$name]);
     }
 
-
     /**
-     * Inject adapter
+     * Inject adapter.
      *
-     * @param  AdapterInterface $adapter
+     * @param AdapterInterface $adapter
+     *
      * @return AdapterInterface
      */
-    public function injectAdapter(string $name, AdapterInterface $adapter) : AdapterInterface
+    public function injectAdapter(string $name, AdapterInterface $adapter): AdapterInterface
     {
         if ($this->hasAdapter($name)) {
             throw new Exception('adapter '.$name.' is already registered');
         }
 
         $this->adapter[$name] = $adapter;
+
         return $adapter;
     }
 
-
     /**
-     * Get adapter
+     * Get adapter.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return AdapterInterface
      */
     public function getAdapter(string $name): AdapterInterface
@@ -127,33 +125,31 @@ class Converter implements AdapterAwareInterface
         return $this->adapter[$name];
     }
 
-
     /**
-     * Get adapters
+     * Get adapters.
      *
-     * @param  array $adapters
+     * @param array $adapters
+     *
      * @return array
      */
     public function getAdapters(array $adapters = []): array
     {
         if (empty($adapter)) {
             return $this->adapter;
-        } else {
-            $list = [];
-            foreach ($adapter as $name) {
-                if (!$this->hasAdapter($name)) {
-                    throw new Exception('adapter '.$name.' is not registered');
-                }
-                $list[$name] = $this->adapter[$name];
-            }
-
-            return $list;
         }
+        $list = [];
+        foreach ($adapter as $name) {
+            if (!$this->hasAdapter($name)) {
+                throw new Exception('adapter '.$name.' is not registered');
+            }
+            $list[$name] = $this->adapter[$name];
+        }
+
+        return $list;
     }
 
-
     /**
-     * Get supported formats
+     * Get supported formats.
      *
      * @return array
      */
@@ -168,12 +164,12 @@ class Converter implements AdapterAwareInterface
         return [];
     }
 
-
     /**
-     * Convert document
+     * Convert document.
      *
-     * @param  File $file
-     * @param  string $format
+     * @param File   $file
+     * @param string $format
+     *
      * @return Result
      */
     public function convert(File $file, string $format): Result
@@ -186,7 +182,7 @@ class Converter implements AdapterAwareInterface
             } catch (\Exception $e) {
                 $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
                     'category' => get_class($this),
-                    'exception'=>$e
+                    'exception' => $e,
                 ]);
             }
         }

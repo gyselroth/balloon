@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,51 +7,50 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon;
 
-use \Balloon\Mime\Exception;
+use Balloon\Mime\Exception;
 
 class Mime
 {
     /**
-     * Mime type db
+     * Mime type db.
      *
      * @var string
      */
     protected $db = '/etc/mime.types';
 
-    
     /**
-     * Set path
+     * Set path.
      *
-     * @param  Iterable $config
-     * @return void
+     * @param iterable $config
      */
-    public function __construct(?Iterable $config=null)
+    public function __construct(?Iterable $config = null)
     {
         $this->setOptions($config);
     }
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param  Iterable $config
+     * @param iterable $config
+     *
      * @return Mime
      */
-    public function setOptions(?Iterable $config=null): Mime
+    public function setOptions(?Iterable $config = null): Mime
     {
-        if ($config === null) {
+        if (null === $config) {
             return $this;
         }
 
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'db':
-                    $this->db = (string)$value;
+                    $this->db = (string) $value;
+
                 break;
             }
         }
@@ -58,12 +58,12 @@ class Mime
         return $this;
     }
 
-
     /**
-     * Get mime
+     * Get mime.
      *
-     * @param  string $path
-     * @param  string $name
+     * @param string $path
+     * @param string $name
+     *
      * @return string
      */
     public function getMime(string $path, string $name): string
@@ -74,25 +74,25 @@ class Mime
             return $this->getMimeFromContents($path);
         }
     }
-    
-    
+
     /**
-     * Determine mime from contents
+     * Determine mime from contents.
      *
      * @return string
      */
     public function getMimeFromContents(string $path): string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime  = finfo_file($finfo, $path);
+        $mime = finfo_file($finfo, $path);
+
         return $mime;
     }
 
-
     /**
-     * Get mimetype with string (file has not to be exists)
+     * Get mimetype with string (file has not to be exists).
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return string
      */
     public function getMimeTypeFromExtension(string $name): string
@@ -110,17 +110,18 @@ class Mime
         $lines = file($this->db);
 
         foreach ($lines as $line) {
-            if (substr($line, 0, 1) == '#') {
+            if ('#' === substr($line, 0, 1)) {
                 continue;
             }
 
-            $line = rtrim($line) . " ";
+            $line = rtrim($line).' ';
             if (!preg_match($regex, $line, $matches)) {
                 continue;
             }
+
             return $matches[1];
         }
-    
+
         throw new Exception('extension '.$fileext.' not found in mime db');
     }
 }

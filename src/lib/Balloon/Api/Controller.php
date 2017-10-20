@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,65 +7,59 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Api;
 
-use \Psr\Log\LoggerInterface;
-use \Balloon\Server;
-use \Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Server;
+use Psr\Log\LoggerInterface;
 
 class Controller
 {
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
     protected $fs;
 
-
     /**
-     * LoggerInterface
+     * LoggerInterface.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
-
     /**
-     * User
+     * User.
      *
      * @var User
      */
     protected $user;
 
-
     /**
-     * Initialize
+     * Initialize.
      *
-     * @param  Filesystem $fs
-     * @param  Config $config
-     * @param  LoggerInterface $logger
-     * @return void
+     * @param Filesystem      $fs
+     * @param Config          $config
+     * @param LoggerInterface $logger
      */
     public function __construct(Server $server/*, LoggerInterface $logger*/)
     {
-        $this->fs     = $server->getFilesystem();
-        $this->user   = $server->getIdentity();
+        $this->fs = $server->getFilesystem();
+        $this->user = $server->getIdentity();
         $this->server = $server;
         //$this->logger = $logger;
     }
-
 
     /**
      * @apiDefine _getNode
@@ -111,7 +106,6 @@ class Controller
      * }
      */
 
-
     /**
      * @apiDefine _multiError
      *
@@ -131,7 +125,6 @@ class Controller
      * }
      */
 
-
     /**
      * @apiDefine _writeAction
      *
@@ -147,7 +140,6 @@ class Controller
      * }
      */
 
-
     /**
      * @apiDefine _conflictNode
      * @apiParam (GET Parameter) {number} [conflict=0] Decides how to handle a conflict if a node with the same name already exists at the destination.
@@ -156,7 +148,6 @@ class Controller
      *  - 1 Automatically rename the node</br>
      *  - 2 Overwrite the destination (merge)</br>
      */
-
 
     /**
      * @apiDefine _getNodes
@@ -203,32 +194,32 @@ class Controller
      * }
      */
 
-
     /**
-     * Get node
+     * Get node.
      *
-     * @param   string $id
-     * @param   string $path
-     * @param   string $class Force set node type
-     * @param   bool $deleted
-     * @param   bool $multiple Allow $id to be an array
-     * @param   bool $allow_root Allow instance of root collection
-     * @param   bool $deleted How to handle deleted node
-     * @return  NodeInterface
+     * @param string $id
+     * @param string $path
+     * @param string $class      Force set node type
+     * @param bool   $deleted
+     * @param bool   $multiple   Allow $id to be an array
+     * @param bool   $allow_root Allow instance of root collection
+     * @param bool   $deleted    How to handle deleted node
+     *
+     * @return NodeInterface
      */
     protected function _getNode(
-        ?string $id=null,
-        ?string $path=null,
-        ?string $class=null,
-        bool $multiple=false,
-        bool $allow_root=false,
-        int $deleted=2
+        ?string $id = null,
+        ?string $path = null,
+        ?string $class = null,
+        bool $multiple = false,
+        bool $allow_root = false,
+        int $deleted = 2
     ): NodeInterface {
-        if ($class === null) {
+        if (null === $class) {
             $class = join('', array_slice(explode('\\', get_class($this)), -1));
         }
 
-        if ($class === 'Node') {
+        if ('Node' === $class) {
             $class = null;
         }
 

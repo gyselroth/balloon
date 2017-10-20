@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,22 +7,21 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Database\Delta;
 
-use \MongoDB\Database;
-use \Psr\Log\LoggerInterface;
-use \Balloon\Async;
-use \MongoDB\BSON\UTCDateTime;
-use \Balloon\Database\AbstractDelta;
-use \MongoDB\Driver\Exception\RuntimeException;
+use Balloon\Async;
+use Balloon\Database\AbstractDelta;
+use MongoDB\BSON\UTCDateTime;
+use MongoDB\Database;
+use MongoDB\Driver\Exception\RuntimeException;
 
 class queueToCappedCollection extends AbstractDelta
 {
     /**
-     * Upgrade database
+     * Upgrade database.
      *
      * @return bool
      */
@@ -30,12 +30,12 @@ class queueToCappedCollection extends AbstractDelta
         try {
             $this->db->command([
                 'convertToCapped' => 'queue',
-                'size' => 100000
+                'size' => 100000,
             ]);
-        } catch(RuntimeException $e) {
-            if($e->getCode() === 26) {
+        } catch (RuntimeException $e) {
+            if (26 === $e->getCode()) {
                 $this->logger->debug('queue collection does not exists, skip upgrade', [
-                    'category' => get_class($this)
+                    'category' => get_class($this),
                 ]);
             } else {
                 throw $e;
@@ -45,9 +45,8 @@ class queueToCappedCollection extends AbstractDelta
         return true;
     }
 
-
     /**
-     * Get collection
+     * Get collection.
      *
      * @return string
      */
@@ -56,9 +55,8 @@ class queueToCappedCollection extends AbstractDelta
         return 'queue';
     }
 
-
     /**
-     * Upgrade object
+     * Upgrade object.
      *
      * @return array
      */
@@ -67,8 +65,8 @@ class queueToCappedCollection extends AbstractDelta
         return [
             '$set' => [
                 'timestamp' => new UTCDateTime(),
-                'status'    => Async::STATUS_WAITING
-            ]
+                'status' => Async::STATUS_WAITING,
+            ],
         ];
     }
 }

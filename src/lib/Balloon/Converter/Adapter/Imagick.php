@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,42 +7,43 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Converter\Adapter;
 
-use \Balloon\Filesystem\Node\File;
-use \Imagick as SystemImagick;
-use \Balloon\Converter\Exception;
-use \Balloon\Converter\Result;
+use Balloon\Converter\Exception;
+use Balloon\Converter\Result;
+use Balloon\Filesystem\Node\File;
+use Imagick as SystemImagick;
 
 class Imagick extends AbstractAdapter
 {
     /**
-     * Max size
+     * Max size.
      *
      * @var int
      */
     protected $max_size = 300;
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param  Iterable $config
+     * @param iterable $config
+     *
      * @return AdapterInterface
      */
-    public function setOptions(?Iterable $config=null): AdapterInterface
+    public function setOptions(?Iterable $config = null): AdapterInterface
     {
-        if ($config === null) {
+        if (null === $config) {
             return $this;
         }
 
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'max_size':
-                    $this->max_size = (int)$value;
+                    $this->max_size = (int) $value;
+
                     break;
             }
         }
@@ -49,28 +51,29 @@ class Imagick extends AbstractAdapter
         return $this;
     }
 
-
     /**
-     * Check extension match
+     * Check extension match.
      *
-     * @param   File $file
-     * @return  bool
+     * @param File $file
+     *
+     * @return bool
      */
     public function match(File $file): bool
     {
-        if ($file->getSize() === 0) {
+        if (0 === $file->getSize()) {
             return false;
         }
 
-        $extension  = $file->getExtension();
-        return in_array($extension, $this->getSupportedFormats($file));
+        $extension = $file->getExtension();
+
+        return in_array($extension, $this->getSupportedFormats($file), true);
     }
 
-    
     /**
-     * Get supported formats
+     * Get supported formats.
      *
-     * @param  File $file
+     * @param File $file
+     *
      * @return array
      */
     public function getSupportedFormats(File $file): array
@@ -78,12 +81,12 @@ class Imagick extends AbstractAdapter
         return array_map('strtolower', (new SystemImagick())->queryFormats());
     }
 
-
     /**
-     * Convert
+     * Convert.
      *
-     * @param  File $file
-     * @param  string $format
+     * @param File   $file
+     * @param string $format
+     *
      * @return Result
      */
     public function convert(File $file, string $format): Result
@@ -91,25 +94,26 @@ class Imagick extends AbstractAdapter
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
+
         return $this->createFromFile($source, $format);
     }
 
-
     /**
-     * Create from file
+     * Create from file.
      *
-     * @param   string $source
-     * @param   string $format
-     * @return  Result
+     * @param string $source
+     * @param string $format
+     *
+     * @return Result
      */
     public function createFromFile(string $source, string $format): Result
     {
         $desth = tmpfile();
-        $dest  = stream_get_meta_data($desth)['uri'];
-        
-        $image = new SystemImagick($source."[0]");
+        $dest = stream_get_meta_data($desth)['uri'];
 
-        $width  = $image->getImageWidth();
+        $image = new SystemImagick($source.'[0]');
+
+        $width = $image->getImageWidth();
         $height = $image->getImageHeight();
 
         if ($height <= $width && $width > $this->max_size) {
@@ -124,7 +128,7 @@ class Imagick extends AbstractAdapter
         $image->setColorSpace(SystemImagick::COLORSPACE_SRGB);
         $image->setImageFormat($format);
         $image->writeImage($dest);
-        
+
         if (!file_exists($dest) || filesize($dest) <= 0) {
             throw new Exception('failed convert file');
         }

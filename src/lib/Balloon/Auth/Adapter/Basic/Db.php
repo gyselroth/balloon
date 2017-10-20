@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,31 +7,31 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Auth\Adapter\Basic;
 
-use \Micro\Auth\Adapter\Basic\AbstractBasic;
-use \Micro\Auth\Adapter\AdapterInterface;
-use \MongoDB\Database;
-use \Psr\Log\LoggerInterface;
+use Micro\Auth\Adapter\AdapterInterface;
+use Micro\Auth\Adapter\Basic\AbstractBasic;
+use MongoDB\Database;
+use Psr\Log\LoggerInterface;
 
 class Db extends AbstractBasic
 {
     /**
-     * Db
+     * Db.
      *
      * @var Database
      */
     protected $db;
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param   Database $db
-     * @return  AdapterInterface
+     * @param Database $db
+     *
+     * @return AdapterInterface
      */
     public function __construct(LoggerInterface $logger, Database $db)
     {
@@ -38,23 +39,22 @@ class Db extends AbstractBasic
         $this->db = $db;
     }
 
-
     /**
-     * Find identity
+     * Find identity.
      *
-     * @param   string $username
-     * @return  array
+     * @param string $username
+     *
+     * @return array
      */
     public function findIdentity(string $username): ?array
     {
         return $this->db->user->findOne([
-            'username' => $username
+            'username' => $username,
         ]);
     }
 
-
     /**
-     * Get attributes
+     * Get attributes.
      *
      * @return array
      */

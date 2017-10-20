@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,7 +7,7 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Converter;
@@ -14,37 +15,34 @@ namespace Balloon\Converter;
 class Result
 {
     /**
-     * Stream
+     * Stream.
      *
      * @var resource
      */
     protected $stream;
 
-
     /**
-     * Path
+     * Path.
      *
      * @var string
      */
     protected $path;
 
-
     /**
-     * Create result
+     * Create result.
      *
-     * @param  string $path
-     * @param  resource $stream
-     * @return void
+     * @param string     $path
+     * @param resource   $stream
+     * @param null|mixed $resource
      */
-    public function __construct(string $path, $resource=null)
+    public function __construct(string $path, $resource = null)
     {
-        $this->path   = $path;
+        $this->path = $path;
         $this->stream = $resource;
     }
 
-
     /**
-     * Get path
+     * Get path.
      *
      * @return string
      */
@@ -53,24 +51,22 @@ class Result
         return $this->path;
     }
 
-    
     /**
-     * Open stream
+     * Open stream.
      *
      * @return resource
      */
     public function getStream()
     {
-        if ($this->stream === null) {
+        if (null === $this->stream) {
             return $this->stream = fopen($this->path, 'r');
         }
 
         return $this->stream;
     }
 
-
     /**
-     * Get contents
+     * Get contents.
      *
      * @return string
      */

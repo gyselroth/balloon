@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,14 +7,14 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Api\v1\Admin;
 
-use \Balloon\Exception;
-use \Balloon\Api\v1\User as SimpleUser;
-use \Micro\Http\Response;
+use Balloon\Api\v1\User as SimpleUser;
+use Balloon\Exception;
+use Micro\Http\Response;
 
 class User extends SimpleUser
 {
@@ -34,16 +35,17 @@ class User extends SimpleUser
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $uname
-     * @param   string $uid
-     * @return  Response
+     * @param string $uname
+     * @param string $uid
+     *
+     * @return Response
      */
-    public function head(?string $uid=null, ?string $uname=null): Response
+    public function head(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname);
+
         return (new Response())->setCode(204);
     }
-    
 
     /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
@@ -65,20 +67,21 @@ class User extends SimpleUser
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $uname
-     * @param   string $uid
-     * @param   int $hard
-     * @param   int $soft
-     * @return  Response
+     * @param string $uname
+     * @param string $uid
+     * @param int    $hard
+     * @param int    $soft
+     *
+     * @return Response
      */
-    public function postQuota(int $hard, int $soft, ?string $uid=null, ?string $uname=null): Response
+    public function postQuota(int $hard, int $soft, ?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname)
             ->setHardQuota($hard)
             ->setSoftQuota($soft);
+
         return (new Response())->setCode(204);
     }
-    
 
     /**
      * @api {delete} /api/v1/user?uid=:uid Delete user
@@ -110,16 +113,17 @@ class User extends SimpleUser
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $uname
-     * @param   string $uid
-     * @param   bool $force
-     * @return  Response
+     * @param string $uname
+     * @param string $uid
+     * @param bool   $force
+     *
+     * @return Response
      */
-    public function delete(?string $uid=null, ?string $uname=null, bool $force=false): Response
+    public function delete(?string $uid = null, ?string $uname = null, bool $force = false): Response
     {
         $user = $this->_getUser($uid, $uname);
 
-        if ($user->getId() == $this->user->getId()) {
+        if ($user->getId() === $this->user->getId()) {
             throw new Exception\Conflict(
                 'can not delete yourself',
                 Exception\Conflict::CAN_NOT_DELETE_OWN_ACCOUNT
@@ -127,10 +131,10 @@ class User extends SimpleUser
         }
 
         $user->delete($force);
+
         return (new Response())->setCode(204);
     }
 
-    
     /**
      * @api {post} /api/v1/user/undelete?uid=:uid Apiore user
      * @apiVersion 1.0.0
@@ -147,13 +151,15 @@ class User extends SimpleUser
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $uname
-     * @param   string $uid
-     * @return  Response
+     * @param string $uname
+     * @param string $uid
+     *
+     * @return Response
      */
-    public function postUndelete(?string $uid=null, ?string $uname=null): Response
+    public function postUndelete(?string $uid = null, ?string $uname = null): Response
     {
         $this->_getUser($uid, $uname)->undelete();
+
         return (new Response())->setCode(204);
     }
 }

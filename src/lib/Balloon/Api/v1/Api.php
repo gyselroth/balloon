@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,14 +7,13 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Api\v1;
 
-use \Balloon\Exception;
-use \Balloon\Api\Controller;
-use \Micro\Http\Response;
+use Balloon\Api\Controller;
+use Micro\Http\Response;
 
 class Api extends Controller
 {
@@ -47,13 +47,12 @@ class Api extends Controller
     public function get(): Response
     {
         $data = [
-            'name'        => 'balloon',
-            'api_version' => 1
+            'name' => 'balloon',
+            'api_version' => 1,
         ];
-        
+
         return (new Response())->setCode(200)->setBody($data);
     }
-
 
     /**
      * @api {get} /help API Help Reference
@@ -76,30 +75,30 @@ class Api extends Controller
         $api = [];
         $controllers = ['Api', 'User', 'Node', 'File', 'Collection', 'Admin\\User'];
         $prefix = ['GET', 'POST', 'DELETE', 'PUT', 'HEAD'];
-    
+
         foreach ($controllers as $controller) {
             $ref = new \ReflectionClass('Balloon\\Api\\v1\\'.$controller);
             $methods = $ref->getMethods(\ReflectionMethod::IS_PUBLIC);
 
             foreach ($methods as $method) {
-                $name  = $this->camelCase2Dashes($method->name);
+                $name = $this->camelCase2Dashes($method->name);
                 $parts = explode('-', $name);
-                $verb  = strtoupper($parts[0]);
-                $func  = substr($name, strlen($verb)+1);
-                $url   = '/rest/'.strtolower($controller).'/'.$func;
-                $doc   = $this->parsePhpDoc($method->getDocComment());
+                $verb = strtoupper($parts[0]);
+                $func = substr($name, strlen($verb) + 1);
+                $url = '/rest/'.strtolower($controller).'/'.$func;
+                $doc = $this->parsePhpDoc($method->getDocComment());
 
-                if (!in_array($verb, $prefix)) {
+                if (!in_array($verb, $prefix, true)) {
                     continue;
                 }
 
                 $api[$controller][$name] = [
-                    'url'    => substr(str_replace('\\', '/', $url), 5),
+                    'url' => substr(str_replace('\\', '/', $url), 5),
                     'method' => $verb,
-                    'return' => strtoupper($doc['return'])
+                    'return' => strtoupper($doc['return']),
                 ];
 
-                if ($name == 'get-help') {
+                if ('get-help' === $name) {
                     $api[$controller][$name]['url'] = '/rest/help';
                 }
             }
@@ -108,11 +107,11 @@ class Api extends Controller
         return (new Response())->setCode(200)->setBody($api);
     }
 
-
     /**
-     * Parse php doc
+     * Parse php doc.
      *
-     * @param  string $data
+     * @param string $data
+     *
      * @return array
      */
     protected function parsePhpDoc($data)
@@ -125,14 +124,15 @@ class Api extends Controller
         } else {
             $info['return'] = 'void';
         }
+
         return $info;
     }
 
-
     /**
-     * Convert camelCase to dashes
+     * Convert camelCase to dashes.
      *
-     * @param  string $value
+     * @param string $value
+     *
      * @return string
      */
     protected function camelCase2Dashes($value)

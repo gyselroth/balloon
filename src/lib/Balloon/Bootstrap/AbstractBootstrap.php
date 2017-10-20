@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,36 +7,34 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Bootstrap;
 
-use \Balloon\Exception;
-use \Micro\Config;
-use \Micro\Log;
-use \Balloon\Hook;
-use \Balloon\Async;
-use \Balloon\Filesystem;
-use \Balloon\Server;
-use \Composer\Autoload\ClassLoader as Composer;
-use \MongoDB\Client;
-use \MongoDB\Database;
-use \Micro\Auth;
-use \Balloon\Auth\Adapter\Basic\Db;
-use \Micro\Container;
-use \Micro\Log\Adapter\File;
-use \ErrorException;
-use \Balloon\App;
-use \Balloon\Filesystem\Storage;
-use \Balloon\Filesystem\Storage\Adapter\Gridfs;
-use \Psr\Log\LoggerInterface;
-use \Balloon\Converter;
+use Balloon\App;
+use Balloon\Auth\Adapter\Basic\Db;
+use Balloon\Converter;
+use Balloon\Exception;
+use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Storage\Adapter\Gridfs;
+use Balloon\Hook;
+use Balloon\Server;
+use Composer\Autoload\ClassLoader as Composer;
+use ErrorException;
+use Micro\Auth;
+use Micro\Config;
+use Micro\Container;
+use Micro\Log;
+use Micro\Log\Adapter\File;
+use MongoDB\Client;
+use MongoDB\Database;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractBootstrap
 {
     /**
-     * Config
+     * Config.
      *
      * @var array
      */
@@ -43,8 +42,8 @@ abstract class AbstractBootstrap
         Client::class => [
             'options' => [
                 'uri' => 'mongodb://localhost:27017',
-                'db' => 'balloon'
-            ]
+                'db' => 'balloon',
+            ],
         ],
         LoggerInterface::class => [
             'use' => Log::class,
@@ -53,54 +52,53 @@ abstract class AbstractBootstrap
                     'use' => File::class,
                     'options' => [
                         'config' => [
-                            'file'  => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
+                            'file' => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
                             'level' => 10,
                             'date_format' => 'Y-d-m H:i:s',
-                            'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}'
-                        ]
-                    ]
-                ]
-            ]
+                            'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}',
+                        ],
+                    ],
+                ],
+            ],
         ],
         Storage::class => [
             'adapter' => [
                 'gridfs' => [
-                    'use' => Gridfs::class
-                ]
-            ]
+                    'use' => Gridfs::class,
+                ],
+            ],
         ],
         Converter::class => [
-            'adapter' => Converter::DEFAULT_ADAPTER
+            'adapter' => Converter::DEFAULT_ADAPTER,
         ],
         Hook::class => [
-            'adapter' => Hook::DEFAULT_ADAPTER
+            'adapter' => Hook::DEFAULT_ADAPTER,
         ],
         Auth::class => [
             'adapter' => [
                 'basic_db' => [
                     'use' => Db::class,
-                ]
+                ],
             ],
         ],
         App::class => [
-            'adapter' => []
-        ]
+            'adapter' => [],
+        ],
     ];
 
-
     /**
-     * Dependency container
+     * Dependency container.
      *
      * @var Container
      */
     protected $container;
 
-
     /**
-     * Init bootstrap
+     * Init bootstrap.
      *
-     * @param  Composer $composer
-     * @param  Config $config
+     * @param Composer $composer
+     * @param Config   $config
+     *
      * @return bool
      */
     public function __construct(Composer $composer, ?Config $config)
@@ -110,28 +108,28 @@ abstract class AbstractBootstrap
         $this->setErrorHandler();
         $this->container = new Container($this->config);
         $this->container->get(LoggerInterface::class)->info('--------------------------------------------------> PROCESS', [
-            'category' => get_class($this)
+            'category' => get_class($this),
         ]);
 
         $this->container->get(LoggerInterface::class)->info('use ['.APPLICATION_ENV.'] environment', [
             'category' => get_class($this),
         ]);
 
-        $this->container->add(get_class($composer), function() use($composer) {
+        $this->container->add(get_class($composer), function () use ($composer) {
             return $composer;
         });
 
-        $this->container->add(Client::class, function(){
+        $this->container->add(Client::class, function () {
             return new Client($this->getParam(Client::class, 'uri'), [], [
                 'typeMap' => [
                     'root' => 'array',
                     'document' => 'array',
-                    'array' => 'array'
-                ]
+                    'array' => 'array',
+                ],
             ]);
         });
 
-        $this->container->add(Database::class, function(){
+        $this->container->add(Database::class, function () {
             return $this->get(Client::class)->balloon;
         });
 
@@ -143,18 +141,60 @@ abstract class AbstractBootstrap
         return true;
     }
 
+    /**
+     * Set options.
+     *
+     * @param Config $config
+     *
+     * @return AbstractBootstrap
+     */
+    public function setOptions(?Config $config): AbstractBootstrap
+    {
+        if (null === $config) {
+            return $this;
+        }
+
+        foreach ($config->children() as $option => $value) {
+            /*if(!isset($value['name'])) {
+                throw new Exception('invalid configuration given, objects needs service name';
+            }*/
+
+            if (!isset($this->config[$value['name']])) {
+                $this->config[$value['name']] = [];
+            }
+
+            foreach ($value as $type => $config) {
+                switch ($type) {
+                    case 'class':
+                        $this->config[$value['service']]['class'] = $config;
+
+                    break;
+                    case 'adapter':
+                        $this->config[$value['service']]['adapter'] = $config;
+
+                    break;
+                    case 'options':
+                        $this->config[$value['service']]['options'] = $config;
+
+                    break;
+                }
+            }
+        }
+
+        return $this;
+    }
 
     /**
-     * Register apps
+     * Register apps.
      *
      * @return AbstractBootstrap
      */
     protected function registerApps(): AbstractBootstrap
     {
         $manager = $this->container->get(App::class);
-        foreach($this->config[App::class]['adapter'] as $name => $config) {
+        foreach ($this->config[App::class]['adapter'] as $name => $config) {
             $options = null;
-            if(isset($config['config'])) {
+            if (isset($config['config'])) {
                 $options = $config['config'];
             }
 
@@ -164,15 +204,14 @@ abstract class AbstractBootstrap
         return $this;
     }
 
-
     /**
-     * Find apps
+     * Find apps.
      *
      * @return AbstractBootstrap
      */
     protected function detectApps(): AbstractBootstrap
     {
-        if($this instanceof Http) {
+        if ($this instanceof Http) {
             $context = 'Http';
         } else {
             $context = 'Cli';
@@ -191,75 +230,35 @@ abstract class AbstractBootstrap
         return $this;
     }
 
-
     /**
-     * Set options
-     *
-     * @param  Config $config
-     * @return AbstractBootstrap
-     */
-    public function setOptions(?Config $config): AbstractBootstrap
-    {
-        if ($config === null) {
-            return $this;
-        }
-
-        foreach ($config->children() as $option => $value) {
-            /*if(!isset($value['name'])) {
-                throw new Exception('invalid configuration given, objects needs service name';
-            }*/
-
-            if(!isset($this->config[$value['name']])) {
-                $this->config[$value['name']] = [];
-            }
-
-            foreach($value as $type => $config) {
-                switch($type) {
-                    case 'class':
-                        $this->config[$value['service']]['class'] = $config;
-                    break;
-                    case 'adapter':
-                        $this->config[$value['service']]['adapter'] = $config;
-                    break;
-                    case 'options':
-                        $this->config[$value['service']]['options'] = $config;
-                    break;
-                }
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Set error handler
+     * Set error handler.
      *
      * @return AbstractBootstrap
      */
     protected function setErrorHandler(): AbstractBootstrap
     {
         set_error_handler(function ($severity, $message, $file, $line) {
-            $log = $message." in ".$file.":".$line;
+            $log = $message.' in '.$file.':'.$line;
             switch ($severity) {
                 case E_ERROR:
                 case E_USER_ERROR:
                     $this->container->get(LoggerInterface::class)->error($log, [
-                        'category' => get_class($this)
+                        'category' => get_class($this),
                     ]);
-                break;
 
+                break;
                 case E_WARNING:
                 case E_USER_WARNING:
                     $this->container->get(LoggerInterface::class)->warning($log, [
-                        'category' => get_class($this)
+                        'category' => get_class($this),
                     ]);
-                break;
 
+                break;
                 default:
                     $this->container->get(LoggerInterface::class)->debug($log, [
-                        'category' => get_class($this)
+                        'category' => get_class($this),
                     ]);
+
                 break;
             }
 

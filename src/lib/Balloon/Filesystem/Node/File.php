@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,40 +7,37 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Filesystem\Node;
 
-use \Sabre\DAV;
-use \Balloon\Exception;
-use \Balloon\Helper;
-use \Balloon\Server\User;
-use \Balloon\Filesystem;
-use \MongoDB\BSON\ObjectId;
-use \MongoDB\BSON\UTCDateTime;
-use \Balloon\Mime;
+use Balloon\Exception;
+use Balloon\Filesystem;
+use Balloon\Helper;
+use Balloon\Mime;
+use Balloon\Server\User;
+use MongoDB\BSON\UTCDateTime;
+use Sabre\DAV;
 
 class File extends AbstractNode implements DAV\IFile
 {
     /**
-     * History types
+     * History types.
      */
-    const HISTORY_CREATE    = 0;
-    const HISTORY_EDIT      = 1;
-    const HISTORY_RESTORE   = 2;
-    const HISTORY_DELETE    = 3;
-    const HISTORY_UNDELETE  = 4;
-
+    const HISTORY_CREATE = 0;
+    const HISTORY_EDIT = 1;
+    const HISTORY_RESTORE = 2;
+    const HISTORY_DELETE = 3;
+    const HISTORY_UNDELETE = 4;
 
     /**
-     * Empty content hash (NULL)
+     * Empty content hash (NULL).
      */
     const EMPTY_CONTENT = 'd41d8cd98f00b204e9800998ecf8427e';
 
-
     /**
-     * Temporary file patterns
+     * Temporary file patterns.
      *
      * @param array
      **/
@@ -55,53 +53,46 @@ class File extends AbstractNode implements DAV\IFile
         '/^~lock.(.*)#$/', // Windows 7 lockfiles
     ];
 
-
     /**
-     * MD5 Hash of the content
+     * MD5 Hash of the content.
      *
      * @var string
      */
     protected $hash;
 
-
     /**
-     * File version
+     * File version.
      *
      * @var int
      */
     protected $version = 0;
 
-
     /**
-     * File size
+     * File size.
      *
      * @var int
      */
     protected $size = 0;
 
-
     /**
-     * Mimetype
+     * Mimetype.
      *
      * @var string
      */
     protected $mime = '';
 
-
     /**
-     * History
+     * History.
      *
      * @var array
      */
     protected $history = [];
 
-
     /**
-     * Init virtual file and set attributes
+     * Init virtual file and set attributes.
      *
-     * @param   array $attributes
-     * @param   Filesystem $fs
-     * @return  void
+     * @param array      $attributes
+     * @param Filesystem $fs
      */
     public function __construct(array $attributes, Filesystem $fs)
     {
@@ -109,20 +100,19 @@ class File extends AbstractNode implements DAV\IFile
         $this->_verifyAccess();
     }
 
-
     /**
-     * Read content and return ressource
+     * Read content and return ressource.
      *
      * @return resource
      */
     public function get()
     {
         try {
-            if ($this->storage === null || !isset($this->storage['attributes'])) {
+            if (null === $this->storage || !isset($this->storage['attributes'])) {
                 return null;
-            } else {
-                return $this->storage_handler->getFile($this, $this->storage);
             }
+
+            return $this->storage_handler->getFile($this, $this->storage);
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'content not found',
@@ -131,30 +121,30 @@ class File extends AbstractNode implements DAV\IFile
         }
     }
 
-
     /**
-     * Copy node
+     * Copy node.
      *
-     * @param  Collection $parent
-     * @param  int $conflict
-     * @param  string $recursion
-     * @param  bool $recursion_first
+     * @param Collection $parent
+     * @param int        $conflict
+     * @param string     $recursion
+     * @param bool       $recursion_first
+     *
      * @return NodeInterface
      */
-    public function copyTo(Collection $parent, int $conflict=NodeInterface::CONFLICT_NOACTION, ?string $recursion=null, bool $recursion_first=true): NodeInterface
+    public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
     {
         $this->_hook->run(
             'preCopyFile',
             [$this, $parent, &$conflict, &$recursion, &$recursion_first]
         );
 
-        if ($conflict === NodeInterface::CONFLICT_RENAME && $parent->childExists($this->name)) {
+        if (NodeInterface::CONFLICT_RENAME === $conflict && $parent->childExists($this->name)) {
             $name = $this->getDuplicateName();
         } else {
             $name = $this->name;
         }
 
-        if ($conflict === NodeInterface::CONFLICT_MERGE && $parent->childExists($this->name)) {
+        if (NodeInterface::CONFLICT_MERGE === $conflict && $parent->childExists($this->name)) {
             $result = $parent->getChild($this->name);
             $result->put($this->get());
         } else {
@@ -162,7 +152,7 @@ class File extends AbstractNode implements DAV\IFile
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
-                'app_attributes' => $this->app_attributes
+                'app_attributes' => $this->app_attributes,
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
@@ -174,9 +164,8 @@ class File extends AbstractNode implements DAV\IFile
         return $result;
     }
 
-
     /**
-     * Get history
+     * Get history.
      *
      * @return array
      */
@@ -186,7 +175,7 @@ class File extends AbstractNode implements DAV\IFile
         $filtered = [];
 
         foreach ($history as $version) {
-            $v = (array)$version;
+            $v = (array) $version;
 
             $v['user'] = $this->_fs->getServer()->getUserById($version['user'])->getUsername();
             $v['changed'] = Helper::DateTimeToUnix($version['changed']);
@@ -196,12 +185,12 @@ class File extends AbstractNode implements DAV\IFile
         return $filtered;
     }
 
-
     /**
-     * Restore content to some older version
+     * Restore content to some older version.
      *
-     * @param   int $version
-     * @return  bool
+     * @param int $version
+     *
+     * @return bool
      */
     public function restore(int $version): bool
     {
@@ -221,17 +210,17 @@ class File extends AbstractNode implements DAV\IFile
             );
         }
 
-        if ($this->version == $version) {
+        if ($this->version === $version) {
             throw new Exception('file is already version '.$version);
         }
 
-        $v = array_search($version, array_column($this->history, 'version'));
-        if ($v === null) {
+        $v = array_search($version, array_column($this->history, 'version'), true);
+        if (null === $v) {
             throw new Exception('failed restore file to version '.$version.', version was not found');
         }
 
         $file = $this->history[$v]['storage'];
-        if ($file !== null) {
+        if (null !== $file) {
             $exists = $this->storage_handler->hasFile($this, $this->history[$v]['storage']);
 
             if (!$exists) {
@@ -240,26 +229,26 @@ class File extends AbstractNode implements DAV\IFile
         }
 
         $current = $this->version;
-        $new     = $this->increaseVersion();
+        $new = $this->increaseVersion();
 
         $this->history[] = [
             'version' => $new,
             'changed' => $this->changed,
-            'user'    => $this->owner,
-            'type'    => self::HISTORY_RESTORE,
-            'origin'  => $this->history[$v]['version'],
+            'user' => $this->owner,
+            'type' => self::HISTORY_RESTORE,
+            'origin' => $this->history[$v]['version'],
             'storage' => $this->history[$v]['storage'],
-            'size'    => $this->history[$v]['size'],
-            'mime'    => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
+            'size' => $this->history[$v]['size'],
+            'mime' => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
         ];
 
         try {
             $this->deleted = false;
             $this->version = $new;
             $this->storage = $this->history[$v]['storage'];
-            $this->hash    = $file === null ? self::EMPTY_CONTENT : $exists['md5'];
-            $this->mime    = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
-            $this->size    = $this->history[$v]['size'];
+            $this->hash = null === $file ? self::EMPTY_CONTENT : $exists['md5'];
+            $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
+            $this->size = $this->history[$v]['size'];
             $this->changed = $this->history[$v]['changed'];
 
             $this->save([
@@ -270,7 +259,7 @@ class File extends AbstractNode implements DAV\IFile
                 'mime',
                 'size',
                 'history',
-                'changed'
+                'changed',
             ]);
 
             $this->_hook->run('postRestoreFile', [$this, &$version]);
@@ -290,19 +279,19 @@ class File extends AbstractNode implements DAV\IFile
         return true;
     }
 
-
     /**
-     * Delete node
+     * Delete node.
      *
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
      *
-     * @param   bool $force
-     * @param   string $recursion
-     * @param   bool $recursion_first
-     * @return  bool
+     * @param bool   $force
+     * @param string $recursion
+     * @param bool   $recursion_first
+     *
+     * @return bool
      */
-    public function delete(bool $force=false, ?string $recursion=null, bool $recursion_first=true): bool
+    public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden(
@@ -313,16 +302,17 @@ class File extends AbstractNode implements DAV\IFile
 
         $this->_hook->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
 
-        if ($this->readonly && $this->_user !== null) {
+        if ($this->readonly && null !== $this->_user) {
             throw new Exception\Conflict(
                 'node is marked as readonly, it is not possible to delete it',
                 Exception\Conflict::READONLY
             );
         }
 
-        if ($force === true || $this->isTemporaryFile()) {
+        if (true === $force || $this->isTemporaryFile()) {
             $result = $this->_forceDelete();
             $this->_hook->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);
+
             return $result;
         }
 
@@ -333,25 +323,25 @@ class File extends AbstractNode implements DAV\IFile
         $this->history[] = [
             'version' => $this->version,
             'changed' => $ts,
-            'user'    => $this->_user->getId(),
-            'type'    => self::HISTORY_DELETE,
+            'user' => $this->_user->getId(),
+            'type' => self::HISTORY_DELETE,
             'storage' => $this->storage,
-            'size'    => $this->size,
+            'size' => $this->size,
         ];
 
         $result = $this->save([
             'version',
             'deleted',
-            'history'
+            'history',
         ], [], $recursion, $recursion_first);
 
         $this->_hook->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);
+
         return $result;
     }
 
-
     /**
-     * Check if file is temporary
+     * Check if file is temporary.
      *
      * @return bool
      **/
@@ -366,18 +356,18 @@ class File extends AbstractNode implements DAV\IFile
         return false;
     }
 
-
     /**
-     * Delete version
+     * Delete version.
      *
-     * @param  int $version
+     * @param int $version
+     *
      * @return bool
      */
     public function deleteVersion(int $version): bool
     {
-        $key = array_search($version, array_column($this->history, 'version'));
+        $key = array_search($version, array_column($this->history, 'version'), true);
 
-        if ($key === false) {
+        if (false === $key) {
             throw new Exception('version '.$version.' does not exists');
         }
 
@@ -403,9 +393,188 @@ class File extends AbstractNode implements DAV\IFile
         }
     }
 
+    /**
+     * Cleanup history.
+     *
+     * @return bool
+     */
+    public function cleanHistory(): bool
+    {
+        foreach ($this->history as $node) {
+            $this->deleteVersion($node['version']);
+        }
+
+        return true;
+    }
 
     /**
-     * Completly remove file
+     * Get Attributes.
+     *
+     * @param array $attributes
+     *
+     * @return array
+     */
+    public function getAttributes(array $attributes = []): array
+    {
+        if (empty($attributes)) {
+            $attributes = [
+                'id',
+                'name',
+                'hash',
+                'size',
+                'version',
+                'meta',
+                'mime',
+                'deleted',
+                'changed',
+                'created',
+                'share',
+                'directory',
+            ];
+        }
+
+        $build = [];
+        foreach ($attributes as $key => $attr) {
+            switch ($attr) {
+               case 'hash':
+               case 'version':
+                   $build[$attr] = $this->{$attr};
+
+               break;
+            }
+        }
+
+        $attributes = parent::getAttributes($attributes);
+
+        return array_merge($build, $attributes);
+    }
+
+    /**
+     * Get filename extension.
+     *
+     * @return string
+     */
+    public function getExtension(): string
+    {
+        $ext = strrchr($this->name, '.');
+        if (false === $ext) {
+            throw new Exception('file does not have an extension');
+        }
+
+        return substr($ext, 1);
+    }
+
+    /**
+     * Get mime type.
+     *
+     * @return string
+     */
+    public function getContentType(): string
+    {
+        return $this->mime;
+    }
+
+    /**
+     * Get file size.
+     *
+     * @return int
+     */
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
+    /**
+     * Get md5 sum of the file content,
+     * actually the hash value comes from the database.
+     *
+     * @return string
+     */
+    public function getETag(): string
+    {
+        return "'".$this->hash."'";
+    }
+
+    /**
+     * Change content.
+     *
+     * @param resource|string $file
+     * @param bool            $new
+     * @param array           $attributes
+     *
+     * @return int
+     */
+    public function put($file, bool $new = false, array $attributes = []): int
+    {
+        $this->_logger->debug('add contents for file ['.$this->_id.']', [
+            'category' => get_class($this),
+        ]);
+
+        $this->validatePutRequest($file, $new, $attributes);
+        $file = $this->createTemporaryFile($file, $stream);
+        $new_hash = $this->verifyFile($file, $new);
+
+        if ($this->hash === $new_hash) {
+            $this->_logger->info('stop PUT execution, content checksums are equal for file ['.$this->_id.']', [
+                'category' => get_class($this),
+            ]);
+
+            //Remove tmp file
+            if (null !== $file) {
+                unlink($file);
+                fclose($stream);
+            }
+
+            return $this->version;
+        }
+
+        $this->hash = $new_hash;
+        $max = (int) (string) $this->_fs->getServer()->getMaxFileVersion();
+        if (count($this->history) >= $max) {
+            $del = key($this->history);
+            $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [
+                'category' => get_class($this),
+            ]);
+
+            $this->deleteVersion($this->history[$del]['version']);
+        }
+
+        //Write new content
+        if ($this->size > 0) {
+            $options = $this->storage_handler->storeFile($this, $this->storage, $stream);
+            $this->storage['attributes'] = $options;
+        } else {
+            unset($this->storage['attributes']);
+        }
+
+        //Update current version
+        $this->increaseVersion();
+
+        //Get meta attributes
+        if (isset($attributes['mime'])) {
+            $this->mime = $attributes['mime'];
+        } elseif (null !== $file) {
+            $this->mime = (new Mime())->getMime($file, $this->name);
+        }
+
+        //Remove tmp file
+        if (null !== $file) {
+            unlink($file);
+            fclose($stream);
+        }
+
+        $this->_logger->debug('set mime ['.$this->mime.'] for content, file=['.$this->_id.']', [
+            'category' => get_class($this),
+        ]);
+
+        $this->addVersion($attributes)
+             ->postPutFile($file, $new, $attributes);
+
+        return $this->version;
+    }
+
+    /**
+     * Completly remove file.
      *
      * @return bool
      */
@@ -432,133 +601,28 @@ class File extends AbstractNode implements DAV\IFile
         return true;
     }
 
-
     /**
-     * Cleanup history
-     *
-     * @return bool
-     */
-    public function cleanHistory(): bool
-    {
-        foreach ($this->history as $node) {
-            $this->deleteVersion($node['version']);
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Get Attributes
-     *
-     * @param  array $attributes
-     * @return array
-     */
-    public function getAttributes(array $attributes=[]): array
-    {
-        if (empty($attributes)) {
-            $attributes = [
-                'id',
-                'name',
-                'hash',
-                'size',
-                'version',
-                'meta',
-                'mime',
-                'deleted',
-                'changed',
-                'created',
-                'share',
-                'directory'
-            ];
-        }
-
-        $build = [];
-        foreach ($attributes as $key => $attr) {
-            switch ($attr) {
-               case 'hash':
-               case 'version':
-                   $build[$attr] = $this->{$attr};
-               break;
-            }
-        }
-
-        $attributes = parent::getAttributes($attributes);
-        return array_merge($build, $attributes);
-    }
-
-
-    /**
-     * Get filename extension
-     *
-     * @return string
-     */
-    public function getExtension(): string
-    {
-        $ext = strrchr($this->name, '.');
-        if ($ext === false) {
-            throw new Exception('file does not have an extension');
-        } else {
-            return substr($ext, 1);
-        }
-    }
-
-
-    /**
-     * Get mime type
-     *
-     * @return string
-     */
-    public function getContentType(): string
-    {
-        return $this->mime;
-    }
-
-
-    /**
-     * Get file size
-     *
-     * @return int
-     */
-    public function getSize(): int
-    {
-        return $this->size;
-    }
-
-
-    /**
-     * Get md5 sum of the file content,
-     * actually the hash value comes from the database
-     *
-     * @return string
-     */
-    public function getETag(): string
-    {
-        return "'".$this->hash."'";
-    }
-
-
-    /**
-     * Increase version
+     * Increase version.
      *
      * @return int
      */
     protected function increaseVersion(): int
     {
-        $this->version++;
+        ++$this->version;
+
         return $this->version;
     }
 
-
     /**
-     * Create uuidv4
+     * Create uuidv4.
      *
-     * @param  string $data
+     * @param string $data
+     *
      * @return string
      */
     protected function guidv4(string $data): string
     {
-        assert(strlen($data) == 16);
+        assert(16 === strlen($data));
 
         $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
@@ -566,94 +630,16 @@ class File extends AbstractNode implements DAV\IFile
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
-
     /**
-     * Change content
+     * Change content.
      *
-     * @param   resource|string $file
-     * @param   bool $new
-     * @param   array $attributes
-     * @return  int
-     */
-    public function put($file, bool $new=false, array $attributes=[]): int
-    {
-        $this->_logger->debug('add contents for file ['.$this->_id.']', [
-            'category' => get_class($this),
-        ]);
-
-        $this->validatePutRequest($file, $new, $attributes);
-        $file = $this->createTemporaryFile($file, $stream);
-        $new_hash = $this->verifyFile($file, $new);
-
-        if ($this->hash == $new_hash) {
-            $this->_logger->info('stop PUT execution, content checksums are equal for file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-            //Remove tmp file
-            if ($file !== null) {
-                unlink($file);
-                fclose($stream);
-            }
-
-            return $this->version;
-        }
-
-        $this->hash = $new_hash;
-        $max = (int)(string)$this->_fs->getServer()->getMaxFileVersion();
-        if (count($this->history) >= $max) {
-            $del = key($this->history);
-            $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-            $this->deleteVersion($this->history[$del]['version']);
-        }
-
-        //Write new content
-        if ($this->size > 0) {
-            $options = $this->storage_handler->storeFile($this, $this->storage, $stream);
-            $this->storage['attributes'] = $options;
-        } else {
-            unset($this->storage['attributes']);
-        }
-
-        //Update current version
-        $this->increaseVersion();
-
-        //Get meta attributes
-        if (isset($attributes['mime'])) {
-            $this->mime = $attributes['mime'];
-        } elseif ($file !== null) {
-            $this->mime = (new Mime())->getMime($file, $this->name);
-        }
-
-        //Remove tmp file
-        if ($file !== null) {
-            unlink($file);
-            fclose($stream);
-        }
-
-        $this->_logger->debug('set mime ['.$this->mime.'] for content, file=['.$this->_id.']', [
-            'category' => get_class($this),
-        ]);
-
-        $this->addVersion($attributes)
-             ->postPutFile($file, $new, $attributes);
-
-        return $this->version;
-    }
-
-
-    /**
-     * Change content
+     * @param resource|string $file
+     * @param bool            $new
+     * @param array           $attributes
      *
-     * @param   resource|string $file
-     * @param   bool $new
-     * @param   array $attributes
-     * @return  bool
+     * @return bool
      */
-    protected function validatePutRequest($file, bool $new=false, array $attributes=[]): bool
+    protected function validatePutRequest($file, bool $new = false, array $attributes = []): bool
     {
         if (!$this->isAllowed('w')) {
             throw new Exception\Forbidden(
@@ -671,7 +657,7 @@ class File extends AbstractNode implements DAV\IFile
             );
         }
 
-        if ($this->isShareMember() && $new === false && $this->getShareNode()->getAclPrivilege() === 'w') {
+        if ($this->isShareMember() && false === $new && 'w' === $this->getShareNode()->getAclPrivilege()) {
             throw new Exception\Forbidden(
                 'not allowed to overwrite node',
                 Exception\Forbidden::NOT_ALLOWED_TO_OVERWRITE
@@ -681,30 +667,30 @@ class File extends AbstractNode implements DAV\IFile
         return true;
     }
 
-
     /**
-     * Verify content to be added
+     * Verify content to be added.
      *
-     * @param  string $path
-     * @param  bool $new
+     * @param string $path
+     * @param bool   $new
+     *
      * @return bool
      */
-    protected function verifyFile(?string $path, bool $new=false): string
+    protected function verifyFile(?string $path, bool $new = false): string
     {
-        if ($path === null) {
+        if (null === $path) {
             $this->size = 0;
-            $new_hash  = self::EMPTY_CONTENT;
+            $new_hash = self::EMPTY_CONTENT;
         } else {
-            $size       = filesize($path);
+            $size = filesize($path);
             $this->size = $size;
-            $new_hash   = md5_file($path);
+            $new_hash = md5_file($path);
 
             if (!$this->_user->checkQuota($size)) {
                 $this->_logger->warning('could not execute PUT, user quota is full', [
                     'category' => get_class($this),
                 ]);
 
-                if ($new === true) {
+                if (true === $new) {
                     $this->_forceDelete();
                 }
 
@@ -718,12 +704,12 @@ class File extends AbstractNode implements DAV\IFile
         return $new_hash;
     }
 
-
     /**
-     * Create temporary file
+     * Create temporary file.
      *
-     * @param  string|resource $file
-     * @param  resource $stream
+     * @param resource|string $file
+     * @param resource        $stream
+     *
      * @return string
      */
     protected function createTemporaryFile($file, &$stream): ?string
@@ -742,19 +728,20 @@ class File extends AbstractNode implements DAV\IFile
 
             $tmp_file = $tmp.DIRECTORY_SEPARATOR.$this->guidv4(openssl_random_pseudo_bytes(16));
             $stream = fopen($tmp_file, 'w+');
-            $size = stream_copy_to_stream($file, $stream, ((int)$this->_fs->getServer()->getMaxFileSize() + 1));
+            $size = stream_copy_to_stream($file, $stream, ((int) $this->_fs->getServer()->getMaxFileSize() + 1));
             rewind($stream);
             fclose($file);
 
-            if ($size > (int)$this->_fs->getServer()->getMaxFileSize()) {
+            if ($size > (int) $this->_fs->getServer()->getMaxFileSize()) {
                 unlink($tmp_file);
+
                 throw new Exception\InsufficientStorage(
                     'file size exceeded limit',
                     Exception\InsufficientStorage::FILE_SIZE_LIMIT
                 );
             }
 
-            $file  = $tmp_file;
+            $file = $tmp_file;
         } else {
             $file = null;
         }
@@ -762,16 +749,16 @@ class File extends AbstractNode implements DAV\IFile
         return $file;
     }
 
-
     /**
-     * Add new version
+     * Add new version.
      *
-     * @param  array $attributes
+     * @param array $attributes
+     *
      * @return File
      */
-    protected function addVersion(array $attributes=[]): File
+    protected function addVersion(array $attributes = []): File
     {
-        if ($this->version != 1) {
+        if (1 !== $this->version) {
             if (isset($attributes['changed'])) {
                 if (!($attributes['changed'] instanceof UTCDateTime)) {
                     throw new Exception\InvalidArgument('attribute changed must be an instance of UTCDateTime');
@@ -789,11 +776,11 @@ class File extends AbstractNode implements DAV\IFile
             $this->history[] = [
                 'version' => $this->version,
                 'changed' => $this->changed,
-                'user'    => $this->_user->getId(),
-                'type'    => self::HISTORY_EDIT,
+                'user' => $this->_user->getId(),
+                'type' => self::HISTORY_EDIT,
                 'storage' => $this->storage,
-                'size'    => $this->size,
-                'mime'    => $this->mime,
+                'size' => $this->size,
+                'mime' => $this->mime,
             ];
         } else {
             $this->_logger->debug('added first file version [1] for file ['.$this->_id.']', [
@@ -803,24 +790,24 @@ class File extends AbstractNode implements DAV\IFile
             $this->history[0] = [
                 'version' => 1,
                 'changed' => isset($attributes['changed']) ? $attributes['changed'] : new UTCDateTime(),
-                'user'    => $this->owner,
-                'type'    => self::HISTORY_CREATE,
+                'user' => $this->owner,
+                'type' => self::HISTORY_CREATE,
                 'storage' => $this->storage,
-                'size'    => $this->size,
-                'mime'    => $this->mime,
+                'size' => $this->size,
+                'mime' => $this->mime,
             ];
         }
 
         return $this;
     }
 
-
     /**
-     * Finalize put request
+     * Finalize put request.
      *
-     * @param string|resource $file
-     * @param bool $new
-     * @param array $attributes
+     * @param resource|string $file
+     * @param bool            $new
+     * @param array           $attributes
+     *
      * @return File
      */
     protected function postPutFile($file, bool $new, array $attributes): File
@@ -833,7 +820,7 @@ class File extends AbstractNode implements DAV\IFile
                 'hash',
                 'version',
                 'history',
-                'storage'
+                'storage',
             ]);
 
             $this->_logger->debug('modifed file metadata ['.$this->_id.']', [

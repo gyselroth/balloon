@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,48 +7,44 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Bootstrap;
 
-use \Balloon\App\AppInterface;
-use \Balloon\App;
-use \Micro\Config;
-use \Composer\Autoload\ClassLoader as Composer;
-use \Micro\Log\Adapter\Stdout;
-use \Balloon\Console\Async;
-use \Balloon\Console\Database;
-use \Balloon\Console\ConsoleInterface;
-use \GetOpt\GetOpt;
-use \Psr\Log\LoggerInterface;
+use Balloon\Console\Async;
+use Balloon\Console\ConsoleInterface;
+use Balloon\Console\Database;
+use Composer\Autoload\ClassLoader as Composer;
+use GetOpt\GetOpt;
+use Micro\Config;
+use Micro\Log\Adapter\Stdout;
+use Psr\Log\LoggerInterface;
 
 class Cli extends AbstractBootstrap
 {
     /**
-     * Console modules
+     * Console modules.
      *
      * @var array
      */
     protected $module = [
-        'async'    => Async::class,
-        'database' => Database::class
+        'async' => Async::class,
+        'database' => Database::class,
     ];
 
-
     /**
-     * Init bootstrap
+     * Init bootstrap.
      *
-     * @param  Composer $composer
-     * @param  Config $config
-     * @return void
+     * @param Composer $composer
+     * @param Config   $config
      */
-    public function __construct(Composer $composer, ?Config $config=null)
+    public function __construct(Composer $composer, ?Config $config = null)
     {
         parent::__construct($composer, $config);
         $this->setExceptionHandler();
 
-        $this->container->add(GetOpt::class, function(){
+        $this->container->add(GetOpt::class, function () {
             return new GetOpt([
                 ['v', 'verbose', GetOpt::NO_ARGUMENT, 'Verbose'],
             ]);
@@ -57,7 +54,7 @@ class Cli extends AbstractBootstrap
         $module = $this->getModule($getopt);
         $getopt->process();
 
-        if ($module === null || in_array('help', $_SERVER['argv'])) {
+        if (null === $module || in_array('help', $_SERVER['argv'], true)) {
             die($this->getHelp($getopt, $module));
         }
 
@@ -65,15 +62,14 @@ class Cli extends AbstractBootstrap
         $this->start($module);
     }
 
-
     /**
-     * Configure cli logger
+     * Configure cli logger.
      *
      * @return Cli
      */
-    protected function configureLogger(?int $level=null): Cli
+    protected function configureLogger(?int $level = null): Cli
     {
-        if ($level === null) {
+        if (null === $level) {
             $level = 4;
         } else {
             $level += 4;
@@ -83,8 +79,8 @@ class Cli extends AbstractBootstrap
 
         if (!$logger->hasAdapter('stdout')) {
             $logger->addAdapter('stdout', Stdout::class, [
-                'level'  => $level,
-                'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}']);
+                'level' => $level,
+                'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}', ]);
         } else {
             $logger->getAdapter('stdout')->setOptions(['level' => $level]);
         }
@@ -92,17 +88,17 @@ class Cli extends AbstractBootstrap
         return $this;
     }
 
-
     /**
-     * Show help
+     * Show help.
      *
-     * @param  GetOpt $getopt
-     * @param  ConsoleInterface $module
+     * @param GetOpt           $getopt
+     * @param ConsoleInterface $module
+     *
      * @return string
      */
-    protected function getHelp(GetOpt $getopt, ?ConsoleInterface $module=null): string
+    protected function getHelp(GetOpt $getopt, ?ConsoleInterface $module = null): string
     {
-        $help  = "Balloon\n";
+        $help = "Balloon\n";
         $help .= "balloon (GLOBAL OPTIONS) [MODULE] (MODULE OPTIONS)\n\n";
 
         $help .= "Options:\n";
@@ -110,7 +106,7 @@ class Cli extends AbstractBootstrap
             $help .= '-'.$option->short().' --'.$option->long().' '.$option->description()."\n";
         }
 
-        if ($module === null) {
+        if (null === $module) {
             $help .= "\nModules:\n";
             $help .= "help (MODULE)\t Displays a reference for module\n";
             $help .= "async\t\t Handles asynchronous jobs\n";
@@ -120,11 +116,11 @@ class Cli extends AbstractBootstrap
         return $help;
     }
 
-
     /**
-     * Get module
+     * Get module.
      *
-     * @param  GetOpt $getopt
+     * @param GetOpt $getopt
+     *
      * @return ConsoleInterface
      */
     protected function getModule(GetOpt $getopt): ?ConsoleInterface
@@ -138,11 +134,11 @@ class Cli extends AbstractBootstrap
         return null;
     }
 
-
     /**
-     * Parse cmd options
+     * Parse cmd options.
      *
-     * @param  GetOpt $getopt
+     * @param GetOpt $getopt
+     *
      * @return Cli
      */
     protected function initGlobalOptions(GetOpt $getopt): Cli
@@ -152,10 +148,10 @@ class Cli extends AbstractBootstrap
         $logger = $this->container->get(LoggerInterface::class);
         $logger->info('processing incomming cli request', [
             'category' => get_class($this),
-            'options'  => $getopt->getOptions()
+            'options' => $getopt->getOptions(),
         ]);
 
-        if (posix_getuid() == 0) {
+        if (0 === posix_getuid()) {
             $logger->warning('cli should not be executed as root', [
                 'category' => get_class($this),
             ]);
@@ -164,11 +160,11 @@ class Cli extends AbstractBootstrap
         return $this;
     }
 
-
     /**
-     * Start
+     * Start.
      *
-     * @param  array $options
+     * @param array $options
+     *
      * @return bool
      */
     protected function start(ConsoleInterface $module): bool
@@ -176,9 +172,8 @@ class Cli extends AbstractBootstrap
         return $module->start();
     }
 
-
     /**
-     * Set exception handler
+     * Set exception handler.
      *
      * @return Cli
      */
@@ -188,7 +183,7 @@ class Cli extends AbstractBootstrap
             $logger = $this->container->get(LoggerInterface::class);
             $logger->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),
-                'exception' => $e
+                'exception' => $e,
             ]);
         });
 

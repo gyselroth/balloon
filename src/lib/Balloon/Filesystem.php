@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,101 +7,90 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon;
 
-use \Balloon\Exception;
-use \Psr\Log\LoggerInterface;
-use \Balloon\Filesystem\Delta;
-use \Balloon\Filesystem\Node\NodeInterface;
-use \Balloon\Filesystem\Node\Collection;
-use \Balloon\Filesystem\Node\File;
-use \MongoDB\Database;
-use \MongoDB\BSON\ObjectID;
-use \Generator;
-use \Balloon\Server\User;
-use \Balloon\Filesystem\Storage\StorageInterface;
+use Balloon\Filesystem\Delta;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Server\User;
+use Generator;
+use MongoDB\BSON\ObjectID;
+use MongoDB\Database;
+use Psr\Log\LoggerInterface;
 
 class Filesystem
 {
     /**
-     * Database
+     * Database.
      *
      * @var Database
      */
     protected $db;
 
-
     /**
-     * LoggerInterface
+     * LoggerInterface.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Hook
+     * Hook.
      *
      * @var Hook
      */
     protected $hook;
 
-
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
-
     /**
-     * Root collection
+     * Root collection.
      *
      * @var Collection
      */
     protected $root;
 
-
     /**
-     * User
+     * User.
      *
      * @var Delta
      */
     protected $delta;
 
-
     /**
-     * Get user
+     * Get user.
      *
      * @var User
      */
     protected $user;
 
-
     /**
-     * Initialize
+     * Initialize.
      *
-     * @param  Server $server
-     * @param  LoggerInterface $logger
-     * @param  User $user
-     * @return void
+     * @param Server          $server
+     * @param LoggerInterface $logger
+     * @param User            $user
      */
-    public function __construct(Server $server, LoggerInterface $logger, ?User $user=null)
+    public function __construct(Server $server, LoggerInterface $logger, ?User $user = null)
     {
-        $this->user      = $user;
-        $this->server    = $server;
-        $this->db        = $server->getDatabase();
-        $this->logger    = $logger;
-        $this->hook      = $server->getHook();
+        $this->user = $user;
+        $this->server = $server;
+        $this->db = $server->getDatabase();
+        $this->logger = $logger;
+        $this->hook = $server->getHook();
     }
 
-
     /**
-     * Get user
+     * Get user.
      *
      * @return User
      */
@@ -109,9 +99,8 @@ class Filesystem
         return $this->user;
     }
 
-
     /**
-     * Get server
+     * Get server.
      *
      * @return Server
      */
@@ -120,9 +109,8 @@ class Filesystem
         return $this->server;
     }
 
-
     /**
-     * Get database
+     * Get database.
      *
      * @return Database
      */
@@ -131,9 +119,8 @@ class Filesystem
         return $this->db;
     }
 
-
     /**
-     * Get root
+     * Get root.
      *
      * @return Collection
      */
@@ -146,9 +133,8 @@ class Filesystem
         return $this->root = new Collection(null, $this);
     }
 
-
     /**
-     * Get delta
+     * Get delta.
      *
      * @return Delta
      */
@@ -161,17 +147,17 @@ class Filesystem
         return $this->delta = new Delta($this);
     }
 
-
     /**
-     * Find raw node
+     * Find raw node.
      *
-     * @param  ObjectID $id
+     * @param ObjectID $id
+     *
      * @return array
      */
     public function findRawNode(ObjectID $id): array
     {
         $node = $this->db->storage->findOne(['_id' => $id]);
-        if ($node === null) {
+        if (null === $node) {
             throw new Exception\NotFound(
                 'node '.$id.' not found',
                 Exception\NotFound::NODE_NOT_FOUND
@@ -181,82 +167,16 @@ class Filesystem
         return $node;
     }
 
-
     /**
-     * Initialize node
+     * Factory loader.
      *
-     * @param  array $node
+     * @param ObjectID|string $id
+     * @param string          $class   Fore check node type
+     * @param int             $deleted
+     *
      * @return NodeInterface
      */
-    protected function initNode(array $node): NodeInterface
-    {
-        if (isset($node['shared']) && $node['shared'] === true && $this->user !== null && $node['owner'] != $this->user->getId()) {
-            if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
-                $this->logger->debug('reference node ['.$node['_id'].'] requested from share owner, trying to find the shared node', [
-                    'category' => get_class($this),
-                ]);
-
-                $node = $this->db->storage->findOne([
-                    'owner' => $this->user->getId(),
-                    'shared' => true,
-                    '_id' => $node['reference'],
-                ]);
-
-                if ($node === null) {
-                    throw new Exception\NotFound(
-                        'no share node for reference node '.$node['reference'].' found',
-                        Exception\NotFound::SHARE_NOT_FOUND
-                    );
-                }
-            } else {
-                $this->logger->debug('share node ['.$node['_id'].'] requested from member, trying to find the reference node', [
-                    'category' => get_class($this)
-                ]);
-
-                $node = $this->db->storage->findOne([
-                    'owner' => $this->user->getId(),
-                    'shared' => true,
-                    'reference' => $node['_id'],
-                ]);
-
-                if ($node === null) {
-                    throw new Exception\NotFound(
-                        'no share reference for node '.$node['_id'].' found',
-                        Exception\NotFound::REFERENCE_NOT_FOUND
-                    );
-                }
-            }
-        }
-
-        if (isset($node['parent'])) {
-            try {
-                $this->findNodeWithId($node['parent']);
-            } catch (Exception\InvalidArgument $e) {
-                throw new Exception\InvalidArgument('invalid parent node specified: ' . $e->getMessage());
-            } catch (Exception\NotFound $e) {
-                throw new Exception\InvalidArgument('invalid parent node specified: ' . $e->getMessage());
-            }
-        }
-
-        if (!array_key_exists('directory', $node)) {
-            throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
-        } elseif ($node['directory'] == true) {
-            return new Collection($node, $this);
-        } else {
-            return new File($node, $this);
-        }
-    }
-
-
-    /**
-     * Factory loader
-     *
-     * @param   string|ObjectID $id
-     * @param   string $class Fore check node type
-     * @param   int $deleted
-     * @return  NodeInterface
-     */
-    public function findNodeWithId($id, ?string $class=null, int $deleted=NodeInterface::DELETED_INCLUDE): NodeInterface
+    public function findNodeWithId($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
     {
         if (!is_string($id) && !($id instanceof ObjectID)) {
             throw new Exception\InvalidArgument($id.' node id has to be a string or instance of \MongoDB\BSON\ObjectID');
@@ -271,7 +191,7 @@ class Filesystem
         }
 
         $filter = [
-            '_id' => $id
+            '_id' => $id,
         ];
 
         switch ($deleted) {
@@ -279,15 +199,17 @@ class Filesystem
                 break;
             case NodeInterface::DELETED_EXCLUDE:
                 $filter['deleted'] = false;
+
                 break;
             case NodeInterface::DELETED_ONLY:
                 $filter['deleted'] = ['$type' => 9];
+
                 break;
         }
 
         $node = $this->db->storage->findOne($filter);
 
-        if ($node === null) {
+        if (null === $node) {
             throw new Exception\NotFound(
                 'node ['.$id.'] not found',
                 Exception\NotFound::NODE_NOT_FOUND
@@ -296,33 +218,33 @@ class Filesystem
 
         $return = $this->initNode($node);
 
-        if ($class !== null) {
+        if (null !== $class) {
             $class = '\Balloon\Filesystem\Node\\'.$class;
         }
 
-        if ($class !== null && !($return instanceof $class)) {
+        if (null !== $class && !($return instanceof $class)) {
             throw new Exception('node '.get_class($return).' is not instance of '.$class);
         }
 
         return $return;
     }
 
-
     /**
-     * Load node with path
+     * Load node with path.
      *
-     * @param   string $path
-     * @param   string $class Fore check node type
-     * @return  NodeInterface
+     * @param string $path
+     * @param string $class Fore check node type
+     *
+     * @return NodeInterface
      */
-    public function findNodeWithPath(string $path='', ?string $class=null): NodeInterface
+    public function findNodeWithPath(string $path = '', ?string $class = null): NodeInterface
     {
-        if (empty($path) || $path[0] != '/') {
+        if (empty($path) || '/' !== $path[0]) {
             $path = '/'.$path;
         }
 
-        $last = strlen($path)-1;
-        if ($path[$last] == '/') {
+        $last = strlen($path) - 1;
+        if ('/' === $path[$last]) {
             $path = substr($path, 0, -1);
         }
 
@@ -333,27 +255,27 @@ class Filesystem
             $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
         }
 
-        if ($class !== null) {
+        if (null !== $class) {
             $class = '\Balloon\Filesystem\Node\\'.$class;
         }
 
-        if ($class !== null && !($parent instanceof $class)) {
+        if (null !== $class && !($parent instanceof $class)) {
             throw new Exception('node is not instance of '.$class);
         }
 
         return $parent;
     }
 
-
     /**
-     * Factory loader
+     * Factory loader.
      *
-     * @param   array $id
-     * @param   string $class Fore check node type
-     * @param   bool $deleted
-     * @return  Generator
+     * @param array  $id
+     * @param string $class   Fore check node type
+     * @param bool   $deleted
+     *
+     * @return Generator
      */
-    public function findNodes(array $id=[], ?string $class=null, int $deleted=NodeInterface::DELETED_INCLUDE): Generator
+    public function findNodes(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): Generator
     {
         $find = [];
         foreach ($id as $i) {
@@ -361,7 +283,7 @@ class Filesystem
         }
 
         $filter = [
-            '_id' => ['$in' => $find]
+            '_id' => ['$in' => $find],
         ];
 
         switch ($deleted) {
@@ -369,15 +291,17 @@ class Filesystem
                 break;
             case NodeInterface::DELETED_EXCLUDE:
                 $filter['deleted'] = false;
+
                 break;
             case NodeInterface::DELETED_ONLY:
                 $filter['deleted'] = ['$type' => 9];
+
                 break;
         }
 
         $result = $this->db->storage->find($filter);
 
-        if ($class !== null) {
+        if (null !== $class) {
             $class = '\Balloon\Filesystem\Node\\'.$class;
         }
 
@@ -385,7 +309,7 @@ class Filesystem
         foreach ($result as $node) {
             $return = $this->initNode($node);
 
-            if ($class !== null && !($return instanceof $class)) {
+            if (null !== $class && !($return instanceof $class)) {
                 throw new Exception('node is not instance of '.$class);
             }
 
@@ -393,41 +317,43 @@ class Filesystem
         }
     }
 
-
     /**
-     * Load node
+     * Load node.
      *
-     * @param   string $id
-     * @param   string $path
-     * @param   string $class Force set node type
-     * @param   bool $deleted
-     * @param   bool $multiple Allow $id to be an array
-     * @param   bool $allow_root Allow instance of root collection
-     * @param   bool $deleted How to handle deleted node
-     * @return  NodeInterface
+     * @param string $id
+     * @param string $path
+     * @param string $class      Force set node type
+     * @param bool   $deleted
+     * @param bool   $multiple   Allow $id to be an array
+     * @param bool   $allow_root Allow instance of root collection
+     * @param bool   $deleted    How to handle deleted node
+     *
+     * @return NodeInterface
      */
-    public function getNode($id=null, $path=null, $class=null, $multiple=false, $allow_root=false, $deleted=null): NodeInterface
+    public function getNode($id = null, $path = null, $class = null, $multiple = false, $allow_root = false, $deleted = null): NodeInterface
     {
         if (empty($id) && empty($path)) {
-            if ($allow_root === true) {
+            if (true === $allow_root) {
                 return $this->getRoot();
             }
 
             throw new Exception\InvalidArgument('neither parameter id nor p (path) was given');
-        } elseif ($id !== null && $path !== null) {
+        }
+        if (null !== $id && null !== $path) {
             throw new Exception\InvalidArgument('parameter id and p (path) can not be used at the same time');
-        } elseif ($id !== null) {
-            if ($deleted === null) {
+        }
+        if (null !== $id) {
+            if (null === $deleted) {
                 $deleted = NodeInterface::DELETED_INCLUDE;
             }
 
-            if ($multiple === true && is_array($id)) {
+            if (true === $multiple && is_array($id)) {
                 $node = $this->findNodes($id, $class, $deleted);
             } else {
                 $node = $this->findNodeWithId($id, $class, $deleted);
             }
-        } elseif ($path !== null) {
-            if ($deleted === null) {
+        } elseif (null !== $path) {
+            if (null === $deleted) {
                 $deleted = NodeInterface::DELETED_EXCLUDE;
             }
 
@@ -437,17 +363,17 @@ class Filesystem
         return $node;
     }
 
-
     /**
-     * Find node with custom filter
+     * Find node with custom filter.
      *
-     * @param   array $filter
-     * @return  NodeInterface
+     * @param array $filter
+     *
+     * @return NodeInterface
      */
     public function findNodeWithCustomFilter(array $filter): NodeInterface
     {
         $result = $this->db->storage->findOne($filter);
-        if ($result === null) {
+        if (null === $result) {
             throw new Exception\NotFound(
                 'node with custom filter was not found',
                 Exception\NotFound::NODE_NOT_FOUND
@@ -457,12 +383,12 @@ class Filesystem
         return $this->initNode($result);
     }
 
-
     /**
-     * Find nodes with custom filters
+     * Find nodes with custom filters.
      *
-     * @param   array $filter
-     * @return  Generator
+     * @param array $filter
+     *
+     * @return Generator
      */
     public function findNodesWithCustomFilter(array $filter): Generator
     {
@@ -478,20 +404,20 @@ class Filesystem
                 yield $this->initNode($node);
             } catch (\Exception $e) {
                 $this->logger->info('remove node from result list, failed load node', [
-                    'category'  => get_class($this),
-                    'exception' => $e
+                    'category' => get_class($this),
+                    'exception' => $e,
                 ]);
             }
         }
     }
 
-
     /**
-     * Get custom filtered children
+     * Get custom filtered children.
      *
-     * @param   int $deleted
-     * @param   array $filter
-     * @return  Generator
+     * @param int   $deleted
+     * @param array $filter
+     *
+     * @return Generator
      */
     public function findNodesWithCustomFilterUser(int $deleted, array $filter): Generator
     {
@@ -503,14 +429,14 @@ class Filesystem
         $stored_filter = ['$and' => [
             [],
             ['$or' => [
-                ['owner' =>  $this->user->getId()],
+                ['owner' => $this->user->getId()],
                 ['shared' => ['$in' => $shares]],
-            ]]
+            ]],
         ]];
 
-        if ($deleted === NodeInterface::DELETED_EXCLUDE) {
+        if (NodeInterface::DELETED_EXCLUDE === $deleted) {
             $stored_filter['$and'][0]['deleted'] = false;
-        } elseif ($deleted === NodeInterface::DELETED_ONLY) {
+        } elseif (NodeInterface::DELETED_ONLY === $deleted) {
             $stored_filter['$and'][0]['deleted'] = ['$type' => 9];
         }
 
@@ -522,24 +448,24 @@ class Filesystem
                 yield $this->initNode($node);
             } catch (\Exception $e) {
                 $this->logger->info('remove node from result list, failed load node', [
-                    'category'  => get_class($this),
-                    'exception' => $e
+                    'category' => get_class($this),
+                    'exception' => $e,
                 ]);
             }
         }
     }
 
-
     /**
-     * Get children with custom filter
+     * Get children with custom filter.
      *
-     * @param   array $filter
-     * @param   array $attributes
-     * @param   int $limit
-     * @param   string $cursor
-     * @param   bool $has_more
-     * @param   NodeInterface $parent
-     * @return  array
+     * @param array         $filter
+     * @param array         $attributes
+     * @param int           $limit
+     * @param string        $cursor
+     * @param bool          $has_more
+     * @param NodeInterface $parent
+     *
+     * @return array
      */
     public function findNodeAttributesWithCustomFilter(
         ?array $filter = null,
@@ -550,28 +476,28 @@ class Filesystem
         ?NodeInterface $parent = null
     ) {
         $default = [
-            '_id'       => 1,
+            '_id' => 1,
             'directory' => 1,
-            'shared'    => 1,
-            'name'      => 1,
-            'parent'    => 1,
+            'shared' => 1,
+            'name' => 1,
+            'parent' => 1,
         ];
 
         $search_attributes = array_merge($default, array_fill_keys($attributes, 1));
-        $list   = [];
+        $list = [];
 
-        $result =$this->db->storage->find($filter, [
-            'skip'      => $cursor,
-            'limit'     => $limit,
-            'projection'=> $search_attributes
+        $result = $this->db->storage->find($filter, [
+            'skip' => $cursor,
+            'limit' => $limit,
+            'projection' => $search_attributes,
         ]);
 
-        $left =$this->db->storage->count($filter, [
+        $left = $this->db->storage->count($filter, [
             'skip' => $cursor,
         ]);
 
-        $result   = $result->toArray();
-        $count    = count($result);
+        $result = $result->toArray();
+        $count = count($result);
         $has_more = ($left - $count) > 0;
 
         foreach ($result as $node) {
@@ -580,14 +506,15 @@ class Filesystem
             try {
                 $node = $this->initNode($node);
 
-                if ($parent !== null && !$parent->isSubNode($node)) {
+                if (null !== $parent && !$parent->isSubNode($node)) {
                     continue;
                 }
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
                     'category' => get_class($this),
-                    'exception'=> $e
+                    'exception' => $e,
                 ]);
+
                 continue;
             }
 
@@ -596,6 +523,74 @@ class Filesystem
         }
 
         $has_more = ($left - $count) > 0;
+
         return $list;
+    }
+
+    /**
+     * Initialize node.
+     *
+     * @param array $node
+     *
+     * @return NodeInterface
+     */
+    protected function initNode(array $node): NodeInterface
+    {
+        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] !== $this->user->getId()) {
+            if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
+                $this->logger->debug('reference node ['.$node['_id'].'] requested from share owner, trying to find the shared node', [
+                    'category' => get_class($this),
+                ]);
+
+                $node = $this->db->storage->findOne([
+                    'owner' => $this->user->getId(),
+                    'shared' => true,
+                    '_id' => $node['reference'],
+                ]);
+
+                if (null === $node) {
+                    throw new Exception\NotFound(
+                        'no share node for reference node '.$node['reference'].' found',
+                        Exception\NotFound::SHARE_NOT_FOUND
+                    );
+                }
+            } else {
+                $this->logger->debug('share node ['.$node['_id'].'] requested from member, trying to find the reference node', [
+                    'category' => get_class($this),
+                ]);
+
+                $node = $this->db->storage->findOne([
+                    'owner' => $this->user->getId(),
+                    'shared' => true,
+                    'reference' => $node['_id'],
+                ]);
+
+                if (null === $node) {
+                    throw new Exception\NotFound(
+                        'no share reference for node '.$node['_id'].' found',
+                        Exception\NotFound::REFERENCE_NOT_FOUND
+                    );
+                }
+            }
+        }
+
+        if (isset($node['parent'])) {
+            try {
+                $this->findNodeWithId($node['parent']);
+            } catch (Exception\InvalidArgument $e) {
+                throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
+            } catch (Exception\NotFound $e) {
+                throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
+            }
+        }
+
+        if (!array_key_exists('directory', $node)) {
+            throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
+        }
+        if (true === $node['directory']) {
+            return new Collection($node, $this);
+        }
+
+        return new File($node, $this);
     }
 }

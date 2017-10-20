@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,7 +7,7 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Async;
@@ -14,26 +15,25 @@ namespace Balloon\Async;
 interface JobInterface
 {
     /**
-     * Get job data
+     * Get job data.
      *
-     * @param  array $data
+     * @param array $data
+     *
      * @return JobInterface
      */
     public function setData(array $data): JobInterface;
 
-
     /**
-     * Get job data
+     * Get job data.
      *
      * @return array
      */
     public function getData(): array;
 
-
     /**
-     * Start job
+     * Start job.
      *
-     * @return  bool
+     * @return bool
      */
     public function start(): bool;
 }

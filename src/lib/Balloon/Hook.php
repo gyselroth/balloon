@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,76 +7,73 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon;
 
-use \Balloon\Hook\Exception;
-use \Balloon\Hook\HookInterface;
-use \Psr\Log\LoggerInterface;
-use \Micro\Container\AdapterAwareInterface;
-use \Balloon\Hook\Delta;
+use Balloon\Hook\Delta;
+use Balloon\Hook\Exception;
+use Balloon\Hook\HookInterface;
+use Micro\Container\AdapterAwareInterface;
+use Psr\Log\LoggerInterface;
 
 class Hook implements AdapterAwareInterface
 {
     /**
-     * Default hooks
+     * Default hooks.
      */
     const DEFAULT_ADAPTER = [
-        Delta::class => []
+        Delta::class => [],
     ];
 
-
     /**
-     * Hooks
+     * Hooks.
      *
      * @var array
      */
     protected $hook = [];
 
-
     /**
-     * LoggerInterface
+     * LoggerInterface.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Init hook manager
+     * Init hook manager.
      *
-     * @param   LoggerInterface $logger
-     * @return  void
+     * @param LoggerInterface $logger
      */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
-
     /**
-     * Inject hook
+     * Inject hook.
      *
-     * @param  HookInterface $adapter
+     * @param HookInterface $adapter
+     *
      * @return Hook
      */
-    public function injectHook(HookInterface $hook) : Hook
+    public function injectHook(HookInterface $hook): Hook
     {
         if ($this->hasHook(get_class($hook))) {
             throw new Exception('hook '.get_class($hook).' is already registered');
         }
 
         $this->hook[get_class($hook)] = $hook;
+
         return $this;
     }
 
-
     /**
-     * Has hook
+     * Has hook.
      *
-     * @param  string $class
+     * @param string $class
+     *
      * @return bool
      */
     public function hasHook(string $class): bool
@@ -83,11 +81,11 @@ class Hook implements AdapterAwareInterface
         return isset($this->hook[$class]);
     }
 
-
     /**
-     * Get hook
+     * Get hook.
      *
-     * @param  string $class
+     * @param string $class
+     *
      * @return HookInterface
      */
     public function getHook(string $class): HookInterface
@@ -99,39 +97,38 @@ class Hook implements AdapterAwareInterface
         return $this->hook[$class];
     }
 
-
     /**
-     * Get hooks
+     * Get hooks.
      *
-     * @param  array $hooks
+     * @param array $hooks
+     *
      * @return array
      */
     public function getHooks(array $hooks = []): array
     {
         if (empty($hook)) {
             return $this->hook;
-        } else {
-            $list = [];
-            foreach ($hook as $class) {
-                if (!$this->hasHook($class)) {
-                    throw new Exception('hook '.$class.' is not registered');
-                }
-                $list[$class] = $this->hook[$class];
-            }
-
-            return $list;
         }
+        $list = [];
+        foreach ($hook as $class) {
+            if (!$this->hasHook($class)) {
+                throw new Exception('hook '.$class.' is not registered');
+            }
+            $list[$class] = $this->hook[$class];
+        }
+
+        return $list;
     }
 
-
     /**
-     * Run hook method
+     * Run hook method.
      *
-     * @param   string $method
-     * @param   array $context
-     * @return  bool
+     * @param string $method
+     * @param array  $context
+     *
+     * @return bool
      */
-    public function run(string $method, array $context=[]): bool
+    public function run(string $method, array $context = []): bool
     {
         $this->logger->debug('execute hooks hooks for ['.$method.']', [
             'category' => get_class($this),
@@ -153,11 +150,11 @@ class Hook implements AdapterAwareInterface
         return true;
     }
 
-
     /**
-     * Has adapter
+     * Has adapter.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return bool
      */
     public function hasAdapter(string $name): bool
@@ -165,12 +162,12 @@ class Hook implements AdapterAwareInterface
         return $this->hasHook($name);
     }
 
-
     /**
-     * Inject adapter
+     * Inject adapter.
      *
-     * @param  string $name
-     * @param  AdapterInterface $adapter
+     * @param string           $name
+     * @param AdapterInterface $adapter
+     *
      * @return AdapterInterface
      */
     public function injectAdapter(string $name, HookInterface $adapter): Hook
@@ -178,11 +175,11 @@ class Hook implements AdapterAwareInterface
         return $this->injectHook($adapter);
     }
 
-
     /**
-     * Get adapter
+     * Get adapter.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return AdapterInterface
      */
     public function getAdapter(string $name): AppInterface
@@ -190,11 +187,11 @@ class Hook implements AdapterAwareInterface
         return $this->getApp($name);
     }
 
-
     /**
-     * Get adapters
+     * Get adapters.
      *
-     * @param  array $adapters
+     * @param array $adapters
+     *
      * @return array
      */
     public function getAdapters(array $adapters = []): array

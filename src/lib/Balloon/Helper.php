@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,28 +7,26 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon;
 
-use \Balloon\Exception;
-use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\Model\BSONArray;
-use \MongoDB\Model\BSONDocument;
-use \Stdclass;
+use MongoDB\BSON\UTCDateTime;
+use Stdclass;
 
 class Helper
 {
     /**
-     * Convert UTCDateTime to unix ts
+     * Convert UTCDateTime to unix ts.
      *
-     * @param  UTCDateTime $date
+     * @param UTCDateTime $date
+     *
      * @return StdClass
      */
     public static function DateTimeToUnix(?UTCDateTime $date): ?Stdclass
     {
-        if ($date === null) {
+        if (null === $date) {
             return null;
         }
 
@@ -35,14 +34,15 @@ class Helper
         $ts = new StdClass();
         $ts->sec = $date->format('U');
         $ts->usec = $date->format('u');
+
         return $ts;
     }
 
-
     /**
-     * Filter data
+     * Filter data.
      *
-     * @param  mixed $data
+     * @param mixed $data
+     *
      * @return mixed
      */
     public static function filter($data)
@@ -58,11 +58,11 @@ class Helper
         return $data;
     }
 
-
     /**
-     * Escape data
+     * Escape data.
      *
-     * @param  mixed $data
+     * @param mixed $data
+     *
      * @return mixed
      */
     public static function escape($data)
@@ -78,11 +78,11 @@ class Helper
         return $data;
     }
 
-
     /**
-     * Check if param is a valid unix timestamp
+     * Check if param is a valid unix timestamp.
      *
-     * @param  string $timestamp
+     * @param string $timestamp
+     *
      * @return bool
      */
     public static function isValidTimeStamp(string $timestamp): bool

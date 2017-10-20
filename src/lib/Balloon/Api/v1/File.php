@@ -1,21 +1,21 @@
 <?php
+
 declare(strict_types=1);
 
 /**
  * Balloon
  *
- * @category    Balloon
  * @author      Raffael Sahli <sahli@gyselroth.net>
- * @copyright   copryright (c) 2012-2016 gyselroth GmbH
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Api\v1;
 
-use \Balloon\Exception;
-use \Balloon\Helper;
-use \Micro\Http\Response;
-use \Balloon\Filesystem\Node\Collection;
-use \Balloon\Converter;
+use Balloon\Exception;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Helper;
+use Micro\Http\Response;
 
 class File extends Node
 {
@@ -72,18 +72,19 @@ class File extends Node
      *      ]
      * }
      *
-     * @param  string $id
-     * @param  string $p
+     * @param string $id
+     * @param string $p
+     *
      * @return Response
      */
-    public function getHistory(?string $id=null, ?string $p=null): Response
+    public function getHistory(?string $id = null, ?string $p = null): Response
     {
         $result = Helper::escape(
             $this->_getNode($id, $p)->getHistory()
         );
+
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {post} /api/v1/file/restore?id=:id Rollback version
@@ -104,17 +105,18 @@ class File extends Node
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $id
-     * @param   string $p
-     * @param   string $version
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     * @param string $version
+     *
+     * @return Response
      */
-    public function postRestore(int $version, ?string $id=null, ?string $p=null): Response
+    public function postRestore(int $version, ?string $id = null, ?string $p = null): Response
     {
         $result = $this->_getNode($id, $p)->restore($version);
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {put} /api/v1/file/chunk Upload file chunk
@@ -231,42 +233,43 @@ class File extends Node
      *      }
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  string $collection
-     * @param  string $name
-     * @param  int $index
-     * @param  int $chunks
-     * @param  string $chunkgroup
-     * @param  int $size
-     * @param  array $attributes
-     * @param  int $conflict
+     * @param string $id
+     * @param string $p
+     * @param string $collection
+     * @param string $name
+     * @param int    $index
+     * @param int    $chunks
+     * @param string $chunkgroup
+     * @param int    $size
+     * @param array  $attributes
+     * @param int    $conflict
+     *
      * @return Response
      */
     public function putChunk(
         string $chunkgroup,
-        ?string $id=null,
-        ?string $p=null,
-        ?string $collection=null,
-        ?string $name=null,
-        int $index=1,
-        int $chunks=0,
-        int $size=0,
-        array $attributes=[],
-        int $conflict=0
+        ?string $id = null,
+        ?string $p = null,
+        ?string $collection = null,
+        ?string $name = null,
+        int $index = 1,
+        int $chunks = 0,
+        int $size = 0,
+        array $attributes = [],
+        int $conflict = 0
     ) {
         ini_set('auto_detect_line_endings', '1');
         $input_handler = fopen('php://input', 'rb');
         if (!is_string($chunkgroup) || empty($chunkgroup)) {
             throw new Exception\InvalidArgument('chunkgroup must be valid unique string');
         }
-        
+
         if ($index > $chunks) {
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
         $chunkgroup = Helper::filter($chunkgroup);
-        $folder     = $this->server->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
+        $folder = $this->server->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
 
         if (!file_exists($folder)) {
             mkdir($folder, 0700, true);
@@ -283,25 +286,26 @@ class File extends Node
                 Exception\Conflict::CHUNKS_LOST
             );
         }
-        
+
         $chunkgroup_handler = fopen($file, 'a+');
         while (!feof($input_handler)) {
-            $data  = fread($input_handler, 1024);
+            $data = fread($input_handler, 1024);
             $wrote = fwrite($chunkgroup_handler, $data);
             $tmp_size += $wrote;
 
-            if ($tmp_size > (int)$this->server->getMaxFileSize()) {
+            if ($tmp_size > (int) $this->server->getMaxFileSize()) {
                 fclose($input_handler);
                 fclose($chunkgroup_handler);
                 unlink($file);
+
                 throw new Exception\InsufficientStorage(
                     'file size exceeded limit',
                     Exception\InsufficientStorage::FILE_SIZE_LIMIT
                 );
             }
         }
-    
-        if ($index == $chunks) {
+
+        if ($index === $chunks) {
             clearstatcache();
             if (!is_readable($file)) {
                 throw new Exception\Conflict(
@@ -309,28 +313,30 @@ class File extends Node
                     Exception\Conflict::CHUNKS_LOST
                 );
             }
-            
-            if ($tmp_size != $size) {
+
+            if ($tmp_size !== $size) {
                 fclose($chunkgroup_handler);
                 unlink($file);
+
                 throw new Exception\Conflict(
                     'merged chunks temp file size is not as expected',
                     Exception\Conflict::CHUNKS_INVALID_SIZE
                 );
             }
-            
+
             try {
                 $attributes = $this->_verifyAttributes($attributes);
+
                 return $this->_put($file, $id, $p, $collection, $name, $attributes, $conflict);
             } catch (\Exception $e) {
                 unlink($file);
+
                 throw $e;
             }
         } else {
             return (new Response())->setCode(206)->setBody($index);
         }
     }
-
 
     /**
      * @api {put} /api/v1/file Upload file
@@ -407,84 +413,91 @@ class File extends Node
      *      }
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  string $collection
-     * @param  string $name
-     * @param  array $attributes
-     * @param  int $conflict
+     * @param string $id
+     * @param string $p
+     * @param string $collection
+     * @param string $name
+     * @param array  $attributes
+     * @param int    $conflict
+     *
      * @return Response
      */
     public function put(
-        ?string $id=null,
-        ?string $p=null,
-        ?string $collection=null,
-        ?string $name=null,
-        array $attributes=[],
-        int $conflict=0
+        ?string $id = null,
+        ?string $p = null,
+        ?string $collection = null,
+        ?string $name = null,
+        array $attributes = [],
+        int $conflict = 0
     ): Response {
         $attributes = $this->_verifyAttributes($attributes);
 
         ini_set('auto_detect_line_endings', '1');
         $content = fopen('php://input', 'rb');
+
         return $this->_put($content, $id, $p, $collection, $name, $attributes, $conflict);
     }
 
-
     /**
-     * Add or update file
+     * Add or update file.
      *
-     * @param  string|resource $content
-     * @param  string $id
-     * @param  string $p
-     * @param  string $collection
-     * @param  string $name
-     * @param  array $attributes
-     * @param  int $conflict
+     * @param resource|string $content
+     * @param string          $id
+     * @param string          $p
+     * @param string          $collection
+     * @param string          $name
+     * @param array           $attributes
+     * @param int             $conflict
+     *
      * @return Response
      */
     protected function _put(
         $content,
-        ?string $id=null,
-        ?string $p=null,
-        ?string $collection=null,
-        ?string $name=null,
-        array $attributes=[],
-        int $conflict=0
+        ?string $id = null,
+        ?string $p = null,
+        ?string $collection = null,
+        ?string $name = null,
+        array $attributes = [],
+        int $conflict = 0
     ): Response {
-        if ($id === null && $p === null && $name === null) {
+        if (null === $id && null === $p && null === $name) {
             throw new Exception\InvalidArgument('neither id, p nor name was set');
         }
 
-        if ($p !== null && $name !== null) {
+        if (null !== $p && null !== $name) {
             throw new Exception\InvalidArgument('p and name can not be used at the same time');
         }
 
         try {
-            if ($p !== null) {
+            if (null !== $p) {
                 $node = $this->_getNode(null, $p);
                 $result = $node->put($content, false, $attributes);
+
                 return (new Response())->setCode(200)->setBody($result);
-            } elseif ($id !== null && $collection === null) {
+            }
+            if (null !== $id && null === $collection) {
                 $node = $this->_getNode($id);
                 $result = $node->put($content, false, $attributes);
+
                 return (new Response())->setCode(200)->setBody($result);
-            } elseif ($p === null && $id === null && $name !== null) {
-                $collection =  $this->_getNode($collection, null, 'Collection', false, true);
+            }
+            if (null === $p && null === $id && null !== $name) {
+                $collection = $this->_getNode($collection, null, 'Collection', false, true);
 
                 if ($collection->childExists($name)) {
                     $child = $collection->getChild($name);
                     $result = $child->put($content, false, $attributes);
-                    return (new Response())->setCode(200)->setBody($result);
-                } else {
-                    if (!is_string($name) || empty($name)) {
-                        throw new Exception\InvalidArgument('name must be a valid string');
-                    }
 
-                    $name = Helper::filter($name);
-                    $result = $collection->addFile($name, $content, $attributes)->getId(true);
-                    return (new Response())->setCode(201)->setBody($result);
+                    return (new Response())->setCode(200)->setBody($result);
                 }
+                if (!is_string($name) || empty($name)) {
+                    throw new Exception\InvalidArgument('name must be a valid string');
+                }
+
+                $name = Helper::filter($name);
+                $result = $collection->addFile($name, $content, $attributes)->getId(true);
+
+                return (new Response())->setCode(201)->setBody($result);
             }
         } catch (Exception\Forbidden $e) {
             throw new Exception\Conflict(
@@ -492,7 +505,7 @@ class File extends Node
                 Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
             );
         } catch (Exception\NotFound $e) {
-            if ($p !== null && $id === null) {
+            if (null !== $p && null === $id) {
                 if (!is_string($p) || empty($p)) {
                     throw new Exception\InvalidArgument('path (p) must be a valid string');
                 }
@@ -500,14 +513,16 @@ class File extends Node
                 $p = Helper::filter($p);
                 $parent_path = dirname($p);
                 $name = basename($p);
+
                 try {
                     $parent = $this->fs->findNodeWithPath($parent_path, 'Collection');
-                    
+
                     if (!is_string($name) || empty($name)) {
                         throw new Exception\InvalidArgument('name must be a valid string');
                     }
 
                     $result = $parent->addFile($name, $content, $attributes)->getId(true);
+
                     return (new Response())->setCode(201)->setBody($result);
                 } catch (Exception\NotFound $e) {
                     throw new Exception('parent collection '.$parent_path.' was not found');

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,63 +7,58 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Console;
 
-use \GetOpt\GetOpt;
-use \Balloon\App;
-use \Balloon\Async as AsyncQueue;
-use \Psr\Log\LoggerInterface;
-use \Psr\Container\ContainerInterface;
+use Balloon\App;
+use Balloon\Async as AsyncQueue;
+use GetOpt\GetOpt;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 class Async implements ConsoleInterface
 {
     /**
-     * App
+     * App.
      *
      * @var App
      */
     protected $app;
 
-
     /**
-     * Logger
+     * Logger.
      *
      * @var Logger
      */
     protected $logger;
 
-
     /**
-     * Getopt
+     * Getopt.
      *
      * @var GetOpt
      */
     protected $getopt;
 
-
     /**
-     * Async
+     * Async.
      *
      * @var Async
      */
     protected $async;
 
-
     /**
-     * Container
+     * Container.
      *
      * @var ContainerInterface
      */
     protected $container;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param App $app
+     * @param App   $app
      * @param Async $async
      */
     public function __construct(App $app, AsyncQueue $async, LoggerInterface $logger, ContainerInterface $container, GetOpt $getopt)
@@ -76,9 +72,8 @@ class Async implements ConsoleInterface
         $this->setOptions();
     }
 
-
     /**
-     * Set options
+     * Set options.
      *
      * @return ConsoleInterface
      */
@@ -86,30 +81,29 @@ class Async implements ConsoleInterface
     {
         $this->getopt->addOptions([
             \GetOpt\Option::create('q', 'queue'),
-            \GetOpt\Option::create('d', 'daemon')
+            \GetOpt\Option::create('d', 'daemon'),
         ]);
 
         return $this;
     }
 
-
     /**
-     * Start
+     * Start.
      *
      * @return bool
      */
     public function start(): bool
     {
-        if ($this->getopt->getOption('queue') === null) {
-            $this->logger->debug("skip job queue execution", [
+        if (null === $this->getopt->getOption('queue')) {
+            $this->logger->debug('skip job queue execution', [
                 'category' => get_class($this),
             ]);
         }
 
-        if ($this->getopt->getOption('daemon') !== null) {
+        if (null !== $this->getopt->getOption('daemon')) {
             $this->fireupDaemon();
         } else {
-            if ($this->getopt->getOption('queue') !== null) {
+            if (null !== $this->getopt->getOption('queue')) {
                 $cursor = $this->async->getCursor(false);
                 $this->async->start($cursor, $this->container);
             }
@@ -122,21 +116,20 @@ class Async implements ConsoleInterface
         return true;
     }
 
-
     /**
-     * Fire up daemon
+     * Fire up daemon.
      *
      * @return bool
      */
     protected function fireupDaemon(): bool
     {
-        $this->logger->info("daemon execution requested, fire up daemon", [
+        $this->logger->info('daemon execution requested, fire up daemon', [
             'category' => get_class($this),
         ]);
 
         $cursor = $this->async->getCursor(true);
         while (true) {
-            if ($this->getopt->getOption('queue') !== null) {
+            if (null !== $this->getopt->getOption('queue')) {
                 $this->async->start($cursor, $this->container);
             }
         }

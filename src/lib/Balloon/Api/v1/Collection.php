@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,14 +7,14 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Api\v1;
 
-use \Balloon\Exception;
-use \Balloon\Helper;
-use \Micro\Http\Response;
+use Balloon\Exception;
+use Balloon\Helper;
+use Micro\Http\Response;
 
 class Collection extends Node
 {
@@ -37,15 +38,16 @@ class Collection extends Node
      * @apiErrorExample {json} Error-Response (No children exists):
      * HTTP/1.1 404 Not Found
      *
-     * @param   string $id
-     * @param   string $p
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     *
+     * @return Response
      */
-    public function headChildren(?string $id=null, ?string $p=null): Response
+    public function headChildren(?string $id = null, ?string $p = null): Response
     {
-        $result   = $this->fs->getNode($id, $p, null, false, true);
+        $result = $this->fs->getNode($id, $p, null, false, true);
         $children = $result->getSize();
-        
+
         $response = (new Response())
             ->setHeader('Content-Length', $children);
 
@@ -54,9 +56,9 @@ class Collection extends Node
         } else {
             $response->setCode(404);
         }
+
         return $response;
     }
-
 
     /**
      * @api {get} /api/v1/collection/children Get children
@@ -89,31 +91,31 @@ class Collection extends Node
      *      "data": [{..}, {...}] //Shorted
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  int $deleted
-     * @param  array $filter
-     * @param  array $attributes
+     * @param string $id
+     * @param string $p
+     * @param int    $deleted
+     * @param array  $filter
+     * @param array  $attributes
+     *
      * @return Response
      */
     public function getChildren(
-        ?string $id=null,
-        ?string $p=null,
-        int $deleted=0,
-        array $filter=[],
-        array $attributes=[]
+        ?string $id = null,
+        ?string $p = null,
+        int $deleted = 0,
+        array $filter = [],
+        array $attributes = []
     ): Response {
         $children = [];
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
-        
+
         foreach ($nodes as $node) {
             $children[] = Helper::escape($node->getAttributes($attributes));
         }
-        
+
         return (new Response())->setCode(200)->setBody($children);
     }
 
-    
     /**
      * @api {get} /api/v1/collection/share?id=:id Get Share parameters
      * @apiVersion 1.0.0
@@ -148,17 +150,18 @@ class Collection extends Node
      *      ]
      *}
      *
-     * @param  string $id
-     * @param  string $p
+     * @param string $id
+     * @param string $p
+     *
      * @return Response
      */
-    public function getShare(?string $id=null, ?string $p=null): Response
+    public function getShare(?string $id = null, ?string $p = null): Response
     {
         $result = $this->fs->getNode($id, $p)->getShare();
+
         return (new Response())->setCode(200)->setBody($result);
     }
 
-    
     /**
      * @api {post} /api/v1/collection/share?id=:id Create share
      * @apiVersion 1.0.0
@@ -195,24 +198,24 @@ class Collection extends Node
      * @apiSuccessExample {json} Success-Response (Removed share):
      * HTTP/1.1 204 No Content
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  array $acl
+     * @param string $id
+     * @param string $p
+     * @param array  $acl
+     *
      * @return Response
      */
-    public function postShare(array $acl, ?string $id=null, ?string $p=null): Response
+    public function postShare(array $acl, ?string $id = null, ?string $p = null): Response
     {
-        $node    = $this->fs->getNode($id, $p);
-        $result  = $node->share($acl);
-        
-        if ($result === null) {
+        $node = $this->fs->getNode($id, $p);
+        $result = $node->share($acl);
+
+        if (null === $result) {
             return (new Response())->setCode(204);
-        } else {
-            return (new Response())->setCode(201)->setBody($result);
         }
+
+        return (new Response())->setCode(201)->setBody($result);
     }
 
-    
     /**
      * @api {delete} /api/v1/collection/share?id=:id Delete share
      * @apiVersion 1.0.0
@@ -231,19 +234,19 @@ class Collection extends Node
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
-
-     * @param  string $id
-     * @param  string $p
+     *
+     * @param string $id
+     * @param string $p
+     *
      * @return Response
      */
-    public function deleteShare(?string $id=null, ?string $p=null): Response
+    public function deleteShare(?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
         $result = $node->unshare();
-        
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {post} /api/v1/collection?id=:id Create collection
@@ -284,26 +287,27 @@ class Collection extends Node
      *      "data": "544627ed3c58891f058b4682"
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  array $attributes
-     * @param  int $conflict
+     * @param string $id
+     * @param string $p
+     * @param array  $attributes
+     * @param int    $conflict
+     *
      * @return Response
      */
     public function post(
-        ?string $id=null,
-        ?string $p=null,
-        ?string $name=null,
-        array $attributes=[],
-        int $conflict=0
+        ?string $id = null,
+        ?string $p = null,
+        ?string $name = null,
+        array $attributes = [],
+        int $conflict = 0
     ): Response {
-        if ($p !== null && $name !== null) {
+        if (null !== $p && null !== $name) {
             throw new Exception\InvalidArgument('p and name can not be used at the same time');
         }
 
         $attributes = $this->_verifyAttributes($attributes);
 
-        if ($id === null && $p !== null) {
+        if (null === $id && null !== $p) {
             if (!is_string($p) || empty($p)) {
                 throw new Exception\InvalidArgument('name must be a valid string');
             }
@@ -312,18 +316,20 @@ class Collection extends Node
             $name = basename($p);
             $parent = $this->fs->findNodeWithPath($parent_path, 'Collection');
             $result = $parent->addDirectory($name, $attributes, $conflict)->getId(true);
-            return (new Response())->setCode(201)->setBody($result);
-        } elseif ($id !== null && $name === null) {
-            throw new Exception\InvalidArgument('name must be set with id');
-        } else {
-            $parent = $this->fs->getNode($id, null, null, false, true);
-        
-            if (!is_string($name) || empty($name)) {
-                throw new Exception\InvalidArgument('name must be a valid string');
-            }
-    
-            $result = $parent->addDirectory($name, $attributes, $conflict)->getId(true);
+
             return (new Response())->setCode(201)->setBody($result);
         }
+        if (null !== $id && null === $name) {
+            throw new Exception\InvalidArgument('name must be set with id');
+        }
+        $parent = $this->fs->getNode($id, null, null, false, true);
+
+        if (!is_string($name) || empty($name)) {
+            throw new Exception\InvalidArgument('name must be a valid string');
+        }
+
+        $result = $parent->addDirectory($name, $attributes, $conflict)->getId(true);
+
+        return (new Response())->setCode(201)->setBody($result);
     }
 }

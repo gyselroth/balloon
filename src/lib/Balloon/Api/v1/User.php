@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,14 +7,14 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Api\v1;
 
-use \Balloon\Exception;
-use \Balloon\Api\Controller;
-use \Micro\Http\Response;
+use Balloon\Api\Controller;
+use Balloon\Exception;
+use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
 class User extends Controller
@@ -58,7 +59,6 @@ class User extends Controller
      * }
      */
 
-
     /**
      * @apiDefine _getUsers
      *
@@ -66,31 +66,32 @@ class User extends Controller
      * @apiParam (GET Parameter) {string[]} uname Either a single uid (userid) as string or multiple as an array or a single uname (username) as string or multiple usernames as array must be given.
      */
 
-
     /**
-     * Get user instance
+     * Get user instance.
      *
-     * @param   string $uid
-     * @param   string $uname
-     * @return  User
+     * @param string $uid
+     * @param string $uname
+     *
+     * @return User
      */
-    public function _getUser(?string $uid=null, ?string $uname=null)
+    public function _getUser(?string $uid = null, ?string $uname = null)
     {
-        if ($uid !== null || $uname !== null) {
+        if (null !== $uid || null !== $uname) {
             if ($this->user->isAdmin()) {
-                if ($uid !== null && $uname !== null) {
+                if (null !== $uid && null !== $uname) {
                     throw new Exception\InvalidArgument('provide either uid (user id) or uname (username)');
                 }
 
-                if ($uid !== null) {
+                if (null !== $uid) {
                     $user = new ObjectId($uid);
                 } else {
                     $user = $uname;
                 }
-                
+
                 try {
                     $user = new CoreUser($user, $this->logger, $this->fs, false, true);
                     $this->fs->setUser($user);
+
                     return $user;
                 } catch (\Exception $e) {
                     throw new Exception\NotFound(
@@ -108,7 +109,6 @@ class User extends Controller
             return $this->user;
         }
     }
-
 
     /**
      * @api {get} /api/v1/user/is-admin Is Admin?
@@ -135,17 +135,18 @@ class User extends Controller
      *     "data": true
      * }
      *
-     * @param  string $uid
-     * @param  string $uname
+     * @param string $uid
+     * @param string $uname
+     *
      * @return Response
      */
-    public function getIsAdmin(?string $uid=null, ?string $uname=null): Response
+    public function getIsAdmin(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname)->isAdmin();
+
         return (new Response())->setCode(200)->setBody($result);
     }
 
-    
     /**
      * @api {get} /api/v1/user/whoami Who am I?
      * @apiVersion 1.0.0
@@ -171,17 +172,18 @@ class User extends Controller
      *     "data": "peter.meier"
      * }
      *
-     * @param  string $uid
-     * @param  string $uname
+     * @param string $uid
+     * @param string $uname
+     *
      * @return Response
      */
-    public function getWhoami(?string $uid=null, ?string $uname=null): Response
+    public function getWhoami(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname)->getUsername();
+
         return (new Response())->setCode(200)->setBody($result);
     }
-   
- 
+
     /**
      * @api {get} /api/v1/user/node-attribute-summary Node attribute summary
      * @apiVersion 1.0.0
@@ -207,19 +209,20 @@ class User extends Controller
      *     "data": [...]
      * }
      *
-     * @param  string $uid
-     * @param  string $uname
-     * @param  string $attributes
-     * @param  int $limit
+     * @param string $uid
+     * @param string $uname
+     * @param string $attributes
+     * @param int    $limit
+     *
      * @return Response
      */
-    public function getNodeAttributeSummary(?string $uid=null, ?string $uname=null, array $attributes=[], int $limit=25): Response
+    public function getNodeAttributeSummary(?string $uid = null, ?string $uname = null, array $attributes = [], int $limit = 25): Response
     {
         $result = $this->_getUser($uid, $uname)->getNodeAttributeSummary($attributes, $limit);
+
         return (new Response())->setCode(200)->setBody($result);
     }
 
-    
     /**
      * @api {get} /api/v1/user/groups Group membership
      * @apiVersion 1.0.0
@@ -248,16 +251,15 @@ class User extends Controller
      *     ]
      * }
      *
-     * @param  string $uid
-     * @param  string $uname
-     * @return void
+     * @param string $uid
+     * @param string $uname
      */
-    public function getGroups(?string $uid=null, ?string $uname=null): Response
+    public function getGroups(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname)->getGroups();
+
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {get} /api/v1/user/shares Share membership
@@ -287,16 +289,17 @@ class User extends Controller
      *     ]
      * }
      *
-     * @param  string $uid
-     * @param  string $uname
+     * @param string $uid
+     * @param string $uname
+     *
      * @return Response
      */
-    public function getShares(?string $uid=null, ?string $uname=null): Response
+    public function getShares(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname)->getShares();
+
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {get} /api/v1/user/quota-usage Quota usage
@@ -332,16 +335,17 @@ class User extends Controller
      *     }
      * }
      *
-     * @param  string $uid
-     * @param  string $uname
+     * @param string $uid
+     * @param string $uname
+     *
      * @return Response
      */
-    public function getQuotaUsage(?string $uid=null, ?string $uname=null): Response
+    public function getQuotaUsage(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname)->getQuotaUsage();
+
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {get} /api/v1/user/attributes User attributes
@@ -369,14 +373,16 @@ class User extends Controller
      *      "data": [] //shortened
      * }
      *
-     * @param  string $uid
-     * @param  string $uname
-     * @param  string $attributes
+     * @param string $uid
+     * @param string $uname
+     * @param string $attributes
+     *
      * @return Response
      */
-    public function getAttributes(?string $uid=null, ?string $uname=null, array $attributes=[]): Response
+    public function getAttributes(?string $uid = null, ?string $uname = null, array $attributes = []): Response
     {
         $result = $this->_getUser($uid, $uname)->getAttribute($attributes);
+
         return (new Response())->setCode(200)->setBody($result);
     }
 }

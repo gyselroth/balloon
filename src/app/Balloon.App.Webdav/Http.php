@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,42 +7,35 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Webdav;
 
-use \Balloon\Exception;
-use \Balloon\App;
-use \Balloon\Filesystem;
-use \Balloon\Auth;
-use \Balloon\User;
-use \Balloon\App\AbstractApp;
-use \Sabre\DAV;
-use \Micro\Http\Router\Route;
-use \Micro\Http\Router;
-use \Balloon\Server;
+use Balloon\App\AbstractApp;
+use Balloon\Server;
+use Micro\Http\Router;
+use Micro\Http\Router\Route;
+use Sabre\DAV;
 
 class Http extends AbstractApp
 {
     /**
-     * Router
+     * Router.
      *
      * @var Router
      */
     protected $router;
 
-
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Router $router
      * @param Server $server
@@ -52,21 +46,20 @@ class Http extends AbstractApp
         $this->server = $server;
     }
 
-
     /**
-     * Init
+     * Init.
      *
      * @return bool
      */
     public function init(): bool
     {
         $this->router->appendRoute(new Route('/webdav', $this, 'start'));
+
         return true;
     }
 
-
     /**
-     * Start
+     * Start.
      *
      * @return bool
      */
@@ -89,6 +82,7 @@ class Http extends AbstractApp
         $server->addPlugin($authPlugin);
 
         $server->exec();
+
         return true;
     }
 }

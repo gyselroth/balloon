@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,70 +7,67 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\Converter\Adapter;
 
-use \Balloon\Filesystem\Node\File;
-use \Balloon\Converter\Exception;
-use \Balloon\Converter\Result;
+use Balloon\Converter\Exception;
+use Balloon\Converter\Result;
+use Balloon\Filesystem\Node\File;
 
 class Office extends Imagick
 {
     /**
-     * Soffice executable
+     * Soffice executable.
      *
      * @var string
      */
     protected $soffice = '/usr/bin/soffice';
 
-
     /**
-     * Timeout
+     * Timeout.
      *
      * @var string
      */
     protected $timeout = '10';
 
-
     /**
-     * Tmp
+     * Tmp.
      *
      * @var string
      */
     protected $tmp = '/tmp';
 
-
     /**
-     * Formats
+     * Formats.
      *
      * @var array
      */
     protected $formats = [
         'spreadsheet' => [
-            'ods'  => 'application/vnd.oasis.opendocument.spreadsheet',
+            'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
             'fods' => 'application/vnd.oasis.opendocument.spreadsheet-flat-xml',
-            'xls'  => 'application/vnd.ms-excel',
-            'xlb'  => 'application/vnd.ms-excel',
-            'xlt'  => 'application/vnd.ms-excel',
+            'xls' => 'application/vnd.ms-excel',
+            'xlb' => 'application/vnd.ms-excel',
+            'xlt' => 'application/vnd.ms-excel',
             'xlsb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
             'xlsm' => 'application/vnd.ms-excel.sheet.macroEnabled.12',
             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'csv'  => 'text/csv'
-        ]
+            'csv' => 'text/csv',
+        ],
     ];
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param  Iterable $config
+     * @param iterable $config
+     *
      * @return AdapterInterface
      */
-    public function setOptions(Iterable $config=null): AdapterInterface
+    public function setOptions(Iterable $config = null): AdapterInterface
     {
-        if ($config === null) {
+        if (null === $config) {
             return $this;
         }
 
@@ -81,21 +79,24 @@ class Office extends Imagick
                         throw new Exception('soffice option must be a path to an executable office suite');
                     }
 
-                    $this->soffice = (string)$value;
+                    $this->soffice = (string) $value;
+
                     break;
                 case 'tmp':
                     if (!is_writeable($value)) {
                         throw new Exception('tmp option must be a writable directory');
                     }
-            
-                    $this->tmp = (string)$value;
+
+                    $this->tmp = (string) $value;
+
                     break;
                 case 'timeout':
                     if (!is_numeric($value)) {
                         throw new Exception('timeout option must be a number');
                     }
-            
-                    $this->timeout = (string)$value;
+
+                    $this->timeout = (string) $value;
+
                     break;
             }
         }
@@ -103,21 +104,21 @@ class Office extends Imagick
         return $this;
     }
 
-
     /**
-     * Return match
+     * Return match.
      *
-     * @param   File $file
-     * @return  bool
+     * @param File $file
+     *
+     * @return bool
      */
     public function match(File $file): bool
     {
-        if ($file->getSize() === 0) {
+        if (0 === $file->getSize()) {
             return false;
         }
-        
+
         foreach ($this->formats as $type => $formats) {
-            if (in_array($file->getMime(), $formats)) {
+            if (in_array($file->getMime(), $formats, true)) {
                 return true;
             }
         }
@@ -125,29 +126,30 @@ class Office extends Imagick
         return false;
     }
 
-    
     /**
-     * Get supported formats
+     * Get supported formats.
      *
-     * @param  File $file
+     * @param File $file
+     *
      * @return array
      */
     public function getSupportedFormats(File $file): array
     {
         foreach ($this->formats as $type => $formats) {
-            if (in_array($file->getMime(), $formats)) {
+            if (in_array($file->getMime(), $formats, true)) {
                 $values = array_keys($formats);
+
                 return array_merge($values, parent::getSupportedFormats($file));
             }
         }
     }
-    
 
     /**
-     * Convert
+     * Convert.
      *
-     * @param  File $file
-     * @param  string $format
+     * @param File   $file
+     * @param string $format
+     *
      * @return Result
      */
     public function convert(File $file, string $format): Result
@@ -156,27 +158,27 @@ class Office extends Imagick
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
 
-        if (in_array($format, parent::getSupportedFormats($file))) {
+        if (in_array($format, parent::getSupportedFormats($file), true)) {
             $convert = 'pdf';
         } else {
-            $convert =  $format;
+            $convert = $format;
         }
 
-        $command = "HOME=".escapeshellarg($this->tmp)." timeout ".escapeshellarg($this->timeout)." "
+        $command = 'HOME='.escapeshellarg($this->tmp).' timeout '.escapeshellarg($this->timeout).' '
             .escapeshellarg($this->soffice)
-            ." --headless"
-            ." --invisible"
-            ." --nocrashreport"
-            ." --nodefault"
-            ." --nofirststartwizard"
-            ." --nologo"
-            ." --norestore"
-            ." --convert-to ".escapeshellarg($convert)
-            ." --outdir ".escapeshellarg($this->tmp)
-            ." ".escapeshellarg($source);
+            .' --headless'
+            .' --invisible'
+            .' --nocrashreport'
+            .' --nodefault'
+            .' --nofirststartwizard'
+            .' --nologo'
+            .' --norestore'
+            .' --convert-to '.escapeshellarg($convert)
+            .' --outdir '.escapeshellarg($this->tmp)
+            .' '.escapeshellarg($source);
 
         $this->logger->debug('convert file to ['.$convert.'] using ['.$command.']', [
-            'category' => get_class($this)
+            'category' => get_class($this),
         ]);
 
         shell_exec($command);
@@ -184,16 +186,15 @@ class Office extends Imagick
 
         if (!file_exists($temp)) {
             throw new Exception('failed convert document into '.$convert);
-        } else {
-            $this->logger->info('converted document into ['.$convert.']', [
+        }
+        $this->logger->info('converted document into ['.$convert.']', [
                 'category' => get_class($this),
             ]);
-                                    
-            if ($convert === 'pdf' && $format !== 'pdf') {
-                return $this->createFromFile($temp, $format);
-            } else {
-                return new Result($temp);
-            }
+
+        if ('pdf' === $convert && 'pdf' !== $format) {
+            return $this->createFromFile($temp, $format);
         }
+
+        return new Result($temp);
     }
 }
