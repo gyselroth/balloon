@@ -36,7 +36,7 @@ class RenameTest extends Node\RenameTest
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
         $id = new ObjectID($res->getBody());
-        $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
+        $this->assertInstanceOf(ObjectId::class, $id);
 
         return (string) $id;
     }
