@@ -47,7 +47,8 @@ PHPSTAN_LOCK = $(BASE_DIR)/.phpstan.lock
 NPM_TARGET = $(NODE_MODULES_DIR)
 COMPOSER_TARGET = $(COMPOSER_LOCK)
 APIDOC_TARGET = $(DOC_DIR)
-PHPCS_FIXER_TARGET = $(PHPCS_FIXER_LOCK)
+PHPCS_FIX_TARGET = $(PHPCS_FIXER_LOCK)
+PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
 CHANGELOG_TARGET = $(BUILD_DIR)/DEBIAN/changelog
@@ -226,12 +227,21 @@ $(NPM_TARGET) $(APIDOC_BIN): $(BASE_DIR)/package.json
 	@touch $@
 
 
+.PHONY: phpcs-check
+phpcs-check: $(PHPCS_FIXER_TARGET)
+
+$(PHPCS_CHECK_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
+	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky --stop-on-violation --using-cache=no
+	@touch $@
+
+
 .PHONY: phpcs-fix
 phpcs-fix: $(PHPCS_FIXER_TARGET)
 
-$(PHPCS_FIXER_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
-	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky --stop-on-violation --using-cache=no
+$(PHPCS_FIX_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
+	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v
 	@touch $@
+
 
 .PHONY: test
 test: $(PHPUNIT_TARGET)
