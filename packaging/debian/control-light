@@ -2,7 +2,7 @@ Package: balloon-light
 Version: {version}
 Architecture: all
 Maintainer: Raffael Sahli <sahli@gyselroth.com>
-Depends: php7.1, php7.1-ldap, php7.1-xml, php7.1-mongodb, php7.1-opcache, php7.1-curl, php7.1-imagick, php7.1-cli, php7.1-zip, php7.1-intl
+Depends: php7.1, php7.1-ldap, php7.1-xml, php-mongodb, php7.1-opcache, php7.1-curl, php-imagick, php7.1-cli, php7.1-zip, php7.1-intl
 Recommends: php7.1-apc, libreoffice
 Suggests: php7.1-fpm, nginx
 Homepage: https://github.com/gyselroth/balloon
