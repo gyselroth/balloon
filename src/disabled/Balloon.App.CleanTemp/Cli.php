@@ -1,47 +1,46 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * Balloon
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\CleanTemp;
 
-use \Balloon\Exception;
-use \Balloon\Filesystem;
-use \Balloon\App\AppInterface;
-use \Balloon\App\AbstractApp;
+use Balloon\App\AbstractApp;
+use Balloon\App\AppInterface;
 
 class Cli extends AbstractApp
 {
     /**
-     * max age
+     * max age.
      *
      * @var int
      */
     protected $max_age = 3600;
 
-
     /**
-     * force check owner
+     * force check owner.
      *
      * @var int
      */
     protected $force_check_owner = 0;
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param  Iterable $config
+     * @param iterable $config
+     *
      * @return AppInterface
      */
-    public function setOptions(?Iterable $config=null): AppInterface
+    public function setOptions(?Iterable $config = null): AppInterface
     {
-        if ($config === null) {
+        if (null === $config) {
             return $this;
         }
 
@@ -49,7 +48,8 @@ class Cli extends AbstractApp
             switch ($option) {
                 case 'max_age':
                 case 'force_check_owner':
-                    $this->{$option} = (int)$value;
+                    $this->{$option} = (int) $value;
+
                 break;
             }
         }
@@ -57,40 +57,38 @@ class Cli extends AbstractApp
         return $this;
     }
 
-
     /**
-     * Start
+     * Start.
      *
      * @return bool
      */
     public function start(): bool
     {
-        $this->logger->info("check for old temporary files in [".$this->server->getTempDir()."]", [
+        $this->logger->info('check for old temporary files in ['.$this->server->getTempDir().']', [
             'category' => get_class($this),
         ]);
 
         $this->_clean($this->server->getTempDir());
+
         return true;
     }
 
-    
     /**
-     * Clean temp
+     * Clean temp.
      *
-     * @param   string $dir
-     * @return  void
+     * @param string $dir
      */
     protected function _clean(string $dir): void
     {
-        $files = glob($dir.DIRECTORY_SEPARATOR."*");
-        $time  = time();
+        $files = glob($dir.DIRECTORY_SEPARATOR.'*');
+        $time = time();
 
         foreach ($files as $file) {
             if (is_file($file)) {
                 if ($time - filemtime($file) >= $this->max_age) {
                     $owner = $this->force_check_owner;
-                    if (!empty($owner) && fileowner($file) != $owner) {
-                        $this->logger->debug("skip non owned file [".$file."]", [
+                    if (!empty($owner) && fileowner($file) !== $owner) {
+                        $this->logger->debug('skip non owned file ['.$file.']', [
                             'category' => get_class($this),
                         ]);
 
@@ -98,13 +96,13 @@ class Cli extends AbstractApp
                     }
 
                     $result = unlink($file);
-                    $this->logger->debug("clean temp file [".$file."]", [
+                    $this->logger->debug('clean temp file ['.$file.']', [
                         'category' => get_class($this),
                     ]);
                 }
             } elseif (is_dir($file)) {
                 $basename = basename($file);
-                if ($basename != '.' && $basename != '..') {
+                if ('.' !== $basename && '..' !== $basename) {
                     $this->_clean($file);
                 }
             }

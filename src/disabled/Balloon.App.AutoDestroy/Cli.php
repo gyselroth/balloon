@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,39 +7,36 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\AutoDestroy;
 
-use \Balloon\Filesystem;
-use \Balloon\Exception;
-use \MongoDB\BSON\UTCDateTime;
-use \Balloon\App\AbstractApp;
+use Balloon\App\AbstractApp;
+use Balloon\Exception;
+use MongoDB\BSON\UTCDateTime;
 
 class Cli extends AbstractApp
 {
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
-
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Router $router
-     * @param Hook $hook
+     * @param Hook   $hook
      */
     public function __construct(Server $server, LoggerInterface $logger)
     {
@@ -46,11 +44,8 @@ class Cli extends AbstractApp
         $this->logger = $logger;
     }
 
-
     /**
-     * Start
-     *
-     * @return void
+     * Start.
      */
     public function start(): bool
     {
@@ -61,7 +56,7 @@ class Cli extends AbstractApp
             } catch (\Exception $e) {
                 $this->logger->error('failed auto remove auto destroyable node', [
                     'category' => get_class($this),
-                    'exception'=> $e
+                    'exception' => $e,
                 ]);
             }
         }

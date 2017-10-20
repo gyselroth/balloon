@@ -1,23 +1,23 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
 /**
  * Balloon
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Notification;
 
-use \Balloon\Filesystem;
-use \Balloon\Http\Router\Route;
-use \Balloon\App\AbstractApp;
-use \Balloon\App\Notification\Hook;
+use Balloon\App\AbstractApp;
 
 class Http extends AbstractApp
 {
     /**
-     * Init
+     * Init.
      *
      * @return bool
      */

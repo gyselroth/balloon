@@ -1,30 +1,31 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
 /**
  * Balloon
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\AutoCreateUser;
 
-use \Balloon\App\AutoCreateUser\Hook;
-use \Balloon\App\AbstractApp;
-use \Balloon\Hook as HookManager;
+use Balloon\App\AbstractApp;
+use Balloon\Hook as HookManager;
 
 class Http extends AbstractApp
 {
     /**
-     * Hook
+     * Hook.
      *
      * @var HookManager
      */
     protected $hook;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Router $router
      */
@@ -33,9 +34,8 @@ class Http extends AbstractApp
         $this->hook = $hook;
     }
 
-
     /**
-     * Init
+     * Init.
      *
      * @return bool
      */
