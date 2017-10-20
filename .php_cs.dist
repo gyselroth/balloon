@@ -1,13 +1,11 @@
 <?php
 
 $header = <<<'EOF'
-/**
- * Balloon
- *
- * @author      Raffael Sahli <sahli@gyselroth.net>
- * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
- */
+Balloon
+
+@author      Raffael Sahli <sahli@gyselroth.net>
+@copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+@license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
 EOF;
 
 $config = PhpCsFixer\Config::create()
@@ -25,7 +23,7 @@ $config = PhpCsFixer\Config::create()
         'dir_constant' => true,
         'function_to_constant' => true,
         'general_phpdoc_annotation_remove' => ['annotations' => ['expectedException', 'expectedExceptionMessage', 'expectedExceptionMessageRegExp']],
-        'header_comment' => ['header' => $header],
+        'header_comment' => ['header' => $header, 'commentType' => 'PHPDoc'],
         'heredoc_to_nowdoc' => true,
         'list_syntax' => ['syntax' => 'long'],
         'method_argument_space' => ['ensure_fully_multiline' => true],
