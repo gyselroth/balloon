@@ -15,9 +15,52 @@ use \Balloon\App\Convert\Exception;
 use \Micro\Http\Response;
 use \Balloon\Api\Controller;
 use \Balloon\App\Convert\Job;
+use \Balloon\App\Convert\App;
+use \Balloon\Converter;
+use \Balloon\Server;
+use \Balloon\Async;
 
 class Convert extends Controller
 {
+    /**
+     * App
+     *
+     * @var App
+     */
+    protected $app;
+
+
+    /**
+     * Converter
+     *
+     * @var Converter
+     */
+    protected $converter;
+
+
+    /**
+     * Async
+     *
+     * @var Async
+     */
+    protected $async;
+
+
+    /**
+     * Constructor
+     *
+     * @param App $app
+     * @param Converter $converter
+     */
+    public function __construct(App $app, Converter $converter, Server $server, Async $async)
+    {
+        parent::__construct($server);
+        $this->app = $app;
+        $this->converter = $converter;
+        $this->async = $async;
+    }
+
+
     /**
      * @api {get} /api/v1/file/preview?id=:id Get Convert
      * @apiVersion 1.0.0
@@ -58,16 +101,14 @@ class Convert extends Controller
     public function getSupportedFormats(?string $id=null, ?string $p=null): Response
     {
         $file = $this->fs->getNode($id, $p, 'File');
-        $converter = $this->server->getApp()->getApp('Balloon.App.Convert')->getConverter();
-        return (new Response())->setCode(200)->setBody($converter->getSupportedFormats($file));
+        return (new Response())->setCode(200)->setBody($this->converter->getSupportedFormats($file));
     }
-    
+
 
     public function getShadow(?string $id=null, ?string $p=null): Response
     {
         $file = $this->fs->getNode($id, $p, 'File');
-        $app = $this->server->getApp()->getApp('Balloon.App.Convert');
-        $shadow = $file->getAppAttribute($app, 'formats');
+        $shadow = $file->getAppAttribute($this->app, 'formats');
 
         return (new Response())->setCode(200)->setBody((array)$shadow);
     }
@@ -75,31 +116,28 @@ class Convert extends Controller
     public function postShadow(array $formats, ?string $id=null, ?string $p=null): Response
     {
         $file = $this->fs->getNode($id, $p, 'File');
-        $app = $this->server->getApp()->getApp('Balloon.App.Convert');
-        $converter = $app->getConverter();
-        $supported = $converter->getSupportedFormats($file);
+        $supported = $this->converter->getSupportedFormats($file);
 
-        $shadow = $file->getAppAttribute($app, 'formats');
+        $shadow = $file->getAppAttribute($this->app, 'formats');
         if ($shadow === null) {
             $shadow = [];
         }
 
-        $queue = $file->getFilesystem()->getServer()->getAsync();
         foreach ($formats as $type) {
             if (!in_array($type, $supported)) {
                 throw new Exception('format '.$type.' is not available for file');
             }
 
-            $queue->addJob(new Job([
+            $this->async->addJob(new Job([
                 'id' => $file->getId(),
                 'format' => $type
             ]));
         }
-        
-        $file->setAppAttribute($app, 'formats', $formats);
+
+        $file->setAppAttribute($this->app, 'formats', $formats);
         return (new Response())->setCode(204);
     }
-    
+
 
     public function deleteShadow(string $format, ?string $id=null, ?string $p=null): Response
     {

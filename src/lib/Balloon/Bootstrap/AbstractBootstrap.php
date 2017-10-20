@@ -72,6 +72,13 @@ abstract class AbstractBootstrap
         Converter::class => [
             'adapter' => Converter::DEFAULT_ADAPTER
         ],
+        Hook::class => [
+            'adapter' => [
+                'delta' => [
+                    'use' => Delta::class,
+                ],
+            ]
+        ],
         Auth::class => [
             'adapter' => [
                 'basic_db' => [
@@ -179,7 +186,7 @@ abstract class AbstractBootstrap
             //$this->config[App::class]['adapter'][basename($app)] = [];
             $ns = str_replace('.', '\\', basename($app)).'\\';
             $class = '\\'.$ns.$context;
-            $this->config[App::class]['adapter'][basename($app)]['name'] = $ns.'\AbstractApp';
+            $this->config[App::class]['adapter'][basename($app)]['name'] = $ns.'App';
             $this->config[App::class]['adapter'][basename($app)]['use'] = $class;
             //$this->config[App::class]['adapter'][$class] = [];
             //$this->config[App::class]['adapter'][basename($app)]['use'] = $class;

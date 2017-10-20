@@ -11,31 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Console;
 
-use \Psr\Log\LoggerInterface;
-use \Balloon\Server;
-use \GetOpt\GetOpt;
-
 interface ConsoleInterface
 {
-    /**
-     * Init
-     *
-     * @param  Server $server
-     * @param  LoggerInterface $logger
-     * @param  GetOpt $getopt
-     * @return void
-     */
-    public function __construct(Server $server, LoggerInterface $logger, GetOpt $getopt);
-
-
-    /**
-     * Parse cmd options
-     *
-     * @return ConsoleInterface
-     */
-    public function setOptions(): ConsoleInterface;
-
-
     /**
      * Start
      *

@@ -14,9 +14,32 @@ namespace Balloon\App\Preview\Api\v1;
 use \Balloon\Exception;
 use \Micro\Http\Response;
 use \Balloon\Api\Controller;
+use \Balloon\App\Preview\App;
+use \Balloon\Server;
 
 class Preview extends Controller
 {
+    /**
+     * App
+     *
+     * @var App
+     */
+    protected $app;
+
+
+    /**
+     * Constructor
+     *
+     * @param App $app
+     * @param Server $server
+     */
+    public function __construct(App $app, Server $server)
+    {
+        parent::__construct($server);
+        $this->app = $app;
+    }
+
+
     /**
      * @api {get} /api/v1/file/preview?id=:id Get Preview
      * @apiVersion 1.0.0
@@ -57,7 +80,7 @@ class Preview extends Controller
     public function get(?string $id=null, ?string $p=null, ?string $encode=null): Response
     {
         $node = $this->fs->getNode($id, $p, 'File');
-        $data = $this->server->getApp()->getApp('Balloon.App.Preview')->getPreview($node);
+        $data = $this->app->getPreview($node);
         $response = (new Response())
             ->setHeader('Content-Type', 'image/png')
             ->setOutputFormat('text');

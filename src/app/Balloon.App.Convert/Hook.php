@@ -14,9 +14,39 @@ namespace Balloon\App\Convert;
 use \Balloon\Filesystem;
 use \Balloon\Filesystem\Node\File;
 use \Balloon\Hook\AbstractHook;
+use \Balloon\Async;
 
 class Hook extends AbstractHook
 {
+    /**
+     * App
+     *
+     * @var App
+     */
+    protected $app;
+
+
+    /**
+     * Async
+     *
+     * @var Async
+     */
+    protected $async;
+
+
+    /**
+     * Constructor
+     *
+     * @param App $app
+     * @param Async $async
+     */
+    public function __construct(App $app, Async $async)
+    {
+        $this->app = $app;
+        $this->async = $async;
+    }
+
+
     /**
      * Add job
      *
@@ -25,17 +55,16 @@ class Hook extends AbstractHook
      */
     protected function addJob(File $node): void
     {
-        $shadow = $node->getAppAttribute($node->getFilesystem()->getServer()->getApp()->getApp('Balloon.App.Convert'), 'shadow');
+        $shadow = $node->getAppAttribute($this->app, 'shadow');
         if ($shadow === null) {
             return;
         }
 
-        $queue = $node->getFilesystem()->getServer()->getAsync();
         foreach ($shadow as $format) {
-            $queue->addJob(new Job([
+            $this->async->addJob(Job::class, [
                 'id' => $node->getId(),
                 'format' => $format
-            ]));
+            ]);
         }
     }
 

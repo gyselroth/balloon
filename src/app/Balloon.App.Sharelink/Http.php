@@ -27,26 +27,36 @@ use \Balloon\App\Sharelink\Api\v1\ShareLink;
 class Http extends AbstractApp
 {
     /**
+     * Filesystem
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+
+    /**
      * Init
      *
      * @return bool
      */
-    public function init(): bool
+    public function __construct(Router $router, Hook $hook, Server $server): bool
     {
-        $this->router
+        $router
             ->appendRoute(new Route('/share', $this, 'start'))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/share-link', ShareLink::class))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
 
-        $this->server->getHook()->injectHook(new class($this->logger) extends AbstractHook {
+        $hook->injectHook(new class($this->logger) extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
                 if (preg_match('#^/index.php/share#', $_SERVER["ORIG_SCRIPT_NAME"])) {
-                    $auth->injectAdapter('none', (new AuthNone($this->logger)));
+                    $auth->injectAdapter('none', (new AuthNone()));
                 }
             }
         });
- 
+
+        $this->fs = $server->getFilesystem();
+
         return true;
     }
 
@@ -87,7 +97,7 @@ class Http extends AbstractApp
                 $set['expiration'] = (int)$set['expiration'];
             }
         }
-        
+
         if (array_key_exists('password', $set)) {
             if (empty($set['password'])) {
                 unset($set['password']);
@@ -95,7 +105,7 @@ class Http extends AbstractApp
                 $set['password'] = hash('sha256', $set['password']);
             }
         }
-        
+
         $share = false;
         if (!array_key_exists('shared', $set)) {
             if (count($node->getAppAttributes($this)) === 0) {
@@ -108,13 +118,13 @@ class Http extends AbstractApp
 
             unset($set['shared']);
         }
-        
+
         if ($share === true) {
             $node->setAppAttributes($this, $set);
         } else {
             $node->unsetAppAttributes($this);
         }
-    
+
         return true;
     }
 
@@ -129,7 +139,7 @@ class Http extends AbstractApp
     {
         return $node->getAppAttributes($this);
     }
-    
+
 
     /**
      * Get attributes
@@ -174,7 +184,7 @@ class Http extends AbstractApp
         if ($attributes['token'] !== $token) {
             throw new Exception('token do not match');
         }
-        
+
         if (isset($attributes['expiration']) && !empty($attributes['expiration'])) {
             $time = (int)$attributes['expiration'];
             if ($time < time()) {
@@ -185,7 +195,7 @@ class Http extends AbstractApp
         return $node;
     }
 
-        
+
     /**
      * Start
      *
@@ -204,7 +214,7 @@ class Http extends AbstractApp
             try {
                 $node  = $this->findNodeWithShareToken($token);
                 $share = $node->getAppAttributes($this);
-                
+
                 if (array_key_exists('password', $share)) {
                     $valid = false;
                     if (isset($_POST['password'])) {

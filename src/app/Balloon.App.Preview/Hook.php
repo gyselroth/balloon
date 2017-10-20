@@ -43,7 +43,7 @@ class Hook extends AbstractHook
      * @param App $app
      * @param Async $async
      */
-    public function __construct(AbstractApp $app, Async $async)
+    public function __construct(App $app, Async $async)
     {
         $this->app = $app;
         $this->async = $async;
@@ -89,9 +89,9 @@ class Hook extends AbstractHook
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
-        $this->async->addJob(new Job([
+        $this->async->addJob(Job::class, [
             'id' => $node->getId()
-        ]));
+        ]);
     }
 
 
@@ -106,8 +106,8 @@ class Hook extends AbstractHook
      */
     public function postRestoreFile(File $node, int $version): void
     {
-        $this->async->addJob(new Job([
+        $this->async->addJob(Job::class, [
             'id' => $node->getId()
-        ]));
+        ]);
     }
 }

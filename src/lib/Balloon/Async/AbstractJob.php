@@ -22,14 +22,15 @@ abstract class AbstractJob implements JobInterface
 
 
     /**
-     * Create job
+     * Get data
      *
      * @param  array $data
-     * @return void
+     * @return JobInterface
      */
-    public function __construct(array $data)
+    public function setData(array $data): JobInterface
     {
         $this->data = $data;
+        return $this;
     }
 
 

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\AutoCreateUser;
+namespace Balloon\Hook;
 
 use \Balloon\Exception;
 use \Balloon\Hook\AbstractHook;
@@ -19,7 +19,7 @@ use \MongoDB\BSON\Binary;
 use \MongoDB\BSON\UTCDateTime;
 use \Micro\Auth\Identity;
 
-class Hook extends AbstractHook
+class AutoCreateUser extends AbstractHook
 {
     /**
      * Attributes

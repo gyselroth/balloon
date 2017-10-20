@@ -14,9 +14,19 @@ namespace Balloon;
 use \Balloon\Hook\Exception;
 use \Balloon\Hook\HookInterface;
 use \Psr\Log\LoggerInterface;
+use \Micro\Container\AdapterAwareInterface;
+use \Balloon\Hook\Delta;
 
-class Hook
+class Hook implements AdpaterAwareInterface
 {
+    /**
+     * Default hooks
+     */
+    const DEFAULT_HOOKS = [
+        Delta::class => []
+    ];
+
+
     /**
      * Hooks
      *
@@ -42,38 +52,6 @@ class Hook
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-    }
-
-
-    /**
-     * Register hook
-     *
-     * @param   string $class
-     * @param   Iterable $config
-     * @return  bool
-     */
-    public function registerHook(string $class, ?Iterable $config=null): bool
-    {
-        if (!class_exists($class)) {
-            throw new Exception("hook class $class was not found");
-        }
-
-        $hook = new $class($this->logger, $config);
-        if (isset($this->hook[$class])) {
-            throw new Exception('hook '.$class.' is already registered');
-        }
-
-        if (!($hook instanceof HookInterface)) {
-            throw new Exception('hook '.$class.' does not implement HookInterface');
-        }
-
-        $this->logger->info('register hook ['.$class.']', [
-             'category' => get_class($this),
-        ]);
-
-        $this->hook[$class] = $hook;
-
-        return true;
     }
 
 
@@ -173,5 +151,54 @@ class Hook
         }
 
         return true;
+    }
+
+
+    /**
+     * Has adapter
+     *
+     * @param  string $name
+     * @return bool
+     */
+    public function hasAdapter(string $name): bool
+    {
+        return $this->hasHook($name);
+    }
+
+
+    /**
+     * Inject adapter
+     *
+     * @param  string $name
+     * @param  AdapterInterface $adapter
+     * @return AdapterInterface
+     */
+    public function injectAdapter(string $name, AppInterface $adapter): App
+    {
+        return $this->injectHook($adapter);
+    }
+
+
+    /**
+     * Get adapter
+     *
+     * @param  string $name
+     * @return AdapterInterface
+     */
+    public function getAdapter(string $name): AppInterface
+    {
+        return $this->getApp($name);
+    }
+
+
+    /**
+     * Get adapters
+     *
+     * @param  array $adapters
+     * @return array
+     */
+    public function getAdapters(array $adapters = []): array
+    {
+        return $this->getHook($adapters);
     }
 }

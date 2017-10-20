@@ -20,7 +20,7 @@ use \MongoDB\Database;
 use \Psr\Log\LoggerInterface;
 use \Balloon\Hook as Hooker;
 
-class Cli extends AbstractApp
+class Cli extends App
 {
     /**
      * Preview image format
@@ -46,17 +46,6 @@ class Cli extends AbstractApp
     {
         parent::__construct($db, $logger);
         $this->converter = $converter;
-    }
-
-
-    /**
-     * Converter
-     *
-     * @return Converter
-     */
-    public function getConverter(): Converter
-    {
-        return $this->converter;
     }
 
 

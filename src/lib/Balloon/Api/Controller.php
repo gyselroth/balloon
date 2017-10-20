@@ -57,12 +57,12 @@ class Controller
      * @param  LoggerInterface $logger
      * @return void
      */
-    public function __construct(Server $server, LoggerInterface $logger)
+    public function __construct(Server $server/*, LoggerInterface $logger*/)
     {
         $this->fs     = $server->getFilesystem();
         $this->user   = $server->getIdentity();
         $this->server = $server;
-        $this->logger = $logger;
+        //$this->logger = $logger;
     }
 
 

@@ -9,27 +9,21 @@
 
 namespace Balloon\App\Convert;
 
-use \Balloon\App\AbstractApp as CoreAbstractApp;
+use \Balloon\App\AbstractApp;
 use \Balloon\App\AppInterface;
 use \Balloon\Converter;
 
-abstract class AbstractApp extends CoreAbstractApp
+class App extends AbstractApp
 {
     /**
-     * Converter
+     * Get hooks
      *
-     * @var Converter
+     * @return array
      */
-    protected $converter;
-
-
-    /**
-     * Converter
-     *
-     * @return Converter
-     */
-    public function getConverter(): Converter
+    public function getHooks(): array
     {
-        return $this->converter;
+        return [
+            Hook::class
+        ];
     }
 }

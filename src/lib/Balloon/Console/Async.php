@@ -12,9 +12,71 @@ declare(strict_types=1);
 namespace Balloon\Console;
 
 use \GetOpt\GetOpt;
+use \Balloon\App;
+use \Balloon\Async as AsyncQueue;
+use \Psr\Log\LoggerInterface;
+use \Psr\Container\ContainerInterface;
 
-class Async extends AbstractConsole
+class Async implements ConsoleInterface
 {
+    /**
+     * App
+     *
+     * @var App
+     */
+    protected $app;
+
+
+    /**
+     * Logger
+     *
+     * @var Logger
+     */
+    protected $logger;
+
+
+    /**
+     * Getopt
+     *
+     * @var GetOpt
+     */
+    protected $getopt;
+
+
+    /**
+     * Async
+     *
+     * @var Async
+     */
+    protected $async;
+
+
+    /**
+     * Container
+     *
+     * @var ContainerInterface
+     */
+    protected $container;
+
+
+    /**
+     * Constructor
+     *
+     * @param App $app
+     * @param Async $async
+     */
+    public function __construct(App $app, AsyncQueue $async, LoggerInterface $logger, ContainerInterface $container, GetOpt $getopt)
+    {
+        $this->app = $app;
+        $this->async = $async;
+        $this->logger = $logger;
+        $this->getopt = $getopt;
+        $this->async = $async;
+        $this->container = $container;
+        $this->setOptions();
+    }
+
+
     /**
      * Set options
      *
@@ -48,11 +110,11 @@ class Async extends AbstractConsole
             $this->fireupDaemon();
         } else {
             if ($this->getopt->getOption('queue') !== null) {
-                $cursor = $this->server->getAsync()->getCursor(false);
-                $this->server->getAsync()->start($cursor, $this->server);
+                $cursor = $this->async->getCursor(false);
+                $this->async->start($cursor, $this->container);
             }
 
-            foreach ($this->server->getApp()->getApps() as $app) {
+            foreach ($this->app->getApps() as $app) {
                 $app->start();
             }
         }
@@ -72,10 +134,10 @@ class Async extends AbstractConsole
             'category' => get_class($this),
         ]);
 
-        $cursor = $this->server->getAsync()->getCursor(true);
+        $cursor = $this->async->getCursor(true);
         while (true) {
             if ($this->getopt->getOption('queue') !== null) {
-                $this->server->getAsync()->start($cursor, $this->server);
+                $this->async->start($cursor, $this->container);
             }
         }
 

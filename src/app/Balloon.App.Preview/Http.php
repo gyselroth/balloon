@@ -17,7 +17,7 @@ use \Balloon\App\Preview\Api\v1\Preview;
 use \MongoDB\Database;
 use \Psr\Log\LoggerInterface;
 
-class Http extends AbstractApp
+class Http extends App
 {
     /**
      * Constructor

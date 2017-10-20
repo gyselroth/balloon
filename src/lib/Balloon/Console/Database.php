@@ -13,8 +13,47 @@ namespace Balloon\Console;
 
 use \Balloon\Database as BalloonDatabase;
 
-class Database extends AbstractConsole
+class Database implements ConsoleInterface
 {
+    /**
+     * Getopt
+     *
+     * @var GetOpt
+     */
+    protected $getopt;
+
+
+    /**
+     * Async
+     *
+     * @var Async
+     */
+    protected $async;
+
+
+    /**
+     * Container
+     *
+     * @var ContainerInterface
+     */
+    protected $container;
+
+
+    /**
+     * Constructor
+     *
+     * @param App $app
+     * @param Async $async
+     */
+    public function __construct(App $app, Async $async, LoggerInterface $logger, ContainerInterface $container, GetOpt $getopt)
+    {
+        $this->server = $app;
+        $this->logger = $logger;
+        $this->getopt = $getopt;
+        $this->setOptions();
+    }
+
+
     /**
      * Set options
      *

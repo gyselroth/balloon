@@ -54,17 +54,26 @@ class Database
 
 
     /**
+     * Progressbar
+     *
+     * @var ProgressBar
+     */
+    protected $bar;
+
+
+    /**
      * Construct
      *
      * @param Server $server
      * @param LoggerInterface $logger
      */
-    public function __construct(Server $server, LoggerInterface $logger)
+    public function __construct(Server $server, Database $db, LoggerInterface $logger, ProgressBar $bar)
     {
         $this->server = $server;
-        $this->db     = $server->getDatabase();
+        $this->db     = $db;
         $this->logger = $logger;
         $this->setup  = $this->collect();
+        $this->bar    = $bar
     }
 
 
@@ -246,14 +255,11 @@ class Database
      */
     public function upgradeObjects(array $deltas)
     {
-        $output = new ConsoleOutput();
-
         $count = 0;
         foreach ($this->getCollections() as $collection) {
             $count += $this->db->{$collection}->count();
         }
-
-        $bar = new ProgressBar($output, $count);
+        $this->bar->setMaxStepts($count);
 
         foreach ($this->getCollections() as $collection) {
             $this->logger->info('execute deltas for collection ['.$collection.']', [
@@ -272,7 +278,7 @@ class Database
                     }
                 }
 
-                $bar->advance();
+                $this->bar->advance();
 
                 if (count($update) === 0) {
                     $this->logger->debug('object ['.$object['_id'].'] from ['.$collection.'] does not need to be updated', [
@@ -288,8 +294,8 @@ class Database
             }
         }
 
-        $bar->finish();
-        $output->writeln('');
+        $this->bar->finish();
+        //$output->writeln('');
         return true;
     }
 }

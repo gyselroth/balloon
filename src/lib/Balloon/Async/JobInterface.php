@@ -11,11 +11,17 @@ declare(strict_types=1);
 
 namespace Balloon\Async;
 
-use \Psr\Log\LoggerInterface;
-use \Balloon\Server;
-
 interface JobInterface
 {
+    /**
+     * Get job data
+     *
+     * @param  array $data
+     * @return JobInterface
+     */
+    public function setData(array $data): JobInterface;
+
+
     /**
      * Get job data
      *
@@ -27,9 +33,7 @@ interface JobInterface
     /**
      * Start job
      *
-     * @param   Server $server
-     * @param   LoggerInterface $logger
      * @return  bool
      */
-    public function start(Server $server, LoggerInterface $logger): bool;
+    public function start(): bool;
 }

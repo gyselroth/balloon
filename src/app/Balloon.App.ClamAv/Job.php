@@ -22,7 +22,7 @@ class Job extends AbstractJob
      *
      * @return bool
      */
-    public function start(Server $server, Logger $logger): bool
+    public function start(): bool
     {
         $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
 

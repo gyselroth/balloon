@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Preview;
 
 use \Balloon\Exception;
-use \Balloon\App\AbstractApp as AbstractBalloonApp;
+use \Balloon\App\AbstractApp;
 use \Balloon\Filesystem\Node\File;
 use \MongoDB\BSON\ObjectId;
 use \MongoDB\Database;
@@ -20,7 +20,7 @@ use \Psr\Log\LoggerInterface;
 use \Balloon\Hook as Hooker;
 use \Balloon\Async;
 
-class AbstractApp extends AbstractBalloonApp
+class App extends AbstractApp
 {
     /**
      * Logger

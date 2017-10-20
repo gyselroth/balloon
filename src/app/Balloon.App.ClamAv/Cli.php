@@ -18,10 +18,14 @@ use \Xenolope\Quahog\Client as ClamAv;
 use \Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
 use \Socket\Raw\Factory as SocketFactory;
 
-class Cli extends AbstractApp
+class Cli extends App
 {
+    /**
+     * States
+     */
     const FILE_INFECTED = 0;
     const FILE_OK = 1;
+
 
     /**
     * Socket
@@ -30,12 +34,14 @@ class Cli extends AbstractApp
     */
     protected $socket = 'unix:///var/run/clamav/clamd.ctl';
 
+
     /**
     * Maximum Stream Size
     *
     * @var int
     */
     protected $max_stream_size = 26214400;
+
 
     /**
     * Aggressiveness
@@ -44,6 +50,7 @@ class Cli extends AbstractApp
     */
     protected $aggressiveness = 3;
 
+
     /**
     * Timeout
     *
@@ -51,15 +58,43 @@ class Cli extends AbstractApp
     */
     protected $timeout = 30;
 
+
     /**
-     * Init
+     * Logger
      *
-     * @return bool
+     * @var LoggerInterface
      */
-    public function init(): bool
+    protected $logger;
+
+
+    /**
+     * Socket
+     *
+     * @var Socket
+     */
+    protected $socket;
+
+
+    /*
+     * Socket factory
+     *
+     * @var SocketFactory
+     */
+    protected $socket_factory;
+
+
+    /**
+     * Constructor
+     *
+     * @param Database $db
+     * @param LoggerInterface $logger
+     */
+    public function __construct(SocketFactory $factory, LoggerInterface $logger)
     {
-        return true;
+        $this->logger = $logger;
+        $this->socket_factory = $factory;
     }
+
 
     /**
      * Set options
@@ -95,6 +130,7 @@ class Cli extends AbstractApp
         return $this;
     }
 
+
     /**
      * Scan file
      *
@@ -108,15 +144,16 @@ class Cli extends AbstractApp
         }
 
         try {
-            // Create a new socket instance
-            $socket = (new SocketFactory())->createClient($this->socket);
+            if(!($this->socket instanceof Socket)) {
+                $this->socket = $this->socket_factory->createClient($this->socket);
+            }
         } catch (\Exception $e) {
             throw new Exception('scan of file [' . $file->getId() . '] failed: ' . $e->getMessage());
         }
 
         try {
             // Create a new instance of the Client
-            $clamav = new ClamAv($socket, $this->timeout, PHP_NORMAL_READ);
+            $clamav = new ClamAv($this->socket, $this->timeout, PHP_NORMAL_READ);
 
             // Scan file
             $result = $clamav->scanResourceStream($file->get());
@@ -145,9 +182,9 @@ class Cli extends AbstractApp
      *
      * @param  File $file
      * @param  bool $infected
-     * @return void
+     * @return bool
      */
-    public function handleFile(File $file, $infected=false): void
+    public function handleFile(File $file, $infected=false): bool
     {
         if ($infected) {
             switch ($this->aggressiveness) {
@@ -168,5 +205,7 @@ class Cli extends AbstractApp
         } else {
             $file->setAppAttribute($this, 'quarantine', false);
         }
+
+        return true;
     }
 }

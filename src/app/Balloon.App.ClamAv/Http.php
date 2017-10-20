@@ -11,19 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\ClamAv;
 
-use \Balloon\App\AbstractApp;
-
-class Http extends AbstractApp
+class Http extends App
 {
 
-    /**
-     * Init
-     *
-     * @return bool
-     */
-    public function init(): bool
-    {
-        return $this->server->getHook()->registerHook(Hook::class);
-        return true;
-    }
 }

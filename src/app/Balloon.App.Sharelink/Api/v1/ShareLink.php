@@ -15,9 +15,31 @@ use \Balloon\Exception;
 use \Balloon\Api\Controller;
 use \Balloon\Helper;
 use \Micro\Http\Response;
+use \Balloon\App\Sharelink\Http as App;
 
 class ShareLink extends Controller
 {
+    /**
+     * App
+     *
+     * @var App
+     */
+    protected $app;
+
+
+    /**
+     * Constructor
+     *
+     * @param App $app
+     * @param Server $server
+     */
+    public function __construct(App $app, Server $server)
+    {
+        parent::__construct($server);
+        $this->app = $app;
+    }
+
+
     /**
      * @api {post} /api/v1/node/share-link?id=:id Create sharing link
      * @apiVersion 1.0.0
@@ -51,8 +73,8 @@ class ShareLink extends Controller
         $node = $this->fs->getNode($id, $p);
         $options = Helper::filter($options);
         $options['shared'] = true;
-    
-        $this->server->getApp()->getApp('Balloon.App.Sharelink')->shareLink($node, $options);
+
+        $this->app->shareLink($node, $options);
         return (new Response())->setCode(204);
     }
 
@@ -82,7 +104,7 @@ class ShareLink extends Controller
         $node = $this->fs->getNode($id, $p);
         $options = ['shared' => false];
 
-        $this->server->getApp()->getApp('Balloon.App.Sharelink')->shareLink($node, $options);
+        $this->app->shareLink($node, $options);
         return (new Response())->setCode(204);
     }
 
@@ -123,9 +145,9 @@ class ShareLink extends Controller
     {
         $node = $this->fs->getNode($id, $p);
         $result = Helper::escape(
-            $this->server->getApp()->getApp('Balloon.App.Sharelink')->getShareLink($node)
+            $this->app->getShareLink($node)
         );
-        
+
         return (new Response())->setCode(200)->setBody($result);
     }
 }

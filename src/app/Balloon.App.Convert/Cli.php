@@ -14,6 +14,6 @@ use \Balloon\Converter;
 use \Balloon\Converter\Adapter\Imagick;
 use \Balloon\Converter\Adapter\Office;
 
-class Cli extends AbstractApp
+class Cli extends App
 {
 }

@@ -18,19 +18,43 @@ use \Balloon\Async\AbstractJob;
 class Job extends AbstractJob
 {
     /**
+     * Filesystem
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+
+    /**
+     * App
+     *
+     * @var App
+     */
+    protected $app;
+
+
+    /**
+     * Constructor
+     *
+     * @param App $app
+     * @param Server $server
+     */
+    public function __construct(App $app, Server $server)
+    {
+        $this->app = $app;
+        $this->fs = $server->getFilesystem();
+    }
+
+
+    /**
      * Start job
      *
-     * @param  Server $server
-     * @param  LoggerInterface $logger
      * @return bool
      */
-    public function start(Server $server, LoggerInterface $logger): bool
+    public function start(): bool
     {
-        $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
-
-        $result = $server->getApp()
-            ->getApp('Balloon.App.Preview')
-            ->createPreview($file);
+        $file = $this->fs->findNodeWithId($this->data['id']);
+        $this->app->createPreview($file);
 
         return true;
     }

@@ -19,6 +19,7 @@ use \MongoDB\Operation\Find;
 use \MongoDB\Driver\Cursor;
 use \MongoDB\BSON\UTCDateTime;
 use \IteratorIterator;
+use \Psr\Container\ContainerInterface;
 
 class Async
 {
@@ -67,19 +68,18 @@ class Async
      * @param   JobInterface $job
      * @return  bool
      */
-    public function addJob(JobInterface $job): bool
+    public function addJob(string $class, array $data): bool
     {
-        $bson = \MongoDB\BSON\fromPHP($job);
         $result = $this->db->queue->insertOne([
-            'class'     => get_class($job),
+            'class'     => $class,
             'status'    => self::STATUS_WAITING,
             'timestamp' => new UTCDateTime(),
-            'data'      => $job->getData()
+            'data'      => $data
         ]);
 
-        $this->logger->debug("queue job [".$result->getInsertedId()."] added to [".get_class($job)."]", [
+        $this->logger->debug("queue job [".$result->getInsertedId()."] added to [".$class."]", [
             'category' => get_class($this),
-            'params'   => $job->getData()
+            'params'   => $data
         ]);
 
         return $result->isAcknowledged();
@@ -142,10 +142,10 @@ class Async
      * Execute job queue
      *
      * @param  IteratorIterator $cursor
-     * @param  Server $server
+     * @param  ContainerInterface $container
      * @return bool
      */
-    public function start(IteratorIterator $cursor, Server $server): bool
+    public function start(IteratorIterator $cursor, ContainerInterface $container): bool
     {
         while (true) {
             if ($cursor->current() === null) {
@@ -177,8 +177,9 @@ class Async
                     continue;
                 }
 
-                $instance = new $job['class']((array)$job['data']);
-                $instance->start($server, $this->logger);
+                $instance = $container->getNew($job['class']);
+                $instance->setData($job['data'])
+                    ->start();
                 $this->updateJob($job['_id'], self::STATUS_DONE);
             } catch (\Exception $e) {
                 $this->logger->error("failed execute job [".$job['_id']."], failed with error", [

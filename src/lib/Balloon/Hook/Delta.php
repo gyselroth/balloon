@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Delta;
+namespace Balloon\Hook;
 
 use \Balloon\Helper;
 use \Balloon\User;
@@ -20,7 +20,7 @@ use \Balloon\Filesystem;
 use \MongoDB\BSON\ObjectID;
 use \Balloon\Hook\AbstractHook;
 
-class Hook extends AbstractHook
+class Delta extends AbstractHook
 {
     /**
      * Client
