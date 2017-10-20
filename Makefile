@@ -230,9 +230,8 @@ $(NPM_TARGET) $(APIDOC_BIN): $(BASE_DIR)/package.json
 phpcs-fix: $(PHPCS_FIXER_TARGET)
 
 $(PHPCS_FIXER_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
-	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT) fix --allow-risky yes $(SRC_DIR) --rules="@PSR1,@PSR2,declare_strict_types,new_with_braces,no_empty_phpdoc"
+	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky --stop-on-violation --using-cache=no
 	@touch $@
-
 
 .PHONY: test
 test: $(PHPUNIT_TARGET)
