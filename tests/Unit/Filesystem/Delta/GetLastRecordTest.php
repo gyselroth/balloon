@@ -1,14 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
+ */
+
 namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 
-use \Balloon\Filesystem\Delta;
-use \Balloon\Testsuite\Unit\Test;
-use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Node\File;
-use \MongoDB\BSON\UTCDateTime;
-use \MongoDB\BSON\ObjectId;
+use Balloon\Testsuite\Unit\Test;
+use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 
-
+/**
+ * @coversNothing
+ */
 class GetLastRecordTest extends Test
 {
     protected $fs;
@@ -16,7 +28,7 @@ class GetLastRecordTest extends Test
 
     public function setUp()
     {
-        $server = self::setupMockServer();
+        $server = $this->getMockServer();
         $this->fs = $server->getFilesystem();
         $this->delta = new Delta($this->fs);
     }
@@ -28,7 +40,7 @@ class GetLastRecordTest extends Test
             'owner' => $this->fs->getUser()->getId(),
             'timestamp' => new UTCDateTime(),
             'operation' => 'test',
-            'name' => uniqid()
+            'name' => uniqid(),
         ];
 
         // create record
@@ -36,15 +48,15 @@ class GetLastRecordTest extends Test
 
         // get record
         $from_delta = $this->delta->getLastRecord();
-        $this->assertEquals($data['name'], $from_delta['name']);
+        $this->assertSame($data['name'], $from_delta['name']);
     }
 
-    public function testGetEmpty()
+    /*public function testGetEmpty()
     {
         // get record
         $from_delta = $this->delta->getLastRecord();
         $this->assertNull($from_delta);
-    }
+    }*/
 
     public function testGetLastRecord()
     {
@@ -53,13 +65,13 @@ class GetLastRecordTest extends Test
                 'owner' => $this->fs->getUser()->getId(),
                 'timestamp' => new UTCDateTime(0),
                 'operation' => 'test1',
-                'name' => uniqid()
+                'name' => uniqid(),
             ], [
                 'owner' => $this->fs->getUser()->getId(),
                 'timestamp' => new UTCDateTime(),
                 'operation' => 'test2',
-                'name' => uniqid()
-            ]
+                'name' => uniqid(),
+            ],
         ];
 
         foreach ($data as $record) {
@@ -67,7 +79,7 @@ class GetLastRecordTest extends Test
         }
 
         $from_delta = $this->delta->getLastRecord();
-        $this->assertEquals($from_delta['name'], $data[1]['name']);
+        $this->assertSame($from_delta['name'], $data[1]['name']);
     }
 
     public function testGetLastRecordForNode()
@@ -77,34 +89,33 @@ class GetLastRecordTest extends Test
             new File(
                 [
                     'owner' => $this->fs->getUser()->getId(),
-                    '_id' => new ObjectId()
+                    '_id' => new ObjectId(),
                 ],
                 $this->fs
             ),
             new File(
                 [
                     'owner' => $this->fs->getUser()->getId(),
-                    '_id' => new ObjectId()
+                    '_id' => new ObjectId(),
                 ],
                 $this->fs
-            )
+            ),
         ];
         $data = [
             [
                 'owner' => $this->fs->getUser()->getId(),
                 'timestamp' => new UTCDateTime(0),
                 'operation' => 'test1',
-                'node'  => $files[0]->getId(),
-                'name' => uniqid()
+                'node' => $files[0]->getId(),
+                'name' => uniqid(),
             ], [
                 'owner' => $this->fs->getUser()->getId(),
                 'timestamp' => new UTCDateTime(),
                 'operation' => 'test2',
-                'node'  => $files[1]->getId(),
-                'name' => uniqid()
-            ]
+                'node' => $files[1]->getId(),
+                'name' => uniqid(),
+            ],
         ];
-
 
         // create records
         foreach ($data as $record) {

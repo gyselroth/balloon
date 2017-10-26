@@ -3,7 +3,7 @@ SHELL=/bin/bash
 # DIRECTORIES
 BASE_DIR = .
 SRC_DIR = $(BASE_DIR)/src
-CORE_DIR = $(SRC_DIR)/lib/Balloon
+CORE_DIR = $(SRC_DIR)/lib
 CORE_API_DIR = $(CORE_DIR)/Api
 DOC_DIR = $(BASE_DIR)/doc
 CONFIG_DIR = $(BASE_DIR)/config
@@ -21,7 +21,7 @@ VERSION = $(shell cat $(BASE_DIR)/VERSION)
 # PACKAGES
 DEB_LIGHT = $(DIST_DIR)/balloon-light-$(VERSION).deb
 DEB_FULL = $(DIST_DIR)/balloon-full-$(VERSION).deb
-TAR = $(BASE_DIR)/balloon-build-$(VERSION).tar.gz
+TAR = $(DIST_DIR)/balloon-$(VERSION).tar.gz
 
 # PHP BINARY
 PHP_BIN = php
@@ -47,7 +47,8 @@ PHPSTAN_LOCK = $(BASE_DIR)/.phpstan.lock
 NPM_TARGET = $(NODE_MODULES_DIR)
 COMPOSER_TARGET = $(COMPOSER_LOCK)
 APIDOC_TARGET = $(DOC_DIR)
-PHPCS_FIXER_TARGET = $(PHPCS_FIXER_LOCK)
+PHPCS_FIX_TARGET = $(PHPCS_FIXER_LOCK)
+PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
 CHANGELOG_TARGET = $(BUILD_DIR)/DEBIAN/changelog
@@ -69,11 +70,15 @@ all: dist
 
 
 .PHONY: clean
-clean:
+clean: mostlyclean
+	@-test ! -d $(VENDOR_DIR) || rm -rfv $(VENDOR_DIR)/*
+
+
+.PHONY: mostlyclean
+mostlyclean:
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
 	@-test ! -d $(NODE_MODULES_DIR) || rm -rfv $(NODE_MODULES_DIR)
-	@-test ! -d $(VENDOR_DIR) || rm -rfv $(VENDOR_DIR)/*
 	@-test ! -f $(DIST_DIR)/*.deb || rm -fv $(DIST_DIR)/*.deb
 	@-test ! -f $(COMPOSER_LOCK) || rm -fv $(COMPOSER_LOCK)
 	@-test ! -f $(PHPCS_FIXER_LOCK) || rm -fv $(PHPCS_FIXER_LOCK)
@@ -122,6 +127,7 @@ tar: $(TAR)
 $(TAR): $(BUILD_TARGET)
 	$(COMPOSER_BIN) update --no-dev
 	@-test ! -f $(TAR) || rm -fv $(TAR)
+	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
 	@mkdir $(BUILD_DIR)
 	@cp -Rp $(CONFIG_DIR) $(BUILD_DIR)
@@ -221,11 +227,19 @@ $(NPM_TARGET) $(APIDOC_BIN): $(BASE_DIR)/package.json
 	@touch $@
 
 
+.PHONY: phpcs-check
+phpcs-check: $(PHPCS_FIXER_TARGET)
+
+$(PHPCS_CHECK_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
+	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky --stop-on-violation --using-cache=no
+	@touch $@
+
+
 .PHONY: phpcs-fix
 phpcs-fix: $(PHPCS_FIXER_TARGET)
 
-$(PHPCS_FIXER_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
-	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT) fix --allow-risky yes $(SRC_DIR) --rules="@PSR1,@PSR2,declare_strict_types,new_with_braces,no_empty_phpdoc"
+$(PHPCS_FIX_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
+	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v
 	@touch $@
 
 

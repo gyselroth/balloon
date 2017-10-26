@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,57 +7,64 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Sharelink;
 
-use \Balloon\Exception;
-use \Balloon\App;
-use \Balloon\Filesystem;
-use \Balloon\Filesystem\Node\NodeInterface;
-use \Balloon\Filesystem\Node\Collection;
-use \Micro\Http\Response;
-use \Micro\Http\Router\Route;
-use \Balloon\App\AbstractApp;
-use \Balloon\Hook\AbstractHook;
-use \Micro\Auth;
-use \Micro\Auth\Adapter\None as AuthNone;
-use \Balloon\App\Sharelink\Api\v1\ShareLink;
+use Balloon\App\AbstractApp;
+use Balloon\App\Sharelink\Api\v1\ShareLink;
+use Balloon\Exception;
+use Balloon\Filesystem;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Hook;
+use Balloon\Hook\AbstractHook;
+use Balloon\Server;
+use Micro\Auth;
+use Micro\Auth\Adapter\None as AuthNone;
+use Micro\Http\Response;
+use Micro\Http\Router;
+use Micro\Http\Router\Route;
 
 class Http extends AbstractApp
 {
     /**
-     * Init
+     * Filesystem.
      *
-     * @return bool
+     * @var Filesystem
      */
-    public function init(): bool
+    protected $fs;
+
+    /**
+     * Init.
+     */
+    public function __construct(Router $router, Hook $hook, Server $server)
     {
-        $this->router
+        $router
             ->appendRoute(new Route('/share', $this, 'start'))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/share-link', ShareLink::class))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
 
-        $this->server->getHook()->injectHook(new class($this->logger) extends AbstractHook {
+        $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
-                if (preg_match('#^/index.php/share#', $_SERVER["ORIG_SCRIPT_NAME"])) {
-                    $auth->injectAdapter('none', (new AuthNone($this->logger)));
+                if (preg_match('#^/index.php/share#', $_SERVER['ORIG_SCRIPT_NAME'])) {
+                    $auth->injectAdapter('none', (new AuthNone()));
                 }
             }
         });
- 
-        return true;
+
+        $this->fs = $server->getFilesystem();
     }
 
-
     /**
-     * Share link
+     * Share link.
      *
-     * @param   NodeInterface $node
-     * @param   array $options
-     * @return  bool
+     * @param NodeInterface $node
+     * @param array         $options
+     *
+     * @return bool
      */
     public function shareLink(NodeInterface $node, array $options): bool
     {
@@ -71,9 +79,8 @@ class Http extends AbstractApp
         foreach ($options as $option => $v) {
             if (!in_array($option, $valid, true)) {
                 throw new Exception\InvalidArgument('share option '.$option.' is not valid');
-            } else {
-                $set[$option] = $v;
             }
+            $set[$option] = $v;
         }
 
         if (!array_key_exists('token', $set)) {
@@ -84,10 +91,10 @@ class Http extends AbstractApp
             if (empty($set['expiration'])) {
                 unset($set['expiration']);
             } else {
-                $set['expiration'] = (int)$set['expiration'];
+                $set['expiration'] = (int) $set['expiration'];
             }
         }
-        
+
         if (array_key_exists('password', $set)) {
             if (empty($set['password'])) {
                 unset($set['password']);
@@ -95,72 +102,72 @@ class Http extends AbstractApp
                 $set['password'] = hash('sha256', $set['password']);
             }
         }
-        
+
         $share = false;
         if (!array_key_exists('shared', $set)) {
-            if (count($node->getAppAttributes($this)) === 0) {
+            if (0 === count($node->getAppAttributes($this))) {
                 $share = true;
             }
         } else {
-            if ($set['shared'] === 'true' || $set['shared'] === true) {
+            if ('true' === $set['shared'] || true === $set['shared']) {
                 $share = true;
             }
 
             unset($set['shared']);
         }
-        
-        if ($share === true) {
+
+        if (true === $share) {
             $node->setAppAttributes($this, $set);
         } else {
             $node->unsetAppAttributes($this);
         }
-    
+
         return true;
     }
 
-
     /**
-     * Get share options
+     * Get share options.
      *
-     * @param  NodeInterface $node
+     * @param NodeInterface $node
+     *
      * @return array
      */
     public function getShareLink(NodeInterface $node): array
     {
         return $node->getAppAttributes($this);
     }
-    
 
     /**
-     * Get attributes
+     * Get attributes.
      *
-     * @param  NodeInterface $node
-     * @param  array $attributes
+     * @param NodeInterface $node
+     * @param array         $attributes
+     *
      * @return array
      */
-    public function getAttributes(NodeInterface $node, array $attributes=[]): array
+    public function getAttributes(NodeInterface $node, array $attributes = []): array
     {
         return ['shared' => $this->isShareLink($node)];
     }
 
-
     /**
-     * Check if the node is a shared link
+     * Check if the node is a shared link.
      *
-     * @param  NodeInterface $node
+     * @param NodeInterface $node
+     *
      * @return bool
      */
     public function isShareLink(NodeInterface $node): bool
     {
-        return count($node->getAppAttributes($this)) !== 0;
+        return 0 !== count($node->getAppAttributes($this));
     }
 
-
     /**
-     * Get node by access token
+     * Get node by access token.
      *
-     * @param   string $token
-     * @return  NodeInterface
+     * @param string $token
+     *
+     * @return NodeInterface
      */
     public function findNodeWithShareToken(string $token): NodeInterface
     {
@@ -174,9 +181,9 @@ class Http extends AbstractApp
         if ($attributes['token'] !== $token) {
             throw new Exception('token do not match');
         }
-        
+
         if (isset($attributes['expiration']) && !empty($attributes['expiration'])) {
-            $time = (int)$attributes['expiration'];
+            $time = (int) $attributes['expiration'];
             if ($time < time()) {
                 throw new Exception('share link for this node is expired');
             }
@@ -185,33 +192,32 @@ class Http extends AbstractApp
         return $node;
     }
 
-        
     /**
-     * Start
+     * Start.
      *
      * @return bool
      */
     public function start(): bool
     {
         if (isset($_GET['t']) && !empty($_GET['t'])) {
-            $token    = $_GET['t'];
+            $token = $_GET['t'];
             if (isset($_GET['download'])) {
-                $download = (bool)$_GET['download'];
+                $download = (bool) $_GET['download'];
             } else {
                 $download = false;
             }
 
             try {
-                $node  = $this->findNodeWithShareToken($token);
+                $node = $this->findNodeWithShareToken($token);
                 $share = $node->getAppAttributes($this);
-                
+
                 if (array_key_exists('password', $share)) {
                     $valid = false;
                     if (isset($_POST['password'])) {
                         $valid = hash('sha256', $_POST['password']) === $share['password'];
                     }
 
-                    if ($valid === false) {
+                    if (false === $valid) {
                         echo "<form method=\"post\">\n";
                         echo    "Password: <input type=\"password\" name=\"password\"/>\n";
                         echo    "<input type=\"submit\" value=\"Submit\"/>\n";
@@ -221,17 +227,17 @@ class Http extends AbstractApp
                 }
 
                 if ($node instanceof Collection) {
-                    $mime   = 'application/zip';
+                    $mime = 'application/zip';
                     $stream = $node->getZip();
-                    $name   = $node->getName().'.zip';
+                    $name = $node->getName().'.zip';
                 } else {
-                    $mime   = $node->getMime();
+                    $mime = $node->getMime();
                     $stream = $node->get();
-                    $name   = $node->getName();
+                    $name = $node->getName();
                 }
 
-                if ($download === true || preg_match('#html#', $mime)) {
-                    header('Content-Disposition: attachment; filename*=UTF-8\'\'' .rawurlencode($name));
+                if (true === $download || preg_match('#html#', $mime)) {
+                    header('Content-Disposition: attachment; filename*=UTF-8\'\''.rawurlencode($name));
                     header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
                     header('Content-Type: application/octet-stream');
                     header('Content-Length: '.$node->getSize());
@@ -242,7 +248,7 @@ class Http extends AbstractApp
                     header('Content-Type: '.$mime);
                 }
 
-                if ($stream === null) {
+                if (null === $stream) {
                     exit();
                 }
 

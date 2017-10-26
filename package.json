@@ -9,10 +9,11 @@
     },
     "header": {
       "title": "Getting Started",
-      "filename": "doc/header.md"
+      "filename": "src/doc_header.html"
     }
   },
   "dependencies": {
-    "apidoc": "*"
+    "apidoc": "*",
+    "apidoc-swagger": "^0.2.2"
   }
 }

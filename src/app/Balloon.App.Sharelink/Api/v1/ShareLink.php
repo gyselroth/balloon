@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,18 +7,38 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Sharelink\Api\v1;
 
-use \Balloon\Exception;
-use \Balloon\Api\Controller;
-use \Balloon\Helper;
-use \Micro\Http\Response;
+use Balloon\Api\Controller;
+use Balloon\App\Sharelink\Http as App;
+use Balloon\Helper;
+use Micro\Http\Response;
+use Balloon\Server;
 
 class ShareLink extends Controller
 {
+    /**
+     * App.
+     *
+     * @var App
+     */
+    protected $app;
+
+    /**
+     * Constructor.
+     *
+     * @param App    $app
+     * @param Server $server
+     */
+    public function __construct(App $app, Server $server)
+    {
+        parent::__construct($server);
+        $this->app = $app;
+    }
+
     /**
      * @api {post} /api/v1/node/share-link?id=:id Create sharing link
      * @apiVersion 1.0.0
@@ -41,21 +62,22 @@ class ShareLink extends Controller
      * @apiSuccessExample {json} Success-Response (Created or modified share link):
      * HTTP/1.1 204 No Content
      *
-     * @param   string $id
-     * @param   string $p
-     * @param   array $options
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     * @param array  $options
+     *
+     * @return Response
      */
-    public function post(?string $id=null, ?string $p=null, array $options=[]): Response
+    public function post(?string $id = null, ?string $p = null, array $options = []): Response
     {
         $node = $this->fs->getNode($id, $p);
         $options = Helper::filter($options);
         $options['shared'] = true;
-    
-        $this->server->getApp()->getApp('Balloon.App.Sharelink')->shareLink($node, $options);
+
+        $this->app->shareLink($node, $options);
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {delete} /api/v1/node/share-link?id=:id Delete sharing link
@@ -73,19 +95,20 @@ class ShareLink extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $id
-     * @param   string $p
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     *
+     * @return Response
      */
-    public function delete(?string $id=null, ?string $p=null): Response
+    public function delete(?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
         $options = ['shared' => false];
 
-        $this->server->getApp()->getApp('Balloon.App.Sharelink')->shareLink($node, $options);
+        $this->app->shareLink($node, $options);
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {get} /api/v1/node/share-link?id=:id Get sharing link
@@ -115,17 +138,18 @@ class ShareLink extends Controller
      *     }
      * }
      *
-     * @param   string $id
-     * @param   string $p
-     * @return  Response
+     * @param string $id
+     * @param string $p
+     *
+     * @return Response
      */
-    public function get(?string $id=null, ?string $p=null): Response
+    public function get(?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
         $result = Helper::escape(
-            $this->server->getApp()->getApp('Balloon.App.Sharelink')->getShareLink($node)
+            $this->app->getShareLink($node)
         );
-        
+
         return (new Response())->setCode(200)->setBody($result);
     }
 }

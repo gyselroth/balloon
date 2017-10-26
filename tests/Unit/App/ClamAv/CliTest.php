@@ -1,53 +1,71 @@
 <?php
+
+declare(strict_types=1);
+
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
+ */
+
 namespace Balloon\Testsuite\Unit\App\ClamAv;
 
-use \Balloon\Testsuite\Unit\Test;
-use \Balloon\App\ClamAv\Cli as ClamAvApp;
-use \Balloon\Filesystem\Node\File;
+use Balloon\App\ClamAv\Cli as ClamAvApp;
+use Balloon\Filesystem\Node\File;
+use Balloon\Testsuite\Unit\Test;
+use Socket\Raw\Factory;
+use Psr\Log\LoggerInterface;
 
-class CliTest extends Test {
-    protected static $server;
-    protected static $app;
+/**
+ * @coversNothing
+ */
+class CliTest extends Test
+{
+    protected $app;
+    protected $server;
 
-    public static function setUpBeforeClass()
+    public function setUp()
     {
-        self::$server = self::setupMockServer();
-        self::$app = new ClamAvApp(self::$server, self::$server->getLogger());
+        $this->server = $this->getMockServer();
+        $factory = new Factory();
+        $this->app = new ClamAvApp($factory, $this->createMock(LoggerInterface::class));
     }
 
     public function testHandleCleanFile()
     {
         // setup file
         $file = new File(
-            ['owner' => self::$server->getIdentity()->getId()],
-            self::$server->getFilesystem()
+            ['owner' => $this->server->getIdentity()->getId()],
+            $this->server->getFilesystem()
         );
 
         // execute SUT
-        self::$app->handleFile($file);
+        $this->app->handleFile($file);
 
         // assertion
-        $this->assertFalse($file->getAppAttribute(self::$app, 'quarantine'));
+        $this->assertFalse($file->getAppAttribute($this->app, 'quarantine'));
     }
 
     public function testHandleInfectedFileLevel1()
     {
         // setup file
         $file = new File(
-            ['owner' => self::$server->getIdentity()->getId()],
-            self::$server->getFilesystem()
+            ['owner' => $this->server->getIdentity()->getId()],
+            $this->server->getFilesystem()
         );
 
         // setup SUT
-        self::$app->setOptions([
-            'aggressiveness' => 1
+        $this->app->setOptions([
+            'aggressiveness' => 1,
         ]);
 
         // execute SUT
-        self::$app->handleFile($file, true);
+        $this->app->handleFile($file, true);
 
         // assertion
-        $this->assertTrue($file->getAppAttribute(self::$app, 'quarantine'));
+        $this->assertTrue($file->getAppAttribute($this->app, 'quarantine'));
         $this->assertFalse($file->isDeleted());
     }
 
@@ -55,20 +73,20 @@ class CliTest extends Test {
     {
         // setup file
         $file = new File(
-            ['owner' => self::$server->getIdentity()->getId()],
-            self::$server->getFilesystem()
+            ['owner' => $this->server->getIdentity()->getId()],
+            $this->server->getFilesystem()
         );
 
         // setup SUT
-        self::$app->setOptions([
-            'aggressiveness' => 2
+        $this->app->setOptions([
+            'aggressiveness' => 2,
         ]);
 
         // execute SUT
-        self::$app->handleFile($file, true);
+        $this->app->handleFile($file, true);
 
         // assertion
-        $this->assertTrue($file->getAppAttribute(self::$app, 'quarantine'));
+        $this->assertTrue($file->getAppAttribute($this->app, 'quarantine'));
         $this->assertTrue($file->isDeleted());
     }
 
@@ -78,14 +96,14 @@ class CliTest extends Test {
         $mockFile = $this->getMockBuilder(File::class)
             ->setMethods(['_verifyAccess', 'delete'])
             ->setConstructorArgs([
-                ['owner' => self::$server->getIdentity()->getId()],
-                self::$server->getFilesystem()
+                ['owner' => $this->server->getIdentity()->getId()],
+                $this->server->getFilesystem(),
             ])
             ->getMock();
 
         // setup SUT
-        self::$app->setOptions([
-            'aggressiveness' => 3
+        $this->app->setOptions([
+            'aggressiveness' => 3,
         ]);
 
         // setup expectation
@@ -94,6 +112,6 @@ class CliTest extends Test {
             ->with($this->equalTo(true));
 
         // execute SUT
-        self::$app->handleFile($mockFile, true);
+        $this->app->handleFile($mockFile, true);
     }
 }

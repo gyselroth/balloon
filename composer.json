@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Balloon\\": "src/lib/Balloon",
+            "Balloon\\": "src/lib",
             "Balloon\\Testsuite\\": "tests"
         }
     },
@@ -26,6 +26,7 @@
         "grandt/phpzipmerge": "1.0.3",
         "phpzip/phpzip": "2.*",
         "psr/log": "1.*",
+        "psr/container": "*",
         "mongodb/mongodb": "1.2.0-alpha1",
         "ext-xml": "*",
         "ext-mongodb": "*",
@@ -36,7 +37,8 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "^3.0",
         "zendframework/zend-mail": "2.7.*",
-        "symfony/console": "*"
+        "symfony/console": "*",
+        "sitepoint/container": "^0.1.0"
     },
     "repositories": [
         {

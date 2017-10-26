@@ -1,17 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
+ */
+
 namespace Balloon\Testsuite\Unit\Bootstrap;
 
-use \PHPUnit\Framework\TestCase;
-use \Exception;
-use \Balloon\Filesystem;
-use \Balloon\Hook;
-use \Balloon\App;
-use \Balloon\Async;
-use \Balloon\Server;
-use \Balloon\Testsuite\Unit\Mock;
-use \Helmich\MongoMock\MockDatabase;
-use \Balloon\App\Delta;
-use \Micro\Http\Response;
+use Balloon\App;
+use Balloon\App\Delta;
 
 class Http extends AbstractBootstrap
 {
@@ -20,11 +22,12 @@ class Http extends AbstractBootstrap
         $server = parent::setupMockServer();
         global $composer;
 
-        $app   = new App(App::CONTEXT_HTTP, $composer, $server, self::$logger, self::$app
-            'Balloon.App.Delta' => [],  
-            'Balloon.App.Sharelink' => []
-        ]);
+        $app = new App(App::CONTEXT_HTTP, $composer, $server, self::$logger, self::$app);
 
+        /*            'Balloon.App.Delta' => [],
+                    'Balloon.App.Sharelink' => []
+                ]);
+        */
         return $server;
     }
 }

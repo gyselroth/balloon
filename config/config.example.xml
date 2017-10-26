@@ -6,13 +6,34 @@
     - mongodb.db: The mongodb balloon db name
     - mongodb.server: MongoDB connection URI @see http://docs.mongodb.org/manual/reference/connection-string/
     -->
-    <mongodb>
-        <db>balloon</db>
-        <server>mongodb://localhost:27017</server>
+    <mongodb service="\MongoDB\Client">
+        <options>
+            <db>balloon</db>
+            <uri>mongodb://localhost:27017</uri>
+        </options>
     </mongodb>
 
+
   <!--
-    - Apps (Extensions)
+    - Server options
+    -
+    - server.temp: Temporary folder
+    - server.max_version: As soon as a specific version is hit, then balloon will beginn to overwrite versions from the beginning
+    - server.max_size: The maximum allowed file size (Attention there are some other limits which could take effect like Webserver max body oder PHP memory limits)
+    -->
+    <server service="\Balloon\Server">
+        <options>
+            <config>
+                <temp>/tmp/balloon</temp>
+                <max_version>8</max_version>
+                <max_size>1073741824</max_size>
+            </config>
+        </options>
+    </server>
+
+
+  <!--
+    - Apps
     -
     - Balloon is easly extendable, just add  a new app here.
     - Apps get injected in the given order.
@@ -21,7 +42,7 @@
     - apps[].class: app bootstrap class
     - apps[].confog[]: app specific configurations
     -->
-    <apps>
+    <apps service="\Balloon\App">
         <Api enabled="1" class="\Balloon\App\Api">
             <config/>
         </Api>
@@ -248,16 +269,6 @@
         </auto_share>
     </apps>
 
-  <!--
-    - Mail
-    -
-    - mail.class: https://zendframework.github.io/zend-mail/ to get possible mail transporter
-    - mail.config[]: mail transport adapter sepcific settings
-    -->
-    <mail class="\Zend\Mail\Transport\Sendmail">
-         <config/>
-    </mail>
-
 
   <!--
     - Log
@@ -282,68 +293,42 @@
     -    6 => info
     -    7 => debug
     -->
-    <log>
-      <!--
-        - File output
-        -
-        - This log adapter sends log messages to a file.
-        -->
-        <file enabled="1" class="\Micro\Log\Adapter\File">
-            <config>
-                <file>APPLICATION_PATH/log/out.log</file>
-                <date_format>Y-d-m H:i:s</date_format>
-                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
-                <level>3</level>
-            </config>
-        </file>
+    <log service="\Psr\Log\LoggerInterface" class="\Micro\Log">
+        <adapter>
+            <file enabled="1" class="\Micro\Log\Adapter\File">
+                <options>
+                    <config>
+                        <file>APPLICATION_PATH/log/out.log</file>
+                        <date_format>Y-d-m H:i:s</date_format>
+                        <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
+                        <level>3</level>
+                    </config>
+                </options>
+            </file>
 
-      <!--
-        - Stdout output
-        -
-        - This log adapter sends log messages to stdout (Usually only useful for cli)
-        -->
-        <stdout enabled="0" class="\Micro\Log\Adapter\Stdout">
-            <config>
-                <date_format>Y-d-m H:i:s</date_format>
-                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
-                <level>3</level>
-            </config>
-        </stdout>
+            <stdout enabled="0" class="\Micro\Log\Adapter\Stdout">
+                <options>
+                    <config>
+                        <date_format>Y-d-m H:i:s</date_format>
+                        <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
+                        <level>3</level>
+                    </config>
+                </options>
+            </stdout>
 
-      <!--
-        - Syslog
-        -
-        - This log adapter sends log messages to syslog.
-        -->
-        <syslog enabled="0" class="\Micro\Log\Adapter\Syslog">
-            <config>
-                <date_format>Y-d-m H:i:s</date_format>
-                <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
-                <level>3</level>
-                <ident>balloon</ident>
-            </config>
-        </syslog>
+            <syslog enabled="0" class="\Micro\Log\Adapter\Syslog">
+                <options>
+                    <config>
+                        <date_format>Y-d-m H:i:s</date_format>
+                        <format>{date} [{context.category},{level}]: {message} {context.params} {context.exception}</format>
+                        <level>3</level>
+                        <ident>balloon</ident>
+                    </config>
+                </options>
+            </syslog>
+        </adapter>
     </log>
 
-  <!--
-    - Temp
-    -
-    - dir.temp: Temporary folder
-    -->
-    <dir>
-        <temp>/tmp/balloon</temp>
-    </dir>
-
-  <!--
-    - File options
-    -
-    - file.max_version: As soon as a specific version is hit, then balloon will beginn to overwrite versions from the beginning
-    - file.max_size: The maximum allowed file size (Attention there are some other limits which could take effect like Webserver max body oder PHP memory limits)
-    -->
-    <file>
-        <max_version>8</max_version>
-        <max_size>1073741824</max_size>
-    </file>
 
   <!--
     - Authentication
@@ -355,16 +340,14 @@
     -    \Balloon\Auth\Adapter\Oauth2: OAUTH2 authentication
     -    \Balloon\Auth\Adapter\Preauth: Pre exchanged key authentication (Avoid using this class, use Oauth2 instead!)
     -->
-    <auth>
+    <auth service="\Micro\Auth">
         <adapter>
           <!--
             - Local Users
             -
             - This adapter does not require any special configurations.
             -->
-            <basic_db enabled="1" class="\Balloon\Auth\Adapter\Basic\Db">
-                <config/>
-            </basic_db>
+            <basic_db enabled="1" class="\Balloon\Auth\Adapter\Basic\Db"/>
 
           <!--
             - OpenID-Connect
@@ -372,9 +355,11 @@
             - auth.adapter[].provider_ul: OpenID-Connect provider url
             -->
             <oidc enabled="0" class="\Micro\Auth\Adapter\Oidc">
-                <config>
-                    <provider_url>https://openidconnect.example.net</provider_url>
-                </config>
+                <options>
+                    <config>
+                        <provider_url>https://openidconnect.example.net</provider_url>
+                    </config>
+                </options>
             </oidc>
 
           <!--
@@ -385,17 +370,19 @@
             - @deprecated
             -->
             <preauth enabled="0" class="\Micro\Auth\Adapter\Preauth">
-                <config>
-                    <key>random_pre_auth_key</key>
-                    <source>
-                        <lan>192.168.1.0/24</lan>
-                        <localhost>127.0.10.1</localhost>
-                    </source>
-                    <ldap inherits="auth.adapter.basic_ldap.config.ldap"/>
-                    <map inherits="auth.adapter.basic_ldap.config.map"/>
-                    <account_filter>(uid=%s)</account_filter>
-                    <attr_sync_cache>3600</attr_sync_cache>
-                </config>
+                <options>
+                    <config>
+                        <key>random_pre_auth_key</key>
+                        <source>
+                            <lan>192.168.1.0/24</lan>
+                            <localhost>127.0.10.1</localhost>
+                        </source>
+                        <ldap inherits="auth.adapter.basic_ldap.config.ldap"/>
+                        <map inherits="auth.adapter.basic_ldap.config.map"/>
+                        <account_filter>(uid=%s)</account_filter>
+                        <attr_sync_cache>3600</attr_sync_cache>
+                    </config>
+                </options>
             </preauth>
 
           <!--
@@ -426,76 +413,49 @@
             -        ldapdn : User LDAP DN
             -->
             <basic_ldap enabled="0" class="\Micro\Auth\Adapter\Basic\Ldap">
-                <config>
-                    <ldap>
-                        <uri>ldap://ldap.example.org:389</uri>
-                        <basedn>dc=example,dc=org</basedn>
-                        <username>uid=bind,dc=example,dc=org</username>
-                        <password>1234</password>
-                        <tls>1</tls>
-                        <options>
-                            <option attr="LDAP_OPT_PROTOCOL_VERSION" value="3"/>
-                        </options>
-                    </ldap>
-                    <account_filter>(uid=%s)</account_filter>
-                    <attr_sync_cache>3600</attr_sync_cache>
+                <options>
+                    <config>
+                        <ldap>
+                            <uri>ldap://ldap.example.org:389</uri>
+                            <basedn>dc=example,dc=org</basedn>
+                            <username>uid=bind,dc=example,dc=org</username>
+                            <password>1234</password>
+                            <tls>1</tls>
+                            <options>
+                                <option attr="LDAP_OPT_PROTOCOL_VERSION" value="3"/>
+                            </options>
+                        </ldap>
+                        <account_filter>(uid=%s)</account_filter>
+                        <attr_sync_cache>3600</attr_sync_cache>
 
-                  <!--
-                    - LDAP share resources
-                    -
-                    . Besides finding local users/groups you can define ldap resoures. If you share a node
-                    - you will be able to find users which exists not only in the db but on an LDAP Server as well.
-                    -
-                    - You are able to work with namespaces in an ldap directory for searching acl roles.
-                    - This is only useful if you got multiple organizations in one directory tree, another option is to create an
-                    - authentication class for each suborganization (just with another basedn).
-                    - You don't have to configure namespaces if you got just one organization in one basedn.
-                    -
-                    - If an attribute mapping named "namespace" exists and the authenticated user has this attribute, another basedn could be used
-                    - for searching acl roles.
-                    -
-                    - Example:
-                    - There are multiple subtrees in an ldap DIT like:
-                    -    o=firm1,dc=example,dc=org
-                    -    o=firm2,dc=example,dc=org
-                    -
-                    - Every user under these organization objects got an attribute "o" for the right organization:
-                    -    uid=user1,o=firm1,dc=example,dc=org Attrs: o=firm1
-                    -    uid=user1,o=firm2,dc=example,dc=org Attrs: o=firm2
-                    -
-                    - Now you can create an attribute mapping:
-                    -    <namespace type="string" attr="o"/>
-                    -
-                    - And create a basedn which includes this namespace (Attention, use the basedn configuration under </search>!):
-                    -    <basedn>o=%s,dc=example,dc=org</basedn>
-                    -->
-                    <ldap_resources>
-                        <ldap inherits="auth.adapter.basic_ldap.config.ldap"/>
-                        <basedn>dc=example,dc=org</basedn>
-                        <user>
-                            <filter>(&amp;(objectClass=Person)(uid=%s*)(o=%s))</filter>
-                            <filter_single>(uid=%s)</filter_single>
-                            <id_attr>uid</id_attr>
-                            <display_attr>uid</display_attr>
-                        </user>
-                        <group>
-                            <filter>(&amp;(objectClass=groupOfNames)(cn=%s*))</filter>
-                            <filter_single>(entryDN=%s)</filter_single>
-                            <id_attr>dn</id_attr>
-                            <display_attr>cn</display_attr>
-                        </group>
-                    </ldap_resources>
+                        <ldap_resources>
+                            <ldap inherits="auth.adapter.basic_ldap.config.ldap"/>
+                            <basedn>dc=example,dc=org</basedn>
+                            <user>
+                                <filter>(&amp;(objectClass=Person)(uid=%s*)(o=%s))</filter>
+                                <filter_single>(uid=%s)</filter_single>
+                                <id_attr>uid</id_attr>
+                                <display_attr>uid</display_attr>
+                            </user>
+                            <group>
+                                <filter>(&amp;(objectClass=groupOfNames)(cn=%s*))</filter>
+                                <filter_single>(entryDN=%s)</filter_single>
+                                <id_attr>dn</id_attr>
+                                <display_attr>cn</display_attr>
+                            </group>
+                        </ldap_resources>
 
-                    <map>
-                        <namespace type="string" attr="o"/>
-                        <avatar type="binary" attr="jpegPhoto"/>
-                        <hard_quota type="int" attr="customHardQuotaAttribute"/>
-                        <soft_quota type="int" attr="customSoftQuotaAttribute"/>
-                        <groups type="array" attr="memberof"/>
-                        <mail type="string" attr="mail"/>
-                        <ldapdn type="string" attr="dn"/>
-                    </map>
-                </config>
+                        <map>
+                            <namespace type="string" attr="o"/>
+                            <avatar type="binary" attr="jpegPhoto"/>
+                            <hard_quota type="int" attr="customHardQuotaAttribute"/>
+                            <soft_quota type="int" attr="customSoftQuotaAttribute"/>
+                            <groups type="array" attr="memberof"/>
+                            <mail type="string" attr="mail"/>
+                            <ldapdn type="string" attr="dn"/>
+                        </map>
+                    </config>
+                </options>
             </basic_ldap>
         </adapter>
     </auth>
