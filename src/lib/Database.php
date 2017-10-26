@@ -51,25 +51,17 @@ class Database
     protected $setup = [];
 
     /**
-     * Progressbar.
-     *
-     * @var ProgressBar
-     */
-    protected $bar;
-
-    /**
      * Construct.
      *
      * @param Server          $server
      * @param LoggerInterface $logger
      */
-    public function __construct(App $app, MongoDB $db, LoggerInterface $logger, ?ProgressBar $bar = null)
+    public function __construct(App $app, MongoDB $db, LoggerInterface $logger)
     {
         $this->app = $app;
         $this->db = $db;
         $this->logger = $logger;
         $this->collect();
-        $this->bar = $bar;
     }
 
     /**
@@ -239,14 +231,6 @@ class Database
      */
     public function upgradeObjects(array $deltas)
     {
-        if (null !== $this->bar) {
-            $count = 0;
-            foreach ($this->getCollections() as $collection) {
-                $count += $this->db->{$collection}->count();
-            }
-            $this->bar->setMaxStepts($count);
-        }
-
         foreach ($this->getCollections() as $collection) {
             $this->logger->info('execute deltas for collection ['.$collection.']', [
                 'category' => get_class($this),
@@ -264,10 +248,6 @@ class Database
                     }
                 }
 
-                if (null !== $this->bar) {
-                    $this->bar->advance();
-                }
-
                 if (0 === count($update)) {
                     $this->logger->debug('object ['.$object['_id'].'] from ['.$collection.'] does not need to be updated', [
                         'category' => get_class($this),
@@ -280,10 +260,6 @@ class Database
                     $this->db->{$collection}->updateOne(['_id' => $object['_id']], $update);
                 }
             }
-        }
-
-        if (null !== $this->bar) {
-            $this->bar->finish();
         }
 
         return true;

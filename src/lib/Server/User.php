@@ -22,6 +22,7 @@ use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
+use MongoDB\Database;
 
 class User
 {
@@ -144,10 +145,10 @@ class User
      * @param Server $server
      * @param bool   $ignore_deleted
      */
-    public function __construct(array $attributes, Server $server, LoggerInterface $logger, bool $ignore_deleted = true)
+    public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger, bool $ignore_deleted = true)
     {
         $this->server = $server;
-        $this->db = $server->getDatabase();
+        $this->db = $db;
         $this->logger = $logger;
 
         foreach ($attributes as $attr => $value) {

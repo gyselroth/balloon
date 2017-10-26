@@ -180,6 +180,7 @@ class Cli extends AbstractBootstrap
     protected function setExceptionHandler(): Cli
     {
         set_exception_handler(function ($e) {
+var_dump($e);
             $logger = $this->container->get(LoggerInterface::class);
             $logger->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),

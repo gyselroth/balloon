@@ -162,52 +162,52 @@ class Server
      *
      * @return Database
      */
-    public function getDatabase(): Database
+    /*public function getDatabase(): Database
     {
         return $this->db;
-    }
+    }*/
 
     /**
      * Get storage.
      *
      * @return Storage
      */
-    public function getStorage(): Storage
+    /*public function getStorage(): Storage
     {
         return $this->storage;
-    }
+    }*/
 
     /**
      * Set app.
      *
      * @return Server
      */
-    public function setApp(App $app): Server
+    /*public function setApp(App $app): Server
     {
         $this->app = $app;
 
         return $this;
-    }
+    }*/
 
     /**
      * Get app.
      *
      * @return App
      */
-    public function getApp(): App
+    /*public function getApp(): App
     {
         return $this->app;
-    }
+    }*/
 
     /**
      * Get logger.
      *
      * @return LoggerInterface
      */
-    public function getLogger(): LoggerInterface
+    /*public function getLogger(): LoggerInterface
     {
         return $this->logger;
-    }
+    }*/
 
     /**
      * Get temporary directory.
@@ -244,20 +244,20 @@ class Server
      *
      * @return Hook
      */
-    public function getHook(): Hook
+    /*public function getHook(): Hook
     {
         return $this->hook;
-    }
+    }*/
 
     /**
      * Get async.
      *
      * @return Async
      */
-    public function getAsync(): Async
+    /*public function getAsync(): Async
     {
         return $this->async;
-    }
+    }*/
 
     /**
      * Filesystem factory.
@@ -267,13 +267,13 @@ class Server
     public function getFilesystem(?User $user = null): Filesystem
     {
         if (null !== $user) {
-            return new Filesystem($this, $this->logger, $user);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $user);
         }
         if ($this->identity instanceof User) {
-            return new Filesystem($this, $this->logger, $this->identity);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->identity);
         }
 
-        return new Filesystem($this, $this->logger);
+        return new Filesystem($this, $this->db, $this->hook, $this->logger);
     }
 
     /**
@@ -319,7 +319,7 @@ class Server
             throw new Exception('user does not exists');
         }
 
-        return new User($attributes, $this, $this->logger);
+        return new User($attributes, $this, $this->db, $this->logger);
     }
 
     /**
@@ -337,7 +337,7 @@ class Server
         if (null === $result) {
             throw new Exception('user does not exists');
         }
-        $user = new User($result, $this, $this->logger);
+        $user = new User($result, $this, $this->db, $this->logger);
         $this->identity = $user;
         $user->updateIdentity($identity);
         $this->hook->run('postServerIdentity', [$this, $user]);

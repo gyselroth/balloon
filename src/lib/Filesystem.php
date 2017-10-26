@@ -80,13 +80,13 @@ class Filesystem
      * @param LoggerInterface $logger
      * @param User            $user
      */
-    public function __construct(Server $server, LoggerInterface $logger, ?User $user = null)
+    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, ?User $user = null)
     {
         $this->user = $user;
         $this->server = $server;
-        $this->db = $server->getDatabase();
+        $this->db = $db;
         $this->logger = $logger;
-        $this->hook = $server->getHook();
+        $this->hook = $hook;
     }
 
     /**
@@ -104,10 +104,10 @@ class Filesystem
      *
      * @return Server
      */
-    public function getServer(): Server
+    /*public function getServer(): Server
     {
         return $this->server;
-    }
+    }*/
 
     /**
      * Get database.
