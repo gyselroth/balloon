@@ -405,10 +405,10 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 
         //if the item has the directory flag we create a collection else the item is file
         if (true === $node['directory']) {
-            return new self($node, $this->_fs);
+            return new self($node, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
         }
 
-        return new File($node, $this->_fs);
+        return new File($node, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
     }
 
     /**
@@ -798,7 +798,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $new = new self($save, $this->_fs);
+            $new = new self($save, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
 
             return $new;
@@ -891,7 +891,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $file = new File($save, $this->_fs);
+            $file = new File($save, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
 
             try {
                 $file->put($data, true, $attributes);

@@ -106,10 +106,10 @@ class Filesystem
      *
      * @return Server
      */
-    /*public function getServer(): Server
+    public function getServer(): Server
     {
         return $this->server;
-    }*/
+    }
 
     /**
      * Get database.
@@ -135,7 +135,7 @@ class Filesystem
         return $this->root = new Collection([
             '_id'   => null,
             'owner' => $this->user ? $this->user->getId() : null
-        ], $this,  $this->db, $this->user, $this->logger, $this->hook, $this->storage);
+        ], $this,  $this->logger, $this->hook, $this->storage);
     }
 
     /**
@@ -254,7 +254,7 @@ class Filesystem
         }
 
         $parts = explode('/', $path);
-        $parent = new Collection(null, $this);
+        $parent = new Collection(null, $this, $this->logger, $this->hook, $this->storage);
         array_shift($parts);
         foreach ($parts as $node) {
             $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
@@ -593,9 +593,9 @@ class Filesystem
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
         if (true === $node['directory']) {
-            return new Collection($node, $this, $this->db, $this->user, $this->logger, $this->hook, $this->storage);
+            return new Collection($node, $this, $this->logger, $this->hook, $this->storage);
         }
 
-        return new File($node, $this, $this->db, $this->user, $this->logger, $this->hook, $this->storage);
+        return new File($node, $this, $this->logger, $this->hook, $this->storage);
     }
 }

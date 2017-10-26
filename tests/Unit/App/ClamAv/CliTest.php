@@ -17,6 +17,9 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Testsuite\Unit\Test;
 use Socket\Raw\Factory;
 use Psr\Log\LoggerInterface;
+use Balloon\Server\User;
+use Balloon\Hook;
+use Balloon\Filesystem\Storage;
 
 /**
  * @coversNothing
@@ -33,13 +36,20 @@ class CliTest extends Test
         $this->app = new ClamAvApp($factory, $this->createMock(LoggerInterface::class));
     }
 
+    public function getFile()
+    {
+        return new File(
+            ['owner' => $this->server->getIdentity()->getId()],
+            $this->server->getFilesystem(),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(Hook::class),
+            $this->createMock(Storage::class)
+        );
+    }
+
     public function testHandleCleanFile()
     {
-        // setup file
-        $file = new File(
-            ['owner' => $this->server->getIdentity()->getId()],
-            $this->server->getFilesystem()
-        );
+        $file = $this->getFile();
 
         // execute SUT
         $this->app->handleFile($file);
@@ -50,11 +60,7 @@ class CliTest extends Test
 
     public function testHandleInfectedFileLevel1()
     {
-        // setup file
-        $file = new File(
-            ['owner' => $this->server->getIdentity()->getId()],
-            $this->server->getFilesystem()
-        );
+        $file = $this->getFile();
 
         // setup SUT
         $this->app->setOptions([
@@ -71,11 +77,7 @@ class CliTest extends Test
 
     public function testHandleInfectedFileLevel2()
     {
-        // setup file
-        $file = new File(
-            ['owner' => $this->server->getIdentity()->getId()],
-            $this->server->getFilesystem()
-        );
+        $file = $this->getFile();
 
         // setup SUT
         $this->app->setOptions([
@@ -98,6 +100,9 @@ class CliTest extends Test
             ->setConstructorArgs([
                 ['owner' => $this->server->getIdentity()->getId()],
                 $this->server->getFilesystem(),
+                $this->createMock(LoggerInterface::class),
+                $this->createMock(Hook::class),
+                $this->createMock(Storage::class)
             ])
             ->getMock();
 

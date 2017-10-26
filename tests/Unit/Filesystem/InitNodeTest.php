@@ -27,7 +27,8 @@ class InitNodeTest extends Test
     public function setUp()
     {
         $server = $this->getMockServer();
-        $this->fs = new Filesystem($server, $server->getLogger(), $server->getIdentity());
+        $this->fs = $server->getFilesystem();
+        //$this->fs = new Filesystem($server, $this->getMock(LogerInterface::class), $server->getIdentity(), $);
         // setup reflection for protected method
         $this->initNode = new ReflectionMethod(Filesystem::class, 'initNode');
         $this->initNode->setAccessible(true);

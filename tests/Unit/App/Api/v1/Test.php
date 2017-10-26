@@ -47,9 +47,9 @@ abstract class Test extends UnitTest
             $hook,
             $app
         );
-
+//Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, ?User
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
-        $filesystem = new Filesystem($server, $this->createMock(LoggerInterface::class));
+        $filesystem = new Filesystem($server, self::getMockDatabase(), $hook, $this->createMock(LoggerInterface::class), $this->createMock(Storage::class));
 
         if (!$server->userExists('testuser')) {
             $server->addUser(['username' => 'testuser']);

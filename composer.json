@@ -18,7 +18,7 @@
     },
     "require": {
         "php": ">=7.1",
-        "gyselroth/micro": "0.0.4",
+        "gyselroth/micro": "0.0.5",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",

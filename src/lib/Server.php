@@ -157,57 +157,6 @@ class Server
         return $this->app->start();
     }
 
-    /**
-     * Get database.
-     *
-     * @return Database
-     */
-    /*public function getDatabase(): Database
-    {
-        return $this->db;
-    }*/
-
-    /**
-     * Get storage.
-     *
-     * @return Storage
-     */
-    /*public function getStorage(): Storage
-    {
-        return $this->storage;
-    }*/
-
-    /**
-     * Set app.
-     *
-     * @return Server
-     */
-    /*public function setApp(App $app): Server
-    {
-        $this->app = $app;
-
-        return $this;
-    }*/
-
-    /**
-     * Get app.
-     *
-     * @return App
-     */
-    /*public function getApp(): App
-    {
-        return $this->app;
-    }*/
-
-    /**
-     * Get logger.
-     *
-     * @return LoggerInterface
-     */
-    /*public function getLogger(): LoggerInterface
-    {
-        return $this->logger;
-    }*/
 
     /**
      * Get temporary directory.

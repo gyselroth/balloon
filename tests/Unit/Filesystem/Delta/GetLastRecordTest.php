@@ -17,6 +17,9 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use Balloon\Hook;
+use Psr\Log\LoggerInterface;
+use Balloon\Filesystem\Storage;
 
 /**
  * @coversNothing
@@ -25,11 +28,12 @@ class GetLastRecordTest extends Test
 {
     protected $fs;
     protected $delta;
+    protected $server;
 
     public function setUp()
     {
-        $server = $this->getMockServer();
-        $this->fs = $server->getFilesystem();
+        $this->server = $this->getMockServer();
+        $this->fs = $this->server->getFilesystem();
         $this->delta = new Delta($this->fs);
     }
 
@@ -91,14 +95,20 @@ class GetLastRecordTest extends Test
                     'owner' => $this->fs->getUser()->getId(),
                     '_id' => new ObjectId(),
                 ],
-                $this->fs
+                $this->fs,
+                $this->createMock(LoggerInterface::class),
+                $this->createMock(Hook::class),
+                $this->createMock(Storage::class)
             ),
             new File(
                 [
                     'owner' => $this->fs->getUser()->getId(),
                     '_id' => new ObjectId(),
                 ],
-                $this->fs
+                $this->fs,
+                $this->createMock(LoggerInterface::class),
+                $this->createMock(Hook::class),
+                $this->createMock(Storage::class)
             ),
         ];
         $data = [

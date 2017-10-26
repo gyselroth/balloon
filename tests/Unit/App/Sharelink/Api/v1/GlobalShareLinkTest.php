@@ -34,7 +34,7 @@ class GlobalShareLinkTest extends Test
         $server = $this->getMockServer();
         $app =  new ShareLinkApp($this->createMock(Router::class),$this->createMock(Hook::class), $server, $this->createMock(LoggerInterface::class));
         $this->sharelink = new ShareLink($app, $server, $this->createMock(LoggerInterface::class));
-        $this->controller = new Collection($server, $server->getLogger());
+        $this->controller = new Collection($server, $this->createMock(LoggerInterface::class));
     }
 
     public function testCreate()

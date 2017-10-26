@@ -203,19 +203,12 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      * @param array      $attributes
      * @param Filesystem $fs
      */
-    public function __construct(array $attributes, Filesystem $fs, Database $db, User $user, LoggerInterface $logger, Hook $hook, Storage $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Storage $storage)
     {
         $this->_fs = $fs;
-        /*$this->_db = $fs->getDatabase();
-        $this->_user = $fs->getUser();
         $this->_server = $fs->getServer();
-        $this->_logger = $this->_server->getLogger();
-        $this->_hook = $this->_server->getHook();
-        $this->storage_handler = $fs->getServer()->getStorage();
-*/
-
-        $this->_db = $db;
-        $this->_user = $user;
+        $this->_db = $fs->getDatabase();
+        $this->_user = $fs->getUser();
         $this->_logger = $logger;
         $this->_hook = $hook;
         $this->storage_handler = $storage;
@@ -924,7 +917,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                         'reference' => $this->parent,
                     ]);
 
-                return new Collection($node, $this->_fs);
+                return new Collection($node, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
             }
 
             return $parent;

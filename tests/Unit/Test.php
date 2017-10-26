@@ -64,7 +64,6 @@ abstract class Test extends TestCase
         );
 
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
-        $filesystem = new Filesystem($server, $this->createMock(LoggerInterface::class));
 
         if (!$server->userExists('testuser')) {
             $server->addUser(['username' => 'testuser']);
