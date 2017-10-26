@@ -55,4 +55,4 @@ For installation from source, see the [wiki page](https://github.com/gyselroth/b
 
 ## Docker image
 
-There is a Dockerfile for a ready-to-go docker image in the [balloon-dockerimage](https://github.com/gyselroth/balloon-dockerimage) repository.
+There is a ready-to-go docker image on [Docker Hub](https://hub.docker.com/r/gyselroth/balloon/).
