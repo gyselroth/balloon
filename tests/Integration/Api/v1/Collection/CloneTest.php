@@ -1,10 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
+ */
+
 namespace Balloon\Testsuite\Api\Collection;
 
 use Balloon\Testsuite\Test;
 
+/**
+ * @coversNothing
+ */
 class CloneTest extends Test
-{   
+{
     protected static $delta = [];
     protected static $first_cursor;
     protected static $current_cursor;
@@ -19,11 +33,12 @@ class CloneTest extends Test
     {
         $name = uniqid();
         $res = $this->request('POST', '/collection?name='.$name);
-        $this->assertEquals(201, $res->getStatusCode());
+        $this->assertSame(201, $res->getStatusCode());
         $body = $this->jsonBody($res);
         $id = new \MongoDB\BSON\ObjectID($body);
         $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
         self::$delta[] = $id;
+
         return $id;
     }
 
@@ -31,37 +46,44 @@ class CloneTest extends Test
     {
         return $this->testCreate();
     }
-    
+
     /**
      * @depends testCreate
+     *
+     * @param mixed $id
      */
     public function testCloneCollectionIntoItself($id)
     {
         $res = $this->request('POST', '/collection/clone?id='.$id.'&destid='.$id);
-        $this->assertEquals(400, $res->getStatusCode());
+        $this->assertSame(400, $res->getStatusCode());
         $body = $this->jsonBody($res);
-        $this->assertEquals('Balloon\\Exception\\Conflict', $body['error']);
+        $this->assertSame('Balloon\\Exception\\Conflict', $body['error']);
     }
-    
+
     /**
      * @depends testCreate
+     *
+     * @param mixed $id
      */
     public function testCloneCollectionIntoSameParent($id)
     {
         $res = $this->request('POST', '/collection/clone?id='.$id.'&destid=');
-        $this->assertEquals(400, $res->getStatusCode());
+        $this->assertSame(400, $res->getStatusCode());
         $body = $this->jsonBody($res);
-        $this->assertEquals('Balloon\\Exception\\Conflict', $body['error']);
+        $this->assertSame('Balloon\\Exception\\Conflict', $body['error']);
     }
 
     /**
      * @depends testCreate
      * @depends testCreate2
+     *
+     * @param mixed $source
+     * @param mixed $dest
      */
     public function testCloneCollectionIntoOtherCollection($source, $dest)
     {
         $res = $this->request('POST', '/collection/clone?id='.$source.'&destid='.$dest);
-        $this->assertEquals(201, $res->getStatusCode());
+        $this->assertSame(201, $res->getStatusCode());
         $body = $this->jsonBody($res);
         $id = new \MongoDB\BSON\ObjectID($body);
         $this->assertInstanceOf('\MongoDB\BSON\ObjectID', $id);
@@ -73,9 +95,9 @@ class CloneTest extends Test
         $delta = $this->getLastDelta(self::$first_cursor);
         $this->assertCount(count(self::$delta), $delta['nodes']);
 
-        foreach($delta['nodes'] as $key => $node) {
-            $node = (array)$node;
-            $this->assertEquals($node['id'], self::$delta[$key]);
+        foreach ($delta['nodes'] as $key => $node) {
+            $node = (array) $node;
+            $this->assertSame($node['id'], self::$delta[$key]);
             $this->assertArrayHasKey('path', $node);
             $this->assertFalse($node['deleted']);
         }

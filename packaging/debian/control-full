@@ -2,6 +2,6 @@ Package: balloon-full
 Version: {version}
 Architecture: all
 Maintainer: Raffael Sahli <sahli@gyselroth.com>
-Depends: php (>= 7.1), php-ldap (>= 7.1), php-xml (>= 7.1), php-mongodb (>= 7.1), php-opcache (>= 7.1), php-curl (>= 7.1), php-imagick (>= 7.1), php-cli (>= 7.1), php-zip (>= 7.1), php-intl (>= 7.1), php-apc (>= 7.1), php-fpm (>=7.1), nginx, libreoffice, mongodb
+Depends: php7.1, php7.1-ldap, php7.1-xml, php-mongodb, php7.1-opcache, php7.1-curl, php-imagick, php7.1-cli, php7.1-zip, php7.1-intl, php-apcu, php7.1-fpm, nginx, libreoffice, mongodb
 Homepage: https://github.com/gyselroth/balloon
 Description: balloon cloud server

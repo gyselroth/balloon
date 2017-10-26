@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,56 +7,97 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Convert;
 
-use \Psr\Log\LoggerInterface;
-use \Balloon\Server;
-use \Balloon\Async\AbstractJob;
+use Balloon\Async\AbstractJob;
+use Balloon\Converter;
+use Balloon\Server;
+use Psr\Log\LoggerInterface;
 
 class Job extends AbstractJob
 {
     /**
-     * Start job
+     * App.
      *
-     * @param  Server $server
-     * @param  LoggerInterface $logger
+     * @var App
+     */
+    protected $app;
+
+    /**
+     * Converter.
+     *
+     * @var Converter
+     */
+    protected $converter;
+
+    /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * Logger.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Constructor.
+     *
+     * @param App   $app
+     * @param Async $async
+     */
+    public function __construct(App $app, Converter $converter, Server $server, LoggerInterface $logger)
+    {
+        $this->app = $app;
+        $this->converter = $converter;
+        $this->server = $server;
+        $this->logger = $logger;
+    }
+
+    /**
+     * Start job.
+     *
+     * @param Server          $server
+     * @param LoggerInterface $logger
+     *
      * @return bool
      */
-    public function start(Server $server, LoggerInterface $logger): bool
+    public function start(): bool
     {
-        $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
+        $file = $this->server->getFilesystem()->findNodeWithId($this->data['id']);
 
-        $logger->info("create shadow for node [".$this->data['id']."]", [
+        $this->logger->info('create shadow for node ['.$this->data['id'].']', [
             'category' => get_class($this),
         ]);
 
-        $app = $server->getApp()
-            ->getApp('Balloon.App.Convert');
+        $result = $htis->converter->convert($file, $this->data['format']);
 
-        $result = $app->getConverter()
-            ->convert($file, $this->data['format']);
-
-        $file->setFilesystem($server->getUserById($file->getOwner())->getFilesystem());
+        $file->setFilesystem($this->server->getUserById($file->getOwner())->getFilesystem());
 
         try {
-            $shadows = $file->getAppAttribute($app, 'shadows');
+            $shadows = $file->getAppAttribute($this->app, 'shadows');
             if (is_array($shadows) && isset($shadows[$this->data['format']])) {
                 $shadow = $file->getFilesystem()->findNodeWithId($shadows[$format]);
                 $shadow->put($result->getPath());
+
                 return true;
             }
         } catch (\Exception $e) {
-            $logger->debug('referenced shadow node ['.$shadows[$this->data['format']].'] does not exists or is not accessible', [
+            $this->logger->debug('referenced shadow node ['.$shadows[$this->data['format']].'] does not exists or is not accessible', [
                 'category' => get_class($this),
-                'exception'=> $e
+                'exception' => $e,
             ]);
         }
 
-        $logger->debug('create non existing shadow node for ['.$this->data['id'].']', [
-            'category' => get_class($this)
+        $this->logger->debug('create non existing shadow node for ['.$this->data['id'].']', [
+            'category' => get_class($this),
         ]);
 
         try {
@@ -67,14 +109,14 @@ class Job extends AbstractJob
 
         $shadow = $file->getParent()->createFile($name, $result->getPath(), [
             'owner' => $file->getOwner(),
-            'app'   => [
+            'app' => [
                 $app->getName() => [
-                    'master' => $file->getId()
-                ]
-            ]
+                    'master' => $file->getId(),
+                ],
+            ],
         ]);
 
-        $file->setAppAttribute($app, 'shadows.'.$this->data['format'], $shadow->getId());
+        $file->setAppAttribute($this->app, 'shadows.'.$this->data['format'], $shadow->getId());
 
         return true;
     }

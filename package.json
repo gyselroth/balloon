@@ -1,6 +1,5 @@
 {
   "name": "Balloon",
-  "version": "2.0.0-dev",
   "description": "",
   "title": "balloon",
   "apidoc": {
@@ -10,10 +9,11 @@
     },
     "header": {
       "title": "Getting Started",
-      "filename": "doc/header.md"
+      "filename": "src/doc_header.html"
     }
   },
   "dependencies": {
-    "apidoc": "*"
+    "apidoc": "*",
+    "apidoc-swagger": "^0.2.2"
   }
 }

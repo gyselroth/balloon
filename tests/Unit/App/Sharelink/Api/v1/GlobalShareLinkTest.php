@@ -1,66 +1,90 @@
 <?php
+
+declare(strict_types=1);
+
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
+ */
+
 namespace Balloon\Testsuite\Unit\App\Sharelink\Api\v1;
 
-use \Balloon\Testsuite\Unit\Test;
-use \Balloon\Testsuite\Unit\App\Sharelink\HttpApp;
-use \Micro\Http\Response;
-use \MongoDB\BSON\ObjectID;
-use \Balloon\App\Sharelink\Api\v1\ShareLink;
-use \Balloon\Api\v1\Collection;
-use \Balloon\App;
+use Balloon\Api\v1\Collection;
+use Balloon\App\Sharelink\Http as ShareLinkApp;
+use Balloon\App\Sharelink\Api\v1\ShareLink;
+use Balloon\Testsuite\Unit\Test;
+use Micro\Http\Response;
+use MongoDB\BSON\ObjectID;
+use Micro\Http\Router;
+use Psr\Log\LoggerInterface;
+use Balloon\Hook;
 
+/**
+ * @coversNothing
+ */
 class GlobalShareLinkTest extends Test
 {
-    protected static $sharelink;
+    protected $sharelink;
 
-    public static function setUpBeforeClass()
+    public function setUp()
     {
-        $server = self::setupMockServer(App::CONTEXT_HTTP);
-        self::$sharelink  = new ShareLink($server, $server->getLogger());
-        self::$controller = new Collection($server, $server->getLogger());
-        var_dump($server->getApp()->registerApp('Balloon.App.Sharelink'));
+        $server = $this->getMockServer();
+        $app =  new ShareLinkApp($this->createMock(Router::class),$this->createMock(Hook::class), $server, $this->createMock(LoggerInterface::class));
+        $this->sharelink = new ShareLink($app, $server, $this->createMock(LoggerInterface::class));
+        $this->controller = new Collection($server, $server->getLogger());
     }
 
     public function testCreate()
     {
         $name = uniqid();
-        $res = self::$controller->post(null, null, $name);
+        $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertEquals(201, $res->getCode());
+        $this->assertSame(201, $res->getCode());
         $id = new ObjectID($res->getBody());
         $this->assertInstanceOf(ObjectID::class, $id);
-        return (string)$id;
+
+        return (string) $id;
     }
 
     /**
      * @depends testCreate
+     *
+     * @param mixed $id
      */
     public function testCreateShareLink($id)
     {
-        $res = self::$sharelink->post($id);
+        $res = $this->sharelink->post($id);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertEquals(204, $res->getCode());
+        $this->assertSame(204, $res->getCode());
+
         return $id;
     }
 
-
     /**
      * @depends testCreateShareLink
+     *
+     * @param mixed $id
      */
     public function testGetShareLink($id)
     {
-        $res = self::$sharelink->get($id);
+        $res = $this->sharelink->get($id);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertEquals(200, $res->getCode());
+        $this->assertSame(200, $res->getCode());
         $this->assertArrayHasKey('token', $res->getBody());
+
         return [
             'token' => $res->getBody()['token'],
-            'id'    => $id,
+            'id' => $id,
         ];
     }
 
     /**
      * @depends testGetShareLink
+     *
+     * @param mixed $node
      */
     public function testVerifyShareLink($node)
     {
@@ -75,17 +99,22 @@ class GlobalShareLinkTest extends Test
 
     /**
      * @depends testVerifyShareLink
+     *
+     * @param mixed $node
      */
     public function testDeleteShareLink($node)
     {
-        $res = self::$sharelink->delete($node['id']);
+        $res = $this->sharelink->delete($node['id']);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertEquals(204, $res->getCode());
+        $this->assertSame(204, $res->getCode());
+
         return $node;
     }
 
     /**
      * @depends testDeleteShareLink
+     *
+     * @param mixed $node
      */
     public function testCheckIfShareLinkIsDeleted($node)
     {
@@ -96,23 +125,28 @@ class GlobalShareLinkTest extends Test
 
     /**
      * @depends testCreate
+     *
+     * @param mixed $id
      */
     public function testCreateExpiredShareLink($id)
     {
-        $res = self::$sharelink->post($id, null, ['expiration' => '1999999']);
+        $res = $this->sharelink->post($id, null, ['expiration' => '1999999']);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertEquals(204, $res->getCode());
-        $res = self::$sharelink->get($id);
+        $this->assertSame(204, $res->getCode());
+        $res = $this->sharelink->get($id);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertEquals(200, $res->getCode());
+        $this->assertSame(200, $res->getCode());
+
         return [
-            'id'  => $id,
-            'token' => $res->getBody()['token']
+            'id' => $id,
+            'token' => $res->getBody()['token'],
         ];
     }
 
     /**
      * @depends testCreateExpiredShareLink
+     *
+     * @param mixed $node
      */
     public function testIfShareLinkIsExpired($node)
     {

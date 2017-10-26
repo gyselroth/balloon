@@ -1,44 +1,62 @@
 <?php
+
+declare(strict_types=1);
+
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
+ */
+
 namespace Balloon\Testsuite\Unit\App\Api\v1\Collection;
 
-use \Balloon\Testsuite\Unit\App\Api\v1\Test;
-use \Balloon\Api\v1\Collection;
-use \Closure;
-use \Micro\Http\Response;
-use \MongoDB\BSON\ObjectID;
+use Balloon\Api\v1\Collection;
+use Balloon\Testsuite\Unit\App\Api\v1\Test;
+use Closure;
+use Micro\Http\Response;
+use MongoDB\BSON\ObjectID;
+use Psr\Log\LoggerInterface;
 
+/**
+ * @coversNothing
+ */
 class DownloadTest extends Test
 {
-    public static function setUpBeforeClass()
+    public function setUp()
     {
-        $server = self::setupMockServer();
-        self::$controller = new Collection($server, $server->getLogger());
+        $server = $this->getMockServer();
+        $this->controller = new Collection($server, $this->createMock(LoggerInterface::class));
     }
 
     public function testCreate()
     {
         $name = uniqid();
-        $res = self::$controller->post(null, null, $name);
+        $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf('\Micro\Http\Response', $res);
-        $this->assertEquals(201, $res->getCode());
+        $this->assertSame(201, $res->getCode());
         $id = new ObjectID($res->getBody());
         $this->assertInstanceOf(ObjectID::class, $id);
-        return (string)$id;
+
+        return (string) $id;
     }
 
     /**
      * @depends testCreate
+     *
+     * @param mixed $id
      */
     public function testDownload($id)
     {
         ob_start();
-        $res = self::$controller->get($id);
+        $res = $this->controller->get($id);
         $this->assertInstanceOf(Response::class, $res);
         $body = $res->getBody();
         $this->assertInstanceOf(Closure::class, $body);
 
-        $body(); 
-        $contents = ob_get_contents();        
+        $body();
+        $contents = ob_get_contents();
         ob_end_clean();
         $tmp = sys_get_temp_dir().DIRECTORY_SEPARATOR.uniqid();
         file_put_contents($tmp, $contents);
@@ -48,13 +66,14 @@ class DownloadTest extends Test
         $mime = finfo_file($finfo, $tmp);
         finfo_close($finfo);
 
-        $this->assertEquals('application/octet-stream', $mime);
+        $this->assertSame('application/octet-stream', $mime);
         unlink($tmp);
     }
-    
 
     /**
      * @depends testCreate
+     *
+     * @param mixed $id
      */
     public function testDownloadBase64Encoded($id)
     {
@@ -70,7 +89,7 @@ class DownloadTest extends Test
         while($contents = $res->getBody()->read(1024)) {
             fwrite($stream, $contents);
         }
-    
+
         fclose($stream);
         $this->assertFileExists($tmp);
         $this->assertNotEmpty(filesize($tmp));

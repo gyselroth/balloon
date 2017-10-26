@@ -1,31 +1,32 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
 /**
  * Balloon
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Convert;
 
-use \Balloon\App\Convert\Hook;
-use \Micro\Http\Router\Route;
-use \Balloon\App\Convert\Api\v1\Convert;
+use Balloon\App\Convert\Api\v1\Convert;
+use Micro\Http\Router;
+use Micro\Http\Router\Route;
 
-class Http extends AbstractApp
+class Http extends App
 {
     /**
-     * Init
+     * Constructor.
      *
-     * @return bool
+     * @param Router $router
      */
-    public function init(): bool
+    public function __construct(Router $router)
     {
-        $this->router
+        $router
             ->prependRoute(new Route('/api/v1/file/convert', Convert::class))
             ->prependRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}/convert', Convert::class));
-
-        return $this->server->getHook()->registerHook(Hook::class);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,31 +7,51 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Preview;
 
-use \Psr\Log\LoggerInterface;
-use \Balloon\Server;
-use \Balloon\Async\AbstractJob;
+use Balloon\Async\AbstractJob;
+use Balloon\Server;
 
 class Job extends AbstractJob
 {
     /**
-     * Start job
+     * Filesystem.
      *
-     * @param  Server $server
-     * @param  LoggerInterface $logger
+     * @var Filesystem
+     */
+    protected $fs;
+
+    /**
+     * App.
+     *
+     * @var App
+     */
+    protected $app;
+
+    /**
+     * Constructor.
+     *
+     * @param App    $app
+     * @param Server $server
+     */
+    public function __construct(App $app, Server $server)
+    {
+        $this->app = $app;
+        $this->fs = $server->getFilesystem();
+    }
+
+    /**
+     * Start job.
+     *
      * @return bool
      */
-    public function start(Server $server, LoggerInterface $logger): bool
+    public function start(): bool
     {
-        $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
-
-        $result = $server->getApp()
-            ->getApp('Balloon.App.Preview')
-            ->createPreview($file);
+        $file = $this->fs->findNodeWithId($this->data['id']);
+        $this->app->createPreview($file);
 
         return true;
     }

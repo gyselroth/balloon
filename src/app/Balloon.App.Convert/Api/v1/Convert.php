@@ -1,26 +1,66 @@
 <?php
+
 declare(strict_types=1);
 
 /**
  * Balloon
  *
- * @category    Balloon
  * @author      Raffael Sahli <sahli@gyselroth.net>
- * @copyright   copryright (c) 2012-2016 gyselroth GmbH
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Convert\Api\v1;
 
-use \Balloon\App\Convert\Exception;
-use \Micro\Http\Response;
-use \Balloon\Api\Controller;
-use \Balloon\App\Convert\Job;
+use Balloon\Api\Controller;
+use Balloon\App\Convert\App;
+use Balloon\App\Convert\Exception;
+use Balloon\App\Convert\Job;
+use Balloon\Async;
+use Balloon\Converter;
+use Balloon\Server;
+use Micro\Http\Response;
 
 class Convert extends Controller
 {
     /**
+     * App.
+     *
+     * @var App
+     */
+    protected $app;
+
+    /**
+     * Converter.
+     *
+     * @var Converter
+     */
+    protected $converter;
+
+    /**
+     * Async.
+     *
+     * @var Async
+     */
+    protected $async;
+
+    /**
+     * Constructor.
+     *
+     * @param App       $app
+     * @param Converter $converter
+     */
+    public function __construct(App $app, Converter $converter, Server $server, Async $async)
+    {
+        parent::__construct($server);
+        $this->app = $app;
+        $this->converter = $converter;
+        $this->async = $async;
+    }
+
+    /**
      * @api {get} /api/v1/file/preview?id=:id Get Convert
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName get
      * @apiGroup Node\File
      * @apiPermission none
@@ -50,58 +90,52 @@ class Convert extends Controller
      *      }
      * }
      *
-     * @param  string $id
-     * @param  string $p
-     * @param  string $encode
-     * @return void
+     * @param string $id
+     * @param string $p
+     * @param string $encode
      */
-    public function getSupportedFormats(?string $id=null, ?string $p=null): Response
+    public function getSupportedFormats(?string $id = null, ?string $p = null): Response
     {
         $file = $this->fs->getNode($id, $p, 'File');
-        $converter = $this->server->getApp()->getApp('Balloon.App.Convert')->getConverter();
-        return (new Response())->setCode(200)->setBody($converter->getSupportedFormats($file));
-    }
-    
 
-    public function getShadow(?string $id=null, ?string $p=null): Response
-    {
-        $file = $this->fs->getNode($id, $p, 'File');
-        $app = $this->server->getApp()->getApp('Balloon.App.Convert');
-        $shadow = $file->getAppAttribute($app, 'formats');
-
-        return (new Response())->setCode(200)->setBody((array)$shadow);
+        return (new Response())->setCode(200)->setBody($this->converter->getSupportedFormats($file));
     }
 
-    public function postShadow(array $formats, ?string $id=null, ?string $p=null): Response
+    public function getShadow(?string $id = null, ?string $p = null): Response
     {
         $file = $this->fs->getNode($id, $p, 'File');
-        $app = $this->server->getApp()->getApp('Balloon.App.Convert');
-        $converter = $app->getConverter();
-        $supported = $converter->getSupportedFormats($file);
+        $shadow = $file->getAppAttribute($this->app, 'formats');
 
-        $shadow = $file->getAppAttribute($app, 'formats');
-        if ($shadow === null) {
+        return (new Response())->setCode(200)->setBody((array) $shadow);
+    }
+
+    public function postShadow(array $formats, ?string $id = null, ?string $p = null): Response
+    {
+        $file = $this->fs->getNode($id, $p, 'File');
+        $supported = $this->converter->getSupportedFormats($file);
+
+        $shadow = $file->getAppAttribute($this->app, 'formats');
+        if (null === $shadow) {
             $shadow = [];
         }
 
-        $queue = $file->getFilesystem()->getServer()->getAsync();
         foreach ($formats as $type) {
-            if (!in_array($type, $supported)) {
+            if (!in_array($type, $supported, true)) {
                 throw new Exception('format '.$type.' is not available for file');
             }
 
-            $queue->addJob(new Job([
+            $this->async->addJob(new Job([
                 'id' => $file->getId(),
-                'format' => $type
+                'format' => $type,
             ]));
         }
-        
-        $file->setAppAttribute($app, 'formats', $formats);
+
+        $file->setAppAttribute($this->app, 'formats', $formats);
+
         return (new Response())->setCode(204);
     }
-    
 
-    public function deleteShadow(string $format, ?string $id=null, ?string $p=null): Response
+    public function deleteShadow(string $format, ?string $id = null, ?string $p = null): Response
     {
     }
 }

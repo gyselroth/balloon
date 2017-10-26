@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,88 +7,118 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\ClamAv;
 
-use \Balloon\Filesystem\Node\File;
-use \Balloon\App\AbstractApp;
-use \Balloon\App\AppInterface;
-use \Xenolope\Quahog\Client as ClamAv;
-use \Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
-use \Socket\Raw\Factory as SocketFactory;
+use Balloon\App\AppInterface;
+use Balloon\Filesystem\Node\File;
+use Socket\Raw\Factory as SocketFactory;
+use Xenolope\Quahog\Client as ClamAv;
+use Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
+use Psr\Log\LoggerInterface;
 
-class Cli extends AbstractApp
+class Cli extends App
 {
+    /**
+     * States.
+     */
     const FILE_INFECTED = 0;
     const FILE_OK = 1;
 
     /**
-    * Socket
-    *
-    * @var string
-    */
+     * Socket.
+     *
+     * @var string
+     */
     protected $socket = 'unix:///var/run/clamav/clamd.ctl';
 
     /**
-    * Maximum Stream Size
-    *
-    * @var int
-    */
+     * Maximum Stream Size.
+     *
+     * @var int
+     */
     protected $max_stream_size = 26214400;
 
     /**
-    * Aggressiveness
-    *
-    * @var int
-    */
+     * Aggressiveness.
+     *
+     * @var int
+     */
     protected $aggressiveness = 3;
 
     /**
-    * Timeout
-    *
-    * @var int
-    */
+     * Timeout.
+     *
+     * @var int
+     */
     protected $timeout = 30;
 
     /**
-     * Init
+     * Logger.
      *
-     * @return bool
+     * @var LoggerInterface
      */
-    public function init(): bool
+    protected $logger;
+
+    /**
+     * Socket.
+     *
+     * @var Socket
+     */
+    protected $clamav_socket;
+
+    /*
+     * Socket factory
+     *
+     * @var SocketFactory
+     */
+    protected $socket_factory;
+
+    /**
+     * Constructor.
+     *
+     * @param Database        $db
+     * @param LoggerInterface $logger
+     */
+    public function __construct(SocketFactory $factory, LoggerInterface $logger)
     {
-        return true;
+        $this->logger = $logger;
+        $this->socket_factory = $factory;
     }
 
     /**
-     * Set options
+     * Set options.
      *
-     * @var Iterable $config
+     * @var iterable
      */
-    public function setOptions(?Iterable $config=null): AppInterface
+    public function setOptions(?Iterable $config = null): AppInterface
     {
-        if($config === null) {
+        if (null === $config) {
             return $this;
         }
 
-        foreach($config as $option => $value) {
-            switch($option) {
+        foreach ($config as $option => $value) {
+            switch ($option) {
                 case 'socket':
-                    $this->socket = (string)$value;
+                    $this->socket = (string) $value;
+
                     break;
                 case 'max_stream_size':
-                    $this->max_stream_size = (int)$value;
+                    $this->max_stream_size = (int) $value;
+
                     break;
                 case 'aggressiveness':
-                    if ((int)$value > 3 || (int)$value < 0) {
-                        throw new Exception('invalid config value [' . (int)$value . '] for aggressiveness');
+                    if ((int) $value > 3 || (int) $value < 0) {
+                        throw new Exception('invalid config value ['.(int) $value.'] for aggressiveness');
                     }
-                    $this->aggressiveness = (int)$value;
+                    $this->aggressiveness = (int) $value;
+
                     break;
                 case 'timeout':
-                    $this->timeout = (int)$value;
+                    $this->timeout = (int) $value;
+
                     break;
             }
         }
@@ -96,58 +127,63 @@ class Cli extends AbstractApp
     }
 
     /**
-     * Scan file
+     * Scan file.
      *
-     * @param  File $file
+     * @param File $file
+     *
      * @return int
      */
     public function scan(File $file): int
     {
         if ($file->getSize() > $this->max_stream_size) {
-            throw new Exception('file size of ' . $file->getSize() . ' exceeds stream size (' . $this->max_stream_size . ')');
+            throw new Exception('file size of '.$file->getSize().' exceeds stream size ('.$this->max_stream_size.')');
         }
 
         try {
-            // Create a new socket instance
-            $socket = (new SocketFactory())->createClient($this->socket);
+            if (!($this->clamav_socket instanceof Socket)) {
+                $this->clamav_socket = $this->socket_factory->createClient($this->socket);
+            }
         } catch (\Exception $e) {
-            throw new Exception('scan of file [' . $file->getId() . '] failed: ' . $e->getMessage());
+            throw new Exception('scan of file ['.$file->getId().'] failed: '.$e->getMessage());
         }
 
         try {
             // Create a new instance of the Client
-            $clamav = new ClamAv($socket, $this->timeout, PHP_NORMAL_READ);
+            $clamav = new ClamAv($this->socket, $this->timeout, PHP_NORMAL_READ);
 
             // Scan file
             $result = $clamav->scanResourceStream($file->get());
 
-            $this->logger->debug('scan result for file [' . $file->getId() . ']: ' . $result['status'], [
-                'category' => get_class($this)
+            $this->logger->debug('scan result for file ['.$file->getId().']: '.$result['status'], [
+                'category' => get_class($this),
             ]);
 
-            if ($result['status'] === 'OK') {
+            if ('OK' === $result['status']) {
                 return self::FILE_OK;
             }
-            if ($result['status'] === 'FOUND') {
-                $this->logger->debug('file [' . $file->getId() . '] is infected (' . $result['reason'] . ')', [
-                    'category' => get_class($this)
+            if ('FOUND' === $result['status']) {
+                $this->logger->debug('file ['.$file->getId().'] is infected ('.$result['reason'].')', [
+                    'category' => get_class($this),
                 ]);
+
                 return self::FILE_INFECTED;
             }
         } catch (ClamAvConnectionException $e) {
-            throw new Exception('scan of file [' . $file->getId() . '] failed: ' . $e->getMessage());
+            throw new Exception('scan of file ['.$file->getId().'] failed: '.$e->getMessage());
         }
-        throw new Exception('scan of file [' . $file->getId() . '] failed: status=' . $result['status'] . ', reason=' . $result['reason']);
+
+        throw new Exception('scan of file ['.$file->getId().'] failed: status='.$result['status'].', reason='.$result['reason']);
     }
 
     /**
-     * Execute appropriate action on given file
+     * Execute appropriate action on given file.
      *
-     * @param  File $file
-     * @param  bool $infected
-     * @return void
+     * @param File $file
+     * @param bool $infected
+     *
+     * @return bool
      */
-    public function handleFile(File $file, $infected=false): void
+    public function handleFile(File $file, $infected = false): bool
     {
         if ($infected) {
             switch ($this->aggressiveness) {
@@ -155,18 +191,23 @@ class Cli extends AbstractApp
                     break;
                 case 1:
                     $file->setAppAttribute($this, 'quarantine', true);
+
                     break;
                 case 2:
                     $file->setAppAttribute($this, 'quarantine', true);
                     $file->delete();
+
                     break;
                 case 3:
                 default:
                     $file->delete(true);
+
                     break;
             }
         } else {
             $file->setAppAttribute($this, 'quarantine', false);
         }
+
+        return true;
     }
 }

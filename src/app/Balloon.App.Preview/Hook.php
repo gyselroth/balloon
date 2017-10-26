@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -6,35 +7,60 @@ declare(strict_types=1);
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
  * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
- * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Preview;
 
-use \Balloon\Filesystem;
-use \Balloon\Exception;
-use \Balloon\Filesystem\Node\File;
-use \Balloon\Hook\AbstractHook;
-use \MongoDB\GridFS\Exception\FileNotFoundException;
+use Balloon\Async;
+use Balloon\Exception;
+use Balloon\Filesystem\Node\File;
+use Balloon\Hook\AbstractHook;
+use MongoDB\GridFS\Exception\FileNotFoundException;
 
 class Hook extends AbstractHook
 {
     /**
-     * Run: preDeleteFile
+     * App.
+     *
+     * @var App
+     */
+    protected $app;
+
+    /**
+     * Async.
+     *
+     * @var Async
+     */
+    protected $async;
+
+    /**
+     * Constructor.
+     *
+     * @param App   $app
+     * @param Async $async
+     */
+    public function __construct(App $app, Async $async)
+    {
+        $this->app = $app;
+        $this->async = $async;
+    }
+
+    /**
+     * Run: preDeleteFile.
      *
      * Executed pre a file gets deleted
      *
-     * @param   File $node
-     * @param   bool $force
-     * @param   string $recursion
-     * @param   bool $recursion_first
-     * @return  void
+     * @param File   $node
+     * @param bool   $force
+     * @param string $recursion
+     * @param bool   $recursion_first
      */
     public function preDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
-        if ($force === true) {
+        if (true === $force) {
             try {
-                $node->getFilesystem()->getServer()->getApp()->getApp('Balloon.App.Preview')->deletePreview($node);
+                $this->app->deletePreview($node);
             } catch (FileNotFoundException $e) {
                 $this->logger->debug('could not remove preview from file ['.$node->getId().'], preview does not exists', [
                     'category' => get_class($this),
@@ -44,41 +70,35 @@ class Hook extends AbstractHook
         }
     }
 
-
     /**
-     * Run: postPutFile
+     * Run: postPutFile.
      *
      * Executed post a put file request
      *
-     * @param   File $node
-     * @param   string|resource $content
-     * @param   bool $force
-     * @param   array $attributes
-     * @return  void
+     * @param File            $node
+     * @param resource|string $content
+     * @param bool            $force
+     * @param array           $attributes
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
-        $queue = $node->getFilesystem()->getServer()->getAsync();
-        $queue->addJob(new Job([
-            'id' => $node->getId()
-        ]));
+        $this->async->addJob(Job::class, [
+            'id' => $node->getId(),
+        ]);
     }
-  
-  
+
     /**
-     * Run: postRestoreFile
+     * Run: postRestoreFile.
      *
      * Executed post version rollback
      *
-     * @param   File $node
-     * @param   int $version
-     * @return  void
+     * @param File $node
+     * @param int  $version
      */
     public function postRestoreFile(File $node, int $version): void
     {
-        $queue = $node->getFilesystem()->getServer()->getAsync();
-        $queue->addJob(new Job([
-            'id' => $node->getId()
-        ]));
+        $this->async->addJob(Job::class, [
+            'id' => $node->getId(),
+        ]);
     }
 }

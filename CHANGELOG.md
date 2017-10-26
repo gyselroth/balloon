@@ -38,8 +38,9 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Implemented new \Balloon\Filesystem\Storage mechanism which allows to store file blobs via an interface everywhere if an adapter exists
 * CORE: [CHANGE] Various code cleanup and refactoring within \Balloon\Filesystem
 * CORE: [FEATURE] New module based cli implementation
-* CORE: [FEATURE] Database init and delta migration support
+* CORE: [FEATURE] Database init and delta migration support #78
 * CORE: [FEATURE] Added various db delta upgrade scripts from v1 => v2
+* CORE: [CHANGE] Implemented \Micro\Container (dependency injection container) which results in various simpler dependencies of some classes
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
@@ -50,7 +51,6 @@ Next major release v2, includes various new features and core changes. The API i
 * API: [CHANGE] Removed attribute history from GET /file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
 * API: [FEATURE] New api endpoints provided by Balloon.App.Convert
-* DOC: [FIX] @apiVersion is now correctly declared as api version "1"
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-desktop
 
 
