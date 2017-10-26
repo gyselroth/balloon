@@ -30,10 +30,6 @@ balloon is a cloud server and document management system.
 
 There are very usefefull apps available (fully supported by the core but not distributed with it):
 
-## Installation
-
-For installation from source, see the [wiki page](https://github.com/gyselroth/balloon/wiki/Install-balloon-from-source-(v1))
-
 ### LibreOffice
 
 The office app introduces libreoffice (collabora) for balloon. Meaning this is real integration of a full office suite within your personal or business cloud. It does support read and write all types of office formats and also features collaborative editing sessions.
@@ -52,6 +48,10 @@ See the [balloon-app-elasticsearch](https://github.com/gyselroth/balloon-app-ela
 * Webserve
 * PHP 7.1.x
 * MongoDB
+
+## Installation
+
+For installation from source, see the [wiki page](https://github.com/gyselroth/balloon/wiki/Install-balloon-from-source-(v1))
 
 ## Docker image
 
