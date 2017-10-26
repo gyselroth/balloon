@@ -16,6 +16,7 @@ use Balloon\Api\Controller;
 use Balloon\App\Sharelink\Http as App;
 use Balloon\Helper;
 use Micro\Http\Response;
+use Balloon\Server;
 
 class ShareLink extends Controller
 {

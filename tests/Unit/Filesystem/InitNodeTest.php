@@ -16,6 +16,8 @@ use Balloon\Filesystem;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
 use ReflectionMethod;
+use Balloon\Exception\InvalidArgument;
+use Balloon\Exception;
 
 /**
  * @coversNothing
@@ -24,7 +26,7 @@ class InitNodeTest extends Test
 {
     public function setUp()
     {
-        $server = self::setupMockServer();
+        $server = $this->getMockServer();
         $this->fs = new Filesystem($server, $server->getLogger(), $server->getIdentity());
         // setup reflection for protected method
         $this->initNode = new ReflectionMethod(Filesystem::class, 'initNode');
@@ -49,6 +51,7 @@ class InitNodeTest extends Test
 
     public function testNoDirectoryAttribute()
     {
+        $this->expectException(Exception::class);
         // fixture
         $nodeData = [
             'owner' => $this->fs->getUser()->getId(),
@@ -78,6 +81,7 @@ class InitNodeTest extends Test
 
     public function testInexistentParent()
     {
+        $this->expectException(InvalidArgument::class);
         // fixture
         $nodeData = [
             'owner' => $this->fs->getUser()->getId(),
@@ -91,6 +95,7 @@ class InitNodeTest extends Test
 
     public function testInvalidParentId()
     {
+        $this->expectException(InvalidArgument::class);
         // fixture
         $nodeData = [
             'owner' => $this->fs->getUser()->getId(),

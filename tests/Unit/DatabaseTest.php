@@ -14,13 +14,14 @@ namespace Balloon\Testsuite\Unit;
 
 use Balloon\Database;
 use Balloon\Database\DatabaseInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * @coversNothing
  */
 class DatabaseTest extends Test
 {
-    protected $server;
+    protected $db_setup;
     protected $expected_indices = [
         'balloon.user.username_1',
         'balloon.fs.files.md5_1',
@@ -35,17 +36,12 @@ class DatabaseTest extends Test
 
     public function setUp()
     {
-        $server = self::setupMockServer();
-        $this->server = $server;
+        $this->db_setup = new Database($this->getMockApp(), $this->getMockDatabase(), $this->createMock(LoggerInterface::class));
     }
 
     public function testInitDatabase()
     {
-        //Server $server, Database $db, LoggerInterface $logger, ProgressBar $bar
-        $db = new Database($this->server, $this->server->getDatabase(), self::$logger);
-        $this->assertInstanceOf(DatabaseInterface::class, $db->getSetups()[0]);
-
-        return $db;
+        $this->assertInstanceOf(DatabaseInterface::class, $this->db_setup->getSetups()[0]);
     }
 
     /**
@@ -57,14 +53,14 @@ class DatabaseTest extends Test
     {
         $available = [];
 
-        $db->init();
-        $mongodb = $db->getServer()->getDatabase();
+        $this->db_setup->init();
+        $mongodb = $this->getMockDatabase();
         foreach ($mongodb->listCollections() as $collection) {
             foreach ($mongodb->{$collection->getName()}->listIndexes() as $index) {
                 $available[] = $index['ns'].'.'.$index['name'];
             }
         }
 
-        $this->assertSame($this->expected_indices, $available);
+        $this->assertSame(sort($this->expected_indices), sort($available));
     }
 }

@@ -24,7 +24,8 @@ class AbstractJobTest extends Test
     {
         // fixture
         $testData = ['key' => 'test'];
-        $stub = $this->getMockForAbstractClass(AbstractJob::class, [$testData]);
+        $stub = $this->getMockForAbstractClass(AbstractJob::class);
+        $stub->setData($testData);
 
         // assertion
         $this->assertSame($testData, $stub->getData());

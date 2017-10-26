@@ -17,6 +17,7 @@ use Balloon\Filesystem\Node\File;
 use Socket\Raw\Factory as SocketFactory;
 use Xenolope\Quahog\Client as ClamAv;
 use Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
+use Psr\Log\LoggerInterface;
 
 class Cli extends App
 {

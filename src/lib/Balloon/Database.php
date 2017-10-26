@@ -18,15 +18,16 @@ use Balloon\Database\DeltaInterface;
 use Balloon\Database\Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
+use MongoDB\Database as MongoDB;
 
 class Database
 {
     /**
-     * Server.
+     * App
      *
-     * @var Server
+     * @var App
      */
-    protected $server;
+    protected $app;
 
     /**
      * Databse.
@@ -62,12 +63,12 @@ class Database
      * @param Server          $server
      * @param LoggerInterface $logger
      */
-    public function __construct(Server $server, Database $db, LoggerInterface $logger, ?ProgressBar $bar = null)
+    public function __construct(App $app, MongoDB $db, LoggerInterface $logger, ?ProgressBar $bar = null)
     {
-        $this->server = $server;
+        $this->app = $app;
         $this->db = $db;
         $this->logger = $logger;
-        $this->setup = $this->collect();
+        $this->collect();
         $this->bar = $bar;
     }
 
@@ -97,18 +98,23 @@ class Database
         return true;
     }
 
+    public function injectSetup(DatabaseInterface $db): Database
+    {
+        $this->setup[] = $db;
+        return $this;
+    }
+
+
     /**
      * Initialize database.
      *
-     * @return array
+     * @return Databse
      */
-    public function collect(): array
+    public function collect(): Database
     {
-        $collect = [
-            new Core($this->db, $this->logger),
-        ];
+        $this->setup[] = new Core($this->db, $this->logger);
 
-        foreach ($this->server->getApp()->getAppNamespaces() as $app => $namespace) {
+        foreach ($this->app->getAppNamespaces() as $app => $namespace) {
             $class = $namespace.'Database';
 
             if (class_exists($class)) {
@@ -121,7 +127,7 @@ class Database
                     throw new Exception('database must include DatabaseInterface');
                 }
 
-                $collect[] = $db;
+                $this->setup[] = $db;
             } else {
                 $this->logger->debug('no database class ['.$class.'] from app ['.$app.'] found', [
                     'category' => get_class($this),
@@ -129,17 +135,7 @@ class Database
             }
         }
 
-        return $collect;
-    }
-
-    /**
-     * Get server.
-     *
-     * @return Server
-     */
-    public function getServer(): Server
-    {
-        return $this->server;
+        return $this;
     }
 
     /**

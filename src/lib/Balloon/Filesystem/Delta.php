@@ -65,7 +65,7 @@ class Delta
     public function add(array $options): bool
     {
         if (!$this->isValidDeltaEvent($options)) {
-            throw new Exception('invalid delta structuce given');
+            throw new Exception('invalid delta structure given');
         }
 
         if (!array_key_exists('timestamp', $options)) {
@@ -173,7 +173,6 @@ class Delta
         ]);
 
         $last = $cursor->toArray();
-
         return array_shift($last);
     }
 

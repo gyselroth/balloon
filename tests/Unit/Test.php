@@ -26,12 +26,7 @@ use Psr\Log\LoggerInterface;
 
 abstract class Test extends TestCase
 {
-    protected $type = 'node';
-
-    protected static $first_cursor;
-    protected static $current_cursor;
     protected static $db;
-    protected $controller;
 
     public static function getMockDatabase()
     {
@@ -48,20 +43,23 @@ abstract class Test extends TestCase
         ]);
     }
 
-    public function getMockServer()
+    public function getMockApp()
     {
         global $composer;
         $app = new App($composer, $this->createMock(LoggerInterface::class), $this->createMock(Hook::class));
+        $this->registerAppNamespaces();
+        return $app;
+    }
 
-        $hook = new Hook($this->createMock(LoggerInterface::class));
-        $hook->injectHook(new Delta());
-
+    public function getMockServer()
+    {
+        $app = $this->getMockApp();
         $server = new Server(
             self::getMockDatabase(),
             $this->createMock(Storage::class),
             $this->createMock(LoggerInterface::class),
             $this->createMock(Async::class),
-            $hook,
+            $this->createMock(Hook::class),
             $app
         );
 
@@ -75,24 +73,6 @@ abstract class Test extends TestCase
         $server->setIdentity($identity);
 
         return $server;
-    }
-
-    public function getDelta($cursor = null)
-    {
-        $res = $this->controller->getDelta(null, null, $cursor);
-        $this->assertInstanceOf(Response::class, $res);
-        $this->assertSame(200, $res->getCode());
-
-        return $res->getBody();
-    }
-
-    public function getLastCursor()
-    {
-        $res = $this->controller->getLastCursor();
-        $this->assertInstanceOf(Response::class, $res);
-        $this->assertSame(200, $res->getCode());
-
-        return $res->getBody();
     }
 
     protected static function registerAppNamespaces()

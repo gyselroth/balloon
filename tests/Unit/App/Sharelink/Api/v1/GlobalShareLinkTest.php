@@ -18,6 +18,9 @@ use Balloon\App\Sharelink\Api\v1\ShareLink;
 use Balloon\Testsuite\Unit\Test;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectID;
+use Micro\Http\Router;
+use Psr\Log\LoggerInterface;
+use Balloon\Hook;
 
 /**
  * @coversNothing
@@ -29,7 +32,7 @@ class GlobalShareLinkTest extends Test
     public function setUp()
     {
         $server = $this->getMockServer();
-        $app =  new ShareLinkApp($this->createMock(Router::class), $server, $this->createMock(LoggerInterface::class));
+        $app =  new ShareLinkApp($this->createMock(Router::class),$this->createMock(Hook::class), $server, $this->createMock(LoggerInterface::class));
         $this->sharelink = new ShareLink($app, $server, $this->createMock(LoggerInterface::class));
         $this->controller = new Collection($server, $server->getLogger());
     }

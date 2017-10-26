@@ -15,6 +15,7 @@ namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 use Balloon\Filesystem\Delta;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\UTCDateTime;
+use Balloon\Filesystem\Delta\Exception;
 
 /**
  * @coversNothing
@@ -26,7 +27,7 @@ class AddTest extends Test
 
     public function setUp()
     {
-        $server = self::setupMockServer();
+        $server = $this->getMockServer();
         $this->fs = $server->getFilesystem();
         $this->delta = new Delta($this->fs);
     }
@@ -36,20 +37,11 @@ class AddTest extends Test
         $data = [
             'owner' => $this->fs->getUser()->getId(),
             'operation' => 'test',
-            'timestamp' => new UTCDateTime(0),
+            'timestamp' => new UTCDateTime(),
         ];
 
         $this->assertTrue($this->delta->add($data));
-
         return $this->delta;
-    }
-
-    /**
-     * @depends testValidArrayWithTimestamp
-     */
-    public function testTimestampNotChanged(Delta $delta)
-    {
-        $this->assertSame(new UTCDateTime(0), $delta->getLastRecord()['timestamp']);
     }
 
     public function testValidArrayWithoutTimestamp()
@@ -74,6 +66,7 @@ class AddTest extends Test
 
     public function testInvalidArray()
     {
+        $this->expectException(Exception::class);
         $data = ['a', 'b'];
         $this->delta->add($data);
     }
