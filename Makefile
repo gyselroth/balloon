@@ -3,7 +3,7 @@ SHELL=/bin/bash
 # DIRECTORIES
 BASE_DIR = .
 SRC_DIR = $(BASE_DIR)/src
-CORE_DIR = $(SRC_DIR)/lib/Balloon
+CORE_DIR = $(SRC_DIR)/lib
 CORE_API_DIR = $(CORE_DIR)/Api
 DOC_DIR = $(BASE_DIR)/doc
 CONFIG_DIR = $(BASE_DIR)/config
