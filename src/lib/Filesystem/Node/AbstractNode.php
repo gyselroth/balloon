@@ -22,6 +22,10 @@ use MongoDB\BSON\UTCDateTime;
 use Normalizer;
 use PHPZip\Zip\Stream\ZipStream;
 use Sabre\DAV;
+use MongoDB\Database;
+use Balloon\Filesystem\Storage;
+use Psr\Log\LoggerInterface;
+use Balloon\Hook;
 
 abstract class AbstractNode implements NodeInterface, DAV\INode
 {
@@ -188,7 +192,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      * Storage.
      *
      * @var array
-     */
+     q*/
     protected $storage = [
         'adapter' => 'gridfs',
     ];
@@ -199,24 +203,29 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      * @param array      $attributes
      * @param Filesystem $fs
      */
-    public function __construct(?array $attributes, Filesystem $fs)
+    public function __construct(array $attributes, Filesystem $fs, Database $db, User $user, LoggerInterface $logger, Hook $hook, Storage $storage)
     {
         $this->_fs = $fs;
-        $this->_db = $fs->getDatabase();
+        /*$this->_db = $fs->getDatabase();
         $this->_user = $fs->getUser();
         $this->_server = $fs->getServer();
         $this->_logger = $this->_server->getLogger();
         $this->_hook = $this->_server->getHook();
-
         $this->storage_handler = $fs->getServer()->getStorage();
+*/
 
-        if (null !== $attributes) {
-            foreach ($attributes as $attr => $value) {
-                $this->{$attr} = $value;
-            }
+        $this->_db = $db;
+        $this->_user = $user;
+        $this->_logger = $logger;
+        $this->_hook = $hook;
+        $this->storage_handler = $storage;
 
-            $this->raw_attributes = $attributes;
+        foreach ($attributes as $attr => $value) {
+            $this->{$attr} = $value;
         }
+
+        $this->raw_attributes = $attributes;
+        $this->_verifyAccess();
     }
 
     /**

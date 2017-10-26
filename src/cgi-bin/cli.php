@@ -22,11 +22,13 @@ set_include_path(implode(PATH_SEPARATOR, [
 $composer = require 'vendor/autoload.php';
 
 $file = APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
+$config = new \Micro\Config();
+
 if (is_readable($file)) {
     $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
-    $config = new \Micro\Config($xml);
-} else {
-    $config = null;
+    $config->inject($xml);
 }
+
+$config->inject(new \Micro\Config\Environment('balloon'));
 
 new \Balloon\Bootstrap\Cli($composer, $config);

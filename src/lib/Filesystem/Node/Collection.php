@@ -57,26 +57,6 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      */
     protected $filter = [];
 
-    /**
-     * Initialize.
-     *
-     * @param array      $attributes
-     * @param Filesystem $fs
-     */
-    public function __construct(?array $attributes, Filesystem $fs)
-    {
-        parent::__construct($attributes, $fs);
-
-        if (null === $attributes) {
-            $this->_id = null;
-
-            if ($this->_user instanceof User) {
-                $this->owner = $this->_user->getId();
-            }
-        }
-
-        $this->_verifyAccess();
-    }
 
     /**
      * Copy node with children.

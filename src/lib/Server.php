@@ -267,13 +267,13 @@ class Server
     public function getFilesystem(?User $user = null): Filesystem
     {
         if (null !== $user) {
-            return new Filesystem($this, $this->db, $this->hook, $this->logger, $user);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $user);
         }
         if ($this->identity instanceof User) {
-            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->identity);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->identity);
         }
 
-        return new Filesystem($this, $this->db, $this->hook, $this->logger);
+        return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage);
     }
 
     /**

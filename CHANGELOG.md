@@ -41,6 +41,7 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [FEATURE] Database init and delta migration support #78
 * CORE: [FEATURE] Added various db delta upgrade scripts from v1 => v2
 * CORE: [CHANGE] Implemented \Micro\Container (dependency injection container) which results in various simpler dependencies of some classes
+* CORE: [FEATURE] It is now possible to configure via environement variables besides config file (\Micro\Config\Environment) which makes it more useable for cloud native
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46

@@ -89,18 +89,6 @@ class File extends AbstractNode implements DAV\IFile
     protected $history = [];
 
     /**
-     * Init virtual file and set attributes.
-     *
-     * @param array      $attributes
-     * @param Filesystem $fs
-     */
-    public function __construct(array $attributes, Filesystem $fs)
-    {
-        parent::__construct($attributes, $fs);
-        $this->_verifyAccess();
-    }
-
-    /**
      * Read content and return ressource.
      *
      * @return resource

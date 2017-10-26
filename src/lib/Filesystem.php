@@ -21,6 +21,7 @@ use Generator;
 use MongoDB\BSON\ObjectID;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
+use Balloon\Filesystem\Storage;
 
 class Filesystem
 {
@@ -80,13 +81,14 @@ class Filesystem
      * @param LoggerInterface $logger
      * @param User            $user
      */
-    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, ?User $user = null)
+    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, ?User $user = null)
     {
         $this->user = $user;
         $this->server = $server;
         $this->db = $db;
         $this->logger = $logger;
         $this->hook = $hook;
+        $this->storage = $storage;
     }
 
     /**
@@ -130,7 +132,10 @@ class Filesystem
             return $this->root;
         }
 
-        return $this->root = new Collection(null, $this);
+        return $this->root = new Collection([
+            '_id'   => null,
+            'owner' => $this->user ? $this->user->getId() : null
+        ], $this,  $this->db, $this->user, $this->logger, $this->hook, $this->storage);
     }
 
     /**
@@ -588,9 +593,9 @@ class Filesystem
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
         if (true === $node['directory']) {
-            return new Collection($node, $this);
+            return new Collection($node, $this, $this->db, $this->user, $this->logger, $this->hook, $this->storage);
         }
 
-        return new File($node, $this);
+        return new File($node, $this, $this->db, $this->user, $this->logger, $this->hook, $this->storage);
     }
 }

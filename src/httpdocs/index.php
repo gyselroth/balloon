@@ -28,15 +28,17 @@ if (extension_loaded('apc') && apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
     $file = APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
+    $config = new \Micro\Config();
+
     if (is_readable($file)) {
         $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
-        $config = new \Micro\Config($xml);
+        $config->inject($xml);
+    }
 
-        if (extension_loaded('apc')) {
-            apc_store('config', $config);
-        }
-    } else {
-        $config = null;
+    $config->inject(new \Micro\Config\Environment('balloon'));
+
+    if (extension_loaded('apc')) {
+        apc_store('config', $config);
     }
 }
 
