@@ -57,6 +57,10 @@ See the [balloon-app-elasticsearch](https://github.com/gyselroth/balloon-app-ela
 * PHP 7.1.x
 * MongoDB
 
+## Installation
+### From source
+For installation from source, see the [wiki page](https://github.com/gyselroth/balloon/wiki/Install-balloon-from-source-(v2))
+
 ## Changelog
 A changelog is available [here](https://github.com/gyselroth/balloon/CHANGELOG.md).
 
