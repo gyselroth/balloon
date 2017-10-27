@@ -15,7 +15,7 @@ apt-get update
 apt-get --no-install-recommends install -y git npm make
 # create node alias for nodejs binary
 update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
-npm -g install bower apidoc
+npm -g install apidoc
 
 echo "## INSTALL COMPOSER"
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -33,6 +33,7 @@ make build
 
 cd $cwd
 
+echo "## CONFIGURE BALLOON"
 # create self-signed ssl certificate
 mkdir /etc/ssl/balloon.local
 openssl genrsa -des3 -passout pass:balloon -out server.pass.key 2048
@@ -45,7 +46,6 @@ rm server.csr
 mv key.pem /etc/ssl/balloon.local/
 mv chain.pem /etc/ssl/balloon.local/
 
-echo "## CONFIGURE BALLOON"
 # bootstrap nginx config
 rm /etc/nginx/sites-enabled/default
 cp $balloonDir/packaging/nginx.site.conf /etc/nginx/sites-enabled/balloon.local
@@ -53,27 +53,15 @@ sed -i "s#/path/to/vhost#$balloonDir#g" /etc/nginx/sites-enabled/balloon.local
 sed -i "s#/path/to/ssl#/etc/ssl/balloon.local#g" /etc/nginx/sites-enabled/balloon.local
 sed -i "s#FQDN#balloon.local#g" /etc/nginx/sites-enabled/balloon.local
 
-# bootstrap configs
-cp $balloonDir/config/config.example.xml $balloonDir/config/config.xml
-
 # create logdir
 touch $balloonDir/log/out.log
 
+# fix permissions
 chown -R  www-data:www-data $balloonDir
 
 # install cli daemon
 cp $balloonDir/packaging/systemd.service /etc/systemd/system/balloon-cli.service
 systemctl enable balloon-cli.service
-
-# create admin user
-if [ "$DEV" == "yes" ]
-then
-    echo "## CREATE initial admin user (admin:admin)"
-    service mongodb start
-    ping -n2 127.0.0.1 &> /dev/null
-    /usr/local/bin/createUserMongoDB admin admin admin
-    service mongodb stop
-fi
 
 echo "## CLEANUP"
 # cleanup build deps
@@ -81,11 +69,8 @@ cd $balloonDir
 make mostlyclean
 cd $cwd
 # apt cleanup
-if [ "$DEV" == "no" ]
-then
-    apt-get purge -y git npm make
-    rm -rf /usr/local/lib/node_modules/
-fi
+apt-get purge -y git npm make
+rm -rf /usr/local/lib/node_modules/
 apt-get autoremove -y
 rm -rf /var/lib/apt/lists/*
 apt-get clean
