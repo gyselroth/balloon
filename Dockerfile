@@ -15,4 +15,4 @@ RUN [ "$DEV" = "yes" ] && /srv/www/balloon/packaging/docker/bootstrap_scripts/de
 
 EXPOSE 80 443
 
-CMD service mongodb start 2> /dev/null; /srv/www/balloon/src/cgi-bin/cli.php async -q -d; service php7.1-fpm start && /usr/sbin/nginx -g 'daemon off;'
+CMD service mongodb start 2> /dev/null; /srv/www/balloon/src/cgi-bin/cli.php async -q -d & service php7.1-fpm start && /usr/sbin/nginx -g 'daemon off;'
