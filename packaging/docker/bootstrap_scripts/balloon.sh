@@ -4,7 +4,7 @@ echo "# INSTALL & CONFIGURE BALLOON"
 echo "## INSTALL BUILD DEPENDENCIES"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y git npm jq yui-compressor 
+apt-get install --no-install-recommends -y git npm jq yui-compressor
 # create node alias for nodejs binary
 update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
 npm -g install bower apidoc
@@ -18,8 +18,8 @@ $balloonDir/build.sh --dep --minify --apidoc --php-cs-fixer
 
 # create self-signed ssl certificate
 mkdir /etc/ssl/balloon.local
-openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
-openssl rsa -passin pass:x -in server.pass.key -out key.pem
+openssl genrsa -des3 -passout pass:ballon -out server.pass.key 2048
+openssl rsa -passin pass:ballon -in server.pass.key -out key.pem
 rm server.pass.key
 openssl req -new -key key.pem -out server.csr \
   -subj "/C=CH//L=Zurich/O=Balloon/CN=balloon.local"
@@ -64,8 +64,8 @@ echo "## CLEANUP"
 # cleanup build deps
 if [ "$DEV" == "no" ]
 then
+    apt-get purge -y git npm jq yui-compressor
     rm -rf /usr/lib/node_modules/
-    apt-get purge -y git npm jq yui-compressor 
 fi
 apt-get autoremove -y
 # apt cleanup
