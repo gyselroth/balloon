@@ -455,7 +455,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function isOwnerRequest(): bool
     {
-        return null !== $this->_user && $this->owner === $this->_user->getId();
+        return null !== $this->_user && $this->owner == $this->_user->getId();
     }
 
     /**
