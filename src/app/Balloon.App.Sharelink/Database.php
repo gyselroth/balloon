@@ -24,7 +24,7 @@ class Database extends AbstractDatabase
      */
     public function init(): bool
     {
-        $this->db->selectCollection('storage')->createIndex(['app_attributes.Balloon_App_Sharelink.token' => 1], ['unique' => true]);
+        $this->db->selectCollection('storage')->createIndex(['app_attributes.Balloon_App_Sharelink.token' => 1]);
 
         return true;
     }

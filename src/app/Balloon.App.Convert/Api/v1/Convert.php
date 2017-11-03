@@ -20,6 +20,7 @@ use Balloon\Async;
 use Balloon\Converter;
 use Balloon\Server;
 use Micro\Http\Response;
+use Balloon\Filesystem\Node\File;
 
 class Convert extends Controller
 {
@@ -52,7 +53,7 @@ class Convert extends Controller
      */
     public function __construct(App $app, Converter $converter, Server $server, Async $async)
     {
-        parent::__construct($server);
+        $this->fs  = $server->getFilesystem();
         $this->app = $app;
         $this->converter = $converter;
         $this->async = $async;
@@ -96,14 +97,14 @@ class Convert extends Controller
      */
     public function getSupportedFormats(?string $id = null, ?string $p = null): Response
     {
-        $file = $this->fs->getNode($id, $p, 'File');
+        $file = $this->fs->getNode($id, $p, File::class);
 
         return (new Response())->setCode(200)->setBody($this->converter->getSupportedFormats($file));
     }
 
     public function getShadow(?string $id = null, ?string $p = null): Response
     {
-        $file = $this->fs->getNode($id, $p, 'File');
+        $file = $this->fs->getNode($id, $p, File::class);
         $shadow = $file->getAppAttribute($this->app, 'formats');
 
         return (new Response())->setCode(200)->setBody((array) $shadow);
@@ -111,7 +112,7 @@ class Convert extends Controller
 
     public function postShadow(array $formats, ?string $id = null, ?string $p = null): Response
     {
-        $file = $this->fs->getNode($id, $p, 'File');
+        $file = $this->fs->getNode($id, $p, File::class);
         $supported = $this->converter->getSupportedFormats($file);
 
         $shadow = $file->getAppAttribute($this->app, 'formats');
@@ -124,10 +125,10 @@ class Convert extends Controller
                 throw new Exception('format '.$type.' is not available for file');
             }
 
-            $this->async->addJob(new Job([
+            $this->async->addJob(Job::class, [
                 'id' => $file->getId(),
                 'format' => $type,
-            ]));
+            ]);
         }
 
         $file->setAppAttribute($this->app, 'formats', $formats);

@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Sharelink\Api\v1;
 
 use Balloon\Api\Controller;
-use Balloon\App\Sharelink\Http as App;
+use Balloon\App\Sharelink\App\Http as App;
 use Balloon\Helper;
 use Micro\Http\Response;
 use Balloon\Server;
@@ -35,7 +35,7 @@ class ShareLink extends Controller
      */
     public function __construct(App $app, Server $server)
     {
-        parent::__construct($server);
+        $this->fs  = $server->getFilesystem();
         $this->app = $app;
     }
 

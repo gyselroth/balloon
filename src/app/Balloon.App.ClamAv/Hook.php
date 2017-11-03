@@ -14,9 +14,28 @@ namespace Balloon\App\ClamAv;
 
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
+use Balloon\Async;
 
 class Hook extends AbstractHook
 {
+    /**
+     * Async.
+     *
+     * @var Async
+     */
+    protected $async;
+
+    /**
+     * Constructor.
+     *
+     * @param App   $app
+     * @param Async $async
+     */
+    public function __construct(Async $async)
+    {
+        $this->async = $async;
+    }
+
     /**
      * Run: postPutFile.
      *
@@ -29,9 +48,8 @@ class Hook extends AbstractHook
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
-        $queue = $node->getFilesystem()->getServer()->getAsync();
-        $queue->addJob(new Job([
+        $this->async->addJob(Job::class, [
             'id' => $node->getId(),
-        ]));
+        ]);
     }
 }

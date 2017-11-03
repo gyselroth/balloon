@@ -16,6 +16,7 @@ use Balloon\Api\Controller;
 use Balloon\App\Preview\App;
 use Balloon\Server;
 use Micro\Http\Response;
+use Balloon\Filesystem\Node\File;
 
 class Preview extends Controller
 {
@@ -34,7 +35,7 @@ class Preview extends Controller
      */
     public function __construct(App $app, Server $server)
     {
-        parent::__construct($server);
+        $this->fs  = $server->getFilesystem();
         $this->app = $app;
     }
 
@@ -76,7 +77,7 @@ class Preview extends Controller
      */
     public function get(?string $id = null, ?string $p = null, ?string $encode = null): Response
     {
-        $node = $this->fs->getNode($id, $p, 'File');
+        $node = $this->fs->getNode($id, $p, File::class);
         $data = $this->app->getPreview($node);
         $response = (new Response())
             ->setHeader('Content-Type', 'image/png')
