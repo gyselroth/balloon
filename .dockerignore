@@ -6,3 +6,5 @@ doc
 dist
 log/*
 node_modules
+Dockerfile
+.git
