@@ -60,6 +60,10 @@ class Hook implements AdapterAwareInterface
      */
     public function injectHook(HookInterface $hook): Hook
     {
+        $this->logger->debug('inject hook ['.get_class($hook).']', [
+            'category' => get_class($this)
+        ]);
+
         if ($this->hasHook(get_class($hook))) {
             throw new Exception('hook '.get_class($hook).' is already registered');
         }

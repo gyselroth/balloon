@@ -19,6 +19,9 @@ use Balloon\Mime;
 use Balloon\Server\User;
 use MongoDB\BSON\UTCDateTime;
 use Sabre\DAV;
+use Balloon\Hook;
+use Psr\Log\LoggerInterface;
+use Balloon\Filesystem\Storage;
 
 class File extends AbstractNode implements DAV\IFile
 {
@@ -89,6 +92,37 @@ class File extends AbstractNode implements DAV\IFile
     protected $history = [];
 
     /**
+     * Storage.
+     *
+     * @var Storage
+     */
+    protected $_storage;
+
+    /**
+     * Initialize file node.
+     *
+     * @param array      $attributes
+     * @param Filesystem $fs
+     */
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Storage $storage)
+    {
+        $this->_fs = $fs;
+        $this->_server = $fs->getServer();
+        $this->_db = $fs->getDatabase();
+        $this->_user = $fs->getUser();
+        $this->_logger = $logger;
+        $this->_hook = $hook;
+        $this->_storage = $storage;
+
+        foreach ($attributes as $attr => $value) {
+            $this->{$attr} = $value;
+        }
+
+        $this->raw_attributes = $attributes;
+        $this->_verifyAccess();
+    }
+
+    /**
      * Read content and return ressource.
      *
      * @return resource
@@ -100,7 +134,7 @@ class File extends AbstractNode implements DAV\IFile
                 return null;
             }
 
-            return $this->storage_handler->getFile($this, $this->storage);
+            return $this->_storage->getFile($this, $this->storage);
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'content not found',
@@ -209,7 +243,7 @@ class File extends AbstractNode implements DAV\IFile
 
         $file = $this->history[$v]['storage'];
         if (null !== $file) {
-            $exists = $this->storage_handler->hasFile($this, $this->history[$v]['storage']);
+            $exists = $this->_storage->hasFile($this, $this->history[$v]['storage']);
 
             if (!$exists) {
                 throw new Exception('could not restore to version '.$version.', version content does not exists');
@@ -361,7 +395,7 @@ class File extends AbstractNode implements DAV\IFile
 
         try {
             if ($this->history[$key]['storage'] !== null) {
-                $this->storage_handler->deleteFile($this, $this->history[$key]['storage']);
+                $this->_storage->deleteFile($this, $this->history[$key]['storage']);
             }
 
             array_splice($this->history, $key, 1);
@@ -529,7 +563,7 @@ class File extends AbstractNode implements DAV\IFile
 
         //Write new content
         if ($this->size > 0) {
-            $options = $this->storage_handler->storeFile($this, $this->storage, $stream);
+            $options = $this->_storage->storeFile($this, $this->storage, $stream);
             $this->storage['attributes'] = $options;
         } else {
             unset($this->storage['attributes']);

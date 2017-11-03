@@ -100,6 +100,10 @@ class Converter implements AdapterAwareInterface
      */
     public function injectAdapter(string $name, AdapterInterface $adapter): AdapterInterface
     {
+        $this->logger->debug('inject converter adapter ['.$name.'] of type ['.get_class($adapter).']', [
+            'category' => get_class($this)
+        ]);
+
         if ($this->hasAdapter($name)) {
             throw new Exception('adapter '.$name.' is already registered');
         }
@@ -174,10 +178,18 @@ class Converter implements AdapterAwareInterface
      */
     public function convert(File $file, string $format): Result
     {
-        foreach ($this->adapter as $adapter) {
+        $this->logger->debug('convert file ['.$file->getId().'] to format ['.$format.']', [
+            'category' => get_class($this),
+        ]);
+
+        foreach ($this->adapter as $name => $adapter) {
             try {
                 if ($adapter->match($file)) {
                     return $adapter->convert($file, $format);
+                } else {
+                    $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
+                        'category' => get_class($this),
+                    ]);
                 }
             } catch (\Exception $e) {
                 $this->logger->error('failed execute adapter ['.get_class($adapter).']', [

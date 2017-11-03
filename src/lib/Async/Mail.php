@@ -15,7 +15,7 @@ namespace Balloon\Async;
 use Balloon\Server;
 use Psr\Log\LoggerInterface;
 use Zend\Mail\Message;
-use Zend\Mail\Transport\Sendmail;
+use Zend\Mail\Transport\TransportInterface;
 
 class Mail extends AbstractJob
 {
@@ -26,40 +26,32 @@ class Mail extends AbstractJob
      */
     protected $transport = Sendmail::class;
 
-    /**
-     * Set options.
-     *
-     * @param iterable $config
-     *
-     * @return Mail
-     */
-    public function setOptions(?Iterable $config = null): Mail
-    {
-        if (isset($config['mail'], $config['mail']['transport'])) {
-            $this->transport = $config->mail->transport;
-        }
 
-        return $this;
+    /**
+     * Constructor
+     *
+     * @param TransportInterface $transport
+     * @param LoggerInterface $logger
+     */
+    public function __construct(TransportInterface $transport, LoggerInterface $logger)
+    {
+        $this->transport = $transport;
+        $this->logger = $logger;
     }
 
     /**
-     * Run job.
-     *
-     * @param Server          $server
-     * @param LoggerInterface $logger
-     *
-     * @return bool
+     * {@inheritDoc}
      */
-    public function start(Server $server, LoggerInterface $logger): bool
+    public function start(): bool
     {
         $mail = Message::fromString($this->data['mail']);
+
         $logger->debug('send mail ['.$mail->getSubject().']', [
             'category' => get_class($this),
             'params' => ['to' => (array) $mail->getTo()],
         ]);
 
-        $transport = new $this->transport();
-        $transport->send($mail);
+        $this->transport->send($mail);
 
         return true;
     }

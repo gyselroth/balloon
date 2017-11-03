@@ -87,7 +87,7 @@ class Http extends AbstractBootstrap
                 'category' => get_class($this),
                 'exception' => $e,
             ]);
-            var_dump($e);
+
             (new Response())
                 ->setCode(500)
                 ->setBody([

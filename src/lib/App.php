@@ -17,8 +17,9 @@ use Balloon\App\Exception;
 use Composer\Autoload\ClassLoader as Composer;
 use Micro\Container;
 use Psr\Log\LoggerInterface;
+use Micro\Container\AdapterAwareInterface;
 
-class App
+class App implements AdapterAwareInterface
 {
     /**
      * App namespaces.
@@ -51,13 +52,11 @@ class App
     /**
      * Init app manager.
      *
-     * @param Composer        $composer
      * @param LoggerInterface $logger
      * @param iterable        $config
      */
-    public function __construct(Composer $composer, LoggerInterface $logger, Hook $hook, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger, Hook $hook, ?Iterable $config = null)
     {
-        $this->composer = $composer;
         $this->logger = $logger;
         $this->hook = $hook;
         $this->setOptions($config);
@@ -91,13 +90,8 @@ class App
      *
      * @return bool
      */
-    public function registerApp(Container $container, string $name, string $abstract, string $class, ?Iterable $config = null): bool
+    public function registerApp(Container $container, string $name, string $class, ?Iterable $config = null): bool
     {
-        $ns = str_replace('.', '\\', $name).'\\';
-        //$class = '\\'.$ns.$this->context;
-        $this->composer->addPsr4($ns, APPLICATION_PATH."/src/app/$name");
-        $this->namespace[$name] = $ns;
-
         if (!class_exists($class)) {
             $this->logger->debug('skip non-existent initialize class ['.$class.'] from app ['.$name.']', [
                  'category' => get_class($this),
@@ -110,7 +104,8 @@ class App
             throw new Exception('app '.$name.' is already registered');
         }
 
-        $app = $container->get($abstract);
+
+        $app = $container->get($name);
 
         if (!($app instanceof AppInterface)) {
             throw new Exception('app class '.$class.' does not implement AppInterface');
@@ -273,7 +268,7 @@ class App
      */
     public function injectAdapter(string $name, AppInterface $adapter): App
     {
-        return $this->injectApp($name, $adapter);
+        return $this->injectApp($adapter);
     }
 
     /**

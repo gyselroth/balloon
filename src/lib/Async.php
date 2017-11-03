@@ -83,20 +83,6 @@ class Async
     }
 
     /**
-     * Remove job.
-     *
-     * @param ObjectId $id
-     *
-     * @return bool
-     */
-    public function removeJob(ObjectId $id): bool
-    {
-        $result = $this->db->queue->deleteOne(['_id' => $id]);
-
-        return $result->isAcknowledged();
-    }
-
-    /**
      * Get cursor.
      *
      * @param bool $tailable
@@ -131,6 +117,10 @@ class Async
             'status' => $status,
             'timestamp' => new UTCDateTime(),
         ]]);
+
+        $this->logger->debug('job ['.$id.'] updated to status ['.$status.']', [
+            'category' => get_class($this)
+        ]);
 
         return $result->isAcknowledged();
     }

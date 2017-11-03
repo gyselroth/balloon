@@ -157,7 +157,7 @@ class Collection extends Node
      */
     public function getShare(?string $id = null, ?string $p = null): Response
     {
-        $result = $this->fs->getNode($id, $p)->getShare();
+        $result = $this->fs->getNode($id, $p)->getShareAcl();
 
         return (new Response())->setCode(200)->setBody($result);
     }

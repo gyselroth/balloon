@@ -17,6 +17,8 @@ use Balloon\Server;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\UTCDateTime;
+use Psr\Log\LoggerInterface;
+use MongoDB\Database;
 
 class AutoCreateUser extends AbstractHook
 {
@@ -26,6 +28,32 @@ class AutoCreateUser extends AbstractHook
      * @var array
      */
     protected $attributes = [];
+
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Database
+     *
+     * @var Database
+     */
+    protected $db;
+
+    /**
+     * Constructor
+     *
+     * @param Database
+     * @param LoggerInterface
+     */
+    public function __construct(Database $db, LoggerInterface $logger)
+    {
+        $this->db = $db;
+        $this->logger = $logger;
+    }
 
     /**
      * Set options.
@@ -40,21 +68,25 @@ class AutoCreateUser extends AbstractHook
             return $this;
         }
 
-        if (isset($config['attributes'])) {
-            $this->attributes = $config['attributes'];
+        foreach($config as $option => $value) {
+            switch($option) {
+                case 'attributes':
+                    $this->attributes = $value;
+                break;
+
+                default:
+                    throw new Exception('Invalid option '.$option.' given');
+
+            }
         }
 
         return $this;
     }
 
     /**
-     * Run: preServerIdentity.
-     *
-     * @param Server   $server
-     * @param Identity $identity
-     * @param array    $attributes
+     * {@inheritDoc}
      */
-    public function preServerIdentity(Server $server, Identity $identity, ?array &$attributes): void
+    public function preServerIdentity(Identity $identity, ?array &$attributes): void
     {
         if (null !== $attributes) {
             return;
@@ -102,6 +134,7 @@ class AutoCreateUser extends AbstractHook
             }
         }
 
-        $result = $server->getDatabase()->user->insertOne($attributes);
+        $result = $this->db->user->insertOne($attributes);
+        $attributes['_id'] = $result->getInsertedId();
     }
 }

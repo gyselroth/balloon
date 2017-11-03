@@ -184,42 +184,11 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     /**
      * Storage.
      *
-     * @var Storage
-     */
-    protected $storage_handler;
-
-    /**
-     * Storage.
-     *
      * @var array
      q*/
     protected $storage = [
         'adapter' => 'gridfs',
     ];
-
-    /**
-     * Initialize.
-     *
-     * @param array      $attributes
-     * @param Filesystem $fs
-     */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Storage $storage)
-    {
-        $this->_fs = $fs;
-        $this->_server = $fs->getServer();
-        $this->_db = $fs->getDatabase();
-        $this->_user = $fs->getUser();
-        $this->_logger = $logger;
-        $this->_hook = $hook;
-        $this->storage_handler = $storage;
-
-        foreach ($attributes as $attr => $value) {
-            $this->{$attr} = $value;
-        }
-
-        $this->raw_attributes = $attributes;
-        $this->_verifyAccess();
-    }
 
     /**
      * Convert to filename.
@@ -592,16 +561,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             return true;
         }
 
-        /* TODO: writeonly does not work with this part:
-        if($this->_user->getId() == $this->owner) {
-            $this->_logger->debug('owner request detected for ['.$this->_id.'], grant full access', [
-                'category' => get_class($this),
-            ]);
-
-            return true;
-        }
-        */
-
         $priv = $this->getAclPrivilege();
 
         $result = false;
@@ -905,11 +864,12 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         try {
             if ($this->isRoot()) {
                 return null;
-            }
-            if ($this->isInRoot()) {
+            } elseif ($this->isInRoot()) {
                 return $this->_fs->getRoot();
             }
+
             $parent = $this->_fs->findNodeWithId($this->parent);
+
             if ($parent->isShare() && !$parent->isOwnerRequest() && null !== $this->_user) {
                 $node = $this->_db->storage->findOne([
                         'owner' => $this->_user->getId(),
@@ -917,7 +877,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                         'reference' => $this->parent,
                     ]);
 
-                return new Collection($node, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
+                return $this->_fs->initNode($node);
             }
 
             return $parent;
@@ -949,7 +909,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         $parents[] = $parent;
 
         return $node->getParents($parent, $parents);
-        return $parents;
     }
 
     /**

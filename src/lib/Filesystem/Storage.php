@@ -16,9 +16,19 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface;
 use Micro\Container\AdapterAwareInterface;
 use Psr\Log\LoggerInterface;
+use Balloon\Filesystem\Storage\Adapter\Gridfs;
 
 class Storage implements AdapterAwareInterface
 {
+    /**
+     * Default adapter
+     */
+    const DEFAULT_ADAPTER = [
+        'gridfs' => [
+            'use' => Gridfs::class
+        ]
+    ];
+
     /**
      * Storage adapter.
      *

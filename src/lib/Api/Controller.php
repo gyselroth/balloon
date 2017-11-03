@@ -15,6 +15,10 @@ namespace Balloon\Api;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Psr\Log\LoggerInterface;
+use Balloon\Api\v1\Collection as CollectionController;
+use Balloon\Api\v1\File as FileController;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\File;
 
 class Controller
 {
@@ -53,12 +57,12 @@ class Controller
      * @param Config          $config
      * @param LoggerInterface $logger
      */
-    public function __construct(Server $server/*, LoggerInterface $logger*/)
+    public function __construct(Server $server, LoggerInterface $logger)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
-        //$this->logger = $logger;
+        $this->logger = $logger;
     }
 
     /**
@@ -215,12 +219,16 @@ class Controller
         bool $allow_root = false,
         int $deleted = 2
     ): NodeInterface {
-        if (null === $class) {
-            $class = join('', array_slice(explode('\\', get_class($this)), -1));
-        }
-
-        if ('Node' === $class) {
-            $class = null;
+        switch(get_class($this)) {
+            case FileController::class:
+                $class = File::class;
+            break;
+            case CollectionController::class:
+                $class = Collection::class;
+            break;
+            default:
+                $class = null;
+            break;
         }
 
         return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);

@@ -10,6 +10,12 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
+use Micro\Config;
+use Micro\Config\Environment;
+use Micro\Config\Struct;
+use Micro\Config\Xml;
+use Balloon\Bootstrap\Http;
+
 defined('APPLICATION_PATH')
     || define('APPLICATION_PATH', realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'));
 
@@ -28,18 +34,19 @@ if (extension_loaded('apc') && apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
     $file = APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
-    $config = new \Micro\Config();
+    $default = require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php';
+    $config = new Config(new Struct($default));
 
     if (is_readable($file)) {
-        $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
+        $xml = new Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
         $config->inject($xml);
     }
 
-    $config->inject(new \Micro\Config\Environment('balloon'));
+    $config->inject(new Environment('balloon'));
 
     if (extension_loaded('apc')) {
         apc_store('config', $config);
     }
 }
 
-new \Balloon\Bootstrap\Http($composer, $config);
+new Http($composer, $config);

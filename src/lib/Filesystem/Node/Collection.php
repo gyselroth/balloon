@@ -21,6 +21,8 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\BSON\UTCDateTime;
 use Sabre\DAV;
+use Psr\Log\LoggerInterface;
+use Balloon\Hook;
 
 class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 {
@@ -48,7 +50,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      *
      * @var array
      */
-    protected $acl;
+    protected $acl = [];
 
     /**
      * filter.
@@ -57,6 +59,28 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      */
     protected $filter = [];
 
+    /**
+     * Initialize.
+     *
+     * @param array      $attributes
+     * @param Filesystem $fs
+     */
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook)
+    {
+        $this->_fs = $fs;
+        $this->_server = $fs->getServer();
+        $this->_db = $fs->getDatabase();
+        $this->_user = $fs->getUser();
+        $this->_logger = $logger;
+        $this->_hook = $hook;
+
+        foreach ($attributes as $attr => $value) {
+            $this->{$attr} = $value;
+        }
+
+        $this->raw_attributes = $attributes;
+        $this->_verifyAccess();
+    }
 
     /**
      * Copy node with children.
@@ -122,11 +146,12 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Get share.
      *
-     * @return array|bool
+     * @return array
      */
-    public function getShare()
+    public function getShareAcl(): array
     {
-        if (!$this->isShared()) {
+        return $this->acl;
+        /*if (!$this->isShared()) {
             return false;
         }
         if (is_array($this->acl)) {
@@ -160,7 +185,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             return $return;
         }
 
-        return false;
+        return false;*/
     }
 
     /**
@@ -403,12 +428,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             'category' => get_class($this),
         ]);
 
-        //if the item has the directory flag we create a collection else the item is file
-        if (true === $node['directory']) {
-            return new self($node, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
-        }
-
-        return new File($node, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
+        return $this->_fs->initNode($node);
     }
 
     /**
@@ -798,7 +818,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $new = new self($save, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
+            $new = $this->_fs->initNode($save);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
 
             return $new;
@@ -891,7 +911,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
-            $file = new File($save, $this->_fs, $this->_logger, $this->_hook, $this->storage_handler);
+            $file = $this->_fs->initNode($save);
 
             try {
                 $file->put($data, true, $attributes);

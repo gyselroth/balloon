@@ -7,6 +7,13 @@
  * @copyright   copryright (c) 2012-2017 gyselroth GmbH
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
+
+use Micro\Config;
+use Micro\Config\Environment;
+use Micro\Config\Struct;
+use Micro\Config\Xml;
+use Balloon\Bootstrap\Cli;
+
 defined('APPLICATION_PATH')
     || define('APPLICATION_PATH', realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'));
 
@@ -22,13 +29,14 @@ set_include_path(implode(PATH_SEPARATOR, [
 $composer = require 'vendor/autoload.php';
 
 $file = APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
-$config = new \Micro\Config();
+$default = require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php';
+$config = new Config(new Struct($default));
 
 if (is_readable($file)) {
-    $xml = new \Micro\Config\Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
+    $xml = new Xml(APPLICATION_PATH.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', APPLICATION_ENV);
     $config->inject($xml);
 }
 
-$config->inject(new \Micro\Config\Environment('balloon'));
+$config->inject(new Environment('balloon'));
 
-new \Balloon\Bootstrap\Cli($composer, $config);
+new Cli($composer, $config);

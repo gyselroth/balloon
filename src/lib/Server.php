@@ -51,13 +51,6 @@ class Server
     protected $hook;
 
     /**
-     * Async.
-     *
-     * @var Async
-     */
-    protected $async;
-
-    /**
      * App.
      *
      * @var App
@@ -98,16 +91,14 @@ class Server
      * @param Database        $db
      * @param Storage         $storage
      * @param LoggerInterface $logger
-     * @param Async           $async
      * @param Hook            $hook
      * @param iterable        $config
      */
-    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Async $async, Hook $hook, App $app, ?Iterable $config = null)
+    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, App $app, ?Iterable $config = null)
     {
         $this->db = $db;
         $this->storage = $storage;
         $this->logger = $logger;
-        $this->async = $async;
         $this->hook = $hook;
         $this->app = $app;
 
@@ -189,26 +180,6 @@ class Server
     }
 
     /**
-     * Get hook.
-     *
-     * @return Hook
-     */
-    /*public function getHook(): Hook
-    {
-        return $this->hook;
-    }*/
-
-    /**
-     * Get async.
-     *
-     * @return Async
-     */
-    /*public function getAsync(): Async
-    {
-        return $this->async;
-    }*/
-
-    /**
      * Filesystem factory.
      *
      * @return Filesystem
@@ -281,7 +252,7 @@ class Server
     public function setIdentity(Identity $identity): bool
     {
         $result = $this->db->user->findOne(['username' => $identity->getIdentifier()]);
-        $this->hook->run('preServerIdentity', [$this, $identity, &$result]);
+        $this->hook->run('preServerIdentity', [$identity, &$result]);
 
         if (null === $result) {
             throw new Exception('user does not exists');
@@ -313,6 +284,55 @@ class Server
      */
     public function getUserByName(string $name): User
     {
+        $attributes = $this->db->user->findOne([
+           'username' => $name,
+        ]);
+
+        if (null === $attributes) {
+            throw new Exception('user does not exists');
+        }
+
+        return new User($attributes, $this, $this->db, $this->logger);
+    }
+
+    /**
+     * Get group by name.
+     *
+     * @param string $name
+     *
+     * @return User
+     */
+    public function getGroupByName(string $name): Group
+    {
+        $attributes = $this->db->group->findOne([
+           'username' => $name,
+        ]);
+
+        if (null === $attributes) {
+            throw new Exception('group does not exists');
+        }
+
+        return new Group($attributes, $this, $this->db, $this->logger);
+    }
+
+    /**
+     * Get group by id.
+     *
+     * @param string $id
+     *
+     * @return User
+     */
+    public function getGroupById(ObjectId $id): Group
+    {
+        $attributes = $this->db->group->findOne([
+           '_id' => $id,
+        ]);
+
+        if (null === $attributes) {
+            throw new Exception('group does not exists');
+        }
+
+        return new Group($attributes, $this, $this->db, $this->logger);
     }
 
     /**

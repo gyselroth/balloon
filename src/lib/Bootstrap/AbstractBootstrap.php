@@ -30,61 +30,16 @@ use Micro\Log\Adapter\File;
 use MongoDB\Client;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
+use Balloon\App\Notification\Notification;
 
 abstract class AbstractBootstrap
 {
     /**
-     * Config.
+     * Config
      *
-     * @var array
+     * @var Iterable
      */
-    protected $config = [
-        Client::class => [
-            'options' => [
-                'uri' => 'mongodb://localhost:27017',
-                'db' => 'balloon',
-            ],
-        ],
-        LoggerInterface::class => [
-            'use' => Log::class,
-            'adapter' => [
-                'file' => [
-                    'use' => File::class,
-                    'options' => [
-                        'config' => [
-                            'file' => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
-                            'level' => 10,
-                            'date_format' => 'Y-d-m H:i:s',
-                            'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}',
-                        ],
-                    ],
-                ],
-            ],
-        ],
-        Storage::class => [
-            'adapter' => [
-                'gridfs' => [
-                    'use' => Gridfs::class,
-                ],
-            ],
-        ],
-        Converter::class => [
-            'adapter' => Converter::DEFAULT_ADAPTER,
-        ],
-        Hook::class => [
-            'adapter' => Hook::DEFAULT_ADAPTER,
-        ],
-        Auth::class => [
-            'adapter' => [
-                'basic_db' => [
-                    'use' => Db::class,
-                ],
-            ],
-        ],
-        App::class => [
-            'adapter' => [],
-        ],
-    ];
+    protected $config;
 
     /**
      * Dependency container.
@@ -103,10 +58,12 @@ abstract class AbstractBootstrap
      */
     public function __construct(Composer $composer, ?Config $config)
     {
-        $this->setOptions($config);
-        $this->detectApps();
+        $this->config = $config;
         $this->setErrorHandler();
+        $this->detectApps($composer);
         $this->container = new Container($this->config);
+        $this->setErrorHandler();
+
         $this->container->get(LoggerInterface::class)->info('--------------------------------------------------> PROCESS', [
             'category' => get_class($this),
         ]);
@@ -141,48 +98,6 @@ abstract class AbstractBootstrap
         return true;
     }
 
-    /**
-     * Set options.
-     *
-     * @param Config $config
-     *
-     * @return AbstractBootstrap
-     */
-    public function setOptions(?Config $config): AbstractBootstrap
-    {
-        if (null === $config) {
-            return $this;
-        }
-
-        foreach ($config->children() as $option => $value) {
-            /*if(!isset($value['name'])) {
-                throw new Exception('invalid configuration given, objects needs service name';
-            }*/
-
-            if (!isset($this->config[$value['name']])) {
-                $this->config[$value['name']] = [];
-            }
-
-            foreach ($value as $type => $config) {
-                switch ($type) {
-                    case 'class':
-                        $this->config[$value['service']]['class'] = $config;
-
-                    break;
-                    case 'adapter':
-                        $this->config[$value['service']]['adapter'] = $config;
-
-                    break;
-                    case 'options':
-                        $this->config[$value['service']]['options'] = $config;
-
-                    break;
-                }
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Register apps.
@@ -192,13 +107,14 @@ abstract class AbstractBootstrap
     protected function registerApps(): AbstractBootstrap
     {
         $manager = $this->container->get(App::class);
+
         foreach ($this->config[App::class]['adapter'] as $name => $config) {
             $options = null;
             if (isset($config['config'])) {
                 $options = $config['config'];
             }
 
-            $manager->registerApp($this->container, $name, $config['name'], $config['use'], $options);
+            $manager->registerApp($this->container, $name, $config['use'], $options);
         }
 
         return $this;
@@ -209,8 +125,9 @@ abstract class AbstractBootstrap
      *
      * @return AbstractBootstrap
      */
-    protected function detectApps(): AbstractBootstrap
+    protected function detectApps(Composer $composer): AbstractBootstrap
     {
+        #return $this;
         if ($this instanceof Http) {
             $context = 'Http';
         } else {
@@ -218,13 +135,22 @@ abstract class AbstractBootstrap
         }
 
         foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
-            //$this->config[App::class]['adapter'][basename($app)] = [];
             $ns = str_replace('.', '\\', basename($app)).'\\';
-            $class = '\\'.$ns.$context;
-            $this->config[App::class]['adapter'][basename($app)]['name'] = $ns.'App';
-            $this->config[App::class]['adapter'][basename($app)]['use'] = $class;
-            //$this->config[App::class]['adapter'][$class] = [];
-            //$this->config[App::class]['adapter'][basename($app)]['use'] = $class;
+            $composer->addPsr4($ns, $app);
+            $name =  $ns.'App';
+
+            if(!isset($this->config[App::class]['adapter'][$name])) {
+                $this->config[App::class]['adapter'][$name] = new Config();
+            }
+        }
+
+        foreach($this->config[App::class]['adapter'] as $app => $options) {
+            $this->config[App::class]['adapter'][$app]['expose'] = true;
+            $this->config[App::class]['adapter'][$app]['use'] = $app.'\\'.$context;
+
+            if(!class_exists($this->config[App::class]['adapter'][$app]['use'])) {
+                $this->config[App::class]['adapter'][$app]['enabled'] = '0';
+            }
         }
 
         return $this;
@@ -239,6 +165,11 @@ abstract class AbstractBootstrap
     {
         set_error_handler(function ($severity, $message, $file, $line) {
             $log = $message.' in '.$file.':'.$line;
+
+            if($this->container === null) {
+                throw new ErrorException($message, 0, $severity, $file, $line);
+            }
+
             switch ($severity) {
                 case E_ERROR:
                 case E_USER_ERROR:

@@ -23,6 +23,7 @@ use Balloon\Filesystem\Node\Root;
 use Balloon\Helper;
 use Micro\Http\Response;
 use PHPZip\Zip\Stream\ZipStream;
+use MongoDB\BSON\UTCDateTime;
 
 class Node extends Controller
 {
@@ -1533,38 +1534,6 @@ class Node extends Controller
      */
 
     /**
-     * Get node.
-     *
-     * @param string $id
-     * @param string $path
-     * @param string $class      Force set node type
-     * @param bool   $deleted
-     * @param bool   $multiple   Allow $id to be an array
-     * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
-     */
-    protected function _getNode(
-        ?string $id = null,
-        ?string $path = null,
-        ?string $class = null,
-        bool $multiple = false,
-        bool $allow_root = false,
-        int $deleted = 2
-    ): NodeInterface {
-        if (null === $class) {
-            $class = join('', array_slice(explode('\\', get_class($this)), -1));
-        }
-
-        if ('Node' === $class) {
-            $class = null;
-        }
-
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
-    }
-
-    /**
      * Merge multiple nodes into one zip archive.
      *
      * @param string $id
@@ -1640,7 +1609,7 @@ class Node extends Controller
                     if (!Helper::isValidTimestamp($value)) {
                         throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
                     }
-                    $attributes[$attribute] = new \MongoDB\BSON\UTCDateTime($value.'000');
+                    $attributes[$attribute] = new UTCDateTime($value.'000');
 
                 break;
                 case 'changed':
@@ -1651,7 +1620,7 @@ class Node extends Controller
                     if ((int) $value > time()) {
                         throw new Exception\InvalidArgument($attribute.' timestamp can not be set greater than the server time');
                     }
-                    $attributes[$attribute] = new \MongoDB\BSON\UTCDateTime($value.'000');
+                    $attributes[$attribute] = new UTCDateTime($value.'000');
 
                 break;
                 case 'readonly':

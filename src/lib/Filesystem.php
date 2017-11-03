@@ -132,10 +132,11 @@ class Filesystem
             return $this->root;
         }
 
-        return $this->root = new Collection([
-            '_id'   => null,
+        return $this->root = $this->initNode([
+            'directory' => true,
+            '_id'       => null,
             'owner' => $this->user ? $this->user->getId() : null
-        ], $this,  $this->logger, $this->hook, $this->storage);
+        ]);
     }
 
     /**
@@ -223,10 +224,6 @@ class Filesystem
 
         $return = $this->initNode($node);
 
-        if (null !== $class) {
-            $class = '\Balloon\Filesystem\Node\\'.$class;
-        }
-
         if (null !== $class && !($return instanceof $class)) {
             throw new Exception('node '.get_class($return).' is not instance of '.$class);
         }
@@ -254,14 +251,10 @@ class Filesystem
         }
 
         $parts = explode('/', $path);
-        $parent = new Collection(null, $this, $this->logger, $this->hook, $this->storage);
+        $parent = $this->getRoot();
         array_shift($parts);
         foreach ($parts as $node) {
             $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
-        }
-
-        if (null !== $class) {
-            $class = '\Balloon\Filesystem\Node\\'.$class;
         }
 
         if (null !== $class && !($parent instanceof $class)) {
@@ -306,16 +299,12 @@ class Filesystem
 
         $result = $this->db->storage->find($filter);
 
-        if (null !== $class) {
-            $class = '\Balloon\Filesystem\Node\\'.$class;
-        }
-
         $nodes = [];
         foreach ($result as $node) {
             $return = $this->initNode($node);
 
             if (null !== $class && !($return instanceof $class)) {
-                throw new Exception('node is not instance of '.$class);
+                throw new Exception('node is not an instance of '.$class);
             }
 
             yield $return;
@@ -401,10 +390,6 @@ class Filesystem
         $list = [];
 
         foreach ($result as $node) {
-            if (!array_key_exists('directory', $node)) {
-                continue;
-            }
-
             try {
                 yield $this->initNode($node);
             } catch (\Exception $e) {
@@ -533,53 +518,67 @@ class Filesystem
     }
 
     /**
-     * Initialize node.
+     * Resolve shared node to reference or share depending who requested
      *
-     * @param array $node
-     *
-     * @return NodeInterface
+     * @param  array $node
+     * @return array
      */
-    protected function initNode(array $node): NodeInterface
+    protected function findReferenceNode(array $node): array
     {
-        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] !== $this->user->getId()) {
-            if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
-                $this->logger->debug('reference node ['.$node['_id'].'] requested from share owner, trying to find the shared node', [
-                    'category' => get_class($this),
-                ]);
+        if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
+            $this->logger->debug('reference node ['.$node['_id'].'] requested from share owner, trying to find the shared node', [
+                'category' => get_class($this),
+            ]);
 
-                $node = $this->db->storage->findOne([
-                    'owner' => $this->user->getId(),
-                    'shared' => true,
-                    '_id' => $node['reference'],
-                ]);
+            $node = $this->db->storage->findOne([
+                'owner' => $this->user->getId(),
+                'shared' => true,
+                '_id' => $node['reference'],
+            ]);
 
-                if (null === $node) {
-                    throw new Exception\NotFound(
-                        'no share node for reference node '.$node['reference'].' found',
-                        Exception\NotFound::SHARE_NOT_FOUND
-                    );
-                }
-            } else {
-                $this->logger->debug('share node ['.$node['_id'].'] requested from member, trying to find the reference node', [
-                    'category' => get_class($this),
-                ]);
+            if (null === $node) {
+                throw new Exception\NotFound(
+                    'no share node for reference node '.$node['reference'].' found',
+                    Exception\NotFound::SHARE_NOT_FOUND
+                );
+            }
+        } else {
+            $this->logger->debug('share node ['.$node['_id'].'] requested from member, trying to find the reference node', [
+                'category' => get_class($this),
+            ]);
 
-                $node = $this->db->storage->findOne([
-                    'owner' => $this->user->getId(),
-                    'shared' => true,
-                    'reference' => $node['_id'],
-                ]);
+            $node = $this->db->storage->findOne([
+                'owner' => $this->user->getId(),
+                'shared' => true,
+                'reference' => $node['_id'],
+            ]);
 
-                if (null === $node) {
-                    throw new Exception\NotFound(
-                        'no share reference for node '.$node['_id'].' found',
-                        Exception\NotFound::REFERENCE_NOT_FOUND
-                    );
-                }
+            if (null === $node) {
+                throw new Exception\NotFound(
+                    'no share reference for node '.$node['_id'].' found',
+                    Exception\NotFound::REFERENCE_NOT_FOUND
+                );
             }
         }
 
-        if (isset($node['parent'])) {
+        return $node;
+    }
+
+
+    /**
+     * Init node
+     *
+     * @param  array $node
+     * @return NodeInterface
+     */
+    public function initNode(array $node): NodeInterface
+    {
+        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] !== $this->user->getId()) {
+            $node = $this->findReferenceNode($node);
+        }
+
+        //this would result in a recursiv call until the top level node
+        /*if (isset($node['parent'])) {
             try {
                 $this->findNodeWithId($node['parent']);
             } catch (Exception\InvalidArgument $e) {
@@ -587,13 +586,13 @@ class Filesystem
             } catch (Exception\NotFound $e) {
                 throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
             }
-        }
+        }*/
 
         if (!array_key_exists('directory', $node)) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
         if (true === $node['directory']) {
-            return new Collection($node, $this, $this->logger, $this->hook, $this->storage);
+            return new Collection($node, $this, $this->logger, $this->hook);
         }
 
         return new File($node, $this, $this->logger, $this->hook, $this->storage);
