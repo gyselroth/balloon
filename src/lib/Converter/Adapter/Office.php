@@ -103,7 +103,6 @@ class Office extends Imagick
             return $this;
         }
 
-        parent::setOptions($config);
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'soffice':
@@ -112,7 +111,7 @@ class Office extends Imagick
                     }
 
                     $this->soffice = (string) $value;
-
+                    unset($config[$option]);
                     break;
                 case 'tmp':
                     if (!is_writeable($value)) {
@@ -120,6 +119,7 @@ class Office extends Imagick
                     }
 
                     $this->tmp = (string) $value;
+                    unset($config[$option]);
 
                     break;
                 case 'timeout':
@@ -128,12 +128,13 @@ class Office extends Imagick
                     }
 
                     $this->timeout = (string) $value;
+                    unset($config[$option]);
 
                     break;
             }
         }
 
-        return $this;
+        return parent::setOptions($config);
     }
 
     /**

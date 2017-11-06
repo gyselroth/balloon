@@ -37,8 +37,6 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "^3.0",
         "zendframework/zend-mail": "2.7.*",
-        "symfony/console": "*",
-        "sitepoint/container": "^0.1.0"
     },
     "repositories": [
         {

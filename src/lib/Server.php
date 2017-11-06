@@ -125,13 +125,11 @@ class Server
 
                 break;
                 case 'max_file_version':
-                    $this->max_file_version = (int) $value;
-
-                break;
                 case 'max_file_size':
-                    $this->max_file_size = (int) $value;
-
+                    $this->{$name} = (int) $value;
                 break;
+                default:
+                    throw new Exception('invalid option '.$name.' given');
             }
         }
 

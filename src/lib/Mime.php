@@ -50,8 +50,9 @@ class Mime
             switch ($option) {
                 case 'db':
                     $this->db = (string) $value;
-
                 break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
             }
         }
 

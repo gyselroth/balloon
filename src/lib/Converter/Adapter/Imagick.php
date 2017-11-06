@@ -45,6 +45,8 @@ class Imagick extends AbstractAdapter
                     $this->max_size = (int) $value;
 
                     break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
             }
         }
 

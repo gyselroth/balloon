@@ -59,9 +59,10 @@ class Async
     }
 
     /**
-     * Register job.
+     * Add job to queue
      *
-     * @param JobInterface $job
+     * @param string $class
+     * @param array $data
      *
      * @return bool
      */
@@ -83,6 +84,34 @@ class Async
     }
 
     /**
+     * Only add job if not in queue yet
+     *
+     * @param string $class
+     * @param array $data
+     *
+     * @return bool
+     */
+    public function addJobOnce(string $class, array $data): bool
+    {
+        $result = $this->db->queue->findOne([
+            'class' => $class,
+            'data'=> $data,
+            'status' => self::STATUS_WAITING,
+        ]);
+
+        if($result === null) {
+            return $this->addJob($class, $data);
+        } else {
+            $this->logger->debug('queue job ['.$result['_id'].'] of type ['.$class.'] already exists', [
+                'category' => get_class($this),
+                'params' => $data,
+            ]);
+
+            return true;
+        }
+    }
+
+    /**
      * Get cursor.
      *
      * @param bool $tailable
@@ -94,6 +123,7 @@ class Async
         $options = [];
         if (true === $tailable) {
             $options['cursorType'] = Find::TAILABLE;
+            $options['noCursorTimeout'] = true;
         }
 
         $cursor = $this->db->queue->find(['status' => self::STATUS_WAITING], $options);
