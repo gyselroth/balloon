@@ -74,16 +74,24 @@ class Notifier implements AdapterAwareInterface
      *
      * @param iterable $config
      *
-     * @return App
+     * @return Notifier
      */
-    public function setOptions(?Iterable $config = null): App
+    public function setOptions(?Iterable $config = null): Notifier
     {
         if (null === $config) {
             return $this;
         }
 
-        foreach($config as $adapter) {
-            $this->injectAdapter($adapter);
+        foreach($config as $option => $value) {
+            switch($option) {
+                case 'adpater':
+                    foreach($value as $name => $adapter) {
+                        $this->injectAdapter($name, $adapter);
+                    }
+                break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
+            }
         }
 
         return $this;

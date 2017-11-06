@@ -15,6 +15,8 @@ namespace Balloon\Async;
 use Balloon\Async\AbstractJob;
 use Balloon\App\AppInterface;
 use MongoDB\BSON\UTCDateTime;
+use Balloon\Server;
+use Psr\Log\LoggerInterface;
 
 class CleanTrash extends AbstractJob
 {
