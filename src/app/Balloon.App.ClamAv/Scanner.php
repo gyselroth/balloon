@@ -82,18 +82,20 @@ class Scanner
      * @param Database        $db
      * @param LoggerInterface $logger
      */
-    public function __construct(SocketFactory $factory, LoggerInterface $logger)
+    public function __construct(SocketFactory $factory, LoggerInterface $logger, ?Iterable $config=null)
     {
         $this->logger = $logger;
         $this->socket_factory = $factory;
+        $this->setOptions($config);
     }
 
     /**
      * Set options.
      *
-     * @var iterable
+     * @param Iterable $config
+     * @return Scanner
      */
-    public function setOptions(?Iterable $config = null): AppInterface
+    public function setOptions(?Iterable $config = null): Scanner
     {
         if (null === $config) {
             return $this;
@@ -118,8 +120,10 @@ class Scanner
                     break;
                 case 'timeout':
                     $this->timeout = (int) $value;
-
                     break;
+                break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
             }
         }
 
@@ -144,6 +148,10 @@ class Scanner
         }
 
         try {
+            $this->logger->debug('open clamav socket ['.$this->socket.']', [
+                'category' => get_class($this),
+            ]);
+
             if (!($this->clamav_socket instanceof Socket)) {
                 $this->clamav_socket = $this->socket_factory->createClient($this->socket);
             }

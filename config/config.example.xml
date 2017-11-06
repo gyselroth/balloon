@@ -1,92 +1,90 @@
 <config version="1.0" xmlns:m="https://github.com/gyselroth/micro">
 <production>
-    <mongodb m:name="MongoDB\Client">
+    <service m:name="MongoDB\Client">
         <options>
             <db>balloon</db>
             <uri>mongodb://localhost:27017</uri>
         </options>
-    </mongodb>
+    </service>
 
-    <server m:name="Balloon\Server">
+    <service m:name="Balloon\Server">
         <options>
             <config>
-                <temp>/tmp/balloon</temp>
-                <max_version>8</max_version>
-                <max_size>1073741824</max_size>
+                <temp_dir>/tmp/balloon</temp_dir>
+                <max_file_version>8</max_file_version>
+                <max_file_size>1073741824</max_file_size>
             </config>
         </options>
-    </server>
+    </service>
 
-    <apps m:name="Balloon\App">
+    <service m:name="Balloon\App\ClamAv\Scanner">
+         <options>
+               <config>
+                    <socket>unix:///var/run/clamav/clamd.ctl</socket>
+                    <max_stream_size>26214400</max_stream_size>
+                    <aggressiveness>3</aggressiveness>
+                    <timeout>30</timeout>
+                </config>
+        </options>
+    </service>
+
+    <service enabled="1" m:name="Balloon\App\Notification\Notifier">
+        <adapter>
+            <adapter enabled="1" m:name="Balloon\App\Notification\Adapter\Mail">
+                <options>
+                    <config>
+                        <sender_address>no-reply@localhost</sender_address>
+                        <sender_name>balloon</sender_name>
+                    </config>
+                </options>
+            </adapter>
+            <adapter enabled="1" m:name="Balloon\App\Notification\Adapter\Db"/>
+        </adapter>
+        <options>
+            <config>
+                <notifications>
+                    <new_share enabled="1">
+                        <config>
+                            <body>{shareowner} added a new share {name} to your cloud.</body>
+                            <subject>Balloon: A new share has been added to your cloud</subject>
+                        </config>
+                    </new_share>
+                </notifications>
+            </config>
+        </options>
+    </service>
+
+    <service m:name="Balloon\App\Elasticsearch\Elasticsearch">
+        <options>
+            <config>
+                <hosts>
+                    <server>http://localhost:9200</server>
+                </hosts>
+                <index>balloon</index>
+            </config>
+        </options>
+    </service>
+
+    <service m:name="Balloon\App">
         <adapter>
             <Api enabled="1" m:name="Balloon\App\Api\App"/>
             <Webdav enabled="1" m:name="Balloon\App\Webdav\App"/>
             <Sharelink enabled="1" m:name="Balloon\App\Sharelink\App"/>
             <Convert enabled="1" m:name="Balloon\App\Convert\App"/>
             <preview enabled="1" m:name="Balloon\App\Preview\App"/>
+            <ClamAv enabled="0" m:name="Balloon\App\ClamAv\App"/>
+            <notify enabled="1" m:name="Balloon\App\Notification\App"/>
 
             <office enabled="1" m:name="Balloon\App\Office\App">
                 <options>
                     <config>
-                        <loleaflet>http://localhost:9980/loleaflet/dist/loleaflet.html</loleaflet>
-                        <token_ttl>1800</token_ttl>
+                        <loleaflet>https://localhost:9980/loleaflet/dist/loleaflet.html</loleaflet>
+                        <token_ttl>3600</token_ttl>
                     </config>
                 </options>
             </office>
 
-            <elasticsearch enabled="1" m:name="Balloon\App\Elasticsearch\App">
-                <options>
-                    <config>
-                        <hosts>
-                            <server>http://localhost:9200</server>
-                        </hosts>
-                        <index>balloon</index>
-                    </config>
-                </options>
-            </elasticsearch>
-
-            <ClamAv enabled="0" m:name="Balloon\App\ClamAv\App">
-                <options>
-                    <config>
-                        <socket>unix:///var/run/clamav/clamd.ctl</socket>
-                        <max_stream_size>26214400</max_stream_size>
-                        <aggressiveness>3</aggressiveness>
-                        <timeout>30</timeout>
-                    </config>
-                </options>
-            </ClamAv>
-
-            <notify enabled="1" m:name="Balloon\App\Notification\App">
-                <adapter>
-                    <mail enabled="1" m:name="Balloon\App\Notification\Adapter\Mail">
-                        <options>
-                            <config>
-                                <sender_address>no-reply@localhost</sender_address>
-                                <sender_name>balloon</sender_name>
-                            </config>
-                        </options>
-                    </mail>
-                    <db enabled="1" m:name="Balloon\App\Notification\Adapter\Db"/>
-                </adapter>
-                <options>
-                    <config>
-                        <notifications>
-                            <new_share enabled="1">
-                                <config>
-                                    <body>{shareowner} added a new share {name} to your cloud.</body>
-                                    <subject>Balloon: A new share has been added to your cloud</subject>
-                                </config>
-                            </new_share>
-                        </notifications>
-                    </config>
-                </options>
-            </notify>
-
             <!--
-            <destroyer enabled="0" m:name="Balloon\App\Destroyer">
-                 <config/>
-            </destroyer>
-
             <clean_temp enabled="0" m:name="Balloon\App\CleanTemp">
                 <config>
                     <dir>/tmp/balloon</dir>
@@ -94,12 +92,6 @@
                     <max_age>3600</max_age>
                 </config>
             </clean_temp>
-
-            <clean_trash enabled="0" m:name="Balloon\App\CleanTrash">
-                <config>
-                    <max_age>2592000</max_age>
-                </config>
-            </clean_trash>
             <auto_share enabled="1" m:name="Balloon\App\LdapAutoShare">
                 <config>
                     <ldap>
@@ -138,19 +130,19 @@
                 </config>
             </auto_share>-->
         </adapter>
-    </apps>
+    </service>
 
-    <storage m:name="Balloon\Filesystem\Storage">
+    <service m:name="Balloon\Filesystem\Storage">
         <adapter>
-            <gridfs enabled="1" use="Balloon\Filesystem\Storage\Adapter\Gridfs"/>
+            <adapter enabled="1" m:name="gridfs" use="Balloon\Filesystem\Storage\Adapter\Gridfs"/>
         </adapter>
-    </storage>
+    </service>
 
-    <hooks m:name="Balloon\Hook">
+    <service m:name="Balloon\Hook">
         <adapter>
-            <delta enabled="1" m:name="Balloon\Hook\Delta"/>
+            <adapter enabled="1" m:name="Balloon\Hook\Delta"/>
 
-            <autoCreateUser enabled="1" m:name="Balloon\Hook\AutoCreateUser">
+            <adapter enabled="1" m:name="Balloon\Hook\AutoCreateUser">
                 <options>
                     <config>
                         <attributes>
@@ -159,21 +151,38 @@
                         </attributes>
                     </config>
                 </options>
-            </autoCreateUser>
-        </adapter>
-    </hooks>
+            </adapter>
 
-    <convert m:name="Balloon\Convert">
+            <adapter enabled="1" m:name="Balloon\Hook\CleanTrash">
+                <options>
+                    <config>
+                        <max_age>2592000</max_age>
+                        <interval>3600</interval>
+                    </config>
+                </options>
+            </adapter>
+
+            <adapter enabled="1" m:name="Balloon\Hook\AutoDestroy">
+                <options>
+                    <config>
+                        <interval>3600</interval>
+                    </config>
+                </options>
+            </adapter>
+        </adapter>
+    </service>
+
+    <service m:name="Balloon\Convert">
         <adapter>
-            <imagick enabled="1" m:name="Balloon\Convert\Adapter\Imagick">
+            <adapter enabled="1" m:name="Balloon\Convert\Adapter\Imagick">
                 <options>
                     <config>
                         <max_size>300</max_size>
                     </config>
                 </options>
-            </imagick>
+            </adapter>
 
-            <office enabled="1" m:name="Balloon\Convert\Adapte\Office">
+            <adapter enabled="1" m:name="Balloon\Convert\Adapte\Office">
                 <options>
                     <config>
                         <max_size>300</max_size>
@@ -182,13 +191,13 @@
                         <soffice>/usr/bin/soffice</soffice>
                     </config>
                 </options>
-            </office>
+            </adapter>
         </adapter>
-    </convert>
+    </service>
 
-    <log m:name="Psr\Log\LoggerInterface" use="Micro\Log">
+    <service m:name="Psr\Log\LoggerInterface" use="Micro\Log">
         <adapter>
-            <file enabled="1" use="Micro\Log\Adapter\File">
+            <adapter m:name="file" enabled="1" use="Micro\Log\Adapter\File">
                 <options>
                     <config>
                         <file>APPLICATION_PATH/log/out.log</file>
@@ -197,9 +206,9 @@
                         <level>10</level>
                     </config>
                 </options>
-            </file>
+            </adapter>
 
-            <stdout enabled="0" use="Micro\Log\Adapter\Stdout">
+            <adapter enabled="0" m:name="stdout" use="Micro\Log\Adapter\Stdout">
                 <options>
                     <config>
                         <date_format>Y-d-m H:i:s</date_format>
@@ -207,9 +216,9 @@
                         <level>3</level>
                     </config>
                 </options>
-            </stdout>
+            </adapter>
 
-            <syslog enabled="0" use="Micro\Log\Adapter\Syslog">
+            <adapter enabled="0" m:name="syslog" use="Micro\Log\Adapter\Syslog">
                 <options>
                     <config>
                         <date_format>Y-d-m H:i:s</date_format>
@@ -218,23 +227,23 @@
                         <ident>balloon</ident>
                     </config>
                 </options>
-            </syslog>
+            </adapter>
         </adapter>
-    </log>
+    </service>
 
-    <auth m:name="Micro\Auth">
+    <service m:name="Micro\Auth">
         <adapter>
-            <basic_db enabled="1" use="Balloon\Auth\Adapter\Basic\Db"/>
+            <adapter enabled="1" m:name="basic_db" use="Balloon\Auth\Adapter\Basic\Db"/>
 
-            <oidc enabled="0" use="Micro\Auth\Adapter\Oidc">
+            <adapter enabled="0" m:name="oidc" use="Micro\Auth\Adapter\Oidc">
                 <options>
                     <config>
                         <provider_url>https://openidconnect.example.net</provider_url>
                     </config>
                 </options>
-            </oidc>
+            </adapter>
 
-            <preauth enabled="0" use="Micro\Auth\Adapter\Preauth">
+            <adapter enabled="0" m:name="preauth" use="Micro\Auth\Adapter\Preauth">
                 <options>
                     <config>
                         <key>random_pre_auth_key</key>
@@ -242,28 +251,30 @@
                             <lan>192.168.1.0/24</lan>
                             <localhost>127.0.10.1</localhost>
                         </source>
+                        <!--<ldap inherits="auth.adapter.basic_ldap.config.ldap"/>
+                        <map inherits="auth.adapter.basic_ldap.config.map"/>-->
                         <account_filter>(uid=%s)</account_filter>
                         <attr_sync_cache>3600</attr_sync_cache>
                     </config>
                 </options>
-            </preauth>
+            </adapter>
 
-            <basic_ldap enabled="1" use="Micro\Auth\Adapter\Basic\Ldap">
+            <adapter enabled="0" m:name="basic_ldap" use="Micro\Auth\Adapter\Basic\Ldap">
                 <service>
-                    <ldap m:name="Micro\Ldap">
+                    <service m:name="Micro\Ldap">
                         <options>
                             <config>
-                                <uri>ldap://ldap.example.org:389</uri>
+                                <uri>ldap://localhost:389</uri>
                                 <basedn>dc=example,dc=org</basedn>
-                                <username>uid=bind,dc=example,dc=org</username>
-                                <password>1234</password>
+                                <binddn>cn=admin,dc=example,dc=org</binddn>
+                                <bindpw>1234</bindpw>
                                 <tls>1</tls>
                                 <options>
                                     <option attr="LDAP_OPT_PROTOCOL_VERSION" value="3"/>
                                 </options>
                             </config>
                         </options>
-                    </ldap>
+                    </service>
                 </service>
 
                 <options>
@@ -281,8 +292,8 @@
                         </map>
                     </config>
                 </options>
-            </basic_ldap>
+            </adapter>
         </adapter>
-    </auth>
+    </service>
 </production>
 </config>
