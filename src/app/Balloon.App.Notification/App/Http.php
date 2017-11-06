@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\App;
 
-use Balloon\App\Notification\App;
+use Balloon\App\AppInterface;
 use Psr\Log\LoggerInterface;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 use Balloon\App\Notification\Api\v1\Notification as Api;
 
-class Http extends App
+class Http implements AppInterface
 {
     /**
      * Constructor
@@ -27,9 +27,8 @@ class Http extends App
      * @param Router $router
      * @param Iterable $config
      */
-    public function __construct(LoggerInterface $logger, Router $router,  ?Iterable $config=null)
+    public function __construct(Router $router)
     {
-        parent::__construct($logger, $config);
         $router
             ->prependRoute(new Route('/api/v1/user/notification', Api::class))
             ->prependRoute(new Route('/api/v1/user/{id:#([0-9a-z]{24})#}/notification', Api::class));

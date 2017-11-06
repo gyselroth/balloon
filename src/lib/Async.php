@@ -91,13 +91,22 @@ class Async
      *
      * @return bool
      */
-    public function addJobOnce(string $class, array $data): bool
+    public function addJobOnce(string $class, array $data, bool $ignore_status=false, ?UTCDateTime $since=null): bool
     {
-        $result = $this->db->queue->findOne([
+        $options =[
             'class' => $class,
             'data'=> $data,
-            'status' => self::STATUS_WAITING,
-        ]);
+        ];
+
+        if($ignore_status === false) {
+            $options['status'] = self::STATUS_WAITING;
+        }
+
+        if($since !== null) {
+            $options['timestamp'] = ['$gt' => $since];
+        }
+
+        $result = $this->db->queue->findOne($options);
 
         if($result === null) {
             return $this->addJob($class, $data);
@@ -110,6 +119,7 @@ class Async
             return true;
         }
     }
+
 
     /**
      * Get cursor.

@@ -26,7 +26,7 @@ use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Http\Router\Route;
 use Micro\Http\Router;
 
-class Http extends App
+class Http implements AppInterface
 {
     /**
      * Lolaflet.

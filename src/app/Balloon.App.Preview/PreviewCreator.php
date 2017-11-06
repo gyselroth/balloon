@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Preview\App;
+namespace Balloon\App\Preview;
 
 use Balloon\Converter;
 use Balloon\App\Preview\App;
@@ -20,7 +20,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
-class Cli extends App
+class PreviewCreator extends Preview
 {
     /**
      * Preview image format.
@@ -72,14 +72,14 @@ class Cli extends App
                     'category' => get_class($this),
                 ]);
 
-                $file->setAppAttribute($this, 'preview', $found['_id']);
+                $file->setAppAttribute(__NAMESPACE__, 'preview', $found['_id']);
 
                 return $found['_id'];
             }
 
             return $this->storePreview($file, $result);
         } catch (\Exception $e) {
-            $file->unsetAppAttribute($this, 'preview');
+            $file->unsetAppAttribute(__NAMESPACE__, 'preview');
 
             throw $e;
         }
@@ -109,7 +109,7 @@ class Cli extends App
             fwrite($stream, $content->getContents());
             fclose($stream);
 
-            $file->setAppAttribute($this, 'preview', $id);
+            $file->setAppAttribute(__NAMESPACE__, 'preview', $id);
 
             $this->logger->info('stored new preview ['.$id.'] for file ['.$file->getId().']', [
                 'category' => get_class($this),

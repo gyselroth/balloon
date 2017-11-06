@@ -14,7 +14,6 @@ namespace Balloon\App\ClamAv;
 
 use Balloon\Async\AbstractJob;
 use Balloon\Server;
-use Balloon\App\ClamAv\App\Cli as App;
 
 class Job extends AbstractJob
 {
@@ -38,9 +37,9 @@ class Job extends AbstractJob
      * @param App    $app
      * @param Server $server
      */
-    public function __construct(App $app, Server $server)
+    public function __construct(Scanner $scanner, Server $server)
     {
-        $this->app = $app;
+        $this->scanner = $scanner;
         $this->fs = $server->getFilesystem();
     }
 
@@ -52,9 +51,9 @@ class Job extends AbstractJob
     public function start(): bool
     {
         $file = $this->fs->findNodeWithId($this->data['id']);
-        $result = $this->app->scan($file);
+        $result = $this->scanner->scan($file);
         $infected = Cli::FILE_INFECTED === $result;
-        $this->app->handleFile($file, $infected);
+        $this->scanner->handleFile($file, $infected);
 
         return true;
     }

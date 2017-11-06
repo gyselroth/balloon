@@ -18,7 +18,7 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
 use Balloon\Hook\HookInterface;
 use Balloon\Resource;
-use Balloon\App\Notification\App as Notification;
+use Balloon\App\Notifier;
 use Balloon\Server;
 use Zend\Mail\Message;
 use MongoDB\BSON\ObjectId;
@@ -64,11 +64,11 @@ class NewShareAdded extends AbstractHook
      * @param Notification $notifier
      * @param Server $server
      */
-    public function __construct(Notification $notifier, Server $server)
+    public function __construct(Notifier $notifier, Server $server, ?Iterable $config=null)
     {
         $this->notifier = $notifier;
         $this->server = $server;
-        $this->setOptions($notifier->getNotificationConfig($this));
+        $this->setOptions($config);
     }
 
 
@@ -90,6 +90,8 @@ class NewShareAdded extends AbstractHook
                 case 'subject':
                     $this->{$option} = (string)$value;
                 break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
             }
         }
 

@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace Balloon;
 
 use Balloon\Hook\Delta;
+use Balloon\Hook\CleanTrash;
+use Balloon\Hook\AutoDestroy;
 use Balloon\Hook\Exception;
 use Balloon\Hook\HookInterface;
 use Micro\Container\AdapterAwareInterface;
@@ -25,6 +27,8 @@ class Hook implements AdapterAwareInterface
      */
     const DEFAULT_ADAPTER = [
         Delta::class => [],
+        CleanTrash::class => [],
+        AutoDestroy::class => [],
     ];
 
     /**
@@ -152,6 +156,16 @@ class Hook implements AdapterAwareInterface
         }
 
         return true;
+    }
+
+    /**
+     * Get default adapter
+     *
+     * @return array
+     */
+    public function getDefaultAdapter(): array
+    {
+        return self::DEFAULT_ADAPTER;
     }
 
     /**

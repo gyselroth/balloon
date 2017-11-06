@@ -47,6 +47,16 @@ class Storage implements AdapterAwareInterface
     }
 
     /**
+     * Get default adapter
+     *
+     * @return array
+     */
+    public function getDefaultAdapter(): array
+    {
+        return self::DEFAULT_ADAPTER;
+    }
+
+    /**
      * Has adapter.
      *
      * @param string $name

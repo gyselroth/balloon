@@ -42,43 +42,11 @@ return [
             ],
         ],
     ],
-    Storage::class => [
-        'adapter' => [
-            'gridfs' => [
-                'use' => Gridfs::class,
-            ],
-        ],
-    ],
-    Converter::class => [
-        'adapter' => Converter::DEFAULT_ADAPTER,
-    ],
-    Hook::class => [
-        'adapter' => Hook::DEFAULT_ADAPTER,
-    ],
     Auth::class => [
         'adapter' => [
             'basic_db' => [
                 'use' => Db::class,
             ],
-        ],
-    ],
-    App::class => [
-       'service' => [
-            'Balloon\App\Notification\App' => [
-                'adapter' => [
-                    'Balloon\\App\\Notification\\Adapter\\Mail' => [],
-                    'Balloon\\App\\Notification\\Adapter\\Db' => []
-                ]
-            ],
-            'Balloon\App\Office\App' => [
-                'enabled' => 0
-            ],
-            'Balloon\App\Elasticsearch\App' => [
-                'enabled' => 0
-            ],
-            'Balloon\App\ClamAv\App' => [
-                'enabled' => 0
-            ]
         ],
     ],
 ];

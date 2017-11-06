@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
 use Balloon\App\Notification\Adapter\Mail;
 use Balloon\App\Notification\Adapter\Db;
 
-class App extends AbstractApp implements AdapterAwareInterface
+class Notifier implements AdapterAwareInterface
 {
     /**
      * Notifications.
@@ -56,16 +56,6 @@ class App extends AbstractApp implements AdapterAwareInterface
         Db::class => []
     ];
 
-
-    /**
-     * Default notifications
-     *
-     * @var array
-     */
-    const DEFAULT_NOTIFICATIONS = [
-        NewShareAdded::class
-    ];
-
     /**
      * Constructor
      *
@@ -76,13 +66,6 @@ class App extends AbstractApp implements AdapterAwareInterface
     {
         $this->logger = $logger;
         $this->setOptions($config);
-    }
-
-
-
-    public function getNotificationConfig()
-    {
-        return [];
     }
 
 
@@ -98,50 +81,23 @@ class App extends AbstractApp implements AdapterAwareInterface
         if (null === $config) {
             return $this;
         }
-/*
-        if (isset($config['notifications'])) {
-            foreach ($config['notifications'] as $name => $notify) {
-                if ('1' === $notify['enabled']) {
-                    $this->logger->info('enabled mail notification ['.$name.']', [
-                        'category' => get_class($this),
-                    ]);
 
-                    $this->notifications[$name] = $this->defaults[$name];
-
-                    if (!isset($notify['config'])) {
-                        continue;
-                    }
-
-                    foreach ($notify['config'] as $option => $value) {
-                        switch ($option) {
-                            case 'body':
-                            case 'subject':
-                                $this->notifications[$name][$option] = $value;
-
-                                break;
-                        }
-                    }
-                } else {
-                    $this->logger->debug('skip disabled mail notification ['.$name.']', [
-                        'category' => get_class($this),
-                    ]);
-                }
-            }
+        foreach($config as $adapter) {
+            $this->injectAdapter($adapter);
         }
-*/
+
         return $this;
     }
 
 
     /**
-     * Get hooks
+     * Get default adapter
      *
      * @return array
      */
-    public function getHooks(): array
+    public function getDefaultAdapter(): array
     {
-        return self::DEFAULT_NOTIFICATIONS;
-        return array_keys($this->notifications);
+        return self::DEFAULT_ADAPTER;
     }
 
 

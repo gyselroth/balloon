@@ -482,7 +482,7 @@ class File extends Node
                 return (new Response())->setCode(200)->setBody($result);
             }
             if (null === $p && null === $id && null !== $name) {
-                $collection = $this->_getNode($collection, null, 'Collection', false, true);
+                $collection = $this->_getNode($collection, null, Collection::class, false, true);
 
                 if ($collection->childExists($name)) {
                     $child = $collection->getChild($name);
@@ -515,7 +515,7 @@ class File extends Node
                 $name = basename($p);
 
                 try {
-                    $parent = $this->fs->findNodeWithPath($parent_path, 'Collection');
+                    $parent = $this->fs->findNodeWithPath($parent_path, Collection::class);
 
                     if (!is_string($name) || empty($name)) {
                         throw new Exception\InvalidArgument('name must be a valid string');

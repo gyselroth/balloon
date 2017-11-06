@@ -1004,9 +1004,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function setAppAttributes(AppInterface $app, array $attributes): NodeInterface
+    public function setAppAttributes(string $namespace, array $attributes): NodeInterface
     {
-        $this->app_attributes[$app->getName()] = $attributes;
+        $this->app_attributes[$namespace] = $attributes;
         $this->save('app_attributes');
 
         return $this;
@@ -1021,13 +1021,13 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function setAppAttribute(AppInterface $app, string $attribute, $value): NodeInterface
+    public function setAppAttribute(string $namespace, string $attribute, $value): NodeInterface
     {
-        if (!isset($this->app_attributes[$app->getName()])) {
-            $this->app_attributes[$app->getName()] = [];
+        if (!isset($this->app_attributes[$namespace])) {
+            $this->app_attributes[$namespace] = [];
         }
 
-        $this->app_attributes[$app->getName()][$attribute] = $value;
+        $this->app_attributes[$namespace][$attribute] = $value;
         $this->save('app_attributes');
 
         return $this;
@@ -1040,10 +1040,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function unsetAppAttributes(AppInterface $app): NodeInterface
+    public function unsetAppAttributes(string $namespace): NodeInterface
     {
-        if (isset($this->app_attributes[$app->getName()])) {
-            unset($this->app_attributes[$app->getName()]);
+        if (isset($this->app_attributes[$namespace])) {
+            unset($this->app_attributes[$namespace]);
             $this->save('app_attributes');
         }
 
@@ -1058,10 +1058,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function unsetAppAttribute(AppInterface $app, string $attribute): NodeInterface
+    public function unsetAppAttribute(string $namespace, string $attribute): NodeInterface
     {
-        if (isset($this->app_attributes[$app->getName()], $this->app_attributes[$app->getName()][$attribute])) {
-            unset($this->app_attributes[$app->getName()][$attribute]);
+        if (isset($this->app_attributes[$namespace][$attribute])) {
+            unset($this->app_attributes[$namespace][$attribute]);
             $this->save('app_attributes');
         }
 
@@ -1076,10 +1076,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return mixed
      */
-    public function getAppAttribute(AppInterface $app, string $attribute)
+    public function getAppAttribute(string $namespace, string $attribute)
     {
-        if (isset($this->app_attributes[$app->getName()], $this->app_attributes[$app->getName()][$attribute])) {
-            return $this->app_attributes[$app->getName()][$attribute];
+        if (isset($this->app_attributes[$namespace][$attribute])) {
+            return $this->app_attributes[$namespace][$attribute];
         }
 
         return null;
@@ -1092,10 +1092,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return array
      */
-    public function getAppAttributes(AppInterface $app): array
+    public function getAppAttributes(string $namespace): array
     {
-        if (isset($this->app_attributes[$app->getName()])) {
-            return $this->app_attributes[$app->getName()];
+        if (isset($this->app_attributes[$namespace])) {
+            return $this->app_attributes[$namespace];
         }
 
         return [];

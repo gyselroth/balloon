@@ -21,11 +21,11 @@ use MongoDB\GridFS\Exception\FileNotFoundException;
 class Hook extends AbstractHook
 {
     /**
-     * App.
+     * Preview
      *
-     * @var App
+     * @var Preview
      */
-    protected $app;
+    protected $preview;
 
     /**
      * Async.
@@ -40,9 +40,9 @@ class Hook extends AbstractHook
      * @param App   $app
      * @param Async $async
      */
-    public function __construct(App $app, Async $async)
+    public function __construct(Preview $preview, Async $async)
     {
-        $this->app = $app;
+        $this->preview = $preview;
         $this->async = $async;
     }
 
@@ -60,7 +60,7 @@ class Hook extends AbstractHook
     {
         if (true === $force) {
             try {
-                $this->app->deletePreview($node);
+                $this->preview->deletePreview($node);
             } catch (FileNotFoundException $e) {
                 $this->logger->debug('could not remove preview from file ['.$node->getId().'], preview does not exists', [
                     'category' => get_class($this),

@@ -25,11 +25,11 @@ class Job extends AbstractJob
     protected $fs;
 
     /**
-     * App.
+     * Preview
      *
-     * @var App
+     * @var PreviewCreator
      */
-    protected $app;
+    protected $preview;
 
     /**
      * Constructor.
@@ -37,9 +37,9 @@ class Job extends AbstractJob
      * @param App    $app
      * @param Server $server
      */
-    public function __construct(App $app, Server $server)
+    public function __construct(PreviewCreator $preview, Server $server)
     {
-        $this->app = $app;
+        $this->preview = $preview;
         $this->fs = $server->getFilesystem();
     }
 
@@ -51,7 +51,7 @@ class Job extends AbstractJob
     public function start(): bool
     {
         $file = $this->fs->findNodeWithId($this->data['id']);
-        $this->app->createPreview($file);
+        $this->preview->createPreview($file);
 
         return true;
     }

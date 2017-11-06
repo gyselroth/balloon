@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\App;
 
-use Balloon\App\AbstractApp;
+use Balloon\App\AppInterface;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
 use Micro\Auth;
@@ -20,7 +20,7 @@ use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
-class Http extends AbstractApp
+class Http implements AppInterface
 {
     /**
      * Router.

@@ -69,14 +69,32 @@ class Converter implements AdapterAwareInterface
     public function setOptions(? Iterable $config = null): Converter
     {
         if (null === $config) {
-            $config = [];
+            return $this;
         }
 
         foreach ($config as $option => $value) {
-            $this->injectAdapter($value);
+            switch($option) {
+                case 'adapter':
+                    foreach($value as $name => $adapter) {
+                        $this->injectAdapter($name, $value);
+                    }
+                break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * Get default adapter
+     *
+     * @return array
+     */
+    public function getDefaultAdapter(): array
+    {
+        return self::DEFAULT_ADAPTER;
     }
 
     /**

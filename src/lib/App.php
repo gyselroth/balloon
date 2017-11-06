@@ -92,14 +92,6 @@ class App implements AdapterAwareInterface
      */
     public function registerApp(Container $container, string $name, string $class, ?Iterable $config = null): bool
     {
-        if (!class_exists($class)) {
-            $this->logger->debug('skip non-existent initialize class ['.$class.'] from app ['.$name.']', [
-                 'category' => get_class($this),
-            ]);
-
-            return false;
-        }
-
         if ($this->hasApp($name)) {
             throw new Exception('app '.$name.' is already registered');
         }
@@ -247,6 +239,16 @@ class App implements AdapterAwareInterface
     }
 
     /**
+     * Get default adapter
+     *
+     * @return array
+     */
+    public function getDefaultAdapter(): array
+    {
+        return [];
+    }
+
+    /**
      * Has adapter.
      *
      * @param string $name
@@ -268,7 +270,12 @@ class App implements AdapterAwareInterface
      */
     public function injectAdapter(string $name, AppInterface $adapter): App
     {
-        return $this->injectApp($adapter);
+        if(isset($this->apps[$name])) {
+            throw new Exception('app '.$name.' is already registered');
+        }
+
+        $this->apps[$name] = $adapter;
+        return $this;
     }
 
     /**

@@ -20,7 +20,7 @@ use Balloon\Exception;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 use Balloon\Server;
-use Balloon\App\Office\App;
+use Balloon\App\Office\App\Http as App;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\Collection;
 

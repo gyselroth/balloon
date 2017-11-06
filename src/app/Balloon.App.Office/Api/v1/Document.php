@@ -19,7 +19,7 @@ use Balloon\Server\User;
 use Micro\Http\Response;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\App\Office\App;
+use Balloon\App\Office\App\Http As App;
 use Balloon\Server;
 
 class Document extends Controller

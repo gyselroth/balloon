@@ -10,9 +10,8 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\ClamAv\App;
+namespace Balloon\App\ClamAv;
 
-use Balloon\App\AppInterface;
 use Balloon\Filesystem\Node\File;
 use Balloon\App\ClamAv\App;
 use Socket\Raw\Factory as SocketFactory;
@@ -20,7 +19,7 @@ use Xenolope\Quahog\Client as ClamAv;
 use Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
 use Psr\Log\LoggerInterface;
 
-class Cli extends App
+class Scanner
 {
     /**
      * States.
@@ -195,11 +194,11 @@ class Cli extends App
                 case 0:
                     break;
                 case 1:
-                    $file->setAppAttribute($this, 'quarantine', true);
+                    $file->setAppAttribute(__NAMESPACE__, 'quarantine', true);
 
                     break;
                 case 2:
-                    $file->setAppAttribute($this, 'quarantine', true);
+                    $file->setAppAttribute(__NAMESPACE__, 'quarantine', true);
                     $file->delete();
 
                     break;
@@ -210,7 +209,7 @@ class Cli extends App
                     break;
             }
         } else {
-            $file->setAppAttribute($this, 'quarantine', false);
+            $file->setAppAttribute(__NAMESPACE__, 'quarantine', false);
         }
 
         return true;

@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Convert\Api\v1;
 
 use Balloon\Api\Controller;
-use Balloon\App\Convert\App;
+use Balloon\App\Convert\App\Http As App;
 use Balloon\App\Convert\Exception;
 use Balloon\App\Convert\Job;
 use Balloon\Async;
@@ -24,13 +24,6 @@ use Balloon\Filesystem\Node\File;
 
 class Convert extends Controller
 {
-    /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
     /**
      * Converter.
      *
@@ -51,10 +44,9 @@ class Convert extends Controller
      * @param App       $app
      * @param Converter $converter
      */
-    public function __construct(App $app, Converter $converter, Server $server, Async $async)
+    public function __construct(Converter $converter, Server $server, Async $async)
     {
         $this->fs  = $server->getFilesystem();
-        $this->app = $app;
         $this->converter = $converter;
         $this->async = $async;
     }
@@ -105,7 +97,7 @@ class Convert extends Controller
     public function getShadow(?string $id = null, ?string $p = null): Response
     {
         $file = $this->fs->getNode($id, $p, File::class);
-        $shadow = $file->getAppAttribute($this->app, 'formats');
+        $shadow = $file->getAppAttribute('Balloon\\App\\Convert', 'formats');
 
         return (new Response())->setCode(200)->setBody((array) $shadow);
     }
@@ -115,7 +107,7 @@ class Convert extends Controller
         $file = $this->fs->getNode($id, $p, File::class);
         $supported = $this->converter->getSupportedFormats($file);
 
-        $shadow = $file->getAppAttribute($this->app, 'formats');
+        $shadow = $file->getAppAttribute('Balloon\\App\\Convert', 'formats');
         if (null === $shadow) {
             $shadow = [];
         }
@@ -131,7 +123,7 @@ class Convert extends Controller
             ]);
         }
 
-        $file->setAppAttribute($this->app, 'formats', $formats);
+        $file->setAppAttribute('Balloon\\App\\Convert', 'formats', $formats);
 
         return (new Response())->setCode(204);
     }

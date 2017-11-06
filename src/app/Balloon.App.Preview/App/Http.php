@@ -13,24 +13,21 @@ declare(strict_types=1);
 namespace Balloon\App\Preview\App;
 
 use Balloon\App\Preview\Api\v1\Preview;
-use Balloon\App\Preview\App;
+use Balloon\App\AppInterface;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
-class Http extends App
+class Http implements AppInterface
 {
     /**
      * Constructor.
      *
      * @param Router $router
-     * @param Hook   $hook
      */
-    public function __construct(Database $db, LoggerInterface $logger, Router $router)
+    public function __construct(Router $router)
     {
-        parent::__construct($db, $logger);
-
         $router
             ->prependRoute(new Route('/api/v1/file/preview', Preview::class))
             ->prependRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}/preview', Preview::class));

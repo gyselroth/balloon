@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace Balloon\App\Webdav\App;
 
-use Balloon\App\AbstractApp;
+use Balloon\App\AppInterface;
 use Balloon\Server;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 use Sabre\DAV;
 
-class Http extends AbstractApp
+class Http implements AppInterface
 {
     /**
      * Server.

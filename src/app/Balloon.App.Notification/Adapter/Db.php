@@ -19,19 +19,18 @@ use Balloon\App\Notification\App;
 
 class Db implements AdapterInterface
 {
-    public function __construct(/*App $app,*/ LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger)
     {
-        //$this->app = $app;
         $this->logger = $logger;
     }
 
     public function notify(array $receiver, string $subject, string $body, array $context=[]): bool
     {
         foreach ($receiver as $rec) {
-            /*$receive->setAppAttribute($this->app, 'notification', [
+            $receive->setAppAttribute('Balloon\\App\\Notification', 'notification', [
                 'subject' => $subject,
                 'body'    => $body,
-            ]);*/
+            ]);
         }
 
         return true;

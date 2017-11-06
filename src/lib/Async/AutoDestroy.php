@@ -10,33 +10,36 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\AutoDestroy;
+namespace Balloon\Async;
 
-use Balloon\App\AbstractApp;
-use Balloon\Exception;
+use Balloon\Async\AbstractJob;
+use Balloon\App\AppInterface;
 use MongoDB\BSON\UTCDateTime;
+use Balloon\Server;
+use Psr\Log\LoggerInterface;
 
-class Cli extends AbstractApp
+class AutoDestroy extends AbstractJob
 {
     /**
-     * Server.
+     * Server
      *
      * @var Server
      */
     protected $server;
 
     /**
-     * Logger.
+     * Logger
      *
      * @var LoggerInterface
      */
     protected $logger;
 
+
     /**
-     * Constructor.
+     * Constructor
      *
-     * @param Router $router
-     * @param Hook   $hook
+     * @param Server $server
+     * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)
     {
@@ -44,8 +47,11 @@ class Cli extends AbstractApp
         $this->logger = $logger;
     }
 
+
     /**
      * Start.
+     *
+     * @return bool
      */
     public function start(): bool
     {
@@ -60,7 +66,5 @@ class Cli extends AbstractApp
                 ]);
             }
         }
-
-        return true;
     }
 }

@@ -20,9 +20,9 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
 * CORE: [FEATURE] console can now be executed with command parameters
 * CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchonosuly executed non-stop #56
-* CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks which are now part of new core apps #20
+* CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks #20
 * CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converted is now useable to converty anything to anything
-* CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/config.dist.xml #59
+* CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/example.config.xml #59
 * CORE: [CHANGE] No more BSONDocument, all cursor get mapped to arrays
 * CORE: [CHANGE] Sharlink is now an entirely removed from the core and operates as an own app Balloon.App.Sharelink
 * CORE: [CHANGE] Preview is now an entirely removed from the core and operates as an own app Balloon.App.Preview
@@ -42,6 +42,8 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [FEATURE] Added various db delta upgrade scripts from v1 => v2
 * CORE: [CHANGE] Implemented \Micro\Container (dependency injection container) which results in various simpler dependencies of some classes
 * CORE: [FEATURE] It is now possible to configure via environement variables besides config file (\Micro\Config\Environment) which makes it more useable for cloud native
+* CORE: [FEATURE] Every setOptions() call now throws an exception if an invalid configuration has been configured
+* CORE: [CHANGE] config.xml is now a service based configuration, each class can be dynamically configured (dependency injection container configuration)
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
@@ -52,13 +54,13 @@ Next major release v2, includes various new features and core changes. The API i
 * API: [CHANGE] Removed attribute history from GET /file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
 * API: [FEATURE] New api endpoints provided by Balloon.App.Convert
-* UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-desktop
+* UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 
---
-1.0.16 - Raffael Sahli <sahli@gyselroth.com>
-Tue Sept 28 14:35:32 CEST 2017
---
+## 1.0.16
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Sept 28 14:35:32 CEST 20170
+
 API: [FIX] POST /node/move can not move a node into a shared mailbox collection which holds a node with the same name #75 
 API: [FIX] PUT /file returns Exception\Conflict with code 19 instead Exception\Forbidden code 40 if a file gets uploaded into a shared mailbox collection and the collection already holds a node with the same name #75
 API: [FIX] PUT /file and POST /collection now create a node within a writeonly collection without a Exception\Forbidden response, his feature (writeonly) is deprecated now and will get removed in v2, replacement is the newly (v1.x) introduced permission mailbox)

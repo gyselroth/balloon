@@ -19,13 +19,6 @@ use Balloon\Hook\AbstractHook;
 class Hook extends AbstractHook
 {
     /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
-    /**
      * Async.
      *
      * @var Async
@@ -35,12 +28,10 @@ class Hook extends AbstractHook
     /**
      * Constructor.
      *
-     * @param App   $app
      * @param Async $async
      */
-    public function __construct(App $app, Async $async)
+    public function __construct(Async $async)
     {
-        $this->app = $app;
         $this->async = $async;
     }
 
@@ -79,7 +70,7 @@ class Hook extends AbstractHook
      */
     protected function addJob(File $node): void
     {
-        $shadow = $node->getAppAttribute($this->app, 'shadow');
+        $shadow = $node->getAppAttribute(__NAMESPACE__, 'shadow');
         if (null === $shadow) {
             return;
         }

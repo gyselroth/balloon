@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace Balloon\App\Convert\App;
 
 use Balloon\App\Convert\Api\v1\Convert;
-use Balloon\App\Convert\App;
+use Balloon\App\AppInterface;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
-class Http extends App
+class Http implements AppInterface
 {
     /**
      * Constructor.

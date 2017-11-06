@@ -15,16 +15,16 @@ namespace Balloon\App\Elasticsearch\Api\v1;
 use Balloon\Api\Controller;
 use Balloon\Exception;
 use Micro\Http\Response;
-use Balloon\App\Elasticsearch\App as App;
+use Balloon\App\Elasticsearch\Elasticsearch;
 
 class Search extends Controller
 {
     /**
-     * App
+     * Elasticsearch
      *
-     * @var App
+     * @var Elasticsearch
      */
-    protected $app;
+    protected $es;
 
 
     /**
@@ -32,9 +32,9 @@ class Search extends Controller
      *
      * @param App $app
      */
-    public function __construct(App $app)
+    public function __construct(Elasticsearch $es)
     {
-        $this->app = $app;
+        $this->es = $es;
     }
 
 
@@ -95,7 +95,7 @@ class Search extends Controller
     public function get(array $query, array $attributes = [], int $deleted = 0): Response
     {
         $children = [];
-        $nodes = $this->app->search($query, $deleted);
+        $nodes = $this->es->search($query, $deleted);
 
         foreach ($nodes as $node) {
             try {

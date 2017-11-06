@@ -219,16 +219,16 @@ class Controller
         bool $allow_root = false,
         int $deleted = 2
     ): NodeInterface {
-        switch(get_class($this)) {
-            case FileController::class:
-                $class = File::class;
-            break;
-            case CollectionController::class:
-                $class = Collection::class;
-            break;
-            default:
-                $class = null;
-            break;
+
+        if($class === null) {
+            switch(get_class($this)) {
+                case FileController::class:
+                    $class = File::class;
+                break;
+                case CollectionController::class:
+                    $class = Collection::class;
+                break;
+            }
         }
 
         return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);

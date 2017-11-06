@@ -19,7 +19,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
-class App extends AbstractApp
+class Preview
 {
     /**
      * Logger.
@@ -47,12 +47,6 @@ class App extends AbstractApp
         $this->logger = $logger;
     }
 
-    public function getHooks(): array
-    {
-        return [
-            Hook::class,
-        ];
-    }
 
     /**
      * Get preview.
@@ -61,7 +55,7 @@ class App extends AbstractApp
      */
     public function getPreview(File $file): string
     {
-        $preview = $file->getAppAttribute($this, 'preview');
+        $preview = $file->getAppAttribute(__NAMESPACE__, 'preview');
         if ($preview instanceof ObjectId) {
             try {
                 $stream = $this->db->selectGridFSBucket(['bucketName' => 'thumbnail'])
@@ -103,7 +97,7 @@ class App extends AbstractApp
         $bucket = $this->db->selectGridFSBucket(['bucketName' => 'thumbnail']);
 
         try {
-            $preview = $file->getAppAttribute($this, 'preview');
+            $preview = $file->getAppAttribute(__NAMESPACE__, 'preview');
             if ($preview instanceof ObjectId) {
                 $references = $this->db->{'thumbnail.files'}->count([
                     'apps' => [$this->getName() => ['preview' => $preview]],

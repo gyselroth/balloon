@@ -12,21 +12,15 @@ declare(strict_types=1);
 
 namespace Balloon\Console;
 
-use Balloon\App;
+use Balloon\Hook;
 use Balloon\Async as AsyncQueue;
 use GetOpt\GetOpt;
+use GetOpt\Option;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 class Async implements ConsoleInterface
 {
-    /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
     /**
      * Logger.
      *
@@ -56,15 +50,22 @@ class Async implements ConsoleInterface
     protected $container;
 
     /**
+     * Hook
+     *
+     * @var Hook
+     */
+    protected $hook;
+
+    /**
      * Constructor.
      *
      * @param App   $app
      * @param Async $async
      */
-    public function __construct(App $app, AsyncQueue $async, LoggerInterface $logger, ContainerInterface $container, GetOpt $getopt)
+    public function __construct(Hook $hook, AsyncQueue $async, LoggerInterface $logger, ContainerInterface $container, GetOpt $getopt)
     {
-        $this->app = $app;
         $this->async = $async;
+        $this->hook = $hook;
         $this->logger = $logger;
         $this->getopt = $getopt;
         $this->async = $async;
@@ -80,8 +81,8 @@ class Async implements ConsoleInterface
     public function setOptions(): ConsoleInterface
     {
         $this->getopt->addOptions([
-            \GetOpt\Option::create('q', 'queue'),
-            \GetOpt\Option::create('d', 'daemon'),
+            Option::create('q', 'queue'),
+            Option::create('d', 'daemon'),
         ]);
 
         return $this;
@@ -104,12 +105,10 @@ class Async implements ConsoleInterface
             $this->fireupDaemon();
         } else {
             if (null !== $this->getopt->getOption('queue')) {
+                $this->hook->run('preExecuteAsyncJobs');
                 $cursor = $this->async->getCursor(false);
                 $this->async->start($cursor, $this->container);
-            }
-
-            foreach ($this->app->getApps() as $app) {
-                $app->start();
+                $this->hook->run('postExecuteAsyncJobs');
             }
         }
 
@@ -129,9 +128,13 @@ class Async implements ConsoleInterface
 
         $cursor = $this->async->getCursor(true);
         while (true) {
+            $this->hook->run('preExecuteAsyncJobs');
+
             if (null !== $this->getopt->getOption('queue')) {
                 $this->async->start($cursor, $this->container);
             }
+
+            $this->hook->run('postExecuteAsyncJobs');
         }
 
         return true;

@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink\App;
 
-use Balloon\App\AbstractApp;
+use Balloon\App\AppInterface;
 use Balloon\App\Sharelink\Api\v1\ShareLink;
 use Balloon\Exception;
 use Balloon\Filesystem;
@@ -27,7 +27,7 @@ use Micro\Http\Response;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
-class Http extends AbstractApp
+class Http implements AppInterface
 {
     /**
      * Filesystem.
@@ -46,14 +46,14 @@ class Http extends AbstractApp
             ->prependRoute(new Route('/api/v1/(node|file|collection)/share-link', ShareLink::class))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
 
-        /*$hook->injectHook(new class() extends AbstractHook {
+        $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
                 if (preg_match('#^/index.php/share#', $_SERVER['ORIG_SCRIPT_NAME'])) {
                     $auth->injectAdapter('none', (new AuthNone()));
                 }
             }
-        });*/
+        });
 
         $this->fs = $server->getFilesystem();
     }
@@ -105,7 +105,7 @@ class Http extends AbstractApp
 
         $share = false;
         if (!array_key_exists('shared', $set)) {
-            if (0 === count($node->getAppAttributes($this))) {
+            if (0 === count($node->getAppAttributes('Balloon\\App\\Sharelink'))) {
                 $share = true;
             }
         } else {
@@ -117,9 +117,9 @@ class Http extends AbstractApp
         }
 
         if (true === $share) {
-            $node->setAppAttributes($this, $set);
+            $node->setAppAttributes('Balloon\\App\\Sharelink', $set);
         } else {
-            $node->unsetAppAttributes($this);
+            $node->unsetAppAttributes('Balloon\\App\\Sharelink');
         }
 
         return true;
@@ -134,7 +134,7 @@ class Http extends AbstractApp
      */
     public function getShareLink(NodeInterface $node): array
     {
-        return $node->getAppAttributes($this);
+        return $node->getAppAttributes('Balloon\\App\\Sharelink');
     }
 
     /**
@@ -159,7 +159,7 @@ class Http extends AbstractApp
      */
     public function isShareLink(NodeInterface $node): bool
     {
-        return 0 !== count($node->getAppAttributes($this));
+        return 0 !== count($node->getAppAttributes('Balloon\\App\\Sharelink'));
     }
 
     /**
@@ -176,7 +176,7 @@ class Http extends AbstractApp
             'deleted' => false,
         ]);
 
-        $attributes = $node->getAppAttributes($this);
+        $attributes = $node->getAppAttributes('Balloon\\App\\Sharelink');
 
         if ($attributes['token'] !== $token) {
             throw new Exception('token do not match');
@@ -209,7 +209,7 @@ class Http extends AbstractApp
 
             try {
                 $node = $this->findNodeWithShareToken($token);
-                $share = $node->getAppAttributes($this);
+                $share = $node->getAppAttributes('Balloon\\App\\Sharelink');
 
                 if (array_key_exists('password', $share)) {
                     $valid = false;

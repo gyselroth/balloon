@@ -114,7 +114,11 @@ abstract class AbstractBootstrap
                 $options = $config['config'];
             }
 
-            $manager->registerApp($this->container, $name, $config['use'], $options);
+            if(isset($config['enabled']) && $config['enabled'] == 0) {
+                continue;
+            }
+
+            //$manager->registerApp($this->container, $name, $config['use'], $options);
         }
 
         return $this;
@@ -141,6 +145,10 @@ abstract class AbstractBootstrap
 
             if(!isset($this->config[App::class]['adapter'][$name])) {
                 $this->config[App::class]['adapter'][$name] = new Config();
+            }
+
+            if(file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
+                $this->config->inject(new \Micro\Config\Struct(require_once $app.DIRECTORY_SEPARATOR.'.container.config.php'));
             }
         }
 

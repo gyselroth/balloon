@@ -45,7 +45,7 @@ if (extension_loaded('apc') && apc_exists('config')) {
     $config->inject(new Environment('balloon'));
 
     if (extension_loaded('apc')) {
-        apc_store('config', $config);
+        //apc_store('config', $config);
     }
 }
 

@@ -82,7 +82,7 @@ class Job extends AbstractJob
         $file->setFilesystem($this->server->getUserById($file->getOwner())->getFilesystem());
 
         try {
-            $shadows = $file->getAppAttribute($this->app, 'shadows');
+            $shadows = $file->getAppAttribute(__NAMESPACE__, 'shadows');
             if (is_array($shadows) && isset($shadows[$this->data['format']])) {
                 $shadow = $file->getFilesystem()->findNodeWithId($shadows[$format]);
                 $shadow->put($result->getPath());
@@ -116,7 +116,7 @@ class Job extends AbstractJob
             ],
         ]);
 
-        $file->setAppAttribute($this->app, 'shadows.'.$this->data['format'], $shadow->getId());
+        $file->setAppAttribute(__NAMESPACE__, 'shadows.'.$this->data['format'], $shadow->getId());
 
         return true;
     }
