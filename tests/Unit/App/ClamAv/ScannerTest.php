@@ -20,20 +20,20 @@ use Psr\Log\LoggerInterface;
 use Balloon\Server\User;
 use Balloon\Hook;
 use Balloon\Filesystem\Storage;
+use Balloon\App\ClamAv\Scanner;
+use MongoDB\BSON\ObjectId;
 
 /**
  * @coversNothing
  */
-class CliTest extends Test
+class ScannerTest extends Test
 {
-    protected $app;
-    protected $server;
+    protected $scanner;
 
     public function setUp()
     {
         $this->server = $this->getMockServer();
-        $factory = new Factory();
-        $this->app = new ClamAvApp($factory, $this->createMock(LoggerInterface::class));
+        $this->scanner = new Scanner($this->createMock(Factory::class), $this->createMock(LoggerInterface::class));
     }
 
     public function getFile()
@@ -52,10 +52,10 @@ class CliTest extends Test
         $file = $this->getFile();
 
         // execute SUT
-        $this->app->handleFile($file);
+        $this->scanner->handleFile($file);
 
         // assertion
-        $this->assertFalse($file->getAppAttribute($this->app, 'quarantine'));
+        $this->assertFalse($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
     }
 
     public function testHandleInfectedFileLevel1()
@@ -63,15 +63,15 @@ class CliTest extends Test
         $file = $this->getFile();
 
         // setup SUT
-        $this->app->setOptions([
+        $this->scanner->setOptions([
             'aggressiveness' => 1,
         ]);
 
         // execute SUT
-        $this->app->handleFile($file, true);
+        $this->scanner->handleFile($file, true);
 
         // assertion
-        $this->assertTrue($file->getAppAttribute($this->app, 'quarantine'));
+        $this->assertTrue($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
         $this->assertFalse($file->isDeleted());
     }
 
@@ -80,15 +80,15 @@ class CliTest extends Test
         $file = $this->getFile();
 
         // setup SUT
-        $this->app->setOptions([
+        $this->scanner->setOptions([
             'aggressiveness' => 2,
         ]);
 
         // execute SUT
-        $this->app->handleFile($file, true);
+        $this->scanner->handleFile($file, true);
 
         // assertion
-        $this->assertTrue($file->getAppAttribute($this->app, 'quarantine'));
+        $this->assertTrue($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
         $this->assertTrue($file->isDeleted());
     }
 
@@ -107,7 +107,7 @@ class CliTest extends Test
             ->getMock();
 
         // setup SUT
-        $this->app->setOptions([
+        $this->scanner->setOptions([
             'aggressiveness' => 3,
         ]);
 
@@ -117,6 +117,6 @@ class CliTest extends Test
             ->with($this->equalTo(true));
 
         // execute SUT
-        $this->app->handleFile($mockFile, true);
+        $this->scanner->handleFile($mockFile, true);
     }
 }

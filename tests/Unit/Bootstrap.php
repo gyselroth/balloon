@@ -23,3 +23,10 @@ set_include_path(implode(PATH_SEPARATOR, [
 ]));
 
 $composer = require './vendor/autoload.php';
+
+foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
+    $app = basename($app);
+    $ns = str_replace('.', '\\', $app).'\\';
+    $composer->addPsr4($ns, APPLICATION_PATH."/src/app/$app");
+}
+

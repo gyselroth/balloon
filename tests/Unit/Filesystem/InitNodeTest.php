@@ -28,10 +28,6 @@ class InitNodeTest extends Test
     {
         $server = $this->getMockServer();
         $this->fs = $server->getFilesystem();
-        //$this->fs = new Filesystem($server, $this->getMock(LogerInterface::class), $server->getIdentity(), $);
-        // setup reflection for protected method
-        $this->initNode = new ReflectionMethod(Filesystem::class, 'initNode');
-        $this->initNode->setAccessible(true);
     }
 
     public function testValid()
@@ -44,7 +40,7 @@ class InitNodeTest extends Test
         ];
 
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
 
         // assertion
         $this->assertSame($node->getRawAttributes(), $nodeData);
@@ -60,7 +56,7 @@ class InitNodeTest extends Test
         ];
 
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
     }
 
     public function testValidParent()
@@ -74,7 +70,7 @@ class InitNodeTest extends Test
         ];
 
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
 
         // assertion
         $this->assertSame($node->getRawAttributes(), $nodeData);
@@ -91,7 +87,7 @@ class InitNodeTest extends Test
             'parent' => new ObjectId(),
         ];
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
     }
 
     public function testInvalidParentId()
@@ -106,6 +102,6 @@ class InitNodeTest extends Test
         ];
 
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
     }
 }

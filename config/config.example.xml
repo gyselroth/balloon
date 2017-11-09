@@ -71,6 +71,7 @@
             <Webdav enabled="1" m:name="Balloon\App\Webdav\App"/>
             <Sharelink enabled="1" m:name="Balloon\App\Sharelink\App"/>
             <Convert enabled="1" m:name="Balloon\App\Convert\App"/>
+            <desktopClient enabled="1" m:name="Balloon\App\DesktopClient\App"/>
             <preview enabled="1" m:name="Balloon\App\Preview\App"/>
             <ClamAv enabled="0" m:name="Balloon\App\ClamAv\App"/>
             <notify enabled="1" m:name="Balloon\App\Notification\App"/>

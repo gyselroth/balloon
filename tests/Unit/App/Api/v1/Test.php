@@ -35,19 +35,18 @@ abstract class Test extends UnitTest
 
     public function getMockServer()
     {
-        $app = $this->getMockApp();
         $hook = new Hook($this->createMock(LoggerInterface::class));
         $hook->injectHook(new Delta());
+        return parent::getMockServer();
 
         $server = new Server(
             self::getMockDatabase(),
             $this->createMock(Storage::class),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(Async::class),
             $hook,
             $app
         );
-//Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, ?User
+
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
         $filesystem = new Filesystem($server, self::getMockDatabase(), $hook, $this->createMock(LoggerInterface::class), $this->createMock(Storage::class));
 

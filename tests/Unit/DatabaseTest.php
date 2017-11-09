@@ -15,6 +15,9 @@ namespace Balloon\Testsuite\Unit;
 use Balloon\Database;
 use Balloon\Database\DatabaseInterface;
 use Psr\Log\LoggerInterface;
+use Balloon\Database\Delta\CoreInstallation;
+use Balloon\Database\Delta\FileToStorageAdapter;
+use Balloon\Database\Delta\QueueToCappedCollection;
 
 /**
  * @coversNothing
@@ -39,17 +42,19 @@ class DatabaseTest extends Test
         $this->db_setup = new Database($this->getMockApp(), $this->getMockDatabase(), $this->createMock(LoggerInterface::class));
     }
 
-    public function testInitDatabase()
+    /*public function testInjectDeltas()
     {
-        $this->assertInstanceOf(DatabaseInterface::class, $this->db_setup->getSetups()[0]);
-    }
+        $this->db_setup->injectAdapter(new CoreInstallation($this->getMockDatabase(), $this->createMock(LoggerInterface::class)));
+        $this->db_setup->injectAdapter(new FileToStorageAdapter($this->getMockDatabase(), $this->createMock(LoggerInterface::class)));
+        $this->db_setup->injectAdapter(new QueueToCappedCollection($this->getMockDatabase(), $this->createMock(LoggerInterface::class)));
+    }*/
 
     /**
      * @depends testInitDatabase
      *
      * @param mixed $db
      */
-    public function testInitCoreIndices($db)
+    /*public function testInitCoreIndices($db)
     {
         $available = [];
 
@@ -62,5 +67,5 @@ class DatabaseTest extends Test
         }
 
         $this->assertSame(sort($this->expected_indices), sort($available));
-    }
+    }*/
 }

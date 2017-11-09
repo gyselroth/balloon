@@ -740,7 +740,7 @@ class Node extends Controller
         int $conflict = 0
     ): Response {
         try {
-            $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
+            $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
             throw new Exception\NotFound(
                 'destination collection was not found or is not a collection',
@@ -827,7 +827,7 @@ class Node extends Controller
         int $conflict = 0
     ): Response {
         try {
-            $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
+            $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
             throw new Exception\NotFound(
                 'destination collection was not found or is not a collection',
