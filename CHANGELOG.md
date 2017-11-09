@@ -44,6 +44,8 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [FEATURE] It is now possible to configure via environement variables besides config file (\Micro\Config\Environment) which makes it more useable for cloud native
 * CORE: [FEATURE] Every setOptions() call now throws an exception if an invalid configuration has been configured
 * CORE: [CHANGE] config.xml is now a service based configuration, each class can be dynamically configured (dependency injection container configuration)
+* CORE: [FEATURE] Implemented new app Balloon.App.ClientDesktop (Provides downloadable desktop client url)
+* API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
