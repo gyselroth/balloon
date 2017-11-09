@@ -1,0 +1,32 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Balloon
+ *
+ * @author      Raffael Sahli <sahli@gyselroth.net>
+ * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
+ */
+
+namespace Balloon\App\DesktopClient\App;
+
+use Balloon\App\DesktopClient\Api\v1\Download;
+use Balloon\App\AppInterface;
+use Micro\Http\Router;
+use Micro\Http\Router\Route;
+
+class Http implements AppInterface
+{
+    /**
+     * Constructor.
+     *
+     * @param Router $router
+     */
+    public function __construct(Router $router)
+    {
+        $router
+            ->prependRoute(new Route('/api/v1/desktop-client$', Download::class));
+    }
+}

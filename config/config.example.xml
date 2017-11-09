@@ -132,6 +132,18 @@
         </adapter>
     </service>
 
+    <service m:name="Balloon\App\DesktopClient\DesktopClient">
+        <options>
+            <config>
+                <github_reques_url>https://api.github.com/repos/gyselroth/balloon-client-desktop/releases/latest</github_rquest_url>
+                <github_request_timeout>10</github_request_timeout>
+                <github_request_useragent>balloon server</github_request_useragent>
+                </formats>
+                </github_mapping>
+            </config>
+        </options>
+    </service>
+
     <service m:name="Balloon\Filesystem\Storage">
         <adapter>
             <adapter enabled="1" m:name="gridfs" use="Balloon\Filesystem\Storage\Adapter\Gridfs"/>
