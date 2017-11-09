@@ -10,68 +10,127 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Preview\Api\v1;
+namespace Balloon\App\Notification\Api\v1;
 
 use Balloon\Api\Controller;
-use Balloon\App\Preview\Preview as PreviewGetter;
+use Balloon\App\Notification\Notifier;
 use Balloon\Server;
 use Micro\Http\Response;
 use Balloon\Filesystem\Node\File;
 
-class Notification extends Controller
+class Notification
 {
     /**
-     * @api {get} /api/v1/file/preview?id=:id Get Preview
+     * Notifier
+     *
+     * @var Notifier
+     */
+    protected $notifier;
+
+
+    /**
+     * User
+     *
+     * @var User
+     */
+    protected $user;
+
+
+    /**
+     * Constructor
+     *
+     * @param Notifier
+     */
+    public function __construct(Notifier $notifier, Server $server)
+    {
+        $this->notifier = $notifier;
+        $this->user = $server->getUser();
+    }
+
+
+    /**
+     * @api {get} /api/v1/notification Get notifications
      * @apiVersion 1.0.0
      * @apiName get
-     * @apiGroup Node\File
+     * @apiGroup App\Notification
      * @apiPermission none
-     * @apiDescription Get a preview of the files content. The body either contains an encoded string or a jpeg binary
-     * @apiUse _getNode
+     * @apiDescription Fetch my nofitifications
      *
      * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v1/file/preview?id=544627ed3c58891f058b4686 > preview.jpg"
-     * curl -XGET "https://SERVER/api/v1/file/544627ed3c58891f058b4686/preview > preview.jpg"
-     * curl -XGET "https://SERVER/api/v1/file/preview?p=/absolute/path/to/my/file > preview.jpg"
-     *
-     * @apiParam (GET Parameter) {string} [encode=false] Set to base64 to return a jpeg encoded preview as base64, else return it as jpeg binary
+     * curl -XGET "https://SERVER/api/v1/user/notification"
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 200 OK
-     *
-     * @apiSuccessExample {binary} Success-Response:
-     * HTTP/1.1 200 OK
-     *
-     * @apiErrorExample {json} Error-Response (thumbnail not found):
-     * HTTP/1.1 404 Not Found
      * {
-     *      "status": 404,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\NotFound",
-     *          "message": "no preview exists"
-     *      }
+     *      "status": 200,
+     *      "data": [{
+     *          "message": "Hi there, this is a notification"
+     *      }]
      * }
-     *
-     * @param string $id
-     * @param string $p
-     * @param string $encode
      */
     public function get(): Response
     {
-
+        $notifications = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notifications');
+        return (new Response())->setCode(200)->setBody($notifications);
     }
 
-    public function postBroadcast(): Response
+
+    /**
+     * @api {get} /api/v1/notification Get notifications
+     * @apiVersion 1.0.0
+     * @apiName get
+     * @apiGroup App\Notification
+     * @apiPermission none
+     * @apiDescription Fetch my nofitifications
+     *
+     * @apiExample (cURL) exmaple:
+     * curl -XGET "https://SERVER/api/v1/user/notification"
+     *
+     * @apiSuccessExample {string} Success-Response:
+     * HTTP/1.1 204 No Content
+     */
+    public function delete(int $id): Response
+    {
+        $notifications = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notifications');
+        return (new Response())->setCode(200)->setBody($notifications);
+    }
+
+
+    /**
+     * @api {post} /api/v1/user/notification/broadcast Post a notification to all users (or to a bunch of users)
+     * @apiVersion 1.0.0
+     * @apiName get
+     * @apiGroup App\Notification
+     * @apiPermission admin
+     * @apiDescription Send notification
+     *
+     * @apiExample (cURL) exmaple:
+     * curl -XPOST "https://SERVER/api/v1/user/notification/broadcast"
+     *
+     * @apiSuccessExample {string} Success-Response:
+     * HTTP/1.1 204 No Content
+     */
+    public function postBroadcast(string $message): Response
     {
         //if admin
     }
 
-    public function postMessage()
-    {
 
-    }
-
-    public function postMail(array $user, array $mail)
+    /**
+     * @api {get} /api/v1/notification Get notifications
+     * @apiVersion 1.0.0
+     * @apiName get
+     * @apiGroup App\Notification
+     * @apiPermission none
+     * @apiDescription Fetch my nofitifications
+     *
+     * @apiExample (cURL) exmaple:
+     * curl -XGET "https://SERVER/api/v1/user/notification"
+     *
+     * @apiSuccessExample {string} Success-Response:
+     * HTTP/1.1 204 No Content
+     */
+    public function postMail(array $mail)
     {
 
     }
