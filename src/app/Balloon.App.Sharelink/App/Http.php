@@ -50,7 +50,7 @@ class Http implements AppInterface
             public function preAuthentication(Auth $auth): void
             {
                 if (preg_match('#^/index.php/share#', $_SERVER['ORIG_SCRIPT_NAME'])) {
-                    $auth->injectAdapter('none', (new AuthNone()));
+                    $auth->injectAdapter(new AuthNone());
                 }
             }
         });

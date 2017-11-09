@@ -78,9 +78,9 @@ class Cli extends AbstractBootstrap
         $logger = $this->container->get(LoggerInterface::class);
 
         if (!$logger->hasAdapter('stdout')) {
-            $logger->addAdapter('stdout', Stdout::class, [
+            $logger->injectAdapter(new Stdout([
                 'level' => $level,
-                'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}', ]);
+                'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}']), 'stdout');
         } else {
             $logger->getAdapter('stdout')->setOptions(['level' => $level]);
         }
@@ -180,6 +180,7 @@ class Cli extends AbstractBootstrap
     protected function setExceptionHandler(): Cli
     {
         set_exception_handler(function ($e) {
+echo $e;
             $logger = $this->container->get(LoggerInterface::class);
             $logger->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),

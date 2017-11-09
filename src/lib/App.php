@@ -22,18 +22,11 @@ use Micro\Container\AdapterAwareInterface;
 class App implements AdapterAwareInterface
 {
     /**
-     * App namespaces.
-     *
-     * @var array
-     */
-    protected $namespace = [];
-
-    /**
      * Apps.
      *
      * @var array
      */
-    protected $app = [];
+    protected $adapter = [];
 
     /**
      * LoggerInterface.
@@ -43,200 +36,17 @@ class App implements AdapterAwareInterface
     protected $logger;
 
     /**
-     * Hook.
-     *
-     * @var Hook
-     */
-    protected $hook;
-
-    /**
      * Init app manager.
      *
      * @param LoggerInterface $logger
      * @param iterable        $config
      */
-    public function __construct(LoggerInterface $logger, Hook $hook, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->hook = $hook;
-        $this->setOptions($config);
+        //$this->setOptions($config);
     }
 
-    /**
-     * Set options.
-     *
-     * @param iterable $config
-     *
-     * @return App
-     */
-    public function setOptions(?Iterable $config = null): App
-    {
-        if (null === $config) {
-            return $this;
-        }
-
-        foreach ($config as $name => $app) {
-            $this->injectApp($name, $app);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Register app.
-     *
-     * @param string   $name
-     * @param iterable $config
-     *
-     * @return bool
-     */
-    public function registerApp(Container $container, string $name, string $class, ?Iterable $config = null): bool
-    {
-        if ($this->hasApp($name)) {
-            throw new Exception('app '.$name.' is already registered');
-        }
-
-
-        $app = $container->get($name);
-
-        if (!($app instanceof AppInterface)) {
-            throw new Exception('app class '.$class.' does not implement AppInterface');
-        }
-
-        if (is_callable([$app, 'getHooks'])) {
-            foreach ($app->getHooks() as $hook) {
-                $this->hook->injectHook($container->get($hook));
-            }
-        }
-
-        $this->logger->info('register ['.$class.'] from app ['.$name.']', [
-             'category' => get_class($this),
-        ]);
-
-        $this->app[$name] = $app;
-
-        return true;
-    }
-
-    /**
-     * Start apps.
-     *
-     * @return bool
-     */
-    public function start(): bool
-    {
-        foreach ($this->app as $app) {
-            $app->init();
-        }
-
-        return true;
-    }
-
-    /**
-     * Inject app.
-     *
-     * @param AppInterface $app
-     *
-     * @return App
-     */
-    public function injectApp(AppInterface $app): App
-    {
-        $name = str_replace('_', '.', $app->getName());
-        if ($this->hasApp($name)) {
-            throw new Exception('app '.$name.' is already registered');
-        }
-
-        $this->namespace[$name] = join('', array_slice(explode('\\', get_class($app)), -1));
-        $this->app[$name] = $app;
-
-        return $this;
-    }
-
-    /**
-     * Has app namespace.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasAppNamespace(string $name): bool
-    {
-        return isset($this->namespace[$name]);
-    }
-
-    /**
-     * Has app.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasApp(string $name): bool
-    {
-        return isset($this->app[$name]);
-    }
-
-    /**
-     * Get app.
-     *
-     * @param string $name
-     *
-     * @return AppInterface
-     */
-    public function getApp(string $name): AppInterface
-    {
-        if (!$this->hasApp($name)) {
-            throw new Exception('app '.$name.' is not registered');
-        }
-
-        return $this->app[$name];
-    }
-
-    /**
-     * Get apps.
-     *
-     * @param array $apps
-     *
-     * @return array
-     */
-    public function getApps(array $apps = []): array
-    {
-        if (empty($app)) {
-            return $this->app;
-        }
-        $list = [];
-        foreach ($apps as $name) {
-            if (!$this->hasApp($name)) {
-                throw new Exception('app '.$name.' is not registered');
-            }
-            $list[$name] = $this->app[$name];
-        }
-
-        return $list;
-    }
-
-    /**
-     * Get app namespaces.
-     *
-     * @param array $apps
-     *
-     * @return array
-     */
-    public function getAppNamespaces(array $apps = []): array
-    {
-        if (empty($app)) {
-            return $this->namespace;
-        }
-        $list = [];
-        foreach ($app as $name) {
-            if (!$this->hasAppNamespace($name)) {
-                throw new Exception('app '.$name.' is not registered');
-            }
-            $list[$name] = $this->app[$name];
-        }
-
-        return $list;
-    }
 
     /**
      * Get default adapter
@@ -245,7 +55,7 @@ class App implements AdapterAwareInterface
      */
     public function getDefaultAdapter(): array
     {
-        return [];
+        return self::DEFAULT_ADAPTER;
     }
 
     /**
@@ -257,24 +67,36 @@ class App implements AdapterAwareInterface
      */
     public function hasAdapter(string $name): bool
     {
-        return $this->hasApp($name);
+        return isset($this->adapter[$name]);
     }
 
     /**
      * Inject adapter.
      *
-     * @param string           $name
      * @param AdapterInterface $adapter
      *
      * @return AdapterInterface
      */
-    public function injectAdapter(string $name, AppInterface $adapter): App
+    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
     {
-        if(isset($this->apps[$name])) {
-            throw new Exception('app '.$name.' is already registered');
+        if(!($adapter instanceof AppInterface)) {
+            throw new Exception('adapter needs to implement AppInterface');
         }
 
-        $this->apps[$name] = $adapter;
+        if($name === null) {
+            $name = get_class($adapter);
+        }
+
+        $this->logger->debug('inject app ['.$name.'] of type ['.get_class($adapter).']', [
+            'category' => get_class($this)
+        ]);
+
+        if ($this->hasAdapter($name)) {
+            throw new Exception('adapter '.$name.' is already registered');
+        }
+
+        $this->adapter[$name] = $adapter;
+
         return $this;
     }
 
@@ -285,9 +107,13 @@ class App implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function getAdapter(string $name): AppInterface
+    public function getAdapter(string $name)
     {
-        return $this->getApp($name);
+        if (!$this->hasAdapter($name)) {
+            throw new Exception('adapter '.$name.' is not registered');
+        }
+
+        return $this->adapter[$name];
     }
 
     /**
@@ -299,6 +125,17 @@ class App implements AdapterAwareInterface
      */
     public function getAdapters(array $adapters = []): array
     {
-        return $this->getApps($adapters);
+        if (empty($adapter)) {
+            return $this->adapter;
+        }
+        $list = [];
+        foreach ($adapter as $name) {
+            if (!$this->hasAdapter($name)) {
+                throw new Exception('adapter '.$name.' is not registered');
+            }
+            $list[$name] = $this->adapter[$name];
+        }
+
+        return $list;
     }
 }

@@ -10,20 +10,16 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Database;
-
-use MongoDB\Database;
-use Psr\Log\LoggerInterface;
+namespace Balloon\Database\Delta;
 
 interface DeltaInterface
 {
     /**
-     * Construct.
+     * Init database.
      *
-     * @param Database        $db
-     * @param LoggerInterface $logger
+     * @return bool
      */
-    public function __construct(Database $db, LoggerInterface $logger);
+    public function init(): bool;
 
     /**
      * Get collection.

@@ -64,7 +64,7 @@ class Http implements AppInterface
             public function preAuthentication(Auth $auth): void
             {
                 if ('/index.php/api' === $_SERVER['ORIG_SCRIPT_NAME'] || '/index.php/api/v1' === $_SERVER['ORIG_SCRIPT_NAME']) {
-                    $auth->injectAdapter('none', (new AuthNone()));
+                    $auth->injectAdapter(new AuthNone());
                 }
             }
         });

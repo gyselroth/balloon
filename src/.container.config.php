@@ -18,6 +18,10 @@ use MongoDB\Client;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use Balloon\App\Notification\Notification;
+use Ballloon\Databse;
+use Balloon\Database\Delta\CoreInstallation;
+use Balloon\Database\Delta\FileToStorageAdapter;
+use Balloon\Database\Delta\QueueToCappedCollection;
 
 return [
     Client::class => [
@@ -42,6 +46,13 @@ return [
             ],
         ],
     ],
+    Database::class => [
+        'adapter' => [
+            CoreInstallation::class => [],
+            FileToStorageAdapter::class => [],
+            QueueToCappedCollection::class => [],
+        ]
+    ],
     Auth::class => [
         'adapter' => [
             'basic_db' => [
@@ -49,4 +60,7 @@ return [
             ],
         ],
     ],
+    App::class => [
+        'adapter' => []
+    ]
 ];

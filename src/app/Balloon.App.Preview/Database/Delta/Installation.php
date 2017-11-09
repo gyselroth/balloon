@@ -10,12 +10,11 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Preview;
+namespace Balloon\App\Preview\Database\Delta;
 
-use Balloon\App\Preview\Database\Delta\PreviewIntoApp;
-use Balloon\Database\AbstractDatabase;
+use Balloon\Database\Delta\AbstractDelta;
 
-class Database extends AbstractDatabase
+class Installation extends AbstractDelta
 {
     /**
      * Initialize database.
@@ -27,17 +26,5 @@ class Database extends AbstractDatabase
         $this->db->selectCollection('thumbnail.files')->createIndex(['md5' => 1], ['unique' => true]);
 
         return true;
-    }
-
-    /**
-     * Get deltas.
-     *
-     * @return array
-     */
-    public function getDeltas(): array
-    {
-        return [
-            PreviewIntoApp::class,
-        ];
     }
 }

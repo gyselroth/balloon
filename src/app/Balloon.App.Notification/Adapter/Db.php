@@ -26,8 +26,8 @@ class Db implements AdapterInterface
 
     public function notify(array $receiver, string $subject, string $body, array $context=[]): bool
     {
-        foreach ($receiver as $rec) {
-            $receive->setAppAttribute('Balloon\\App\\Notification', 'notification', [
+        foreach ($receiver as $user) {
+            $user->setAppAttribute('Balloon\\App\\Notification', 'notification', [
                 'subject' => $subject,
                 'body'    => $body,
             ]);

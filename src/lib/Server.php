@@ -51,13 +51,6 @@ class Server
     protected $hook;
 
     /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
-    /**
      * Authenticated identity.
      *
      * @var User
@@ -94,13 +87,12 @@ class Server
      * @param Hook            $hook
      * @param iterable        $config
      */
-    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, App $app, ?Iterable $config = null)
+    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, ?Iterable $config = null)
     {
         $this->db = $db;
         $this->storage = $storage;
         $this->logger = $logger;
         $this->hook = $hook;
-        $this->app = $app;
 
         $this->setOptions($config);
     }
@@ -134,16 +126,6 @@ class Server
         }
 
         return $this;
-    }
-
-    /**
-     * Start server (Actually just execute all apps, we do nothing else here).
-     *
-     * @return bool
-     */
-    public function start(): bool
-    {
-        return $this->app->start();
     }
 
 

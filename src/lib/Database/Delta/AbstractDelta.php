@@ -10,13 +10,29 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Database;
+namespace Balloon\Database\Delta;
 
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractDelta implements DeltaInterface
 {
+    /**
+     * Database
+     *
+     * @var Database
+     */
+    protected $database;
+
+
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+
     /**
      * Construct.
      *
@@ -28,6 +44,29 @@ abstract class AbstractDelta implements DeltaInterface
         $this->db = $db;
         $this->logger = $logger;
     }
+
+
+    /**
+     * Get collection.
+     *
+     * @return string
+     */
+    public function getCollection(): string
+    {
+        return '';
+    }
+
+
+    /**
+     * Init database
+     *
+     * @return bool
+     */
+    public function init(): bool
+    {
+        return true;
+    }
+
 
     /**
      * Upgrade object.

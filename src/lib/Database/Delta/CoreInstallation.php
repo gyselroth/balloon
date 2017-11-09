@@ -10,13 +10,13 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Database;
+namespace Balloon\Database\Delta;
 
 use Balloon\Database\Delta\FileToStorageAdapter;
 use Balloon\Database\Delta\QueueToCappedCollection;
 use MongoDB\Database;
 
-class Core extends AbstractDatabase
+class CoreInstallation extends AbstractDelta
 {
     /**
      * Initialize database.
@@ -57,18 +57,5 @@ class Core extends AbstractDatabase
         }
 
         return true;
-    }
-
-    /**
-     * Get deltas.
-     *
-     * @return array
-     */
-    public function getDeltas(): array
-    {
-        return [
-            QueueToCappedCollection::class,
-            FileToStorageAdapter::class,
-        ];
     }
 }

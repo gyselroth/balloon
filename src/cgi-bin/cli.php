@@ -37,6 +37,4 @@ if (is_readable($file)) {
     $config->inject($xml);
 }
 
-$config->inject(new Environment('balloon'));
-
 new Cli($composer, $config);

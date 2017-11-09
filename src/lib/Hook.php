@@ -188,7 +188,7 @@ class Hook implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function injectAdapter(string $name, HookInterface $adapter): Hook
+    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
     {
         return $this->injectHook($adapter);
     }
@@ -200,7 +200,7 @@ class Hook implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function getAdapter(string $name): AppInterface
+    public function getAdapter(string $name)
     {
         return $this->getApp($name);
     }

@@ -10,12 +10,12 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Sharelink;
+namespace Balloon\App\Sharelink\Database\Delta;
 
 use Balloon\App\Sharelink\Database\Delta\SharelinkIntoApp;
-use Balloon\Database\AbstractDatabase;
+use Balloon\Database\Delta\AbstractDelta;
 
-class Database extends AbstractDatabase
+class Installation extends AbstractDelta
 {
     /**
      * Initialize database.
@@ -27,17 +27,5 @@ class Database extends AbstractDatabase
         $this->db->selectCollection('storage')->createIndex(['app_attributes.Balloon_App_Sharelink.token' => 1]);
 
         return true;
-    }
-
-    /**
-     * Get deltas.
-     *
-     * @return array
-     */
-    public function getDeltas(): array
-    {
-        return [
-            SharelinkIntoApp::class,
-        ];
     }
 }

@@ -20,13 +20,6 @@ use Psr\Log\LoggerInterface;
 class Job extends AbstractJob
 {
     /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
-    /**
      * Converter.
      *
      * @var Converter
@@ -50,12 +43,10 @@ class Job extends AbstractJob
     /**
      * Constructor.
      *
-     * @param App   $app
      * @param Async $async
      */
-    public function __construct(App $app, Converter $converter, Server $server, LoggerInterface $logger)
+    public function __construct(Converter $converter, Server $server, LoggerInterface $logger)
     {
-        $this->app = $app;
         $this->converter = $converter;
         $this->server = $server;
         $this->logger = $logger;

@@ -76,8 +76,16 @@ class Storage implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function injectAdapter(string $name, AdapterInterface $adapter): AdapterInterface
+    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
     {
+        if(!($adapter instanceof AdapterInterface)) {
+            throw new Exception('adapter needs to implement AdapterInterface');
+        }
+
+        if($name === null) {
+            $name = get_class($adapter);
+        }
+
         if ($this->hasAdapter($name)) {
             throw new Exception('storage adapter '.$name.' is already registered');
         }
@@ -88,7 +96,7 @@ class Storage implements AdapterAwareInterface
 
         $this->adapter[$name] = $adapter;
 
-        return $adapter;
+        return $this;
     }
 
     /**
@@ -98,7 +106,7 @@ class Storage implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function getAdapter(string $name): AdapterInterface
+    public function getAdapter(string $name)
     {
         if (!$this->hasAdapter($name)) {
             throw new Exception('storage adapter '.$name.' is not registered');

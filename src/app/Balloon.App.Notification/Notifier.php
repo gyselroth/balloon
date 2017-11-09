@@ -84,7 +84,7 @@ class Notifier implements AdapterAwareInterface
 
         foreach($config as $option => $value) {
             switch($option) {
-                case 'adpater':
+                case 'adapter':
                     foreach($value as $name => $adapter) {
                         $this->injectAdapter($name, $adapter);
                     }
@@ -160,8 +160,16 @@ class Notifier implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function injectAdapter(string $name, AdapterInterface $adapter): AdapterInterface
+    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
     {
+        if(!($adapter instanceof AdapterInterface)) {
+            throw new Exception('adapter needs to implement AdapterInterface');
+        }
+
+        if($name === null) {
+            $name = get_class($adapter);
+        }
+
         $this->logger->debug('inject notification adapter ['.$name.'] of type ['.get_class($adapter).']', [
             'category' => get_class($this)
         ]);
@@ -171,7 +179,7 @@ class Notifier implements AdapterAwareInterface
         }
 
         $this->adapter[$name] = $adapter;
-        return $adapter;
+        return $this;
     }
 
     /**
@@ -181,7 +189,7 @@ class Notifier implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function getAdapter(string $name): AdapterInterface
+    public function getAdapter(string $name)
     {
         if (!$this->hasAdapter($name)) {
             throw new Exception('adapter '.$name.' is not registered');

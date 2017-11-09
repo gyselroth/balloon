@@ -31,6 +31,7 @@ use MongoDB\Client;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use Balloon\App\Notification\Notification;
+use Micro\Config\Struct;
 
 abstract class AbstractBootstrap
 {
@@ -90,39 +91,13 @@ abstract class AbstractBootstrap
             return $this->get(Client::class)->balloon;
         });
 
-        $this->registerApps();
 
-        $this->container->get(Server::class)
-            ->start();
+        //register all app bootstraps
+        $this->container->get(App::class);
 
         return true;
     }
 
-
-    /**
-     * Register apps.
-     *
-     * @return AbstractBootstrap
-     */
-    protected function registerApps(): AbstractBootstrap
-    {
-        $manager = $this->container->get(App::class);
-
-        foreach ($this->config[App::class]['adapter'] as $name => $config) {
-            $options = null;
-            if (isset($config['config'])) {
-                $options = $config['config'];
-            }
-
-            if(isset($config['enabled']) && $config['enabled'] == 0) {
-                continue;
-            }
-
-            //$manager->registerApp($this->container, $name, $config['use'], $options);
-        }
-
-        return $this;
-    }
 
     /**
      * Find apps.
@@ -131,7 +106,6 @@ abstract class AbstractBootstrap
      */
     protected function detectApps(Composer $composer): AbstractBootstrap
     {
-        #return $this;
         if ($this instanceof Http) {
             $context = 'Http';
         } else {
@@ -148,7 +122,7 @@ abstract class AbstractBootstrap
             }
 
             if(file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
-                $this->config->inject(new \Micro\Config\Struct(require_once $app.DIRECTORY_SEPARATOR.'.container.config.php'));
+                $this->config->inject(new Struct(require_once $app.DIRECTORY_SEPARATOR.'.container.config.php'));
             }
         }
 
