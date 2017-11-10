@@ -22,10 +22,16 @@ class Mail extends AbstractJob
     /**
      * Transport.
      *
-     * @var string
+     * @var TransportInterface
      */
-    protected $transport = Sendmail::class;
+    protected $transport;
 
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * Constructor

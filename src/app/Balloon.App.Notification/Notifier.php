@@ -112,13 +112,14 @@ class Notifier implements AdapterAwareInterface
     /**
      * Send notification
      *
-     * @param array $user
+     * @param array $receiver
+     * @param User $sender
      * @param string $subject
      * @param string $body
      * @param array $context
      * @return bool
      */
-    public function notify(array $user, string $subject, string $body, array $context=[]): bool
+    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context=[]): bool
     {
         if(count($this->adapter) === 0) {
             $this->logger->warning('there are no notification adapter enabled, notification can not be sent', [
@@ -133,7 +134,7 @@ class Notifier implements AdapterAwareInterface
                 'category' => get_class($this)
             ]);
 
-            $adapter->notify($user, $subject, $body, $context);
+            $adapter->notify($receiver, $sender, $subject, $body, $context);
         }
 
         return true;

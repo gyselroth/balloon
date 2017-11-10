@@ -70,8 +70,8 @@ class Notification
      */
     public function get(): Response
     {
-        $notifications = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notifications');
-        return (new Response())->setCode(200)->setBody($notifications);
+        $notification = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notification');
+        return (new Response())->setCode(200)->setBody($notification);
     }
 
 
@@ -91,8 +91,8 @@ class Notification
      */
     public function delete(int $id): Response
     {
-        $notifications = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notifications');
-        return (new Response())->setCode(200)->setBody($notifications);
+        $notification = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notification');
+        return (new Response())->setCode(200)->setBody($notification);
     }
 
 
@@ -110,9 +110,37 @@ class Notification
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 204 No Content
      */
-    public function postBroadcast(string $message): Response
+    public function post(array $receiver, string $subject, string $body): Response
     {
-        //if admin
+        $users = $this->server->getUsersById($receiver);
+        $this->notifier->notify($receiver, $this->user, $subject, $body);
+        return (new Response())->setCode(204);
+    }
+
+
+    /**
+     * @api {post} /api/v1/user/notification/broadcast Post a notification to all users (or to a bunch of users)
+     * @apiVersion 1.0.0
+     * @apiName get
+     * @apiGroup App\Notification
+     * @apiPermission admin
+     * @apiDescription Send notification
+     *
+     * @apiExample (cURL) exmaple:
+     * curl -XPOST "https://SERVER/api/v1/user/notification/broadcast"
+     *
+     * @apiSuccessExample {string} Success-Response:
+     * HTTP/1.1 204 No Content
+     */
+    public function postBroadcast(string $subject, string $body): Response
+    {
+        if(!$this->user->isAdmin()) {
+
+        }
+
+        $users = $this->server->getUsersById($receiver);
+        $this->notifier->notify($receiver, $this->user, $subject, $body);
+        return (new Response())->setCode(204);
     }
 
 
@@ -130,8 +158,15 @@ class Notification
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 204 No Content
      */
-    public function postMail(array $mail)
+    public function postMail(array $receiver, string $subject, string $body)
     {
+        $mail = new Message();
+        $mail->setBody($body);
+        $mail->setFrom($this->user->getAttribute('username'), $this->user->getAttribute('mail'));
+        $mail->setSubject($subject);
+        $mail->setBcc($receiver);
+        $this->async->addJob(MailJob::class, ['mail' => $mail->toString()]);
 
+        return (new Response())->setCode(204);
     }
 }

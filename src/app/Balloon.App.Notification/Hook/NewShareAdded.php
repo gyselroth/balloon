@@ -148,7 +148,7 @@ class NewShareAdded extends AbstractHook
             }, $this->subject);
 
 
-            $this->notifier->notify($receiver, $subject, $body);
+            $this->notifier->notify($receiver, $this->server->getUser(), $subject, $body);
         }
     }
 
