@@ -79,11 +79,17 @@ class Mail implements AdapterInterface
     /**
      * {@inheritDoc}
      */
-    public function notify(array $receiver, string $subject, string $body, array $context=[]): bool
+    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context=[]): bool
     {
         $mail = new Message();
         $mail->setBody($body);
-        $mail->setFrom($this->sender_address, $this->sender_name);
+
+        if($sender === null) {
+            $mail->setFrom($this->sender_address, $this->sender_name);
+        } else {
+            $mail->setFrom($this->sender_address, $sender->getAttribute('username'));
+        }
+
         $mail->setSubject($subject);
 
         foreach ($receiver as $user) {
@@ -96,10 +102,10 @@ class Mail implements AdapterInterface
                 continue;
             }
 
-            $mail->setTo($address);
+            $mail->setBcc($address);
         }
 
-        if(count($mail->getTo()) === 0) {
+        if(count($mail->getBcc()) === 0) {
             $this->logger->warning('skip mail notifcation ['.$subject.'], no receiver available', [
                 'category' => get_class($this),
             ]);

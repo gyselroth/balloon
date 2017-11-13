@@ -1,7 +1,7 @@
 {
     "package": {
         "name": "balloon",
-        "repo": "balloon-unstable",
+        "repo": "balloon-stable",
         "subject": "gyselroth",
         "desc": "balloon cloud server",
         "website_url": "https://github.com/gyselroth/balloon",
@@ -24,7 +24,7 @@
     "files": [
         {"includePattern": "dist/(.*\.deb)", "uploadPattern": "$1",
         "matrixParams": {
-            "deb_distribution": "stable",
+            "deb_distribution": "{deb_distribution}",
             "deb_component": "main",
             "deb_architecture": "all",
             "override": 1}

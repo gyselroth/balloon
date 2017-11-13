@@ -145,6 +145,9 @@
         </options>
     </service>
 
+    <service m:name="Zend\Mail\Transport\TransportInterface" use="Zend\Mail\Transport\Sendmail">
+    </service>
+
     <service m:name="Balloon\Filesystem\Storage">
         <adapter>
             <adapter enabled="1" m:name="gridfs" use="Balloon\Filesystem\Storage\Adapter\Gridfs"/>

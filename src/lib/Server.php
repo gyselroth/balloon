@@ -223,6 +223,32 @@ class Server
     }
 
     /**
+     * Get users by id.
+     *
+     * @param array $id
+     *
+     * @return Generator
+     */
+    public function getUsersById(array $id): Generator
+    {
+        $find = [];
+        foreach ($id as $i) {
+            $find[] = new ObjectID($i);
+        }
+
+        $filter = [
+            '_id' => ['$in' => $find],
+        ];
+
+        $users = $this->db->user->find($users);
+
+        foreach($user as $attributes) {
+            yield new User($attributes, $this, $this->db, $this->logger);
+        }
+    }
+
+
+    /**
      * Set Identity.
      *
      * @param Identity $identity
@@ -273,6 +299,26 @@ class Server
         }
 
         return new User($attributes, $this, $this->db, $this->logger);
+    }
+
+    /**
+     * Get users by name.
+     *
+     * @param array $name
+     *
+     * @return Generator
+     */
+    public function getUsersByName(array $name): Generator
+    {
+        $filter = [
+            'name' => ['$in' => $name],
+        ];
+
+        $users = $this->db->user->find($users);
+
+        foreach($user as $attributes) {
+            yield new User($attributes, $this, $this->db, $this->logger);
+        }
     }
 
     /**
