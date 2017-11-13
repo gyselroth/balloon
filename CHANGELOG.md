@@ -5,7 +5,7 @@
 Next major release v2, includes various new features and core changes. The API is still v1 and compatible with all current implementations.
 
 * CORE: [CHANGE] php ext apc is now optional (cache configuration)
-* CORE: [CHANGE] php ext imagick is now optional (if not installed image previews will fail)
+* CORE: [CHANGE] php ext imagick is now optional (if not installed, image previews will fail)
 * CORE: [CHANGE] php ext ldap is now optional (if not installed ldap authentication or ldap sync core app will not be available)
 * CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
 * CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
