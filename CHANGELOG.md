@@ -1,8 +1,6 @@
 ## 2.0.0-dev
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Thu June 22 15:04:32 CEST 2017
-
-Next major release v2, includes various new features and core changes. The API is still v1 and compatible with all current implementations.
+**Date**:
 
 * CORE: [CHANGE] php ext apc is now optional (cache configuration)
 * CORE: [CHANGE] php ext imagick is now optional (if not installed image previews will fail)
@@ -27,7 +25,7 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Sharlink is now an entirely removed from the core and operates as an own app Balloon.App.Sharelink
 * CORE: [CHANGE] Preview is now an entirely removed from the core and operates as an own app Balloon.App.Preview
 * CORE: [CHANGE] Changed generating access token to random_bytes() for creating sharelink tokens
-* CORE: [FEATURE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes
+* CORE: [CHANGE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes
 * CORE: [CHANGE] added AbstractNode::getAttributes(array $attributes=[]) besides AbstractNode::getAttribute()
 * CORE: [FIX] fixed application/octet-stream mime type for office files (issue since 1.x)
 * CORE: [CHANGE] Extracted Mime detection to \Balloon\Mime
@@ -38,13 +36,18 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] Implemented new \Balloon\Filesystem\Storage mechanism which allows to store file blobs via an interface everywhere if an adapter exists
 * CORE: [CHANGE] Various code cleanup and refactoring within \Balloon\Filesystem
 * CORE: [FEATURE] New module based cli implementation
-* CORE: [FEATURE] Database init and delta migration support #78
+* CORE: [FEATURE] Database initialization and delta migration support #78
 * CORE: [FEATURE] Added various db delta upgrade scripts from v1 => v2
 * CORE: [CHANGE] Implemented \Micro\Container (dependency injection container) which results in various simpler dependencies of some classes
 * CORE: [FEATURE] It is now possible to configure via environement variables besides config file (\Micro\Config\Environment) which makes it more useable for cloud native
 * CORE: [FEATURE] Every setOptions() call now throws an exception if an invalid configuration has been configured
 * CORE: [CHANGE] config.xml is now a service based configuration, each class can be dynamically configured (dependency injection container configuration)
 * CORE: [FEATURE] Implemented new app Balloon.App.ClientDesktop (Provides downloadable desktop client url)
+* CORE: [FIX] fixed acl issue regarding zombie nodes in mailbox shares #82
+* CORE: [FEATURE]  New share privilege "manage" #7 
+* CORE: [CHANGE] Removed deprecated share privilege "writeonly" #73, all existing rules with writeonly get upgraded to a mailbox privilege (see upgrade guide)
+* CORE: [CHANGE] Rewritten acl, extracted acl as separate instance, various acl improvements
+* CORE: [!BREAKER] Comes with the latest micro version, therefore the auth adapter "preauth" is not available anymore, use OpenID-connect instead!
 * API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
