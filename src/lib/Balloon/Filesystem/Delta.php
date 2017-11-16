@@ -123,7 +123,10 @@ class Delta
                 ['shared'  => [
                     '$in' => $this->user->getShares()
                 ]],
-                ['owner' => $this->user->getId()]
+                [
+                    'shared' => ['$type' => 8],
+                    'owner' => $this->user->getId()
+                ],
             ]],
             ['deleted' => false]
         ]];
