@@ -62,6 +62,13 @@
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 
+## 1.0.17-dev
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+
+CORE: [FIX] delta does not include sub nodes of shares anymore where the reference was deleted #81 
+CORE: [FIX] undeleting a share reference does not undelete share members #96
+
+
 ## 1.0.16
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Sept 28 14:35:32 CEST 20170

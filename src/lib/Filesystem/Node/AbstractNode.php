@@ -639,10 +639,16 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 'version',
             ], [], $recursion, $recursion_first);
         }
+
         $this->save([
                 'name',
                 'deleted',
             ], [], $recursion, $recursion_first);
+
+
+        if($this->isReference()) {
+            return true;
+        }
 
         return $this->doRecursiveAction(
                 'undelete',
@@ -653,8 +659,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 ],
                 NodeInterface::DELETED_ONLY
             );
-
-        return true;
     }
 
     /**
