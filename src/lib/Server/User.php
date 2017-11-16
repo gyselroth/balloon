@@ -418,16 +418,16 @@ class User
             'shared' => true,
             'directory' => true,
             '$or' => [
-                ['acl.user' => [
+                ['acl' => [
                     '$elemMatch' => [
-                        'user' => $this->username,
+                        'id' => (string)$this->_id,
+                     //   'type' => 'user'
                     ],
                 ]],
-                ['acl.group' => [
+                ['acl' => [
                     '$elemMatch' => [
-                        'group' => [
-                            '$in' => $this->groups,
-                        ],
+                        '$in' => $this->groups,
+                    //    'type' => 'group'
                     ],
                 ]],
             ],
@@ -450,13 +450,11 @@ class User
             'shared' => true,
             'owner' => $this->_id,
             'reference' => ['$exists' => 1],
-            //    '$in' => $found
-            //]
         ]);
 
         $exists = [];
         foreach ($item as $child) {
-            if (!in_array($child['reference'], $found, true)) {
+            if (!in_array($child['reference'], $found)) {
                 $this->logger->debug('found dead reference ['.$child['_id'].'] pointing to share ['.$child['reference'].']', [
                     'category' => get_class($this),
                 ]);
@@ -475,7 +473,6 @@ class User
         }
 
         $new = array_diff($found, $exists);
-
         foreach ($new as $add) {
             $node = $list[(string) $add];
 
@@ -529,6 +526,17 @@ class User
     {
         return $this->_id;
     }
+
+    /**
+     * Get namespace
+     *
+     * @return string
+     */
+    public function getNamespace(): ?string
+    {
+        return $this->namespace;
+    }
+
 
     /**
      * Get hard quota.

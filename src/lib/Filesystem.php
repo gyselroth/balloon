@@ -22,6 +22,7 @@ use MongoDB\BSON\ObjectID;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Acl;
 
 class Filesystem
 {
@@ -81,7 +82,7 @@ class Filesystem
      * @param LoggerInterface $logger
      * @param User            $user
      */
-    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, ?User $user = null)
+    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, Acl $acl, ?User $user = null)
     {
         $this->user = $user;
         $this->server = $server;
@@ -89,6 +90,7 @@ class Filesystem
         $this->logger = $logger;
         $this->hook = $hook;
         $this->storage = $storage;
+        $this->acl = $acl;
     }
 
     /**
@@ -573,7 +575,7 @@ class Filesystem
      */
     public function initNode(array $node): NodeInterface
     {
-        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] !== $this->user->getId()) {
+        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] != $this->user->getId()) {
             $node = $this->findReferenceNode($node);
         }
 
@@ -590,11 +592,29 @@ class Filesystem
 
         if (!array_key_exists('directory', $node)) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
-        }
-        if (true === $node['directory']) {
-            return new Collection($node, $this, $this->logger, $this->hook);
+        } elseif (true === $node['directory']) {
+            $instance = new Collection($node, $this, $this->logger, $this->hook, $this->acl);
+        } else {
+            $instance = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
         }
 
-        return new File($node, $this, $this->logger, $this->hook, $this->storage);
+        if (!$this->acl->isAllowed($instance, 'r')) {
+            throw new Exception\Forbidden(
+                'not allowed to access node',
+                Exception\Forbidden::NOT_ALLOWED_TO_ACCESS
+            );
+        }
+
+        if (isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
+            $this->logger->info('node ['.$node['_id'].'] is not accessible anmyore, destroy node cause of expired destroy flag', [
+                'category' => get_class($this),
+            ]);
+
+            $instance->delete(true);
+
+            throw new Exception\Conflict('node is not available anymore');
+        }
+
+        return $instance;
     }
 }

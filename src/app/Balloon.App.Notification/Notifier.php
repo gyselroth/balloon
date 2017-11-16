@@ -19,6 +19,7 @@ use Balloon\App\Notification\Hook\NewShareAdded;
 use Psr\Log\LoggerInterface;
 use Balloon\App\Notification\Adapter\Mail;
 use Balloon\App\Notification\Adapter\Db;
+use Balloon\Server\User;
 
 class Notifier implements AdapterAwareInterface
 {

@@ -87,13 +87,6 @@ class Preview
      */
     public function deletePreview(File $file): bool
     {
-        if (!$file->isAllowed('w')) {
-            throw new Exception\Forbidden(
-                'not allowed to modify node',
-                Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
-            );
-        }
-
         $bucket = $this->db->selectGridFSBucket(['bucketName' => 'thumbnail']);
 
         try {

@@ -13,13 +13,40 @@ declare(strict_types=1);
 namespace Balloon\Api\v1;
 
 use Balloon\Api\Controller;
-use Balloon\Resource as UserResource;
+use Balloon\Server;
 use Micro\Http\Response;
+use MongoDB\BSON\Regex;
+use MultipleIterator;
 
-class Resource extends Controller
+class Resource
 {
     /**
-     * @api {get} /resource/acl-roles?q=:query&namespace=:namespace Query available acl roles
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * User.
+     *
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * Initialize.
+     *
+     * @param Server $server
+     */
+    public function __construct(Server $server)
+    {
+        $this->server = $server;
+        $this->user = $server->getIdentity();
+    }
+
+    /**
+     * @api {get} /resource/acl-roles?q=:query Query available acl roles
      * @apiVersion 1.0.0
      * @apiName getAclRoles
      * @apiGroup Resource
@@ -27,7 +54,7 @@ class Resource extends Controller
      * @apiDescription Query available acl roles (user and groups)
      *
      * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v1/user/acl-roles?q=peter&namespace=organization&pretty"
+     * curl -XGET "https://SERVER/api/v1/user/acl-roles?q=peter"
      *
      * @apiParam (GET Parameter) {string} [1] Search query (user/group)
      * @apiParam (GET Parameter) {boolean} [single] Search request for a single user (Don't have to be in namespace)
@@ -61,9 +88,44 @@ class Resource extends Controller
      */
     public function getAclRoles(string $q, bool $single = false): Response
     {
-        $resource = new UserResource($this->user, $this->logger, $this->fs);
-        $result = $resource->searchRole($q, $single);
+        if($single === true) {
+            $regex = new Regex('^'.preg_quote($q).'$', 'i');
+            $users_filter = [
+                'username' => $regex,
+            ];
+            $groups_filter = [
+                'name' => $regex,
+            ];
+        } else {
+            $regex = new Regex('^'.preg_quote($q), 'i');
+            $users_filter = [
+                'username' => $regex,
+                'namespace' => $this->user->getNamespace()
+            ];
+            $groups_filter = [
+                'name' => $regex,
+                'namespace' => $this->user->getNamespace()
+            ];
+        }
 
-        return (new Response())->setCode(200)->setBody($result);
+        $body = [];
+
+        foreach($this->server->getGroups($groups_filter) as $role) {
+            $body[] = [
+               'type' => 'group',
+               'id' => (string)$role->getId(),
+                'name' => $role->getName(),
+            ];
+        }
+
+        foreach($this->server->getUsers($users_filter) as $role) {
+            $body[] = [
+                'type' => 'user',
+                'id' => (string)$role->getId(),
+                'name' => $role->getUsername(),
+            ];
+        }
+
+        return (new Response())->setCode(200)->setBody($body);
     }
 }

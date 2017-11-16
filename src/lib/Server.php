@@ -19,6 +19,8 @@ use Micro\Auth\Identity;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
+use Generator;
+use Balloon\Filesystem\Acl;
 
 class Server
 {
@@ -58,6 +60,13 @@ class Server
     protected $identity;
 
     /**
+     * Acl
+     *
+     * @var acl
+     */
+    protected $acl;
+
+    /**
      * Temporary store.
      *
      * @var string
@@ -87,12 +96,13 @@ class Server
      * @param Hook            $hook
      * @param iterable        $config
      */
-    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, ?Iterable $config = null)
+    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
     {
         $this->db = $db;
         $this->storage = $storage;
         $this->logger = $logger;
         $this->hook = $hook;
+        $this->acl = $acl;
 
         $this->setOptions($config);
     }
@@ -167,13 +177,13 @@ class Server
     public function getFilesystem(?User $user = null): Filesystem
     {
         if (null !== $user) {
-            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $user);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl, $user);
         }
         if ($this->identity instanceof User) {
-            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->identity);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl, $this->identity);
         }
 
-        return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage);
+        return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl);
     }
 
     /**
@@ -302,22 +312,34 @@ class Server
     }
 
     /**
-     * Get users by name.
+     * Get users.
      *
-     * @param array $name
+     * @param array $filter
      *
      * @return Generator
      */
-    public function getUsersByName(array $name): Generator
+    public function getUsers(array $filter): Generator
     {
-        $filter = [
-            'name' => ['$in' => $name],
-        ];
+        $users = $this->db->user->find($filter);
 
-        $users = $this->db->user->find($users);
-
-        foreach($user as $attributes) {
+        foreach($users as $attributes) {
             yield new User($attributes, $this, $this->db, $this->logger);
+        }
+    }
+
+    /**
+     * Get groups
+     *
+     * @param array $filter
+     *
+     * @return Generator
+     */
+    public function getGroups(array $filter): Generator
+    {
+        $groups = $this->db->group->find($filter);
+
+        foreach($groups as $attributes) {
+            yield new Group($attributes, $this, $this->db, $this->logger);
         }
     }
 
@@ -326,7 +348,7 @@ class Server
      *
      * @param string $name
      *
-     * @return User
+     * @return Group
      */
     public function getGroupByName(string $name): Group
     {

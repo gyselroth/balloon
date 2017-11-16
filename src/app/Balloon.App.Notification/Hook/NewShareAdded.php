@@ -23,6 +23,7 @@ use Balloon\Server;
 use Zend\Mail\Message;
 use MongoDB\BSON\ObjectId;
 use Balloon\Server\User;
+use Psr\Log\LoggerInterface;
 
 class NewShareAdded extends AbstractHook
 {
@@ -64,11 +65,12 @@ class NewShareAdded extends AbstractHook
      * @param Notification $notifier
      * @param Server $server
      */
-    public function __construct(Notifier $notifier, Server $server, ?Iterable $config=null)
+    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, ?Iterable $config=null)
     {
         $this->notifier = $notifier;
         $this->server = $server;
         $this->setOptions($config);
+        $this->logger = $logger;
     }
 
 
@@ -148,7 +150,7 @@ class NewShareAdded extends AbstractHook
             }, $this->subject);
 
 
-            $this->notifier->notify($receiver, $this->server->getUser(), $subject, $body);
+            $this->notifier->notify($receiver, $this->server->getIdentity(), $subject, $body);
         }
     }
 

@@ -186,9 +186,16 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @var array
      q*/
-    protected $storage = [
-        'adapter' => 'gridfs',
-    ];
+    protected $storage;
+
+
+    /**
+     * Acl
+     *
+     * @var Acl
+     */
+    protected $acl;
+
 
     /**
      * Convert to filename.
@@ -221,7 +228,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function setFilesystem(Filesystem $fs)
+    public function setFilesystem(Filesystem $fs): NodeInterface
     {
         $this->_fs = $fs;
 
@@ -286,7 +293,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 Exception\Conflict::CANT_BE_CHILD_OF_ITSELF
             );
         }
-        if (!$this->isAllowed('w') && !$this->isReference()) {
+        if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
             throw new Exception\Forbidden(
                 'not allowed to move node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_MOVE
@@ -538,172 +545,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     }
 
     /**
-     * Check acl.
-     *
-     * @param string $privilege
-     *
-     * @return bool
-     */
-    public function isAllowed(string $privilege = 'r'): bool
-    {
-        $acl = null;
-        $share = null;
-
-        $this->_logger->debug('check acl for ['.$this->_id.'] with privilege ['.$privilege.']', [
-            'category' => get_class($this),
-        ]);
-
-        if (null === $this->_user) {
-            $this->_logger->debug('system acl call, grant full access', [
-                'category' => get_class($this),
-            ]);
-
-            return true;
-        }
-
-        $priv = $this->getAclPrivilege();
-
-        $result = false;
-
-        if ('w+' === $priv && $this->isOwnerRequest()) {
-            $result = true;
-        } elseif ($this->isShared() || $this->isReference()) {
-            if ('r' === $privilege && ('r' === $priv || 'w' === $priv || 'rw' === $priv)) {
-                $result = true;
-            } elseif ('w' === $privilege && ('w' === $priv || 'rw' === $priv)) {
-                $result = true;
-            }
-        } else {
-            if ('r' === $privilege && ('r' === $priv || 'rw' === $priv)) {
-                $result = true;
-            } elseif ('w' === $privilege && ('w' === $priv || 'rw' === $priv)) {
-                $result = true;
-            }
-        }
-
-        $this->_logger->debug('check acl for node ['.$this->_id.'], requested privilege ['.$privilege.']', [
-            'category' => get_class($this),
-            'params' => ['privileges' => $priv],
-        ]);
-
-        return $result;
-    }
-
-    /**
-     * Get privilege.
-     *
-     * rw - READ/WRITE
-     * r  - READ(only)
-     * w  - WRITE(only)
-     * d  - DENY
-     *
-     * @return string
-     */
-    public function getAclPrivilege()
-    {
-        $result = false;
-        $acl = [];
-        $user = $this->_user;
-
-        if ($this->isShareMember()) {
-            try {
-                $share = $this->_fs->findRawNode($this->shared);
-            } catch (\Exception $e) {
-                $this->_logger->error('could not found share node ['.$this->shared.'] for share child node ['.$this->_id.'], dead reference?', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-
-                return 'd';
-            }
-
-            if ((string) $share['owner'] === (string) $user->getId()) {
-                return 'rw';
-            }
-
-            $acl = $share['acl'];
-        } elseif ($this->isReference() && $this->isOwnerRequest()) {
-            try {
-                $share = $this->_fs->findRawNode($this->reference);
-            } catch (\Exception $e) {
-                $this->_logger->error('could not found share node ['.$this->shared.'] for reference ['.$this->_id.'], dead reference?', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-
-                $this->_forceDelete();
-
-                return 'd';
-            }
-
-            if ($share['deleted'] instanceof UTCDateTime || true !== $share['shared']) {
-                $this->_logger->error('share node ['.$share['_id'].'] has been deleted, dead reference?', [
-                    'category' => get_class($this),
-                ]);
-
-                $this->_forceDelete();
-
-                return 'd';
-            }
-
-            $acl = $share['acl'];
-        } elseif (!$this->isOwnerRequest()) {
-            $this->_logger->warning('user ['.$this->_user->getUsername().'] not allowed to access non owned node ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-            return 'd';
-        } elseif ($this->isOwnerRequest()) {
-            return 'rw';
-        }
-
-        if (!is_array($acl)) {
-            return 'd';
-        }
-
-        if (array_key_exists('user', $acl)) {
-            foreach ($acl['user'] as $rule) {
-                if (array_key_exists('user', $rule) && $rule['user'] === $user->getUsername() && array_key_exists('priv', $rule)) {
-                    $result = $rule['priv'];
-                } elseif (array_key_exists('ldapdn', $rule) && $rule['ldapdn'] === $user->getLdapDn() && array_key_exists('priv', $rule)) {
-                    $result = $rule['priv'];
-                }
-
-                if ('d' === $result) {
-                    return $result;
-                }
-            }
-        }
-
-        if (array_key_exists('group', $acl)) {
-            $groups = $user->getGroups();
-
-            foreach ($acl['group'] as $rule) {
-                if (array_key_exists('group', $rule) && in_array($rule['group'], $groups, true) && array_key_exists('priv', $rule)) {
-                    $group_result = $rule['priv'];
-
-                    if ('d' === $group_result) {
-                        return $group_result;
-                    }
-                    if (false === $result) {
-                        $result = $group_result;
-                    } elseif ('r' === $result && ('w' === $group_result || 'rw' === $group_result)) {
-                        $result = $group_result;
-                    } elseif ('rw' === $group_result) {
-                        $result = $group_result;
-                    }
-                }
-            }
-        }
-
-        if (false === $result) {
-            return 'd';
-        }
-
-        return $result;
-    }
-
-    /**
      * Get attribute.
      *
      * @param string $attribute
@@ -732,7 +573,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isAllowed('w')) {
+        if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
                 'not allowed to restore node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_UNDELETE
@@ -1276,7 +1117,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function save($attributes = [], $remove = [], ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isAllowed('w') && !$this->isReference()) {
+        if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
             throw new Exception\Forbidden(
                 'not allowed to modify node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
@@ -1335,28 +1176,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         }
     }
 
-    /**
-     * Check node.
-     */
-    protected function _verifyAccess()
-    {
-        if (!$this->isAllowed('r')) {
-            throw new Exception\Forbidden(
-                'not allowed to access node',
-                Exception\Forbidden::NOT_ALLOWED_TO_ACCESS
-            );
-        }
-
-        if ($this->destroy instanceof UTCDateTime && $this->destroy->toDateTime()->format('U') <= time()) {
-            $this->_logger->info('node ['.$this->_id.'] is not accessible anmyore, destroy node cause of expired destroy flag', [
-                'category' => get_class($this),
-            ]);
-
-            $this->delete(true);
-
-            throw new Exception\Conflict('node is not available anymore');
-        }
-    }
 
     /**
      * Get Attributes.
@@ -1494,7 +1313,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 break;
                 case 'access':
                     if ($this->isSpecial() && null !== $sharenode) {
-                        $build['access'] = $sharenode->getAclPrivilege();
+                        $build['access'] = $this->_acl->getAclPrivilege($sharenode);
                     }
 
                 break;

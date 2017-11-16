@@ -22,6 +22,7 @@ use Sabre\DAV;
 use Balloon\Hook;
 use Psr\Log\LoggerInterface;
 use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Acl;
 
 class File extends AbstractNode implements DAV\IFile
 {
@@ -104,7 +105,7 @@ class File extends AbstractNode implements DAV\IFile
      * @param array      $attributes
      * @param Filesystem $fs
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Storage $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Storage $storage)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -113,13 +114,13 @@ class File extends AbstractNode implements DAV\IFile
         $this->_logger = $logger;
         $this->_hook = $hook;
         $this->_storage = $storage;
+        $this->_acl = $acl;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
         }
 
         $this->raw_attributes = $attributes;
-        $this->_verifyAccess();
     }
 
     /**
@@ -130,7 +131,7 @@ class File extends AbstractNode implements DAV\IFile
     public function get()
     {
         try {
-            if (null === $this->storage || !isset($this->storage['attributes'])) {
+            if (null === $this->storage) {
                 return null;
             }
 
@@ -216,7 +217,7 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function restore(int $version): bool
     {
-        if (!$this->isAllowed('w')) {
+        if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
                 'not allowed to restore node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_RESTORE
@@ -315,7 +316,7 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isAllowed('w')) {
+        if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
                 'not allowed to delete node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_DELETE
@@ -566,7 +567,7 @@ class File extends AbstractNode implements DAV\IFile
             $options = $this->_storage->storeFile($this, $this->storage, $stream);
             $this->storage['attributes'] = $options;
         } else {
-            unset($this->storage['attributes']);
+            $this->storage = null;
         }
 
         //Update current version
@@ -663,7 +664,7 @@ class File extends AbstractNode implements DAV\IFile
      */
     protected function validatePutRequest($file, bool $new = false, array $attributes = []): bool
     {
-        if (!$this->isAllowed('w')) {
+        if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
                 'not allowed to modify node',
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
@@ -679,7 +680,7 @@ class File extends AbstractNode implements DAV\IFile
             );
         }
 
-        if ($this->isShareMember() && false === $new && 'w' === $this->getShareNode()->getAclPrivilege()) {
+        if ($this->isShareMember() && false === $new && 'w' === $this->_acl->getAclPrivilege($this->getShareNode())) {
             throw new Exception\Forbidden(
                 'not allowed to overwrite node',
                 Exception\Forbidden::NOT_ALLOWED_TO_OVERWRITE

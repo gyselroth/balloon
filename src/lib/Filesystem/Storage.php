@@ -188,8 +188,12 @@ class Storage implements AdapterAwareInterface
      *
      * @return mixed
      */
-    public function storeFile(File $file, array $options, $contents)
+    public function storeFile(File $file, ?array $options, $contents)
     {
+        if($options === null) {
+            $options = $this->getDefaultAdapter();
+        }
+
         $options['attributes'] = [];
         if ($this->isValidStorageRequest($options)) {
             return $this->getAdapter($options['adapter'])->storeFile($file, $contents);

@@ -12,16 +12,19 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Adapter;
 
+use Balloon\Server\User;
+
 interface AdapterInterface
 {
     /**
      * Send notification
      *
      * @param array receiver
+     * @param User $sender
      * @param string $subject
      * @param string $body
      * @param array $context
      * @return bool
      */
-    public function notify(array $receiver, string $subject, string $body, array $context=[]): bool;
+    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context=[]): bool;
 }

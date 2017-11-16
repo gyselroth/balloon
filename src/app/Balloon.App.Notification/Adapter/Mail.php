@@ -16,6 +16,7 @@ use Balloon\Async\Mail as MailJob;
 use Balloon\Async;
 use Psr\Log\LoggerInterface;
 use Zend\Mail\Message;
+use Balloon\Server\User;
 
 class Mail implements AdapterInterface
 {

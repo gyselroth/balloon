@@ -17,6 +17,7 @@ use Balloon\Async;
 use Psr\Log\LoggerInterface;
 use Balloon\App\Notification\App;
 use MongoDB\BSON\UTCDateTime;
+use Balloon\Server\User;
 
 class Db implements AdapterInterface
 {
