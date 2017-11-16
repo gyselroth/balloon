@@ -1015,7 +1015,11 @@ abstract class Node implements INode, DAV\INode
                 'name',
                 'deleted',
             ], [], $recursion, $recursion_first);
-            
+
+            if($this->isReference()) {
+                return true;
+            }            
+
             return $this->doRecursiveAction('undelete', [
                     'conflict'        => $conflict,
                     'recursion'       => $recursion,
