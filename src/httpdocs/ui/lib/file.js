@@ -21,7 +21,7 @@ var balloon = {
     /**
      * Version
      */
-    BALLOON_VERSION: '1.0.16',
+    BALLOON_VERSION: '1.0.17',
 
 
     /**
@@ -143,8 +143,8 @@ var balloon = {
             $fs_browser_layout.kendoSplitter({
                 panes: [
                     { collapsible: true, size: "13%", min: "13%" },
-                    { collapsible: true, size: "50%", min: "25%" },
-                    { collapsible: true, size: "37%", min: "35%", collapsed: true },
+                    { collapsible: true, size: "50%", min: "15%" },
+                    { collapsible: true, size: "37%", min: "15%", collapsed: true },
                 ],
                 scrollable: false,
                 collapsed: true,
@@ -3979,7 +3979,10 @@ var balloon = {
         }
         
         var $k_splitter = $('#fs-browser-layout').data('kendoSplitter'),
-            $pane       = $k_splitter.insertAfter({ size: "100px" }, ".k-pane:last");
+            $pane       = $k_splitter.insertAfter({
+                size: "25%",
+                min: "15%"
+            }, ".k-pane:last");
 
         var html = '<div class="fs-browser-top"></div>'+
                    '<div id="fs-action-search" style="display: none;">'+
@@ -4007,8 +4010,8 @@ var balloon = {
         $pane.html(html).attr('id', 'fs-search-extend');
         
         $fs_search_extend = $('#fs-search-extend');
-        $k_splitter.size("#fs-layout-left", "35%");
-        $k_splitter.size("#fs-content", "30%");
+        $k_splitter.size("#fs-layout-left", "45%");
+        $k_splitter.size("#fs-content", "25%");
         $k_splitter.size("#fs-search-extend", "25%");
 
         $('#fs-browser-action #fs-action-search').hide("slide",{duration: 400, direction: 'right'});
