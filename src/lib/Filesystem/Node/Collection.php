@@ -387,7 +387,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         if (is_string($node)) {
             $name = $node;
             $search = [
-                'name' => $name,
+                'name'   => new Regex('^'.preg_quote($name).'$', 'i'),
                 'parent' => $this->getRealId(),
             ];
 

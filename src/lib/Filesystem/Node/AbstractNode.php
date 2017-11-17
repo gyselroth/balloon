@@ -499,11 +499,15 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     {
         $name = $this->checkName($name);
 
-        if ($this->getParent()->childExists($name)) {
-            throw new Exception\Conflict(
-                'a node called '.$name.' does already exists in this collection',
-                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-            );
+        try {
+            $child = $this->getParent()->getChild($name);
+            if($child->getId() != $this->_id) {
+                throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
+                );
+            }
+        } catch(Exception\NotFound $e) {
+            //child does not exists, we can safely rename
         }
 
         $this->name = $name;
