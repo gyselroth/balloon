@@ -381,6 +381,8 @@ class Delta
                 } else {
                     $list[$fields['path']] = $fields;
                 }
+            } catch (Exception\Forbidden $e) { 
+                //no delta entriy for a node where we do not have access to
             } catch (\Exception $e) {
                 try {
                     if ($log['parent'] === null) {
