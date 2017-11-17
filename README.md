@@ -2,19 +2,19 @@
 [![GitHub release](https://img.shields.io/github/release/gyselroth/balloon.svg)](https://github.com/gyselroth/balloon/releases)
 [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
 
-balloon is a cloud server and document management system.
+balloon is both a cloud server and a document management system
 
 ## Features
 
-* Virtual Filesystem based on MongoDB which is highly scalable
+* Virtual Filesystem based on MongoDB and therefore highly scalable
 * Higly configurable via XML configuration
-* Multiple types of authentication, local (MongoDB), LDAP or OAUTH2. 
+* Multiple types of authentication possible: local (MongoDB), LDAP or OAUTH2. 
 * HTTP REST API
 * WebDAV
-* Multilangual webinterface
-* High performance webinterface which is completely written in javascript
-* Various DMS features like tagging, meta data, sharing, file history and more
-* Event logging and possibiliy of undo an event
+* Multilingual webinterface
+* High performance webinterface seamlessly written in javascript
+* Various DMS features like tagging, meta data, sharing, file history and many more
+* Event logging and possibiliy of undoing an event
 * Integrated app system
 * File previews
 * Multiple log adapter and detailed log files
@@ -22,23 +22,23 @@ balloon is a cloud server and document management system.
 * LDAP integration for authentication, user sync, automatically deployed shares and more
 * Fully responsive webinterface
 * Notifications
-* Automatically destroy files/folders at a certain time
+* Possibility to automatically destroy files/folders at a certain time
 * Globally accessible share links
 * ...
 
 ## What else?
 
-There are very usefefull apps available (fully supported by the core but not distributed with it):
+There are very useful apps available (fully supported by the core but not distributed with it):
 
 ### LibreOffice
 
-The office app introduces libreoffice (collabora) for balloon. Meaning this is real integration of a full office suite within your personal or business cloud. It does support read and write all types of office formats and also features collaborative editing sessions.
+The office app introduces libreoffice (collabora) for balloon: i.e. a real integration of a full office suite within your personal or business cloud, supporting read and write all types of office formats and also featuring collaborative editing sessions.
 
 See the [balloon-app-office](https://github.com/gyselroth/balloon-app-office) repository for further information.
 
 ### Elasticsearch
 
-Elasticsearch provides full text search over all stored documents. The elasticsearch balloon app makes use of that and transperantly replaces the core search mechanism of meta data only.
+Elastic search provides full text search over all stored documents. The elastic search balloon app makes use of that and transparently replaces the core search mechanism of meta data only.
 
 See the [balloon-app-elasticsearch](https://github.com/gyselroth/balloon-app-elasticsearch) repository for further information.
 
