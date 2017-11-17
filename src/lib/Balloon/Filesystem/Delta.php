@@ -334,7 +334,12 @@ class Delta
                 //include share children after a new reference was added, otherwise the children would be lost if the cursor is newer
                 //than the create timestamp of the share reference
                 if ($log['operation'] === 'addCollectionReference' && $log_node->isReference()) {
-                    foreach ($this->fs->findNodesWithCustomFilter(['shared' => $log_node->getShareId()]) as $share_member) {
+                    $members = $this->fs->findNodesWithCustomFilter([
+                        'shared'  => $log_node->getShareId(),
+                        'deleted' => false 
+                    ]);
+
+                    foreach ($members as $share_member) {
                         $member_attrs = $share_member->getAttribute($attributes);
                         $list[$member_attrs['path']] = $member_attrs;
                     }
