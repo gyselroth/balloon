@@ -2,7 +2,7 @@ CHANGELOG
 
 --
 1.0.17 - Raffael Sahli <sahli@gyselroth.com>
-Fri Nov 17 13:51:22 CEST 2017
+Fri Nov 17 13:51:22 CET 2017
 --
 CORE: [FIX] delta does not include sub nodes of shares anymore where the reference was deleted #81 
 CORE: [FIX] undeleting a share reference does not undelete share members #96
