@@ -168,8 +168,8 @@ class Elasticsearch
                     $_node = $this->fs->findNodeWithId($id);
                     if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
                      || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
-                        if (!($_node->isShare() && !$_node->isOwnerRequest())) {
-                            $list[$id] = $_node;
+                        if (!($_node->isShared() && !$_node->isOwnerRequest()) && !isset($list[(string)$_node->getId()])) {
+                            $list[(string)$_node->getId()] = $_node;
                         }
                     }
                 } catch (\Exception $e) {
