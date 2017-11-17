@@ -526,8 +526,8 @@ class Filesystem
                     $_node = $this->findNodeWithId($id);
                     if ($_node->isDeleted() && ($deleted == 1 || $deleted == 2)
                      || !$_node->isDeleted() && ($deleted == 0 || $deleted == 2)) {
-                        if (!($_node->isShare() && !$_node->isOwnerRequest()) && !isset($list[$id])) {
-                            $list[$id] = $_node;
+                        if (!($_node->isShare() && !$_node->isOwnerRequest()) && !isset($list[(string)$_node->getId()])) {
+                            $list[(string)$_node->getId()] = $_node;
                         }
                     }
                 } catch (\Exception $e) {
