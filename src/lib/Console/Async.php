@@ -126,8 +126,10 @@ class Async implements ConsoleInterface
             'category' => get_class($this),
         ]);
 
-        $cursor = $this->async->getCursor(true);
-        while (true) {
+        $cursor = $this->async->getCursor();
+        $this->async->start($cursor, $this->container);
+
+        /*while (true) {
             $this->hook->run('preExecuteAsyncJobs');
 
             if (null !== $this->getopt->getOption('queue')) {
@@ -135,7 +137,7 @@ class Async implements ConsoleInterface
             }
 
             $this->hook->run('postExecuteAsyncJobs');
-        }
+        }*/
 
         return true;
     }

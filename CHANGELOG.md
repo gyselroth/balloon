@@ -62,21 +62,29 @@
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 
-## 1.0.17-dev
+## 1.0.17
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Nov 17 13:51:22 CET 2017
 
-CORE: [FIX] delta does not include sub nodes of shares anymore where the reference was deleted #81 
-CORE: [FIX] undeleting a share reference does not undelete share members #96
+* CORE: [FIX] delta does not include sub nodes of shares anymore where the reference was deleted #81 
+* CORE: [FIX] undeleting a share reference does not undelete share members #96
+* CORE: [FIX] delta does not include delteded sub nodes of a added share reference anymore, fixes #91 and #97
+* CORE: [FIX] delta no more includes nodes marked as deleted and owned by other other users with mailbox permission level #80
+* CORE: [FIX] elasticsearch result list does not contain duplicate entries #60
+* CORE: [FIX] access nodes by path is now case insensitive #100
+* CORE: [FIX] it is now possible to rename an node from test to tesT (caseinsenitive), #99
+* Webinterface: [FIX] search result pane is now bigger and properties more resizable
+* CORE: [FIX] undeleting a share reference does not undelete share members #96
 
 
 ## 1.0.16
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Sept 28 14:35:32 CEST 20170
 
-API: [FIX] POST /node/move can not move a node into a shared mailbox collection which holds a node with the same name #75 
-API: [FIX] PUT /file returns Exception\Conflict with code 19 instead Exception\Forbidden code 40 if a file gets uploaded into a shared mailbox collection and the collection already holds a node with the same name #75
-API: [FIX] PUT /file and POST /collection now create a node within a writeonly collection without a Exception\Forbidden response, his feature (writeonly) is deprecated now and will get removed in v2, replacement is the newly (v1.x) introduced permission mailbox)
-API: [FIX] PUT /file does not throw an error anymore if an application/zip file with an unknown mimetype gets uploaded
+* API: [FIX] POST /node/move can not move a node into a shared mailbox collection which holds a node with the same name #75 
+* API: [FIX] PUT /file returns Exception\Conflict with code 19 instead Exception\Forbidden code 40 if a file gets uploaded into a shared mailbox collection and the collection already holds a node with the same name #75
+* API: [FIX] PUT /file and POST /collection now create a node within a writeonly collection without a Exception\Forbidden response, his feature (writeonly) is deprecated now and will get removed in v2, replacement is the newly (v1.x) introduced permission mailbox)
+* API: [FIX] PUT /file does not throw an error anymore if an application/zip file with an unknown mimetype gets uploaded
 
 
 ## 1.0.15

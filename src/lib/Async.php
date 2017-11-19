@@ -28,9 +28,10 @@ class Async
      * Job status.
      */
     const STATUS_WAITING = 0;
-    const STATUS_PROCESSING = 1;
-    const STATUS_DONE = 2;
-    const STATUS_FAILED = 3;
+    const STATUS_POSTPONED = 1;
+    const STATUS_PROCESSING = 2;
+    const STATUS_DONE = 3;
+    const STATUS_FAILED = 4;
 
     /**
      * Database.
@@ -47,15 +48,35 @@ class Async
     protected $logger;
 
     /**
+     * Local queue
+     *
+     * @var array
+     */
+    protected $queue = [];
+
+    /**
+     * Collection name
+     *
+     * @var string
+     */
+    protected $collection_name = 'queue';
+
+    /**
      * Init queue.
      *
      * @param Filesystem      $fs
      * @param LoggerInterface $logger
+     * @param string $collection_name
      */
-    public function __construct(Database $db, LoggerInterface $logger)
+    public function __construct(Database $db, LoggerInterface $logger, string $collection_name='queue', array $jobs=[])
     {
         $this->db = $db;
         $this->logger = $logger;
+        $this->collection_name = $collection_name;
+
+        foreach($jobs as $job) {
+            $this->addJob($job['class'], $job['data']);
+        }
     }
 
     /**
@@ -63,15 +84,17 @@ class Async
      *
      * @param string $class
      * @param array $data
+     * @param UTCDateTime $at
      *
      * @return bool
      */
-    public function addJob(string $class, array $data): bool
+    public function addJob(string $class, array $data, ?UTCDateTime $at=null): bool
     {
-        $result = $this->db->queue->insertOne([
+        $result = $this->db->{$this->collection_name}->insertOne([
             'class' => $class,
             'status' => self::STATUS_WAITING,
             'timestamp' => new UTCDateTime(),
+            'at' => $at,
             'data' => $data,
         ]);
 
@@ -128,7 +151,7 @@ class Async
      *
      * @return IteratorIterator
      */
-    public function getCursor(bool $tailable = false): IteratorIterator
+    public function getCursor(bool $tailable = true): IteratorIterator
     {
         $options = [];
         if (true === $tailable) {
@@ -136,7 +159,7 @@ class Async
             $options['noCursorTimeout'] = true;
         }
 
-        $cursor = $this->db->queue->find(['status' => self::STATUS_WAITING], $options);
+        $cursor = $this->db->{$this->collection_name}->find(['status' => self::STATUS_WAITING], $options);
         $iterator = new IteratorIterator($cursor);
         $iterator->rewind();
 
@@ -153,7 +176,7 @@ class Async
      */
     public function updateJob(ObjectId $id, int $status): bool
     {
-        $result = $this->db->queue->updateMany(['_id' => $id, '$isolated' => true], ['$set' => [
+        $result = $this->db->{$this->collection_name}->updateMany(['_id' => $id, '$isolated' => true], ['$set' => [
             'status' => $status,
             'timestamp' => new UTCDateTime(),
         ]]);
@@ -164,6 +187,30 @@ class Async
 
         return $result->isAcknowledged();
     }
+
+
+    /**
+     * Check local queue for postponed jobs
+     *
+     * @return bool
+     */
+    protected function processLocalQueue()
+    {
+        $now = new DateTime();
+        foreach($this->queue as $key => $job) {
+            if($job['at'] >= $now) {
+                $this->logger->info('postponed job ['.$job['_id'].'] ['.$job['class'].'] can now be executed', [
+                    'category' => get_class($this),
+                ]);
+
+                unset($this->queue[$key]);
+                $this->processJob($job);
+            }
+        }
+
+        return true;
+    }
+
 
     /**
      * Execute job queue.
@@ -184,40 +231,71 @@ class Async
 
                     return false;
                 }
-                $cursor->next();
 
-                return true;
+                continue;
+                //$cursor->next();
+                //return true;
             }
 
             $job = $cursor->current();
             $cursor->next();
 
-            $this->updateJob($job['_id'], self::STATUS_PROCESSING);
+            if($job['at'] instanceof UTCDateTime) {
+                $this->updateJob($job['_id'], self::STATUS_POSTPONED);
+                $this->queue[] = $job;
 
-            $this->logger->debug('execute job ['.$job['_id'].'] ['.$job['class'].']', [
-                'category' => get_class($this),
-                'params' => $job['data'],
-            ]);
-
-            try {
-                if (!class_exists($job['class'])) {
-                    $this->updateJob($job['_id'], self::STATUS_FAILED);
-
-                    continue;
-                }
-
-                $instance = $container->getNew($job['class']);
-                $instance->setData($job['data'])
-                    ->start();
-                $this->updateJob($job['_id'], self::STATUS_DONE);
-            } catch (\Exception $e) {
-                $this->logger->error('failed execute job ['.$job['_id'].'], failed with error', [
+                $this->logger->debug('execution of job ['.$job['_id'].'] ['.$job['class'].'] is postponed at ['.$job['at'].']', [
                     'category' => get_class($this),
-                    'exception' => $e,
                 ]);
 
-                $this->updateJob($job['_id'], self::STATUS_FAILED);
+                continue;
             }
+
+            $this->processJob($job);
         }
+    }
+
+
+    /**
+     * Process job
+     *
+     * @param array $job
+     * @return bool
+     */
+    protected function processJob(array $job): bool
+    {
+        $this->updateJob($job['_id'], self::STATUS_PROCESSING);
+
+        $this->logger->debug('execute job ['.$job['_id'].'] ['.$job['class'].']', [
+            'category' => get_class($this),
+            'params' => $job['data'],
+        ]);
+
+        try {
+            if (!class_exists($job['class'])) {
+                throw new Exception('job class does not exists');
+            }
+
+            $instance = $container->getNew($job['class']);
+
+            if(!($instance instanceof JobInterface)) {
+                throw new Exception('job must implement JobInterface');
+            }
+
+            $instance->setData($job['data'])
+                ->start();
+
+            $this->updateJob($job['_id'], self::STATUS_DONE);
+        } catch (\Exception $e) {
+            $this->logger->error('failed execute job ['.$job['_id'].'], failed with error', [
+                'category' => get_class($this),
+                'exception' => $e,
+            ]);
+
+            $this->updateJob($job['_id'], self::STATUS_FAILED);
+            return false;
+        }
+
+        return true;
     }
 }
