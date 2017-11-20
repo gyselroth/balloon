@@ -17,7 +17,7 @@ use Balloon\Hook\HookInterface;
 use Balloon\App\AppInterface;
 use MongoDB\BSON\UTCDateTime;
 use Balloon\Async;
-use Balloon\Async\CleanTrash as Job;
+use Balloon\Async\AutoDestroy as Job;
 
 class AutoDestroy extends AbstractHook
 {
@@ -27,15 +27,6 @@ class AutoDestroy extends AbstractHook
      * @var int
      */
     protected $interval = 3600;
-
-
-    /**
-     * Last execution
-     *
-     * @var int
-     */
-    protected $last_execution;
-
 
     /**
      * Async
@@ -87,10 +78,8 @@ class AutoDestroy extends AbstractHook
      */
     public function preExecuteAsyncJobs(): void
     {
-        if($this->last_execution + $this->interval <= time()) {
-            $this->async->addJobOnce(Job::class, [],
-                true, $this->last_execution);
-            $this->last_execution = time();
-        }
+        $this->async->addJobOnce(Job::class, [], [
+            'interval' => $this->interval
+        ]);
     }
 }

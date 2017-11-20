@@ -15,8 +15,10 @@ namespace Balloon\Converter\Adapter;
 use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
+use Imagick;
+use Psr\Log\LoggerInterface;
 
-class Office extends Imagick
+class Office implements AdapterInterface
 {
     /**
      * Soffice executable.
@@ -146,10 +148,6 @@ class Office extends Imagick
      */
     public function match(File $file): bool
     {
-        if (0 === $file->getSize()) {
-            return false;
-        }
-
         foreach ($this->formats as $type => $formats) {
             if (in_array($file->getMime(), $formats, true)) {
                 return true;
@@ -170,12 +168,54 @@ class Office extends Imagick
     {
         foreach ($this->formats as $type => $formats) {
             if (in_array($file->getMime(), $formats, true)) {
-                $values = array_keys($formats);
-
-                return array_merge($values, parent::getSupportedFormats($file));
+                return array_keys($formats);
             }
         }
+
+        return [];
     }
+
+
+    /**
+     * Convert.
+     *
+     * @param File   $file
+     *
+     * @return Result
+     */
+    public function createPreview(File $file): Result
+    {
+        //we need a pdf to create an image from the first page
+        $pdf = $this->convert($file, 'pdf');
+
+        $desth = tmpfile();
+        $dest = stream_get_meta_data($desth)['uri'];
+
+        $image = new Imagick($pdf->getPath().'[0]');
+
+        $width = $image->getImageWidth();
+        $height = $image->getImageHeight();
+
+        if ($height <= $width && $width > $this->max_size) {
+            $image->scaleImage($this->max_size, 0);
+        } elseif ($height > $this->max_size) {
+            $image->scaleImage(0, $this->max_size);
+        }
+
+        $image->setImageCompression(SystemImagick::COMPRESSION_JPEG);
+        $image->setImageCompressionQuality(100);
+        $image->stripImage();
+        $image->setColorSpace(SystemImagick::COLORSPACE_SRGB);
+        $image->setImageFormat($format);
+        $image->writeImage($dest);
+
+        if (!file_exists($dest) || filesize($dest) <= 0) {
+            throw new Exception('failed create prevew');
+        }
+
+        return new Result($dest, $desth);
+    }
+
 
     /**
      * Convert.
@@ -191,12 +231,6 @@ class Office extends Imagick
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
 
-        if (in_array($format, parent::getSupportedFormats($file), true)) {
-            $convert = 'pdf';
-        } else {
-            $convert = $format;
-        }
-
         $command = 'HOME='.escapeshellarg($this->tmp).' timeout '.escapeshellarg($this->timeout).' '
             .escapeshellarg($this->soffice)
             .' --headless'
@@ -206,7 +240,7 @@ class Office extends Imagick
             .' --nofirststartwizard'
             .' --nologo'
             .' --norestore'
-            .' --convert-to '.escapeshellarg($convert)
+            .' --convert-to '.escapeshellarg($format)
             .' --outdir '.escapeshellarg($this->tmp)
             .' '.escapeshellarg($source);
 
@@ -215,18 +249,15 @@ class Office extends Imagick
         ]);
 
         shell_exec($command);
-        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$convert;
+        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$format;
 
         if (!file_exists($temp)) {
-            throw new Exception('failed convert document into '.$convert);
+            throw new Exception('failed convert document into '.$format);
         }
-        $this->logger->info('converted document into ['.$convert.']', [
-                'category' => get_class($this),
-            ]);
 
-        if ('pdf' === $convert && 'pdf' !== $format) {
-            return $this->createFromFile($temp, $format);
-        }
+        $this->logger->info('converted document into ['.$format.']', [
+            'category' => get_class($this),
+        ]);
 
         return new Result($temp);
     }

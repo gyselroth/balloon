@@ -23,11 +23,6 @@ use Psr\Log\LoggerInterface;
 class PreviewCreator extends Preview
 {
     /**
-     * Preview image format.
-     */
-    const PREVIEW_FORMAT_IMAGE = 'png';
-
-    /**
      * Converter.
      *
      * @var Converter
@@ -60,7 +55,7 @@ class PreviewCreator extends Preview
         ]);
 
         try {
-            $result = $this->converter->convert($file, self::PREVIEW_FORMAT_IMAGE);
+            $result = $this->converter->createPreview($file);
             $hash = md5_file($result->getPath());
 
             $found = $this->db->{'thumbnail.files'}->findOne([

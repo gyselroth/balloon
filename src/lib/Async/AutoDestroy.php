@@ -66,5 +66,7 @@ class AutoDestroy extends AbstractJob
                 ]);
             }
         }
+
+        return true;
     }
 }

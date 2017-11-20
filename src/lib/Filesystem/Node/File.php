@@ -130,6 +130,8 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function get()
     {
+var_dump($this->storage);
+exit();
         try {
             if (null === $this->storage) {
                 return null;
@@ -564,8 +566,7 @@ class File extends AbstractNode implements DAV\IFile
 
         //Write new content
         if ($this->size > 0) {
-            $options = $this->_storage->storeFile($this, $this->storage, $stream);
-            $this->storage['attributes'] = $options;
+            $this->storage = $this->_storage->storeFile($this, $this->storage, $stream);
         } else {
             $this->storage = null;
         }

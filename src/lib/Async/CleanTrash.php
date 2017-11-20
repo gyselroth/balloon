@@ -34,6 +34,14 @@ class CleanTrash extends AbstractJob
      */
     protected $logger;
 
+    /**
+     * Default data
+     *
+     * @var array
+     */
+    protected $data = [
+        'max_age' => 86400,
+    ];
 
     /**
      * Constructor
@@ -55,6 +63,7 @@ class CleanTrash extends AbstractJob
      */
     public function start(): bool
     {
+var_dump($this->data);
         $lt = time() - $this->data['max_age'];
 
         $result = $this->server->getFilesystem()->findNodesWithCustomFilter(['deleted' => ['$lt' => new UTCDateTime($lt)]]);

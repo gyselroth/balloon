@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon;
 
 use Balloon\Converter\Adapter\AdapterInterface;
-use Balloon\Converter\Adapter\Imagick;
+use Balloon\Converter\Adapter\ImagickImage;
 use Balloon\Converter\Adapter\Office;
 use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
@@ -29,7 +29,7 @@ class Converter implements AdapterAwareInterface
      * @var array
      */
     const DEFAULT_ADAPTER = [
-        Imagick::class => [],
+        ImagickImage::class => [],
         Office::class => [],
     ];
 
@@ -193,6 +193,41 @@ class Converter implements AdapterAwareInterface
 
         return [];
     }
+
+
+    /**
+     * Create preview.
+     *
+     * @param File   $file
+     *
+     * @return Result
+     */
+    public function createPreview(File $file): Result
+    {
+        $this->logger->debug('create preview from file ['.$file->getId().']', [
+            'category' => get_class($this),
+        ]);
+
+        foreach ($this->adapter as $name => $adapter) {
+            try {
+                if ($adapter->match($file)) {
+                    return $adapter->createPreview($file);
+                } else {
+                    $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
+                        'category' => get_class($this),
+                    ]);
+                }
+            } catch (\Exception $e) {
+                $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        throw new Exception('all adapter failed');
+    }
+
 
     /**
      * Convert document.

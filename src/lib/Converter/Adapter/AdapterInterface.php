@@ -44,4 +44,14 @@ interface AdapterInterface
      * @return Result
      */
     public function convert(File $file, string $format): Result;
+
+
+    /**
+     * Create preview
+     *
+     * @param File   $file
+     *
+     * @return Result
+     */
+    public function createPreview(File $file): Result;
 }

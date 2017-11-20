@@ -37,14 +37,6 @@ class CleanTrash extends AbstractHook
 
 
     /**
-     * Last execution
-     *
-     * @var int
-     */
-    protected $last_execution;
-
-
-    /**
      * Async
      *
      * @var Async
@@ -95,10 +87,10 @@ class CleanTrash extends AbstractHook
      */
     public function preExecuteAsyncJobs(): void
     {
-        if($this->last_execution + $this->interval <= time()) {
-            $this->async->addJobOnce(Job::class, ['max_age' => $this->max_age],
-                true, $this->last_execution);
-            $this->last_execution = time();
-        }
+        $this->async->addJobOnce(Job::class, [
+            'max_age' => $this->max_age,
+        ], [
+            'interval' => $this->interval
+        ]);
     }
 }

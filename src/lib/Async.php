@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-/**
+/*) * 1000*
  * Balloon
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
@@ -55,6 +55,13 @@ class Async
     protected $queue = [];
 
     /**
+     * Node name
+     *
+     * @var string
+     */
+    protected $node_name;
+
+    /**
      * Collection name
      *
      * @var string
@@ -62,21 +69,54 @@ class Async
     protected $collection_name = 'queue';
 
     /**
+     * Container
+     *
+     * @var ContainerInterface
+     */
+    protected $container;
+
+    /**
      * Init queue.
      *
-     * @param Filesystem      $fs
+     * @param Database     $db
      * @param LoggerInterface $logger
-     * @param string $collection_name
+     * @param ContainerInterface $container
+     * @param Iterable $config
      */
-    public function __construct(Database $db, LoggerInterface $logger, string $collection_name='queue', array $jobs=[])
+    public function __construct(Database $db, LoggerInterface $logger, ?ContainerInterface $container, ?Iterable $config=null)
     {
         $this->db = $db;
         $this->logger = $logger;
-        $this->collection_name = $collection_name;
+        $this->container = $container;
+        $this->node_name = gethostname();
+        $this->setOptions($config);
+    }
 
-        foreach($jobs as $job) {
-            $this->addJob($job['class'], $job['data']);
+    /**
+     * Set options.
+     *
+     * @param iterable $config
+     *
+     * @return Async
+     */
+    public function setOptions(? Iterable $config = null): Async
+    {
+        if (null === $config) {
+            return $this;
         }
+
+        foreach ($config as $option => $value) {
+            switch($option) {
+                case 'node_name':
+                case 'collection_name':
+                    $this->{$option} = (string)$name;
+                break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -88,13 +128,24 @@ class Async
      *
      * @return bool
      */
-    public function addJob(string $class, array $data, ?UTCDateTime $at=null): bool
+    public function addJob(string $class, array $data, array $options=[]): bool
     {
+        $defaults = [
+            'at' => null,
+            'interval' => -1,
+            'retry' => 0
+        ];
+
+        $options = array_merge($defaults, $options);
+
         $result = $this->db->{$this->collection_name}->insertOne([
             'class' => $class,
             'status' => self::STATUS_WAITING,
             'timestamp' => new UTCDateTime(),
-            'at' => $at,
+            'at' => $options['at'],
+            'retry' => $options['retry'],
+            'interval' => $options['interval'],
+            'node' => $this->node_name,
             'data' => $data,
         ]);
 
@@ -111,28 +162,25 @@ class Async
      *
      * @param string $class
      * @param array $data
+     * @param array $options
      *
      * @return bool
      */
-    public function addJobOnce(string $class, array $data, bool $ignore_status=false, ?UTCDateTime $since=null): bool
+    public function addJobOnce(string $class, array $data, array $options=[]): bool
     {
-        $options =[
+        $filter =[
             'class' => $class,
             'data'=> $data,
+            '$or' => [
+                ['status' => self::STATUS_WAITING],
+                ['status' => self::STATUS_POSTPONED],
+            ]
         ];
 
-        if($ignore_status === false) {
-            $options['status'] = self::STATUS_WAITING;
-        }
-
-        if($since !== null) {
-            $options['timestamp'] = ['$gt' => $since];
-        }
-
-        $result = $this->db->queue->findOne($options);
+        $result = $this->db->queue->findOne($filter);
 
         if($result === null) {
-            return $this->addJob($class, $data);
+            return $this->addJob($class, $data, $options);
         } else {
             $this->logger->debug('queue job ['.$result['_id'].'] of type ['.$class.'] already exists', [
                 'category' => get_class($this),
@@ -151,7 +199,7 @@ class Async
      *
      * @return IteratorIterator
      */
-    public function getCursor(bool $tailable = true): IteratorIterator
+    protected function getCursor(bool $tailable = true): IteratorIterator
     {
         $options = [];
         if (true === $tailable) {
@@ -159,7 +207,16 @@ class Async
             $options['noCursorTimeout'] = true;
         }
 
-        $cursor = $this->db->{$this->collection_name}->find(['status' => self::STATUS_WAITING], $options);
+        $cursor = $this->db->{$this->collection_name}->find([
+            '$or' => [
+                ['status' => self::STATUS_WAITING],
+                ['status' => self::STATUS_POSTPONED,
+                 'node' => $this->node_name ],
+                ['status' => self::STATUS_POSTPONED,
+                 'at' => ['$gte' => new UTCDateTime()]]
+            ]
+        ], $options);
+
         $iterator = new IteratorIterator($cursor);
         $iterator->rewind();
 
@@ -174,10 +231,11 @@ class Async
      *
      * @return bool
      */
-    public function updateJob(ObjectId $id, int $status): bool
+    protected function updateJob(ObjectId $id, int $status): bool
     {
         $result = $this->db->{$this->collection_name}->updateMany(['_id' => $id, '$isolated' => true], ['$set' => [
             'status' => $status,
+            'node' => $this->node_name,
             'timestamp' => new UTCDateTime(),
         ]]);
 
@@ -196,7 +254,7 @@ class Async
      */
     protected function processLocalQueue()
     {
-        $now = new DateTime();
+        $now = new UTCDateTime();
         foreach($this->queue as $key => $job) {
             if($job['at'] >= $now) {
                 $this->logger->info('postponed job ['.$job['_id'].'] ['.$job['class'].'] can now be executed', [
@@ -213,44 +271,63 @@ class Async
 
 
     /**
-     * Execute job queue.
-     *
-     * @param IteratorIterator   $cursor
-     * @param ContainerInterface $container
+     * Execute job queue as endless loop
      *
      * @return bool
      */
-    public function start(IteratorIterator $cursor, ContainerInterface $container): bool
+    public function startDaemon(): bool
     {
+        $cursor = $this->getCursor();
+
         while (true) {
+            $this->processLocalQueue();
+
             if (null === $cursor->current()) {
                 if ($cursor->getInnerIterator()->isDead()) {
                     $this->logger->error('job queue cursor is dead, is it a capped collection?', [
                         'category' => get_class($this),
                     ]);
 
-                    return false;
+                    return $this->startDaemon();
                 }
 
+                $cursor->next();
                 continue;
-                //$cursor->next();
-                //return true;
             }
 
             $job = $cursor->current();
             $cursor->next();
+            $this->processJob($job);
+        }
+    }
 
-            if($job['at'] instanceof UTCDateTime) {
-                $this->updateJob($job['_id'], self::STATUS_POSTPONED);
-                $this->queue[] = $job;
 
-                $this->logger->debug('execution of job ['.$job['_id'].'] ['.$job['class'].'] is postponed at ['.$job['at'].']', [
-                    'category' => get_class($this),
-                ]);
+    /**
+     * Execute job queue.
+     *
+     * @return bool
+     */
+    public function startOnce(): bool
+    {
+        $cursor = $this->getCursor(false);
 
-                continue;
+        while (true) {
+            $this->processLocalQueue();
+
+            if (null === $cursor->current()) {
+               if ($cursor->getInnerIterator()->isDead()) {
+                    $this->logger->debug('all jobs were processed', [
+                        'category' => get_class($this),
+                    ]);
+
+                    return false;
+                }
+
+                return true;
             }
 
+            $job = $cursor->current();
+            $cursor->next();
             $this->processJob($job);
         }
     }
@@ -264,6 +341,17 @@ class Async
      */
     protected function processJob(array $job): bool
     {
+        if($job['at'] instanceof UTCDateTime) {
+            $this->updateJob($job['_id'], self::STATUS_POSTPONED);
+            $this->queue[] = $job;
+
+            $this->logger->debug('execution of job ['.$job['_id'].'] ['.$job['class'].'] is postponed at ['.$job['at'].']', [
+                'category' => get_class($this),
+            ]);
+
+            return true;
+        }
+
         $this->updateJob($job['_id'], self::STATUS_PROCESSING);
 
         $this->logger->debug('execute job ['.$job['_id'].'] ['.$job['class'].']', [
@@ -276,7 +364,11 @@ class Async
                 throw new Exception('job class does not exists');
             }
 
-            $instance = $container->getNew($job['class']);
+            if($this->container === null)  {
+                $instance = new $job['class'];
+            } else {
+                $instance = $this->container->getNew($job['class']);
+            }
 
             if(!($instance instanceof JobInterface)) {
                 throw new Exception('job must implement JobInterface');
@@ -287,13 +379,21 @@ class Async
 
             $this->updateJob($job['_id'], self::STATUS_DONE);
         } catch (\Exception $e) {
-            $this->logger->error('failed execute job ['.$job['_id'].'], failed with error', [
+            $this->logger->error('failed execute job ['.$job['_id'].']', [
                 'category' => get_class($this),
                 'exception' => $e,
             ]);
 
             $this->updateJob($job['_id'], self::STATUS_FAILED);
-            return false;
+        }
+
+        if($job['interval'] >= 0) {
+            $at = new UTCDateTime((time() + $job['interval']) * 1000);
+            $this->addJob($job['class'], $job['data'], [
+                'at' => $at,
+                'interval' => $job['interval'],
+                'retry' => $job['retry']
+            ]);
         }
 
         return true;

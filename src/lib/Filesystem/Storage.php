@@ -186,17 +186,19 @@ class Storage implements AdapterAwareInterface
      * @param File     $file
      * @param resource $contents
      *
-     * @return mixed
+     * @return array
      */
-    public function storeFile(File $file, ?array $options, $contents)
+    public function storeFile(File $file, ?array $options, $contents): array
     {
         if($options === null) {
-            $options = $this->getDefaultAdapter();
+            $options['adapter'] = 'gridfs';
         }
 
         $options['attributes'] = [];
+
         if ($this->isValidStorageRequest($options)) {
-            return $this->getAdapter($options['adapter'])->storeFile($file, $contents);
+            $options['attributes'] = $this->getAdapter($options['adapter'])->storeFile($file, $contents);
+            return $options;
         }
     }
 
