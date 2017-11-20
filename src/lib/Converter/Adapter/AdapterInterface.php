@@ -27,6 +27,15 @@ interface AdapterInterface
     public function match(File $file): bool;
 
     /**
+     * Match adapter for preview
+     *
+     * @param File $file
+     *
+     * @return bool
+     */
+    public function matchPreview(File $file): bool;
+
+    /**
      * Supported formats.
      *
      * @param File $file

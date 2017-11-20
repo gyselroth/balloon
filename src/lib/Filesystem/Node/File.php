@@ -100,6 +100,13 @@ class File extends AbstractNode implements DAV\IFile
     protected $_storage;
 
     /**
+     * Storage attributes
+     *
+     * @var mixed
+     */
+    protected $storage;
+
+    /**
      * Initialize file node.
      *
      * @param array      $attributes
@@ -130,14 +137,12 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function get()
     {
-var_dump($this->storage);
-exit();
         try {
             if (null === $this->storage) {
                 return null;
             }
 
-            return $this->_storage->getFile($this, $this->storage);
+            return $this->_storage->getFile($this, $this->storage, $this->storage_adapter);
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'content not found',
@@ -271,6 +276,8 @@ exit();
             $this->deleted = false;
             $this->version = $new;
             $this->storage = $this->history[$v]['storage'];
+            $this->storage_adapter = $this->history[$v]['storage_adapter'];
+
             $this->hash = null === $file ? self::EMPTY_CONTENT : $exists['md5'];
             $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
             $this->size = $this->history[$v]['size'];
@@ -351,6 +358,7 @@ exit();
             'user' => $this->_user->getId(),
             'type' => self::HISTORY_DELETE,
             'storage' => $this->storage,
+            'storage_adapter' => $this->storage_adapter,
             'size' => $this->size,
         ];
 
@@ -566,7 +574,7 @@ exit();
 
         //Write new content
         if ($this->size > 0) {
-            $this->storage = $this->_storage->storeFile($this, $this->storage, $stream);
+            $this->storage = $this->_storage->storeFile($this, $stream, $this->storage_adapter);
         } else {
             $this->storage = null;
         }
@@ -803,6 +811,7 @@ exit();
                 'user' => $this->_user->getId(),
                 'type' => self::HISTORY_EDIT,
                 'storage' => $this->storage,
+                'storage_adapter' => $this->storage_adapter,
                 'size' => $this->size,
                 'mime' => $this->mime,
             ];
@@ -817,6 +826,7 @@ exit();
                 'user' => $this->owner,
                 'type' => self::HISTORY_CREATE,
                 'storage' => $this->storage,
+                'storage_adapter' => $this->storage_adapter,
                 'size' => $this->size,
                 'mime' => $this->mime,
             ];

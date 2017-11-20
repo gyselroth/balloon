@@ -208,9 +208,13 @@ class Converter implements AdapterAwareInterface
             'category' => get_class($this),
         ]);
 
+         if($file->getSize() === 0) {
+            throw new Exception('can not create preview from empty file');
+        }
+
         foreach ($this->adapter as $name => $adapter) {
             try {
-                if ($adapter->match($file)) {
+                if ($adapter->matchPreview($file)) {
                     return $adapter->createPreview($file);
                 } else {
                     $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
@@ -243,9 +247,13 @@ class Converter implements AdapterAwareInterface
             'category' => get_class($this),
         ]);
 
+        if($file->getSize() === 0) {
+            throw new Exception('can not convert empty file');
+        }
+
         foreach ($this->adapter as $name => $adapter) {
             try {
-                if ($adapter->match($file)) {
+                if ($adapter->match($file) && in_array($format, $adapter->getSupportedFormats($file))) {
                     return $adapter->convert($file, $format);
                 } else {
                     $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [

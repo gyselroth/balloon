@@ -90,13 +90,6 @@ class PreviewCreator extends Preview
      */
     protected function storePreview(File $file, Result $content): ObjectId
     {
-        if (!$file->isAllowed('w')) {
-            throw new Exception\Forbidden(
-                'not allowed to modify node',
-                Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
-            );
-        }
-
         try {
             $id = new ObjectId();
             $bucket = $this->db->selectGridFSBucket(['bucketName' => 'thumbnail']);

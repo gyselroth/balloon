@@ -173,7 +173,7 @@
                 <options>
                     <config>
                         <max_age>2592000</max_age>
-                        <interval>3600</interval>
+                        <interval>28800</interval>
                     </config>
                 </options>
             </adapter>
@@ -181,7 +181,7 @@
             <adapter enabled="1" m:name="Balloon\Hook\AutoDestroy">
                 <options>
                     <config>
-                        <interval>3600</interval>
+                        <interval>28800</interval>
                     </config>
                 </options>
             </adapter>
@@ -193,7 +193,7 @@
             <adapter enabled="1" m:name="Balloon\Convert\Adapter\Imagick">
                 <options>
                     <config>
-                        <max_size>300</max_size>
+                        <preview_max_size>300</preview_max_size>
                     </config>
                 </options>
             </adapter>
@@ -201,7 +201,7 @@
             <adapter enabled="1" m:name="Balloon\Convert\Adapte\Office">
                 <options>
                     <config>
-                        <max_size>300</max_size>
+                        <preview_max_size>500</preview_max_size>
                         <timeout>10</timeout>
                         <tmp>/tmp/balloon</tmp>
                         <soffice>/usr/bin/soffice</soffice>

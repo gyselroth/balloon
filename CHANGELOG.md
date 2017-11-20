@@ -17,9 +17,9 @@
 * CORE: [CHANGE] changed exception codes from hex to integer
 * CORE: [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
 * CORE: [FEATURE] console can now be executed with command parameters
-* CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchonosuly executed non-stop #56
+* CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchronosuly executed non-stop #56
 * CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks #20
-* CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converted is now useable to converty anything to anything
+* CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converter is now useable to convert anything to anything
 * CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/example.config.xml #59
 * CORE: [CHANGE] No more BSONDocument, all cursor get mapped to arrays
 * CORE: [CHANGE] Sharlink is now an entirely removed from the core and operates as an own app Balloon.App.Sharelink
@@ -28,8 +28,8 @@
 * CORE: [CHANGE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes
 * CORE: [CHANGE] added AbstractNode::getAttributes(array $attributes=[]) besides AbstractNode::getAttribute()
 * CORE: [FIX] fixed application/octet-stream mime type for office files (issue since 1.x)
-* CORE: [CHANGE] Extracted Mime detection to \Balloon\Mime
-* CORE: [FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file shadows
+* CORE: [CHANGE] Moved mime detection to \Balloon\Mime
+* CORE: [FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file slaves
 * CORE: [CHANGE] changed use \Psr\Log\LoggerInterface as Logger to use \Psr\Log\LoggerInterface
 * CORE: [CHANGE] apps are now shipped without ui parts (ui componets got moved to balloon-client-web as separate apps)
 * CORE: [CHANGE] apps are now automatically loaded once they are placed in the app directory
@@ -44,10 +44,13 @@
 * CORE: [CHANGE] config.xml is now a service based configuration, each class can be dynamically configured (dependency injection container configuration)
 * CORE: [FEATURE] Implemented new app Balloon.App.ClientDesktop (Provides downloadable desktop client url)
 * CORE: [FIX] fixed acl issue regarding zombie nodes in mailbox shares #82
-* CORE: [FEATURE]  New share privilege "manage" #7 
+* CORE: [FEATURE] New share privilege "manage" #7 
 * CORE: [CHANGE] Removed deprecated share privilege "writeonly" #73, all existing rules with writeonly get upgraded to a mailbox privilege (see upgrade guide)
 * CORE: [CHANGE] Rewritten acl, extracted acl as separate instance, various acl improvements
 * CORE: [!BREAKER] Comes with the latest micro version, therefore the auth adapter "preauth" is not available anymore, use OpenID-connect instead!
+* CORE: [CHANGE] Default preview width/height is now 500px (instead 300px)
+* CORE: [FEATURE] Rewritten storage implementation, it is now possible to use multiple (and different) storage adapter (Default: MongoDB GridFS)
+* CORE: [FEATURE] Rewritten notification implementation, it is now possible to use multiple (and different) transport adapter (Default: Mail and Database)
 * API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
@@ -58,7 +61,7 @@
 * API: [FEATURE] GET /api and GET /api/v1 are now public readable #46
 * API: [CHANGE] Removed attribute history from GET /file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
-* API: [FEATURE] New api endpoints provided by Balloon.App.Convert
+* API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Convert
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 

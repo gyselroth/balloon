@@ -182,12 +182,11 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     protected $_hook;
 
     /**
-     * Storage.
+     * Storage adapter.
      *
-     * @var array
-     q*/
-    protected $storage;
-
+     * @var string
+     */
+    protected $storage_adapter;
 
     /**
      * Acl
@@ -231,6 +230,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     public function setFilesystem(Filesystem $fs): NodeInterface
     {
         $this->_fs = $fs;
+        $this->_user = $fs->getUser();
 
         return $this;
     }
@@ -447,7 +447,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         if ($this->isReference()) {
             return true;
         }
-        if ($this->isShareMember() /*&& $this instanceof Collection*/) {
+        if ($this->isShareMember()) {
             return true;
         }
 
@@ -632,6 +632,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 'user' => $this->owner,
                 'type' => File::HISTORY_UNDELETE,
                 'storage' => $this->storage,
+                'storage_adapter' => $this->storage_adapter,
                 'size' => $this->size,
                 'mime' => $this->mime,
             ];

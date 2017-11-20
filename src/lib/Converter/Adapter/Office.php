@@ -21,6 +21,25 @@ use Psr\Log\LoggerInterface;
 class Office implements AdapterInterface
 {
     /**
+     * Preview format
+     */
+    const PREVIEW_FORMAT = 'png';
+
+    /**
+     * preview max size.
+     *
+     * @var int
+     */
+    protected $preview_max_size = 500;
+
+    /**
+     * LoggerInterface.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Soffice executable.
      *
      * @var string
@@ -60,6 +79,7 @@ class Office implements AdapterInterface
             'xlam' => 'application/vnd.ms-excel.addin.macroEnabled.12',
             'xslb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
             'xltm' => 'application/vnd.ms-excel.template.macroEnabled.12',
+            'pdf'  => 'application/pdf',
         ],
         'text' => [
             'odt' => 'application/vnd.oasis.opendocument.text',
@@ -75,6 +95,8 @@ class Office implements AdapterInterface
             'docm' => 'application/vnd.ms-word.document.macroEnabled.12',
             'dotm' => 'application/vnd.ms-word.template.macroEnabled.12',
             'txt' => 'text/plain',
+            'html' => 'text/html',
+            'pdf'  => 'application/pdf',
         ],
         'presentation' => [
             'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
@@ -89,8 +111,22 @@ class Office implements AdapterInterface
             'odp'  => 'application/vnd.oasis.opendocument.presentation',
             'fodp' => 'application/vnd.oasis.opendocument.presentation-flat-xml',
             'otp'  => 'application/vnd.oasis.opendocument.presentation-template',
+            'pdf'  => 'application/pdf',
         ]
     ];
+
+    /**
+     * Initialize.
+     *
+     * @param LoggerInterface $logger
+     * @param iterable        $config
+     */
+    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
+    {
+        $this->logger = $logger;
+        $this->setOptions($config);
+    }
+
 
     /**
      * Set options.
@@ -113,7 +149,6 @@ class Office implements AdapterInterface
                     }
 
                     $this->soffice = (string) $value;
-                    unset($config[$option]);
                     break;
                 case 'tmp':
                     if (!is_writeable($value)) {
@@ -121,7 +156,6 @@ class Office implements AdapterInterface
                     }
 
                     $this->tmp = (string) $value;
-                    unset($config[$option]);
 
                     break;
                 case 'timeout':
@@ -130,21 +164,22 @@ class Office implements AdapterInterface
                     }
 
                     $this->timeout = (string) $value;
-                    unset($config[$option]);
 
                     break;
+                case 'preview_max_size':
+                    $this->preview_max_size = (int) $value;
+
+                    break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
             }
         }
 
-        return parent::setOptions($config);
+        return $this;
     }
 
     /**
-     * Return match.
-     *
-     * @param File $file
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function match(File $file): bool
     {
@@ -157,12 +192,18 @@ class Office implements AdapterInterface
         return false;
     }
 
+
     /**
-     * Get supported formats.
-     *
-     * @param File $file
-     *
-     * @return array
+     * {@inheritDoc}
+     */
+    public function matchPreview(File $file): bool
+    {
+        return $this->match($file);
+    }
+
+
+    /**
+     * {@inheritDoc}
      */
     public function getSupportedFormats(File $file): array
     {
@@ -177,11 +218,7 @@ class Office implements AdapterInterface
 
 
     /**
-     * Convert.
-     *
-     * @param File   $file
-     *
-     * @return Result
+     * {@inheritDoc}
      */
     public function createPreview(File $file): Result
     {
@@ -196,17 +233,17 @@ class Office implements AdapterInterface
         $width = $image->getImageWidth();
         $height = $image->getImageHeight();
 
-        if ($height <= $width && $width > $this->max_size) {
-            $image->scaleImage($this->max_size, 0);
-        } elseif ($height > $this->max_size) {
-            $image->scaleImage(0, $this->max_size);
+        if ($height <= $width && $width > $this->preview_max_size) {
+            $image->scaleImage($this->preview_max_size, 0);
+        } elseif ($height > $this->preview_max_size) {
+            $image->scaleImage(0, $this->preview_max_size);
         }
 
-        $image->setImageCompression(SystemImagick::COMPRESSION_JPEG);
+        $image->setImageCompression(Imagick::COMPRESSION_JPEG);
         $image->setImageCompressionQuality(100);
         $image->stripImage();
-        $image->setColorSpace(SystemImagick::COLORSPACE_SRGB);
-        $image->setImageFormat($format);
+        $image->setColorSpace(Imagick::COLORSPACE_SRGB);
+        $image->setImageFormat(self::PREVIEW_FORMAT);
         $image->writeImage($dest);
 
         if (!file_exists($dest) || filesize($dest) <= 0) {
@@ -218,12 +255,7 @@ class Office implements AdapterInterface
 
 
     /**
-     * Convert.
-     *
-     * @param File   $file
-     * @param string $format
-     *
-     * @return Result
+     * {@inheritDoc}
      */
     public function convert(File $file, string $format): Result
     {
@@ -244,7 +276,7 @@ class Office implements AdapterInterface
             .' --outdir '.escapeshellarg($this->tmp)
             .' '.escapeshellarg($source);
 
-        $this->logger->debug('convert file to ['.$convert.'] using ['.$command.']', [
+        $this->logger->debug('convert file to ['.$format.'] using ['.$command.']', [
             'category' => get_class($this),
         ]);
 

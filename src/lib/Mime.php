@@ -60,7 +60,7 @@ class Mime
     }
 
     /**
-     * Get mime.
+     et mime.
      *
      * @param string $path
      * @param string $name
@@ -102,9 +102,14 @@ class Mime
             throw new Exception('mime database '.$this->db.' was not found or is not readable');
         }
 
-        $fileext = substr(strrchr($name, '.'), 1);
-        if (empty($fileext)) {
-            throw new Exception('file name given contains no extension given');
+        $fileext = strrchr($name, '.');
+        if ($fileext === false) {
+            throw new Exception('file name given contains no extension');
+        }
+
+        $fileext = substr($fileext, 1);
+        if(empty($fileext)) {
+            throw new Exception('file name given contains no extension');
         }
 
         $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";

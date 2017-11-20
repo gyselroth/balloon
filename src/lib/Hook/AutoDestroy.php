@@ -26,7 +26,7 @@ class AutoDestroy extends AbstractHook
      *
      * @var int
      */
-    protected $interval = 3600;
+    protected $interval = 28800;
 
     /**
      * Async

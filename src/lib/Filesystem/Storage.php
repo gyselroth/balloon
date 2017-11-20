@@ -141,43 +141,55 @@ class Storage implements AdapterAwareInterface
     /**
      * Check if file exists.
      *
-     * @param string $id
+     * @param File $file
+     * @param array $attributes
+     * @param string $adapter
      *
      * @return bool
      */
-    public function hasFile(File $file, array $options): bool
+    public function hasFile(File $file, array $attributes, ?string $adapter=null): bool
     {
-        if ($this->isValidStorageRequest($options)) {
-            return $this->getAdapter($options['adapter'])->hasFile($file, $options['attributes']);
+        if($adapter === null) {
+            $adapter = 'gridfs';
         }
+
+        return $this->getAdapter($adapter)->hasFile($file, $attributes);
     }
 
     /**
      * Delete file.
      *
-     * @param string $id
+     * @param File $file
+     * @param array $attributes
+     * @param string $adapter
      *
      * @return bool
      */
-    public function deleteFile(File $file, array $options): bool
+    public function deleteFile(File $file, array $attributes, ?string $adapter=null): bool
     {
-        if ($this->isValidStorageRequest($options)) {
-            return $this->getAdapter($options['adapter'])->deleteFile($file, $options['attributes']);
+        if($adapter === null) {
+            $adapter = 'gridfs';
         }
+
+        return $this->getAdapter($adapter)->deleteFile($file, $attributes);
     }
 
     /**
      * Get stored file.
      *
      * @param File $file
+     * @param array $attributes
+     * @param string $adapter
      *
      * @return resource
      */
-    public function getFile(File $file, array $options)
+    public function getFile(File $file, array $attributes, ?string $adapter=null)
     {
-        if ($this->isValidStorageRequest($options)) {
-            return $this->getAdapter($options['adapter'])->getFile($file, $options['attributes']);
+        if($adapter === null) {
+            $adapter = 'gridfs';
         }
+
+        return $this->getAdapter($adapter)->getFile($file, $attributes);
     }
 
     /**
@@ -185,40 +197,15 @@ class Storage implements AdapterAwareInterface
      *
      * @param File     $file
      * @param resource $contents
-     *
-     * @return array
+     * @param string $adapter
+     * @return mixed
      */
-    public function storeFile(File $file, ?array $options, $contents): array
+    public function storeFile(File $file, $contents, ?string $adapter=null)
     {
-        if($options === null) {
-            $options['adapter'] = 'gridfs';
+        if($adapter === null) {
+            $adapter = 'gridfs';
         }
 
-        $options['attributes'] = [];
-
-        if ($this->isValidStorageRequest($options)) {
-            $options['attributes'] = $this->getAdapter($options['adapter'])->storeFile($file, $contents);
-            return $options;
-        }
-    }
-
-    /**
-     * Validate storage options.
-     *
-     * @param array $options
-     *
-     * @return bool
-     */
-    protected function isValidStorageRequest(array $options): bool
-    {
-        if (!isset($options['adapter'])) {
-            throw new Exception('no storage adapter given');
-        }
-
-        if (!isset($options['attributes'])) {
-            throw new Exception('no storage adapter attributes given');
-        }
-
-        return true;
+        return $this->getAdapter($adapter)->storeFile($file, $contents);
     }
 }

@@ -93,7 +93,7 @@ class Preview
             $preview = $file->getAppAttribute(__NAMESPACE__, 'preview');
             if ($preview instanceof ObjectId) {
                 $references = $this->db->{'thumbnail.files'}->count([
-                    'apps' => [$this->getName() => ['preview' => $preview]],
+                    'apps' => [__NAMESPACE__ => ['preview' => $preview]],
                 ]);
 
                 if (1 === $references) {

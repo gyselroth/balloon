@@ -36,14 +36,7 @@ class Hook extends AbstractHook
     }
 
     /**
-     * Run: postPutFile.
-     *
-     * Executed post a put file request
-     *
-     * @param File            $node
-     * @param resource|string $content
-     * @param bool            $force
-     * @param array           $attributes
+     * {@inheritDoc}
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
@@ -51,12 +44,7 @@ class Hook extends AbstractHook
     }
 
     /**
-     * Run: postRestoreFile.
-     *
-     * Executed post version rollback
-     *
-     * @param File $node
-     * @param int  $version
+     * {@inheritDoc}
      */
     public function postRestoreFile(File $node, int $version): void
     {
@@ -70,15 +58,15 @@ class Hook extends AbstractHook
      */
     protected function addJob(File $node): void
     {
-        $shadow = $node->getAppAttribute(__NAMESPACE__, 'shadow');
-        if (null === $shadow) {
+        $slaves = $node->getAppAttribute(__NAMESPACE__, 'slaves');
+        if (null === $slaves) {
             return;
         }
 
-        foreach ($shadow as $format) {
+        foreach ($slaves as $id => $slave) {
             $this->async->addJob(Job::class, [
-                'id' => $node->getId(),
-                'format' => $format,
+                'node' => $node->getId(),
+                'slave' => $id,
             ]);
         }
     }

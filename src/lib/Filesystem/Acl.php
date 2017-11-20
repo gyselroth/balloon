@@ -169,7 +169,7 @@ class Acl
 
             $acl = $share['acl'];
         } elseif (!$node->isOwnerRequest()) {
-            $this->logger->warning('user ['.$this->user->getUsername().'] not allowed to access non owned node ['.$node->getId().']', [
+            $this->logger->warning('user ['.$user->getUsername().'] not allowed to access non owned node ['.$node->getId().']', [
                 'category' => get_class($this),
             ]);
 

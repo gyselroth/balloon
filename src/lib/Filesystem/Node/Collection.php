@@ -906,7 +906,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'history' => [],
                 'version' => 0,
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
-                'storage' => $this->storage,
+                'storage_adapter' => $this->storage_adapter,
             ];
 
             if (null !== $this->_user) {
