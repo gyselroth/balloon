@@ -10,18 +10,16 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Elasticsearch\App;
+namespace Balloon\App\Elasticsearch;
 
 use Balloon\App\AppInterface;
-use Balloon\Server\User;
-use Elasticsearch\ClientBuilder;
-use Balloon\App\Elasticsearch\App;
-use Micro\Http\Router\Route;
-use Balloon\App\Elasticsearch\Api\v1\Search as Api;
-use Micro\Http\Router;
 use Balloon\Server;
-use Psr\Log\LoggerInterface;
+use Balloon\Server\User;
 use Elasticsearch\Client;
+use Elasticsearch\ClientBuilder;
+use Micro\Http\Router;
+use Psr\Log\LoggerInterface;
+use Balloon\Filesystem\Node\NodeInterface;
 
 class Elasticsearch
 {
@@ -40,21 +38,28 @@ class Elasticsearch
     protected $es_index = 'balloon';
 
     /**
-     * ES client
+     * ES client.
      *
      * @var Elasticsearch
      */
     protected $client;
 
     /**
-     * Server
+     * User
      *
-     * @var Server
+     * @var User
      */
-    protected $server;
+    protected $user;
 
     /**
-     * Logger
+     * Filesystem
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+    /**
+     * Logger.
      *
      * @var LoggerInterface
      */
@@ -65,35 +70,21 @@ class Elasticsearch
      *
      * @param Router
      */
-    public function __construct(Server $server, LoggerInterface $logger, ?Iterable $config=null)
+    public function __construct(Server $server, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->setOptions($config);
         $this->logger = $logger;
-        $this->server = $server;
-    }
-
-    /**
-     * Get es client
-     *
-     * @return Elasticsearch
-     */
-    protected function getEsClient(): Client
-    {
-        if($this->client instanceof Client) {
-            return $this->client;
-        }
-
-        return $this->client = ClientBuilder::create()
-            ->setHosts($this->es_server)
-            ->build();
+        $this->user = $server->getIdentity();
+        $this->fs = $server->getFilesystem();
     }
 
     /**
      * Set options.
      *
-     * @var iterable
+     * @param Iterable $config
+     * @return Elasticsearch
      */
-    public function setOptions(?Iterable $config = null): AppInterface
+    public function setOptions(?Iterable $config = null): Elasticsearch
     {
         if (null === $config) {
             return $this;
@@ -138,7 +129,6 @@ class Elasticsearch
         $list = [];
         $id = false;
 
-        $user = $this->server->getIdentity();
         $shares = $user->getShares(true);
         $result = $this->executeQuery($query, $shares);
 
@@ -157,7 +147,7 @@ class Elasticsearch
             ],
         ]);
 
-        $user = (string) $user->getId();
+        $user = (string) $this->user->getId();
         foreach ($result['hits']['hits'] as $node) {
             $id = false;
 
@@ -168,8 +158,8 @@ class Elasticsearch
                     $_node = $this->fs->findNodeWithId($id);
                     if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
                      || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
-                        if (!($_node->isShared() && !$_node->isOwnerRequest()) && !isset($list[(string)$_node->getId()])) {
-                            $list[(string)$_node->getId()] = $_node;
+                        if (!($_node->isShared() && !$_node->isOwnerRequest()) && !isset($list[(string) $_node->getId()])) {
+                            $list[(string) $_node->getId()] = $_node;
                         }
                     }
                 } catch (\Exception $e) {
@@ -211,21 +201,36 @@ class Elasticsearch
     }
 
     /**
+     * Get es client.
+     *
+     * @return Elasticsearch
+     */
+    protected function getEsClient(): Client
+    {
+        if ($this->client instanceof Client) {
+            return $this->client;
+        }
+
+        return $this->client = ClientBuilder::create()
+            ->setHosts($this->es_server)
+            ->build();
+    }
+
+    /**
      * Search.
      *
      * @param array $query
      * @param array $share
      *
      * @return array
-    */
+     */
     protected function executeQuery(array $query, array $shares): array
     {
-        $user = $this->server->getIdentity();
         $bool = $query['body']['query'];
 
         $filter1 = [];
-        $filter1['bool']['should'][]['term']['owner'] = (string) $user->getId();
-        $filter1['bool']['should'][]['term']['metadata.ref.owner'] = (string) $user->getId();
+        $filter1['bool']['should'][]['term']['owner'] = (string) $this->user->getId();
+        $filter1['bool']['should'][]['term']['metadata.ref.owner'] = (string) $this->user->getId();
 
         $share_filter = [
             'bool' => [

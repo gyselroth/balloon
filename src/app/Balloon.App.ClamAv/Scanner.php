@@ -13,11 +13,10 @@ declare(strict_types=1);
 namespace Balloon\App\ClamAv;
 
 use Balloon\Filesystem\Node\File;
-use Balloon\App\ClamAv\App;
+use Psr\Log\LoggerInterface;
 use Socket\Raw\Factory as SocketFactory;
 use Xenolope\Quahog\Client as ClamAv;
 use Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
-use Psr\Log\LoggerInterface;
 
 class Scanner
 {
@@ -65,7 +64,7 @@ class Scanner
     /**
      * Socket.
      *
-     * @var Socket
+     * @var mixed
      */
     protected $clamav_socket;
 
@@ -82,7 +81,7 @@ class Scanner
      * @param Database        $db
      * @param LoggerInterface $logger
      */
-    public function __construct(SocketFactory $factory, LoggerInterface $logger, ?Iterable $config=null)
+    public function __construct(SocketFactory $factory, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->logger = $logger;
         $this->socket_factory = $factory;
@@ -92,10 +91,11 @@ class Scanner
     /**
      * Set options.
      *
-     * @param Iterable $config
+     * @param iterable $config
+     *
      * @return Scanner
      */
-    public function setOptions(?Iterable $config = null): Scanner
+    public function setOptions(?Iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -120,6 +120,7 @@ class Scanner
                     break;
                 case 'timeout':
                     $this->timeout = (int) $value;
+
                     break;
                 break;
                 default:

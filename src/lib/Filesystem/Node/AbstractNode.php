@@ -15,17 +15,18 @@ namespace Balloon\Filesystem\Node;
 use Balloon\App\AppInterface;
 use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Storage;
 use Balloon\Helper;
+use Balloon\Hook;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Database;
 use Normalizer;
 use PHPZip\Zip\Stream\ZipStream;
 use Sabre\DAV;
-use MongoDB\Database;
-use Balloon\Filesystem\Storage;
 use Psr\Log\LoggerInterface;
-use Balloon\Hook;
+use Balloon\Server;
 
 abstract class AbstractNode implements NodeInterface, DAV\INode
 {
@@ -163,7 +164,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     /**
      * Logger.
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $_logger;
 
@@ -182,6 +183,13 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     protected $_hook;
 
     /**
+     * Acl
+     *
+     * @var Acl
+     */
+    protected $_acl;
+
+    /**
      * Storage adapter.
      *
      * @var string
@@ -189,12 +197,11 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     protected $storage_adapter;
 
     /**
-     * Acl
+     * Acl.
      *
      * @var Acl
      */
     protected $acl;
-
 
     /**
      * Convert to filename.
@@ -501,12 +508,13 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
 
         try {
             $child = $this->getParent()->getChild($name);
-            if($child->getId() != $this->_id) {
-                throw new Exception\Conflict('a node called '.$name.' does already exists in this collection',
+            if ($child->getId() != $this->_id) {
+                throw new Exception\Conflict(
+                    'a node called '.$name.' does already exists in this collection',
                     Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
                 );
             }
-        } catch(Exception\NotFound $e) {
+        } catch (Exception\NotFound $e) {
             //child does not exists, we can safely rename
         }
 
@@ -650,8 +658,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 'deleted',
             ], [], $recursion, $recursion_first);
 
-
-        if($this->isReference()) {
+        if ($this->isReference()) {
             return true;
         }
 
@@ -714,7 +721,8 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         try {
             if ($this->isRoot()) {
                 return null;
-            } elseif ($this->isInRoot()) {
+            }
+            if ($this->isInRoot()) {
                 return $this->_fs->getRoot();
             }
 
@@ -1070,9 +1078,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     /**
      * Get original raw attributes before any processing.
      *
-     * @return array|\MongoDB\BSON\Document
+     * @return array
      */
-    public function getRawAttributes()
+    public function getRawAttributes(): array
     {
         return $this->raw_attributes;
     }
@@ -1184,7 +1192,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             throw $e;
         }
     }
-
 
     /**
      * Get Attributes.
@@ -1330,13 +1337,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                     if ($this->isSpecial() && null !== $sharenode) {
                         $build['shareowner'] = $this->_server->getUserById($this->_fs->findRawNode($this->getShareId())['owner'])
                           ->getUsername();
-                    }
-
-                break;
-                case 'apps':
-                    $this->build['apps'] = [];
-                    foreach ($this->server->getApps()->getApps($apps) as $app) {
-                        $this->build['apps'][$app->getName()] = $app->getAttributes($this);
                     }
 
                 break;

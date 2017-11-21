@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\Database\Delta;
 
-use Balloon\Database\Delta\FileToStorageAdapter;
-use Balloon\Database\Delta\QueueToCappedCollection;
 use MongoDB\Database;
 
 class CoreInstallation extends AbstractDelta

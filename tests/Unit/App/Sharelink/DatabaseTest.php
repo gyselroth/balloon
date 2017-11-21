@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\Sharelink;
 
+use Balloon\App\Sharelink\Database;
 use Balloon\Testsuite\Unit\DatabaseTest as CoreDatabaseTest;
 use Psr\Log\LoggerInterface;
-use Balloon\App\Sharelink\Database;
 
 /**
  * @coversNothing

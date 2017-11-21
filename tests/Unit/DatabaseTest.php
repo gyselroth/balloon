@@ -13,11 +13,10 @@ declare(strict_types=1);
 namespace Balloon\Testsuite\Unit;
 
 use Balloon\Database;
-use Balloon\Database\DatabaseInterface;
-use Psr\Log\LoggerInterface;
 use Balloon\Database\Delta\CoreInstallation;
 use Balloon\Database\Delta\FileToStorageAdapter;
 use Balloon\Database\Delta\QueueToCappedCollection;
+use Psr\Log\LoggerInterface;
 
 /**
  * @coversNothing
@@ -49,7 +48,7 @@ class DatabaseTest extends Test
         $this->db_setup->injectAdapter(new QueueToCappedCollection($this->getMockDatabase(), $this->createMock(LoggerInterface::class)));
     }*/
 
-    /**
+    /*
      * @depends testInitDatabase
      *
      * @param mixed $db

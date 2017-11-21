@@ -17,16 +17,96 @@ use Balloon\Api\v1\Collection as ApiCollection;
 use Balloon\Api\v1\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\Node as CoreNode;
+use Balloon\Filesystem\Node\AbstractNode;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Node\Root;
 use Balloon\Helper;
 use Micro\Http\Response;
-use PHPZip\Zip\Stream\ZipStream;
 use MongoDB\BSON\UTCDateTime;
+use PHPZip\Zip\Stream\ZipStream;
 
 class Node extends Controller
 {
+    /**
+     * Filesystem.
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+    /**
+     * LoggerInterface.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * User.
+     *
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * Initialize.
+     *
+     * @param Filesystem      $fs
+     * @param Config          $config
+     * @param LoggerInterface $logger
+     */
+    public function __construct(Server $server, LoggerInterface $logger)
+    {
+        $this->fs = $server->getFilesystem();
+        $this->user = $server->getIdentity();
+        $this->server = $server;
+        $this->logger = $logger;
+    }
+
+
+    /**
+     * Get node.
+     *
+     * @param string $id
+     * @param string $path
+     * @param string $class      Force set node type
+     * @param bool   $deleted
+     * @param bool   $multiple   Allow $id to be an array
+     * @param bool   $allow_root Allow instance of root collection
+     * @param bool   $deleted    How to handle deleted node
+     *
+     * @return NodeInterface
+     */
+    protected function _getNode(
+        ?string $id = null,
+        ?string $path = null,
+        ?string $class = null,
+        bool $multiple = false,
+        bool $allow_root = false,
+        int $deleted = 2
+    ): NodeInterface {
+        if (null === $class) {
+            switch (get_class($this)) {
+                case FileController::class:
+                    $class = File::class;
+
+                break;
+                case CollectionController::class:
+                    $class = Collection::class;
+
+                break;
+            }
+        }
+
+        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
+    }
+
     /**
      * @api {head} /api/v1/node?id=:id Node exists?
      * @apiVersion 1.0.0
@@ -236,7 +316,7 @@ class Node extends Controller
         ?string $encode = null,
         bool $download = false,
         string $name = 'selected'
-    ): Response {
+    ): ?Response {
         if (is_array($id)) {
             return $this->_combine($id, $p, $name);
         }
@@ -262,7 +342,7 @@ class Node extends Controller
 
         return (new Response())
           ->setOutputFormat(null)
-          ->setBody(function () use ($node, $encode, $offset, $length, $download) {
+          ->setBody(function () use ($node, $encode, $offset, $length) {
               $mime = $node->getMime();
               $stream = $node->get();
               $name = $node->getName();
@@ -1443,6 +1523,8 @@ class Node extends Controller
      *          "code": 49
      *      }
      * }
+     *
+     * @param null|mixed $id
      */
 
     /**
@@ -1542,7 +1624,7 @@ class Node extends Controller
      */
     protected function _combine($id = null, ?string $path = null, string $name = 'selected'): void
     {
-        $temp = $this->config->dir->temp.DIRECTORY_SEPARATOR.'zip';
+        $temp = $this->server->getTempDir().DIRECTORY_SEPARATOR.'zip';
         if (!file_exists($temp)) {
             mkdir($temp, 0700, true);
         }
@@ -1562,7 +1644,6 @@ class Node extends Controller
         }
 
         $archive->finalize();
-        exit();
     }
 
     /**
@@ -1598,7 +1679,7 @@ class Node extends Controller
         foreach ($attributes as $attribute => $value) {
             switch ($attribute) {
                 case 'meta':
-                    $attributes['meta'] = CoreNode::validateMetaAttribute($attributes['meta']);
+                    $attributes['meta'] = AbstractNode::validateMetaAttribute($attributes['meta']);
 
                 break;
                 case 'filter':

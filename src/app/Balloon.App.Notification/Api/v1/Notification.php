@@ -12,41 +12,57 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Api\v1;
 
-use Balloon\Api\Controller;
 use Balloon\App\Notification\Notifier;
 use Balloon\Server;
 use Micro\Http\Response;
-use Balloon\Filesystem\Node\File;
+use Zend\Mail\Message;
+use Balloon\Async;
+use Balloon\Async\Mail;
 
 class Notification
 {
     /**
-     * Notifier
+     * Notifier.
      *
      * @var Notifier
      */
     protected $notifier;
 
-
     /**
-     * User
+     * User.
      *
      * @var User
      */
     protected $user;
 
+    /**
+     * Server
+     *
+     * @var Server
+     */
+    protected $server;
 
     /**
-     * Constructor
+     * Async
      *
-     * @param Notifier
+     * @var Async
      */
-    public function __construct(Notifier $notifier, Server $server)
+    protected $async;
+
+    /**
+     * Constructor.
+     *
+     * @param Notifier $notifier
+     * @param Server $server
+     * @param Async $async
+     */
+    public function __construct(Notifier $notifier, Server $server, Async $async)
     {
         $this->notifier = $notifier;
         $this->user = $server->getUser();
+        $this->server = $server;
+        $this->async = $async;
     }
-
 
     /**
      * @api {get} /api/v1/notification Get notifications
@@ -71,9 +87,9 @@ class Notification
     public function get(): Response
     {
         $notification = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notification');
+
         return (new Response())->setCode(200)->setBody($notification);
     }
-
 
     /**
      * @api {get} /api/v1/notification Get notifications
@@ -92,9 +108,9 @@ class Notification
     public function delete(int $id): Response
     {
         $notification = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notification');
+
         return (new Response())->setCode(200)->setBody($notification);
     }
-
 
     /**
      * @api {post} /api/v1/user/notification/broadcast Post a notification to all users (or to a bunch of users)
@@ -114,9 +130,9 @@ class Notification
     {
         $users = $this->server->getUsersById($receiver);
         $this->notifier->notify($receiver, $this->user, $subject, $body);
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {post} /api/v1/user/notification/broadcast Post a notification to all users (or to a bunch of users)
@@ -134,15 +150,14 @@ class Notification
      */
     public function postBroadcast(string $subject, string $body): Response
     {
-        if(!$this->user->isAdmin()) {
-
+        if (!$this->user->isAdmin()) {
         }
 
-        $users = $this->server->getUsersById($receiver);
-        $this->notifier->notify($receiver, $this->user, $subject, $body);
+        $users = $this->server->getUsersByFilter([]);
+        $this->notifier->notify($users, $this->user, $subject, $body);
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {get} /api/v1/notification Get notifications
@@ -165,7 +180,7 @@ class Notification
         $mail->setFrom($this->user->getAttribute('username'), $this->user->getAttribute('mail'));
         $mail->setSubject($subject);
         $mail->setBcc($receiver);
-        $this->async->addJob(MailJob::class, ['mail' => $mail->toString()]);
+        $this->async->addJob(Mail::class, ['mail' => $mail->toString()]);
 
         return (new Response())->setCode(204);
     }

@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Api;
+namespace Balloon\Api\v1;
 
 class Exception extends \Balloon\Exception
 {

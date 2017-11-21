@@ -13,15 +13,9 @@ declare(strict_types=1);
 namespace Balloon\App\Elasticsearch\App;
 
 use Balloon\App\AppInterface;
-use Balloon\Server\User;
-use Elasticsearch\ClientBuilder;
-use Balloon\App\Elasticsearch\App;
-use Micro\Http\Router\Route;
 use Balloon\App\Elasticsearch\Api\v1\Search as Api;
 use Micro\Http\Router;
-use Balloon\Server;
-use Psr\Log\LoggerInterface;
-use Elasticsearch\Client;
+use Micro\Http\Router\Route;
 
 class Http implements AppInterface
 {

@@ -40,7 +40,7 @@ class Mime
      *
      * @return Mime
      */
-    public function setOptions(?Iterable $config = null): Mime
+    public function setOptions(?Iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -50,6 +50,7 @@ class Mime
             switch ($option) {
                 case 'db':
                     $this->db = (string) $value;
+
                 break;
                 default:
                     throw new Exception('invalid option '.$option.' given');
@@ -60,7 +61,7 @@ class Mime
     }
 
     /**
-     et mime.
+     * et mime.
      *
      * @param string $path
      * @param string $name
@@ -103,12 +104,12 @@ class Mime
         }
 
         $fileext = strrchr($name, '.');
-        if ($fileext === false) {
+        if (false === $fileext) {
             throw new Exception('file name given contains no extension');
         }
 
         $fileext = substr($fileext, 1);
-        if(empty($fileext)) {
+        if (empty($fileext)) {
             throw new Exception('file name given contains no extension');
         }
 

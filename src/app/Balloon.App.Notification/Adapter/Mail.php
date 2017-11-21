@@ -12,80 +12,94 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Adapter;
 
-use Balloon\Async\Mail as MailJob;
 use Balloon\Async;
+use Balloon\Async\Mail as MailJob;
+use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
 use Zend\Mail\Message;
-use Balloon\Server\User;
+use Balloon\App\Notification\Exception;
 
 class Mail implements AdapterInterface
 {
     /**
-     * Sender address
+     * Sender address.
      *
      * @var string
      */
     protected $sender_address = 'balloon@local';
 
-
     /**
-     * Sender name
+     * Sender name.
      *
      * @var string
      */
     protected $sender_name = 'balloon';
 
+    /**
+     * Async.
+     *
+     * @var Async
+     */
+    protected $async;
 
     /**
-     * Constructor
+     * Logger
      *
-     * @param Async $async
-     * @param LoggerInterface $logger
-     * @param Iterable $config
+     * @var LoggerInterface
      */
-    public function __construct(Async $async, LoggerInterface $logger, ?Iterable $config=[])
+    protected $logger;
+
+    /**
+     * Constructor.
+     *
+     * @param Async           $async
+     * @param LoggerInterface $logger
+     * @param iterable        $config
+     */
+    public function __construct(Async $async, LoggerInterface $logger, ?Iterable $config = [])
     {
         $this->async = $async;
         $this->logger = $logger;
+        $this->setOptions($config);
     }
 
-
     /**
-     * Set options
+     * Set options.
      *
-     * @param  Iterable $config
+     * @param iterable $config
+     *
      * @return AdapterInterface
      */
-    public function setOptions(?Iterable $config=[]): AdapterInterface
+    public function setOptions(?Iterable $config = []): AdapterInterface
     {
-        if($config === null) {
+        if (null === $config) {
             return $this;
         }
 
-        foreach($config as $option => $value) {
-            switch($option) {
+        foreach ($config as $option => $value) {
+            switch ($option) {
                 case 'sender_address':
                 case 'sender_name':
                     $this->{$option} = $value;
+
                 break;
                 default:
-                    throw new Exception('unknown option '.$option);
+                    throw new Exception('invalid option '.$option.' given');
             }
         }
 
         return $this;
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context=[]): bool
+    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
     {
         $mail = new Message();
         $mail->setBody($body);
 
-        if($sender === null) {
+        if (null === $sender) {
             $mail->setFrom($this->sender_address, $this->sender_name);
         } else {
             $mail->setFrom($this->sender_address, $sender->getAttribute('username'));
@@ -106,7 +120,7 @@ class Mail implements AdapterInterface
             $mail->setBcc($address);
         }
 
-        if(count($mail->getBcc()) === 0) {
+        if (0 === count($mail->getBcc())) {
             $this->logger->warning('skip mail notifcation ['.$subject.'], no receiver available', [
                 'category' => get_class($this),
             ]);

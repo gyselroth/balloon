@@ -12,26 +12,19 @@ declare(strict_types=1);
 
 namespace Balloon\App\DesktopClient\Api\v1;
 
+use Balloon\App\DesktopClient\App\Http as App;
 use Balloon\App\DesktopClient\DesktopClient;
-use Balloon\Api\Controller;
-use Balloon\App\DesktopClient\App\Http As App;
-use Balloon\App\Convert\Exception;
-use Balloon\App\Convert\Job;
-use Balloon\Async;
-use Balloon\Converter;
 use Balloon\Server;
 use Micro\Http\Response;
-use Balloon\Filesystem\Node\File;
 
 class Download
 {
     /**
-     * Desktop client
+     * Desktop client.
      *
      * @var DesktopClient
      */
     protected $client;
-
 
     /**
      * @param DesktopClient $client
@@ -58,6 +51,7 @@ class Download
      * HTTP/1.1 200 OK
      *
      * @param string $format
+     *
      * @return Response
      */
     public function get(string $format): Response
@@ -67,14 +61,15 @@ class Download
         return (new Response())
             ->setCode(200)
             ->setOutputFormat(null)
-            ->setBody(function() use($url) {
-                $stream = fopen($url, 'r');
-                while (!feof($stream)) {
-                    echo fread($stream, 8192);
-                }
+            ->setBody(
+                function () use ($url) {
+                    $stream = fopen($url, 'r');
+                    while (!feof($stream)) {
+                        echo fread($stream, 8192);
+                    }
 
-                fclose($steam);
-            }
+                    fclose($stream);
+                }
         );
     }
 }

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink\Database\Delta;
 
-use Balloon\App\Sharelink\Database\Delta\SharelinkIntoApp;
 use Balloon\Database\Delta\AbstractDelta;
 
 class Installation extends AbstractDelta

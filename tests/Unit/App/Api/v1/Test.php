@@ -12,19 +12,15 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\Api\v1;
 
-use Balloon\Testsuite\Unit\Test as UnitTest;
-use Balloon\App;
-use Balloon\Async;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Hook\Delta;
 use Balloon\Server;
-use Helmich\MongoMock\MockDatabase;
-use Micro\Http\Response;
-use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Balloon\Testsuite\Unit\Mock;
+use Balloon\Testsuite\Unit\Test as UnitTest;
+use Micro\Http\Response;
+use Psr\Log\LoggerInterface;
 
 abstract class Test extends UnitTest
 {
@@ -37,8 +33,8 @@ abstract class Test extends UnitTest
     {
         $hook = new Hook($this->createMock(LoggerInterface::class));
         $hook->injectHook(new Delta());
-        return parent::getMockServer();
 
+        return parent::getMockServer();
         $server = new Server(
             self::getMockDatabase(),
             $this->createMock(Storage::class),

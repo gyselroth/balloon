@@ -13,17 +13,15 @@ declare(strict_types=1);
 namespace Balloon\Server;
 
 use Balloon\Exception;
-use Balloon\Filesystem;
-use Balloon\Filesystem\Node\Collection;
 use Balloon\Helper;
 use Balloon\Server;
+use Generator;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDateTime;
-use Psr\Log\LoggerInterface;
 use MongoDB\Database;
-use Generator;
+use Psr\Log\LoggerInterface;
 
 class Group
 {
@@ -118,15 +116,15 @@ class Group
      */
     protected $server;
 
-
     /**
-     * Instance user.
+     * Init.
      *
      * @param array  $attributes
      * @param Server $server
-     * @param bool   $ignore_deleted
+     * @param Database $db
+     * @param LoggerInterface $logger
      */
-    public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger, bool $ignore_deleted = true)
+    public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->db = $db;
@@ -135,14 +133,8 @@ class Group
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
         }
-
-        if (true === $this->deleted && false === $ignore_deleted) {
-            throw new Exception\NotAuthenticated(
-                'user '.$username.' is deleted',
-                Exception\NotAuthenticated::USER_DELETED
-            );
-        }
     }
+
 
     /**
      * Return name as string.
@@ -157,7 +149,8 @@ class Group
     /**
      * Update user with identity attributes.
      *
-     * @param Identity $identity
+     * @param Identity   $identity
+     * @param null|mixed $attribute
      *
      * @return bool
      */
@@ -226,6 +219,8 @@ class Group
             'hard_quota',
             'mail',
         ];
+
+        $requested = [];
 
         if (empty($attribute)) {
             $requested = $default;
@@ -367,10 +362,9 @@ class Group
         return $this->member;
     }
 
-
     public function getResolvedMember(): ?Generator
     {
-        foreach($this->member as $member) {
+        foreach ($this->member as $member) {
             yield $this->server->getUserById($member);
         }
 

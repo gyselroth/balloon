@@ -12,30 +12,28 @@ declare(strict_types=1);
 
 namespace Balloon\Async;
 
-use Balloon\Async\AbstractJob;
-use Balloon\App\AppInterface;
-use MongoDB\BSON\UTCDateTime;
 use Balloon\Server;
+use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 
 class CleanTrash extends AbstractJob
 {
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
     /**
-     * Default data
+     * Default data.
      *
      * @var array
      */
@@ -44,9 +42,9 @@ class CleanTrash extends AbstractJob
     ];
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param Server $server
+     * @param Server          $server
      * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)
@@ -54,7 +52,6 @@ class CleanTrash extends AbstractJob
         $this->server = $server;
         $this->logger = $logger;
     }
-
 
     /**
      * Start.

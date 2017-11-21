@@ -16,10 +16,10 @@ use Balloon\Api\Controller;
 use Balloon\App\Office\Session;
 use Balloon\App\Office\Session\Member;
 use Balloon\Exception;
+use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
-use Balloon\Server;
 
 class Document extends Controller
 {
@@ -30,19 +30,17 @@ class Document extends Controller
      */
     protected $app;
 
-
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
     protected $fs;
 
-
     /**
      * Constructor.
      *
-     * @param Server $server
+     * @param Server          $server
      * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)

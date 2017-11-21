@@ -12,54 +12,41 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem;
 
-use Balloon\App\AppInterface;
 use Balloon\Filesystem\Acl\Exception;
-use Balloon\Filesystem;
-use Balloon\Helper;
-use Balloon\Server\User;
-use MongoDB\BSON\ObjectId;
-use MongoDB\BSON\UTCDateTime;
-use Normalizer;
-use PHPZip\Zip\Stream\ZipStream;
-use Sabre\DAV;
-use MongoDB\Database;
-use Balloon\Filesystem\Storage;
-use Psr\Log\LoggerInterface;
-use Balloon\Hook;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Server\User;
+use MongoDB\BSON\UTCDateTime;
+use Psr\Log\LoggerInterface;
 
 class Acl
 {
     /**
-     * ACL privileges weight table
+     * ACL privileges weight table.
      */
     const PRIVILEGES_WEIGHT = [
-        'd'  => 0,
-        'r'  => 1,
-        'w'  => 2,
+        'd' => 0,
+        'r' => 1,
+        'w' => 2,
         'w+' => 3,
         'rw' => 4,
-        'm'  => 5,
+        'm' => 5,
     ];
 
-
     /**
-     * Types
+     * Types.
      */
     const TYPE_USER = 'user';
     const TYPE_GROUP = 'group';
 
-
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
      * @param LoggerInterface $logger
      */
@@ -68,12 +55,11 @@ class Acl
         $this->logger = $logger;
     }
 
-
     /**
      * Check acl.
      *
      * @param NodeInterface $node
-     * @param string $privilege
+     * @param string        $privilege
      *
      * @return bool
      */
@@ -91,7 +77,7 @@ class Acl
             return true;
         }
 
-        if(!isset(self::PRIVILEGES_WEIGHT[$privilege])) {
+        if (!isset(self::PRIVILEGES_WEIGHT[$privilege])) {
             throw new Exception('unknown privilege '.$privilege.' requested');
         }
 
@@ -99,9 +85,9 @@ class Acl
 
         $result = false;
 
-        if('w+' === $priv && $node->isOwnerRequest()) {
+        if ('w+' === $priv && $node->isOwnerRequest()) {
             $result = true;
-        } elseif('w+' !== $priv && self::PRIVILEGES_WEIGHT[$priv] >= self::PRIVILEGES_WEIGHT[$privilege]) {
+        } elseif ('w+' !== $priv && self::PRIVILEGES_WEIGHT[$priv] >= self::PRIVILEGES_WEIGHT[$privilege]) {
             $result = true;
         }
 
@@ -117,6 +103,7 @@ class Acl
      * Get access privilege.
      *
      * @param NodeInterface $node
+     *
      * @return string
      */
     public function getAclPrivilege(NodeInterface $node): string
@@ -184,15 +171,15 @@ class Acl
 
         $groups = [];
         foreach ($acl as $rule) {
-            if($rule['type'] === self::TYPE_USER && $rule['id'] === (string)$user->getId()) {
+            if (self::TYPE_USER === $rule['type'] && $rule['id'] === (string) $user->getId()) {
                 $priv = $rule['privilege'];
-            } elseif($rule['type'] === self::TYPE_GROUP && in_array($rule['id'], $groups)) {
+            } elseif (self::TYPE_GROUP === $rule['type'] && in_array($rule['id'], $groups, true)) {
                 $priv = $rule['privilege'];
             } else {
                 continue;
             }
 
-            if(self::PRIVILEGES_WEIGHT[$priv] > self::PRIVILEGES_WEIGHT[$result]) {
+            if (self::PRIVILEGES_WEIGHT[$priv] > self::PRIVILEGES_WEIGHT[$result]) {
                 $result = $priv;
             }
         }
@@ -200,44 +187,44 @@ class Acl
         return $result;
     }
 
-
     /**
-     * Validate acl
+     * Validate acl.
      *
      * @param array $acl
+     *
      * @return bool
      */
     public function validateAcl(array $acl): bool
     {
-        if(count($acl) === 0) {
+        if (0 === count($acl)) {
             throw new Exception('there must be at least one acl rule');
         }
 
-        foreach($acl as $rule) {
+        foreach ($acl as $rule) {
             $this->validateRule($rule);
         }
 
         return true;
     }
 
-
     /**
-     * Validate rule
+     * Validate rule.
      *
      * @param array $rule
+     *
      * @return bool
      */
     public function validateRule(array $rule): bool
     {
-        if(!isset($rule['type']) || $rule['type'] !== self::TYPE_USER && $rule['type'] !== self::TYPE_GROUP) {
+        if (!isset($rule['type']) || self::TYPE_USER !== $rule['type'] && self::TYPE_GROUP !== $rule['type']) {
             throw new Exception('rule must contain either a type group or user');
         }
 
-        if(!isset($rule['type']) || !isset(self::PRIVILEGES_WEIGHT[$rule['privilege']])) {
+        if (!isset($rule['type']) || !isset(self::PRIVILEGES_WEIGHT[$rule['privilege']])) {
             throw new Exception('rule must contain a valid privilege');
         }
 
-        if(!isset($rule['id'])) {
+        if (!isset($rule['id'])) {
             throw new Exception('rule must contain a resource id');
         }
 

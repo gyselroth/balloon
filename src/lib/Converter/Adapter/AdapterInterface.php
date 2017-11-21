@@ -27,7 +27,7 @@ interface AdapterInterface
     public function match(File $file): bool;
 
     /**
-     * Match adapter for preview
+     * Match adapter for preview.
      *
      * @param File $file
      *
@@ -54,11 +54,10 @@ interface AdapterInterface
      */
     public function convert(File $file, string $format): Result;
 
-
     /**
-     * Create preview
+     * Create preview.
      *
-     * @param File   $file
+     * @param File $file
      *
      * @return Result
      */

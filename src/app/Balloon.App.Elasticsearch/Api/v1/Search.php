@@ -13,30 +13,39 @@ declare(strict_types=1);
 namespace Balloon\App\Elasticsearch\Api\v1;
 
 use Balloon\Api\Controller;
+use Balloon\App\Elasticsearch\Elasticsearch;
 use Balloon\Exception;
 use Micro\Http\Response;
-use Balloon\App\Elasticsearch\Elasticsearch;
+use Balloon\Helper;
+use Psr\Log\LoggerInterface;
 
 class Search extends Controller
 {
     /**
-     * Elasticsearch
+     * Elasticsearch.
      *
      * @var Elasticsearch
      */
     protected $es;
 
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param App $app
+     * @param Elasticsearch $es
+     * @param LoggerInterface $logger
      */
-    public function __construct(Elasticsearch $es)
+    public function __construct(Elasticsearch $es, LoggerInterface $logger)
     {
         $this->es = $es;
+        $this->logger = $logger;
     }
-
 
     /**
      * @api {get} /api/v1/node/search Search

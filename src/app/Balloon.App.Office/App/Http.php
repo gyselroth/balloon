@@ -13,18 +13,18 @@ declare(strict_types=1);
 namespace Balloon\App\Office\App;
 
 use Balloon\App\AppInterface;
-use Balloon\App\Office\App;
-use Balloon\App\Office\Exception;
 use Balloon\App\Office\Api\v1\Document;
 use Balloon\App\Office\Api\v1\Session;
 use Balloon\App\Office\Api\v1\User;
 use Balloon\App\Office\Api\v1\Wopi\Document as WopiDocument;
-use Balloon\Hook\AbstractHook;
+use Balloon\App\Office\App;
+use Balloon\App\Office\Exception;
 use Balloon\Hook;
+use Balloon\Hook\AbstractHook;
 use Micro\Auth;
 use Micro\Auth\Adapter\None as AuthNone;
-use Micro\Http\Router\Route;
 use Micro\Http\Router;
+use Micro\Http\Router\Route;
 
 class Http implements AppInterface
 {
@@ -42,19 +42,18 @@ class Http implements AppInterface
      */
     protected $token_ttl = 1800;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Hook
      * @param Router
-     * @param Iterable $config
+     * @param iterable $config
      */
-    public function __construct(Hook $hook, Router $router, ?Iterable $config=null)
+    public function __construct(Hook $hook, Router $router, ?Iterable $config = null)
     {
         $this->setOptions($config);
 
-        $hook->injectHook(new class extends AbstractHook {
+        $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
                 $skip = [
@@ -74,7 +73,6 @@ class Http implements AppInterface
 
         $router
             ->prependRoute(new Route('/api/v1/app/office/document', Document::class))
-            ->prependRoute(new Route('/api/v1/app/office/user', User::class))
             ->prependRoute(new Route('/api/v1/app/office/session', Session::class))
             ->prependRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
             ->prependRoute(new Route('/api/v1/app/office/wopi/document', WopiDocument::class));

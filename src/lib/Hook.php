@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Hook\Delta;
-use Balloon\Hook\CleanTrash;
 use Balloon\Hook\AutoDestroy;
+use Balloon\Hook\CleanTrash;
+use Balloon\Hook\Delta;
 use Balloon\Hook\Exception;
 use Balloon\Hook\HookInterface;
 use Micro\Container\AdapterAwareInterface;
@@ -60,12 +60,12 @@ class Hook implements AdapterAwareInterface
      *
      * @param HookInterface $adapter
      *
-     * @return Hook
+     * @return AdapterAwareInterface
      */
-    public function injectHook(HookInterface $hook): Hook
+    public function injectHook(HookInterface $hook): AdapterAwareInterface
     {
         $this->logger->debug('inject hook ['.get_class($hook).']', [
-            'category' => get_class($this)
+            'category' => get_class($this),
         ]);
 
         if ($this->hasHook(get_class($hook))) {
@@ -159,7 +159,7 @@ class Hook implements AdapterAwareInterface
     }
 
     /**
-     * Get default adapter
+     * Get default adapter.
      *
      * @return array
      */
@@ -183,12 +183,12 @@ class Hook implements AdapterAwareInterface
     /**
      * Inject adapter.
      *
+     * @param mixed $adapter
      * @param string           $name
-     * @param AdapterInterface $adapter
      *
-     * @return AdapterInterface
+     * @return AdapterAwareInterface
      */
-    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
+    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
         return $this->injectHook($adapter);
     }
@@ -198,11 +198,11 @@ class Hook implements AdapterAwareInterface
      *
      * @param string $name
      *
-     * @return AdapterInterface
+     * @return mixed
      */
     public function getAdapter(string $name)
     {
-        return $this->getApp($name);
+        return $this->getHook($name);
     }
 
     /**

@@ -15,13 +15,13 @@ namespace Balloon\App\Sharelink\Api\v1;
 use Balloon\Api\Controller;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Helper;
-use Micro\Http\Response;
 use Balloon\Server;
+use Micro\Http\Response;
 
 class ShareLink extends Controller
 {
     /**
-     * Sharelink
+     * Sharelink.
      *
      * @var Share
      */
@@ -30,12 +30,12 @@ class ShareLink extends Controller
     /**
      * Constructor.
      *
-     * @param Share    $sharelink
+     * @param Share  $sharelink
      * @param Server $server
      */
     public function __construct(Share $sharelink, Server $server)
     {
-        $this->fs  = $server->getFilesystem();
+        $this->fs = $server->getFilesystem();
         $this->sharelink = $sharelink;
     }
 

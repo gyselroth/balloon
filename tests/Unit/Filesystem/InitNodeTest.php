@@ -12,18 +12,18 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\Filesystem;
 
-use Balloon\Filesystem;
+use Balloon\Exception;
+use Balloon\Exception\InvalidArgument;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
-use ReflectionMethod;
-use Balloon\Exception\InvalidArgument;
-use Balloon\Exception;
 
 /**
  * @coversNothing
  */
 class InitNodeTest extends Test
 {
+    protected $fs;
+
     public function setUp()
     {
         $server = $this->getMockServer();

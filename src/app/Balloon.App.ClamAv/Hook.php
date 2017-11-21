@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon\App\ClamAv;
 
+use Balloon\Async;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
-use Balloon\Async;
 
 class Hook extends AbstractHook
 {

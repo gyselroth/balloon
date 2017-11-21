@@ -12,35 +12,31 @@ declare(strict_types=1);
 
 namespace Balloon\Hook;
 
-use Balloon\Hook\AbstractHook;
-use Balloon\Hook\HookInterface;
-use Balloon\App\AppInterface;
-use MongoDB\BSON\UTCDateTime;
 use Balloon\Async;
 use Balloon\Async\AutoDestroy as Job;
 
 class AutoDestroy extends AbstractHook
 {
     /**
-     * Execution interval
+     * Execution interval.
      *
      * @var int
      */
     protected $interval = 28800;
 
     /**
-     * Async
+     * Async.
      *
      * @var Async
      */
     protected $async;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param Iterable $config
+     * @param iterable $config
      */
-    public function __construct(Async $async, ?Iterable $config=null)
+    public function __construct(Async $async, ?Iterable $config = null)
     {
         $this->async = $async;
         $this->setOptions($config);
@@ -63,6 +59,7 @@ class AutoDestroy extends AbstractHook
             switch ($option) {
                 case 'interval':
                     $this->{$option} = (int) $value;
+
                 break;
                 default:
                     throw new Exception('invalid option '.$option.' given');
@@ -72,14 +69,13 @@ class AutoDestroy extends AbstractHook
         return $this;
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preExecuteAsyncJobs(): void
     {
         $this->async->addJobOnce(Job::class, [], [
-            'interval' => $this->interval
+            'interval' => $this->interval,
         ]);
     }
 }

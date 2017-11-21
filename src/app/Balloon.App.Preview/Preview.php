@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Preview;
 
-use Balloon\App\AbstractApp;
 use Balloon\Exception;
 use Balloon\Filesystem\Node\File;
 use MongoDB\BSON\ObjectId;
@@ -47,7 +46,6 @@ class Preview
         $this->logger = $logger;
     }
 
-
     /**
      * Get preview.
      *
@@ -65,7 +63,7 @@ class Preview
 
                 return $contents;
             } catch (\Exception $e) {
-                $this->logger->warning('failed download preview from gridfs for file ['.$this->_id.']', [
+                $this->logger->warning('failed download preview from gridfs for file ['.$file->getId().']', [
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);
@@ -101,7 +99,7 @@ class Preview
                         'category' => get_class($this),
                     ]);
 
-                    $bucket->delete($this->thumbnail);
+                    $bucket->delete($preview);
                 } else {
                     $this->logger->debug('do not remove preview blob ['.$preview.'] from file ['.$file->getId().'], there are still other references left', [
                         'category' => get_class($this),

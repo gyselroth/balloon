@@ -58,6 +58,20 @@ class Session
     protected $_id;
 
     /**
+     * Filesystem
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+    /**
+     * Database
+     *
+     * @var Database
+     */
+    protected $db;
+
+    /**
      * Session.
      *
      * @param Filesystem $fs
@@ -135,7 +149,7 @@ class Session
      *
      * @return Session
      */
-    public static function getByAccessToken(Server $server, ObjectId $session_id, string $access_token): Session
+    public static function getByAccessToken(Server $server, ObjectId $session_id, string $access_token): self
     {
         $result = $server->getDatabase()->app_office_session->findOne([
             '_id' => $session_id,
@@ -176,7 +190,7 @@ class Session
      *
      * @return Session
      */
-    public static function getSessionById(Filesystem $fs, ObjectId $session_id): Session
+    public static function getSessionById(Filesystem $fs, ObjectId $session_id): self
     {
         $result = $fs->getDatabase()->app_office_session->findOne([
             '_id' => $session_id,
@@ -216,7 +230,7 @@ class Session
      *
      * @return Session
      */
-    public function leave(User $user): Session
+    public function leave(User $user): self
     {
         foreach ($this->member as $key => $member) {
             if ($member['user'] === $user->getId()) {
@@ -234,7 +248,7 @@ class Session
      *
      * @return Session
      */
-    public function join(Member $member): Session
+    public function join(Member $member): self
     {
         $member->setSession($this);
         $this->member[] = $member;
@@ -247,7 +261,7 @@ class Session
      *
      * @return Session
      */
-    public function store(): Session
+    public function store(): self
     {
         if (null === $this->_id) {
             $data = [

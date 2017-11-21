@@ -59,7 +59,7 @@ class Http implements AppInterface
         $server->addPlugin($plugin);
 
         $authBackend = new DAV\Auth\Backend\Apache();
-        $authPlugin = new DAV\Auth\Plugin($authBackend, 'SabreDAV');
+        $authPlugin = new DAV\Auth\Plugin($authBackend);
         $server->addPlugin($authPlugin);
 
         $server->exec();

@@ -12,33 +12,30 @@ declare(strict_types=1);
 
 namespace Balloon\Async;
 
-use Balloon\Async\AbstractJob;
-use Balloon\App\AppInterface;
-use MongoDB\BSON\UTCDateTime;
 use Balloon\Server;
+use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 
 class AutoDestroy extends AbstractJob
 {
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param Server $server
+     * @param Server          $server
      * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)
@@ -46,7 +43,6 @@ class AutoDestroy extends AbstractJob
         $this->server = $server;
         $this->logger = $logger;
     }
-
 
     /**
      * Start.

@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Balloon\App\Preview;
 
 use Balloon\Converter;
-use Balloon\App\Preview\App;
 use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use MongoDB\BSON\ObjectId;

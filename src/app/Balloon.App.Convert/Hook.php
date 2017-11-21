@@ -36,7 +36,7 @@ class Hook extends AbstractHook
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
@@ -44,7 +44,7 @@ class Hook extends AbstractHook
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postRestoreFile(File $node, int $version): void
     {

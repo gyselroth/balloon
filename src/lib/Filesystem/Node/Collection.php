@@ -14,16 +14,16 @@ namespace Balloon\Filesystem\Node;
 
 use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Acl;
+use Balloon\Hook;
 use Balloon\Resource;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\BSON\UTCDateTime;
-use Sabre\DAV;
 use Psr\Log\LoggerInterface;
-use Balloon\Hook;
-use Balloon\Filesystem\Acl;
+use Sabre\DAV;
 
 class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
 {
@@ -93,7 +93,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      *
      * @return NodeInterface
      */
-    public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
+    public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
     {
         if (null === $recursion) {
             $recursion_first = true;
@@ -234,11 +234,11 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      *
      * @param int   $deleted
      * @param array $filter
-     * @param bool $skip_exception
+     * @param bool  $skip_exception
      *
      * @return Generator
      */
-    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], bool $skip_exception=true): Generator
+    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], bool $skip_exception = true): Generator
     {
         if ($this->_user instanceof User) {
             $this->_user->findNewShares();
@@ -282,7 +282,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             try {
                 yield $this->_fs->initNode($child);
             } catch (\Exception $e) {
-                if($skip_exception === false) {
+                if (false === $skip_exception) {
                     throw $e;
                 }
 
@@ -375,15 +375,16 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      * Fetch children items of this collection.
      *
      * @param string $node
-     * @param int                    $deleted
-     * @param array                  $filter
+     * @param int    $deleted
+     * @param array  $filter
+     * @param mixed  $name
      *
      * @return NodeInterface
      */
     public function getChild($name, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
     {
         $search = [
-            'name'   => new Regex('^'.preg_quote($name).'$', 'i'),
+            'name' => new Regex('^'.preg_quote($name).'$', 'i'),
             'parent' => $this->getRealId(),
         ];
 
@@ -596,7 +597,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             ],
         ], $action);
 
-        if($this->getRealId() === $this->_id) {
+        if ($this->getRealId() === $this->_id) {
             $this->acl = $acl;
             $this->shared = true;
             $this->save(['acl', 'shared']);
@@ -605,8 +606,8 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 '_id' => $this->getRealId(),
             ], [
                 '$set' => [
-                    'acl' => $acl
-                ]
+                    'acl' => $acl,
+                ],
             ]);
         }
 
@@ -760,7 +761,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      *
      * @return Collection
      */
-    public function addDirectory($name, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): Collection
+    public function addDirectory($name, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): self
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
@@ -842,7 +843,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      * Create new file as a child from this collection.
      *
      * @param string           $name
-     * @param ressource|string $data
+     * @param mixed            $data
      * @param array            $attributes
      * @param int              $conflict
      * @param bool             $clone
@@ -982,11 +983,11 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      * @param string $method
      * @param array  $params
      * @param int    $deleted
-     * @param bool $ignore_exception
+     * @param bool   $ignore_exception
      *
      * @return bool
      */
-    protected function doRecursiveAction(string $method, array $params = [], int $deleted = NodeInterface::DELETED_EXCLUDE, bool $ignore_exception=true): bool
+    protected function doRecursiveAction(string $method, array $params = [], int $deleted = NodeInterface::DELETED_EXCLUDE, bool $ignore_exception = true): bool
     {
         if (!is_callable([$this, $method])) {
             throw new Exception("method $method is not callable in ".__CLASS__);

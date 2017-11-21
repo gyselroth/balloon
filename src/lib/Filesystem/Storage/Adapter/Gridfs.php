@@ -16,6 +16,7 @@ use Balloon\Filesystem\Node\File;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
+use MongoDB\GridFS\Bucket;
 
 class Gridfs implements AdapterInterface
 {
@@ -29,21 +30,21 @@ class Gridfs implements AdapterInterface
     /**
      * GridFS.
      *
-     * @var GridFSBucket
+     * @var Bucket
      */
     protected $gridfs;
 
     /**
      * Logger.
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
     /**
      * GridFS storage.
      *
-     * @param   Database
+     * @param Database
      * @param LoggerInterface $logger
      */
     public function __construct(Database $db, LoggerInterface $logger)
@@ -54,10 +55,7 @@ class Gridfs implements AdapterInterface
     }
 
     /**
-     * Check if file exists.
-     *
-     * @param File  $file
-     * @param array $attributes
+     * {@inheritDoc}
      */
     public function hasFile(File $file, array $attributes): bool
     {
@@ -65,12 +63,7 @@ class Gridfs implements AdapterInterface
     }
 
     /**
-     * Remove blob from gridfs.
-     *
-     * @param File  $file
-     * @param array $attributes
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function deleteFile(File $file, array $attributes): bool
     {
@@ -109,32 +102,37 @@ class Gridfs implements AdapterInterface
                 'category' => get_class($this),
             ]);
 
-            $bucket->delete($exists['_id']);
+            $this->bucket->delete($exists['_id']);
         }
 
         return true;
     }
 
     /**
-     * Get stored file.
-     *
-     * @param File  $file
-     * @param array $attributes
-     *
-     * @return stream
+     * {@inheritDoc}
      */
     public function getFile(File $file, array $attributes)
     {
         return $this->gridfs->openDownloadStream($attributes['_id']);
     }
 
+
     /**
-     * Store file.
-     *
-     * @param File     $file
-     * @param resource $contents
-     *
-     * @return array
+     * {@inheritDoc}
+     */
+    public function getFileMeta(File $file, array $attributes): array
+    {
+        $file = $this->getFileById($attributes['_id']);
+        if($file === null) {
+            throw new Exception('file was not found');
+        }
+
+        return $file;
+    }
+
+
+    /**
+     * {@inheritDoc}
      */
     public function storeFile(File $file, $contents): array
     {

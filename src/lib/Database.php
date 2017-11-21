@@ -12,12 +12,11 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Database\Delta\CoreInstallation;
 use Balloon\Database\Delta\DeltaInterface;
 use Balloon\Database\Exception;
-use Psr\Log\LoggerInterface;
-use MongoDB\Database as MongoDB;
 use Micro\Container\AdapterAwareInterface;
+use MongoDB\Database as MongoDB;
+use Psr\Log\LoggerInterface;
 
 class Database implements AdapterAwareInterface
 {
@@ -36,14 +35,14 @@ class Database implements AdapterAwareInterface
     protected $logger;
 
     /**
-     * Deltas
+     * Deltas.
      *
      * @var array
      */
     protected $delta = [];
 
     /**
-     * Delta meta collection name
+     * Delta meta collection name.
      *
      * @var string
      */
@@ -55,7 +54,7 @@ class Database implements AdapterAwareInterface
      * @param Server          $server
      * @param LoggerInterface $logger
      */
-    public function __construct(MongoDB $db, LoggerInterface $logger, string $meta_collection='delta')
+    public function __construct(MongoDB $db, LoggerInterface $logger, string $meta_collection = 'delta')
     {
         $this->db = $db;
         $this->logger = $logger;
@@ -73,7 +72,7 @@ class Database implements AdapterAwareInterface
             'category' => get_class($this),
         ]);
 
-        if(count($this->delta) === 0) {
+        if (0 === count($this->delta)) {
             $this->logger->warning('cannot initialize mongodb, no deltas have been applied', [
                 'category' => get_class($this),
             ]);
@@ -95,7 +94,6 @@ class Database implements AdapterAwareInterface
 
         return true;
     }
-
 
     /**
      * Check if delta was applied.
@@ -122,7 +120,7 @@ class Database implements AdapterAwareInterface
 
         $instances = [];
 
-        if(count($this->delta) === 0) {
+        if (0 === count($this->delta)) {
             $this->logger->warning('cannot upgrade mongodb, no deltas have been applied', [
                 'category' => get_class($this),
             ]);
@@ -218,9 +216,8 @@ class Database implements AdapterAwareInterface
         return true;
     }
 
-
     /**
-     * Get default adapter
+     * Get default adapter.
      *
      * @return array
      */
@@ -244,22 +241,22 @@ class Database implements AdapterAwareInterface
     /**
      * Inject adapter.
      *
-     * @param AdapterInterface $adapter
+     * @param mixed $adapter
      *
-     * @return AdapterInterface
+     * @return AdapterAwareInterface
      */
-    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
+    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
-        if(!($adapter instanceof DeltaInterface)) {
+        if (!($adapter instanceof DeltaInterface)) {
             throw new Exception('delta needs to implement DeltaInterface');
         }
 
-        if($name === null) {
+        if (null === $name) {
             $name = get_class($adapter);
         }
 
         $this->logger->debug('inject delta ['.$name.'] of type ['.get_class($adapter).']', [
-            'category' => get_class($this)
+            'category' => get_class($this),
         ]);
 
         if ($this->hasAdapter($name)) {
@@ -276,7 +273,7 @@ class Database implements AdapterAwareInterface
      *
      * @param string $name
      *
-     * @return AdapterInterface
+     * @return mixed
      */
     public function getAdapter(string $name)
     {
@@ -309,5 +306,4 @@ class Database implements AdapterAwareInterface
 
         return $list;
     }
-
 }

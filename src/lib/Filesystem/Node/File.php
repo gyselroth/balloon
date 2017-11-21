@@ -14,15 +14,15 @@ namespace Balloon\Filesystem\Node;
 
 use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Storage;
 use Balloon\Helper;
+use Balloon\Hook;
 use Balloon\Mime;
 use Balloon\Server\User;
 use MongoDB\BSON\UTCDateTime;
-use Sabre\DAV;
-use Balloon\Hook;
 use Psr\Log\LoggerInterface;
-use Balloon\Filesystem\Storage;
-use Balloon\Filesystem\Acl;
+use Sabre\DAV;
 
 class File extends AbstractNode implements DAV\IFile
 {
@@ -100,7 +100,7 @@ class File extends AbstractNode implements DAV\IFile
     protected $_storage;
 
     /**
-     * Storage attributes
+     * Storage attributes.
      *
      * @var mixed
      */
@@ -788,7 +788,7 @@ class File extends AbstractNode implements DAV\IFile
      *
      * @return File
      */
-    protected function addVersion(array $attributes = []): File
+    protected function addVersion(array $attributes = []): self
     {
         if (1 !== $this->version) {
             if (isset($attributes['changed'])) {
@@ -844,7 +844,7 @@ class File extends AbstractNode implements DAV\IFile
      *
      * @return File
      */
-    protected function postPutFile($file, bool $new, array $attributes): File
+    protected function postPutFile($file, bool $new, array $attributes): self
     {
         try {
             $this->save([

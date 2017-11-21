@@ -16,9 +16,36 @@ use Balloon\Api\Controller;
 use Balloon\Exception;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
+use Balloon\Server\User as CoreUser;
+use Balloon\Server;
 
-class User extends Controller
+class User
 {
+    /**
+     * User.
+     *
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * Server
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * Initialize.
+     *
+     * @param Server $server
+     */
+    public function __construct(Server $server)
+    {
+        $this->user = $server->getIdentity();
+        $this->server= $server;
+    }
+
     /**
      * @apiDefine _getUser
      *
@@ -83,22 +110,11 @@ class User extends Controller
                 }
 
                 if (null !== $uid) {
-                    $user = new ObjectId($uid);
+                    return $this->server->getUserById(new ObjectId($uid));
                 } else {
-                    $user = $uname;
+                    return $this->server->getUserByName($uname);
                 }
 
-                try {
-                    $user = new CoreUser($user, $this->logger, $this->fs, false, true);
-                    $this->fs->setUser($user);
-
-                    return $user;
-                } catch (\Exception $e) {
-                    throw new Exception\NotFound(
-                        'requested user was not found',
-                        Exception\NotFound::USER_NOT_FOUND
-                    );
-                }
             } else {
                 throw new Exception\Forbidden(
                     'submitted parameters require to have admin privileges',

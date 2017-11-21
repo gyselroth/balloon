@@ -91,7 +91,7 @@ class Member implements BSONSerializable
      *
      * @return Member
      */
-    public function setSession(Session $session): Member
+    public function setSession(Session $session): self
     {
         $this->session = $session;
 
@@ -99,11 +99,11 @@ class Member implements BSONSerializable
     }
 
     /**
-     * Get document.
+     * Get session.
      *
-     * @return Document
+     * @return Session
      */
-    public function getSession(): Document
+    public function getSession(): Session
     {
         return $this->session;
     }
@@ -161,7 +161,7 @@ class Member implements BSONSerializable
      *
      * @return Member
      */
-    public static function getByAccessToken(Server $server, LoggerInterface $logger, ObjectId $session_id, string $access_token): Member
+    public static function getByAccessToken(Server $server, LoggerInterface $logger, ObjectId $session_id, string $access_token): self
     {
         $session = Session::getByAccessToken($server, $session_id, $access_token);
         foreach ($session->getMember() as $member) {

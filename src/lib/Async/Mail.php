@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\Async;
 
-use Balloon\Server;
 use Psr\Log\LoggerInterface;
 use Zend\Mail\Message;
 use Zend\Mail\Transport\TransportInterface;
@@ -27,17 +26,17 @@ class Mail extends AbstractJob
     protected $transport;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param TransportInterface $transport
-     * @param LoggerInterface $logger
+     * @param LoggerInterface    $logger
      */
     public function __construct(TransportInterface $transport, LoggerInterface $logger)
     {
@@ -46,7 +45,7 @@ class Mail extends AbstractJob
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function start(): bool
     {

@@ -17,11 +17,12 @@ use Balloon\Exception;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
 use MongoDB\GridFS\Exception\FileNotFoundException;
+use Psr\Log\LoggerInterface;
 
 class Hook extends AbstractHook
 {
     /**
-     * Preview
+     * Preview.
      *
      * @var Preview
      */
@@ -35,15 +36,24 @@ class Hook extends AbstractHook
     protected $async;
 
     /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Constructor.
      *
-     * @param App   $app
+     * @param Preview $preview
      * @param Async $async
+     * @param LoggerInterface $logger
      */
-    public function __construct(Preview $preview, Async $async)
+    public function __construct(Preview $preview, Async $async, LoggerInterface $logger)
     {
         $this->preview = $preview;
         $this->async = $async;
+        $this->logger = $logger;
     }
 
     /**

@@ -17,14 +17,15 @@ use Balloon\Server\User;
 interface AdapterInterface
 {
     /**
-     * Send notification
+     * Send notification.
      *
      * @param array receiver
-     * @param User $sender
+     * @param User   $sender
      * @param string $subject
      * @param string $body
-     * @param array $context
+     * @param array  $context
+     *
      * @return bool
      */
-    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context=[]): bool;
+    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool;
 }

@@ -14,28 +14,36 @@ namespace Balloon\App\Preview\Api\v1;
 
 use Balloon\Api\Controller;
 use Balloon\App\Preview\Preview as PreviewGetter;
+use Balloon\Filesystem;
+use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Micro\Http\Response;
-use Balloon\Filesystem\Node\File;
 
 class Preview extends Controller
 {
     /**
-     * App.
+     * Preview.
      *
-     * @var App
+     * @var PreviewGetter
      */
-    protected $app;
+    protected $preview;
+
+    /**
+     * Filesystem.
+     *
+     * @var Filesystem
+     */
+    protected $fs;
 
     /**
      * Constructor.
      *
-     * @param App    $app
-     * @param Server $server
+     * @param PreviewGetter $preview
+     * @param Server        $server
      */
     public function __construct(PreviewGetter $preview, Server $server)
     {
-        $this->fs  = $server->getFilesystem();
+        $this->fs = $server->getFilesystem();
         $this->preview = $preview;
     }
 

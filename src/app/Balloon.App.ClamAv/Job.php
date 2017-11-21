@@ -25,11 +25,11 @@ class Job extends AbstractJob
     protected $fs;
 
     /**
-     * App.
+     * Scanner
      *
-     * @var App
+     * @var Scanner
      */
-    protected $app;
+    protected $scanner;
 
     /**
      * Constructor.
@@ -52,7 +52,7 @@ class Job extends AbstractJob
     {
         $file = $this->fs->findNodeWithId($this->data['id']);
         $result = $this->scanner->scan($file);
-        $infected = Cli::FILE_INFECTED === $result;
+        $infected = Scanner::FILE_INFECTED === $result;
         $this->scanner->handleFile($file, $infected);
 
         return true;

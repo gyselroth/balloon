@@ -21,8 +21,8 @@ use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDateTime;
-use Psr\Log\LoggerInterface;
 use MongoDB\Database;
+use Psr\Log\LoggerInterface;
 
 class User
 {
@@ -143,9 +143,10 @@ class User
      *
      * @param array  $attributes
      * @param Server $server
-     * @param bool   $ignore_deleted
+     * @param Database $db
+     * @param LoggerInterface $logger
      */
-    public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger, bool $ignore_deleted = true)
+    public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->db = $db;
@@ -153,13 +154,6 @@ class User
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
-        }
-
-        if (true === $this->deleted && false === $ignore_deleted) {
-            throw new Exception\NotAuthenticated(
-                'user '.$username.' is deleted',
-                Exception\NotAuthenticated::USER_DELETED
-            );
         }
     }
 
@@ -245,6 +239,8 @@ class User
             'hard_quota',
             'mail',
         ];
+
+        $requested = $default;
 
         if (empty($attribute)) {
             $requested = $default;
@@ -420,7 +416,7 @@ class User
             '$or' => [
                 ['acl' => [
                     '$elemMatch' => [
-                        'id' => (string)$this->_id,
+                        'id' => (string) $this->_id,
                      //   'type' => 'user'
                     ],
                 ]],
@@ -454,7 +450,7 @@ class User
 
         $exists = [];
         foreach ($item as $child) {
-            if (!in_array($child['reference'], $found)) {
+            if (!in_array($child['reference'], $found, true)) {
                 $this->logger->debug('found dead reference ['.$child['_id'].'] pointing to share ['.$child['reference'].']', [
                     'category' => get_class($this),
                 ]);
@@ -494,8 +490,9 @@ class User
                 'reference' => $node['_id'],
             ];
 
+            $dir = $this->getFilesystem()->getRoot();
+
             try {
-                $dir = $this->getFilesystem()->getRoot();
                 $dir->addDirectory($node['name'], $attrs);
             } catch (Exception\Conflict $e) {
                 $new = $node['name'].' ('.substr(uniqid('', true), -4).')';
@@ -528,7 +525,7 @@ class User
     }
 
     /**
-     * Get namespace
+     * Get namespace.
      *
      * @return string
      */
@@ -536,7 +533,6 @@ class User
     {
         return $this->namespace;
     }
-
 
     /**
      * Get hard quota.
@@ -555,7 +551,7 @@ class User
      *
      * @return User
      */
-    public function setHardQuota(int $quota): User
+    public function setHardQuota(int $quota): self
     {
         $this->hard_quota = (int) $quota;
         $this->save(['hard_quota']);
@@ -570,7 +566,7 @@ class User
      *
      * @return User
      */
-    public function setSoftQuota(int $quota): User
+    public function setSoftQuota(int $quota): self
     {
         $this->soft_quota = (int) $quota;
         $this->save(['soft_quota']);

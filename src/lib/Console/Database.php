@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Balloon\Console;
 
 use Balloon\Database as DatabaseSetup;
+use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
-use Getopt\Getopt;
 
 class Database implements ConsoleInterface
 {
@@ -26,7 +26,7 @@ class Database implements ConsoleInterface
     protected $getopt;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
@@ -35,15 +35,16 @@ class Database implements ConsoleInterface
     /**
      * Container.
      *
-     * @var Database
+     * @var DatabaseSetup
      */
     protected $db;
 
     /**
      * Constructor.
      *
-     * @param App   $app
-     * @param Async $async
+     * @param DatabaseSetup $db
+     * @param LoggerInterface $logger
+     * @param GetOpt $getopt
      */
     public function __construct(DatabaseSetup $db, LoggerInterface $logger, GetOpt $getopt)
     {

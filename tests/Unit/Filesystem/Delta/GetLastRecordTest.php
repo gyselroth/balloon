@@ -14,12 +14,12 @@ namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Storage;
+use Balloon\Hook;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use Balloon\Hook;
 use Psr\Log\LoggerInterface;
-use Balloon\Filesystem\Storage;
 
 /**
  * @coversNothing
@@ -136,6 +136,6 @@ class GetLastRecordTest extends Test
         $from_delta = $this->delta->getLastRecord($files[0]);
         // unset _id property to be able to compare
         unset($from_delta['_id']);
-        $this->assertEquals($data[0], $from_delta);
+        $this->assertSame($data[0], $from_delta);
     }
 }

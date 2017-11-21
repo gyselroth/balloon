@@ -25,7 +25,7 @@ class Job extends AbstractJob
     protected $fs;
 
     /**
-     * Preview
+     * Preview.
      *
      * @var PreviewCreator
      */

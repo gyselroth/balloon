@@ -13,14 +13,15 @@ declare(strict_types=1);
 namespace Balloon\App\Office\Api\v1;
 
 use Balloon\Api\Controller;
+use Balloon\App\Office\App\Http as App;
 use Balloon\App\Office\Document as OfficeDoc;
 use Balloon\App\Office\Template;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem;
+use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Http\Response;
-use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\Collection;
-use Balloon\App\Office\App\Http As App;
-use Balloon\Server;
 
 class Document extends Controller
 {
@@ -31,22 +32,19 @@ class Document extends Controller
      */
     protected $app;
 
-
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
     protected $fs;
 
-
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
-
 
     /**
      * Constructor.
@@ -56,11 +54,10 @@ class Document extends Controller
      */
     public function __construct(App $app, Server $server)
     {
-        $this->server  = $server;
-        $this->fs  = $server->getFilesystem();
+        $this->server = $server;
+        $this->fs = $server->getFilesystem();
         $this->app = $app;
     }
-
 
     /**
      * @api {get} /api/v1/app/office/document?id=:id Get document

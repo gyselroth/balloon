@@ -23,13 +23,12 @@ use Micro\Auth\Identity;
 interface HookInterface
 {
     /**
-     * Run: preExecuteAsyncJobs
+     * Run: preExecuteAsyncJobs.
      */
     public function preExecuteAsyncJobs(): void;
 
-
     /**
-     * Run: preExecuteAsyncJobs
+     * Run: preExecuteAsyncJobs.
      */
     public function postExecuteAsyncJobs(): void;
 

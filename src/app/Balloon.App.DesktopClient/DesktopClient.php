@@ -17,23 +17,21 @@ use Psr\Log\LoggerInterface;
 class DesktopClient
 {
     /**
-     * Github request url
+     * Github request url.
      *
      * @var string
      */
     protected $github_request_url = 'https://api.github.com/repos/gyselroth/balloon-client-desktop/releases/latest';
 
-
     /**
-     * Github request timeout
+     * Github request timeout.
      *
      * @var int
      */
     protected $github_request_timeout = 10;
 
-
     /**
-     * Github asset mapping
+     * Github asset mapping.
      *
      * @var array
      */
@@ -45,129 +43,133 @@ class DesktopClient
         'dmg' => '#.*\.dmg$#',
     ];
 
-
     /**
-     * Github request useragent
+     * Github request useragent.
      *
      * @var string
      */
     protected $github_request_useragent = 'balloon server';
 
-
     /**
-     * Formats
+     * Formats.
      *
      * @var array
      */
     protected $formats = [];
 
-
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param LoggerInterface $logger
-     * @param Iterable $config
+     * @param iterable        $config
      */
-    public function __construct(LoggerInterface $logger, ?Iterable $config=null)
+    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->logger = $logger;
         $this->setOptions($config);
     }
 
     /**
-     * Set options
+     * Set options.
      *
-     * @param Iterable $config
+     * @param iterable $config
+     *
      * @return DesktopClient
      */
-    public function setOptions(?Iterable $config=null): DesktopClient
+    public function setOptions(?Iterable $config = null): self
     {
-        if($config === null) {
+        if (null === $config) {
             return $this;
         }
 
-        foreach($config as $option => $value) {
-            switch($option) {
+        foreach ($config as $option => $value) {
+            switch ($option) {
                 case 'github_request_url':
                 case 'github_request_timeout':
-                    $this->{$option} = (string)$value;
-                break;
+                    $this->{$option} = (string) $value;
 
+                break;
                 case 'github_request_timeout':
-                    $this->github_request_timeout = (int)$value;
-                break;
+                    $this->github_request_timeout = (int) $value;
 
+                break;
                 case 'formats':
                 case 'github_asset_mapping':
                     $this->{$option} = $value;
-                break;
 
+                break;
                 default:
                     throw new Exception('invalid option '.$option.' given');
             }
         }
     }
 
-
     /**
-     * Get url
+     * Get url.
      *
      * @param string $format
+     *
      * @return string
      */
     public function getUrl(string $format): string
     {
-        if(isset($this->formats[$format])) {
+        if (isset($this->formats[$format])) {
             return $this->formats[$format];
-        } else {
-            return $this->getGithubUrl($format);
         }
+
+        return $this->getGithubUrl($format);
     }
 
-
     /**
-     * Get github url
+     * Get github url.
      *
      * @param string $format
+     *
      * @return string
      */
     protected function getGithubUrl(string $format): string
     {
-        if(!isset($this->github_asset_mapping[$format])) {
+        if (!isset($this->github_asset_mapping[$format])) {
             throw new Exception('unknown format '.$format.' requested');
         }
 
         $ch = curl_init();
-        curl_setopt($ch,CURLOPT_URL,$this->github_request_url);
-        curl_setopt($ch,CURLOPT_TIMEOUT,$this->github_request_timeout);
+        curl_setopt($ch, CURLOPT_URL, $this->github_request_url);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->github_request_timeout);
         curl_setopt($ch, CURLOPT_USERAGENT, $this->github_request_useragent);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $data = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $this->logger->debug('github request to ['.$this->github_request_url.'] resulted in ['.$code.']', [
-            'category' => get_class($this)
+            'category' => get_class($this),
         ]);
 
-        if($code !== 200) {
+        if (200 !== $code) {
             throw new Exception('failed query github releases api');
         }
 
         $data = json_decode($data, true);
 
-        if(!is_array($data) || !isset($data['assets']) || count($data['assets']) === 0) {
+        if (!is_array($data) || !isset($data['assets']) || 0 === count($data['assets'])) {
             throw new Exception('no github release assets found');
         }
 
-        foreach($data['assets'] as $asset) {
+        foreach ($data['assets'] as $asset) {
             $this->logger->debug('check release asset ['.$asset['name'].'] for ['.$this->github_asset_mapping[$format].']', [
-                'category' => get_class($this)
+                'category' => get_class($this),
             ]);
 
-            if(preg_match($this->github_asset_mapping[$format], $asset['name'])) {
+            if (preg_match($this->github_asset_mapping[$format], $asset['name'])) {
                 $this->logger->info('github asset ['.$asset['browser_download_url'].'] found', [
-                    'category' => get_class($this)
+                    'category' => get_class($this),
                 ]);
 
                 return $asset['browser_download_url'];

@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace Balloon\App\Convert\Api\v1;
 
 use Balloon\Api\Controller;
-use Balloon\App\Convert\App\Http As App;
+use Balloon\App\Convert\App\Http as App;
 use Balloon\App\Convert\Exception;
 use Balloon\App\Convert\Job;
 use Balloon\Async;
 use Balloon\Converter;
+use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Micro\Http\Response;
-use Balloon\Filesystem\Node\File;
 use MongoDB\BSON\ObjectId;
 
 class Convert extends Controller
@@ -42,12 +42,13 @@ class Convert extends Controller
     /**
      * Constructor.
      *
-     * @param App       $app
      * @param Converter $converter
+     * @param Server $server
+     * @param Async $async
      */
     public function __construct(Converter $converter, Server $server, Async $async)
     {
-        $this->fs  = $server->getFilesystem();
+        $this->fs = $server->getFilesystem();
         $this->converter = $converter;
         $this->async = $async;
     }
@@ -85,7 +86,6 @@ class Convert extends Controller
         return (new Response())->setCode(200)->setBody($this->converter->getSupportedFormats($file));
     }
 
-
     /**
      * @api {get} /api/v1/convert/slaves?id=:id Get slaves
      * @apiVersion 1.0.0
@@ -116,7 +116,6 @@ class Convert extends Controller
 
         return (new Response())->setCode(200)->setBody((array) $slaves);
     }
-
 
     /**
      * @api {post} /api/v1/convert/slave?id=:id Add new slave
@@ -162,16 +161,15 @@ class Convert extends Controller
             'slave' => $id,
         ]);
 
-        $slaves[(string)$id] = [
+        $slaves[(string) $id] = [
             '_id' => $id,
-            'format' => $format
+            'format' => $format,
         ];
 
         $file->setAppAttribute('Balloon\\App\\Convert', 'slaves', $slaves);
 
-        return (new Response())->setCode(201)->setBody((string)$id);
+        return (new Response())->setCode(201)->setBody((string) $id);
     }
-
 
     /**
      * @api {delete} /api/v1/convert/slave?id=:id Delete slave
@@ -191,24 +189,24 @@ class Convert extends Controller
      * @param string $id
      * @param string $p
      * @param string $slave
-     * @param bool $node
+     * @param bool   $node
      */
-    public function deleteSlave(string $slave, ?string $id = null, ?string $p = null, bool $node=false): Response
+    public function deleteSlave(string $slave, ?string $id = null, ?string $p = null, bool $node = false): Response
     {
         $file = $this->fs->getNode($id, $p, File::class);
 
         $slaves = $file->getAppAttribute('Balloon\\App\\Convert', 'slaves');
-        if(isset($slaves[$slave])) {
-            if($node === true && isset($slaves[$slave]['node'])) {
-                 $this->fs->getNodeById($slaves[$slave]['node'], File::class)->delete();
+        if (isset($slaves[$slave])) {
+            if (true === $node && isset($slaves[$slave]['node'])) {
+                $this->fs->getNodeById($slaves[$slave]['node'], File::class)->delete();
             }
 
             unset($slaves[$slave]);
             $file->setAppAttribute('Balloon\\App\\Convert', 'slaves', $slaves);
 
             return (new Response())->setCode(204);
-        } else {
-            throw new Exception('slave not found', Exception::SLAVE_NOT_FOUND);
         }
+
+        throw new Exception('slave not found', Exception::SLAVE_NOT_FOUND);
     }
 }

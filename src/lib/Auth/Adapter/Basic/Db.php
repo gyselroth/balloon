@@ -33,54 +33,12 @@ class Db extends AbstractBasic
      *
      * @return AdapterInterface
      */
-    public function __construct(LoggerInterface $logger, Database $db, ?Iterable $config=null)
+    public function __construct(LoggerInterface $logger, Database $db, ?Iterable $config = null)
     {
         $this->logger = $logger;
         $this->db = $db;
         $this->setOptions($config);
     }
-
-
-    /**
-     * Auth
-     *
-     * @param   string $username
-     * @param   string $password
-     * @return  bool
-     */
-    protected function plainAuth(string $username, string $password): bool
-    {
-        $result = $this->findIdentity($username);
-
-        if ($result === null) {
-            $this->logger->info('found no user named ['.$username.'] in database', [
-                'category' => get_class($this)
-            ]);
-
-            return false;
-        }
-
-        if (!isset($result['password']) || empty($result['password'])) {
-            $this->logger->info('found no password for ['.$username.'] in database', [
-                'category' => get_class($this)
-            ]);
-
-            return false;
-        }
-
-        if (!password_verify($password, $result['password'])) {
-            $this->logger->info('failed match given password for ['.$username.'] with stored hash in database', [
-                'category' => get_class($this)
-            ]);
-
-            return false;
-        }
-
-        $this->attributes = $result;
-        $this->identifier = $username;
-        return true;
-    }
-
 
     /**
      * Find identity.
@@ -104,5 +62,47 @@ class Db extends AbstractBasic
     public function getAttributes(): array
     {
         return $this->attributes;
+    }
+
+    /**
+     * Auth.
+     *
+     * @param string $username
+     * @param string $password
+     *
+     * @return bool
+     */
+    protected function plainAuth(string $username, string $password): bool
+    {
+        $result = $this->findIdentity($username);
+
+        if (null === $result) {
+            $this->logger->info('found no user named ['.$username.'] in database', [
+                'category' => get_class($this),
+            ]);
+
+            return false;
+        }
+
+        if (!isset($result['password']) || empty($result['password'])) {
+            $this->logger->info('found no password for ['.$username.'] in database', [
+                'category' => get_class($this),
+            ]);
+
+            return false;
+        }
+
+        if (!password_verify($password, $result['password'])) {
+            $this->logger->info('failed match given password for ['.$username.'] with stored hash in database', [
+                'category' => get_class($this),
+            ]);
+
+            return false;
+        }
+
+        $this->attributes = $result;
+        $this->identifier = $username;
+
+        return true;
     }
 }

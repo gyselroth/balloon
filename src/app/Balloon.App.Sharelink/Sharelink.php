@@ -12,19 +12,10 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink;
 
-use Balloon\App\AppInterface;
 use Balloon\Exception;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Hook;
-use Balloon\Hook\AbstractHook;
 use Balloon\Server;
-use Micro\Auth;
-use Micro\Auth\Adapter\None as AuthNone;
-use Micro\Http\Response;
-use Micro\Http\Router;
-use Micro\Http\Router\Route;
 
 class Sharelink
 {
@@ -36,7 +27,7 @@ class Sharelink
     protected $fs;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Server $server
      */
@@ -159,7 +150,7 @@ class Sharelink
     public function findNodeWithShareToken(string $token): NodeInterface
     {
         $node = $this->fs->findNodeWithCustomFilter([
-            'app_attributes.'.$this->getName().'.token' => $token,
+            'app_attributes.'.__NAMESPACE__.'.token' => $token,
             'deleted' => false,
         ]);
 

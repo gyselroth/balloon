@@ -12,17 +12,13 @@ declare(strict_types=1);
 
 namespace Balloon\Hook;
 
-use Balloon\Hook\AbstractHook;
-use Balloon\Hook\HookInterface;
-use Balloon\App\AppInterface;
-use MongoDB\BSON\UTCDateTime;
 use Balloon\Async;
 use Balloon\Async\CleanTrash as Job;
 
 class CleanTrash extends AbstractHook
 {
     /**
-     * Execution interval
+     * Execution interval.
      *
      * @var int
      */
@@ -35,20 +31,19 @@ class CleanTrash extends AbstractHook
      */
     protected $max_age = 2592000;
 
-
     /**
-     * Async
+     * Async.
      *
      * @var Async
      */
     protected $async;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param Iterable $config
+     * @param iterable $config
      */
-    public function __construct(Async $async, ?Iterable $config=null)
+    public function __construct(Async $async, ?Iterable $config = null)
     {
         $this->async = $async;
         $this->setOptions($config);
@@ -72,6 +67,7 @@ class CleanTrash extends AbstractHook
                 case 'max_age':
                 case 'interval':
                     $this->{$option} = (int) $value;
+
                 break;
                 default:
                     throw new Exception('invalid option '.$option.' given');
@@ -81,16 +77,15 @@ class CleanTrash extends AbstractHook
         return $this;
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preExecuteAsyncJobs(): void
     {
         $this->async->addJobOnce(Job::class, [
             'max_age' => $this->max_age,
         ], [
-            'interval' => $this->interval
+            'interval' => $this->interval,
         ]);
     }
 }

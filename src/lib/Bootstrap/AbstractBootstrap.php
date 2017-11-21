@@ -13,32 +13,21 @@ declare(strict_types=1);
 namespace Balloon\Bootstrap;
 
 use Balloon\App;
-use Balloon\Auth\Adapter\Basic\Db;
-use Balloon\Converter;
-use Balloon\Exception;
-use Balloon\Filesystem\Storage;
-use Balloon\Filesystem\Storage\Adapter\Gridfs;
-use Balloon\Hook;
-use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
 use ErrorException;
-use Micro\Auth;
 use Micro\Config;
+use Micro\Config\Struct;
 use Micro\Container;
-use Micro\Log;
-use Micro\Log\Adapter\File;
 use MongoDB\Client;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use Balloon\App\Notification\Notification;
-use Micro\Config\Struct;
 
 abstract class AbstractBootstrap
 {
     /**
-     * Config
+     * Config.
      *
-     * @var Iterable
+     * @var iterable
      */
     protected $config;
 
@@ -91,20 +80,18 @@ abstract class AbstractBootstrap
             return $this->get(Client::class)->balloon;
         });
 
-
         //register all app bootstraps
         $this->container->get(App::class);
 
         return true;
     }
 
-
     /**
      * Find apps.
      *
      * @return AbstractBootstrap
      */
-    protected function detectApps(Composer $composer): AbstractBootstrap
+    protected function detectApps(Composer $composer): self
     {
         if ($this instanceof Http) {
             $context = 'Http';
@@ -115,22 +102,22 @@ abstract class AbstractBootstrap
         foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
             $ns = str_replace('.', '\\', basename($app)).'\\';
             $composer->addPsr4($ns, $app);
-            $name =  $ns.'App';
+            $name = $ns.'App';
 
-            if(!isset($this->config[App::class]['adapter'][$name])) {
+            if (!isset($this->config[App::class]['adapter'][$name])) {
                 $this->config[App::class]['adapter'][$name] = new Config();
             }
 
-            if(file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
+            if (file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
                 $this->config->inject(new Struct(require_once $app.DIRECTORY_SEPARATOR.'.container.config.php'));
             }
         }
 
-        foreach($this->config[App::class]['adapter'] as $app => $options) {
+        foreach ($this->config[App::class]['adapter'] as $app => $options) {
             $this->config[App::class]['adapter'][$app]['expose'] = true;
             $this->config[App::class]['adapter'][$app]['use'] = $app.'\\'.$context;
 
-            if(!class_exists($this->config[App::class]['adapter'][$app]['use'])) {
+            if (!class_exists($this->config[App::class]['adapter'][$app]['use'])) {
                 $this->config[App::class]['adapter'][$app]['enabled'] = '0';
             }
         }
@@ -143,12 +130,12 @@ abstract class AbstractBootstrap
      *
      * @return AbstractBootstrap
      */
-    protected function setErrorHandler(): AbstractBootstrap
+    protected function setErrorHandler(): self
     {
         set_error_handler(function ($severity, $message, $file, $line) {
             $log = $message.' in '.$file.':'.$line;
 
-            if($this->container === null) {
+            if (null === $this->container) {
                 throw new ErrorException($message, 0, $severity, $file, $line);
             }
 

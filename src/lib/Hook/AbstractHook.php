@@ -23,71 +23,70 @@ use Micro\Auth\Identity;
 abstract class AbstractHook implements HookInterface
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preExecuteAsyncJobs(): void
     {
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postExecuteAsyncJobs(): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preAuthentication(Auth $auth): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preServerIdentity(Identity $identity, ?array &$attributes): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postServerIdentity(Server $server, User $user): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preCreateCollection(Collection $parent, string &$name, array &$attributes, bool $clone): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preCreateFile(Collection $parent, string &$name, array &$attributes, bool $clone): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postCreateFile(Collection $parent, File $node, bool $clone): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preCopyCollection(
         Collection $node,
@@ -99,7 +98,7 @@ abstract class AbstractHook implements HookInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postCopyCollection(
         Collection $node,
@@ -112,7 +111,7 @@ abstract class AbstractHook implements HookInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preCopyFile(
         File $node,
@@ -124,7 +123,7 @@ abstract class AbstractHook implements HookInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postCopyFile(
         File $node,
@@ -137,63 +136,63 @@ abstract class AbstractHook implements HookInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preRestoreFile(File $node, int $version): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postRestoreFile(File $node, int $version): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function prePutFile(File $node, $content, bool $force, array $attributes): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preSaveNodeAttributes(
         NodeInterface $node,
@@ -205,7 +204,7 @@ abstract class AbstractHook implements HookInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function postSaveNodeAttributes(
         NodeInterface $node,

@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
 class ImagickImage implements AdapterInterface
 {
     /**
-     * Preview format
+     * Preview format.
      */
     const PREVIEW_FORMAT = 'png';
 
@@ -53,14 +53,12 @@ class ImagickImage implements AdapterInterface
         'pdf' => 'application/pdf',
     ];
 
-
     /**
-     * Match filter
+     * Match filter.
      *
      * @var string
      */
     protected $match_preview = '#^image|text\/#';
-
 
     /**
      * Initialize.
@@ -102,25 +100,23 @@ class ImagickImage implements AdapterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function match(File $file): bool
     {
-        return in_array($file->getMime(), $this->formats) || isset($this->formats[$file->getExtension()]);
+        return in_array($file->getMime(), $this->formats, true) || isset($this->formats[$file->getExtension()]);
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function matchPreview(File $file): bool
     {
         return preg_match($this->match_preview, $file->getMime()) || isset($this->formats[$file->getExtension()]);
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSupportedFormats(File $file): array
     {
@@ -128,7 +124,7 @@ class ImagickImage implements AdapterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createPreview(File $file): Result
     {
@@ -163,9 +159,8 @@ class ImagickImage implements AdapterInterface
         return new Result($dest, $desth);
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function convert(File $file, string $format): Result
     {

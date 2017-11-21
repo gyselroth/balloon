@@ -13,12 +13,11 @@ declare(strict_types=1);
 namespace Balloon\Hook;
 
 use Balloon\Exception;
-use Balloon\Server;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\UTCDateTime;
-use Psr\Log\LoggerInterface;
 use MongoDB\Database;
+use Psr\Log\LoggerInterface;
 
 class AutoCreateUser extends AbstractHook
 {
@@ -30,21 +29,21 @@ class AutoCreateUser extends AbstractHook
     protected $attributes = [];
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
     /**
-     * Database
+     * Database.
      *
      * @var Database
      */
     protected $db;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Database
      * @param LoggerInterface
@@ -68,15 +67,14 @@ class AutoCreateUser extends AbstractHook
             return $this;
         }
 
-        foreach($config as $option => $value) {
-            switch($option) {
+        foreach ($config as $option => $value) {
+            switch ($option) {
                 case 'attributes':
                     $this->attributes = $value;
-                break;
 
+                break;
                 default:
                     throw new Exception('Invalid option '.$option.' given');
-
             }
         }
 
@@ -84,7 +82,7 @@ class AutoCreateUser extends AbstractHook
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function preServerIdentity(Identity $identity, ?array &$attributes): void
     {

@@ -18,20 +18,18 @@ use Psr\Log\LoggerInterface;
 abstract class AbstractDelta implements DeltaInterface
 {
     /**
-     * Database
+     * Database.
      *
      * @var Database
      */
-    protected $database;
-
+    protected $db;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
     protected $logger;
-
 
     /**
      * Construct.
@@ -45,7 +43,6 @@ abstract class AbstractDelta implements DeltaInterface
         $this->logger = $logger;
     }
 
-
     /**
      * Get collection.
      *
@@ -56,9 +53,8 @@ abstract class AbstractDelta implements DeltaInterface
         return '';
     }
 
-
     /**
-     * Init database
+     * Init database.
      *
      * @return bool
      */
@@ -66,7 +62,6 @@ abstract class AbstractDelta implements DeltaInterface
     {
         return true;
     }
-
 
     /**
      * Upgrade object.

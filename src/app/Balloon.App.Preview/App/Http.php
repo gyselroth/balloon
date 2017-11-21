@@ -12,12 +12,10 @@ declare(strict_types=1);
 
 namespace Balloon\App\Preview\App;
 
-use Balloon\App\Preview\Api\v1\Preview;
 use Balloon\App\AppInterface;
+use Balloon\App\Preview\Api\v1\Preview;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
-use MongoDB\Database;
-use Psr\Log\LoggerInterface;
 
 class Http implements AppInterface
 {

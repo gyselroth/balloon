@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\DesktopClient\App;
 
-use Balloon\App\DesktopClient\Api\v1\Download;
 use Balloon\App\AppInterface;
+use Balloon\App\DesktopClient\Api\v1\Download;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 

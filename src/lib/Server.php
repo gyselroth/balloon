@@ -12,15 +12,15 @@ declare(strict_types=1);
 
 namespace Balloon;
 
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
 use Balloon\Server\Group;
 use Balloon\Server\User;
+use Generator;
 use Micro\Auth\Identity;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use Generator;
-use Balloon\Filesystem\Acl;
 
 class Server
 {
@@ -60,9 +60,9 @@ class Server
     protected $identity;
 
     /**
-     * Acl
+     * Acl.
      *
-     * @var acl
+     * @var Acl
      */
     protected $acl;
 
@@ -94,6 +94,7 @@ class Server
      * @param Storage         $storage
      * @param LoggerInterface $logger
      * @param Hook            $hook
+     * @param Acl $acl
      * @param iterable        $config
      */
     public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
@@ -114,7 +115,7 @@ class Server
      *
      * @return Server
      */
-    public function setOptions(?Iterable $config = null): Server
+    public function setOptions(?Iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -129,6 +130,7 @@ class Server
                 case 'max_file_version':
                 case 'max_file_size':
                     $this->{$name} = (int) $value;
+
                 break;
                 default:
                     throw new Exception('invalid option '.$name.' given');
@@ -137,7 +139,6 @@ class Server
 
         return $this;
     }
-
 
     /**
      * Get temporary directory.
@@ -250,13 +251,12 @@ class Server
             '_id' => ['$in' => $find],
         ];
 
-        $users = $this->db->user->find($users);
+        $users = $this->db->user->find($filter);
 
-        foreach($user as $attributes) {
+        foreach ($users as $attributes) {
             yield new User($attributes, $this, $this->db, $this->logger);
         }
     }
-
 
     /**
      * Set Identity.
@@ -273,6 +273,14 @@ class Server
         if (null === $result) {
             throw new Exception('user does not exists');
         }
+
+        if (true === $result['deleted']) {
+            throw new Exception\NotAuthenticated(
+                'user is disabled and can not be used',
+                Exception\NotAuthenticated::USER_DELETED
+            );
+        }
+
         $user = new User($result, $this, $this->db, $this->logger);
         $this->identity = $user;
         $user->updateIdentity($identity);
@@ -322,13 +330,13 @@ class Server
     {
         $users = $this->db->user->find($filter);
 
-        foreach($users as $attributes) {
+        foreach ($users as $attributes) {
             yield new User($attributes, $this, $this->db, $this->logger);
         }
     }
 
     /**
-     * Get groups
+     * Get groups.
      *
      * @param array $filter
      *
@@ -338,7 +346,7 @@ class Server
     {
         $groups = $this->db->group->find($filter);
 
-        foreach($groups as $attributes) {
+        foreach ($groups as $attributes) {
             yield new Group($attributes, $this, $this->db, $this->logger);
         }
     }

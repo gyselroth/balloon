@@ -12,11 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon\Api\v1;
 
-use Balloon\Api\Controller;
 use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\Regex;
-use MultipleIterator;
 
 class Resource
 {
@@ -88,7 +86,7 @@ class Resource
      */
     public function getAclRoles(string $q, bool $single = false): Response
     {
-        if($single === true) {
+        if (true === $single) {
             $regex = new Regex('^'.preg_quote($q).'$', 'i');
             $users_filter = [
                 'username' => $regex,
@@ -100,28 +98,28 @@ class Resource
             $regex = new Regex('^'.preg_quote($q), 'i');
             $users_filter = [
                 'username' => $regex,
-                'namespace' => $this->user->getNamespace()
+                'namespace' => $this->user->getNamespace(),
             ];
             $groups_filter = [
                 'name' => $regex,
-                'namespace' => $this->user->getNamespace()
+                'namespace' => $this->user->getNamespace(),
             ];
         }
 
         $body = [];
 
-        foreach($this->server->getGroups($groups_filter) as $role) {
+        foreach ($this->server->getGroups($groups_filter) as $role) {
             $body[] = [
                'type' => 'group',
-               'id' => (string)$role->getId(),
+               'id' => (string) $role->getId(),
                 'name' => $role->getName(),
             ];
         }
 
-        foreach($this->server->getUsers($users_filter) as $role) {
+        foreach ($this->server->getUsers($users_filter) as $role) {
             $body[] = [
                 'type' => 'user',
-                'id' => (string)$role->getId(),
+                'id' => (string) $role->getId(),
                 'name' => $role->getUsername(),
             ];
         }

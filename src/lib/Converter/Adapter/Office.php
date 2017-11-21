@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
 class Office implements AdapterInterface
 {
     /**
-     * Preview format
+     * Preview format.
      */
     const PREVIEW_FORMAT = 'png';
 
@@ -79,7 +79,7 @@ class Office implements AdapterInterface
             'xlam' => 'application/vnd.ms-excel.addin.macroEnabled.12',
             'xslb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
             'xltm' => 'application/vnd.ms-excel.template.macroEnabled.12',
-            'pdf'  => 'application/pdf',
+            'pdf' => 'application/pdf',
         ],
         'text' => [
             'odt' => 'application/vnd.oasis.opendocument.text',
@@ -96,7 +96,7 @@ class Office implements AdapterInterface
             'dotm' => 'application/vnd.ms-word.template.macroEnabled.12',
             'txt' => 'text/plain',
             'html' => 'text/html',
-            'pdf'  => 'application/pdf',
+            'pdf' => 'application/pdf',
         ],
         'presentation' => [
             'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
@@ -108,11 +108,11 @@ class Office implements AdapterInterface
             'sldm' => 'application/vnd.ms-powerpoint.slide.macroEnabled.12',
             'ppsm' => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
             'potm' => 'application/vnd.ms-powerpoint.template.macroEnabled.12',
-            'odp'  => 'application/vnd.oasis.opendocument.presentation',
+            'odp' => 'application/vnd.oasis.opendocument.presentation',
             'fodp' => 'application/vnd.oasis.opendocument.presentation-flat-xml',
-            'otp'  => 'application/vnd.oasis.opendocument.presentation-template',
-            'pdf'  => 'application/pdf',
-        ]
+            'otp' => 'application/vnd.oasis.opendocument.presentation-template',
+            'pdf' => 'application/pdf',
+        ],
     ];
 
     /**
@@ -126,7 +126,6 @@ class Office implements AdapterInterface
         $this->logger = $logger;
         $this->setOptions($config);
     }
-
 
     /**
      * Set options.
@@ -149,6 +148,7 @@ class Office implements AdapterInterface
                     }
 
                     $this->soffice = (string) $value;
+
                     break;
                 case 'tmp':
                     if (!is_writeable($value)) {
@@ -179,7 +179,7 @@ class Office implements AdapterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function match(File $file): bool
     {
@@ -192,18 +192,16 @@ class Office implements AdapterInterface
         return false;
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function matchPreview(File $file): bool
     {
         return $this->match($file);
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSupportedFormats(File $file): array
     {
@@ -216,9 +214,8 @@ class Office implements AdapterInterface
         return [];
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createPreview(File $file): Result
     {
@@ -253,9 +250,8 @@ class Office implements AdapterInterface
         return new Result($dest, $desth);
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function convert(File $file, string $format): Result
     {

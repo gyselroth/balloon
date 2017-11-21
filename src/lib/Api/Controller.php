@@ -12,59 +12,18 @@ declare(strict_types=1);
 
 namespace Balloon\Api;
 
-use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Server;
-use Psr\Log\LoggerInterface;
 use Balloon\Api\v1\Collection as CollectionController;
 use Balloon\Api\v1\File as FileController;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem;
+use Balloon\Server\User;
+use Balloon\Server;
+use Psr\Log\LoggerInterface;
 
 class Controller
 {
-    /**
-     * Filesystem.
-     *
-     * @var Filesystem
-     */
-    protected $fs;
-
-    /**
-     * LoggerInterface.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * Server.
-     *
-     * @var Server
-     */
-    protected $server;
-
-    /**
-     * User.
-     *
-     * @var User
-     */
-    protected $user;
-
-    /**
-     * Initialize.
-     *
-     * @param Filesystem      $fs
-     * @param Config          $config
-     * @param LoggerInterface $logger
-     */
-    public function __construct(Server $server, LoggerInterface $logger)
-    {
-        $this->fs = $server->getFilesystem();
-        $this->user = $server->getIdentity();
-        $this->server = $server;
-        $this->logger = $logger;
-    }
-
     /**
      * @apiDefine _getNode
      *
@@ -197,40 +156,4 @@ class Controller
      *      }
      * }
      */
-
-    /**
-     * Get node.
-     *
-     * @param string $id
-     * @param string $path
-     * @param string $class      Force set node type
-     * @param bool   $deleted
-     * @param bool   $multiple   Allow $id to be an array
-     * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
-     */
-    protected function _getNode(
-        ?string $id = null,
-        ?string $path = null,
-        ?string $class = null,
-        bool $multiple = false,
-        bool $allow_root = false,
-        int $deleted = 2
-    ): NodeInterface {
-
-        if($class === null) {
-            switch(get_class($this)) {
-                case FileController::class:
-                    $class = File::class;
-                break;
-                case CollectionController::class:
-                    $class = Collection::class;
-                break;
-            }
-        }
-
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
-    }
 }

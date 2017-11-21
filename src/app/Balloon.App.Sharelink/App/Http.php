@@ -26,20 +26,33 @@ use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Http\Response;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
+use Psr\Log\LoggerInterface;
 
 class Http implements AppInterface
 {
     /**
-     * Filesystem.
+     * Sharelink
      *
-     * @var Filesystem
+     * @var Sharelink
      */
-    protected $fs;
+    protected $sharelink;
+
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * Init.
+     *
+     * @param Router $router
+     * @param Hook $hook
+     * @param Sharelink $sharelink
+     * @param LoggerInterface $logger
      */
-    public function __construct(Router $router, Hook $hook, Server $server)
+    public function __construct(Router $router, Hook $hook, Sharelink $sharelink, LoggerInterface $logger)
     {
         $router
             ->appendRoute(new Route('/share', $this, 'start'))
@@ -55,142 +68,10 @@ class Http implements AppInterface
             }
         });
 
-        $this->fs = $server->getFilesystem();
+        $this->logger = $logger;
+        $this->sharelink = $sharelink;
     }
 
-    /**
-     * Share link.
-     *
-     * @param NodeInterface $node
-     * @param array         $options
-     *
-     * @return bool
-     */
-    public function shareLink(NodeInterface $node, array $options): bool
-    {
-        $valid = [
-            'shared',
-            'token',
-            'password',
-            'expiration',
-        ];
-
-        $set = [];
-        foreach ($options as $option => $v) {
-            if (!in_array($option, $valid, true)) {
-                throw new Exception\InvalidArgument('share option '.$option.' is not valid');
-            }
-            $set[$option] = $v;
-        }
-
-        if (!array_key_exists('token', $set)) {
-            $set['token'] = bin2hex(random_bytes(16));
-        }
-
-        if (array_key_exists('expiration', $set)) {
-            if (empty($set['expiration'])) {
-                unset($set['expiration']);
-            } else {
-                $set['expiration'] = (int) $set['expiration'];
-            }
-        }
-
-        if (array_key_exists('password', $set)) {
-            if (empty($set['password'])) {
-                unset($set['password']);
-            } else {
-                $set['password'] = hash('sha256', $set['password']);
-            }
-        }
-
-        $share = false;
-        if (!array_key_exists('shared', $set)) {
-            if (0 === count($node->getAppAttributes('Balloon\\App\\Sharelink'))) {
-                $share = true;
-            }
-        } else {
-            if ('true' === $set['shared'] || true === $set['shared']) {
-                $share = true;
-            }
-
-            unset($set['shared']);
-        }
-
-        if (true === $share) {
-            $node->setAppAttributes('Balloon\\App\\Sharelink', $set);
-        } else {
-            $node->unsetAppAttributes('Balloon\\App\\Sharelink');
-        }
-
-        return true;
-    }
-
-    /**
-     * Get share options.
-     *
-     * @param NodeInterface $node
-     *
-     * @return array
-     */
-    public function getShareLink(NodeInterface $node): array
-    {
-        return $node->getAppAttributes('Balloon\\App\\Sharelink');
-    }
-
-    /**
-     * Get attributes.
-     *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     *
-     * @return array
-     */
-    public function getAttributes(NodeInterface $node, array $attributes = []): array
-    {
-        return ['shared' => $this->isShareLink($node)];
-    }
-
-    /**
-     * Check if the node is a shared link.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
-     */
-    public function isShareLink(NodeInterface $node): bool
-    {
-        return 0 !== count($node->getAppAttributes('Balloon\\App\\Sharelink'));
-    }
-
-    /**
-     * Get node by access token.
-     *
-     * @param string $token
-     *
-     * @return NodeInterface
-     */
-    public function findNodeWithShareToken(string $token): NodeInterface
-    {
-        $node = $this->fs->findNodeWithCustomFilter([
-            'app_attributes.'.$this->getName().'.token' => $token,
-            'deleted' => false,
-        ]);
-
-        $attributes = $node->getAppAttributes('Balloon\\App\\Sharelink');
-
-        if ($attributes['token'] !== $token) {
-            throw new Exception('token do not match');
-        }
-
-        if (isset($attributes['expiration']) && !empty($attributes['expiration'])) {
-            $time = (int) $attributes['expiration'];
-            if ($time < time()) {
-                throw new Exception('share link for this node is expired');
-            }
-        }
-
-        return $node;
-    }
 
     /**
      * Start.
@@ -208,7 +89,7 @@ class Http implements AppInterface
             }
 
             try {
-                $node = $this->findNodeWithShareToken($token);
+                $node = $this->sharelink->findNodeWithShareToken($token);
                 $share = $node->getAppAttributes('Balloon\\App\\Sharelink');
 
                 if (array_key_exists('password', $share)) {

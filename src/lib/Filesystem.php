@@ -12,17 +12,18 @@ declare(strict_types=1);
 
 namespace Balloon;
 
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Storage;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectID;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use Balloon\Filesystem\Storage;
-use Balloon\Filesystem\Acl;
+use MongoDB\BSON\UTCDateTime;
 
 class Filesystem
 {
@@ -74,6 +75,20 @@ class Filesystem
      * @var User
      */
     protected $user;
+
+    /**
+     * Storage
+     *
+     * @var Storage
+     */
+    protected $storage;
+
+    /**
+     * Acl
+     *
+     * @var Acl
+     */
+    protected $acl;
 
     /**
      * Initialize.
@@ -136,8 +151,8 @@ class Filesystem
 
         return $this->root = $this->initNode([
             'directory' => true,
-            '_id'       => null,
-            'owner' => $this->user ? $this->user->getId() : null
+            '_id' => null,
+            'owner' => $this->user ? $this->user->getId() : null,
         ]);
     }
 
@@ -344,19 +359,17 @@ class Filesystem
             }
 
             if (true === $multiple && is_array($id)) {
-                $node = $this->findNodes($id, $class, $deleted);
+                return $this->findNodes($id, $class, $deleted);
             } else {
-                $node = $this->findNodeWithId($id, $class, $deleted);
+                return $this->findNodeWithId($id, $class, $deleted);
             }
         } elseif (null !== $path) {
             if (null === $deleted) {
                 $deleted = NodeInterface::DELETED_EXCLUDE;
             }
 
-            $node = $this->findNodeWithPath($path, $class);
+            return $this->findNodeWithPath($path, $class);
         }
-
-        return $node;
     }
 
     /**
@@ -520,9 +533,63 @@ class Filesystem
     }
 
     /**
-     * Resolve shared node to reference or share depending who requested
+     * Init node.
      *
-     * @param  array $node
+     * @param array $node
+     *
+     * @return NodeInterface
+     */
+    public function initNode(array $node): NodeInterface
+    {
+        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] != $this->user->getId()) {
+            $node = $this->findReferenceNode($node);
+        }
+
+        //this would result in a recursiv call until the top level node
+        /*if (isset($node['parent'])) {
+            try {
+                $this->findNodeWithId($node['parent']);
+            } catch (Exception\InvalidArgument $e) {
+                throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
+            } catch (Exception\NotFound $e) {
+                throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
+            }
+        }*/
+
+        if (!array_key_exists('directory', $node)) {
+            throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
+        }
+        if (true === $node['directory']) {
+            $instance = new Collection($node, $this, $this->logger, $this->hook, $this->acl);
+        } else {
+            $instance = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
+        }
+
+        if (!$this->acl->isAllowed($instance, 'r')) {
+            throw new Exception\Forbidden(
+                'not allowed to access node',
+                Exception\Forbidden::NOT_ALLOWED_TO_ACCESS
+            );
+        }
+
+        if (isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
+            $this->logger->info('node ['.$node['_id'].'] is not accessible anmyore, destroy node cause of expired destroy flag', [
+                'category' => get_class($this),
+            ]);
+
+            $instance->delete(true);
+
+            throw new Exception\Conflict('node is not available anymore');
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Resolve shared node to reference or share depending who requested.
+     *
+     * @param array $node
+     *
      * @return array
      */
     protected function findReferenceNode(array $node): array
@@ -564,57 +631,5 @@ class Filesystem
         }
 
         return $node;
-    }
-
-
-    /**
-     * Init node
-     *
-     * @param  array $node
-     * @return NodeInterface
-     */
-    public function initNode(array $node): NodeInterface
-    {
-        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] != $this->user->getId()) {
-            $node = $this->findReferenceNode($node);
-        }
-
-        //this would result in a recursiv call until the top level node
-        /*if (isset($node['parent'])) {
-            try {
-                $this->findNodeWithId($node['parent']);
-            } catch (Exception\InvalidArgument $e) {
-                throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
-            } catch (Exception\NotFound $e) {
-                throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
-            }
-        }*/
-
-        if (!array_key_exists('directory', $node)) {
-            throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
-        } elseif (true === $node['directory']) {
-            $instance = new Collection($node, $this, $this->logger, $this->hook, $this->acl);
-        } else {
-            $instance = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        }
-
-        if (!$this->acl->isAllowed($instance, 'r')) {
-            throw new Exception\Forbidden(
-                'not allowed to access node',
-                Exception\Forbidden::NOT_ALLOWED_TO_ACCESS
-            );
-        }
-
-        if (isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
-            $this->logger->info('node ['.$node['_id'].'] is not accessible anmyore, destroy node cause of expired destroy flag', [
-                'category' => get_class($this),
-            ]);
-
-            $instance->delete(true);
-
-            throw new Exception\Conflict('node is not available anymore');
-        }
-
-        return $instance;
     }
 }

@@ -10,11 +10,10 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
+use Balloon\Bootstrap\Http;
 use Micro\Config;
-use Micro\Config\Environment;
 use Micro\Config\Struct;
 use Micro\Config\Xml;
-use Balloon\Bootstrap\Http;
 
 defined('APPLICATION_PATH')
     || define('APPLICATION_PATH', realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'));

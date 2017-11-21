@@ -12,11 +12,10 @@ declare(strict_types=1);
 
 namespace Balloon\Console;
 
-use Balloon\Hook;
 use Balloon\Async as AsyncQueue;
+use Balloon\Hook;
 use GetOpt\GetOpt;
 use GetOpt\Option;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 class Async implements ConsoleInterface
@@ -24,7 +23,7 @@ class Async implements ConsoleInterface
     /**
      * Logger.
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -38,12 +37,12 @@ class Async implements ConsoleInterface
     /**
      * Async.
      *
-     * @var Async
+     * @var AsyncQueue
      */
     protected $async;
 
     /**
-     * Hook
+     * Hook.
      *
      * @var Hook
      */
@@ -53,7 +52,9 @@ class Async implements ConsoleInterface
      * Constructor.
      *
      * @param App   $app
-     * @param Async $async
+     * @param AsyncQueue $async
+     * @param LoggerInterface $logger
+     * @param GetOpt $getopt
      */
     public function __construct(Hook $hook, AsyncQueue $async, LoggerInterface $logger, GetOpt $getopt)
     {

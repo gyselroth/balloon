@@ -12,16 +12,13 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\ClamAv;
 
-use Balloon\App\ClamAv\Cli as ClamAvApp;
-use Balloon\Filesystem\Node\File;
-use Balloon\Testsuite\Unit\Test;
-use Socket\Raw\Factory;
-use Psr\Log\LoggerInterface;
-use Balloon\Server\User;
-use Balloon\Hook;
-use Balloon\Filesystem\Storage;
 use Balloon\App\ClamAv\Scanner;
-use MongoDB\BSON\ObjectId;
+use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Storage;
+use Balloon\Hook;
+use Balloon\Testsuite\Unit\Test;
+use Psr\Log\LoggerInterface;
+use Socket\Raw\Factory;
 
 /**
  * @coversNothing
@@ -102,7 +99,7 @@ class ScannerTest extends Test
                 $this->server->getFilesystem(),
                 $this->createMock(LoggerInterface::class),
                 $this->createMock(Hook::class),
-                $this->createMock(Storage::class)
+                $this->createMock(Storage::class),
             ])
             ->getMock();
 

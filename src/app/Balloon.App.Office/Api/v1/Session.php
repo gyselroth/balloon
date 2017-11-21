@@ -13,16 +13,16 @@ declare(strict_types=1);
 namespace Balloon\App\Office\Api\v1;
 
 use Balloon\Api\Controller;
+use Balloon\App\Office\App\Http as App;
 use Balloon\App\Office\Document;
 use Balloon\App\Office\Session as WopiSession;
 use Balloon\App\Office\Session\Member;
 use Balloon\Exception;
+use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem;
+use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
-use Balloon\Server;
-use Balloon\App\Office\App\Http as App;
-use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\Collection;
 
 class Session extends Controller
 {
@@ -33,22 +33,19 @@ class Session extends Controller
      */
     protected $app;
 
-
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
     protected $fs;
 
-
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
-
 
     /**
      * Constructor.
@@ -58,8 +55,8 @@ class Session extends Controller
      */
     public function __construct(App $app, Server $server)
     {
-        $this->server  = $server;
-        $this->fs  = $server->getFilesystem();
+        $this->server = $server;
+        $this->fs = $server->getFilesystem();
         $this->app = $app;
     }
 

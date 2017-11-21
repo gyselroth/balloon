@@ -14,10 +14,10 @@ namespace Balloon\App\Convert;
 
 use Balloon\Async\AbstractJob;
 use Balloon\Converter;
+use Balloon\Exception\NotFound;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Psr\Log\LoggerInterface;
-use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Exception\NotFound;
 
 class Job extends AbstractJob
 {
@@ -70,11 +70,10 @@ class Job extends AbstractJob
             'category' => get_class($this),
         ]);
 
-
         $slaves = $file->getAppAttribute(__NAMESPACE__, 'slaves');
 
-        if(is_array($slaves) && isset( $slaves[(string)$this->data['slave']]) ) {
-            $slave = $slaves[(string)$this->data['slave']];
+        if (is_array($slaves) && isset($slaves[(string) $this->data['slave']])) {
+            $slave = $slaves[(string) $this->data['slave']];
         } else {
             throw new Exception('unknown slave node');
         }
@@ -84,7 +83,7 @@ class Job extends AbstractJob
 
         try {
             $slaves = $file->getAppAttribute(__NAMESPACE__, 'slaves');
-            if(is_array($slaves) && isset($slave['node'])) {
+            if (is_array($slaves) && isset($slave['node'])) {
                 $slave = $file->getFilesystem()->findNodeWithId($slave['node']);
 
                 $slave->setReadonly(false);
@@ -122,8 +121,9 @@ class Job extends AbstractJob
 
         $node->setReadonly();
 
-        $slaves[(string)$this->data['slave']]['node'] = $node->getId();
+        $slaves[(string) $this->data['slave']]['node'] = $node->getId();
         $file->setAppAttribute(__NAMESPACE__, 'slaves', $slaves);
+
         return true;
     }
 }

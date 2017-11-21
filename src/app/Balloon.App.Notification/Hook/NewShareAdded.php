@@ -12,60 +12,61 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
+use Balloon\App\Notification\Notifier;
+use Balloon\App\Notification\Exception;
 use Balloon\Async\Mail;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
-use Balloon\Hook\HookInterface;
-use Balloon\App\Notification\Notifier;
-use Balloon\Resource;
 use Balloon\Server;
-use Zend\Mail\Message;
-use MongoDB\BSON\ObjectId;
 use Balloon\Server\User;
+use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
 class NewShareAdded extends AbstractHook
 {
     /**
-     * Body
+     * Body.
      *
      * @var string
      */
     protected $body = 'added a new share {share}';
 
-
     /**
-     * Subject
+     * Subject.
      *
      * @var string
      */
     protected $subject = 'new share';
 
-
     /**
-     * Notifier
+     * Notifier.
      *
-     * @var Notification
+     * @var Notifier
      */
     protected $notifier;
 
-
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param Notification $notifier
-     * @param Server $server
+     * @param Server       $server
      */
-    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, ?Iterable $config=null)
+    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->notifier = $notifier;
         $this->server = $server;
@@ -73,24 +74,25 @@ class NewShareAdded extends AbstractHook
         $this->logger = $logger;
     }
 
-
     /**
-     * Set config
+     * Set config.
      *
-     * @param Iterable $config
+     * @param iterable $config
+     *
      * @return AbstractHook
      */
-    public function setOptions(?Iterable $config=null): AbstractHook
+    public function setOptions(?Iterable $config = null): AbstractHook
     {
-        if($config === null) {
+        if (null === $config) {
             return $this;
         }
 
-        foreach($config as $option => $value) {
-            switch($option) {
+        foreach ($config as $option => $value) {
+            switch ($option) {
                 case 'body':
                 case 'subject':
-                    $this->{$option} = (string)$value;
+                    $this->{$option} = (string) $value;
+
                 break;
                 default:
                     throw new Exception('invalid option '.$option.' given');
@@ -99,7 +101,6 @@ class NewShareAdded extends AbstractHook
 
         return $this;
     }
-
 
     /**
      * Run: postSaveNodeAttributes.
@@ -129,13 +130,13 @@ class NewShareAdded extends AbstractHook
         foreach ($node->getShareAcl() as $rule) {
             if ('user' === $rule['type']) {
                 $user = $this->server->getUserById(new ObjectId($rule['id']));
-                if(!isset($receiver[(string)$user->getId()]) && $this->checkNotify($node, $user)) {
-                    $receiver[(string)$user->getId()] = $user;
+                if (!isset($receiver[(string) $user->getId()]) && $this->checkNotify($node, $user)) {
+                    $receiver[(string) $user->getId()] = $user;
                 }
             } elseif ('group' === $rule['type']) {
-                foreach ($resource->getGroupById($rule['id'])->getResolvedMember() as $user) {
-                    if(!isset($receiver[(string)$user->getId()]) && $this->checkNotify($node, $user)) {
-                        $receiver[(string)$user->getId()] = $user;
+                foreach ($this->server->getGroupById($rule['id'])->getResolvedMember() as $user) {
+                    if (!isset($receiver[(string) $user->getId()]) && $this->checkNotify($node, $user)) {
+                        $receiver[(string) $user->getId()] = $user;
                     }
                 }
             }
@@ -148,7 +149,6 @@ class NewShareAdded extends AbstractHook
             $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($node) {
                 return $node->getAttribute($match[2]);
             }, $this->subject);
-
 
             $this->notifier->notify($receiver, $this->server->getIdentity(), $subject, $body);
         }

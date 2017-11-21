@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Balloon\App\Office;
 
 use Balloon\Filesystem\Node\File;
-use MongoDB\Database;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Database;
 
 class Document
 {

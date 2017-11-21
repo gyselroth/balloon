@@ -13,19 +13,18 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\App;
 
 use Balloon\App\AppInterface;
-use Psr\Log\LoggerInterface;
+use Balloon\App\Notification\Api\v1\Notification as Api;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
-use Balloon\App\Notification\Api\v1\Notification as Api;
 
 class Http implements AppInterface
 {
     /**
-     * Constructor
+     * Constructor.
      *
      * @param LoggerInterace $logger
-     * @param Router $router
-     * @param Iterable $config
+     * @param Router         $router
+     * @param iterable       $config
      */
     public function __construct(Router $router)
     {

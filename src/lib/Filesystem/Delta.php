@@ -14,6 +14,7 @@ namespace Balloon\Filesystem;
 
 use Balloon\Filesystem;
 use Balloon\Filesystem\Delta\Exception;
+use Balloon\Exception\Forbidden;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server\User;
@@ -97,7 +98,7 @@ class Delta
                 ]],
                 [
                     'shared' => ['$type' => 8],
-                    'owner' => $this->user->getId()
+                    'owner' => $this->user->getId(),
                 ],
             ]],
             ['deleted' => false],
@@ -176,6 +177,7 @@ class Delta
         ]);
 
         $last = $cursor->toArray();
+
         return array_shift($last);
     }
 
@@ -297,8 +299,8 @@ class Delta
                 //than the create timestamp of the share reference
                 if ('addCollectionReference' === $log['operation'] && $log_node->isReference()) {
                     $members = $this->fs->findNodesWithCustomFilter([
-                        'shared'  => $log_node->getShareId(),
-                        'deleted' => false
+                        'shared' => $log_node->getShareId(),
+                        'deleted' => false,
                     ]);
 
                     foreach ($members as $share_member) {
@@ -344,7 +346,7 @@ class Delta
                 } else {
                     $list[$fields['path']] = $fields;
                 }
-            } catch (Exception\Forbidden $e) {
+            } catch (Forbidden $e) {
                 //no delta entriy for a node where we do not have access to
             } catch (\Exception $e) {
                 try {

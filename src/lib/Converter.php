@@ -66,18 +66,19 @@ class Converter implements AdapterAwareInterface
      *
      * @return Converter
      */
-    public function setOptions(? Iterable $config = null): Converter
+    public function setOptions(? Iterable $config = null): self
     {
         if (null === $config) {
             return $this;
         }
 
         foreach ($config as $option => $value) {
-            switch($option) {
+            switch ($option) {
                 case 'adapter':
-                    foreach($value as $name => $adapter) {
+                    foreach ($value as $name => $adapter) {
                         $this->injectAdapter($name, $value);
                     }
+
                 break;
                 default:
                     throw new Exception('invalid option '.$option.' given');
@@ -88,7 +89,7 @@ class Converter implements AdapterAwareInterface
     }
 
     /**
-     * Get default adapter
+     * Get default adapter.
      *
      * @return array
      */
@@ -116,18 +117,18 @@ class Converter implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
+    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
-        if(!($adapter instanceof AdapterInterface)) {
+        if (!($adapter instanceof AdapterInterface)) {
             throw new Exception('adapter needs to implement AdapterInterface');
         }
 
-        if($name === null) {
+        if (null === $name) {
             $name = get_class($adapter);
         }
 
         $this->logger->debug('inject converter adapter ['.$name.'] of type ['.get_class($adapter).']', [
-            'category' => get_class($this)
+            'category' => get_class($this),
         ]);
 
         if ($this->hasAdapter($name)) {
@@ -194,11 +195,10 @@ class Converter implements AdapterAwareInterface
         return [];
     }
 
-
     /**
      * Create preview.
      *
-     * @param File   $file
+     * @param File $file
      *
      * @return Result
      */
@@ -208,7 +208,7 @@ class Converter implements AdapterAwareInterface
             'category' => get_class($this),
         ]);
 
-         if($file->getSize() === 0) {
+        if (0 === $file->getSize()) {
             throw new Exception('can not create preview from empty file');
         }
 
@@ -216,11 +216,10 @@ class Converter implements AdapterAwareInterface
             try {
                 if ($adapter->matchPreview($file)) {
                     return $adapter->createPreview($file);
-                } else {
-                    $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
+                }
+                $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
                         'category' => get_class($this),
                     ]);
-                }
             } catch (\Exception $e) {
                 $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
                     'category' => get_class($this),
@@ -231,7 +230,6 @@ class Converter implements AdapterAwareInterface
 
         throw new Exception('all adapter failed');
     }
-
 
     /**
      * Convert document.
@@ -247,19 +245,18 @@ class Converter implements AdapterAwareInterface
             'category' => get_class($this),
         ]);
 
-        if($file->getSize() === 0) {
+        if (0 === $file->getSize()) {
             throw new Exception('can not convert empty file');
         }
 
         foreach ($this->adapter as $name => $adapter) {
             try {
-                if ($adapter->match($file) && in_array($format, $adapter->getSupportedFormats($file))) {
+                if ($adapter->match($file) && in_array($format, $adapter->getSupportedFormats($file), true)) {
                     return $adapter->convert($file, $format);
-                } else {
-                    $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
+                }
+                $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
                         'category' => get_class($this),
                     ]);
-                }
             } catch (\Exception $e) {
                 $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
                     'category' => get_class($this),

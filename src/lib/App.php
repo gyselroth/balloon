@@ -14,10 +14,8 @@ namespace Balloon;
 
 use Balloon\App\AppInterface;
 use Balloon\App\Exception;
-use Composer\Autoload\ClassLoader as Composer;
-use Micro\Container;
-use Psr\Log\LoggerInterface;
 use Micro\Container\AdapterAwareInterface;
+use Psr\Log\LoggerInterface;
 
 class App implements AdapterAwareInterface
 {
@@ -39,23 +37,20 @@ class App implements AdapterAwareInterface
      * Init app manager.
      *
      * @param LoggerInterface $logger
-     * @param iterable        $config
      */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        //$this->setOptions($config);
     }
 
-
     /**
-     * Get default adapter
+     * Get default adapter.
      *
      * @return array
      */
     public function getDefaultAdapter(): array
     {
-        return self::DEFAULT_ADAPTER;
+        return [];
     }
 
     /**
@@ -77,18 +72,18 @@ class App implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
+    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
-        if(!($adapter instanceof AppInterface)) {
+        if (!($adapter instanceof AppInterface)) {
             throw new Exception('adapter needs to implement AppInterface');
         }
 
-        if($name === null) {
+        if (null === $name) {
             $name = get_class($adapter);
         }
 
         $this->logger->debug('inject app ['.$name.'] of type ['.get_class($adapter).']', [
-            'category' => get_class($this)
+            'category' => get_class($this),
         ]);
 
         if ($this->hasAdapter($name)) {
@@ -105,7 +100,7 @@ class App implements AdapterAwareInterface
      *
      * @param string $name
      *
-     * @return AdapterInterface
+     * @return mixed
      */
     public function getAdapter(string $name)
     {

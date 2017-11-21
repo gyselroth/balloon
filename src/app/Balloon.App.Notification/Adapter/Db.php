@@ -12,17 +12,21 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Adapter;
 
-use Balloon\Async\Mail;
-use Balloon\Async;
-use Psr\Log\LoggerInterface;
-use Balloon\App\Notification\App;
-use MongoDB\BSON\UTCDateTime;
 use Balloon\Server\User;
+use MongoDB\BSON\UTCDateTime;
+use Psr\Log\LoggerInterface;
 
 class Db implements AdapterInterface
 {
     /**
-     * Constructor
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Constructor.
      *
      * @param LoggerInterface $logger
      */
@@ -31,22 +35,21 @@ class Db implements AdapterInterface
         $this->logger = $logger;
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context=[]): bool
+    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
     {
         foreach ($receiver as $user) {
             $this->logger->debug('send notification ['.$subject.'] to user ['.$user->getId().']', [
-                'category' => get_class($this)
+                'category' => get_class($this),
             ]);
 
             $user->setAppAttribute('Balloon\\App\\Notification', 'notification', [
-                'subject'   => $subject,
-                'body'      => $body,
-                'from'      => $sender->getId(),
-                'timestamp' => new UTCDateTime()
+                'subject' => $subject,
+                'body' => $body,
+                'from' => $sender->getId(),
+                'timestamp' => new UTCDateTime(),
             ]);
         }
 

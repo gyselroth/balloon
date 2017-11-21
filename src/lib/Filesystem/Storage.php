@@ -14,20 +14,27 @@ namespace Balloon\Filesystem;
 
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface;
+use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Micro\Container\AdapterAwareInterface;
 use Psr\Log\LoggerInterface;
-use Balloon\Filesystem\Storage\Adapter\Gridfs;
 
 class Storage implements AdapterAwareInterface
 {
     /**
-     * Default adapter
+     * Default adapter.
      */
     const DEFAULT_ADAPTER = [
         'gridfs' => [
-            'use' => Gridfs::class
-        ]
+            'use' => Gridfs::class,
+        ],
     ];
+
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * Storage adapter.
@@ -47,7 +54,7 @@ class Storage implements AdapterAwareInterface
     }
 
     /**
-     * Get default adapter
+     * Get default adapter.
      *
      * @return array
      */
@@ -76,13 +83,13 @@ class Storage implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function injectAdapter($adapter, ?string $name=null): AdapterAwareInterface
+    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
-        if(!($adapter instanceof AdapterInterface)) {
+        if (!($adapter instanceof AdapterInterface)) {
             throw new Exception('adapter needs to implement AdapterInterface');
         }
 
-        if($name === null) {
+        if (null === $name) {
             $name = get_class($adapter);
         }
 
@@ -141,33 +148,52 @@ class Storage implements AdapterAwareInterface
     /**
      * Check if file exists.
      *
-     * @param File $file
-     * @param array $attributes
+     * @param File   $file
+     * @param array  $attributes
      * @param string $adapter
      *
      * @return bool
      */
-    public function hasFile(File $file, array $attributes, ?string $adapter=null): bool
+    public function hasFile(File $file, array $attributes, ?string $adapter = null): bool
     {
-        if($adapter === null) {
+        if (null === $adapter) {
             $adapter = 'gridfs';
         }
 
         return $this->getAdapter($adapter)->hasFile($file, $attributes);
     }
 
+
     /**
-     * Delete file.
+     * Get metadata for a file
      *
      * @param File $file
      * @param array $attributes
+     *
+     * @return array
+     */
+    public function getFileMeta(File $file, array $attributes, ?string $adapter=null): array
+    {
+        if (null === $adapter) {
+            $adapter = 'gridfs';
+        }
+
+        return $this->getAdapter($adapter)->getFileMeta($file, $attributes);
+    }
+
+
+    /**
+     * Delete file.
+     *
+     * @param File   $file
+     * @param array  $attributes
      * @param string $adapter
      *
      * @return bool
      */
-    public function deleteFile(File $file, array $attributes, ?string $adapter=null): bool
+    public function deleteFile(File $file, array $attributes, ?string $adapter = null): bool
     {
-        if($adapter === null) {
+        if (null === $adapter) {
             $adapter = 'gridfs';
         }
 
@@ -177,15 +203,15 @@ class Storage implements AdapterAwareInterface
     /**
      * Get stored file.
      *
-     * @param File $file
-     * @param array $attributes
+     * @param File   $file
+     * @param array  $attributes
      * @param string $adapter
      *
      * @return resource
      */
-    public function getFile(File $file, array $attributes, ?string $adapter=null)
+    public function getFile(File $file, array $attributes, ?string $adapter = null)
     {
-        if($adapter === null) {
+        if (null === $adapter) {
             $adapter = 'gridfs';
         }
 
@@ -197,12 +223,13 @@ class Storage implements AdapterAwareInterface
      *
      * @param File     $file
      * @param resource $contents
-     * @param string $adapter
+     * @param string   $adapter
+     *
      * @return mixed
      */
-    public function storeFile(File $file, $contents, ?string $adapter=null)
+    public function storeFile(File $file, $contents, ?string $adapter = null)
     {
-        if($adapter === null) {
+        if (null === $adapter) {
             $adapter = 'gridfs';
         }
 
