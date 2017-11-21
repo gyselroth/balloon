@@ -68,9 +68,10 @@ class App implements AdapterAwareInterface
     /**
      * Inject adapter.
      *
-     * @param AdapterInterface $adapter
+     * @param mixed $adapter
+     * @param string $name
      *
-     * @return AdapterInterface
+     * @return AdapterAwareInterface
      */
     public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {

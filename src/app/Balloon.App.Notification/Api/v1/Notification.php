@@ -14,6 +14,7 @@ namespace Balloon\App\Notification\Api\v1;
 
 use Balloon\App\Notification\Notifier;
 use Balloon\Server;
+use Balloon\Server\User;
 use Micro\Http\Response;
 use Zend\Mail\Message;
 use Balloon\Async;

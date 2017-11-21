@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\Filesystem\Storage\Adapter;
 
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Exception;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
@@ -102,7 +103,7 @@ class Gridfs implements AdapterInterface
                 'category' => get_class($this),
             ]);
 
-            $this->bucket->delete($exists['_id']);
+            $this->gridfs->delete($exists['_id']);
         }
 
         return true;

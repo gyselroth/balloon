@@ -45,7 +45,7 @@ abstract class Test extends TestCase
             self::getMockDatabase(),
             $this->createMock(Storage::class),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(Acl::class)
+            $this->createMock(Acl::class),
             $this->createMock(Hook::class)
         );
 

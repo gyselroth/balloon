@@ -26,7 +26,7 @@ class DatabaseTest extends CoreDatabaseTest
     public function setUp()
     {
         parent::setUp();
-        $this->db_setup->injectSetup(new Database($this->getMockDatabase(), $this->createMock(LoggerInterface::class)));
+        //$this->db_setup->injectSetup(new Database($this->getMockDatabase(), $this->createMock(LoggerInterface::class)));
         $this->expected_indices[] = 'balloon.storage.app_attributes.Balloon_App_Sharelink.token_1';
     }
 }

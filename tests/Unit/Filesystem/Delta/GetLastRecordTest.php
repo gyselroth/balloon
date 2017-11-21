@@ -15,6 +15,7 @@ namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Acl;
 use Balloon\Hook;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
@@ -98,6 +99,7 @@ class GetLastRecordTest extends Test
                 $this->fs,
                 $this->createMock(LoggerInterface::class),
                 $this->createMock(Hook::class),
+                $this->createMock(Acl::class)
                 $this->createMock(Storage::class)
             ),
             new File(
@@ -108,6 +110,7 @@ class GetLastRecordTest extends Test
                 $this->fs,
                 $this->createMock(LoggerInterface::class),
                 $this->createMock(Hook::class),
+                $this->createMock(Acl::class),
                 $this->createMock(Storage::class)
             ),
         ];

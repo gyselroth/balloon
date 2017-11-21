@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Elasticsearch;
 
-use Balloon\App\AppInterface;
+use Balloon\Filesystem;
 use Balloon\Server;
 use Balloon\Server\User;
 use Elasticsearch\Client;
@@ -129,7 +129,7 @@ class Elasticsearch
         $list = [];
         $id = false;
 
-        $shares = $user->getShares(true);
+        $shares = $this->user->getShares(true);
         $result = $this->executeQuery($query, $shares);
 
         if (isset($result['error'])) {

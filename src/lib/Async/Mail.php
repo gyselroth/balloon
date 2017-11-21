@@ -51,7 +51,7 @@ class Mail extends AbstractJob
     {
         $mail = Message::fromString($this->data['mail']);
 
-        $logger->debug('send mail ['.$mail->getSubject().']', [
+        $this->logger->debug('send mail ['.$mail->getSubject().']', [
             'category' => get_class($this),
             'params' => ['to' => (array) $mail->getTo()],
         ]);

@@ -15,6 +15,7 @@ namespace Balloon\App\Sharelink\App;
 use Balloon\App\AppInterface;
 use Balloon\App\Sharelink\Api\v1\ShareLink;
 use Balloon\Exception;
+use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -33,7 +34,7 @@ class Http implements AppInterface
     /**
      * Sharelink
      *
-     * @var Sharelink
+     * @var Share
      */
     protected $sharelink;
 
@@ -49,10 +50,10 @@ class Http implements AppInterface
      *
      * @param Router $router
      * @param Hook $hook
-     * @param Sharelink $sharelink
+     * @param Share $sharelink
      * @param LoggerInterface $logger
      */
-    public function __construct(Router $router, Hook $hook, Sharelink $sharelink, LoggerInterface $logger)
+    public function __construct(Router $router, Hook $hook, Share $sharelink, LoggerInterface $logger)
     {
         $router
             ->appendRoute(new Route('/share', $this, 'start'))

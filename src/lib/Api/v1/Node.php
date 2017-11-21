@@ -16,13 +16,18 @@ use Balloon\Api\Controller;
 use Balloon\Api\v1\Collection as ApiCollection;
 use Balloon\Api\v1\File as ApiFile;
 use Balloon\Exception;
+use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\AbstractNode;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem;
+use Balloon\Server\User;
+use Balloon\Server;
 use Balloon\Helper;
 use Micro\Http\Response;
 use MongoDB\BSON\UTCDateTime;
 use PHPZip\Zip\Stream\ZipStream;
+use Psr\Log\LoggerInterface;
 
 class Node extends Controller
 {
@@ -57,8 +62,7 @@ class Node extends Controller
     /**
      * Initialize.
      *
-     * @param Filesystem      $fs
-     * @param Config          $config
+     * @param Server $server
      * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)
@@ -93,11 +97,11 @@ class Node extends Controller
     ): NodeInterface {
         if (null === $class) {
             switch (get_class($this)) {
-                case FileController::class:
+                case ApiFile::class:
                     $class = File::class;
 
                 break;
-                case CollectionController::class:
+                case ApiCollection::class:
                     $class = Collection::class;
 
                 break;
@@ -202,6 +206,8 @@ class Node extends Controller
         ?string $destp = null,
         int $conflict = 0
     ): Response {
+        $parent = null;
+
         if (true === $move) {
             try {
                 $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
@@ -1622,7 +1628,7 @@ class Node extends Controller
      * @param string $path
      * @param string $name
      */
-    protected function _combine($id = null, ?string $path = null, string $name = 'selected'): void
+    protected function _combine($id = null, ?string $path = null, string $name = 'selected')
     {
         $temp = $this->server->getTempDir().DIRECTORY_SEPARATOR.'zip';
         if (!file_exists($temp)) {

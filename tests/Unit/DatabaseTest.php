@@ -38,7 +38,7 @@ class DatabaseTest extends Test
 
     public function setUp()
     {
-        $this->db_setup = new Database($this->getMockApp(), $this->getMockDatabase(), $this->createMock(LoggerInterface::class));
+        $this->db_setup = new Database($this->getMockDatabase(), $this->createMock(LoggerInterface::class));
     }
 
     /*public function testInjectDeltas()

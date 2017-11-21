@@ -24,18 +24,18 @@ use Psr\Log\LoggerInterface;
 class Document extends Controller
 {
     /**
-     * App.
+     * Server
      *
-     * @var App
+     * @var Server
      */
-    protected $app;
+    protected $server;
 
     /**
-     * Filesystem.
+     * Logger
      *
-     * @var Filesystem
+     * @var LoggerInterface
      */
-    protected $fs;
+    protected $logger;
 
     /**
      * Constructor.

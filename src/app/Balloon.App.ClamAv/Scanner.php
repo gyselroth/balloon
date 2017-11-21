@@ -15,6 +15,7 @@ namespace Balloon\App\ClamAv;
 use Balloon\Filesystem\Node\File;
 use Psr\Log\LoggerInterface;
 use Socket\Raw\Factory as SocketFactory;
+use Socket\Raw\Socket;
 use Xenolope\Quahog\Client as ClamAv;
 use Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
 
@@ -64,7 +65,7 @@ class Scanner
     /**
      * Socket.
      *
-     * @var mixed
+     * @var Socket
      */
     protected $clamav_socket;
 

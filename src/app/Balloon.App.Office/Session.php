@@ -19,6 +19,7 @@ use Balloon\Server;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Database;
 
 class Session
 {

@@ -65,5 +65,5 @@ interface AdapterInterface
      *
      * @return array
      */
-    public function getFileMeta(File $file, array $attributes): array
+    public function getFileMeta(File $file, array $attributes): array;
 }

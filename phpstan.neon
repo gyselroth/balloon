@@ -2,9 +2,13 @@ parameters:
     autoload_directories:
         - %rootDir%/../../../src/app
         - %rootDir%/../../../src/lib
+        - %rootDir%/../../../tests
+
     ignoreErrors:
         - '#^Class MongoDB\\BSON\\UTCDateTime constructor invoked with 0 parameters, 1 required\.#'
         - '#^Class MongoDB\\BSON\\Binary constructor invoked with 1 parameter, 2 required\.#'
+        - '#LdapAutoShare#'
+        - '#CleanTemp#'
 
 includes:
     - vendor/phpstan/phpstan/conf/config.level1.neon

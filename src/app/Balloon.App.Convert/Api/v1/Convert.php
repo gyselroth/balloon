@@ -18,6 +18,7 @@ use Balloon\App\Convert\Exception;
 use Balloon\App\Convert\Job;
 use Balloon\Async;
 use Balloon\Converter;
+use Balloon\Filesystem;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Micro\Http\Response;
@@ -38,6 +39,13 @@ class Convert extends Controller
      * @var Async
      */
     protected $async;
+
+    /**
+     * Filesystem
+     *
+     * @var Filesystem
+     */
+    protected $fs;
 
     /**
      * Constructor.

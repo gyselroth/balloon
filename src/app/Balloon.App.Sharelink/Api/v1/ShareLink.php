@@ -16,6 +16,7 @@ use Balloon\Api\Controller;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Helper;
 use Balloon\Server;
+use Balloon\Filesystem;
 use Micro\Http\Response;
 
 class ShareLink extends Controller
@@ -26,6 +27,13 @@ class ShareLink extends Controller
      * @var Share
      */
     protected $sharelink;
+
+    /**
+     * Filesystem
+     *
+     * @var Filesystem
+     */
+    protected $fs;
 
     /**
      * Constructor.

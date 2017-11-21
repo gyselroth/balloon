@@ -15,6 +15,7 @@ namespace Balloon\Testsuite\Unit\App\ClamAv;
 use Balloon\App\ClamAv\Scanner;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Acl;
 use Balloon\Hook;
 use Balloon\Testsuite\Unit\Test;
 use Psr\Log\LoggerInterface;
@@ -26,6 +27,7 @@ use Socket\Raw\Factory;
 class ScannerTest extends Test
 {
     protected $scanner;
+    protected $server;
 
     public function setUp()
     {
@@ -40,6 +42,7 @@ class ScannerTest extends Test
             $this->server->getFilesystem(),
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
+            $this->createMock(Acl::class),
             $this->createMock(Storage::class)
         );
     }
