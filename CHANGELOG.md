@@ -2,6 +2,15 @@
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**:
 
+This major relase contains various fixes, changes and new features including:
+* Possibility to load the desktop client artifacts via server
+* The web user interface is now separated from the server with its own release policy
+* New share privilege manage which allows a share owner to give certain members the same rights as the owner himself
+* The share privilege writeonly has been removed (All existing shares automatically get migrated to mailbox, see upgrade guide)
+* Convert certain file formats into other formats (For example txt => docx)
+* Slave nodes: automatically update other nodes every time a master node gets changed (It is also possible to export the content into an other format like docx => pdf)
+* Automatically scan your files for viruses and malware
+
 * CORE: [CHANGE] php ext apc is now optional (cache configuration)
 * CORE: [CHANGE] php ext imagick is now optional (if not installed, image previews will fail)
 * CORE: [CHANGE] php ext ldap is now optional (if not installed ldap authentication or ldap sync core app will not be available)

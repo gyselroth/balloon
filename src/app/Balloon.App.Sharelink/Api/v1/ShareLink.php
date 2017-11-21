@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Sharelink\Api\v1;
 
 use Balloon\Api\Controller;
-use Balloon\App\Sharelink\App\Http as App;
+use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Helper;
 use Micro\Http\Response;
 use Balloon\Server;
@@ -21,22 +21,22 @@ use Balloon\Server;
 class ShareLink extends Controller
 {
     /**
-     * App.
+     * Sharelink
      *
-     * @var App
+     * @var Share
      */
-    protected $app;
+    protected $sharelink;
 
     /**
      * Constructor.
      *
-     * @param App    $app
+     * @param Share    $sharelink
      * @param Server $server
      */
-    public function __construct(App $app, Server $server)
+    public function __construct(Share $sharelink, Server $server)
     {
         $this->fs  = $server->getFilesystem();
-        $this->app = $app;
+        $this->sharelink = $sharelink;
     }
 
     /**
@@ -74,7 +74,7 @@ class ShareLink extends Controller
         $options = Helper::filter($options);
         $options['shared'] = true;
 
-        $this->app->shareLink($node, $options);
+        $this->sharelink->shareLink($node, $options);
 
         return (new Response())->setCode(204);
     }
@@ -105,7 +105,7 @@ class ShareLink extends Controller
         $node = $this->fs->getNode($id, $p);
         $options = ['shared' => false];
 
-        $this->app->shareLink($node, $options);
+        $this->sharelink->shareLink($node, $options);
 
         return (new Response())->setCode(204);
     }
@@ -147,7 +147,7 @@ class ShareLink extends Controller
     {
         $node = $this->fs->getNode($id, $p);
         $result = Helper::escape(
-            $this->app->getShareLink($node)
+            $this->sharelink->getShareLink($node)
         );
 
         return (new Response())->setCode(200)->setBody($result);

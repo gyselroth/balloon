@@ -280,7 +280,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         $list = [];
         foreach ($node as $child) {
             try {
-                yield $this->getChild($child);
+                yield $this->_fs->initNode($child);
             } catch (\Exception $e) {
                 if($skip_exception === false) {
                     throw $e;
@@ -374,63 +374,58 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Fetch children items of this collection.
      *
-     * @param Collection|File|string $node
+     * @param string $node
      * @param int                    $deleted
      * @param array                  $filter
      *
      * @return NodeInterface
      */
-    public function getChild($node, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
+    public function getChild($name, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
     {
-        //if $node is string load the object from the backend based on the current parent (the name
-        //is unique per depth, so we can load the object)
-        if (is_string($node)) {
-            $name = $node;
-            $search = [
-                'name'   => new Regex('^'.preg_quote($name).'$', 'i'),
-                'parent' => $this->getRealId(),
-            ];
+        $search = [
+            'name'   => new Regex('^'.preg_quote($name).'$', 'i'),
+            'parent' => $this->getRealId(),
+        ];
 
-            switch ($deleted) {
-                case NodeInterface::DELETED_EXCLUDE:
-                    $search['deleted'] = false;
+        switch ($deleted) {
+            case NodeInterface::DELETED_EXCLUDE:
+                $search['deleted'] = false;
 
-                    break;
-                case NodeInterface::DELETED_ONLY:
-                    $search['deleted'] = ['$type' => '9'];
+                break;
+            case NodeInterface::DELETED_ONLY:
+                $search['deleted'] = ['$type' => '9'];
 
-                    break;
-            }
-
-            $search = array_merge($filter, $search);
-
-            if ($this->shared) {
-                $node = $this->_db->storage->findOne([
-                    '$and' => [
-                        $search,
-                        [
-                            '$or' => [
-                                ['shared' => $this->reference],
-                                ['shared' => $this->shared],
-                                ['shared' => $this->_id],
-                            ],
-                        ],
-                    ],
-                ]);
-            } else {
-                $search['owner'] = $this->_user->getId();
-                $node = $this->_db->storage->findOne($search);
-            }
-
-            if (null === $node) {
-                throw new Exception\NotFound(
-                    'node called '.$name.' does not exists here',
-                    Exception\NotFound::NODE_NOT_FOUND
-                );
-            }
+                break;
         }
 
-        $this->_logger->debug('loaded node ['.$node['_id'].' (directory='.$node['directory'].')] from parent node ['.$this->getRealId().']', [
+        $search = array_merge($filter, $search);
+
+        if ($this->shared) {
+            $node = $this->_db->storage->findOne([
+                '$and' => [
+                    $search,
+                    [
+                        '$or' => [
+                            ['shared' => $this->reference],
+                            ['shared' => $this->shared],
+                            ['shared' => $this->_id],
+                        ],
+                    ],
+                ],
+            ]);
+        } else {
+            $search['owner'] = $this->_user->getId();
+            $node = $this->_db->storage->findOne($search);
+        }
+
+        if (null === $node) {
+            throw new Exception\NotFound(
+                'node called '.$name.' does not exists here',
+                Exception\NotFound::NODE_NOT_FOUND
+            );
+        }
+
+        $this->_logger->debug('loaded node ['.$node['_id'].' from parent node ['.$this->getRealId().']', [
             'category' => get_class($this),
         ]);
 

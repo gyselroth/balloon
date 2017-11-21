@@ -86,7 +86,10 @@ class Job extends AbstractJob
             $slaves = $file->getAppAttribute(__NAMESPACE__, 'slaves');
             if(is_array($slaves) && isset($slave['node'])) {
                 $slave = $file->getFilesystem()->findNodeWithId($slave['node']);
+
+                $slave->setReadonly(false);
                 $slave->put($result->getPath());
+                $slave->setReadonly();
 
                 return true;
             }
@@ -116,6 +119,8 @@ class Job extends AbstractJob
                 ],
             ],
         ], NodeInterface::CONFLICT_RENAME);
+
+        $node->setReadonly();
 
         $slaves[(string)$this->data['slave']]['node'] = $node->getId();
         $file->setAppAttribute(__NAMESPACE__, 'slaves', $slaves);
