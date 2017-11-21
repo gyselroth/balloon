@@ -2,8 +2,15 @@ language: php
 php:
 - '7.1'
 sudo: false
+addons:
+  apt:
+    packages:
+        - imagemagick
+
 before_install:
 - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+- echo "extension = apc.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+- echo "\n" | pecl install imagick
 script: make
 notifications:
   email: false

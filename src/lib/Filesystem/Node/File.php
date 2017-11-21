@@ -270,6 +270,7 @@ class File extends AbstractNode implements DAV\IFile
             'type' => self::HISTORY_RESTORE,
             'origin' => $this->history[$v]['version'],
             'storage' => $this->history[$v]['storage'],
+            'storage_adapter' => $this->history[$v]['storage_adapter'],
             'size' => $this->history[$v]['size'],
             'mime' => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
         ];
@@ -289,6 +290,7 @@ class File extends AbstractNode implements DAV\IFile
                 'deleted',
                 'version',
                 'storage',
+                'storage_adapter',
                 'hash',
                 'mime',
                 'size',
