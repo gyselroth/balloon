@@ -42,9 +42,9 @@ class Database implements ConsoleInterface
     /**
      * Constructor.
      *
-     * @param DatabaseSetup $db
+     * @param DatabaseSetup   $db
      * @param LoggerInterface $logger
-     * @param GetOpt $getopt
+     * @param GetOpt          $getopt
      */
     public function __construct(DatabaseSetup $db, LoggerInterface $logger, GetOpt $getopt)
     {

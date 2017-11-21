@@ -94,7 +94,7 @@ class Server
      * @param Storage         $storage
      * @param LoggerInterface $logger
      * @param Hook            $hook
-     * @param Acl $acl
+     * @param Acl             $acl
      * @param iterable        $config
      */
     public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
@@ -274,7 +274,7 @@ class Server
             throw new Exception('user does not exists');
         }
 
-        if (true === $result['deleted']) {
+        if (isset($result['deleted']) && true === $result['deleted']) {
             throw new Exception\NotAuthenticated(
                 'user is disabled and can not be used',
                 Exception\NotAuthenticated::USER_DELETED

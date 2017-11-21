@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit;
 
-use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Server;
 use Helmich\MongoMock\MockDatabase;
@@ -45,8 +45,8 @@ abstract class Test extends TestCase
             self::getMockDatabase(),
             $this->createMock(Storage::class),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(Acl::class),
-            $this->createMock(Hook::class)
+            $this->createMock(Hook::class),
+            $this->createMock(Acl::class)
         );
 
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));

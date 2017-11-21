@@ -14,20 +14,20 @@ namespace Balloon\Filesystem\Node;
 
 use Balloon\App\AppInterface;
 use Balloon\Exception;
-use Balloon\Filesystem\Acl;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
 use Balloon\Helper;
 use Balloon\Hook;
+use Balloon\Server;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Normalizer;
 use PHPZip\Zip\Stream\ZipStream;
-use Sabre\DAV;
 use Psr\Log\LoggerInterface;
-use Balloon\Server;
+use Sabre\DAV;
 
 abstract class AbstractNode implements NodeInterface, DAV\INode
 {
@@ -184,7 +184,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     protected $_hook;
 
     /**
-     * Acl
+     * Acl.
      *
      * @var Acl
      */

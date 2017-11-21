@@ -21,9 +21,9 @@ use Balloon\Filesystem\Storage;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use MongoDB\BSON\UTCDateTime;
 
 class Filesystem
 {
@@ -77,14 +77,14 @@ class Filesystem
     protected $user;
 
     /**
-     * Storage
+     * Storage.
      *
      * @var Storage
      */
     protected $storage;
 
     /**
-     * Acl
+     * Acl.
      *
      * @var Acl
      */
@@ -360,9 +360,9 @@ class Filesystem
 
             if (true === $multiple && is_array($id)) {
                 return $this->findNodes($id, $class, $deleted);
-            } else {
-                return $this->findNodeWithId($id, $class, $deleted);
             }
+
+            return $this->findNodeWithId($id, $class, $deleted);
         } elseif (null !== $path) {
             if (null === $deleted) {
                 $deleted = NodeInterface::DELETED_EXCLUDE;

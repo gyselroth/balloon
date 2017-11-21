@@ -15,7 +15,6 @@ namespace Balloon\App\Office\App;
 use Balloon\App\AppInterface;
 use Balloon\App\Office\Api\v1\Document;
 use Balloon\App\Office\Api\v1\Session;
-use Balloon\App\Office\Api\v1\User;
 use Balloon\App\Office\Api\v1\Wopi\Document as WopiDocument;
 use Balloon\App\Office\App;
 use Balloon\App\Office\Exception;

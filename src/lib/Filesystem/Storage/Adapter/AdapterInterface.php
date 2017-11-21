@@ -56,11 +56,10 @@ interface AdapterInterface
      */
     public function storeFile(File $file, $contents);
 
-
     /**
-     * Get metadata for a file
+     * Get metadata for a file.
      *
-     * @param File $file
+     * @param File  $file
      * @param array $attributes
      *
      * @return array

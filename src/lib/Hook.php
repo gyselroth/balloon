@@ -183,8 +183,8 @@ class Hook implements AdapterAwareInterface
     /**
      * Inject adapter.
      *
-     * @param mixed $adapter
-     * @param string           $name
+     * @param mixed  $adapter
+     * @param string $name
      *
      * @return AdapterAwareInterface
      */

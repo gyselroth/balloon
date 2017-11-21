@@ -842,11 +842,11 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     /**
      * Create new file as a child from this collection.
      *
-     * @param string           $name
-     * @param mixed            $data
-     * @param array            $attributes
-     * @param int              $conflict
-     * @param bool             $clone
+     * @param string $name
+     * @param mixed  $data
+     * @param array  $attributes
+     * @param int    $conflict
+     * @param bool   $clone
      *
      * @return File
      */

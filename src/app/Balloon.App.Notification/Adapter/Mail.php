@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Adapter;
 
+use Balloon\App\Notification\Exception;
 use Balloon\Async;
 use Balloon\Async\Mail as MailJob;
 use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
 use Zend\Mail\Message;
-use Balloon\App\Notification\Exception;
 
 class Mail implements AdapterInterface
 {
@@ -43,7 +43,7 @@ class Mail implements AdapterInterface
     protected $async;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */

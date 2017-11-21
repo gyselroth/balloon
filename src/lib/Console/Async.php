@@ -51,10 +51,10 @@ class Async implements ConsoleInterface
     /**
      * Constructor.
      *
-     * @param App   $app
-     * @param AsyncQueue $async
+     * @param App             $app
+     * @param AsyncQueue      $async
      * @param LoggerInterface $logger
-     * @param GetOpt $getopt
+     * @param GetOpt          $getopt
      */
     public function __construct(Hook $hook, AsyncQueue $async, LoggerInterface $logger, GetOpt $getopt)
     {

@@ -250,10 +250,12 @@ class File extends AbstractNode implements DAV\IFile
         }
 
         $file = $this->history[$v]['storage'];
-        if (null !== $file) {
-            $exists = $this->_storage->hasFile($this, $this->history[$v]['storage']);
+        $exists = [];
 
-            if (!$exists) {
+        if (null !== $file) {
+            try {
+                $exists = $this->_storage->getFileMeta($this, $this->history[$v]['storage']);
+            } catch(\Exception $e) {
                 throw new Exception('could not restore to version '.$version.', version content does not exists');
             }
         }

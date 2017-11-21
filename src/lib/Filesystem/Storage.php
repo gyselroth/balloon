@@ -30,7 +30,7 @@ class Storage implements AdapterAwareInterface
     ];
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
@@ -163,16 +163,15 @@ class Storage implements AdapterAwareInterface
         return $this->getAdapter($adapter)->hasFile($file, $attributes);
     }
 
-
     /**
-     * Get metadata for a file
+     * Get metadata for a file.
      *
-     * @param File $file
+     * @param File  $file
      * @param array $attributes
      *
      * @return array
      */
-    public function getFileMeta(File $file, array $attributes, ?string $adapter=null): array
+    public function getFileMeta(File $file, array $attributes, ?string $adapter = null): array
     {
         if (null === $adapter) {
             $adapter = 'gridfs';
@@ -180,7 +179,6 @@ class Storage implements AdapterAwareInterface
 
         return $this->getAdapter($adapter)->getFileMeta($file, $attributes);
     }
-
 
     /**
      * Delete file.

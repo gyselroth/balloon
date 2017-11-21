@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Balloon\App\ClamAv;
 
 use Balloon\Async\AbstractJob;
-use Balloon\Server;
 use Balloon\Filesystem;
+use Balloon\Server;
 
 class Job extends AbstractJob
 {
@@ -26,7 +26,7 @@ class Job extends AbstractJob
     protected $fs;
 
     /**
-     * Scanner
+     * Scanner.
      *
      * @var Scanner
      */

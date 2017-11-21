@@ -19,7 +19,7 @@ use Psr\Log\LoggerInterface;
 class Db implements AdapterInterface
 {
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */

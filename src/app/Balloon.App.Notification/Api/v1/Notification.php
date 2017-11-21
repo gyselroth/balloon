@@ -13,12 +13,12 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Api\v1;
 
 use Balloon\App\Notification\Notifier;
+use Balloon\Async;
+use Balloon\Async\Mail;
 use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Http\Response;
 use Zend\Mail\Message;
-use Balloon\Async;
-use Balloon\Async\Mail;
 
 class Notification
 {
@@ -37,14 +37,14 @@ class Notification
     protected $user;
 
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
     /**
-     * Async
+     * Async.
      *
      * @var Async
      */
@@ -54,8 +54,8 @@ class Notification
      * Constructor.
      *
      * @param Notifier $notifier
-     * @param Server $server
-     * @param Async $async
+     * @param Server   $server
+     * @param Async    $async
      */
     public function __construct(Notifier $notifier, Server $server, Async $async)
     {

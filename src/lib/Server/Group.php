@@ -119,9 +119,9 @@ class Group
     /**
      * Init.
      *
-     * @param array  $attributes
-     * @param Server $server
-     * @param Database $db
+     * @param array           $attributes
+     * @param Server          $server
+     * @param Database        $db
      * @param LoggerInterface $logger
      */
     public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger)
@@ -134,7 +134,6 @@ class Group
             $this->{$attr} = $value;
         }
     }
-
 
     /**
      * Return name as string.

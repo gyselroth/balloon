@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Balloon\App\Preview;
 
 use Balloon\Async\AbstractJob;
-use Balloon\Server;
 use Balloon\Filesystem;
+use Balloon\Server;
 
 class Job extends AbstractJob
 {

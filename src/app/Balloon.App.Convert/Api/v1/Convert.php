@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Balloon\App\Convert\Api\v1;
 
 use Balloon\Api\Controller;
-use Balloon\App\Convert\App\Http as App;
 use Balloon\App\Convert\Exception;
 use Balloon\App\Convert\Job;
 use Balloon\Async;
@@ -41,7 +40,7 @@ class Convert extends Controller
     protected $async;
 
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
@@ -51,8 +50,8 @@ class Convert extends Controller
      * Constructor.
      *
      * @param Converter $converter
-     * @param Server $server
-     * @param Async $async
+     * @param Server    $server
+     * @param Async     $async
      */
     public function __construct(Converter $converter, Server $server, Async $async)
     {

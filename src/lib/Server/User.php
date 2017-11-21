@@ -141,9 +141,9 @@ class User
     /**
      * Instance user.
      *
-     * @param array  $attributes
-     * @param Server $server
-     * @param Database $db
+     * @param array           $attributes
+     * @param Server          $server
+     * @param Database        $db
      * @param LoggerInterface $logger
      */
     public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger)

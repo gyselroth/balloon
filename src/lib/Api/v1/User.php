@@ -12,12 +12,10 @@ declare(strict_types=1);
 
 namespace Balloon\Api\v1;
 
-use Balloon\Api\Controller;
 use Balloon\Exception;
+use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
-use Balloon\Server\User as CoreUser;
-use Balloon\Server;
 
 class User
 {
@@ -29,7 +27,7 @@ class User
     protected $user;
 
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
@@ -43,7 +41,7 @@ class User
     public function __construct(Server $server)
     {
         $this->user = $server->getIdentity();
-        $this->server= $server;
+        $this->server = $server;
     }
 
     /**
@@ -111,19 +109,18 @@ class User
 
                 if (null !== $uid) {
                     return $this->server->getUserById(new ObjectId($uid));
-                } else {
-                    return $this->server->getUserByName($uname);
                 }
 
-            } else {
-                throw new Exception\Forbidden(
+                return $this->server->getUserByName($uname);
+            }
+
+            throw new Exception\Forbidden(
                     'submitted parameters require to have admin privileges',
                     Exception\Forbidden::ADMIN_PRIV_REQUIRED
                 );
-            }
-        } else {
-            return $this->user;
         }
+
+        return $this->user;
     }
 
     /**

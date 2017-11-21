@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
-use Balloon\App\Notification\Notifier;
 use Balloon\App\Notification\Exception;
+use Balloon\App\Notification\Notifier;
 use Balloon\Async\Mail;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -54,7 +54,7 @@ class NewShareAdded extends AbstractHook
     protected $server;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */

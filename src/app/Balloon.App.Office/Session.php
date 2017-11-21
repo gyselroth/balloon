@@ -59,14 +59,14 @@ class Session
     protected $_id;
 
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
     protected $fs;
 
     /**
-     * Database
+     * Database.
      *
      * @var Database
      */

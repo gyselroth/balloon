@@ -24,14 +24,14 @@ use Psr\Log\LoggerInterface;
 class Document extends Controller
 {
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */

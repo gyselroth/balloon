@@ -13,13 +13,13 @@ declare(strict_types=1);
 namespace Balloon\App\Elasticsearch;
 
 use Balloon\Filesystem;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Micro\Http\Router;
 use Psr\Log\LoggerInterface;
-use Balloon\Filesystem\Node\NodeInterface;
 
 class Elasticsearch
 {
@@ -45,14 +45,14 @@ class Elasticsearch
     protected $client;
 
     /**
-     * User
+     * User.
      *
      * @var User
      */
     protected $user;
 
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
@@ -81,10 +81,11 @@ class Elasticsearch
     /**
      * Set options.
      *
-     * @param Iterable $config
+     * @param iterable $config
+     *
      * @return Elasticsearch
      */
-    public function setOptions(?Iterable $config = null): Elasticsearch
+    public function setOptions(?Iterable $config = null): self
     {
         if (null === $config) {
             return $this;

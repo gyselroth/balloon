@@ -68,7 +68,7 @@ class App implements AdapterAwareInterface
     /**
      * Inject adapter.
      *
-     * @param mixed $adapter
+     * @param mixed  $adapter
      * @param string $name
      *
      * @return AdapterAwareInterface

@@ -36,7 +36,7 @@ class Hook extends AbstractHook
     protected $async;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
@@ -45,8 +45,8 @@ class Hook extends AbstractHook
     /**
      * Constructor.
      *
-     * @param Preview $preview
-     * @param Async $async
+     * @param Preview         $preview
+     * @param Async           $async
      * @param LoggerInterface $logger
      */
     public function __construct(Preview $preview, Async $async, LoggerInterface $logger)

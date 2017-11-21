@@ -58,7 +58,7 @@ abstract class AbstractBootstrap
             'category' => get_class($this),
         ]);
 
-        $this->container->get(LoggerInterface::class)->info('use ['.APPLICATION_ENV.'] environment', [
+        $this->container->get(LoggerInterface::class)->info('use ['.constant('APPLICATION_ENV').'] environment', [
             'category' => get_class($this),
         ]);
 
@@ -66,8 +66,9 @@ abstract class AbstractBootstrap
             return $composer;
         });
 
-        $this->container->add(Client::class, function () {
-            return new Client($this->getParam(Client::class, 'uri'), [], [
+        $container = $this->container;
+        $this->container->add(Client::class, function () use($container) {
+            return new Client($container->getParam(Client::class, 'uri'), [], [
                 'typeMap' => [
                     'root' => 'array',
                     'document' => 'array',
@@ -76,8 +77,8 @@ abstract class AbstractBootstrap
             ]);
         });
 
-        $this->container->add(Database::class, function () {
-            return $this->get(Client::class)->balloon;
+        $this->container->add(Database::class, function () use($container) {
+            return $container->get(Client::class)->balloon;
         });
 
         //register all app bootstraps
@@ -99,7 +100,7 @@ abstract class AbstractBootstrap
             $context = 'Cli';
         }
 
-        foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
+        foreach (glob(constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
             $ns = str_replace('.', '\\', basename($app)).'\\';
             $composer->addPsr4($ns, $app);
             $name = $ns.'App';

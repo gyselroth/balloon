@@ -16,14 +16,14 @@ use Balloon\Api\Controller;
 use Balloon\Api\v1\Collection as ApiCollection;
 use Balloon\Api\v1\File as ApiFile;
 use Balloon\Exception;
-use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\AbstractNode;
-use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem;
-use Balloon\Server\User;
-use Balloon\Server;
+use Balloon\Filesystem\Node\AbstractNode;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
+use Balloon\Server;
+use Balloon\Server\User;
 use Micro\Http\Response;
 use MongoDB\BSON\UTCDateTime;
 use PHPZip\Zip\Stream\ZipStream;
@@ -62,7 +62,7 @@ class Node extends Controller
     /**
      * Initialize.
      *
-     * @param Server $server
+     * @param Server          $server
      * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)
@@ -71,44 +71,6 @@ class Node extends Controller
         $this->user = $server->getIdentity();
         $this->server = $server;
         $this->logger = $logger;
-    }
-
-
-    /**
-     * Get node.
-     *
-     * @param string $id
-     * @param string $path
-     * @param string $class      Force set node type
-     * @param bool   $deleted
-     * @param bool   $multiple   Allow $id to be an array
-     * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
-     */
-    protected function _getNode(
-        ?string $id = null,
-        ?string $path = null,
-        ?string $class = null,
-        bool $multiple = false,
-        bool $allow_root = false,
-        int $deleted = 2
-    ): NodeInterface {
-        if (null === $class) {
-            switch (get_class($this)) {
-                case ApiFile::class:
-                    $class = File::class;
-
-                break;
-                case ApiCollection::class:
-                    $class = Collection::class;
-
-                break;
-            }
-        }
-
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
     }
 
     /**
@@ -1484,6 +1446,43 @@ class Node extends Controller
         $result = $this->fs->getDelta()->getLastCursor();
 
         return (new Response())->setCode(200)->setBody($result);
+    }
+
+    /**
+     * Get node.
+     *
+     * @param string $id
+     * @param string $path
+     * @param string $class      Force set node type
+     * @param bool   $deleted
+     * @param bool   $multiple   Allow $id to be an array
+     * @param bool   $allow_root Allow instance of root collection
+     * @param bool   $deleted    How to handle deleted node
+     *
+     * @return NodeInterface
+     */
+    protected function _getNode(
+        ?string $id = null,
+        ?string $path = null,
+        ?string $class = null,
+        bool $multiple = false,
+        bool $allow_root = false,
+        int $deleted = 2
+    ): NodeInterface {
+        if (null === $class) {
+            switch (get_class($this)) {
+                case ApiFile::class:
+                    $class = File::class;
+
+                break;
+                case ApiCollection::class:
+                    $class = Collection::class;
+
+                break;
+            }
+        }
+
+        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
     }
 
     /**

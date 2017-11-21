@@ -14,14 +14,11 @@ namespace Balloon\App\Sharelink\App;
 
 use Balloon\App\AppInterface;
 use Balloon\App\Sharelink\Api\v1\ShareLink;
-use Balloon\Exception;
 use Balloon\App\Sharelink\Sharelink as Share;
-use Balloon\Filesystem;
+use Balloon\Exception;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
-use Balloon\Server;
 use Micro\Auth;
 use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Http\Response;
@@ -32,14 +29,14 @@ use Psr\Log\LoggerInterface;
 class Http implements AppInterface
 {
     /**
-     * Sharelink
+     * Sharelink.
      *
      * @var Share
      */
     protected $sharelink;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
@@ -48,9 +45,9 @@ class Http implements AppInterface
     /**
      * Init.
      *
-     * @param Router $router
-     * @param Hook $hook
-     * @param Share $sharelink
+     * @param Router          $router
+     * @param Hook            $hook
+     * @param Share           $sharelink
      * @param LoggerInterface $logger
      */
     public function __construct(Router $router, Hook $hook, Share $sharelink, LoggerInterface $logger)
@@ -72,7 +69,6 @@ class Http implements AppInterface
         $this->logger = $logger;
         $this->sharelink = $sharelink;
     }
-
 
     /**
      * Start.

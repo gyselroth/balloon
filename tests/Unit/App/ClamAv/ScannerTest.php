@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Balloon\Testsuite\Unit\App\ClamAv;
 
 use Balloon\App\ClamAv\Scanner;
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage;
-use Balloon\Filesystem\Acl;
 use Balloon\Hook;
 use Balloon\Testsuite\Unit\Test;
 use Psr\Log\LoggerInterface;

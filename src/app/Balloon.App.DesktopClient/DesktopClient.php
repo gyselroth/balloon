@@ -58,7 +58,7 @@ class DesktopClient
     protected $formats = [];
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */

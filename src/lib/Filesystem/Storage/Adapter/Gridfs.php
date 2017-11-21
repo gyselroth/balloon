@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Storage\Adapter;
 
-use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Exception;
+use Balloon\Filesystem\Node\File;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
-use Psr\Log\LoggerInterface;
 use MongoDB\GridFS\Bucket;
+use Psr\Log\LoggerInterface;
 
 class Gridfs implements AdapterInterface
 {
@@ -56,7 +56,7 @@ class Gridfs implements AdapterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasFile(File $file, array $attributes): bool
     {
@@ -64,7 +64,7 @@ class Gridfs implements AdapterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function deleteFile(File $file, array $attributes): bool
     {
@@ -110,30 +110,28 @@ class Gridfs implements AdapterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFile(File $file, array $attributes)
     {
         return $this->gridfs->openDownloadStream($attributes['_id']);
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFileMeta(File $file, array $attributes): array
     {
         $file = $this->getFileById($attributes['_id']);
-        if($file === null) {
+        if (null === $file) {
             throw new Exception('file was not found');
         }
 
         return $file;
     }
 
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function storeFile(File $file, $contents): array
     {
