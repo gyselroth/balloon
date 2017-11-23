@@ -13,12 +13,14 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Api\v1;
 
 use Balloon\App\Notification\Notifier;
-use Balloon\Async;
+use TaskScheduler\Async;
 use Balloon\Async\Mail;
 use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Http\Response;
 use Zend\Mail\Message;
+use Balloon\Exception;
+use MongoDB\BSON\ObjectId;
 
 class Notification
 {
@@ -60,7 +62,7 @@ class Notification
     public function __construct(Notifier $notifier, Server $server, Async $async)
     {
         $this->notifier = $notifier;
-        $this->user = $server->getUser();
+        $this->user = $server->getIdentity();
         $this->server = $server;
         $this->async = $async;
     }
@@ -87,13 +89,26 @@ class Notification
      */
     public function get(): Response
     {
-        $notification = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notification');
+        $body = [];
+        foreach($this->notifier->getNotifications($this->user) as $message) {
+            $note = $message;
+            $note['id'] = (string)$note['_id'];
+            unset($note['_id']);
+            unset($note['receiver']);
 
-        return (new Response())->setCode(200)->setBody($notification);
+            $note['sender'] = $this->server->getUserById($note['sender'])->getAttribute([
+                'id',
+                'username'
+            ]);
+
+            $body[] = $note;
+        }
+
+        return (new Response())->setCode(200)->setBody($body);
     }
 
     /**
-     * @api {get} /api/v1/notification Get notifications
+     * @api {delete} /api/v1/user/notification Delete notification
      * @apiVersion 1.0.0
      * @apiName get
      * @apiGroup App\Notification
@@ -106,11 +121,10 @@ class Notification
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 204 No Content
      */
-    public function delete(int $id): Response
+    public function delete(string $id): Response
     {
-        $notification = $this->user->getAppAttribute('Balloon\\App\\Notification', 'notification');
-
-        return (new Response())->setCode(200)->setBody($notification);
+        $this->notifier->deleteNotification($this->user, new ObjectId($id));
+        return (new Response())->setCode(204);
     }
 
     /**
@@ -152,6 +166,10 @@ class Notification
     public function postBroadcast(string $subject, string $body): Response
     {
         if (!$this->user->isAdmin()) {
+            throw new Exception\Forbidden(
+                'submitted parameters require to have admin privileges',
+                    Exception\Forbidden::ADMIN_PRIV_REQUIRED
+                );
         }
 
         $users = $this->server->getUsersByFilter([]);

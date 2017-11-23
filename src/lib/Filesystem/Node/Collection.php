@@ -149,44 +149,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      *
      * @return array
      */
-    public function getShareAcl(): array
+    public function getAcl(): array
     {
-        return $this->acl;
-        /*if (!$this->isShared()) {
-            return false;
-        }
-        if (is_array($this->acl)) {
-            $resource = new Resource($this->_user, $this->_logger, $this->_fs);
-            $return = [];
-            if (array_key_exists('user', $this->acl)) {
-                foreach ((array) $this->acl['user'] as $user) {
-                    $data = $resource->searchUser($user['user'], true);
-
-                    if (empty($data)) {
-                        continue;
-                    }
-
-                    $data['priv'] = $user['priv'];
-                    $return[] = $data;
-                }
-            }
-            if (array_key_exists('group', $this->acl)) {
-                foreach ((array) $this->acl['group'] as $group) {
-                    $data = $resource->searchGroup($group['group'], true);
-
-                    if (empty($data)) {
-                        continue;
-                    }
-
-                    $data['priv'] = $group['priv'];
-                    $return[] = $data;
-                }
-            }
-
-            return $return;
-        }
-
-        return false;*/
+        return $this->_acl->translateAclTable($this->acl);
     }
 
     /**
@@ -660,7 +625,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         $this->shared = false;
-        $this->acl = null;
+        $this->acl = [];
         $action = [
             '$unset' => [
                 'shared' => $this->_id,

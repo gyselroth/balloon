@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Convert;
 
-use Balloon\Async;
+use TaskScheduler\Async;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
 

@@ -15,6 +15,7 @@ namespace Balloon\Async;
 use Balloon\Server;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
+use TaskScheduler\AbstractJob;
 
 class AutoDestroy extends AbstractJob
 {

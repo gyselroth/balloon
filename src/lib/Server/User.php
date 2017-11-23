@@ -476,7 +476,7 @@ class User
                 'category' => get_class($this),
             ]);
 
-            if ($node['owner'] === $this->_id) {
+            if ($node['owner'] == $this->_id) {
                 $this->logger->debug('skip creating reference to share ['.$node['_id'].'] cause share owner ['.$node['owner'].'] is the current user', [
                     'category' => get_class($this),
                 ]);

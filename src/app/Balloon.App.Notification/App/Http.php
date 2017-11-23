@@ -30,6 +30,7 @@ class Http implements AppInterface
     {
         $router
             ->prependRoute(new Route('/api/v1/user/notification', Api::class))
+            ->prependRoute(new Route('/api/v1/user/notification/{id:#([0-9a-z]{24})#}', Api::class))
             ->prependRoute(new Route('/api/v1/user/{id:#([0-9a-z]{24})#}/notification', Api::class));
     }
 }

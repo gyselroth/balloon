@@ -15,6 +15,7 @@ namespace Balloon\Async;
 use Psr\Log\LoggerInterface;
 use Zend\Mail\Message;
 use Zend\Mail\Transport\TransportInterface;
+use TaskScheduler\AbstractJob;
 
 class Mail extends AbstractJob
 {
@@ -49,11 +50,10 @@ class Mail extends AbstractJob
      */
     public function start(): bool
     {
-        $mail = Message::fromString($this->data['mail']);
+        $mail = Message::fromString($this->data);
 
         $this->logger->debug('send mail ['.$mail->getSubject().']', [
             'category' => get_class($this),
-            'params' => ['to' => (array) $mail->getTo()],
         ]);
 
         $this->transport->send($mail);

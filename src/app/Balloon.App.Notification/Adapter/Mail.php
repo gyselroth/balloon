@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Adapter;
 
 use Balloon\App\Notification\Exception;
-use Balloon\Async;
+use TaskScheduler\Async;
 use Balloon\Async\Mail as MailJob;
 use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
@@ -105,6 +105,7 @@ class Mail implements AdapterInterface
             $mail->setFrom($this->sender_address, $sender->getAttribute('username'));
         }
 
+        $mail->setTo($mail->getFrom());
         $mail->setSubject($subject);
 
         foreach ($receiver as $user) {
@@ -128,6 +129,8 @@ class Mail implements AdapterInterface
             return false;
         }
 
-        return $this->async->addJob(MailJob::class, ['mail' => $mail->toString()]);
+        return $this->async->addJob(MailJob::class, $mail->toString(), [
+            Async::OPTION_RETRY => 2
+        ]);
     }
 }

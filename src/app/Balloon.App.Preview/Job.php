@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Preview;
 
-use Balloon\Async\AbstractJob;
+use TaskScheduler\AbstractJob;
 use Balloon\Filesystem;
 use Balloon\Server;
 

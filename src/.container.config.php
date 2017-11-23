@@ -8,7 +8,6 @@ use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Balloon\Hook;
 use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
-use ErrorException;
 use Micro\Auth;
 use Micro\Config;
 use Micro\Container;
@@ -21,6 +20,8 @@ use Balloon\Database;
 use Balloon\Database\Delta\CoreInstallation;
 use Balloon\Database\Delta\FileToStorageAdapter;
 use Balloon\Database\Delta\QueueToCappedCollection;
+use Zend\Mail\Transport\TransportInterface;
+use Zend\Mail\Transport\Sendmail;
 
 return [
     Client::class => [
@@ -61,5 +62,8 @@ return [
     ],
     App::class => [
         'adapter' => []
+    ],
+    TransportInterface::class => [
+        'use' => Sendmail::class
     ]
 ];

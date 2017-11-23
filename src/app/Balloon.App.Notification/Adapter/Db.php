@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Adapter;
 
 use Balloon\Server\User;
-use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
+use Balloon\App\Notification\Notifier;
 
 class Db implements AdapterInterface
 {
@@ -25,13 +25,24 @@ class Db implements AdapterInterface
      */
     protected $logger;
 
+
+    /**
+     * Notifier
+     *
+     * @var Notifier
+     */
+    protected $notifier;
+
+
     /**
      * Constructor.
      *
+     * @param Notifier $notifier
      * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(Notifier $notifier, LoggerInterface $logger)
     {
+        $this->notifier = $notifier;
         $this->logger = $logger;
     }
 
@@ -40,7 +51,10 @@ class Db implements AdapterInterface
      */
     public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
     {
-        foreach ($receiver as $user) {
+        $this->notifier->postNotification($receiver, $sender, $subject, $body, $context);
+        return true;
+
+        /*foreach ($receiver as $user) {
             $this->logger->debug('send notification ['.$subject.'] to user ['.$user->getId().']', [
                 'category' => get_class($this),
             ]);
@@ -51,7 +65,7 @@ class Db implements AdapterInterface
                 'from' => $sender->getId(),
                 'timestamp' => new UTCDateTime(),
             ]);
-        }
+        }*/
 
         return true;
     }

@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\Console;
 
-use Balloon\Async as AsyncQueue;
+use TaskScheduler\Async as AsyncQueue;
 use Balloon\Hook;
 use GetOpt\GetOpt;
 use GetOpt\Option;

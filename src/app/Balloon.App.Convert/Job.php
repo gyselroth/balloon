@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Convert;
 
-use Balloon\Async\AbstractJob;
+use TaskScheduler\AbstractJob;
 use Balloon\Converter;
 use Balloon\Exception\NotFound;
 use Balloon\Filesystem\Node\NodeInterface;
