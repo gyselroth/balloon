@@ -12,14 +12,38 @@ declare(strict_types=1);
 
 namespace Balloon\Api\v1;
 
-use \Balloon\Exception;
-use \Balloon\Server\User as CoreUser;
-use \Balloon\Api\Controller;
-use \Micro\Http\Response;
+use Balloon\Exception;
+use Balloon\Server;
+use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
-class User extends Controller
+class User
 {
+    /**
+     * User.
+     *
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * Initialize.
+     *
+     * @param Server $server
+     */
+    public function __construct(Server $server)
+    {
+        $this->user = $server->getIdentity();
+        $this->server = $server;
+    }
+
     /**
      * @apiDefine _getUser
      *
@@ -83,29 +107,22 @@ class User extends Controller
                     throw new Exception\InvalidArgument('provide either uid (user id) or uname (username)');
                 }
 
-                try {
-                    if ($uid !== null) {
-                        $user = $this->server->getUserById(new ObjectId($uid));
-                    } else {
-                        $user = $this->server->getUserByName($uname);
-                    }
-                    return $user;
-                } catch (\Exception $e) {
-                    throw new Exception\NotFound(
-                        'requested user was not found',
-                        Exception\NotFound::USER_NOT_FOUND
-                    );
+                if (null !== $uid) {
+                    return $this->server->getUserById(new ObjectId($uid));
                 }
-            } else {
-                throw new Exception\Forbidden(
+
+                return $this->server->getUserByName($uname);
+            }
+
+            throw new Exception\Forbidden(
                     'submitted parameters require to have admin privileges',
                     Exception\Forbidden::ADMIN_PRIV_REQUIRED
                 );
-            }
-        } else {
-            return $this->user;
         }
+
+        return $this->user;
     }
+
 
     /**
      * @api {get} /api/v1/user/is-admin Is Admin?

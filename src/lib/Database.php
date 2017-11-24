@@ -12,23 +12,14 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Database\Core;
-use Balloon\Database\DatabaseInterface;
-use Balloon\Database\DeltaInterface;
+use Balloon\Database\Delta\DeltaInterface;
 use Balloon\Database\Exception;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Helper\ProgressBar;
+use Micro\Container\AdapterAwareInterface;
 use MongoDB\Database as MongoDB;
+use Psr\Log\LoggerInterface;
 
-class Database
+class Database implements AdapterAwareInterface
 {
-    /**
-     * App
-     *
-     * @var App
-     */
-    protected $app;
-
     /**
      * Databse.
      *
@@ -44,18 +35,18 @@ class Database
     protected $logger;
 
     /**
-     * Setup.
+     * Deltas.
      *
      * @var array
      */
-    protected $setup = [];
+    protected $delta = [];
 
     /**
-     * Progressbar.
+     * Delta meta collection name.
      *
-     * @var ProgressBar
+     * @var string
      */
-    protected $bar;
+    protected $meta_collection = 'delta';
 
     /**
      * Construct.
@@ -63,13 +54,11 @@ class Database
      * @param Server          $server
      * @param LoggerInterface $logger
      */
-    public function __construct(App $app, MongoDB $db, LoggerInterface $logger, ?ProgressBar $bar = null)
+    public function __construct(MongoDB $db, LoggerInterface $logger, string $meta_collection = 'delta')
     {
-        $this->app = $app;
         $this->db = $db;
         $this->logger = $logger;
-        $this->collect();
-        $this->bar = $bar;
+        $this->meta_collection = $meta_collection;
     }
 
     /**
@@ -83,12 +72,20 @@ class Database
             'category' => get_class($this),
         ]);
 
-        foreach ($this->setup as $setup) {
-            $this->logger->info('initialize database setup ['.get_class($setup).']', [
+        if (0 === count($this->delta)) {
+            $this->logger->warning('cannot initialize mongodb, no deltas have been applied', [
                 'category' => get_class($this),
             ]);
 
-            $setup->init();
+            return false;
+        }
+
+        foreach ($this->delta as $name => $delta) {
+            $this->logger->info('initialize database from delta ['.$name.']', [
+                'category' => get_class($this),
+            ]);
+
+            $delta->init();
         }
 
         $this->logger->info('initialization database setup completed', [
@@ -96,56 +93,6 @@ class Database
         ]);
 
         return true;
-    }
-
-    public function injectSetup(DatabaseInterface $db): Database
-    {
-        $this->setup[] = $db;
-        return $this;
-    }
-
-
-    /**
-     * Initialize database.
-     *
-     * @return Databse
-     */
-    public function collect(): Database
-    {
-        $this->setup[] = new Core($this->db, $this->logger);
-
-        foreach ($this->app->getAppNamespaces() as $app => $namespace) {
-            $class = $namespace.'Database';
-
-            if (class_exists($class)) {
-                $this->logger->debug('found database class ['.$class.'] from app ['.$app.']', [
-                    'category' => get_class($this),
-                ]);
-
-                $db = new $class($this->db, $this->logger);
-                if (!($db instanceof DatabaseInterface)) {
-                    throw new Exception('database must include DatabaseInterface');
-                }
-
-                $this->setup[] = $db;
-            } else {
-                $this->logger->debug('no database class ['.$class.'] from app ['.$app.'] found', [
-                    'category' => get_class($this),
-                ]);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get setups.
-     *
-     * @return array
-     */
-    public function getSetups(): array
-    {
-        return $this->setup;
     }
 
     /**
@@ -157,7 +104,7 @@ class Database
      */
     public function hasDelta(string $class): bool
     {
-        return null !== $this->db->delta->findOne(['class' => $class]);
+        return null !== $this->db->{$this->meta_collection}->findOne(['class' => $class]);
     }
 
     /**
@@ -173,30 +120,26 @@ class Database
 
         $instances = [];
 
-        foreach ($this->setup as $setup) {
-            $deltas = $setup->getDeltas();
-            $this->logger->info('found ['.count($deltas).'] deltas from ['.get_class($setup).']', [
+        if (0 === count($this->delta)) {
+            $this->logger->warning('cannot upgrade mongodb, no deltas have been applied', [
                 'category' => get_class($this),
             ]);
 
-            foreach ($deltas as $delta) {
-                if (false && $this->hasDelta($delta)) {
-                    $this->logger->debug('skip already appended delta ['.$delta.']', [
-                        'category' => get_class($this),
-                    ]);
-                } else {
-                    $this->logger->info('apply database delta ['.$delta.']', [
-                        'category' => get_class($this),
-                    ]);
+            return false;
+        }
 
-                    $delta = new $delta($this->db, $this->logger);
-                    if (!($delta instanceof DeltaInterface)) {
-                        throw new Exception('delta must include DeltaInterface');
-                    }
+        foreach ($this->delta as $name => $delta) {
+            if (false && $this->hasDelta($name)) {
+                $this->logger->debug('skip existing delta ['.$name.']', [
+                    'category' => get_class($this),
+                ]);
+            } else {
+                $this->logger->info('apply database delta ['.$name.']', [
+                    'category' => get_class($this),
+                ]);
 
-                    $delta->preObjects();
-                    $instances[] = $delta;
-                }
+                $delta->preObjects();
+                $instances[] = $delta;
             }
         }
 
@@ -204,7 +147,7 @@ class Database
 
         foreach ($instances as $delta) {
             $delta->postObjects();
-            $this->db->delta->insertOne(['class' => get_class($delta)]);
+            $this->db->{$this->meta_collection}->insertOne(['class' => get_class($delta)]);
         }
 
         $this->logger->info('executed database deltas successfully', [
@@ -239,14 +182,6 @@ class Database
      */
     public function upgradeObjects(array $deltas)
     {
-        if (null !== $this->bar) {
-            $count = 0;
-            foreach ($this->getCollections() as $collection) {
-                $count += $this->db->{$collection}->count();
-            }
-            $this->bar->setMaxStepts($count);
-        }
-
         foreach ($this->getCollections() as $collection) {
             $this->logger->info('execute deltas for collection ['.$collection.']', [
                 'category' => get_class($this),
@@ -264,10 +199,6 @@ class Database
                     }
                 }
 
-                if (null !== $this->bar) {
-                    $this->bar->advance();
-                }
-
                 if (0 === count($update)) {
                     $this->logger->debug('object ['.$object['_id'].'] from ['.$collection.'] does not need to be updated', [
                         'category' => get_class($this),
@@ -282,10 +213,97 @@ class Database
             }
         }
 
-        if (null !== $this->bar) {
-            $this->bar->finish();
+        return true;
+    }
+
+    /**
+     * Get default adapter.
+     *
+     * @return array
+     */
+    public function getDefaultAdapter(): array
+    {
+        return [];
+    }
+
+    /**
+     * Has adapter.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasAdapter(string $name): bool
+    {
+        return isset($this->delta[$name]);
+    }
+
+    /**
+     * Inject adapter.
+     *
+     * @param mixed $adapter
+     *
+     * @return AdapterAwareInterface
+     */
+    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
+    {
+        if (!($adapter instanceof DeltaInterface)) {
+            throw new Exception('delta needs to implement DeltaInterface');
         }
 
-        return true;
+        if (null === $name) {
+            $name = get_class($adapter);
+        }
+
+        $this->logger->debug('inject delta ['.$name.'] of type ['.get_class($adapter).']', [
+            'category' => get_class($this),
+        ]);
+
+        if ($this->hasAdapter($name)) {
+            throw new Exception('delta '.$name.' is already registered');
+        }
+
+        $this->delta[$name] = $adapter;
+
+        return $this;
+    }
+
+    /**
+     * Get adapter.
+     *
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getAdapter(string $name)
+    {
+        if (!$this->hasAdapter($name)) {
+            throw new Exception('delta '.$name.' is not registered');
+        }
+
+        return $this->delta[$name];
+    }
+
+    /**
+     * Get adapters.
+     *
+     * @param array $adapters
+     *
+     * @return array
+     */
+    public function getAdapters(array $adapters = []): array
+    {
+        if (empty($adapter)) {
+            return $this->delta;
+        }
+        $list = [];
+        foreach ($adapter as $name) {
+            if (!$this->hasAdapter($name)) {
+                throw new Exception('delta '.$name.' is not registered');
+            }
+            $list[$name] = $this->delta[$name];
+        }
+
+        return $list;
     }
 }

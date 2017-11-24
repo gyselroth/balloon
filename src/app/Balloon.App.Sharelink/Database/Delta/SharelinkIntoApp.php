@@ -12,8 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink\Database\Delta;
 
-use Balloon\Database\AbstractDelta;
-use MongoDB\Database;
+use Balloon\Database\Delta\AbstractDelta;
 
 class SharelinkIntoApp extends AbstractDelta
 {

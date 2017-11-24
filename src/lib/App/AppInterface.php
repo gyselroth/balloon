@@ -12,38 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\App;
 
-use Balloon\Filesystem\Node\NodeInterface;
-
 interface AppInterface
 {
-    /**
-     * Init app.
-     *
-     * @return bool
-     */
-    public function init(): bool;
-
-    /**
-     * Start.
-     *
-     * @return bool
-     */
-    public function start(): bool;
-
-    /**
-     * Get attributes.
-     *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     *
-     * @return array
-     */
-    public function getAttributes(NodeInterface $node, array $attributes = []): array;
-
-    /**
-     * Get name.
-     *
-     * @return string
-     */
-    public function getName(): string;
 }

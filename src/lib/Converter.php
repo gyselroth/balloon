@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon;
 
 use Balloon\Converter\Adapter\AdapterInterface;
-use Balloon\Converter\Adapter\Imagick;
+use Balloon\Converter\Adapter\ImagickImage;
 use Balloon\Converter\Adapter\Office;
 use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
@@ -29,7 +29,7 @@ class Converter implements AdapterAwareInterface
      * @var array
      */
     const DEFAULT_ADAPTER = [
-        Imagick::class => [],
+        ImagickImage::class => [],
         Office::class => [],
     ];
 
@@ -66,17 +66,36 @@ class Converter implements AdapterAwareInterface
      *
      * @return Converter
      */
-    public function setOptions(? Iterable $config = null): Converter
+    public function setOptions(? Iterable $config = null): self
     {
         if (null === $config) {
-            $config = [];
+            return $this;
         }
 
         foreach ($config as $option => $value) {
-            $this->injectAdapter($value);
+            switch ($option) {
+                case 'adapter':
+                    foreach ($value as $name => $adapter) {
+                        $this->injectAdapter($name, $value);
+                    }
+
+                break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * Get default adapter.
+     *
+     * @return array
+     */
+    public function getDefaultAdapter(): array
+    {
+        return self::DEFAULT_ADAPTER;
     }
 
     /**
@@ -98,15 +117,27 @@ class Converter implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function injectAdapter(string $name, AdapterInterface $adapter): AdapterInterface
+    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
+        if (!($adapter instanceof AdapterInterface)) {
+            throw new Exception('adapter needs to implement AdapterInterface');
+        }
+
+        if (null === $name) {
+            $name = get_class($adapter);
+        }
+
+        $this->logger->debug('inject converter adapter ['.$name.'] of type ['.get_class($adapter).']', [
+            'category' => get_class($this),
+        ]);
+
         if ($this->hasAdapter($name)) {
             throw new Exception('adapter '.$name.' is already registered');
         }
 
         $this->adapter[$name] = $adapter;
 
-        return $adapter;
+        return $this;
     }
 
     /**
@@ -116,7 +147,7 @@ class Converter implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function getAdapter(string $name): AdapterInterface
+    public function getAdapter(string $name)
     {
         if (!$this->hasAdapter($name)) {
             throw new Exception('adapter '.$name.' is not registered');
@@ -165,6 +196,42 @@ class Converter implements AdapterAwareInterface
     }
 
     /**
+     * Create preview.
+     *
+     * @param File $file
+     *
+     * @return Result
+     */
+    public function createPreview(File $file): Result
+    {
+        $this->logger->debug('create preview from file ['.$file->getId().']', [
+            'category' => get_class($this),
+        ]);
+
+        if (0 === $file->getSize()) {
+            throw new Exception('can not create preview from empty file');
+        }
+
+        foreach ($this->adapter as $name => $adapter) {
+            try {
+                if ($adapter->matchPreview($file)) {
+                    return $adapter->createPreview($file);
+                }
+                $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
+                        'category' => get_class($this),
+                    ]);
+            } catch (\Exception $e) {
+                $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        throw new Exception('all adapter failed');
+    }
+
+    /**
      * Convert document.
      *
      * @param File   $file
@@ -174,11 +241,22 @@ class Converter implements AdapterAwareInterface
      */
     public function convert(File $file, string $format): Result
     {
-        foreach ($this->adapter as $adapter) {
+        $this->logger->debug('convert file ['.$file->getId().'] to format ['.$format.']', [
+            'category' => get_class($this),
+        ]);
+
+        if (0 === $file->getSize()) {
+            throw new Exception('can not convert empty file');
+        }
+
+        foreach ($this->adapter as $name => $adapter) {
             try {
-                if ($adapter->match($file)) {
+                if ($adapter->match($file) && in_array($format, $adapter->getSupportedFormats($file), true)) {
                     return $adapter->convert($file, $format);
                 }
+                $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
+                        'category' => get_class($this),
+                    ]);
             } catch (\Exception $e) {
                 $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
                     'category' => get_class($this),

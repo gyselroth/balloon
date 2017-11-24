@@ -12,13 +12,12 @@ declare(strict_types=1);
 
 namespace Balloon\Database\Delta;
 
-use Balloon\Async;
-use Balloon\Database\AbstractDelta;
+use TaskScheduler\Async;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use MongoDB\Driver\Exception\RuntimeException;
 
-class queueToCappedCollection extends AbstractDelta
+class QueueToCappedCollection extends AbstractDelta
 {
     /**
      * Upgrade database.

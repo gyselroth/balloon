@@ -15,9 +15,30 @@ namespace Balloon\Converter\Adapter;
 use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
+use Imagick;
+use Psr\Log\LoggerInterface;
 
-class Office extends Imagick
+class Office implements AdapterInterface
 {
+    /**
+     * Preview format.
+     */
+    const PREVIEW_FORMAT = 'png';
+
+    /**
+     * preview max size.
+     *
+     * @var int
+     */
+    protected $preview_max_size = 500;
+
+    /**
+     * LoggerInterface.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
     /**
      * Soffice executable.
      *
@@ -55,8 +76,56 @@ class Office extends Imagick
             'xlsm' => 'application/vnd.ms-excel.sheet.macroEnabled.12',
             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'csv' => 'text/csv',
+            'xlam' => 'application/vnd.ms-excel.addin.macroEnabled.12',
+            'xslb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+            'xltm' => 'application/vnd.ms-excel.template.macroEnabled.12',
+            'pdf' => 'application/pdf',
+        ],
+        'text' => [
+            'odt' => 'application/vnd.oasis.opendocument.text',
+            'fodt' => 'application/vnd.oasis.opendocument.text-flat-xml',
+            'ott' => 'application/vnd.oasis.opendocument.text-template',
+            'oth' => 'application/vnd.oasis.opendocument.text-web',
+            'odm' => 'application/vnd.oasis.opendocument.text-master',
+            'otm' => 'application/vnd.oasis.opendocument.text-master-template',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'dotx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+            'doc' => 'application/msword',
+            'dot' => 'application/msword',
+            'docm' => 'application/vnd.ms-word.document.macroEnabled.12',
+            'dotm' => 'application/vnd.ms-word.template.macroEnabled.12',
+            'txt' => 'text/plain',
+            'html' => 'text/html',
+            'pdf' => 'application/pdf',
+        ],
+        'presentation' => [
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'sldx' => 'application/vnd.openxmlformats-officedocument.presentationml.slide',
+            'ppsx' => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+            'potx' => 'application/vnd.openxmlformats-officedocument.presentationml.template',
+            'ppam' => 'application/vnd.ms-powerpoint.addin.macroEnabled.12',
+            'pptm' => 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+            'sldm' => 'application/vnd.ms-powerpoint.slide.macroEnabled.12',
+            'ppsm' => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+            'potm' => 'application/vnd.ms-powerpoint.template.macroEnabled.12',
+            'odp' => 'application/vnd.oasis.opendocument.presentation',
+            'fodp' => 'application/vnd.oasis.opendocument.presentation-flat-xml',
+            'otp' => 'application/vnd.oasis.opendocument.presentation-template',
+            'pdf' => 'application/pdf',
         ],
     ];
+
+    /**
+     * Initialize.
+     *
+     * @param LoggerInterface $logger
+     * @param iterable        $config
+     */
+    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
+    {
+        $this->logger = $logger;
+        $this->setOptions($config);
+    }
 
     /**
      * Set options.
@@ -71,7 +140,6 @@ class Office extends Imagick
             return $this;
         }
 
-        parent::setOptions($config);
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'soffice':
@@ -98,6 +166,12 @@ class Office extends Imagick
                     $this->timeout = (string) $value;
 
                     break;
+                case 'preview_max_size':
+                    $this->preview_max_size = (int) $value;
+
+                    break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
             }
         }
 
@@ -105,18 +179,10 @@ class Office extends Imagick
     }
 
     /**
-     * Return match.
-     *
-     * @param File $file
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function match(File $file): bool
     {
-        if (0 === $file->getSize()) {
-            return false;
-        }
-
         foreach ($this->formats as $type => $formats) {
             if (in_array($file->getMime(), $formats, true)) {
                 return true;
@@ -127,42 +193,71 @@ class Office extends Imagick
     }
 
     /**
-     * Get supported formats.
-     *
-     * @param File $file
-     *
-     * @return array
+     * {@inheritdoc}
+     */
+    public function matchPreview(File $file): bool
+    {
+        return $this->match($file);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getSupportedFormats(File $file): array
     {
         foreach ($this->formats as $type => $formats) {
             if (in_array($file->getMime(), $formats, true)) {
-                $values = array_keys($formats);
-
-                return array_merge($values, parent::getSupportedFormats($file));
+                return array_keys($formats);
             }
         }
+
+        return [];
     }
 
     /**
-     * Convert.
-     *
-     * @param File   $file
-     * @param string $format
-     *
-     * @return Result
+     * {@inheritdoc}
+     */
+    public function createPreview(File $file): Result
+    {
+        //we need a pdf to create an image from the first page
+        $pdf = $this->convert($file, 'pdf');
+
+        $desth = tmpfile();
+        $dest = stream_get_meta_data($desth)['uri'];
+
+        $image = new Imagick($pdf->getPath().'[0]');
+
+        $width = $image->getImageWidth();
+        $height = $image->getImageHeight();
+
+        if ($height <= $width && $width > $this->preview_max_size) {
+            $image->scaleImage($this->preview_max_size, 0);
+        } elseif ($height > $this->preview_max_size) {
+            $image->scaleImage(0, $this->preview_max_size);
+        }
+
+        $image->setImageCompression(Imagick::COMPRESSION_JPEG);
+        $image->setImageCompressionQuality(100);
+        $image->stripImage();
+        $image->setColorSpace(Imagick::COLORSPACE_SRGB);
+        $image->setImageFormat(self::PREVIEW_FORMAT);
+        $image->writeImage($dest);
+
+        if (!file_exists($dest) || filesize($dest) <= 0) {
+            throw new Exception('failed create prevew');
+        }
+
+        return new Result($dest, $desth);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function convert(File $file, string $format): Result
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
-
-        if (in_array($format, parent::getSupportedFormats($file), true)) {
-            $convert = 'pdf';
-        } else {
-            $convert = $format;
-        }
 
         $command = 'HOME='.escapeshellarg($this->tmp).' timeout '.escapeshellarg($this->timeout).' '
             .escapeshellarg($this->soffice)
@@ -173,27 +268,24 @@ class Office extends Imagick
             .' --nofirststartwizard'
             .' --nologo'
             .' --norestore'
-            .' --convert-to '.escapeshellarg($convert)
+            .' --convert-to '.escapeshellarg($format)
             .' --outdir '.escapeshellarg($this->tmp)
             .' '.escapeshellarg($source);
 
-        $this->logger->debug('convert file to ['.$convert.'] using ['.$command.']', [
+        $this->logger->debug('convert file to ['.$format.'] using ['.$command.']', [
             'category' => get_class($this),
         ]);
 
         shell_exec($command);
-        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$convert;
+        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$format;
 
         if (!file_exists($temp)) {
-            throw new Exception('failed convert document into '.$convert);
+            throw new Exception('failed convert document into '.$format);
         }
-        $this->logger->info('converted document into ['.$convert.']', [
-                'category' => get_class($this),
-            ]);
 
-        if ('pdf' === $convert && 'pdf' !== $format) {
-            return $this->createFromFile($temp, $format);
-        }
+        $this->logger->info('converted document into ['.$format.']', [
+            'category' => get_class($this),
+        ]);
 
         return new Result($temp);
     }

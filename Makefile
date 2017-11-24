@@ -52,7 +52,7 @@ PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
 CHANGELOG_TARGET = $(BUILD_DIR)/DEBIAN/changelog
-BUILD_TARGET = $(COMPOSER_TARGET) $(NPM_TARGET) $(PHPUNIT_TARGET) $(PHPCS_FIXER_TARGET) $(APIDOC_TARGET)
+BUILD_TARGET = $(COMPOSER_TARGET) $(NPM_TARGET) $(PHPCS_CHECK_TARGET) $(PHPSTAN_TARGET) $(APIDOC_TARGET)
 
 # MACROS
 macro_find_phpfiles = $(shell find $(1) -type f -name "*.php")
@@ -228,7 +228,7 @@ $(NPM_TARGET) $(APIDOC_BIN): $(BASE_DIR)/package.json
 
 
 .PHONY: phpcs-check
-phpcs-check: $(PHPCS_FIXER_TARGET)
+phpcs-check: $(PHPCS_CHECK_TARGET)
 
 $(PHPCS_CHECK_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
 	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky --stop-on-violation --using-cache=no
@@ -236,7 +236,7 @@ $(PHPCS_CHECK_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
 
 
 .PHONY: phpcs-fix
-phpcs-fix: $(PHPCS_FIXER_TARGET)
+phpcs-fix: $(PHPCS_FIX_TARGET)
 
 $(PHPCS_FIX_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
 	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v
@@ -253,10 +253,9 @@ $(PHPUNIT_TARGET): $(PHPUNIT_SCRIPT) $(PHP_FILES) $(PHP_UNITTEST_FILES)
 	$(PHP_BIN) $(PHPUNIT_SCRIPT) --stderr --debug --bootstrap $(PHPUNIT_BOOTSTRAP_SCRIPT) $(UNITTESTS_DIR)
 	@touch $@
 
-
 .PHONY: phpstan
 phpstan: $(PHPSTAN_TARGET)
 
 $(PHPSTAN_TARGET): $(PHPSTAN_SCRIPT) $(PHP_FILES) $(PHP_TEST_FILES)
-	$(PHP_BIN) $(PHPSTAN_SCRIPT) analyse $(SRC_DIR) $(TESTS_DIR)
+	$(PHP_BIN) $(PHPSTAN_SCRIPT) analyse -c phpstan.neon $(SRC_DIR) $(TESTS_DIR)
 	@touch $@

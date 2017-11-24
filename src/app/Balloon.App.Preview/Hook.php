@@ -12,20 +12,21 @@ declare(strict_types=1);
 
 namespace Balloon\App\Preview;
 
-use Balloon\Async;
+use TaskScheduler\Async;
 use Balloon\Exception;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
 use MongoDB\GridFS\Exception\FileNotFoundException;
+use Psr\Log\LoggerInterface;
 
 class Hook extends AbstractHook
 {
     /**
-     * App.
+     * Preview.
      *
-     * @var App
+     * @var Preview
      */
-    protected $app;
+    protected $preview;
 
     /**
      * Async.
@@ -35,15 +36,24 @@ class Hook extends AbstractHook
     protected $async;
 
     /**
+     * Logger.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Constructor.
      *
-     * @param App   $app
-     * @param Async $async
+     * @param Preview         $preview
+     * @param Async           $async
+     * @param LoggerInterface $logger
      */
-    public function __construct(App $app, Async $async)
+    public function __construct(Preview $preview, Async $async, LoggerInterface $logger)
     {
-        $this->app = $app;
+        $this->preview = $preview;
         $this->async = $async;
+        $this->logger = $logger;
     }
 
     /**
@@ -60,7 +70,7 @@ class Hook extends AbstractHook
     {
         if (true === $force) {
             try {
-                $this->app->deletePreview($node);
+                $this->preview->deletePreview($node);
             } catch (FileNotFoundException $e) {
                 $this->logger->debug('could not remove preview from file ['.$node->getId().'], preview does not exists', [
                     'category' => get_class($this),

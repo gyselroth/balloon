@@ -67,7 +67,7 @@ class Cli extends AbstractBootstrap
      *
      * @return Cli
      */
-    protected function configureLogger(?int $level = null): Cli
+    protected function configureLogger(?int $level = null): self
     {
         if (null === $level) {
             $level = 4;
@@ -78,9 +78,9 @@ class Cli extends AbstractBootstrap
         $logger = $this->container->get(LoggerInterface::class);
 
         if (!$logger->hasAdapter('stdout')) {
-            $logger->addAdapter('stdout', Stdout::class, [
+            $logger->injectAdapter(new Stdout([
                 'level' => $level,
-                'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}', ]);
+                'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}', ]), 'stdout');
         } else {
             $logger->getAdapter('stdout')->setOptions(['level' => $level]);
         }
@@ -141,7 +141,7 @@ class Cli extends AbstractBootstrap
      *
      * @return Cli
      */
-    protected function initGlobalOptions(GetOpt $getopt): Cli
+    protected function initGlobalOptions(GetOpt $getopt): self
     {
         $this->configureLogger($getopt->getOption('verbose'));
 
@@ -177,9 +177,10 @@ class Cli extends AbstractBootstrap
      *
      * @return Cli
      */
-    protected function setExceptionHandler(): Cli
+    protected function setExceptionHandler(): self
     {
         set_exception_handler(function ($e) {
+            echo $e;
             $logger = $this->container->get(LoggerInterface::class);
             $logger->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),

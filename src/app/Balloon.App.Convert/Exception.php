@@ -14,4 +14,5 @@ namespace Balloon\App\Convert;
 
 class Exception extends \Balloon\Exception
 {
+    const SLAVE_NOT_FOUND = 700;
 }

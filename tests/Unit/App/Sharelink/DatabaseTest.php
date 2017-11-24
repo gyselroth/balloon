@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\Sharelink;
 
+use Balloon\App\Sharelink\Database;
 use Balloon\Testsuite\Unit\DatabaseTest as CoreDatabaseTest;
 use Psr\Log\LoggerInterface;
-use Balloon\App\Sharelink\Database;
 
 /**
  * @coversNothing
@@ -26,7 +26,7 @@ class DatabaseTest extends CoreDatabaseTest
     public function setUp()
     {
         parent::setUp();
-        $this->db_setup->injectSetup(new Database($this->getMockDatabase(), $this->createMock(LoggerInterface::class)));
+        //$this->db_setup->injectSetup(new Database($this->getMockDatabase(), $this->createMock(LoggerInterface::class)));
         $this->expected_indices[] = 'balloon.storage.app_attributes.Balloon_App_Sharelink.token_1';
     }
 }

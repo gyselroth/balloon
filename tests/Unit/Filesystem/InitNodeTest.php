@@ -12,25 +12,22 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\Filesystem;
 
-use Balloon\Filesystem;
+use Balloon\Exception;
+use Balloon\Exception\InvalidArgument;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
-use ReflectionMethod;
-use Balloon\Exception\InvalidArgument;
-use Balloon\Exception;
 
 /**
  * @coversNothing
  */
 class InitNodeTest extends Test
 {
+    protected $fs;
+
     public function setUp()
     {
         $server = $this->getMockServer();
-        $this->fs = new Filesystem($server, $server->getLogger(), $server->getIdentity());
-        // setup reflection for protected method
-        $this->initNode = new ReflectionMethod(Filesystem::class, 'initNode');
-        $this->initNode->setAccessible(true);
+        $this->fs = $server->getFilesystem();
     }
 
     public function testValid()
@@ -43,7 +40,7 @@ class InitNodeTest extends Test
         ];
 
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
 
         // assertion
         $this->assertSame($node->getRawAttributes(), $nodeData);
@@ -59,7 +56,7 @@ class InitNodeTest extends Test
         ];
 
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
     }
 
     public function testValidParent()
@@ -73,7 +70,7 @@ class InitNodeTest extends Test
         ];
 
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
 
         // assertion
         $this->assertSame($node->getRawAttributes(), $nodeData);
@@ -90,7 +87,7 @@ class InitNodeTest extends Test
             'parent' => new ObjectId(),
         ];
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
     }
 
     public function testInvalidParentId()
@@ -105,6 +102,6 @@ class InitNodeTest extends Test
         ];
 
         // execute SUT
-        $node = $this->initNode->invoke($this->fs, $nodeData);
+        $node = $this->fs->initNode($nodeData);
     }
 }

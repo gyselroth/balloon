@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 
 use Balloon\Filesystem\Delta;
+use Balloon\Filesystem\Delta\Exception;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\UTCDateTime;
-use Balloon\Filesystem\Delta\Exception;
 
 /**
  * @coversNothing
@@ -41,6 +41,7 @@ class AddTest extends Test
         ];
 
         $this->assertTrue($this->delta->add($data));
+
         return $this->delta;
     }
 

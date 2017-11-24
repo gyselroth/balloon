@@ -12,13 +12,16 @@ declare(strict_types=1);
 
 namespace Balloon;
 
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Storage;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
@@ -74,19 +77,35 @@ class Filesystem
     protected $user;
 
     /**
+     * Storage.
+     *
+     * @var Storage
+     */
+    protected $storage;
+
+    /**
+     * Acl.
+     *
+     * @var Acl
+     */
+    protected $acl;
+
+    /**
      * Initialize.
      *
      * @param Server          $server
      * @param LoggerInterface $logger
      * @param User            $user
      */
-    public function __construct(Server $server, LoggerInterface $logger, ?User $user = null)
+    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, Acl $acl, ?User $user = null)
     {
         $this->user = $user;
         $this->server = $server;
-        $this->db = $server->getDatabase();
+        $this->db = $db;
         $this->logger = $logger;
-        $this->hook = $server->getHook();
+        $this->hook = $hook;
+        $this->storage = $storage;
+        $this->acl = $acl;
     }
 
     /**
@@ -130,7 +149,11 @@ class Filesystem
             return $this->root;
         }
 
-        return $this->root = new Collection(null, $this);
+        return $this->root = $this->initNode([
+            'directory' => true,
+            '_id' => null,
+            'owner' => $this->user ? $this->user->getId() : null,
+        ]);
     }
 
     /**
@@ -218,10 +241,6 @@ class Filesystem
 
         $return = $this->initNode($node);
 
-        if (null !== $class) {
-            $class = '\Balloon\Filesystem\Node\\'.$class;
-        }
-
         if (null !== $class && !($return instanceof $class)) {
             throw new Exception('node '.get_class($return).' is not instance of '.$class);
         }
@@ -249,14 +268,10 @@ class Filesystem
         }
 
         $parts = explode('/', $path);
-        $parent = new Collection(null, $this);
+        $parent = $this->getRoot();
         array_shift($parts);
         foreach ($parts as $node) {
             $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
-        }
-
-        if (null !== $class) {
-            $class = '\Balloon\Filesystem\Node\\'.$class;
         }
 
         if (null !== $class && !($parent instanceof $class)) {
@@ -301,16 +316,12 @@ class Filesystem
 
         $result = $this->db->storage->find($filter);
 
-        if (null !== $class) {
-            $class = '\Balloon\Filesystem\Node\\'.$class;
-        }
-
         $nodes = [];
         foreach ($result as $node) {
             $return = $this->initNode($node);
 
             if (null !== $class && !($return instanceof $class)) {
-                throw new Exception('node is not instance of '.$class);
+                throw new Exception('node is not an instance of '.$class);
             }
 
             yield $return;
@@ -348,19 +359,17 @@ class Filesystem
             }
 
             if (true === $multiple && is_array($id)) {
-                $node = $this->findNodes($id, $class, $deleted);
-            } else {
-                $node = $this->findNodeWithId($id, $class, $deleted);
+                return $this->findNodes($id, $class, $deleted);
             }
+
+            return $this->findNodeWithId($id, $class, $deleted);
         } elseif (null !== $path) {
             if (null === $deleted) {
                 $deleted = NodeInterface::DELETED_EXCLUDE;
             }
 
-            $node = $this->findNodeWithPath($path, $class);
+            return $this->findNodeWithPath($path, $class);
         }
-
-        return $node;
     }
 
     /**
@@ -396,10 +405,6 @@ class Filesystem
         $list = [];
 
         foreach ($result as $node) {
-            if (!array_key_exists('directory', $node)) {
-                continue;
-            }
-
             try {
                 yield $this->initNode($node);
             } catch (\Exception $e) {
@@ -528,53 +533,20 @@ class Filesystem
     }
 
     /**
-     * Initialize node.
+     * Init node.
      *
      * @param array $node
      *
      * @return NodeInterface
      */
-    protected function initNode(array $node): NodeInterface
+    public function initNode(array $node): NodeInterface
     {
-        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] !== $this->user->getId()) {
-            if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
-                $this->logger->debug('reference node ['.$node['_id'].'] requested from share owner, trying to find the shared node', [
-                    'category' => get_class($this),
-                ]);
-
-                $node = $this->db->storage->findOne([
-                    'owner' => $this->user->getId(),
-                    'shared' => true,
-                    '_id' => $node['reference'],
-                ]);
-
-                if (null === $node) {
-                    throw new Exception\NotFound(
-                        'no share node for reference node '.$node['reference'].' found',
-                        Exception\NotFound::SHARE_NOT_FOUND
-                    );
-                }
-            } else {
-                $this->logger->debug('share node ['.$node['_id'].'] requested from member, trying to find the reference node', [
-                    'category' => get_class($this),
-                ]);
-
-                $node = $this->db->storage->findOne([
-                    'owner' => $this->user->getId(),
-                    'shared' => true,
-                    'reference' => $node['_id'],
-                ]);
-
-                if (null === $node) {
-                    throw new Exception\NotFound(
-                        'no share reference for node '.$node['_id'].' found',
-                        Exception\NotFound::REFERENCE_NOT_FOUND
-                    );
-                }
-            }
+        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] != $this->user->getId()) {
+            $node = $this->findReferenceNode($node);
         }
 
-        if (isset($node['parent'])) {
+        //this would result in a recursiv call until the top level node
+        /*if (isset($node['parent'])) {
             try {
                 $this->findNodeWithId($node['parent']);
             } catch (Exception\InvalidArgument $e) {
@@ -582,15 +554,82 @@ class Filesystem
             } catch (Exception\NotFound $e) {
                 throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
             }
-        }
+        }*/
 
         if (!array_key_exists('directory', $node)) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
         if (true === $node['directory']) {
-            return new Collection($node, $this);
+            $instance = new Collection($node, $this, $this->logger, $this->hook, $this->acl);
+        } else {
+            $instance = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
         }
 
-        return new File($node, $this);
+        if (!$this->acl->isAllowed($instance, 'r')) {
+            throw new Exception\Forbidden(
+                'not allowed to access node',
+                Exception\Forbidden::NOT_ALLOWED_TO_ACCESS
+            );
+        }
+
+        if (isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
+            $this->logger->info('node ['.$node['_id'].'] is not accessible anmyore, destroy node cause of expired destroy flag', [
+                'category' => get_class($this),
+            ]);
+
+            $instance->delete(true);
+
+            throw new Exception\Conflict('node is not available anymore');
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Resolve shared node to reference or share depending who requested.
+     *
+     * @param array $node
+     *
+     * @return array
+     */
+    protected function findReferenceNode(array $node): array
+    {
+        if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
+            $this->logger->debug('reference node ['.$node['_id'].'] requested from share owner, trying to find the shared node', [
+                'category' => get_class($this),
+            ]);
+
+            $node = $this->db->storage->findOne([
+                'owner' => $this->user->getId(),
+                'shared' => true,
+                '_id' => $node['reference'],
+            ]);
+
+            if (null === $node) {
+                throw new Exception\NotFound(
+                    'no share node for reference node '.$node['reference'].' found',
+                    Exception\NotFound::SHARE_NOT_FOUND
+                );
+            }
+        } else {
+            $this->logger->debug('share node ['.$node['_id'].'] requested from member, trying to find the reference node', [
+                'category' => get_class($this),
+            ]);
+
+            $node = $this->db->storage->findOne([
+                'owner' => $this->user->getId(),
+                'shared' => true,
+                'reference' => $node['_id'],
+            ]);
+
+            if (null === $node) {
+                throw new Exception\NotFound(
+                    'no share reference for node '.$node['_id'].' found',
+                    Exception\NotFound::REFERENCE_NOT_FOUND
+                );
+            }
+        }
+
+        return $node;
     }
 }

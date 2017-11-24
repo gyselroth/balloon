@@ -12,19 +12,12 @@ declare(strict_types=1);
 
 namespace Balloon\App\Convert;
 
-use Balloon\Async;
+use TaskScheduler\Async;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
 
 class Hook extends AbstractHook
 {
-    /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
     /**
      * Async.
      *
@@ -35,24 +28,15 @@ class Hook extends AbstractHook
     /**
      * Constructor.
      *
-     * @param App   $app
      * @param Async $async
      */
-    public function __construct(App $app, Async $async)
+    public function __construct(Async $async)
     {
-        $this->app = $app;
         $this->async = $async;
     }
 
     /**
-     * Run: postPutFile.
-     *
-     * Executed post a put file request
-     *
-     * @param File            $node
-     * @param resource|string $content
-     * @param bool            $force
-     * @param array           $attributes
+     * {@inheritdoc}
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
@@ -60,12 +44,7 @@ class Hook extends AbstractHook
     }
 
     /**
-     * Run: postRestoreFile.
-     *
-     * Executed post version rollback
-     *
-     * @param File $node
-     * @param int  $version
+     * {@inheritdoc}
      */
     public function postRestoreFile(File $node, int $version): void
     {
@@ -79,15 +58,15 @@ class Hook extends AbstractHook
      */
     protected function addJob(File $node): void
     {
-        $shadow = $node->getAppAttribute($this->app, 'shadow');
-        if (null === $shadow) {
+        $slaves = $node->getAppAttribute(__NAMESPACE__, 'slaves');
+        if (null === $slaves) {
             return;
         }
 
-        foreach ($shadow as $format) {
+        foreach ($slaves as $id => $slave) {
             $this->async->addJob(Job::class, [
-                'id' => $node->getId(),
-                'format' => $format,
+                'node' => $node->getId(),
+                'slave' => $id,
             ]);
         }
     }

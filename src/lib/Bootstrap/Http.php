@@ -44,10 +44,10 @@ class Http extends AbstractBootstrap
                 $this->container->get(Server::class)->setIdentity($auth->getIdentity());
             }
 
-            return $this->container->get(Router::class)->run();
+            $this->container->get(Router::class)->run();
+        } else {
+            $this->invalidAuthentication();
         }
-
-        return $this->invalidAuthentication();
     }
 
     /**
@@ -80,14 +80,14 @@ class Http extends AbstractBootstrap
      *
      * @return Http
      */
-    protected function setExceptionHandler(): Http
+    protected function setExceptionHandler(): self
     {
         set_exception_handler(function ($e) {
             $this->container->get(LoggerInterface::class)->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),
                 'exception' => $e,
             ]);
-            var_dump($e);
+
             (new Response())
                 ->setCode(500)
                 ->setBody([

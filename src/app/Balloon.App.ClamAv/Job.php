@@ -12,10 +12,38 @@ declare(strict_types=1);
 
 namespace Balloon\App\ClamAv;
 
-use Balloon\Async\AbstractJob;
+use TaskScheduler\AbstractJob;
+use Balloon\Filesystem;
+use Balloon\Server;
 
 class Job extends AbstractJob
 {
+    /**
+     * Filesystem.
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+    /**
+     * Scanner.
+     *
+     * @var Scanner
+     */
+    protected $scanner;
+
+    /**
+     * Constructor.
+     *
+     * @param App    $app
+     * @param Server $server
+     */
+    public function __construct(Scanner $scanner, Server $server)
+    {
+        $this->scanner = $scanner;
+        $this->fs = $server->getFilesystem();
+    }
+
     /**
      * Run job.
      *
@@ -23,25 +51,10 @@ class Job extends AbstractJob
      */
     public function start(): bool
     {
-        $file = $server->getFilesystem()->findNodeWithId($this->data['id']);
-
-        $logger->debug('scan file with clamav: ['.$this->data['id'].']', [
-            'category' => get_class($this),
-        ]);
-
-        try {
-            $result = $server->getApp()->getApp('Balloon.App.ClamAv')->scan($file);
-        } catch (Exception $e) {
-            $logger->error($e->getMessage(), [
-              'category' => get_class($this),
-          ]);
-
-            return false;
-        }
-
-        $infected = Cli::FILE_INFECTED === $result;
-
-        $server->getApp()->getApp('Balloon.App.ClamAv')->handleFile($file, $infected);
+        $file = $this->fs->findNodeWithId($this->data['id']);
+        $result = $this->scanner->scan($file);
+        $infected = Scanner::FILE_INFECTED === $result;
+        $this->scanner->handleFile($file, $infected);
 
         return true;
     }

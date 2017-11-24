@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem;
 
+use Balloon\Exception\Forbidden;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Delta\Exception;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -95,7 +96,10 @@ class Delta
                 ['shared' => [
                     '$in' => $this->user->getShares(),
                 ]],
-                ['owner' => $this->user->getId()],
+                [
+                    'shared' => ['$type' => 8],
+                    'owner' => $this->user->getId(),
+                ],
             ]],
             ['deleted' => false],
         ]];
@@ -173,6 +177,7 @@ class Delta
         ]);
 
         $last = $cursor->toArray();
+
         return array_shift($last);
     }
 
@@ -293,7 +298,12 @@ class Delta
                 //include share children after a new reference was added, otherwise the children would be lost if the cursor is newer
                 //than the create timestamp of the share reference
                 if ('addCollectionReference' === $log['operation'] && $log_node->isReference()) {
-                    foreach ($this->fs->findNodesWithCustomFilter(['shared' => $log_node->getShareId()]) as $share_member) {
+                    $members = $this->fs->findNodesWithCustomFilter([
+                        'shared' => $log_node->getShareId(),
+                        'deleted' => false,
+                    ]);
+
+                    foreach ($members as $share_member) {
                         $member_attrs = $share_member->getAttributes($attributes);
                         $list[$member_attrs['path']] = $member_attrs;
                     }
@@ -336,6 +346,8 @@ class Delta
                 } else {
                     $list[$fields['path']] = $fields;
                 }
+            } catch (Forbidden $e) {
+                //no delta entriy for a node where we do not have access to
             } catch (\Exception $e) {
                 try {
                     if (null === $log['parent']) {

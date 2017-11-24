@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon\Console;
 
-use Balloon\Database as BalloonDatabase;
+use Balloon\Database as DatabaseSetup;
+use GetOpt\GetOpt;
+use Psr\Log\LoggerInterface;
 
 class Database implements ConsoleInterface
 {
@@ -24,28 +26,29 @@ class Database implements ConsoleInterface
     protected $getopt;
 
     /**
-     * Async.
+     * Logger.
      *
-     * @var Async
+     * @var LoggerInterface
      */
-    protected $async;
+    protected $logger;
 
     /**
      * Container.
      *
-     * @var ContainerInterface
+     * @var DatabaseSetup
      */
-    protected $container;
+    protected $db;
 
     /**
      * Constructor.
      *
-     * @param App   $app
-     * @param Async $async
+     * @param DatabaseSetup   $db
+     * @param LoggerInterface $logger
+     * @param GetOpt          $getopt
      */
-    public function __construct(App $app, Async $async, LoggerInterface $logger, ContainerInterface $container, GetOpt $getopt)
+    public function __construct(DatabaseSetup $db, LoggerInterface $logger, GetOpt $getopt)
     {
-        $this->server = $app;
+        $this->db = $db;
         $this->logger = $logger;
         $this->getopt = $getopt;
         $this->setOptions();
@@ -73,12 +76,11 @@ class Database implements ConsoleInterface
      */
     public function start(): bool
     {
-        $db = new BalloonDatabase($this->server, $this->logger);
         if (null !== $this->getopt->getOption('init')) {
-            return $db->init();
+            return $this->db->init();
         }
         if (null !== $this->getopt->getOption('upgrade')) {
-            return $db->upgrade();
+            return $this->db->upgrade();
         }
 
         return false;

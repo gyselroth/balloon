@@ -12,15 +12,11 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit;
 
-use Balloon\App;
-use Balloon\Async;
-use Balloon\Filesystem;
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
-use Balloon\Hook\Delta;
 use Balloon\Server;
 use Helmich\MongoMock\MockDatabase;
-use Micro\Http\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -43,28 +39,17 @@ abstract class Test extends TestCase
         ]);
     }
 
-    public function getMockApp()
-    {
-        global $composer;
-        $app = new App($composer, $this->createMock(LoggerInterface::class), $this->createMock(Hook::class));
-        $this->registerAppNamespaces();
-        return $app;
-    }
-
     public function getMockServer()
     {
-        $app = $this->getMockApp();
         $server = new Server(
             self::getMockDatabase(),
             $this->createMock(Storage::class),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(Async::class),
             $this->createMock(Hook::class),
-            $app
+            $this->createMock(Acl::class)
         );
 
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
-        $filesystem = new Filesystem($server, $this->createMock(LoggerInterface::class));
 
         if (!$server->userExists('testuser')) {
             $server->addUser(['username' => 'testuser']);
@@ -73,15 +58,5 @@ abstract class Test extends TestCase
         $server->setIdentity($identity);
 
         return $server;
-    }
-
-    protected static function registerAppNamespaces()
-    {
-        global $composer;
-        foreach (glob(APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
-            $app = basename($app);
-            $ns = str_replace('.', '\\', $app).'\\';
-            $composer->addPsr4($ns, APPLICATION_PATH."/src/app/$app");
-        }
     }
 }

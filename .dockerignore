@@ -1,0 +1,10 @@
+composer.lock
+vendor
+config/config.xml
+build
+doc
+dist
+log/*
+node_modules
+Dockerfile
+.git

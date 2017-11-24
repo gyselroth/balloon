@@ -17,9 +17,15 @@ defined('APPLICATION_ENV')
     || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
 
 set_include_path(implode(PATH_SEPARATOR, [
-    APPLICATION_PATH.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'lib',
-    APPLICATION_PATH,
+    constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'lib',
+    constant('APPLICATION_PATH'),
     get_include_path(),
 ]));
 
 $composer = require './vendor/autoload.php';
+
+foreach (glob(constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
+    $app = basename($app);
+    $ns = str_replace('.', '\\', $app).'\\';
+    $composer->addPsr4($ns, constant('APPLICATION_PATH')."/src/app/$app");
+}

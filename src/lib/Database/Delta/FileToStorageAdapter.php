@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\Database\Delta;
 
-use Balloon\Database\AbstractDelta;
-
 class FileToStorageAdapter extends AbstractDelta
 {
     /**

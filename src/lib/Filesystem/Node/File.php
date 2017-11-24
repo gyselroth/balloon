@@ -14,10 +14,14 @@ namespace Balloon\Filesystem\Node;
 
 use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Storage;
 use Balloon\Helper;
+use Balloon\Hook;
 use Balloon\Mime;
 use Balloon\Server\User;
 use MongoDB\BSON\UTCDateTime;
+use Psr\Log\LoggerInterface;
 use Sabre\DAV;
 
 class File extends AbstractNode implements DAV\IFile
@@ -89,15 +93,41 @@ class File extends AbstractNode implements DAV\IFile
     protected $history = [];
 
     /**
-     * Init virtual file and set attributes.
+     * Storage.
+     *
+     * @var Storage
+     */
+    protected $_storage;
+
+    /**
+     * Storage attributes.
+     *
+     * @var mixed
+     */
+    protected $storage;
+
+    /**
+     * Initialize file node.
      *
      * @param array      $attributes
      * @param Filesystem $fs
      */
-    public function __construct(array $attributes, Filesystem $fs)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Storage $storage)
     {
-        parent::__construct($attributes, $fs);
-        $this->_verifyAccess();
+        $this->_fs = $fs;
+        $this->_server = $fs->getServer();
+        $this->_db = $fs->getDatabase();
+        $this->_user = $fs->getUser();
+        $this->_logger = $logger;
+        $this->_hook = $hook;
+        $this->_storage = $storage;
+        $this->_acl = $acl;
+
+        foreach ($attributes as $attr => $value) {
+            $this->{$attr} = $value;
+        }
+
+        $this->raw_attributes = $attributes;
     }
 
     /**
@@ -108,11 +138,11 @@ class File extends AbstractNode implements DAV\IFile
     public function get()
     {
         try {
-            if (null === $this->storage || !isset($this->storage['attributes'])) {
+            if (null === $this->storage) {
                 return null;
             }
 
-            return $this->storage_handler->getFile($this, $this->storage);
+            return $this->_storage->getFile($this, $this->storage, $this->storage_adapter);
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'content not found',
@@ -194,7 +224,7 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function restore(int $version): bool
     {
-        if (!$this->isAllowed('w')) {
+        if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
                 'not allowed to restore node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_RESTORE
@@ -220,10 +250,12 @@ class File extends AbstractNode implements DAV\IFile
         }
 
         $file = $this->history[$v]['storage'];
-        if (null !== $file) {
-            $exists = $this->storage_handler->hasFile($this, $this->history[$v]['storage']);
+        $exists = [];
 
-            if (!$exists) {
+        if (null !== $file) {
+            try {
+                $exists = $this->_storage->getFileMeta($this, $this->history[$v]['storage']);
+            } catch(\Exception $e) {
                 throw new Exception('could not restore to version '.$version.', version content does not exists');
             }
         }
@@ -238,6 +270,7 @@ class File extends AbstractNode implements DAV\IFile
             'type' => self::HISTORY_RESTORE,
             'origin' => $this->history[$v]['version'],
             'storage' => $this->history[$v]['storage'],
+            'storage_adapter' => $this->history[$v]['storage_adapter'],
             'size' => $this->history[$v]['size'],
             'mime' => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
         ];
@@ -246,6 +279,8 @@ class File extends AbstractNode implements DAV\IFile
             $this->deleted = false;
             $this->version = $new;
             $this->storage = $this->history[$v]['storage'];
+            $this->storage_adapter = $this->history[$v]['storage_adapter'];
+
             $this->hash = null === $file ? self::EMPTY_CONTENT : $exists['md5'];
             $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
             $this->size = $this->history[$v]['size'];
@@ -255,6 +290,7 @@ class File extends AbstractNode implements DAV\IFile
                 'deleted',
                 'version',
                 'storage',
+                'storage_adapter',
                 'hash',
                 'mime',
                 'size',
@@ -293,7 +329,7 @@ class File extends AbstractNode implements DAV\IFile
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isAllowed('w')) {
+        if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
                 'not allowed to delete node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_DELETE
@@ -326,6 +362,7 @@ class File extends AbstractNode implements DAV\IFile
             'user' => $this->_user->getId(),
             'type' => self::HISTORY_DELETE,
             'storage' => $this->storage,
+            'storage_adapter' => $this->storage_adapter,
             'size' => $this->size,
         ];
 
@@ -373,7 +410,7 @@ class File extends AbstractNode implements DAV\IFile
 
         try {
             if ($this->history[$key]['storage'] !== null) {
-                $this->storage_handler->deleteFile($this, $this->history[$key]['storage']);
+                $this->_storage->deleteFile($this, $this->history[$key]['storage']);
             }
 
             array_splice($this->history, $key, 1);
@@ -541,10 +578,9 @@ class File extends AbstractNode implements DAV\IFile
 
         //Write new content
         if ($this->size > 0) {
-            $options = $this->storage_handler->storeFile($this, $this->storage, $stream);
-            $this->storage['attributes'] = $options;
+            $this->storage = $this->_storage->storeFile($this, $stream, $this->storage_adapter);
         } else {
-            unset($this->storage['attributes']);
+            $this->storage = null;
         }
 
         //Update current version
@@ -641,7 +677,7 @@ class File extends AbstractNode implements DAV\IFile
      */
     protected function validatePutRequest($file, bool $new = false, array $attributes = []): bool
     {
-        if (!$this->isAllowed('w')) {
+        if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
                 'not allowed to modify node',
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
@@ -657,7 +693,7 @@ class File extends AbstractNode implements DAV\IFile
             );
         }
 
-        if ($this->isShareMember() && false === $new && 'w' === $this->getShareNode()->getAclPrivilege()) {
+        if ($this->isShareMember() && false === $new && 'w' === $this->_acl->getAclPrivilege($this->getShareNode())) {
             throw new Exception\Forbidden(
                 'not allowed to overwrite node',
                 Exception\Forbidden::NOT_ALLOWED_TO_OVERWRITE
@@ -756,7 +792,7 @@ class File extends AbstractNode implements DAV\IFile
      *
      * @return File
      */
-    protected function addVersion(array $attributes = []): File
+    protected function addVersion(array $attributes = []): self
     {
         if (1 !== $this->version) {
             if (isset($attributes['changed'])) {
@@ -779,6 +815,7 @@ class File extends AbstractNode implements DAV\IFile
                 'user' => $this->_user->getId(),
                 'type' => self::HISTORY_EDIT,
                 'storage' => $this->storage,
+                'storage_adapter' => $this->storage_adapter,
                 'size' => $this->size,
                 'mime' => $this->mime,
             ];
@@ -793,6 +830,7 @@ class File extends AbstractNode implements DAV\IFile
                 'user' => $this->owner,
                 'type' => self::HISTORY_CREATE,
                 'storage' => $this->storage,
+                'storage_adapter' => $this->storage_adapter,
                 'size' => $this->size,
                 'mime' => $this->mime,
             ];
@@ -810,7 +848,7 @@ class File extends AbstractNode implements DAV\IFile
      *
      * @return File
      */
-    protected function postPutFile($file, bool $new, array $attributes): File
+    protected function postPutFile($file, bool $new, array $attributes): self
     {
         try {
             $this->save([

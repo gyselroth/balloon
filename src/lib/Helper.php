@@ -85,7 +85,7 @@ class Helper
      *
      * @return bool
      */
-    public static function isValidTimeStamp(string $timestamp): bool
+    public static function isValidTimestamp(string $timestamp): bool
     {
         return ((string) (int) $timestamp === $timestamp)
             && ($timestamp <= PHP_INT_MAX)

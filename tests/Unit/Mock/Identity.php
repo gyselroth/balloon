@@ -41,6 +41,6 @@ class Identity extends MicroIdentity
 
     public function getAdapter(): AdapterInterface
     {
-        return new None($this->logger);
+        return new None();
     }
 }

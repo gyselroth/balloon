@@ -12,11 +12,15 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Storage;
+use Balloon\Hook;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use Psr\Log\LoggerInterface;
 
 /**
  * @coversNothing
@@ -25,11 +29,12 @@ class GetLastRecordTest extends Test
 {
     protected $fs;
     protected $delta;
+    protected $server;
 
     public function setUp()
     {
-        $server = $this->getMockServer();
-        $this->fs = $server->getFilesystem();
+        $this->server = $this->getMockServer();
+        $this->fs = $this->server->getFilesystem();
         $this->delta = new Delta($this->fs);
     }
 
@@ -91,14 +96,22 @@ class GetLastRecordTest extends Test
                     'owner' => $this->fs->getUser()->getId(),
                     '_id' => new ObjectId(),
                 ],
-                $this->fs
+                $this->fs,
+                $this->createMock(LoggerInterface::class),
+                $this->createMock(Hook::class),
+                $this->createMock(Acl::class),
+                $this->createMock(Storage::class)
             ),
             new File(
                 [
                     'owner' => $this->fs->getUser()->getId(),
                     '_id' => new ObjectId(),
                 ],
-                $this->fs
+                $this->fs,
+                $this->createMock(LoggerInterface::class),
+                $this->createMock(Hook::class),
+                $this->createMock(Acl::class),
+                $this->createMock(Storage::class)
             ),
         ];
         $data = [
@@ -126,6 +139,6 @@ class GetLastRecordTest extends Test
         $from_delta = $this->delta->getLastRecord($files[0]);
         // unset _id property to be able to compare
         unset($from_delta['_id']);
-        $this->assertEquals($data[0], $from_delta);
+        $this->assertSame($data[0], $from_delta);
     }
 }

@@ -40,7 +40,7 @@ class Mime
      *
      * @return Mime
      */
-    public function setOptions(?Iterable $config = null): Mime
+    public function setOptions(?Iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -52,6 +52,8 @@ class Mime
                     $this->db = (string) $value;
 
                 break;
+                default:
+                    throw new Exception('invalid option '.$option.' given');
             }
         }
 
@@ -59,7 +61,7 @@ class Mime
     }
 
     /**
-     * Get mime.
+     * et mime.
      *
      * @param string $path
      * @param string $name
@@ -101,9 +103,14 @@ class Mime
             throw new Exception('mime database '.$this->db.' was not found or is not readable');
         }
 
-        $fileext = substr(strrchr($name, '.'), 1);
+        $fileext = strrchr($name, '.');
+        if (false === $fileext) {
+            throw new Exception('file name given contains no extension');
+        }
+
+        $fileext = substr($fileext, 1);
         if (empty($fileext)) {
-            throw new Exception('file name given contains no extension given');
+            throw new Exception('file name given contains no extension');
         }
 
         $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";

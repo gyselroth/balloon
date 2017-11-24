@@ -39,4 +39,6 @@ interface NodeInterface
     const META_COPYRIGHT = 'copyright';
     const META_TAGS = 'tags';
     const META_COORDINATE = 'coordinate';
+
+    public function getSize();
 }

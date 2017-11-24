@@ -12,20 +12,15 @@ declare(strict_types=1);
 
 namespace Balloon\App\Convert;
 
-use Balloon\Async\AbstractJob;
+use TaskScheduler\AbstractJob;
 use Balloon\Converter;
+use Balloon\Exception\NotFound;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Psr\Log\LoggerInterface;
 
 class Job extends AbstractJob
 {
-    /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
     /**
      * Converter.
      *
@@ -50,12 +45,10 @@ class Job extends AbstractJob
     /**
      * Constructor.
      *
-     * @param App   $app
      * @param Async $async
      */
-    public function __construct(App $app, Converter $converter, Server $server, LoggerInterface $logger)
+    public function __construct(Converter $converter, Server $server, LoggerInterface $logger)
     {
-        $this->app = $app;
         $this->converter = $converter;
         $this->server = $server;
         $this->logger = $logger;
@@ -71,52 +64,65 @@ class Job extends AbstractJob
      */
     public function start(): bool
     {
-        $file = $this->server->getFilesystem()->findNodeWithId($this->data['id']);
+        $file = $this->server->getFilesystem()->findNodeWithId($this->data['node']);
 
-        $this->logger->info('create shadow for node ['.$this->data['id'].']', [
+        $this->logger->info('create slave for node ['.$this->data['node'].']', [
             'category' => get_class($this),
         ]);
 
-        $result = $htis->converter->convert($file, $this->data['format']);
+        $slaves = $file->getAppAttribute(__NAMESPACE__, 'slaves');
 
+        if (is_array($slaves) && isset($slaves[(string) $this->data['slave']])) {
+            $slave = $slaves[(string) $this->data['slave']];
+        } else {
+            throw new Exception('unknown slave node');
+        }
+
+        $result = $this->converter->convert($file, $slave['format']);
         $file->setFilesystem($this->server->getUserById($file->getOwner())->getFilesystem());
 
         try {
-            $shadows = $file->getAppAttribute($this->app, 'shadows');
-            if (is_array($shadows) && isset($shadows[$this->data['format']])) {
-                $shadow = $file->getFilesystem()->findNodeWithId($shadows[$format]);
-                $shadow->put($result->getPath());
+            $slaves = $file->getAppAttribute(__NAMESPACE__, 'slaves');
+            if (is_array($slaves) && isset($slave['node'])) {
+                $slave = $file->getFilesystem()->findNodeWithId($slave['node']);
+
+                $slave->setReadonly(false);
+                $slave->put($result->getPath());
+                $slave->setReadonly();
 
                 return true;
             }
-        } catch (\Exception $e) {
-            $this->logger->debug('referenced shadow node ['.$shadows[$this->data['format']].'] does not exists or is not accessible', [
+        } catch (NotFound $e) {
+            $this->logger->debug('referenced slave node ['.$slave['format'].'] does not exists or is not accessible', [
                 'category' => get_class($this),
                 'exception' => $e,
             ]);
         }
 
-        $this->logger->debug('create non existing shadow node for ['.$this->data['id'].']', [
+        $this->logger->debug('create non existing slave ['.$this->data['slave'].'] node for ['.$this->data['node'].']', [
             'category' => get_class($this),
         ]);
 
         try {
             $name = substr($file->getName(), -strlen($file->getExtension()));
-            $name .= $this->data['format'];
+            $name .= '.'.$slave['format'];
         } catch (\Exception $e) {
-            $name = $file->getName().'.'.$this->data['format'];
+            $name = $file->getName().'.'.$slave['format'];
         }
 
-        $shadow = $file->getParent()->createFile($name, $result->getPath(), [
+        $node = $file->getParent()->addFile($name, $result->getPath(), [
             'owner' => $file->getOwner(),
             'app' => [
-                $app->getName() => [
+                __NAMESPACE__ => [
                     'master' => $file->getId(),
                 ],
             ],
-        ]);
+        ], NodeInterface::CONFLICT_RENAME);
 
-        $file->setAppAttribute($this->app, 'shadows.'.$this->data['format'], $shadow->getId());
+        $node->setReadonly();
+
+        $slaves[(string) $this->data['slave']]['node'] = $node->getId();
+        $file->setAppAttribute(__NAMESPACE__, 'slaves', $slaves);
 
         return true;
     }

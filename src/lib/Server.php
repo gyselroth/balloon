@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace Balloon;
 
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
 use Balloon\Server\Group;
 use Balloon\Server\User;
+use Generator;
 use Micro\Auth\Identity;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
@@ -51,25 +53,18 @@ class Server
     protected $hook;
 
     /**
-     * Async.
-     *
-     * @var Async
-     */
-    protected $async;
-
-    /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
-    /**
      * Authenticated identity.
      *
      * @var User
      */
     protected $identity;
+
+    /**
+     * Acl.
+     *
+     * @var Acl
+     */
+    protected $acl;
 
     /**
      * Temporary store.
@@ -98,18 +93,17 @@ class Server
      * @param Database        $db
      * @param Storage         $storage
      * @param LoggerInterface $logger
-     * @param Async           $async
      * @param Hook            $hook
+     * @param Acl             $acl
      * @param iterable        $config
      */
-    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Async $async, Hook $hook, App $app, ?Iterable $config = null)
+    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
     {
         $this->db = $db;
         $this->storage = $storage;
         $this->logger = $logger;
-        $this->async = $async;
         $this->hook = $hook;
-        $this->app = $app;
+        $this->acl = $acl;
 
         $this->setOptions($config);
     }
@@ -121,7 +115,7 @@ class Server
      *
      * @return Server
      */
-    public function setOptions(?Iterable $config = null): Server
+    public function setOptions(?Iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -134,79 +128,16 @@ class Server
 
                 break;
                 case 'max_file_version':
-                    $this->max_file_version = (int) $value;
-
-                break;
                 case 'max_file_size':
-                    $this->max_file_size = (int) $value;
+                    $this->{$name} = (int) $value;
 
                 break;
+                default:
+                    throw new Exception('invalid option '.$name.' given');
             }
         }
 
         return $this;
-    }
-
-    /**
-     * Start server (Actually just execute all apps, we do nothing else here).
-     *
-     * @return bool
-     */
-    public function start(): bool
-    {
-        return $this->app->start();
-    }
-
-    /**
-     * Get database.
-     *
-     * @return Database
-     */
-    public function getDatabase(): Database
-    {
-        return $this->db;
-    }
-
-    /**
-     * Get storage.
-     *
-     * @return Storage
-     */
-    public function getStorage(): Storage
-    {
-        return $this->storage;
-    }
-
-    /**
-     * Set app.
-     *
-     * @return Server
-     */
-    public function setApp(App $app): Server
-    {
-        $this->app = $app;
-
-        return $this;
-    }
-
-    /**
-     * Get app.
-     *
-     * @return App
-     */
-    public function getApp(): App
-    {
-        return $this->app;
-    }
-
-    /**
-     * Get logger.
-     *
-     * @return LoggerInterface
-     */
-    public function getLogger(): LoggerInterface
-    {
-        return $this->logger;
     }
 
     /**
@@ -240,26 +171,6 @@ class Server
     }
 
     /**
-     * Get hook.
-     *
-     * @return Hook
-     */
-    public function getHook(): Hook
-    {
-        return $this->hook;
-    }
-
-    /**
-     * Get async.
-     *
-     * @return Async
-     */
-    public function getAsync(): Async
-    {
-        return $this->async;
-    }
-
-    /**
      * Filesystem factory.
      *
      * @return Filesystem
@@ -267,13 +178,13 @@ class Server
     public function getFilesystem(?User $user = null): Filesystem
     {
         if (null !== $user) {
-            return new Filesystem($this, $this->logger, $user);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl, $user);
         }
         if ($this->identity instanceof User) {
-            return new Filesystem($this, $this->logger, $this->identity);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl, $this->identity);
         }
 
-        return new Filesystem($this, $this->logger);
+        return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl);
     }
 
     /**
@@ -321,7 +232,32 @@ class Server
             throw new Exception('user does not exists');
         }
 
-        return new User($attributes, $this, $this->logger);
+        return new User($attributes, $this, $this->db, $this->logger);
+    }
+
+    /**
+     * Get users by id.
+     *
+     * @param array $id
+     *
+     * @return Generator
+     */
+    public function getUsersById(array $id): Generator
+    {
+        $find = [];
+        foreach ($id as $i) {
+            $find[] = new ObjectID($i);
+        }
+
+        $filter = [
+            '_id' => ['$in' => $find],
+        ];
+
+        $users = $this->db->user->find($filter);
+
+        foreach ($users as $attributes) {
+            yield new User($attributes, $this, $this->db, $this->logger);
+        }
     }
 
     /**
@@ -334,12 +270,20 @@ class Server
     public function setIdentity(Identity $identity): bool
     {
         $result = $this->db->user->findOne(['username' => $identity->getIdentifier()]);
-        $this->hook->run('preServerIdentity', [$this, $identity, &$result]);
+        $this->hook->run('preServerIdentity', [$identity, &$result]);
 
         if (null === $result) {
             throw new Exception('user does not exists');
         }
-        $user = new User($result, $this, $this->logger);
+
+        if (isset($result['deleted']) && true === $result['deleted']) {
+            throw new Exception\NotAuthenticated(
+                'user is disabled and can not be used',
+                Exception\NotAuthenticated::USER_DELETED
+            );
+        }
+
+        $user = new User($result, $this, $this->db, $this->logger);
         $this->identity = $user;
         $user->updateIdentity($identity);
         $this->hook->run('postServerIdentity', [$this, $user]);
@@ -374,7 +318,79 @@ class Server
             throw new Exception('user does not exists');
         }
 
-        return new User($attributes, $this, $this->logger);
+        return new User($attributes, $this, $this->db, $this->logger);
+    }
+
+    /**
+     * Get users.
+     *
+     * @param array $filter
+     *
+     * @return Generator
+     */
+    public function getUsers(array $filter): Generator
+    {
+        $users = $this->db->user->find($filter);
+
+        foreach ($users as $attributes) {
+            yield new User($attributes, $this, $this->db, $this->logger);
+        }
+    }
+
+    /**
+     * Get groups.
+     *
+     * @param array $filter
+     *
+     * @return Generator
+     */
+    public function getGroups(array $filter): Generator
+    {
+        $groups = $this->db->group->find($filter);
+
+        foreach ($groups as $attributes) {
+            yield new Group($attributes, $this, $this->db, $this->logger);
+        }
+    }
+
+    /**
+     * Get group by name.
+     *
+     * @param string $name
+     *
+     * @return Group
+     */
+    public function getGroupByName(string $name): Group
+    {
+        $attributes = $this->db->group->findOne([
+           'username' => $name,
+        ]);
+
+        if (null === $attributes) {
+            throw new Exception('group does not exists');
+        }
+
+        return new Group($attributes, $this, $this->db, $this->logger);
+    }
+
+    /**
+     * Get group by id.
+     *
+     * @param string $id
+     *
+     * @return User
+     */
+    public function getGroupById(ObjectId $id): Group
+    {
+        $attributes = $this->db->group->findOne([
+           '_id' => $id,
+        ]);
+
+        if (null === $attributes) {
+            throw new Exception('group does not exists');
+        }
+
+        return new Group($attributes, $this, $this->db, $this->logger);
     }
 
     /**

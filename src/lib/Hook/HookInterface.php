@@ -23,6 +23,16 @@ use Micro\Auth\Identity;
 interface HookInterface
 {
     /**
+     * Run: preExecuteAsyncJobs.
+     */
+    public function preExecuteAsyncJobs(): void;
+
+    /**
+     * Run: preExecuteAsyncJobs.
+     */
+    public function postExecuteAsyncJobs(): void;
+
+    /**
      * Run: preAuthentication.
      *
      * Executed before authentication
@@ -40,7 +50,7 @@ interface HookInterface
      * @param Identity $identity
      * @param array    $attributes
      */
-    public function preServerIdentity(Server $server, Identity $identity, ?array &$attributes): void;
+    public function preServerIdentity(Identity $identity, ?array &$attributes): void;
 
     /**
      * Run: postCreateCollection.

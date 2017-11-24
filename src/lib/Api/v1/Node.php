@@ -16,16 +16,63 @@ use Balloon\Api\Controller;
 use Balloon\Api\v1\Collection as ApiCollection;
 use Balloon\Api\v1\File as ApiFile;
 use Balloon\Exception;
+use Balloon\Filesystem;
+use Balloon\Filesystem\Node\AbstractNode;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\Node as CoreNode;
+use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Node\Root;
 use Balloon\Helper;
+use Balloon\Server;
+use Balloon\Server\User;
 use Micro\Http\Response;
+use MongoDB\BSON\UTCDateTime;
 use PHPZip\Zip\Stream\ZipStream;
+use Psr\Log\LoggerInterface;
 
 class Node extends Controller
 {
+    /**
+     * Filesystem.
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+    /**
+     * LoggerInterface.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * User.
+     *
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * Initialize.
+     *
+     * @param Server          $server
+     * @param LoggerInterface $logger
+     */
+    public function __construct(Server $server, LoggerInterface $logger)
+    {
+        $this->fs = $server->getFilesystem();
+        $this->user = $server->getIdentity();
+        $this->server = $server;
+        $this->logger = $logger;
+    }
+
     /**
      * @api {head} /api/v1/node?id=:id Node exists?
      * @apiVersion 1.0.0
@@ -121,6 +168,8 @@ class Node extends Controller
         ?string $destp = null,
         int $conflict = 0
     ): Response {
+        $parent = null;
+
         if (true === $move) {
             try {
                 $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
@@ -235,7 +284,7 @@ class Node extends Controller
         ?string $encode = null,
         bool $download = false,
         string $name = 'selected'
-    ): Response {
+    ): ?Response {
         if (is_array($id)) {
             return $this->_combine($id, $p, $name);
         }
@@ -261,7 +310,7 @@ class Node extends Controller
 
         return (new Response())
           ->setOutputFormat(null)
-          ->setBody(function () use ($node, $encode, $offset, $length, $download) {
+          ->setBody(function () use ($node, $encode, $offset, $length) {
               $mime = $node->getMime();
               $stream = $node->get();
               $name = $node->getName();
@@ -739,7 +788,7 @@ class Node extends Controller
         int $conflict = 0
     ): Response {
         try {
-            $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
+            $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
             throw new Exception\NotFound(
                 'destination collection was not found or is not a collection',
@@ -826,7 +875,7 @@ class Node extends Controller
         int $conflict = 0
     ): Response {
         try {
-            $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
+            $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
             throw new Exception\NotFound(
                 'destination collection was not found or is not a collection',
@@ -1400,6 +1449,43 @@ class Node extends Controller
     }
 
     /**
+     * Get node.
+     *
+     * @param string $id
+     * @param string $path
+     * @param string $class      Force set node type
+     * @param bool   $deleted
+     * @param bool   $multiple   Allow $id to be an array
+     * @param bool   $allow_root Allow instance of root collection
+     * @param bool   $deleted    How to handle deleted node
+     *
+     * @return NodeInterface
+     */
+    protected function _getNode(
+        ?string $id = null,
+        ?string $path = null,
+        ?string $class = null,
+        bool $multiple = false,
+        bool $allow_root = false,
+        int $deleted = 2
+    ): NodeInterface {
+        if (null === $class) {
+            switch (get_class($this)) {
+                case ApiFile::class:
+                    $class = File::class;
+
+                break;
+                case ApiCollection::class:
+                    $class = Collection::class;
+
+                break;
+            }
+        }
+
+        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
+    }
+
+    /**
      * @apiDefine _getNode
      *
      * @apiParam (GET Parameter) {string} id Either id or p (path) of a node must be given.
@@ -1442,6 +1528,8 @@ class Node extends Controller
      *          "code": 49
      *      }
      * }
+     *
+     * @param null|mixed $id
      */
 
     /**
@@ -1533,47 +1621,15 @@ class Node extends Controller
      */
 
     /**
-     * Get node.
-     *
-     * @param string $id
-     * @param string $path
-     * @param string $class      Force set node type
-     * @param bool   $deleted
-     * @param bool   $multiple   Allow $id to be an array
-     * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
-     */
-    protected function _getNode(
-        ?string $id = null,
-        ?string $path = null,
-        ?string $class = null,
-        bool $multiple = false,
-        bool $allow_root = false,
-        int $deleted = 2
-    ): NodeInterface {
-        if (null === $class) {
-            $class = join('', array_slice(explode('\\', get_class($this)), -1));
-        }
-
-        if ('Node' === $class) {
-            $class = null;
-        }
-
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
-    }
-
-    /**
      * Merge multiple nodes into one zip archive.
      *
      * @param string $id
      * @param string $path
      * @param string $name
      */
-    protected function _combine($id = null, ?string $path = null, string $name = 'selected'): void
+    protected function _combine($id = null, ?string $path = null, string $name = 'selected')
     {
-        $temp = $this->config->dir->temp.DIRECTORY_SEPARATOR.'zip';
+        $temp = $this->server->getTempDir().DIRECTORY_SEPARATOR.'zip';
         if (!file_exists($temp)) {
             mkdir($temp, 0700, true);
         }
@@ -1593,7 +1649,6 @@ class Node extends Controller
         }
 
         $archive->finalize();
-        exit();
     }
 
     /**
@@ -1629,7 +1684,7 @@ class Node extends Controller
         foreach ($attributes as $attribute => $value) {
             switch ($attribute) {
                 case 'meta':
-                    $attributes['meta'] = CoreNode::validateMetaAttribute($attributes['meta']);
+                    $attributes['meta'] = AbstractNode::validateMetaAttribute($attributes['meta']);
 
                 break;
                 case 'filter':
@@ -1640,7 +1695,7 @@ class Node extends Controller
                     if (!Helper::isValidTimestamp($value)) {
                         throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
                     }
-                    $attributes[$attribute] = new \MongoDB\BSON\UTCDateTime($value.'000');
+                    $attributes[$attribute] = new UTCDateTime($value.'000');
 
                 break;
                 case 'changed':
@@ -1651,7 +1706,7 @@ class Node extends Controller
                     if ((int) $value > time()) {
                         throw new Exception\InvalidArgument($attribute.' timestamp can not be set greater than the server time');
                     }
-                    $attributes[$attribute] = new \MongoDB\BSON\UTCDateTime($value.'000');
+                    $attributes[$attribute] = new UTCDateTime($value.'000');
 
                 break;
                 case 'readonly':

@@ -12,56 +12,11 @@ declare(strict_types=1);
 
 namespace Balloon\Api;
 
-use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Server;
-use Psr\Log\LoggerInterface;
+use Balloon\Filesystem\Node\File;
 
 class Controller
 {
-    /**
-     * Filesystem.
-     *
-     * @var Filesystem
-     */
-    protected $fs;
-
-    /**
-     * LoggerInterface.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * Server.
-     *
-     * @var Server
-     */
-    protected $server;
-
-    /**
-     * User.
-     *
-     * @var User
-     */
-    protected $user;
-
-    /**
-     * Initialize.
-     *
-     * @param Filesystem      $fs
-     * @param Config          $config
-     * @param LoggerInterface $logger
-     */
-    public function __construct(Server $server/*, LoggerInterface $logger*/)
-    {
-        $this->fs = $server->getFilesystem();
-        $this->user = $server->getIdentity();
-        $this->server = $server;
-        //$this->logger = $logger;
-    }
-
-    /**
+    /*
      * @apiDefine _getNode
      *
      * @apiParam (GET Parameter) {string} id Either id or p (path) of a node must be given.
@@ -106,7 +61,7 @@ class Controller
      * }
      */
 
-    /**
+    /*
      * @apiDefine _multiError
      *
      * @apiErrorExample {json} Error-Response (Multi node error):
@@ -125,7 +80,7 @@ class Controller
      * }
      */
 
-    /**
+    /*
      * @apiDefine _writeAction
      *
      * @apiErrorExample {json} Error-Response (Conflict):
@@ -140,7 +95,7 @@ class Controller
      * }
      */
 
-    /**
+    /*
      * @apiDefine _conflictNode
      * @apiParam (GET Parameter) {number} [conflict=0] Decides how to handle a conflict if a node with the same name already exists at the destination.
      * Possible values are:</br>
@@ -149,7 +104,7 @@ class Controller
      *  - 2 Overwrite the destination (merge)</br>
      */
 
-    /**
+    /*
      * @apiDefine _getNodes
      *
      * @apiParam (GET Parameter) {string[]} id Either a single id as string or multiple as an array or a single p (path) as string or multiple paths as array must be given.
@@ -193,36 +148,4 @@ class Controller
      *      }
      * }
      */
-
-    /**
-     * Get node.
-     *
-     * @param string $id
-     * @param string $path
-     * @param string $class      Force set node type
-     * @param bool   $deleted
-     * @param bool   $multiple   Allow $id to be an array
-     * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
-     */
-    protected function _getNode(
-        ?string $id = null,
-        ?string $path = null,
-        ?string $class = null,
-        bool $multiple = false,
-        bool $allow_root = false,
-        int $deleted = 2
-    ): NodeInterface {
-        if (null === $class) {
-            $class = join('', array_slice(explode('\\', get_class($this)), -1));
-        }
-
-        if ('Node' === $class) {
-            $class = null;
-        }
-
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
-    }
 }

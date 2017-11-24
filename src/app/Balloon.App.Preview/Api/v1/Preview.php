@@ -13,29 +13,38 @@ declare(strict_types=1);
 namespace Balloon\App\Preview\Api\v1;
 
 use Balloon\Api\Controller;
-use Balloon\App\Preview\App;
+use Balloon\App\Preview\Preview as PreviewGetter;
+use Balloon\Filesystem;
+use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Micro\Http\Response;
 
 class Preview extends Controller
 {
     /**
-     * App.
+     * Preview.
      *
-     * @var App
+     * @var PreviewGetter
      */
-    protected $app;
+    protected $preview;
+
+    /**
+     * Filesystem.
+     *
+     * @var Filesystem
+     */
+    protected $fs;
 
     /**
      * Constructor.
      *
-     * @param App    $app
-     * @param Server $server
+     * @param PreviewGetter $preview
+     * @param Server        $server
      */
-    public function __construct(App $app, Server $server)
+    public function __construct(PreviewGetter $preview, Server $server)
     {
-        parent::__construct($server);
-        $this->app = $app;
+        $this->fs = $server->getFilesystem();
+        $this->preview = $preview;
     }
 
     /**
@@ -76,8 +85,8 @@ class Preview extends Controller
      */
     public function get(?string $id = null, ?string $p = null, ?string $encode = null): Response
     {
-        $node = $this->fs->getNode($id, $p, 'File');
-        $data = $this->app->getPreview($node);
+        $node = $this->fs->getNode($id, $p, File::class);
+        $data = $this->preview->getPreview($node);
         $response = (new Response())
             ->setHeader('Content-Type', 'image/png')
             ->setOutputFormat('text');

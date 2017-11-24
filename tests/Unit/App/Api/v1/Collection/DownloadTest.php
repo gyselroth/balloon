@@ -34,7 +34,7 @@ class DownloadTest extends Test
     {
         $name = uniqid();
         $res = $this->controller->post(null, null, $name);
-        $this->assertInstanceOf('\Micro\Http\Response', $res);
+        $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
         $id = new ObjectID($res->getBody());
         $this->assertInstanceOf(ObjectID::class, $id);

@@ -15,12 +15,18 @@ namespace Balloon\Filesystem\Node;
 use Balloon\App\AppInterface;
 use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Storage;
 use Balloon\Helper;
+use Balloon\Hook;
+use Balloon\Server;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Database;
 use Normalizer;
 use PHPZip\Zip\Stream\ZipStream;
+use Psr\Log\LoggerInterface;
 use Sabre\DAV;
 
 abstract class AbstractNode implements NodeInterface, DAV\INode
@@ -159,7 +165,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     /**
      * Logger.
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $_logger;
 
@@ -178,46 +184,25 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     protected $_hook;
 
     /**
-     * Storage.
+     * Acl.
      *
-     * @var Storage
+     * @var Acl
      */
-    protected $storage_handler;
+    protected $_acl;
 
     /**
-     * Storage.
+     * Storage adapter.
      *
-     * @var array
+     * @var string
      */
-    protected $storage = [
-        'adapter' => 'gridfs',
-    ];
+    protected $storage_adapter;
 
     /**
-     * Initialize.
+     * Acl.
      *
-     * @param array      $attributes
-     * @param Filesystem $fs
+     * @var Acl
      */
-    public function __construct(?array $attributes, Filesystem $fs)
-    {
-        $this->_fs = $fs;
-        $this->_db = $fs->getDatabase();
-        $this->_user = $fs->getUser();
-        $this->_server = $fs->getServer();
-        $this->_logger = $this->_server->getLogger();
-        $this->_hook = $this->_server->getHook();
-
-        $this->storage_handler = $fs->getServer()->getStorage();
-
-        if (null !== $attributes) {
-            foreach ($attributes as $attr => $value) {
-                $this->{$attr} = $value;
-            }
-
-            $this->raw_attributes = $attributes;
-        }
-    }
+    protected $acl;
 
     /**
      * Convert to filename.
@@ -250,9 +235,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function setFilesystem(Filesystem $fs)
+    public function setFilesystem(Filesystem $fs): NodeInterface
     {
         $this->_fs = $fs;
+        $this->_user = $fs->getUser();
 
         return $this;
     }
@@ -315,7 +301,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 Exception\Conflict::CANT_BE_CHILD_OF_ITSELF
             );
         }
-        if (!$this->isAllowed('w') && !$this->isReference()) {
+        if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
             throw new Exception\Forbidden(
                 'not allowed to move node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_MOVE
@@ -453,7 +439,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function isOwnerRequest(): bool
     {
-        return null !== $this->_user && $this->owner === $this->_user->getId();
+        return null !== $this->_user && $this->owner == $this->_user->getId();
     }
 
     /**
@@ -469,7 +455,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         if ($this->isReference()) {
             return true;
         }
-        if ($this->isShareMember() /*&& $this instanceof Collection*/) {
+        if ($this->isShareMember()) {
             return true;
         }
 
@@ -521,11 +507,16 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     {
         $name = $this->checkName($name);
 
-        if ($this->getParent()->childExists($name)) {
-            throw new Exception\Conflict(
-                'a node called '.$name.' does already exists in this collection',
-                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-            );
+        try {
+            $child = $this->getParent()->getChild($name);
+            if ($child->getId() != $this->_id) {
+                throw new Exception\Conflict(
+                    'a node called '.$name.' does already exists in this collection',
+                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
+                );
+            }
+        } catch (Exception\NotFound $e) {
+            //child does not exists, we can safely rename
         }
 
         $this->name = $name;
@@ -567,182 +558,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     }
 
     /**
-     * Check acl.
-     *
-     * @param string $privilege
-     *
-     * @return bool
-     */
-    public function isAllowed(string $privilege = 'r'): bool
-    {
-        $acl = null;
-        $share = null;
-
-        $this->_logger->debug('check acl for ['.$this->_id.'] with privilege ['.$privilege.']', [
-            'category' => get_class($this),
-        ]);
-
-        if (null === $this->_user) {
-            $this->_logger->debug('system acl call, grant full access', [
-                'category' => get_class($this),
-            ]);
-
-            return true;
-        }
-
-        /* TODO: writeonly does not work with this part:
-        if($this->_user->getId() == $this->owner) {
-            $this->_logger->debug('owner request detected for ['.$this->_id.'], grant full access', [
-                'category' => get_class($this),
-            ]);
-
-            return true;
-        }
-        */
-
-        $priv = $this->getAclPrivilege();
-
-        $result = false;
-
-        if ('w+' === $priv && $this->isOwnerRequest()) {
-            $result = true;
-        } elseif ($this->isShared() || $this->isReference()) {
-            if ('r' === $privilege && ('r' === $priv || 'w' === $priv || 'rw' === $priv)) {
-                $result = true;
-            } elseif ('w' === $privilege && ('w' === $priv || 'rw' === $priv)) {
-                $result = true;
-            }
-        } else {
-            if ('r' === $privilege && ('r' === $priv || 'rw' === $priv)) {
-                $result = true;
-            } elseif ('w' === $privilege && ('w' === $priv || 'rw' === $priv)) {
-                $result = true;
-            }
-        }
-
-        $this->_logger->debug('check acl for node ['.$this->_id.'], requested privilege ['.$privilege.']', [
-            'category' => get_class($this),
-            'params' => ['privileges' => $priv],
-        ]);
-
-        return $result;
-    }
-
-    /**
-     * Get privilege.
-     *
-     * rw - READ/WRITE
-     * r  - READ(only)
-     * w  - WRITE(only)
-     * d  - DENY
-     *
-     * @return string
-     */
-    public function getAclPrivilege()
-    {
-        $result = false;
-        $acl = [];
-        $user = $this->_user;
-
-        if ($this->isShareMember()) {
-            try {
-                $share = $this->_fs->findRawNode($this->shared);
-            } catch (\Exception $e) {
-                $this->_logger->error('could not found share node ['.$this->shared.'] for share child node ['.$this->_id.'], dead reference?', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-
-                return 'd';
-            }
-
-            if ((string) $share['owner'] === (string) $user->getId()) {
-                return 'rw';
-            }
-
-            $acl = $share['acl'];
-        } elseif ($this->isReference() && $this->isOwnerRequest()) {
-            try {
-                $share = $this->_fs->findRawNode($this->reference);
-            } catch (\Exception $e) {
-                $this->_logger->error('could not found share node ['.$this->shared.'] for reference ['.$this->_id.'], dead reference?', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-
-                $this->_forceDelete();
-
-                return 'd';
-            }
-
-            if ($share['deleted'] instanceof UTCDateTime || true !== $share['shared']) {
-                $this->_logger->error('share node ['.$share['_id'].'] has been deleted, dead reference?', [
-                    'category' => get_class($this),
-                ]);
-
-                $this->_forceDelete();
-
-                return 'd';
-            }
-
-            $acl = $share['acl'];
-        } elseif (!$this->isOwnerRequest()) {
-            $this->_logger->warning('user ['.$this->_user->getUsername().'] not allowed to access non owned node ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-            return 'd';
-        } elseif ($this->isOwnerRequest()) {
-            return 'rw';
-        }
-
-        if (!is_array($acl)) {
-            return 'd';
-        }
-
-        if (array_key_exists('user', $acl)) {
-            foreach ($acl['user'] as $rule) {
-                if (array_key_exists('user', $rule) && $rule['user'] === $user->getUsername() && array_key_exists('priv', $rule)) {
-                    $result = $rule['priv'];
-                } elseif (array_key_exists('ldapdn', $rule) && $rule['ldapdn'] === $user->getLdapDn() && array_key_exists('priv', $rule)) {
-                    $result = $rule['priv'];
-                }
-
-                if ('d' === $result) {
-                    return $result;
-                }
-            }
-        }
-
-        if (array_key_exists('group', $acl)) {
-            $groups = $user->getGroups();
-
-            foreach ($acl['group'] as $rule) {
-                if (array_key_exists('group', $rule) && in_array($rule['group'], $groups, true) && array_key_exists('priv', $rule)) {
-                    $group_result = $rule['priv'];
-
-                    if ('d' === $group_result) {
-                        return $group_result;
-                    }
-                    if (false === $result) {
-                        $result = $group_result;
-                    } elseif ('r' === $result && ('w' === $group_result || 'rw' === $group_result)) {
-                        $result = $group_result;
-                    } elseif ('rw' === $group_result) {
-                        $result = $group_result;
-                    }
-                }
-            }
-        }
-
-        if (false === $result) {
-            return 'd';
-        }
-
-        return $result;
-    }
-
-    /**
      * Get attribute.
      *
      * @param string $attribute
@@ -771,7 +586,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isAllowed('w')) {
+        if (!$this->_acl->isAllowed($this, 'w')) {
             throw new Exception\Forbidden(
                 'not allowed to restore node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_UNDELETE
@@ -826,6 +641,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 'user' => $this->owner,
                 'type' => File::HISTORY_UNDELETE,
                 'storage' => $this->storage,
+                'storage_adapter' => $this->storage_adapter,
                 'size' => $this->size,
                 'mime' => $this->mime,
             ];
@@ -837,10 +653,15 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 'version',
             ], [], $recursion, $recursion_first);
         }
+
         $this->save([
                 'name',
                 'deleted',
             ], [], $recursion, $recursion_first);
+
+        if ($this->isReference()) {
+            return true;
+        }
 
         return $this->doRecursiveAction(
                 'undelete',
@@ -851,8 +672,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 ],
                 NodeInterface::DELETED_ONLY
             );
-
-        return true;
     }
 
     /**
@@ -907,7 +726,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             if ($this->isInRoot()) {
                 return $this->_fs->getRoot();
             }
+
             $parent = $this->_fs->findNodeWithId($this->parent);
+
             if ($parent->isShare() && !$parent->isOwnerRequest() && null !== $this->_user) {
                 $node = $this->_db->storage->findOne([
                         'owner' => $this->_user->getId(),
@@ -915,7 +736,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                         'reference' => $this->parent,
                     ]);
 
-                return new Collection($node, $this->_fs);
+                return $this->_fs->initNode($node);
             }
 
             return $parent;
@@ -947,7 +768,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
         $parents[] = $parent;
 
         return $node->getParents($parent, $parents);
-        return $parents;
     }
 
     /**
@@ -1043,9 +863,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function setAppAttributes(AppInterface $app, array $attributes): NodeInterface
+    public function setAppAttributes(string $namespace, array $attributes): NodeInterface
     {
-        $this->app_attributes[$app->getName()] = $attributes;
+        $this->app_attributes[$namespace] = $attributes;
         $this->save('app_attributes');
 
         return $this;
@@ -1060,13 +880,13 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function setAppAttribute(AppInterface $app, string $attribute, $value): NodeInterface
+    public function setAppAttribute(string $namespace, string $attribute, $value): NodeInterface
     {
-        if (!isset($this->app_attributes[$app->getName()])) {
-            $this->app_attributes[$app->getName()] = [];
+        if (!isset($this->app_attributes[$namespace])) {
+            $this->app_attributes[$namespace] = [];
         }
 
-        $this->app_attributes[$app->getName()][$attribute] = $value;
+        $this->app_attributes[$namespace][$attribute] = $value;
         $this->save('app_attributes');
 
         return $this;
@@ -1079,10 +899,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function unsetAppAttributes(AppInterface $app): NodeInterface
+    public function unsetAppAttributes(string $namespace): NodeInterface
     {
-        if (isset($this->app_attributes[$app->getName()])) {
-            unset($this->app_attributes[$app->getName()]);
+        if (isset($this->app_attributes[$namespace])) {
+            unset($this->app_attributes[$namespace]);
             $this->save('app_attributes');
         }
 
@@ -1097,10 +917,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return NodeInterface
      */
-    public function unsetAppAttribute(AppInterface $app, string $attribute): NodeInterface
+    public function unsetAppAttribute(string $namespace, string $attribute): NodeInterface
     {
-        if (isset($this->app_attributes[$app->getName()], $this->app_attributes[$app->getName()][$attribute])) {
-            unset($this->app_attributes[$app->getName()][$attribute]);
+        if (isset($this->app_attributes[$namespace][$attribute])) {
+            unset($this->app_attributes[$namespace][$attribute]);
             $this->save('app_attributes');
         }
 
@@ -1115,10 +935,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return mixed
      */
-    public function getAppAttribute(AppInterface $app, string $attribute)
+    public function getAppAttribute(string $namespace, string $attribute)
     {
-        if (isset($this->app_attributes[$app->getName()], $this->app_attributes[$app->getName()][$attribute])) {
-            return $this->app_attributes[$app->getName()][$attribute];
+        if (isset($this->app_attributes[$namespace][$attribute])) {
+            return $this->app_attributes[$namespace][$attribute];
         }
 
         return null;
@@ -1131,10 +951,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      *
      * @return array
      */
-    public function getAppAttributes(AppInterface $app): array
+    public function getAppAttributes(string $namespace): array
     {
-        if (isset($this->app_attributes[$app->getName()])) {
-            return $this->app_attributes[$app->getName()];
+        if (isset($this->app_attributes[$namespace])) {
+            return $this->app_attributes[$namespace];
         }
 
         return [];
@@ -1259,9 +1079,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     /**
      * Get original raw attributes before any processing.
      *
-     * @return array|\MongoDB\BSON\Document
+     * @return array
      */
-    public function getRawAttributes()
+    public function getRawAttributes(): array
     {
         return $this->raw_attributes;
     }
@@ -1315,7 +1135,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
      */
     public function save($attributes = [], $remove = [], ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isAllowed('w') && !$this->isReference()) {
+        if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
             throw new Exception\Forbidden(
                 'not allowed to modify node '.$this->name,
                 Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
@@ -1371,29 +1191,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             ]);
 
             throw $e;
-        }
-    }
-
-    /**
-     * Check node.
-     */
-    protected function _verifyAccess()
-    {
-        if (!$this->isAllowed('r')) {
-            throw new Exception\Forbidden(
-                'not allowed to access node',
-                Exception\Forbidden::NOT_ALLOWED_TO_ACCESS
-            );
-        }
-
-        if ($this->destroy instanceof UTCDateTime && $this->destroy->toDateTime()->format('U') <= time()) {
-            $this->_logger->info('node ['.$this->_id.'] is not accessible anmyore, destroy node cause of expired destroy flag', [
-                'category' => get_class($this),
-            ]);
-
-            $this->delete(true);
-
-            throw new Exception\Conflict('node is not available anymore');
         }
     }
 
@@ -1533,7 +1330,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 break;
                 case 'access':
                     if ($this->isSpecial() && null !== $sharenode) {
-                        $build['access'] = $sharenode->getAclPrivilege();
+                        $build['access'] = $this->_acl->getAclPrivilege($sharenode);
                     }
 
                 break;
@@ -1541,13 +1338,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                     if ($this->isSpecial() && null !== $sharenode) {
                         $build['shareowner'] = $this->_server->getUserById($this->_fs->findRawNode($this->getShareId())['owner'])
                           ->getUsername();
-                    }
-
-                break;
-                case 'apps':
-                    $this->build['apps'] = [];
-                    foreach ($this->server->getApps()->getApps($apps) as $app) {
-                        $this->build['apps'][$app->getName()] = $app->getAttributes($this);
                     }
 
                 break;

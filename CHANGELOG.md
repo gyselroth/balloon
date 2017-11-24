@@ -1,11 +1,18 @@
 ## 2.0.0-dev
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Thu June 22 15:04:32 CEST 2017
+**Date**:
 
-Next major release v2, includes various new features and core changes. The API is still v1 and compatible with all current implementations.
+This major relase contains various fixes, changes and new features including:
+* Possibility to load the desktop client artifacts via server
+* The web user interface is now separated from the server with its own release policy
+* New share privilege manage which allows a share owner to give certain members the same rights as the owner himself
+* The share privilege writeonly has been removed (All existing shares automatically get migrated to mailbox, see upgrade guide)
+* Convert certain file formats into other formats (For example txt => docx)
+* Slave nodes: automatically update other nodes every time a master node gets changed (It is also possible to export the content into an other format like docx => pdf)
+* Automatically scan your files for viruses and malware
 
 * CORE: [CHANGE] php ext apc is now optional (cache configuration)
-* CORE: [CHANGE] php ext imagick is now optional (if not installed image previews will fail)
+* CORE: [CHANGE] php ext imagick is now optional (if not installed, image previews will fail)
 * CORE: [CHANGE] php ext ldap is now optional (if not installed ldap authentication or ldap sync core app will not be available)
 * CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
 * CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
@@ -19,28 +26,41 @@ Next major release v2, includes various new features and core changes. The API i
 * CORE: [CHANGE] changed exception codes from hex to integer
 * CORE: [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
 * CORE: [FEATURE] console can now be executed with command parameters
-* CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchonosuly executed non-stop #56
-* CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks which are now part of new core apps #20
-* CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converted is now useable to converty anything to anything
-* CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/config.dist.xml #59
+* CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchronosuly executed non-stop #56
+* CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks #20
+* CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converter is now useable to convert anything to anything
+* CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/example.config.xml #59
 * CORE: [CHANGE] No more BSONDocument, all cursor get mapped to arrays
 * CORE: [CHANGE] Sharlink is now an entirely removed from the core and operates as an own app Balloon.App.Sharelink
 * CORE: [CHANGE] Preview is now an entirely removed from the core and operates as an own app Balloon.App.Preview
 * CORE: [CHANGE] Changed generating access token to random_bytes() for creating sharelink tokens
-* CORE: [FEATURE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes
+* CORE: [CHANGE] added a couple of new methods to NodeAbstract to set/receive/unset app based attributes for invidual nodes
 * CORE: [CHANGE] added AbstractNode::getAttributes(array $attributes=[]) besides AbstractNode::getAttribute()
 * CORE: [FIX] fixed application/octet-stream mime type for office files (issue since 1.x)
-* CORE: [CHANGE] Extracted Mime detection to \Balloon\Mime
-* CORE: [FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file shadows
+* CORE: [CHANGE] Moved mime detection to \Balloon\Mime
+* CORE: [FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file slaves
 * CORE: [CHANGE] changed use \Psr\Log\LoggerInterface as Logger to use \Psr\Log\LoggerInterface
 * CORE: [CHANGE] apps are now shipped without ui parts (ui componets got moved to balloon-client-web as separate apps)
 * CORE: [CHANGE] apps are now automatically loaded once they are placed in the app directory
 * CORE: [CHANGE] Implemented new \Balloon\Filesystem\Storage mechanism which allows to store file blobs via an interface everywhere if an adapter exists
 * CORE: [CHANGE] Various code cleanup and refactoring within \Balloon\Filesystem
 * CORE: [FEATURE] New module based cli implementation
-* CORE: [FEATURE] Database init and delta migration support #78
+* CORE: [FEATURE] Database initialization and delta migration support #78
 * CORE: [FEATURE] Added various db delta upgrade scripts from v1 => v2
 * CORE: [CHANGE] Implemented \Micro\Container (dependency injection container) which results in various simpler dependencies of some classes
+* CORE: [FEATURE] It is now possible to configure via environement variables besides config file (\Micro\Config\Environment) which makes it more useable for cloud native
+* CORE: [FEATURE] Every setOptions() call now throws an exception if an invalid configuration has been configured
+* CORE: [CHANGE] config.xml is now a service based configuration, each class can be dynamically configured (dependency injection container configuration)
+* CORE: [FEATURE] Implemented new app Balloon.App.ClientDesktop (Provides downloadable desktop client url)
+* CORE: [FIX] fixed acl issue regarding zombie nodes in mailbox shares #82
+* CORE: [FEATURE] New share privilege "manage" #7 
+* CORE: [CHANGE] Removed deprecated share privilege "writeonly" #73, all existing rules with writeonly get upgraded to a mailbox privilege (see upgrade guide)
+* CORE: [CHANGE] Rewritten acl, extracted acl as separate instance, various acl improvements
+* CORE: [!BREAKER] Comes with the latest micro version, therefore the auth adapter "preauth" is not available anymore, use OpenID-connect instead!
+* CORE: [CHANGE] Default preview width/height is now 500px (instead 300px)
+* CORE: [FEATURE] Rewritten storage implementation, it is now possible to use multiple (and different) storage adapter (Default: MongoDB GridFS)
+* CORE: [FEATURE] Rewritten notification implementation, it is now possible to use multiple (and different) transport adapter (Default: Mail and Database)
+* API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
@@ -50,18 +70,33 @@ Next major release v2, includes various new features and core changes. The API i
 * API: [FEATURE] GET /api and GET /api/v1 are now public readable #46
 * API: [CHANGE] Removed attribute history from GET /file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
-* API: [FEATURE] New api endpoints provided by Balloon.App.Convert
-* UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-desktop
+* API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Convert
+* UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 
---
-1.0.16 - Raffael Sahli <sahli@gyselroth.com>
-Tue Sept 28 14:35:32 CEST 2017
---
-API: [FIX] POST /node/move can not move a node into a shared mailbox collection which holds a node with the same name #75 
-API: [FIX] PUT /file returns Exception\Conflict with code 19 instead Exception\Forbidden code 40 if a file gets uploaded into a shared mailbox collection and the collection already holds a node with the same name #75
-API: [FIX] PUT /file and POST /collection now create a node within a writeonly collection without a Exception\Forbidden response, his feature (writeonly) is deprecated now and will get removed in v2, replacement is the newly (v1.x) introduced permission mailbox)
-API: [FIX] PUT /file does not throw an error anymore if an application/zip file with an unknown mimetype gets uploaded
+## 1.0.17
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Nov 17 13:51:22 CET 2017
+
+* CORE: [FIX] delta does not include sub nodes of shares anymore where the reference was deleted #81 
+* CORE: [FIX] undeleting a share reference does not undelete share members #96
+* CORE: [FIX] delta does not include delteded sub nodes of a added share reference anymore, fixes #91 and #97
+* CORE: [FIX] delta no more includes nodes marked as deleted and owned by other other users with mailbox permission level #80
+* CORE: [FIX] elasticsearch result list does not contain duplicate entries #60
+* CORE: [FIX] access nodes by path is now case insensitive #100
+* CORE: [FIX] it is now possible to rename an node from test to tesT (caseinsenitive), #99
+* Webinterface: [FIX] search result pane is now bigger and properties more resizable
+* CORE: [FIX] undeleting a share reference does not undelete share members #96
+
+
+## 1.0.16
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Sept 28 14:35:32 CEST 20170
+
+* API: [FIX] POST /node/move can not move a node into a shared mailbox collection which holds a node with the same name #75 
+* API: [FIX] PUT /file returns Exception\Conflict with code 19 instead Exception\Forbidden code 40 if a file gets uploaded into a shared mailbox collection and the collection already holds a node with the same name #75
+* API: [FIX] PUT /file and POST /collection now create a node within a writeonly collection without a Exception\Forbidden response, his feature (writeonly) is deprecated now and will get removed in v2, replacement is the newly (v1.x) introduced permission mailbox)
+* API: [FIX] PUT /file does not throw an error anymore if an application/zip file with an unknown mimetype gets uploaded
 
 
 ## 1.0.15

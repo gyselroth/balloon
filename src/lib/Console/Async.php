@@ -12,25 +12,18 @@ declare(strict_types=1);
 
 namespace Balloon\Console;
 
-use Balloon\App;
-use Balloon\Async as AsyncQueue;
+use TaskScheduler\Async as AsyncQueue;
+use Balloon\Hook;
 use GetOpt\GetOpt;
-use Psr\Container\ContainerInterface;
+use GetOpt\Option;
 use Psr\Log\LoggerInterface;
 
 class Async implements ConsoleInterface
 {
     /**
-     * App.
-     *
-     * @var App
-     */
-    protected $app;
-
-    /**
      * Logger.
      *
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -44,31 +37,32 @@ class Async implements ConsoleInterface
     /**
      * Async.
      *
-     * @var Async
+     * @var AsyncQueue
      */
     protected $async;
 
     /**
-     * Container.
+     * Hook.
      *
-     * @var ContainerInterface
+     * @var Hook
      */
-    protected $container;
+    protected $hook;
 
     /**
      * Constructor.
      *
-     * @param App   $app
-     * @param Async $async
+     * @param App             $app
+     * @param AsyncQueue      $async
+     * @param LoggerInterface $logger
+     * @param GetOpt          $getopt
      */
-    public function __construct(App $app, AsyncQueue $async, LoggerInterface $logger, ContainerInterface $container, GetOpt $getopt)
+    public function __construct(Hook $hook, AsyncQueue $async, LoggerInterface $logger, GetOpt $getopt)
     {
-        $this->app = $app;
         $this->async = $async;
+        $this->hook = $hook;
         $this->logger = $logger;
         $this->getopt = $getopt;
         $this->async = $async;
-        $this->container = $container;
         $this->setOptions();
     }
 
@@ -80,8 +74,7 @@ class Async implements ConsoleInterface
     public function setOptions(): ConsoleInterface
     {
         $this->getopt->addOptions([
-            \GetOpt\Option::create('q', 'queue'),
-            \GetOpt\Option::create('d', 'daemon'),
+            Option::create('d', 'daemon'),
         ]);
 
         return $this;
@@ -94,23 +87,12 @@ class Async implements ConsoleInterface
      */
     public function start(): bool
     {
-        if (null === $this->getopt->getOption('queue')) {
-            $this->logger->debug('skip job queue execution', [
-                'category' => get_class($this),
-            ]);
-        }
-
         if (null !== $this->getopt->getOption('daemon')) {
             $this->fireupDaemon();
         } else {
-            if (null !== $this->getopt->getOption('queue')) {
-                $cursor = $this->async->getCursor(false);
-                $this->async->start($cursor, $this->container);
-            }
-
-            foreach ($this->app->getApps() as $app) {
-                $app->start();
-            }
+            $this->hook->run('preExecuteAsyncJobs');
+            $this->async->startOnce();
+            $this->hook->run('postExecuteAsyncJobs');
         }
 
         return true;
@@ -127,12 +109,8 @@ class Async implements ConsoleInterface
             'category' => get_class($this),
         ]);
 
-        $cursor = $this->async->getCursor(true);
-        while (true) {
-            if (null !== $this->getopt->getOption('queue')) {
-                $this->async->start($cursor, $this->container);
-            }
-        }
+        $this->hook->run('preExecuteAsyncJobs');
+        $this->async->startDaemon();
 
         return true;
     }

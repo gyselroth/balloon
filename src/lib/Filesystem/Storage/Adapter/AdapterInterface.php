@@ -55,4 +55,14 @@ interface AdapterInterface
      * @return mixed
      */
     public function storeFile(File $file, $contents);
+
+    /**
+     * Get metadata for a file.
+     *
+     * @param File  $file
+     * @param array $attributes
+     *
+     * @return array
+     */
+    public function getFileMeta(File $file, array $attributes): array;
 }
