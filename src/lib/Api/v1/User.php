@@ -123,6 +123,7 @@ class User
         return $this->user;
     }
 
+
     /**
      * @api {get} /api/v1/user/is-admin Is Admin?
      * @apiVersion 1.0.0
@@ -160,6 +161,7 @@ class User
         return (new Response())->setCode(200)->setBody($result);
     }
 
+
     /**
      * @api {get} /api/v1/user/whoami Who am I?
      * @apiVersion 1.0.0
@@ -196,6 +198,7 @@ class User
 
         return (new Response())->setCode(200)->setBody($result);
     }
+
 
     /**
      * @api {get} /api/v1/user/node-attribute-summary Node attribute summary
@@ -235,6 +238,7 @@ class User
 
         return (new Response())->setCode(200)->setBody($result);
     }
+
 
     /**
      * @api {get} /api/v1/user/groups Group membership

@@ -47,6 +47,94 @@ class User extends SimpleUser
         return (new Response())->setCode(204);
     }
 
+
+    /**
+     * @api {post} /api/v1/user
+     * @apiVersion 1
+     * @apiName postUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Create user
+     *
+     * @apiExample Example usage:
+     * curl -XPOST "https://SERVER/api/v1/user"
+     *
+     * @apiParam (POST Parameter) {string} username Name of the new user
+     * @apiParam (POST Parameter) {string} mail Mail address of the new user
+     * @apiParam (POST Parameter) {string} [namespace] Namespace of the new user
+     * @apiParam (POST Parameter) {number} [hard] The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} [soft] The new soft quota in bytes
+     *
+     * @apiSuccess (200 OK) {number} status Status Code
+     * @apiSuccess (200 OK) {object[]} user attributes
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "status": 200,
+     *      "data": [] //shortened
+     * }
+     *
+     * @param   string $username
+     * @param   string $mail
+     * @param   int $hard_quota
+     * @param   int $soft_quota
+     * @return  Response
+     */
+    public function post(string $username, string $mail, ?string $namespace=null, ?string $password=null, int $hard_quota=10000000, int $soft_quota=10000000): Response
+    {
+        if ($this->server->userExists($username)) {
+            throw new Exception\Conflict(
+                'user already exists',
+                Exception\Conflict::ALREADY_THERE
+            );
+        }
+
+        $this->server->addUser([
+            'username' => $username,
+            'mail' => $mail,
+            'namespace' => $namespace,
+            'hard_quota' => $hard_quota,
+            'soft_quota' => $soft_quota
+        ], $password);
+
+        return (new Response())->setCode(204);
+    }
+
+
+    /**
+     * @api {post} /api/v1/user/attributes?uid=:uid Set attributes
+     * @apiVersion 1
+     * @apiName postAttributes
+     * @apiUse _getUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Set attributes for user
+     *
+     * @apiExample Example usage:
+     * curl -XPOST "https://SERVER/api/v1/user/attributes" -d '{"attributes": ["mail": "user@example.com"]}'
+     * curl -XPOST "https://SERVER/api/v1/user/attributes?{%22attributes%22:[%22mail%22:%22user@example.com%22]}""
+     * curl -XPOST "https://SERVER/api/v1/user/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
+     * curl -XPOST "https://SERVER/api/v1/user/quota?uname=loginuser"  -d '{"attributes": ["admin": "false"]}'
+     *
+     * @apiParam (POST Parameter) {number} hard The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} soft The new soft quota in bytes
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 204 No Content
+     *
+     * @param   string $uname
+     * @param   string $uid
+     * @param   array $attributes
+     * @return  Response
+     */
+    public function postAttributes(array $attributes=[], ?string $uid=null, ?string $uname=null): Response
+    {
+        $this->_getUser($uid, $uname)->setAttribute($attributes)->save(array_keys($attributes));
+        return (new Response())->setCode(204);
+    }
+
+
     /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
      * @apiVersion 1.0.0
@@ -61,8 +149,8 @@ class User extends SimpleUser
      * curl -XPOST -d hard=10000000 -d soft=999999 "https://SERVER/api/v1/user/544627ed3c58891f058b4611/quota"
      * curl -XPOST -d hard=10000000 -d soft=999999 "https://SERVER/api/v1/user/quota?uname=loginuser"
      *
-     * @apiParam (GET Parameter) {number} hard The new hard quota in bytes
-     * @apiParam (GET Parameter) {number} soft The new soft quota in bytes
+     * @apiParam (POST Parameter) {number} hard The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} soft The new soft quota in bytes
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
@@ -82,6 +170,7 @@ class User extends SimpleUser
 
         return (new Response())->setCode(204);
     }
+
 
     /**
      * @api {delete} /api/v1/user?uid=:uid Delete user
@@ -134,6 +223,7 @@ class User extends SimpleUser
 
         return (new Response())->setCode(204);
     }
+
 
     /**
      * @api {post} /api/v1/user/undelete?uid=:uid Apiore user

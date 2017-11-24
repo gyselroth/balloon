@@ -190,17 +190,19 @@ class Server
     /**
      * Add user.
      *
-     * @return bool
+     * @throws Exception if the user already exists
      */
-    public function addUser(array $user): bool
+    public function addUser(array $user, ?string $password=null)
     {
         if ($this->userExists($user['username'])) {
             throw new Exception('user does already exists');
         }
 
-        $this->db->user->insertOne($user);
+        if ($password) {
+            $user['password'] = password_hash($password, PASSWORD_DEFAULT);
+        }
 
-        return true;
+        $this->db->user->insertOne($user);
     }
 
     /**
@@ -309,10 +311,10 @@ class Server
     public function getUserByName(string $name): User
     {
         $attributes = $this->db->user->findOne([
-           'username' => $name,
+           'username' => $name
         ]);
 
-        if (null === $attributes) {
+        if ($attributes === null) {
             throw new Exception('user does not exists');
         }
 

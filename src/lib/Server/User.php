@@ -139,6 +139,26 @@ class User
     protected $fs;
 
     /**
+     * Valid attributes
+     *
+     * @var array
+     */
+     static protected $valid_attributes = [
+         'id',
+         'username',
+         'created',
+         'soft_quota',
+         'hard_quota',
+         'mail',
+         'namespace',
+         'last_attr_sync',
+         'avatar',
+         'created',
+         'admin'
+     ];
+
+
+    /**
      * Instance user.
      *
      * @param array           $attributes
@@ -151,7 +171,7 @@ class User
         $this->server = $server;
         $this->db = $db;
         $this->logger = $logger;
-
+      
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
         }
@@ -182,7 +202,7 @@ class User
         }
 
         $cache = ($this->last_attr_sync instanceof UTCDateTime ?
-        $this->last_attr_sync->toDateTime()->format('U') : 0);
+            $this->last_attr_sync->toDateTime()->format('U') : 0);
 
         if (time() - $attr_sync > $cache) {
             $this->logger->info('user attribute sync cache time expired, resync with auth attributes', [
@@ -209,27 +229,49 @@ class User
     }
 
     /**
-     * Get user attribute.
+     * Set user attribute
+     *
+     * @param  array $attribute
+     */
+    public function setAttribute($attribute=[])
+    {
+        foreach ($attribute as $attr => $value) {
+            if (!in_array($attr, self::$valid_attributes)) {
+                throw new Exception\InvalidArgument('requested attribute '.$attr.' does not exists');
+            }
+
+            switch ($attr) {
+                case 'id':
+                    $this->_id = (string)$value;
+                break;
+
+                case 'avatar':
+                    $this->avatar = new Binary(base64_decode($value));
+                break;
+
+                case 'created':
+                case 'last_attr_sync':
+                    $this->{$attr} = Helper::DateTimeToUnix($value);
+                break;
+
+                default:
+                    $this->{$attr} = $value;
+                break;
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Get user attribute
      *
      * @param array|string $attribute
-     *
      * @return mixed
      */
     public function getAttribute($attribute = null)
     {
-        $valid = [
-            'id',
-            'username',
-            'created',
-            'soft_quota',
-            'hard_quota',
-            'mail',
-            'namespace',
-            'last_attr_sync',
-            'avatar',
-            'created',
-        ];
-
         $default = [
             'id',
             'username',
@@ -252,7 +294,7 @@ class User
 
         $resolved = [];
         foreach ($requested as $attr) {
-            if (!in_array($attr, $valid, true)) {
+            if (!in_array($attr, self::$valid_attributes)) {
                 throw new Exception\InvalidArgument('requested attribute '.$attr.' does not exists');
             }
 
@@ -577,14 +619,17 @@ class User
     /**
      * Save.
      *
-     * @param array $attributes
-     *
-     * @return bool
+     * @param   array $attributes
+     * @throws  Exception\InvalidArgument if a given argument is not valid
+     * @return  bool
      */
     public function save(array $attributes = []): bool
     {
         $set = [];
         foreach ($attributes as $attr) {
+            if (!in_array($attr, self::$valid_attributes)) {
+                throw new Exception\InvalidArgument('attribute '.$attr.' is not valid');
+            }
             $set[$attr] = $this->{$attr};
         }
 
