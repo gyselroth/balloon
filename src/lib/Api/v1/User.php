@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\Api\v1;
 
 use Balloon\Exception;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -115,9 +116,9 @@ class User
                 return $this->server->getUserByName($uname);
             }
 
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                     'submitted parameters require to have admin privileges',
-                    Exception\Forbidden::ADMIN_PRIV_REQUIRED
+                    ForbiddenException::ADMIN_PRIV_REQUIRED
                 );
         }
 
