@@ -507,7 +507,6 @@ class Filesystem
 
         foreach ($result as $node) {
             ++$cursor;
-
             try {
                 $node = $this->initNode($node);
 

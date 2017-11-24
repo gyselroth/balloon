@@ -151,7 +151,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
      */
     public function getAcl(): array
     {
-        return $this->_acl->translateAclTable($this->acl);
+        return $this->_acl->resolveAclTable($this->_server, $this->acl);
     }
 
     /**
@@ -536,7 +536,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             );
         }
 
-        $this->_acl->validateAcl($acl);
+        $this->_acl->validateAcl($this->_server, $acl);
 
         $action = [
             '$set' => [

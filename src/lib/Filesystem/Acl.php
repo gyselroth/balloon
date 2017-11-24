@@ -16,6 +16,7 @@ use Balloon\Filesystem\Acl\Exception;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
 class Acl
@@ -46,21 +47,12 @@ class Acl
     protected $logger;
 
     /**
-     * Server
-     *
-     * @var Server
-     */
-    protected $Server;
-
-    /**
      * Constructor.
      *
-     * @param Server $server
      * @param LoggerInterface $logger
      */
-    public function __construct(Server $server, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger)
     {
-        $this->server = $server;
         $this->logger = $logger;
     }
 
@@ -199,18 +191,19 @@ class Acl
     /**
      * Validate acl.
      *
+     * @param  Server $server
      * @param array $acl
      *
      * @return bool
      */
-    public function validateAcl(array $acl): bool
+    public function validateAcl(Server $server, array $acl): bool
     {
         if (0 === count($acl)) {
             throw new Exception('there must be at least one acl rule');
         }
 
         foreach ($acl as $rule) {
-            $this->validateRule($rule);
+            $this->validateRule($server, $rule);
         }
 
         return true;
@@ -219,11 +212,12 @@ class Acl
     /**
      * Validate rule.
      *
+     * @param  Server $server
      * @param array $rule
      *
      * @return bool
      */
-    public function validateRule(array $rule): bool
+    public function validateRule(Server $server, array $rule): bool
     {
         if (!isset($rule['type']) || self::TYPE_USER !== $rule['type'] && self::TYPE_GROUP !== $rule['type']) {
             throw new Exception('rule must contain either a type group or user');
@@ -237,7 +231,7 @@ class Acl
             throw new Exception('rule must contain a resource id');
         }
 
-        $this->verifyRole($rule['type'], new ObjectId($rule['id']));
+        $this->verifyRole($server, $rule['type'], new ObjectId($rule['id']));
 
         return true;
     }
@@ -246,16 +240,17 @@ class Acl
     /**
      * Verify if role exists
      *
+     * @param  Server $server
      * @param string $type
      * @param string $id
      *
      * @return bool
      */
-    protected function verifyRole(string $type, ObjectId $id): bool
+    protected function verifyRole(Server $server, string $type, ObjectId $id): bool
     {
-        if($type === self::TYPE_USER && $this->server->getUserById($id)) {
+        if($type === self::TYPE_USER && $server->getUserById($id)) {
             return true;
-        } elseif($type === self::TYPE_GROUP && $this->server->getGroupById($id)) {
+        } elseif($type === self::TYPE_GROUP && $server->getGroupById($id)) {
             return true;
         } else {
             throw new Exception('invalid acl rule resource type');
@@ -265,20 +260,21 @@ class Acl
 
     /**
      * Get acl with resolved roles
-
+     *
+     * @param  Server $server
      * @param  array $acl
-
+     *
      * @return array
      */
-    public function resolveAclTable(array $acl): array
+    public function resolveAclTable(Server $server, array $acl): array
     {
         foreach($acl as &$rule) {
             try {
                 if($rule['type'] === 'user') {
-                    $rule['name'] = $this->server->getUserById(new ObjectId($rule['id']))
+                    $rule['name'] = $server->getUserById(new ObjectId($rule['id']))
                         ->getAttribute('name');
                 } elseif($rule['type'] === 'group') {
-                    $rule['name'] = $this->server->getGroupById(new ObjectId($rule['id']))
+                    $rule['name'] = $server->getGroupById(new ObjectId($rule['id']))
                         ->getAttribute('name');
                 } else {
                     throw new Exception('invalid acl rule resource type');

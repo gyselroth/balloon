@@ -46,6 +46,9 @@ return [
             ],
         ],
     ],
+    Hook::class => [
+        'adapter' => Hook::DEFAULT_ADAPTER
+    ],
     Database::class => [
         'adapter' => [
             CoreInstallation::class => [],

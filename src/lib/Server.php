@@ -190,19 +190,31 @@ class Server
     /**
      * Add user.
      *
-     * @throws Exception if the user already exists
+     * @param string $username
+     * @param array $attributes
+     *
+     * @return ObjectId
      */
-    public function addUser(array $user, ?string $password=null)
+    public function addUser(string $username, array $attributes=[]): ObjectId
     {
-        if ($this->userExists($user['username'])) {
+        if ($this->userExists($username)) {
             throw new Exception('user does already exists');
         }
 
-        if ($password) {
-            $user['password'] = password_hash($password, PASSWORD_DEFAULT);
+        $defaults = [
+            'deleted' => false,
+        ];
+
+        $attributes = array_merge($default, $attributes);
+        $attributes['created'] = new UTCDateTime();
+        $attributes['username'] = $username;
+
+        if ($attributes['password']) {
+            $attributes['password'] = password_hash($attributes['password'], PASSWORD_DEFAULT);
         }
 
-        $this->db->user->insertOne($user);
+        $result = $this->db->user->insertOne($attributes);
+        return $result->getInsertedId();
     }
 
     /**

@@ -122,12 +122,12 @@ class NewShareAdded extends AbstractHook
         $fs = $node->getFilesystem();
         $raw = $node->getRawAttributes();
 
-        if (!$node->isShared() && (isset($raw['acl']) && $raw['acl'] === $node->getShareAcl())) {
+        if (!$node->isShared() && (isset($raw['acl']) && $raw['acl'] === $node->getAcl())) {
             return;
         }
 
         $receiver = [];
-        foreach ($node->getShareAcl() as $rule) {
+        foreach ($node->getAcl() as $rule) {
             if ('user' === $rule['type']) {
                 $user = $this->server->getUserById(new ObjectId($rule['id']));
                 if (!isset($receiver[(string) $user->getId()]) && $this->checkNotify($node, $user)) {

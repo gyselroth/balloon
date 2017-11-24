@@ -83,13 +83,6 @@ class User extends SimpleUser
      */
     public function post(string $username, string $mail, ?string $namespace=null, ?string $password=null, int $hard_quota=10000000, int $soft_quota=10000000): Response
     {
-        if ($this->server->userExists($username)) {
-            throw new Exception\Conflict(
-                'user already exists',
-                Exception\Conflict::ALREADY_THERE
-            );
-        }
-
         $this->server->addUser([
             'username' => $username,
             'mail' => $mail,
