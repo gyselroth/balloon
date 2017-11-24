@@ -15,6 +15,7 @@ namespace Balloon\Filesystem\Node;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Acl\ForbiddenException as ForbiddenException;
 use Balloon\Filesystem\Storage;
 use Balloon\Helper;
 use Balloon\Hook;
@@ -225,9 +226,9 @@ class File extends AbstractNode implements DAV\IFile
     public function restore(int $version): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to restore node '.$this->name,
-                Exception\Forbidden::NOT_ALLOWED_TO_RESTORE
+                ForbiddenException::NOT_ALLOWED_TO_RESTORE
             );
         }
 
@@ -330,9 +331,9 @@ class File extends AbstractNode implements DAV\IFile
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to delete node '.$this->name,
-                Exception\Forbidden::NOT_ALLOWED_TO_DELETE
+                ForbiddenException::NOT_ALLOWED_TO_DELETE
             );
         }
 
@@ -678,9 +679,9 @@ class File extends AbstractNode implements DAV\IFile
     protected function validatePutRequest($file, bool $new = false, array $attributes = []): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to modify node',
-                Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
+                ForbiddenException::NOT_ALLOWED_TO_MODIFY
             );
         }
 
@@ -694,9 +695,9 @@ class File extends AbstractNode implements DAV\IFile
         }
 
         if ($this->isShareMember() && false === $new && 'w' === $this->_acl->getAclPrivilege($this->getShareNode())) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to overwrite node',
-                Exception\Forbidden::NOT_ALLOWED_TO_OVERWRITE
+                ForbiddenException::NOT_ALLOWED_TO_OVERWRITE
             );
         }
 

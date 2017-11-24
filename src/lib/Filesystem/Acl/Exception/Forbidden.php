@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Exception;
+namespace Balloon\Filesystem\Acl\Exception;
 
 class Forbidden extends \Sabre\DAV\Exception\Forbidden
 {

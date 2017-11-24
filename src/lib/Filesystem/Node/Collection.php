@@ -15,6 +15,7 @@ namespace Balloon\Filesystem\Node;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Hook;
 use Balloon\Resource;
 use Balloon\Server\User;
@@ -413,9 +414,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to delete node '.$this->name,
-                Exception\Forbidden::NOT_ALLOWED_TO_DELETE
+                ForbiddenException::NOT_ALLOWED_TO_DELETE
             );
         }
 
@@ -530,9 +531,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         if (!$this->_acl->isAllowed($this, 'm')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to share node',
-                Exception\Forbidden::NOT_ALLOWED_TO_SHARE
+                ForbiddenException::NOT_ALLOWED_TO_SHARE
             );
         }
 
@@ -611,9 +612,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function unshare(): bool
     {
         if (!$this->_acl->isAllowed($this, 'm')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to share node',
-                Exception\Forbidden::NOT_ALLOWED_TO_SHARE
+                ForbiddenException::NOT_ALLOWED_TO_SHARE
             );
         }
 
@@ -729,9 +730,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function addDirectory($name, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): self
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to create new node here',
-                Exception\Forbidden::NOT_ALLOWED_TO_CREATE
+                ForbiddenException::NOT_ALLOWED_TO_CREATE
             );
         }
 
@@ -818,9 +819,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
     public function addFile($name, $data = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to create new node here',
-                Exception\Forbidden::NOT_ALLOWED_TO_CREATE
+                ForbiddenException::NOT_ALLOWED_TO_CREATE
             );
         }
 

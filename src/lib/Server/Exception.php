@@ -10,12 +10,9 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Exception;
+namespace Balloon\Server;
 
-class NotAuthenticated extends \Sabre\DAV\Exception\NotAuthenticated
+class Exception extends \Balloon\Exception
 {
-    const HTTP_CODE = 403;
-
-    const NOT_AUTHENTICATED = 81;
-    const USER_DELETED = 82;
+    const HTTP_CODE = 400;
 }

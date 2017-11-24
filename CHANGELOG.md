@@ -71,6 +71,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] Removed attribute history from GET /file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
 * API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Convert
+* API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 

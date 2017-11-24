@@ -16,6 +16,7 @@ use Balloon\App\AppInterface;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Storage;
 use Balloon\Helper;
 use Balloon\Hook;
@@ -302,9 +303,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             );
         }
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to move node '.$this->name,
-                Exception\Forbidden::NOT_ALLOWED_TO_MOVE
+                ForbiddenException::NOT_ALLOWED_TO_MOVE
             );
         }
 
@@ -587,9 +588,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to restore node '.$this->name,
-                Exception\Forbidden::NOT_ALLOWED_TO_UNDELETE
+                ForbiddenException::NOT_ALLOWED_TO_UNDELETE
             );
         }
         if (!$this->isDeleted()) {
@@ -1136,9 +1137,9 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     public function save($attributes = [], $remove = [], ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to modify node '.$this->name,
-                Exception\Forbidden::NOT_ALLOWED_TO_MODIFY
+                ForbiddenException::NOT_ALLOWED_TO_MODIFY
             );
         }
 

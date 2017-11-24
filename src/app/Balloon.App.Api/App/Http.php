@@ -48,7 +48,6 @@ class Http implements AppInterface
             ->appendRoute(new Route('/api/v1/user', 'Balloon\Api\v1\User'))
             ->appendRoute(new Route('/api/v1/user', 'Balloon\Api\v1\Admin\User'))
             ->appendRoute(new Route('/api/v1/user/{uid:#([0-9a-z]{24})#}', 'Balloon\Api\v1\User'))
-            ->appendRoute(new Route('/api/v1/user/{uid:#([0-9a-z]{24})#}', 'Balloon\Api\v1\Admin\User'))
             ->appendRoute(new Route('/api/v1/resource', 'Balloon\Api\v1\Resource'))
             ->appendRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}', 'Balloon\Api\v1\File'))
             ->appendRoute(new Route('/api/v1/file', 'Balloon\Api\v1\File'))

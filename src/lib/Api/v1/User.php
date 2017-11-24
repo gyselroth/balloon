@@ -96,12 +96,13 @@ class User
      *
      * @param string $uid
      * @param string $uname
+     * @param bool $require_admin
      *
      * @return User
      */
-    public function _getUser(?string $uid = null, ?string $uname = null)
+    public function _getUser(?string $uid = null, ?string $uname = null, bool $require_admin=false)
     {
-        if (null !== $uid || null !== $uname) {
+        if (null !== $uid || null !== $uname || $require_admin === true) {
             if ($this->user->isAdmin()) {
                 if (null !== $uid && null !== $uname) {
                     throw new Exception\InvalidArgument('provide either uid (user id) or uname (username)');
@@ -157,7 +158,6 @@ class User
     public function getIsAdmin(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname)->isAdmin();
-
         return (new Response())->setCode(200)->setBody($result);
     }
 
@@ -401,5 +401,194 @@ class User
         $result = $this->_getUser($uid, $uname)->getAttribute($attributes);
 
         return (new Response())->setCode(200)->setBody($result);
+    }
+
+
+    /**
+     * @api {head} /api/v1/user?uid=:uid User exists?
+     * @apiVersion 1.0.0
+     * @apiName postQuota
+     * @apiUse _getUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Check if user account exists
+     *
+     * @apiExample Example usage:
+     * curl -XHEAD "https://SERVER/api/v1/user"
+     * curl -XHEAD "https://SERVER/api/v1/user/544627ed3c58891f058b4611"
+     * curl -XHEAD "https://SERVER/api/v1/user?uname=loginuser"
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 204 No Content
+     *
+     * @param string $uname
+     * @param string $uid
+     *
+     * @return Response
+     */
+    public function head(?string $uid = null, ?string $uname = null): Response
+    {
+        $result = $this->_getUser($uid, $uname, true);
+        return (new Response())->setCode(204);
+    }
+
+
+    /**
+     * @api {post} /api/v1/user
+     * @apiVersion 1
+     * @apiName postUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Create user
+     *
+     * @apiExample Example usage:
+     * curl -XPOST "https://SERVER/api/v1/user"
+     *
+     * @apiParam (POST Parameter) {string} username Name of the new user
+     * @apiParam (POST Parameter) {string} mail Mail address of the new user
+     * @apiParam (POST Parameter) {string} [namespace] Namespace of the new user
+     * @apiParam (POST Parameter) {number} [hard] The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} [soft] The new soft quota in bytes
+     *
+     * @apiSuccess (200 OK) {number} status Status Code
+     * @apiSuccess (200 OK) {object[]} user attributes
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 201 Created
+     * {
+     *      "status": 201,
+     *      "data": "544627ed3c58891f058b4633"
+     * }
+     *
+     * @param   string $username
+     * @param   string $mail
+     * @param   int $hard_quota
+     * @param   int $soft_quota
+     * @return  Response
+     */
+    public function post(string $username, string $mail, ?string $namespace=null, ?string $password=null, int $hard_quota=10000000, int $soft_quota=10000000): Response
+    {
+        $id = $this->server->addUser($username, $password, [
+            'mail' => $mail,
+            'namespace' => $namespace,
+            'hard_quota' => $hard_quota,
+            'soft_quota' => $soft_quota
+        ]);
+
+        return (new Response())->setBody((string)$id)->setCode(201);
+    }
+
+
+    /**
+     * @api {post} /api/v1/user/attributes?uid=:uid Set attributes
+     * @apiVersion 1
+     * @apiName postAttributes
+     * @apiUse _getUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Set attributes for user
+     *
+     * @apiExample Example usage:
+     * curl -XPOST "https://SERVER/api/v1/user/attributes" -d '{"attributes": ["mail": "user@example.com"]}'
+     * curl -XPOST "https://SERVER/api/v1/user/attributes?{%22attributes%22:[%22mail%22:%22user@example.com%22]}""
+     * curl -XPOST "https://SERVER/api/v1/user/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
+     * curl -XPOST "https://SERVER/api/v1/user/quota?uname=loginuser"  -d '{"attributes": ["admin": "false"]}'
+     *
+     * @apiParam (POST Parameter) {number} hard The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} soft The new soft quota in bytes
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 204 No Content
+     *
+     * @param   string $uname
+     * @param   string $uid
+     * @param   array $attributes
+     * @return  Response
+     */
+    public function postAttributes(array $attributes=[], ?string $uid=null, ?string $uname=null): Response
+    {
+        $this->_getUser($uid, $uname, true)->setAttribute($attributes)->save(array_keys($attributes));
+        return (new Response())->setCode(204);
+    }
+
+
+    /**
+     * @api {delete} /api/v1/user?uid=:uid Delete user
+     * @apiVersion 1.0.0
+     * @apiName delete
+     * @apiUse _getUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Delete user account, this will also remove any data owned by the user. If force is false, all data gets moved to the trash. If force
+     * is true all data owned by the user gets ereased.
+     *
+     * @apiExample Example usage:
+     * curl -XDELETE "https://SERVER/api/v1/user/544627ed3c58891f058b4611?force=1"
+     * curl -XDELETE "https://SERVER/api/v1/user?uname=loginuser"
+     *
+     * @apiParam (GET Parameter) {bool} [force=false] Per default the user account will be disabled, if force is set
+     * the user account gets removed completely.
+     *
+     * @apiErrorExample {json} Error-Response (Can not delete yourself):
+     * HTTP/1.1 400 Bad Request
+     * {
+     *      "status": 400,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\Conflict",
+     *          "message": "requested user was not found"
+     *      }
+     * }
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 204 No Content
+     *
+     * @param string $uname
+     * @param string $uid
+     * @param bool   $force
+     *
+     * @return Response
+     */
+    public function delete(?string $uid = null, ?string $uname = null, bool $force = false): Response
+    {
+        $user = $this->_getUser($uid, $uname, true);
+
+        if ($user->getId() === $this->user->getId()) {
+            throw new Exception\Conflict(
+                'can not delete yourself',
+                Exception\Conflict::CAN_NOT_DELETE_OWN_ACCOUNT
+            );
+        }
+
+        $user->delete($force);
+
+        return (new Response())->setCode(204);
+    }
+
+
+    /**
+     * @api {post} /api/v1/user/undelete?uid=:uid Reactivate user account
+     * @apiVersion 1.0.0
+     * @apiName postUndelete
+     * @apiUse _getUser
+     * @apiGroup User
+     * @apiPermission admin
+     * @apiDescription Apiore user account. This endpoint does not restore any data, it only does reactivate an existing user account.
+     *
+     * @apiExample Example usage:
+     * curl -XPOST "https://SERVER/api/v1/user/544627ed3c58891f058b4611/undelete"
+     * curl -XPOST "https://SERVER/api/v1/user/undelete?user=loginuser"
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 204 No Content
+     *
+     * @param string $uname
+     * @param string $uid
+     *
+     * @return Response
+     */
+    public function postUndelete(?string $uid = null, ?string $uname = null): Response
+    {
+        $this->_getUser($uid, $uname, true)->undelete();
+        return (new Response())->setCode(204);
     }
 }
