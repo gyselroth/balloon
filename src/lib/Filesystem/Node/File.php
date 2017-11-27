@@ -183,6 +183,7 @@ class File extends AbstractNode implements DAV\IFile
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
+                'meta' => $this->meta,
                 'app_attributes' => $this->app_attributes,
             ], NodeInterface::CONFLICT_NOACTION, true);
         }

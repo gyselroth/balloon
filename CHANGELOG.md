@@ -78,7 +78,9 @@ This major relase contains various fixes, changes and new features including:
 ## 1.0.18-dev
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**:
+
 * CORE: [FIX] fixed invalid share references in delta #102
+* CORE: [FIX] meta data gets now copied as well during cloning a node #105
 
 
 ## 1.0.17
