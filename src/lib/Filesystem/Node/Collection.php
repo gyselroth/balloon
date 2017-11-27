@@ -128,6 +128,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'filter' => $this->filter,
+                'meta' => $this->meta,
                 'app_attributes' => $this->app_attributes,
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
