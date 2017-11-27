@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Balloon\Console;
 
-use TaskScheduler\Async as AsyncQueue;
 use Balloon\Hook;
 use GetOpt\GetOpt;
 use GetOpt\Option;
 use Psr\Log\LoggerInterface;
+use TaskScheduler\Async as AsyncQueue;
 
 class Async implements ConsoleInterface
 {

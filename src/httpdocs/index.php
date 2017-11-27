@@ -32,12 +32,12 @@ $composer = require 'vendor/autoload.php';
 if (extension_loaded('apc') && apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
-    $file =  constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
+    $file = constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
     $default = require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php';
     $config = new Config(new Struct($default));
 
     if (is_readable($file)) {
-        $xml = new Xml( constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml',  constant('APPLICATION_ENV'));
+        $xml = new Xml(constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', constant('APPLICATION_ENV'));
         $config->inject($xml);
     }
 

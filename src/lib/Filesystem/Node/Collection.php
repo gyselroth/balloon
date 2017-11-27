@@ -17,7 +17,6 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Hook;
-use Balloon\Resource;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectId;

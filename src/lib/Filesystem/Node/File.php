@@ -15,7 +15,7 @@ namespace Balloon\Filesystem\Node;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\Acl\ForbiddenException as ForbiddenException;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Storage;
 use Balloon\Helper;
 use Balloon\Hook;
@@ -256,7 +256,7 @@ class File extends AbstractNode implements DAV\IFile
         if (null !== $file) {
             try {
                 $exists = $this->_storage->getFileMeta($this, $this->history[$v]['storage']);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 throw new Exception('could not restore to version '.$version.', version content does not exists');
             }
         }

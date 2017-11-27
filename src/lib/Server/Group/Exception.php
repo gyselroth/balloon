@@ -18,4 +18,5 @@ class Exception extends \Balloon\Server\Exception
 
     const ALREADY_EXISTS = 102;
     const DOES_NOT_EXISTS = 103;
+    const UNIQUE_MEMBER = 103;
 }

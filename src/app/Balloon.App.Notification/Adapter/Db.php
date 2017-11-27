@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Adapter;
 
+use Balloon\App\Notification\Notifier;
 use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
-use Balloon\App\Notification\Notifier;
 
 class Db implements AdapterInterface
 {
@@ -25,19 +25,17 @@ class Db implements AdapterInterface
      */
     protected $logger;
 
-
     /**
-     * Notifier
+     * Notifier.
      *
      * @var Notifier
      */
     protected $notifier;
 
-
     /**
      * Constructor.
      *
-     * @param Notifier $notifier
+     * @param Notifier        $notifier
      * @param LoggerInterface $logger
      */
     public function __construct(Notifier $notifier, LoggerInterface $logger)
@@ -52,8 +50,8 @@ class Db implements AdapterInterface
     public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
     {
         $this->notifier->postNotification($receiver, $sender, $subject, $body, $context);
-        return true;
 
+        return true;
         /*foreach ($receiver as $user) {
             $this->logger->debug('send notification ['.$subject.'] to user ['.$user->getId().']', [
                 'category' => get_class($this),

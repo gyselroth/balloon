@@ -14,14 +14,15 @@ namespace Balloon;
 
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
-use Balloon\Server\Group;
-use Balloon\Server\User;
 use Balloon\Server\Exception;
-use Balloon\Server\User\Exception As UserException;
+use Balloon\Server\Group;
 use Balloon\Server\Group\Exception as GroupException;
+use Balloon\Server\User;
+use Balloon\Server\User\Exception as UserException;
 use Generator;
 use Micro\Auth\Identity;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
@@ -195,11 +196,11 @@ class Server
      *
      * @param string $username
      * @param string $password
-     * @param array $attributes
+     * @param array  $attributes
      *
      * @return ObjectId
      */
-    public function addUser(string $username, ?string $password=null, array $attributes=[]): ObjectId
+    public function addUser(string $username, ?string $password = null, array $attributes = []): ObjectId
     {
         if ($this->userExists($username)) {
             throw new UserException('user does already exists', UserException::ALREADY_EXISTS);
@@ -209,15 +210,16 @@ class Server
             'deleted' => false,
         ];
 
-        $attributes = array_merge($default, $attributes);
+        $attributes = array_merge($defaults, $attributes);
         $attributes['created'] = new UTCDateTime();
         $attributes['username'] = $username;
 
-        if ($password !== null) {
+        if (null !== $password) {
             $attributes['password'] = password_hash($password, PASSWORD_DEFAULT);
         }
 
         $result = $this->db->user->insertOne($attributes);
+
         return $result->getInsertedId();
     }
 
@@ -228,9 +230,8 @@ class Server
      */
     public function userExists(string $username): bool
     {
-        return  $this->db->user->count(['username' => $username]) === 1;
+        return  1 === $this->db->user->count(['username' => $username]);
     }
-
 
     /**
      * Check if group exists.
@@ -239,9 +240,8 @@ class Server
      */
     public function groupExists(string $name): bool
     {
-        return  $this->db->group->count(['name' => $name]) === 1;
+        return  1 === $this->db->group->count(['name' => $name]);
     }
-
 
     /**
      * Get user by id.
@@ -301,7 +301,7 @@ class Server
         $this->hook->run('preServerIdentity', [$identity, &$result]);
 
         if (null === $result) {
-            throw new Exception\NotAuthenticated('user does not exists', Exception\NotAuthenticated::User_DOES_NOT_EXISTS);
+            throw new Exception\NotAuthenticated('user does not exists', Exception\NotAuthenticated::USER_DOES_NOT_EXISTS);
         }
 
         if (isset($result['deleted']) && true === $result['deleted']) {
@@ -339,10 +339,10 @@ class Server
     public function getUserByName(string $name): User
     {
         $attributes = $this->db->user->findOne([
-           'username' => $name
+           'username' => $name,
         ]);
 
-        if ($attributes === null) {
+        if (null === $attributes) {
             throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
         }
 
@@ -422,36 +422,36 @@ class Server
     }
 
     /**
-     * Add group
+     * Add group.
      *
      * @param string $name
-     * @param array $member
-     * @param array $attributes
+     * @param array  $member
+     * @param array  $attributes
      *
      * @return ObjectId
      */
-    public function addGroup(string $name, array $member, array $attributes=[]): ObjectId
+    public function addGroup(string $name, array $member, array $attributes = []): ObjectId
     {
         if ($this->groupExists($name)) {
-            throw new GroupException('group does already exists', GroupException::DOES_ALREADY_EXISTS);
+            throw new GroupException('group does already exists', GroupException::ALREADY_EXISTS);
         }
 
         $defaults = [
             'name' => $name,
             'created' => new UTCDateTime(),
             'deleted' => false,
-            'member' => []
+            'member' => [],
         ];
 
         $attributes = array_merge($attributes, $defaults);
 
-        foreach($member as $id) {
+        foreach ($member as $id) {
             $id = new ObjectId($id);
-            if(!$this->userExists($id)) {
+            if (!$this->userExists($id)) {
                 throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
             }
 
-            if(!in_array($id,  $attributes['member'])) {
+            if (!in_array($id, $attributes['member'], true)) {
                 throw new GroupException('group can only hold a user once', GroupException::UNIQUE_MEMBER);
             }
 
@@ -459,6 +459,7 @@ class Server
         }
 
         $result = $this->db->group->insertOne($attributes);
+
         return $result->getInsertedId();
     }
 }

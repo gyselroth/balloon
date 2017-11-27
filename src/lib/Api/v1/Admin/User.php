@@ -47,7 +47,6 @@ class User extends SimpleUser
         return (new Response())->setCode(204);
     }
 
-
     /**
      * @api {post} /api/v1/user
      * @apiVersion 1
@@ -75,25 +74,25 @@ class User extends SimpleUser
      *      "data": [] //shortened
      * }
      *
-     * @param   string $username
-     * @param   string $mail
-     * @param   int $hard_quota
-     * @param   int $soft_quota
-     * @return  Response
+     * @param string $username
+     * @param string $mail
+     * @param int    $hard_quota
+     * @param int    $soft_quota
+     *
+     * @return Response
      */
-    public function post(string $username, string $mail, ?string $namespace=null, ?string $password=null, int $hard_quota=10000000, int $soft_quota=10000000): Response
+    public function post(string $username, string $mail, ?string $namespace = null, ?string $password = null, int $hard_quota = 10000000, int $soft_quota = 10000000): Response
     {
         $this->server->addUser([
             'username' => $username,
             'mail' => $mail,
             'namespace' => $namespace,
             'hard_quota' => $hard_quota,
-            'soft_quota' => $soft_quota
+            'soft_quota' => $soft_quota,
         ], $password);
 
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {post} /api/v1/user/attributes?uid=:uid Set attributes
@@ -116,17 +115,18 @@ class User extends SimpleUser
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $uname
-     * @param   string $uid
-     * @param   array $attributes
-     * @return  Response
+     * @param string $uname
+     * @param string $uid
+     * @param array  $attributes
+     *
+     * @return Response
      */
-    public function postAttributes(array $attributes=[], ?string $uid=null, ?string $uname=null): Response
+    public function postAttributes(array $attributes = [], ?string $uid = null, ?string $uname = null): Response
     {
         $this->_getUser($uid, $uname)->setAttribute($attributes)->save(array_keys($attributes));
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
@@ -163,7 +163,6 @@ class User extends SimpleUser
 
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {delete} /api/v1/user?uid=:uid Delete user
@@ -216,7 +215,6 @@ class User extends SimpleUser
 
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {post} /api/v1/user/undelete?uid=:uid Apiore user

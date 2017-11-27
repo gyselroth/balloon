@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon;
 
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
@@ -363,7 +364,8 @@ class Filesystem
             }
 
             return $this->findNodeWithId($id, $class, $deleted);
-        } elseif (null !== $path) {
+        }
+        if (null !== $path) {
             if (null === $deleted) {
                 $deleted = NodeInterface::DELETED_EXCLUDE;
             }
@@ -507,6 +509,7 @@ class Filesystem
 
         foreach ($result as $node) {
             ++$cursor;
+
             try {
                 $node = $this->initNode($node);
 
@@ -565,9 +568,9 @@ class Filesystem
         }
 
         if (!$this->acl->isAllowed($instance, 'r')) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'not allowed to access node',
-                Exception\Forbidden::NOT_ALLOWED_TO_ACCESS
+                ForbiddenException::NOT_ALLOWED_TO_ACCESS
             );
         }
 

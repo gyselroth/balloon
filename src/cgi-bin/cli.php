@@ -26,12 +26,12 @@ set_include_path(implode(PATH_SEPARATOR, [
 
 $composer = require 'vendor/autoload.php';
 
-$file =  constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
+$file = constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
 $default = require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php';
 $config = new Config(new Struct($default));
 
 if (is_readable($file)) {
-    $xml = new Xml( constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', constant('APPLICATION_ENV'));
+    $xml = new Xml(constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', constant('APPLICATION_ENV'));
     $config->inject($xml);
 }
 

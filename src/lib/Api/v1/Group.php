@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\Api\v1;
 
 use Balloon\Exception;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -96,13 +97,13 @@ class Group
      *
      * @param string $id
      * @param string $name
-     * @param bool $require_admin
+     * @param bool   $require_admin
      *
      * @return Group
      */
-    public function _getGroup(?string $id = null, ?string $name = null, bool $require_admin=fals)
+    public function _getGroup(?string $id = null, ?string $name = null, bool $require_admin = false)
     {
-        if (null !== $id || null !== $name || $require_admin === true) {
+        if (null !== $id || null !== $name || true === $require_admin) {
             if ($this->group->isAdmin()) {
                 if (null !== $id && null !== $name) {
                     throw new Exception\InvalidArgument('provide either id (group id) or name (groupname)');
@@ -115,15 +116,14 @@ class Group
                 return $this->server->getGroupByName($name);
             }
 
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                     'submitted parameters require to have admin privileges',
-                    Exception\Forbidden::ADMIN_PRIV_REQUIRED
+                    ForbiddenException::ADMIN_PRIV_REQUIRED
                 );
         }
 
         return $this->group;
     }
-
 
     /**
      * @api {get} /api/v1/group/member Group member
@@ -162,7 +162,6 @@ class Group
 
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {get} /api/v1/group/attributes Group attributes
@@ -203,7 +202,6 @@ class Group
         return (new Response())->setCode(200)->setBody($result);
     }
 
-
     /**
      * @api {head} /api/v1/group?id=:id Group exists?
      * @apiVersion 1.0.0
@@ -229,9 +227,9 @@ class Group
     public function head(?string $id = null, ?string $name = null): Response
     {
         $result = $this->_getGroup($id, $name, true);
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {post} /api/v1/group
@@ -258,17 +256,18 @@ class Group
      *      "data": "544627ed3c58891f058b4633"
      * }
      *
-     * @param   string $name
-     * @param   array $member
-     * @param   array $attributes
-     * @return  Response
+     * @param string $name
+     * @param array  $member
+     * @param array  $attributes
+     *
+     * @return Response
      */
-    public function post(string $name, array $member, array $attributes=[]): Response
+    public function post(string $name, array $member, array $attributes = []): Response
     {
         $id = $this->server->addGroup($name, $member, $attributes);
-        return (new Response())->setBody((string)$id)->setCode(201);
-    }
 
+        return (new Response())->setBody((string) $id)->setCode(201);
+    }
 
     /**
      * @api {post} /api/v1/group/attributes?id=:id Set attributes
@@ -291,17 +290,18 @@ class Group
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $name
-     * @param   string $id
-     * @param   array $attributes
-     * @return  Response
+     * @param string $name
+     * @param string $id
+     * @param array  $attributes
+     *
+     * @return Response
      */
-    public function postAttributes(array $attributes=[], ?string $id=null, ?string $name=null): Response
+    public function postAttributes(array $attributes = [], ?string $id = null, ?string $name = null): Response
     {
         $this->_getGroup($id, $name, true)->setAttribute($attributes)->save(array_keys($attributes));
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {delete} /api/v1/group?id=:id Delete group
@@ -346,7 +346,6 @@ class Group
         return (new Response())->setCode(204);
     }
 
-
     /**
      * @api {post} /api/v1/group/undelete?id=:id Reactivate group account
      * @apiVersion 1.0.0
@@ -371,6 +370,7 @@ class Group
     public function postUndelete(?string $id = null, ?string $name = null): Response
     {
         $this->_getGroup($id, $name)->undelete();
+
         return (new Response())->setCode(204);
     }
 }

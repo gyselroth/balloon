@@ -15,8 +15,8 @@ namespace Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
-use MongoDB\BSON\UTCDateTime;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 
 class Acl
@@ -191,8 +191,8 @@ class Acl
     /**
      * Validate acl.
      *
-     * @param  Server $server
-     * @param array $acl
+     * @param Server $server
+     * @param array  $acl
      *
      * @return bool
      */
@@ -212,8 +212,8 @@ class Acl
     /**
      * Validate rule.
      *
-     * @param  Server $server
-     * @param array $rule
+     * @param Server $server
+     * @param array  $rule
      *
      * @return bool
      */
@@ -236,11 +236,42 @@ class Acl
         return true;
     }
 
+    /**
+     * Get acl with resolved roles.
+     *
+     * @param Server $server
+     * @param array  $acl
+     *
+     * @return array
+     */
+    public function resolveAclTable(Server $server, array $acl): array
+    {
+        foreach ($acl as &$rule) {
+            try {
+                if ('user' === $rule['type']) {
+                    $rule['name'] = $server->getUserById(new ObjectId($rule['id']))
+                        ->getAttribute('name');
+                } elseif ('group' === $rule['type']) {
+                    $rule['name'] = $server->getGroupById(new ObjectId($rule['id']))
+                        ->getAttribute('name');
+                } else {
+                    throw new Exception('invalid acl rule resource type');
+                }
+            } catch (\Exception $e) {
+                $this->logger->error('acl role ['.$rule['id'].'] could not be resolved, remove from list', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        return $acl;
+    }
 
     /**
-     * Verify if role exists
+     * Verify if role exists.
      *
-     * @param  Server $server
+     * @param Server $server
      * @param string $type
      * @param string $id
      *
@@ -248,45 +279,13 @@ class Acl
      */
     protected function verifyRole(Server $server, string $type, ObjectId $id): bool
     {
-        if($type === self::TYPE_USER && $server->getUserById($id)) {
+        if (self::TYPE_USER === $type && $server->getUserById($id)) {
             return true;
-        } elseif($type === self::TYPE_GROUP && $server->getGroupById($id)) {
-            return true;
-        } else {
-            throw new Exception('invalid acl rule resource type');
         }
-    }
-
-
-    /**
-     * Get acl with resolved roles
-     *
-     * @param  Server $server
-     * @param  array $acl
-     *
-     * @return array
-     */
-    public function resolveAclTable(Server $server, array $acl): array
-    {
-        foreach($acl as &$rule) {
-            try {
-                if($rule['type'] === 'user') {
-                    $rule['name'] = $server->getUserById(new ObjectId($rule['id']))
-                        ->getAttribute('name');
-                } elseif($rule['type'] === 'group') {
-                    $rule['name'] = $server->getGroupById(new ObjectId($rule['id']))
-                        ->getAttribute('name');
-                } else {
-                    throw new Exception('invalid acl rule resource type');
-                }
-            } catch(\Exception $e) {
-                $this->logger->error('acl role ['.$rule['id'].'] could not be resolved, remove from list', [
-                    'category' => get_class($this),
-                    'exception' => $e
-                ]);
-            }
+        if (self::TYPE_GROUP === $type && $server->getGroupById($id)) {
+            return true;
         }
 
-        return $acl;
+        throw new Exception('invalid acl rule resource type');
     }
 }

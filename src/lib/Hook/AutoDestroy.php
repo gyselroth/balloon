@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Balloon\Hook;
 
-use TaskScheduler\Async;
 use Balloon\Async\AutoDestroy as Job;
+use TaskScheduler\Async;
 
 class AutoDestroy extends AbstractHook
 {

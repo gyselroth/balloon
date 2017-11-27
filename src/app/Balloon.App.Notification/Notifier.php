@@ -17,10 +17,10 @@ use Balloon\App\Notification\Adapter\Db;
 use Balloon\App\Notification\Adapter\Mail;
 use Balloon\Server\User;
 use Micro\Container\AdapterAwareInterface;
-use Psr\Log\LoggerInterface;
-use MongoDB\Database;
 use MongoDB\BSON\ObjectId;
+use MongoDB\Database;
 use MongoDB\Driver\Cursor;
+use Psr\Log\LoggerInterface;
 
 class Notifier implements AdapterAwareInterface
 {
@@ -56,14 +56,14 @@ class Notifier implements AdapterAwareInterface
     protected $logger;
 
     /**
-     * Database
+     * Database.
      *
      * @var Database
      */
     protected $db;
 
     /**
-     * Collection name
+     * Collection name.
      *
      * @var string
      */
@@ -72,7 +72,7 @@ class Notifier implements AdapterAwareInterface
     /**
      * Constructor.
      *
-     * @param Database $db
+     * @param Database       $db
      * @param LoggerInterace $logger
      * @param iterable       $config
      */
@@ -210,7 +210,6 @@ class Notifier implements AdapterAwareInterface
         }
 
         return $this->adapter[$name];
-
     }
 
     /**
@@ -236,15 +235,15 @@ class Notifier implements AdapterAwareInterface
         return $list;
     }
 
-
     /**
-     * Add notification
+     * Add notification.
      *
-     * @param array $receiver
-     * @param User $user
+     * @param array  $receiver
+     * @param User   $user
      * @param string $subject
      * @param string $body
-     * @param array $context
+     * @param array  $context
+     *
      * @return ObjectId
      */
     public function postNotification(array $receiver, ?User $sender, string $subject, string $body, array $context = []): ObjectId
@@ -256,68 +255,69 @@ class Notifier implements AdapterAwareInterface
             'receiver' => [],
         ];
 
-        if($sender instanceof User) {
+        if ($sender instanceof User) {
             $data['sender'] = $sender->getId();
         }
 
-        foreach($receiver as $user) {
+        foreach ($receiver as $user) {
             $data['receiver'][] = $user->getId();
         }
 
         $result = $this->db->{$this->collection_name}->insertOne($data);
+
         return $result->getInsertedId();
     }
 
-
     /**
-     * Get notifications
+     * Get notifications.
      *
      * @param User $user
+     *
      * @return Cursor
      */
     public function getNotifications(User $user): Cursor
     {
         $result = $this->db->{$this->collection_name}->find(['receiver' => $user->getId()]);
+
         return $result;
     }
 
-
     /**
-     * Get notifications
+     * Get notifications.
      *
-     * @param User $user
+     * @param User     $user
      * @param ObjectId $id
+     *
      * @return bool
      */
     public function deleteNotification(User $user, ObjectId $id): bool
     {
         $result = $this->db->{$this->collection_name}->findOne([
             '_id' => $id,
-            'receiver' => $user->getId()
+            'receiver' => $user->getId(),
         ]);
 
-        if($result === null) {
+        if (null === $result) {
             throw new Exception('notification not found');
         }
 
-        if(count($result['receiver']) <= 1) {
+        if (count($result['receiver']) <= 1) {
             $this->logger->debug('notification ['.$id.'] has only one member left, remove it', [
-                'category' => get_class($this)
+                'category' => get_class($this),
             ]);
 
             $result = $this->db->{$this->collection_name}->deleteOne(['_id' => $id]);
         } else {
             $this->logger->debug('notification ['.$id.'] has other members left, remove member ['.$user->getId().']', [
-                'category' => get_class($this)
+                'category' => get_class($this),
             ]);
 
             $result = $this->db->{$this->collection_name}->update([
                 '_id' => $id,
                 '$pull' => [
-                    'receiver' => $user->getId()
-                ]
+                    'receiver' => $user->getId(),
+                ],
             ]);
-
         }
 
         return true;

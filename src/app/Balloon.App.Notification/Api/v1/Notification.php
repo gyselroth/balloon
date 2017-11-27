@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Api\v1;
 
 use Balloon\App\Notification\Notifier;
-use TaskScheduler\Async;
 use Balloon\Async\Mail;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Http\Response;
-use Zend\Mail\Message;
-use Balloon\Exception;
 use MongoDB\BSON\ObjectId;
+use TaskScheduler\Async;
+use Zend\Mail\Message;
 
 class Notification
 {
@@ -90,15 +90,14 @@ class Notification
     public function get(): Response
     {
         $body = [];
-        foreach($this->notifier->getNotifications($this->user) as $message) {
+        foreach ($this->notifier->getNotifications($this->user) as $message) {
             $note = $message;
-            $note['id'] = (string)$note['_id'];
-            unset($note['_id']);
-            unset($note['receiver']);
+            $note['id'] = (string) $note['_id'];
+            unset($note['_id'], $note['receiver']);
 
             $note['sender'] = $this->server->getUserById($note['sender'])->getAttribute([
                 'id',
-                'username'
+                'username',
             ]);
 
             $body[] = $note;
@@ -124,6 +123,7 @@ class Notification
     public function delete(string $id): Response
     {
         $this->notifier->deleteNotification($this->user, new ObjectId($id));
+
         return (new Response())->setCode(204);
     }
 
@@ -166,9 +166,9 @@ class Notification
     public function postBroadcast(string $subject, string $body): Response
     {
         if (!$this->user->isAdmin()) {
-            throw new Exception\Forbidden(
+            throw new ForbiddenException(
                 'submitted parameters require to have admin privileges',
-                    Exception\Forbidden::ADMIN_PRIV_REQUIRED
+                    ForbiddenException::ADMIN_PRIV_REQUIRED
                 );
         }
 

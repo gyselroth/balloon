@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Balloon\Hook;
 
-use TaskScheduler\Async;
 use Balloon\Async\CleanTrash as Job;
+use TaskScheduler\Async;
 
 class CleanTrash extends AbstractHook
 {

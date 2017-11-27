@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Adapter;
 
 use Balloon\App\Notification\Exception;
-use TaskScheduler\Async;
 use Balloon\Async\Mail as MailJob;
 use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
+use TaskScheduler\Async;
 use Zend\Mail\Message;
 
 class Mail implements AdapterInterface
@@ -130,7 +130,7 @@ class Mail implements AdapterInterface
         }
 
         return $this->async->addJob(MailJob::class, $mail->toString(), [
-            Async::OPTION_RETRY => 2
+            Async::OPTION_RETRY => 2,
         ]);
     }
 }

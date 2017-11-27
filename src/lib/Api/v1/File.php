@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\Api\v1;
 
 use Balloon\Exception;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Helper;
 use Micro\Http\Response;
@@ -499,7 +500,7 @@ class File extends Node
 
                 return (new Response())->setCode(201)->setBody($result);
             }
-        } catch (Exception\Forbidden $e) {
+        } catch (ForbiddenException $e) {
             throw new Exception\Conflict(
                 'a node called '.$name.' does already exists in this collection',
                 Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS

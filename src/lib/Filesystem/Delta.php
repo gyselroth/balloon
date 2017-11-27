@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem;
 
-use Balloon\Exception\Forbidden;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta\Exception;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
@@ -346,7 +346,7 @@ class Delta
                 } else {
                     $list[$fields['path']] = $fields;
                 }
-            } catch (Forbidden $e) {
+            } catch (ForbiddenException $e) {
                 //no delta entriy for a node where we do not have access to
             } catch (\Exception $e) {
                 try {

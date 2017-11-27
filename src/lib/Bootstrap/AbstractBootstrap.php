@@ -67,7 +67,7 @@ abstract class AbstractBootstrap
         });
 
         $container = $this->container;
-        $this->container->add(Client::class, function () use($container) {
+        $this->container->add(Client::class, function () use ($container) {
             return new Client($container->getParam(Client::class, 'uri'), [], [
                 'typeMap' => [
                     'root' => 'array',
@@ -77,7 +77,7 @@ abstract class AbstractBootstrap
             ]);
         });
 
-        $this->container->add(Database::class, function () use($container) {
+        $this->container->add(Database::class, function () use ($container) {
             return $container->get(Client::class)->balloon;
         });
 

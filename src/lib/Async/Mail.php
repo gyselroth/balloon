@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Balloon\Async;
 
 use Psr\Log\LoggerInterface;
+use TaskScheduler\AbstractJob;
 use Zend\Mail\Message;
 use Zend\Mail\Transport\TransportInterface;
-use TaskScheduler\AbstractJob;
 
 class Mail extends AbstractJob
 {

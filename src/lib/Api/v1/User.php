@@ -97,13 +97,13 @@ class User
      *
      * @param string $uid
      * @param string $uname
-     * @param bool $require_admin
+     * @param bool   $require_admin
      *
      * @return User
      */
-    public function _getUser(?string $uid = null, ?string $uname = null, bool $require_admin=false)
+    public function _getUser(?string $uid = null, ?string $uname = null, bool $require_admin = false)
     {
-        if (null !== $uid || null !== $uname || $require_admin === true) {
+        if (null !== $uid || null !== $uname || true === $require_admin) {
             if ($this->user->isAdmin()) {
                 if (null !== $uid && null !== $uname) {
                     throw new Exception\InvalidArgument('provide either uid (user id) or uname (username)');
@@ -124,7 +124,6 @@ class User
 
         return $this->user;
     }
-
 
     /**
      * @api {get} /api/v1/user/is-admin Is Admin?
@@ -159,9 +158,9 @@ class User
     public function getIsAdmin(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname)->isAdmin();
+
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {get} /api/v1/user/whoami Who am I?
@@ -199,7 +198,6 @@ class User
 
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {get} /api/v1/user/node-attribute-summary Node attribute summary
@@ -239,7 +237,6 @@ class User
 
         return (new Response())->setCode(200)->setBody($result);
     }
-
 
     /**
      * @api {get} /api/v1/user/groups Group membership
@@ -404,7 +401,6 @@ class User
         return (new Response())->setCode(200)->setBody($result);
     }
 
-
     /**
      * @api {head} /api/v1/user?uid=:uid User exists?
      * @apiVersion 1.0.0
@@ -430,9 +426,9 @@ class User
     public function head(?string $uid = null, ?string $uname = null): Response
     {
         $result = $this->_getUser($uid, $uname, true);
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {post} /api/v1/user
@@ -461,24 +457,24 @@ class User
      *      "data": "544627ed3c58891f058b4633"
      * }
      *
-     * @param   string $username
-     * @param   string $mail
-     * @param   int $hard_quota
-     * @param   int $soft_quota
-     * @return  Response
+     * @param string $username
+     * @param string $mail
+     * @param int    $hard_quota
+     * @param int    $soft_quota
+     *
+     * @return Response
      */
-    public function post(string $username, string $mail, ?string $namespace=null, ?string $password=null, int $hard_quota=10000000, int $soft_quota=10000000): Response
+    public function post(string $username, string $mail, ?string $namespace = null, ?string $password = null, int $hard_quota = 10000000, int $soft_quota = 10000000): Response
     {
         $id = $this->server->addUser($username, $password, [
             'mail' => $mail,
             'namespace' => $namespace,
             'hard_quota' => $hard_quota,
-            'soft_quota' => $soft_quota
+            'soft_quota' => $soft_quota,
         ]);
 
-        return (new Response())->setBody((string)$id)->setCode(201);
+        return (new Response())->setBody((string) $id)->setCode(201);
     }
-
 
     /**
      * @api {post} /api/v1/user/attributes?uid=:uid Set attributes
@@ -501,17 +497,18 @@ class User
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param   string $uname
-     * @param   string $uid
-     * @param   array $attributes
-     * @return  Response
+     * @param string $uname
+     * @param string $uid
+     * @param array  $attributes
+     *
+     * @return Response
      */
-    public function postAttributes(array $attributes=[], ?string $uid=null, ?string $uname=null): Response
+    public function postAttributes(array $attributes = [], ?string $uid = null, ?string $uname = null): Response
     {
         $this->_getUser($uid, $uname, true)->setAttribute($attributes)->save(array_keys($attributes));
+
         return (new Response())->setCode(204);
     }
-
 
     /**
      * @api {delete} /api/v1/user?uid=:uid Delete user
@@ -565,7 +562,6 @@ class User
         return (new Response())->setCode(204);
     }
 
-
     /**
      * @api {post} /api/v1/user/undelete?uid=:uid Reactivate user account
      * @apiVersion 1.0.0
@@ -590,6 +586,7 @@ class User
     public function postUndelete(?string $uid = null, ?string $uname = null): Response
     {
         $this->_getUser($uid, $uname, true)->undelete();
+
         return (new Response())->setCode(204);
     }
 }
