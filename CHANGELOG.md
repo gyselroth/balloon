@@ -75,6 +75,12 @@ This major relase contains various fixes, changes and new features including:
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 
+## 1.0.18-dev
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**:
+* CORE: [FIX] fixed invalid share references in delta #102
+
+
 ## 1.0.17
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Nov 17 13:51:22 CET 2017
