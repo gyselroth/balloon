@@ -246,11 +246,11 @@ class Acl
      */
     public function resolveAclTable(Server $server, array $acl): array
     {
-        foreach ($acl as &$rule) {
+        foreach ($acl as $key => &$rule) {
             try {
                 if ('user' === $rule['type']) {
                     $rule['name'] = $server->getUserById(new ObjectId($rule['id']))
-                        ->getAttribute('name');
+                        ->getAttribute('username');
                 } elseif ('group' === $rule['type']) {
                     $rule['name'] = $server->getGroupById(new ObjectId($rule['id']))
                         ->getAttribute('name');
@@ -258,6 +258,7 @@ class Acl
                     throw new Exception('invalid acl rule resource type');
                 }
             } catch (\Exception $e) {
+                unset($acl[$key]);
                 $this->logger->error('acl role ['.$rule['id'].'] could not be resolved, remove from list', [
                     'category' => get_class($this),
                     'exception' => $e,
