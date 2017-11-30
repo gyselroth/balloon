@@ -773,20 +773,11 @@ class Filesystem
         ?bool &$has_more = null,
         ?INode $parent = null)
     {
-        $default = [
-            '_id'       => 1,
-            'directory' => 1,
-            'shared'    => 1,
-            'name'      => 1,
-            'parent'    => 1,
-        ];
-
-        $search_attributes = array_merge($default, array_fill_keys($attributes, 1));
         $list   = [];
-        $result =$this->db->storage->find($filter, [
+        
+	$result =$this->db->storage->find($filter, [
             'skip'      => $cursor,
             'limit'     => $limit,
-            'projection'=> $search_attributes
         ]);
         
         $left =$this->db->storage->count($filter, [
