@@ -891,6 +891,11 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             $this->_logger->info('added new collection ['.$save['_id'].'] under parent ['.$this->_id.']', [
                 'category' => get_class($this),
             ]);
+            
+	    if(!$this->isRoot()) {
+                $this->changed = $save['changed'];
+                $this->save('changed');
+            }            
 
             $new = new Collection(new BSONDocument($save), $this->_fs, true);
             $this->_pluginmgr->run('postCreateCollection', [$this, $new, $clone]);
@@ -974,7 +979,12 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [
                 'category' => get_class($this),
             ]);
-            
+
+            if(!$this->isRoot()) {
+                $this->changed = $save['changed'];
+                $this->save('changed');
+            }            
+
             $file = new File(new BSONDocument($save), $this->_fs, true);
 
             try {
