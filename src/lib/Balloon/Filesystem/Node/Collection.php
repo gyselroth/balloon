@@ -298,7 +298,13 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
         }
         
         if (!empty($this->filter)) {
-            foreach ($this->_fs->findNodesWithCustomFilterUser($deleted, $this->filter) as $node) {
+            if(is_string($this->filter)) {
+                $filter = json_decode($this->filter, true);
+            } else {
+                $filter = $this->filter;
+            }
+
+            foreach ($this->_fs->findNodesWithCustomFilterUser($deleted, $filter) as $node) {
                 yield $node;
             }
         }

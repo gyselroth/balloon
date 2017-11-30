@@ -830,7 +830,7 @@ class Node extends Controller
                 break;
             
                 case 'filter':
-                    $attributes['filter'] = (array)$attributes['filter'];
+                    $attributes['filter'] = json_encode((array)$attributes['filter']);
                 break;
                    
                 case 'destroy':
