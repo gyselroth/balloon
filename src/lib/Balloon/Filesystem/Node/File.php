@@ -183,7 +183,8 @@ class File extends Node implements INode, DAV\IFile
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
-                'thumbnail' => $this->thumbnail
+                'thumbnail' => $this->thumbnail,
+		'meta' => $this->meta
             ], INode::CONFLICT_NOACTION, true);
         }
 

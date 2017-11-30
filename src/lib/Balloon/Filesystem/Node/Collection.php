@@ -133,6 +133,7 @@ class Collection extends Node implements INode, DAV\ICollection, DAV\IQuota
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'filter'  => $this->filter,
+		'meta' => $this->meta
             ], INode::CONFLICT_NOACTION, true);
         }
 
