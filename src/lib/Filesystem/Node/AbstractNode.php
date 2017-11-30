@@ -1143,6 +1143,10 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             );
         }
 
+        if($this instanceof Collection && $this->isRoot()) {
+            return false;
+        }
+
         $remove = (array) $remove;
         $attributes = (array) $attributes;
         $this->_hook->run(

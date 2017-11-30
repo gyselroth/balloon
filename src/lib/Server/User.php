@@ -492,7 +492,7 @@ class User
 
         $exists = [];
         foreach ($item as $child) {
-            if (!in_array($child['reference'], $found, true)) {
+            if (!in_array($child['reference'], $found)) {
                 $this->logger->debug('found dead reference ['.$child['_id'].'] pointing to share ['.$child['reference'].']', [
                     'category' => get_class($this),
                 ]);

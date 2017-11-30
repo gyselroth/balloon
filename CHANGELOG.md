@@ -81,6 +81,7 @@ This major relase contains various fixes, changes and new features including:
 
 * CORE: [FIX] fixed invalid share references in delta #102
 * CORE: [FIX] meta data gets now copied as well during cloning a node #105
+* CORE: [FIX] changed timestamp on a collection now gets changed after adding a new child node #101
 
 
 ## 1.0.17

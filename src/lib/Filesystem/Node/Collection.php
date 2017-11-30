@@ -791,6 +791,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
                 'category' => get_class($this),
             ]);
 
+            $this->changed = $save['changed'];
+            $this->save('changed');
+
             $new = $this->_fs->initNode($save);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
 
@@ -883,6 +886,9 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [
                 'category' => get_class($this),
             ]);
+
+            $this->changed = $save['changed'];
+            $this->save('changed');
 
             $file = $this->_fs->initNode($save);
 
