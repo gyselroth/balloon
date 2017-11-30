@@ -21,7 +21,7 @@ var balloon = {
     /**
      * Version
      */
-    BALLOON_VERSION: '1.0.17',
+    BALLOON_VERSION: '1.0.18',
 
 
     /**
@@ -5721,7 +5721,7 @@ var balloon = {
             e.preventDefault();
         }
         
-        var allowed = new RegExp("^[a-zA-Z0-9\-\_]+$");
+        var allowed = new RegExp("^[a-zA-Z0-9\.\-\_]+$");
         if (allowed.test(strcode) || code == 8) {
             return true;
         }
