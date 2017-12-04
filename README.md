@@ -4,10 +4,11 @@
 [![GitHub release](https://img.shields.io/github/release/gyselroth/balloon.svg)](https://github.com/gyselroth/balloon/releases)
 [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
 
-balloon is a cloud server and document management system.
+balloon cloudf server
 
-
-![balloon](https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/app/img/balloon-startup.png)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/app/img/balloon-startup.png"/>
+</p>
 
 ## Features
 
