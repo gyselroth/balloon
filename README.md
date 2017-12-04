@@ -6,6 +6,9 @@
 
 balloon is a cloud server and document management system.
 
+
+![balloon](https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/app/img/balloon-startup.png)
+
 ## Features
 
 * Virtual Filesystem based on MongoDB which is highly scalable

@@ -15,7 +15,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [CHANGE] php ext imagick is now optional (if not installed, image previews will fail)
 * CORE: [CHANGE] php ext ldap is now optional (if not installed ldap authentication or ldap sync core app will not be available)
 * CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
-* CORE: [!BREAKER] Migrated core classes to \Micro framework (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
+* CORE: [!BREAKER] Migrated core classes to \Micro components (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
 * CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
 * CORE: [CHANGE] changed hook preAuthentication() first param to Auth $auth instead auth adapters
 * CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon\Plugin => \Balloon\Hook #55, \Balloon\Queue => \Balloon\Async
@@ -75,13 +75,15 @@ This major relase contains various fixes, changes and new features including:
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 
-## 1.0.18-dev
+## 1.0.18
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**:
+**Date**: Thu Nov 30 16:23:22 CET 2017
 
 * CORE: [FIX] fixed invalid share references in delta #102
 * CORE: [FIX] meta data gets now copied as well during cloning a node #105
 * CORE: [FIX] changed timestamp on a collection now gets changed after adding a new child node #101
+* CORE: [FIX] fixed nested collection filter encoding #111
+* Webinterface: [FIX] UI allows now a dot in a tag name #110
 
 
 ## 1.0.17
