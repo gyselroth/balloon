@@ -1,6 +1,17 @@
 CHANGELOG
 
 --
+1.0.18 - Raffael Sahli <sahli@gyselroth.com>
+Thu Nov 30 16:23:22 CET 2017
+--
+* CORE: [FIX] fixed invalid share references in delta #102
+* CORE: [FIX] meta data gets now copied as well during cloning a node #105
+* CORE: [FIX] changed timestamp on a collection now gets changed after adding a new child node #101
+* CORE: [FIX] fixed nested collection filter encoding #111
+* Webinterface: [FIX] UI allows now a dot in a tag name #110
+
+
+--
 1.0.17 - Raffael Sahli <sahli@gyselroth.com>
 Fri Nov 17 13:51:22 CET 2017
 --
