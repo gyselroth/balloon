@@ -2,9 +2,11 @@
 
 [![Build Status](https://travis-ci.org/gyselroth/balloon.svg?branch=v2)](https://travis-ci.org/gyselroth/balloon)
 [![GitHub release](https://img.shields.io/github/release/gyselroth/balloon.svg)](https://github.com/gyselroth/balloon/releases)
-[![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
+[ ![Download](https://api.bintray.com/packages/gyselroth/balloon/balloon/images/download.svg) ](https://bintray.com/gyselroth/balloon/balloon/_latestVersion) 
+ [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/gyselroth/balloon/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/gyselroth/balloon/?branch=dev)
 
-balloon cloudf server
+balloon cloud server
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/app/img/balloon-startup.png"/>
