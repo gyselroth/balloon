@@ -233,7 +233,7 @@ class Group
 
     /**
      * @api {post} /api/v1/group
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName postGroup
      * @apiGroup Group
      * @apiPermission admin
@@ -271,7 +271,7 @@ class Group
 
     /**
      * @api {post} /api/v1/group/attributes?id=:id Set attributes
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName postAttributes
      * @apiUse _getGroup
      * @apiGroup Group

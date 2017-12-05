@@ -21,7 +21,7 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage;
 use Balloon\Server\User;
 use Generator;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
@@ -174,11 +174,11 @@ class Filesystem
     /**
      * Find raw node.
      *
-     * @param ObjectID $id
+     * @param ObjectId $id
      *
      * @return array
      */
-    public function findRawNode(ObjectID $id): array
+    public function findRawNode(ObjectId $id): array
     {
         $node = $this->db->storage->findOne(['_id' => $id]);
         if (null === $node) {
@@ -194,21 +194,21 @@ class Filesystem
     /**
      * Factory loader.
      *
-     * @param ObjectID|string $id
+     * @param ObjectId|string $id
      * @param string          $class   Fore check node type
      * @param int             $deleted
      *
      * @return NodeInterface
      */
-    public function findNodeWithId($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
+    public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
     {
-        if (!is_string($id) && !($id instanceof ObjectID)) {
-            throw new Exception\InvalidArgument($id.' node id has to be a string or instance of \MongoDB\BSON\ObjectID');
+        if (!is_string($id) && !($id instanceof ObjectId)) {
+            throw new Exception\InvalidArgument($id.' node id has to be a string or instance of \MongoDB\BSON\ObjectId');
         }
 
         try {
             if (is_string($id)) {
-                $id = new ObjectID($id);
+                $id = new ObjectId($id);
             }
         } catch (\Exception $e) {
             throw new Exception\InvalidArgument('invalid node id specified');
@@ -257,7 +257,7 @@ class Filesystem
      *
      * @return NodeInterface
      */
-    public function findNodeWithPath(string $path = '', ?string $class = null): NodeInterface
+    public function findNodeByPath(string $path = '', ?string $class = null): NodeInterface
     {
         if (empty($path) || '/' !== $path[0]) {
             $path = '/'.$path;
@@ -283,19 +283,19 @@ class Filesystem
     }
 
     /**
-     * Factory loader.
+     * Load nodes by id.
      *
      * @param array  $id
-     * @param string $class   Fore check node type
+     * @param string $class   Force check node type
      * @param bool   $deleted
      *
      * @return Generator
      */
-    public function findNodes(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): Generator
+    public function findNodesById(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): Generator
     {
         $find = [];
         foreach ($id as $i) {
-            $find[] = new ObjectID($i);
+            $find[] = new ObjectId($i);
         }
 
         $filter = [
@@ -330,19 +330,88 @@ class Filesystem
     }
 
     /**
+     * Load nodes by id.
+     *
+     * @param array  $path
+     * @param string $class Force check node type
+     *
+     * @return Generator
+     */
+    public function findNodesByPath(array $path = [], ?string $class = null): Generator
+    {
+        $find = [];
+        foreach ($path as $p) {
+            if (empty($path) || '/' !== $path[0]) {
+                $path = '/'.$path;
+            }
+
+            $last = strlen($path) - 1;
+            if ('/' === $path[$last]) {
+                $path = substr($path, 0, -1);
+            }
+
+            $parts = explode('/', $path);
+            $parent = $this->getRoot();
+            array_shift($parts);
+            foreach ($parts as $node) {
+                $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
+            }
+
+            if (null !== $class && !($parent instanceof $class)) {
+                throw new Exception('node is not an instance of '.$class);
+            }
+
+            yield $parent;
+        }
+    }
+
+    /**
+     * Load nodes by id.
+     *
+     * @param array  $id
+     * @param array  $path
+     * @param string $class   Force set node type
+     * @param int    $deleted
+     *
+     * @return Generator
+     */
+    public function getNodes(?array $id = null, ?array $path = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
+    {
+        if (null === $id && null === $path) {
+            throw new Exception\InvalidArgument('neither parameter id nor p (path) was given');
+        }
+        if (null !== $id && null !== $path) {
+            throw new Exception\InvalidArgument('parameter id and p (path) can not be used at the same time');
+        }
+        if (null !== $id) {
+            if (null === $deleted) {
+                $deleted = NodeInterface::DELETED_INCLUDE;
+            }
+
+            return $this->findNodesById($id, $class, $deleted);
+        }
+        if (null !== $path) {
+            if (null === $deleted) {
+                $deleted = NodeInterface::DELETED_EXCLUDE;
+            }
+
+            return $this->findNodesByPath($path, $class);
+        }
+    }
+
+    /**
      * Load node.
      *
      * @param string $id
      * @param string $path
      * @param string $class      Force set node type
-     * @param bool   $deleted
      * @param bool   $multiple   Allow $id to be an array
      * @param bool   $allow_root Allow instance of root collection
      * @param bool   $deleted    How to handle deleted node
      *
      * @return NodeInterface
      */
-    public function getNode($id = null, $path = null, $class = null, $multiple = false, $allow_root = false, $deleted = null): NodeInterface
+    public function getNode($id = null, $path = null, $class = null, bool $multiple = false, bool $allow_root = false, int $deleted = NodeInterface::DELETED_EXCLUDE): NodeInterface
     {
         if (empty($id) && empty($path)) {
             if (true === $allow_root) {
@@ -360,17 +429,17 @@ class Filesystem
             }
 
             if (true === $multiple && is_array($id)) {
-                return $this->findNodes($id, $class, $deleted);
+                return $this->findNodesById($id, $class, $deleted);
             }
 
-            return $this->findNodeWithId($id, $class, $deleted);
+            return $this->findNodeById($id, $class, $deleted);
         }
         if (null !== $path) {
             if (null === $deleted) {
                 $deleted = NodeInterface::DELETED_EXCLUDE;
             }
 
-            return $this->findNodeWithPath($path, $class);
+            return $this->findNodeByPath($path, $class);
         }
     }
 
@@ -381,7 +450,7 @@ class Filesystem
      *
      * @return NodeInterface
      */
-    public function findNodeWithCustomFilter(array $filter): NodeInterface
+    public function findNodeByFilter(array $filter): NodeInterface
     {
         $result = $this->db->storage->findOne($filter);
         if (null === $result) {
@@ -401,7 +470,7 @@ class Filesystem
      *
      * @return Generator
      */
-    public function findNodesWithCustomFilter(array $filter): Generator
+    public function findNodesByFilter(array $filter): Generator
     {
         $result = $this->db->storage->find($filter);
         $list = [];
@@ -426,7 +495,7 @@ class Filesystem
      *
      * @return Generator
      */
-    public function findNodesWithCustomFilterUser(int $deleted, array $filter): Generator
+    public function findNodesByFilterUser(int $deleted, array $filter): Generator
     {
         if ($this->user instanceof User) {
             $this->user->findNewShares();
@@ -540,7 +609,7 @@ class Filesystem
         //this would result in a recursiv call until the top level node
         /*if (isset($node['parent'])) {
             try {
-                $this->findNodeWithId($node['parent']);
+                $this->findNodeById($node['parent']);
             } catch (Exception\InvalidArgument $e) {
                 throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
             } catch (Exception\NotFound $e) {

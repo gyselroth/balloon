@@ -432,7 +432,7 @@ class User
 
     /**
      * @api {post} /api/v1/user
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName postUser
      * @apiGroup User
      * @apiPermission admin
@@ -478,7 +478,7 @@ class User
 
     /**
      * @api {post} /api/v1/user/attributes?uid=:uid Set attributes
-     * @apiVersion 1
+     * @apiVersion 1.0.0
      * @apiName postAttributes
      * @apiUse _getUser
      * @apiGroup User
