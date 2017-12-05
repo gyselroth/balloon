@@ -12,17 +12,20 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Api\v1;
 
+use Balloon\Api\Controller;
 use Balloon\App\Notification\Notifier;
 use Balloon\Async\Mail;
+use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
+use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
 
-class Notification
+class Notification extends Controller
 {
     /**
      * Notifier.
@@ -39,6 +42,13 @@ class Notification
     protected $user;
 
     /**
+     * Filesystem.
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+    /**
      * Server.
      *
      * @var Server
@@ -53,18 +63,28 @@ class Notification
     protected $async;
 
     /**
+     * Logger.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Constructor.
      *
-     * @param Notifier $notifier
-     * @param Server   $server
-     * @param Async    $async
+     * @param Notifier        $notifier
+     * @param Server          $server
+     * @param Async           $async
+     * @param LoggerInterface $logger
      */
-    public function __construct(Notifier $notifier, Server $server, Async $async)
+    public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger)
     {
         $this->notifier = $notifier;
         $this->user = $server->getIdentity();
+        $this->fs = $server->getFilesystem();
         $this->server = $server;
         $this->async = $async;
+        $this->logger = $logger;
     }
 
     /**
@@ -107,7 +127,7 @@ class Notification
     }
 
     /**
-     * @api {delete} /api/v1/user/notification Delete notification
+     * @api {delete} /api/v1/notification Delete notification
      * @apiVersion 1.0.0
      * @apiName get
      * @apiGroup App\Notification
@@ -150,7 +170,7 @@ class Notification
     }
 
     /**
-     * @api {post} /api/v1/user/notification/broadcast Post a notification to all users (or to a bunch of users)
+     * @api {post} /api/v1/notification/broadcast Post a notification to all users (or to a bunch of users)
      * @apiVersion 1.0.0
      * @apiName get
      * @apiGroup App\Notification
@@ -179,12 +199,12 @@ class Notification
     }
 
     /**
-     * @api {get} /api/v1/notification Get notifications
+     * @api {post} /api/v1/notification/mail Send a normal mail message
      * @apiVersion 1.0.0
      * @apiName get
      * @apiGroup App\Notification
      * @apiPermission none
-     * @apiDescription Fetch my nofitifications
+     * @apiDescription Send mail
      *
      * @apiExample (cURL) exmaple:
      * curl -XGET "https://SERVER/api/v1/user/notification"
@@ -200,6 +220,59 @@ class Notification
         $mail->setSubject($subject);
         $mail->setBcc($receiver);
         $this->async->addJob(Mail::class, ['mail' => $mail->toString()]);
+
+        return (new Response())->setCode(204);
+    }
+
+    /**
+     * @api {post} /api/v1/node/subscribe Subscribe for node updates
+     * @apiVersion 1.0.0
+     * @apiName get
+     * @apiGroup App\Notification
+     * @apiPermission none
+     * @apiDescription Receive node updates
+     * @apiUse _getNodes
+     * @apiUse _multiError
+     *
+     * @apiExample (cURL) exmaple:
+     * curl -XPOST "https://SERVER/api/v1/node/subscribe"
+     *
+     * @apiSuccessExample {string} Success-Response:
+     * HTTP/1.1 204 No Content
+     *
+     * @param null|mixed $id
+     * @param null|mixed $p
+     */
+    public function postSubscribe($id = null, $p = null, bool $subscribe = true)
+    {
+        if (is_array($id) || is_array($p)) {
+            foreach ($this->fs->findNodesById($id) as $node) {
+                try {
+                    $this->notifier->subscribe($this->fs->getNode($id, $p), $subscribe);
+                } catch (\Exception $e) {
+                    $failures[] = [
+                        'id' => (string) $node->getId(),
+                        'name' => $node->getName(),
+                        'error' => get_class($e),
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode(),
+                    ];
+
+                    $this->logger->debug('failed subscribe node in multi node request ['.$node->getId().']', [
+                        'category' => get_class($this),
+                        'exception' => $e,
+                    ]);
+                }
+            }
+
+            if (empty($failures)) {
+                return (new Response())->setCode(204);
+            }
+
+            return (new Response())->setcode(400)->setBody($failures);
+        }
+
+        $this->notifier->subscribe($this->fs->getNode($id, $p), $subscribe);
 
         return (new Response())->setCode(204);
     }

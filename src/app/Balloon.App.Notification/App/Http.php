@@ -22,15 +22,14 @@ class Http implements AppInterface
     /**
      * Constructor.
      *
-     * @param LoggerInterace $logger
-     * @param Router         $router
-     * @param iterable       $config
+     * @param Router $router
      */
     public function __construct(Router $router)
     {
         $router
-            ->prependRoute(new Route('/api/v1/user/notification', Api::class))
-            ->prependRoute(new Route('/api/v1/user/notification/{id:#([0-9a-z]{24})#}', Api::class))
-            ->prependRoute(new Route('/api/v1/user/{id:#([0-9a-z]{24})#}/notification', Api::class));
+            ->prependRoute(new Route('/api/v1/notification', Api::class))
+            ->prependRoute(new Route('/api/v1/notification/{id:#([0-9a-z]{24})#}', Api::class))
+            ->prependRoute(new Route('/api/v1/node/subscription', Api::class))
+            ->prependRoute(new Route('/api/v1/node/subscription/{id:#([0-9a-z]{24})#}', Api::class));
     }
 }

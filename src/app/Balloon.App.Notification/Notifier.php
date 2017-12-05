@@ -15,9 +15,12 @@ namespace Balloon\App\Notification;
 use Balloon\App\Notification\Adapter\AdapterInterface;
 use Balloon\App\Notification\Adapter\Db;
 use Balloon\App\Notification\Adapter\Mail;
+use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Container\AdapterAwareInterface;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use MongoDB\Driver\Cursor;
 use Psr\Log\LoggerInterface;
@@ -63,6 +66,13 @@ class Notifier implements AdapterAwareInterface
     protected $db;
 
     /**
+     * User.
+     *
+     * @var User
+     */
+    protected $user;
+
+    /**
      * Collection name.
      *
      * @var string
@@ -73,12 +83,14 @@ class Notifier implements AdapterAwareInterface
      * Constructor.
      *
      * @param Database       $db
+     * @param Server         $server
      * @param LoggerInterace $logger
      * @param iterable       $config
      */
-    public function __construct(Database $db, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(Database $db, Server $server, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->logger = $logger;
+        $this->user = $server->getIdentity();
         $this->db = $db;
         $this->setOptions($config);
     }
@@ -271,13 +283,11 @@ class Notifier implements AdapterAwareInterface
     /**
      * Get notifications.
      *
-     * @param User $user
-     *
      * @return Cursor
      */
-    public function getNotifications(User $user): Cursor
+    public function getNotifications(): Cursor
     {
-        $result = $this->db->{$this->collection_name}->find(['receiver' => $user->getId()]);
+        $result = $this->db->{$this->collection_name}->find(['receiver' => $this->user->getId()]);
 
         return $result;
     }
@@ -285,16 +295,15 @@ class Notifier implements AdapterAwareInterface
     /**
      * Get notifications.
      *
-     * @param User     $user
      * @param ObjectId $id
      *
      * @return bool
      */
-    public function deleteNotification(User $user, ObjectId $id): bool
+    public function deleteNotification(ObjectId $id): bool
     {
         $result = $this->db->{$this->collection_name}->findOne([
             '_id' => $id,
-            'receiver' => $user->getId(),
+            'receiver' => $this->user->getId(),
         ]);
 
         if (null === $result) {
@@ -308,16 +317,50 @@ class Notifier implements AdapterAwareInterface
 
             $result = $this->db->{$this->collection_name}->deleteOne(['_id' => $id]);
         } else {
-            $this->logger->debug('notification ['.$id.'] has other members left, remove member ['.$user->getId().']', [
+            $this->logger->debug('notification ['.$id.'] has other members left, remove member ['.$this->user->getId().']', [
                 'category' => get_class($this),
             ]);
 
             $result = $this->db->{$this->collection_name}->update([
                 '_id' => $id,
                 '$pull' => [
-                    'receiver' => $user->getId(),
+                    'receiver' => $this->user->getId(),
                 ],
             ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * Subscribe to node updates.
+     *
+     * @param NodeInterface $node
+     * @param bool          $subscribe
+     *
+     * @return bool
+     */
+    public function subscribeNode(NodeInterface $node, bool $subscribe = true): bool
+    {
+        $subs = $node->getAppAttribute(__NAMESPACE__, 'subscription');
+
+        if (true === $subscribe) {
+            $this->logger->debug('user ['.$this->user->getId().'] subribes node ['.$node->getId().']', [
+                'category' => get_class($this),
+            ]);
+
+            if (isset($subs[(string) $this->user->getId()])) {
+                unset($subs[(string) $this->user->getId()]);
+            }
+
+            $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+        } else {
+            $this->logger->debug('user ['.$this->user->getId().'] unsubribes node ['.$node->getId().']', [
+                'category' => get_class($this),
+            ]);
+
+            $subs[(string) $this->user->getId()] = new UTCDateTime();
+            $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
         }
 
         return true;
