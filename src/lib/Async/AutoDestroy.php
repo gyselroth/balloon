@@ -52,7 +52,7 @@ class AutoDestroy extends AbstractJob
      */
     public function start(): bool
     {
-        $result = $this->server->getFilesystem()->findNodesWithCustomFilter(['destroy' => ['$lte' => new UTCDateTime()]]);
+        $result = $this->server->getFilesystem()->findNodesByFilter(['destroy' => ['$lte' => new UTCDateTime()]]);
         foreach ($result as $node) {
             try {
                 $node->delete(true);

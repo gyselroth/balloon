@@ -18,7 +18,7 @@ use Balloon\Server;
 use Generator;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
@@ -28,7 +28,7 @@ class Group
     /**
      * User unique id.
      *
-     * @var ObjectID
+     * @var ObjectId
      */
     protected $_id;
 
@@ -278,9 +278,9 @@ class Group
     /**
      * Get unique id.
      *
-     * @return ObjectID
+     * @return ObjectId
      */
-    public function getId(): ObjectID
+    public function getId(): ObjectId
     {
         return $this->_id;
     }

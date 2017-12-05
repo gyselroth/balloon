@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\Api\v1;
 
-use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
@@ -35,27 +34,23 @@ abstract class Test extends UnitTest
         $hook = new Hook($this->createMock(LoggerInterface::class));
         $hook->injectHook(new Delta());
 
-        return parent::getMockServer();
+        $acl = $this->createMock(Acl::class);
+        $acl->expects($this->any())
+             ->method('isAllowed')
+             ->will($this->returnValue(true));
+
         $server = new Server(
             self::getMockDatabase(),
             $this->createMock(Storage::class),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(Acl::class),
-            $hook
+            $hook,
+            $acl
         );
 
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
-        $filesystem = new Filesystem(
-            $server,
-            self::getMockDatabase(),
-            $hook,
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(Acl::class),
-            $this->createMock(Storage::class)
-        );
 
         if (!$server->userExists('testuser')) {
-            $server->addUser(['username' => 'testuser']);
+            $server->addUser('testuser');
         }
 
         $server->setIdentity($identity);

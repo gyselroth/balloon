@@ -18,7 +18,7 @@ use Balloon\Filesystem\Delta\Exception;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server\User;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 
 class Delta
@@ -243,7 +243,7 @@ class Delta
                 $filter = $this->getDeltaFilter();
             } else {
                 //check if delta entry actually exists
-                if (0 === $this->db->delta->count(['_id' => new ObjectID($cursor[3])])) {
+                if (0 === $this->db->delta->count(['_id' => new ObjectId($cursor[3])])) {
                     return $this->buildFeedFromCurrentState(null, $limit, $attributes, $node);
                 }
 
@@ -290,7 +290,7 @@ class Delta
             }
 
             try {
-                $log_node = $this->fs->findNodeWithId($log['node'], null, NodeInterface::DELETED_EXCLUDE);
+                $log_node = $this->fs->findNodeById($log['node'], null, NodeInterface::DELETED_EXCLUDE);
                 if (null !== $node && !$node->isSubNode($log_node)) {
                     continue;
                 }
@@ -298,7 +298,7 @@ class Delta
                 //include share children after a new reference was added, otherwise the children would be lost if the cursor is newer
                 //than the create timestamp of the share reference
                 if ('addCollectionReference' === $log['operation'] && $log_node->isReference()) {
-                    $members = $this->fs->findNodesWithCustomFilter([
+                    $members = $this->fs->findNodesByFilter([
                         'shared' => $log_node->getShareId(),
                         'deleted' => false,
                     ]);
@@ -316,14 +316,14 @@ class Delta
                         if ($log['previous']['parent'] === null) {
                             $previous_path = DIRECTORY_SEPARATOR.$log['name'];
                         } else {
-                            $parent = $this->fs->findNodeWithId($log['previous']['parent']);
+                            $parent = $this->fs->findNodeById($log['previous']['parent']);
                             $previous_path = $parent->getPath().DIRECTORY_SEPARATOR.$log['name'];
                         }
                     } elseif (array_key_exists('name', $log['previous'])) {
                         if (null === $log['parent']) {
                             $previous_path = DIRECTORY_SEPARATOR.$log['previous']['name'];
                         } else {
-                            $parent = $this->fs->findNodeWithId($log['parent']);
+                            $parent = $this->fs->findNodeById($log['parent']);
                             $previous_path = $parent->getPath().DIRECTORY_SEPARATOR.$log['previous']['name'];
                         }
                     } else {
@@ -353,7 +353,7 @@ class Delta
                     if (null === $log['parent']) {
                         $path = DIRECTORY_SEPARATOR.$log['name'];
                     } else {
-                        $parent = $this->fs->findNodeWithId($log['parent']);
+                        $parent = $this->fs->findNodeById($log['parent']);
                         $path = $parent->getPath().DIRECTORY_SEPARATOR.$log['name'];
                     }
 
@@ -443,7 +443,7 @@ class Delta
                         ];
                     } else {
                         try {
-                            $node = $this->fs->findNodeWithId($events[$id]['previous']['parent'], null, NodeInterface::DELETED_INCLUDE);
+                            $node = $this->fs->findNodeById($events[$id]['previous']['parent'], null, NodeInterface::DELETED_INCLUDE);
                             $events[$id]['previous']['parent'] = [
                                 'id' => (string) $node->getId(),
                                 'name' => $node->getName(),
@@ -458,7 +458,7 @@ class Delta
             }
 
             try {
-                $node = $this->fs->findNodeWithId($log['node'], null, NodeInterface::DELETED_INCLUDE);
+                $node = $this->fs->findNodeById($log['node'], null, NodeInterface::DELETED_INCLUDE);
                 $events[$id]['node'] = [
                     'id' => (string) $node->getId(),
                     'name' => $node->getName(),
@@ -475,7 +475,7 @@ class Delta
                         'name' => null,
                     ];
                 } else {
-                    $node = $this->fs->findNodeWithId($log['parent'], null, NodeInterface::DELETED_INCLUDE);
+                    $node = $this->fs->findNodeById($log['parent'], null, NodeInterface::DELETED_INCLUDE);
                     $events[$id]['parent'] = [
                         'id' => (string) $node->getId(),
                         'name' => $node->getName(),
@@ -500,7 +500,7 @@ class Delta
                 if (isset($log['share']) && false === $log['share'] || !isset($log['share'])) {
                     $events[$id]['share'] = null;
                 } else {
-                    $node = $this->fs->findNodeWithId($log['share'], null, NodeInterface::DELETED_INCLUDE);
+                    $node = $this->fs->findNodeById($log['share'], null, NodeInterface::DELETED_INCLUDE);
                     $events[$id]['share'] = [
                         'id' => (string) $node->getId(),
                         'name' => $node->getName(),

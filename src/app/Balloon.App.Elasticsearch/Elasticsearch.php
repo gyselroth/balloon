@@ -156,7 +156,7 @@ class Elasticsearch
                 $id = $node['_id'];
 
                 try {
-                    $_node = $this->fs->findNodeWithId($id);
+                    $_node = $this->fs->findNodeById($id);
                     if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
                      || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
                         if (!($_node->isShared() && !$_node->isOwnerRequest()) && !isset($list[(string) $_node->getId()])) {
@@ -170,7 +170,7 @@ class Elasticsearch
                     if ($n['owner'] === $user) {
                         if (!array_key_exists($n['id'], $list)) {
                             try {
-                                $_node = $this->fs->findNodeWithId($n['id']);
+                                $_node = $this->fs->findNodeById($n['id']);
                                 if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
                                  || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
                                     $list[$n['id']] = $_node;
@@ -185,7 +185,7 @@ class Elasticsearch
                     if (in_array($n['share'], $shares, true)) {
                         if (!array_key_exists($n['id'], $list)) {
                             try {
-                                $_node = $this->fs->findNodeWithId($n['id']);
+                                $_node = $this->fs->findNodeById($n['id']);
                                 if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
                                 || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
                                     $list[$n['id']] = $_node;

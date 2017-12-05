@@ -274,7 +274,7 @@ class Server
     {
         $find = [];
         foreach ($id as $i) {
-            $find[] = new ObjectID($i);
+            $find[] = new ObjectId($i);
         }
 
         $filter = [

@@ -64,7 +64,7 @@ class Job extends AbstractJob
      */
     public function start(): bool
     {
-        $file = $this->server->getFilesystem()->findNodeWithId($this->data['node']);
+        $file = $this->server->getFilesystem()->findNodeById($this->data['node']);
 
         $this->logger->info('create slave for node ['.$this->data['node'].']', [
             'category' => get_class($this),
@@ -84,7 +84,7 @@ class Job extends AbstractJob
         try {
             $slaves = $file->getAppAttribute(__NAMESPACE__, 'slaves');
             if (is_array($slaves) && isset($slave['node'])) {
-                $slave = $file->getFilesystem()->findNodeWithId($slave['node']);
+                $slave = $file->getFilesystem()->findNodeById($slave['node']);
 
                 $slave->setReadonly(false);
                 $slave->put($result->getPath());

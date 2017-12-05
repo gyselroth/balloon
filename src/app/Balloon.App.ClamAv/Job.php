@@ -51,7 +51,7 @@ class Job extends AbstractJob
      */
     public function start(): bool
     {
-        $file = $this->fs->findNodeWithId($this->data['id']);
+        $file = $this->fs->findNodeById($this->data['id']);
         $result = $this->scanner->scan($file);
         $infected = Scanner::FILE_INFECTED === $result;
         $this->scanner->handleFile($file, $infected);

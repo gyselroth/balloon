@@ -51,7 +51,7 @@ class Job extends AbstractJob
      */
     public function start(): bool
     {
-        $file = $this->fs->findNodeWithId($this->data['id']);
+        $file = $this->fs->findNodeById($this->data['id']);
         $this->preview->createPreview($file);
 
         return true;

@@ -260,7 +260,7 @@ class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
         }
 
         if (!empty($this->filter)) {
-            foreach ($this->_fs->findNodesWithCustomFilterUser($deleted, json_decode($this->filter)) as $node) {
+            foreach ($this->_fs->findNodesByFilterUser($deleted, json_decode($this->filter)) as $node) {
                 yield $node;
             }
         }

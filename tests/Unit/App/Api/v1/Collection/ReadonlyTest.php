@@ -15,7 +15,7 @@ namespace Balloon\Testsuite\Unit\App\Api\v1\Collection;
 use Balloon\Api\v1\Collection;
 use Balloon\Testsuite\Unit\App\Api\v1\Test;
 use Micro\Http\Response;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -35,8 +35,8 @@ class ReadonlyTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectID($res->getBody());
-        $this->assertInstanceOf(ObjectID::class, $id);
+        $id = new ObjectId($res->getBody());
+        $this->assertInstanceOf(ObjectId::class, $id);
 
         return (string) $id;
     }
@@ -90,7 +90,7 @@ class ReadonlyTest extends Test
         $res = $this->controller->post($id, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectID($res->getBody());
-        $this->assertInstanceOf(ObjectID::class, $id);
+        $id = new ObjectId($res->getBody());
+        $this->assertInstanceOf(ObjectId::class, $id);
     }
 }

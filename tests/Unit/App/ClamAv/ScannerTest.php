@@ -37,12 +37,17 @@ class ScannerTest extends Test
 
     public function getFile()
     {
+        $acl = $this->createMock(Acl::class);
+        $acl->expects($this->any())
+             ->method('isAllowed')
+             ->will($this->returnValue(true));
+
         return new File(
             ['owner' => $this->server->getIdentity()->getId()],
             $this->server->getFilesystem(),
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
-            $this->createMock(Acl::class),
+            $acl,
             $this->createMock(Storage::class)
         );
     }
@@ -94,14 +99,20 @@ class ScannerTest extends Test
 
     public function testHandleInfectedFileLevel3()
     {
+        $acl = $this->createMock(Acl::class);
+        $acl->expects($this->any())
+             ->method('isAllowed')
+             ->will($this->returnValue(true));
+
         // setup mock
         $mockFile = $this->getMockBuilder(File::class)
-            ->setMethods(['_verifyAccess', 'delete'])
+            ->setMethods(['delete'])
             ->setConstructorArgs([
                 ['owner' => $this->server->getIdentity()->getId()],
                 $this->server->getFilesystem(),
                 $this->createMock(LoggerInterface::class),
                 $this->createMock(Hook::class),
+                $acl,
                 $this->createMock(Storage::class),
             ])
             ->getMock();

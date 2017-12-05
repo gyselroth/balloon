@@ -41,18 +41,24 @@ abstract class Test extends TestCase
 
     public function getMockServer()
     {
+        $acl = $this->createMock(Acl::class);
+
+        $acl->expects($this->any())
+             ->method('isAllowed')
+             ->will($this->returnValue(true));
+
         $server = new Server(
             self::getMockDatabase(),
             $this->createMock(Storage::class),
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
-            $this->createMock(Acl::class)
+            $acl
         );
 
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
 
         if (!$server->userExists('testuser')) {
-            $server->addUser(['username' => 'testuser']);
+            $server->addUser('testuser');
         }
 
         $server->setIdentity($identity);

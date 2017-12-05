@@ -15,7 +15,7 @@ namespace Balloon\Testsuite\Unit\App\Api\v1\Collection;
 use Balloon\Api\v1\Collection;
 use Balloon\Testsuite\Unit\App\Api\v1\Test;
 use Micro\Http\Response;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -43,8 +43,8 @@ class MoveTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectID($res->getBody());
-        $this->assertInstanceOf(ObjectID::class, $id);
+        $id = new ObjectId($res->getBody());
+        $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
@@ -142,8 +142,8 @@ class MoveTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectID($res->getBody());
-        $this->assertInstanceOf(ObjectID::class, $id);
+        $id = new ObjectId($res->getBody());
+        $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
@@ -173,8 +173,8 @@ class MoveTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectID($res->getBody());
-        $this->assertInstanceOf(ObjectID::class, $id);
+        $id = new ObjectId($res->getBody());
+        $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);
@@ -206,8 +206,8 @@ class MoveTest extends Test
         $res = $this->controller->post($nodes['b']['id'], null, $nodes['a']['name']);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectID($res->getBody());
-        $this->assertInstanceOf(ObjectID::class, $id);
+        $id = new ObjectId($res->getBody());
+        $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(1, $delta['nodes']);

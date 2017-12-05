@@ -60,17 +60,21 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [CHANGE] Default preview width/height is now 500px (instead 300px)
 * CORE: [FEATURE] Rewritten storage implementation, it is now possible to use multiple (and different) storage adapter (Default: MongoDB GridFS)
 * CORE: [FEATURE] Rewritten notification implementation, it is now possible to use multiple (and different) transport adapter (Default: Mail and Database)
+* CORE: [FEATURE] Subscribe for node updates and receive node changes #109
 * API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
+* API: [FEATURE] All endopints which accept an array of id s do now accept an array of paths as well #49
+* API: [FEATURE] POST /node/meta-attribtues does now accept a multi node request
 * API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 * API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v1 since all timestamps are in UTC anyway #61
 * API: [FEATURE] GET /api and GET /api/v1 are now public readable #46
 * API: [CHANGE] Removed attribute history from GET /file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
-* API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Convert
+* API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Convert, see apidoc
+* API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Notification, see apidoc
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 

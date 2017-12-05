@@ -16,7 +16,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 
 class Delta extends AbstractHook
 {
@@ -395,9 +395,9 @@ class Delta extends AbstractHook
      *
      * @param NodeInterface $node
      *
-     * @return ObjectID
+     * @return ObjectId
      */
-    protected function getEventOwner(NodeInterface $node): ObjectID
+    protected function getEventOwner(NodeInterface $node): ObjectId
     {
         $user = $node->getFilesystem()->getUser();
         if (null === $user) {

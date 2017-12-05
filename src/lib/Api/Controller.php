@@ -16,7 +16,7 @@ use Balloon\Filesystem\Node\File;
 
 class Controller
 {
-    /*
+    /**
      * @apiDefine _getNode
      *
      * @apiParam (GET Parameter) {string} id Either id or p (path) of a node must be given.
@@ -61,7 +61,7 @@ class Controller
      * }
      */
 
-    /*
+    /**
      * @apiDefine _multiError
      *
      * @apiErrorExample {json} Error-Response (Multi node error):
@@ -80,7 +80,7 @@ class Controller
      * }
      */
 
-    /*
+    /**
      * @apiDefine _writeAction
      *
      * @apiErrorExample {json} Error-Response (Conflict):
@@ -95,7 +95,7 @@ class Controller
      * }
      */
 
-    /*
+    /**
      * @apiDefine _conflictNode
      * @apiParam (GET Parameter) {number} [conflict=0] Decides how to handle a conflict if a node with the same name already exists at the destination.
      * Possible values are:</br>
@@ -104,7 +104,7 @@ class Controller
      *  - 2 Overwrite the destination (merge)</br>
      */
 
-    /*
+    /**
      * @apiDefine _getNodes
      *
      * @apiParam (GET Parameter) {string[]} id Either a single id as string or multiple as an array or a single p (path) as string or multiple paths as array must be given.

@@ -175,7 +175,7 @@ class Session
             if ($member['access_token'] === $access_token) {
                 $user = $server->getUserById($member['user']);
                 $fs = $user->getFilesystem();
-                $node = $fs->findNodeWithId($result['node'], 'File');
+                $node = $fs->findNodeById($result['node'], 'File');
                 $document = new Document($fs->getDatabase(), $node);
 
                 return new self($fs, $document, 0, $result);
@@ -204,7 +204,7 @@ class Session
             throw new Exception('session does not exists');
         }
 
-        $node = $fs->findNodeWithId($result['node'], File::class);
+        $node = $fs->findNodeById($result['node'], File::class);
         $document = new Document($fs->getDatabase(), $node);
 
         return new self($fs, $document, 0, $result);

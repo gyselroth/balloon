@@ -19,7 +19,7 @@ use Balloon\Helper;
 use Balloon\Server;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
@@ -29,7 +29,7 @@ class User
     /**
      * User unique id.
      *
-     * @var ObjectID
+     * @var ObjectId
      */
     protected $_id;
 
@@ -349,7 +349,7 @@ class User
         $found = [];
 
         foreach ($item as $child) {
-            if (isset($child['reference']) && $child['reference'] instanceof ObjectID) {
+            if (isset($child['reference']) && $child['reference'] instanceof ObjectId) {
                 $share = $child['reference'];
             } else {
                 $share = $child['_id'];
@@ -492,13 +492,13 @@ class User
 
         $exists = [];
         foreach ($item as $child) {
-            if (!in_array($child['reference'], $found)) {
+            if (!in_array($child['reference'], $found, true)) {
                 $this->logger->debug('found dead reference ['.$child['_id'].'] pointing to share ['.$child['reference'].']', [
                     'category' => get_class($this),
                 ]);
 
                 try {
-                    $this->getFilesystem()->findNodeWithId($child['_id'])->delete(true);
+                    $this->getFilesystem()->findNodeById($child['_id'])->delete(true);
                 } catch (\Exception $e) {
                 }
             } else {
@@ -559,9 +559,9 @@ class User
     /**
      * Get unique id.
      *
-     * @return ObjectID
+     * @return ObjectId
      */
-    public function getId(): ObjectID
+    public function getId(): ObjectId
     {
         return $this->_id;
     }

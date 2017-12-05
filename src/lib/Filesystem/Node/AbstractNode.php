@@ -417,7 +417,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     public function getShareNode(): ?Collection
     {
         if ($this->isSpecial()) {
-            return $this->_fs->findNodeWithId($this->getShareId(true));
+            return $this->_fs->findNodeById($this->getShareId(true));
         }
 
         return null;
@@ -728,7 +728,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
                 return $this->_fs->getRoot();
             }
 
-            $parent = $this->_fs->findNodeWithId($this->parent);
+            $parent = $this->_fs->findNodeById($this->parent);
 
             if ($parent->isShare() && !$parent->isOwnerRequest() && null !== $this->_user) {
                 $node = $this->_db->storage->findOne([
@@ -1143,7 +1143,7 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
             );
         }
 
-        if($this instanceof Collection && $this->isRoot()) {
+        if ($this instanceof Collection && $this->isRoot()) {
             return false;
         }
 

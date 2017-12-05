@@ -54,7 +54,14 @@ class ImagickImage implements AdapterInterface
     ];
 
     /**
-     * Match filter.
+     * Match convert filter.
+     *
+     * @var string
+     */
+    protected $match_convert = '#^image\/#';
+
+    /**
+     * Match preview filter.
      *
      * @var string
      */
@@ -104,7 +111,7 @@ class ImagickImage implements AdapterInterface
      */
     public function match(File $file): bool
     {
-        return in_array($file->getMime(), $this->formats, true) || isset($this->formats[$file->getExtension()]);
+        return (bool) preg_match($this->match_convert, $file->getMime());
     }
 
     /**
@@ -131,7 +138,6 @@ class ImagickImage implements AdapterInterface
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
         stream_copy_to_stream($file->get(), $sourceh);
-
         $desth = tmpfile();
         $dest = stream_get_meta_data($desth)['uri'];
 

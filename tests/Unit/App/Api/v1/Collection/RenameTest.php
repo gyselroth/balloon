@@ -35,7 +35,7 @@ class RenameTest extends Node\RenameTest
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectID($res->getBody());
+        $id = new ObjectId($res->getBody());
         $this->assertInstanceOf(ObjectId::class, $id);
 
         return (string) $id;

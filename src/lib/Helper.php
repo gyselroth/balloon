@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon;
 
 use MongoDB\BSON\UTCDateTime;
-use Stdclass;
+use stdClass;
 
 class Helper
 {
@@ -22,16 +22,16 @@ class Helper
      *
      * @param UTCDateTime $date
      *
-     * @return StdClass
+     * @return stdClass
      */
-    public static function DateTimeToUnix(?UTCDateTime $date): ?Stdclass
+    public static function DateTimeToUnix(?UTCDateTime $date): ?stdClass
     {
         if (null === $date) {
             return null;
         }
 
         $date = $date->toDateTime();
-        $ts = new StdClass();
+        $ts = new stdClass();
         $ts->sec = $date->format('U');
         $ts->usec = $date->format('u');
 
