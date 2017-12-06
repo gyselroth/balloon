@@ -13,7 +13,6 @@
     }
   },
   "dependencies": {
-    "apidoc": "*",
-    "apidoc-swagger": "^0.2.2"
+    "apidoc": "*"
   }
 }

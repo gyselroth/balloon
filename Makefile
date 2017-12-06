@@ -47,7 +47,6 @@ PHPSTAN_LOCK = $(BASE_DIR)/.phpstan.lock
 NPM_TARGET = $(NODE_MODULES_DIR)
 COMPOSER_TARGET = $(COMPOSER_LOCK)
 APIDOC_TARGET = $(DOC_DIR)
-PHPCS_FIX_TARGET = $(PHPCS_FIXER_LOCK)
 PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
@@ -112,7 +111,7 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/usr/bin
 	@cp -Rp $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(DOC_DIR) $(BUILD_DIR)/usr/share/balloon
-	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/bin/balloon
+	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/bin/ballooncli
 	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon
 
@@ -231,15 +230,7 @@ $(NPM_TARGET) $(APIDOC_BIN): $(BASE_DIR)/package.json
 phpcs-check: $(PHPCS_CHECK_TARGET)
 
 $(PHPCS_CHECK_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
-	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky --stop-on-violation --using-cache=no
-	@touch $@
-
-
-.PHONY: phpcs-fix
-phpcs-fix: $(PHPCS_FIX_TARGET)
-
-$(PHPCS_FIX_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
-	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v
+	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky=yes --stop-on-violation --using-cache=no
 	@touch $@
 
 
