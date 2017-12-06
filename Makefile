@@ -117,7 +117,7 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 
 	@cp $(CONFIG_DIR)/config.example.xml $(BUILD_DIR)/etc/balloon/config.xml
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
-	@dpkg-deb --build $(BUILD_DIR) $@
+	#@dpkg-deb --build $(BUILD_DIR) $@
 	$(COMPOSER_BIN) update
 
 .PHONY: tar
