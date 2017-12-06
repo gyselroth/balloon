@@ -103,20 +103,24 @@ deb: $(DIST_DIR)/balloon-light-$(VERSION).deb $(DIST_DIR)/balloon-full-$(VERSION
 $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	$(COMPOSER_BIN) update --no-dev
 	@mkdir -p $(BUILD_DIR)/DEBIAN
+	@echo 1
 	@cp $(BASE_DIR)/packaging/debian/control-$* $(BUILD_DIR)/DEBIAN/control
 	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@mkdir -p $(BUILD_DIR)/var/log/balloon
 	@mkdir -p $(BUILD_DIR)/usr/bin
+	@echo 2
 	@cp -Rp $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon 2>/dev/null
+	@echo 3
 	@cp -Rp $(DOC_DIR) $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/bin/ballooncli
 	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon
-
+	@echo 4
 	@cp $(CONFIG_DIR)/config.example.xml $(BUILD_DIR)/etc/balloon/config.xml
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
+	@echo 5
 	#@dpkg-deb --build $(BUILD_DIR) $@
 	$(COMPOSER_BIN) update
 
