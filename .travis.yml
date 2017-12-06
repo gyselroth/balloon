@@ -2,7 +2,7 @@ language: php
 php:
 - '7.1'
 - '7.2'
-sudo: false
+sudo: required
 addons:
   apt:
     packages:
@@ -11,10 +11,13 @@ addons:
 before_install:
 - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 - echo "\n" | pecl install imagick
+services:
+  - docker
 script: make
 notifications:
   email: false
 before_deploy:
+- if [[ "$TRAVIS_PHP_VERSION" != "7.1" ]]; then exit; fi;
 - export version=$TRAVIS_TAG
 - if [[ "$version" == *"-"* ]]; then export deb_distribution=unstable; else export deb_distribution=stable; fi;
 - if [[ "$TRAVIS_BRANCH" == "master" ]]; then export deb_distribution=nightly; fi;
