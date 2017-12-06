@@ -28,9 +28,8 @@ use MongoDB\Database;
 use Normalizer;
 use PHPZip\Zip\Stream\ZipStream;
 use Psr\Log\LoggerInterface;
-use Sabre\DAV;
 
-abstract class AbstractNode implements NodeInterface, DAV\INode
+abstract class AbstractNode implements NodeInterface
 {
     /**
      * name max lenght.
@@ -366,18 +365,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
 
         return $this;
     }
-
-    /**
-     * Copy node.
-     *
-     * @param Collection $parent
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
-     *
-     * @return NodeInterface
-     */
-    abstract public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface;
 
     /**
      * Get share id.
@@ -772,11 +759,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
     }
 
     /**
-     * Download.
-     */
-    abstract public function get();
-
-    /**
      * Get as zip.
      */
     public function getZip(): void
@@ -1062,20 +1044,6 @@ abstract class AbstractNode implements NodeInterface, DAV\INode
 
         return $this->save('destroy');
     }
-
-    /**
-     * Delete node.
-     *
-     * Actually the node will not be deleted (Just set a delete flag), set $force=true to
-     * delete finally
-     *
-     * @param bool   $force
-     * @param bool   $recursion_first
-     * @param string $recursion
-     *
-     * @return bool
-     */
-    abstract public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool;
 
     /**
      * Get original raw attributes before any processing.

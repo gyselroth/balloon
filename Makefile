@@ -109,7 +109,7 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@mkdir -p $(BUILD_DIR)/var/log/balloon
 	@mkdir -p $(BUILD_DIR)/usr/bin
-	@cp -Rp $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
+	@cp -Rp $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon 2>/dev/null
 	@cp -Rp $(DOC_DIR) $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/bin/ballooncli
 	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon

@@ -23,9 +23,8 @@ use Balloon\Mime;
 use Balloon\Server\User;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
-use Sabre\DAV;
 
-class File extends AbstractNode implements DAV\IFile
+class File extends AbstractNode implements FileInterface
 {
     /**
      * History types.

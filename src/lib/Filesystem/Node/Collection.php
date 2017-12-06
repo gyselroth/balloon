@@ -25,7 +25,7 @@ use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV;
 
-class Collection extends AbstractNode implements DAV\ICollection, DAV\IQuota
+class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
 {
     /**
      * Root folder.
