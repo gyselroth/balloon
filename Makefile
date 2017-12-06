@@ -118,7 +118,7 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@cp $(CONFIG_DIR)/config.example.xml $(BUILD_DIR)/etc/balloon/config.xml
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@dpkg-deb --build $(BUILD_DIR) $@
-
+	$(COMPOSER_BIN) update
 
 .PHONY: tar
 tar: $(TAR)
@@ -135,11 +135,12 @@ $(TAR): $(BUILD_TARGET)
 	@cp -Rp $(DOC_DIR) $(BUILD_DIR)
 	@mkdir $(BUILD_DIR)/log
 
-	@tar -czvf $(TAR) -C $(BUILD_DIR) .
+	@tar -czf $(TAR) -C $(BUILD_DIR) .
 	@rm -rf $(BUILD_DIR)
 
 	@echo "package available at $(TAR)"
 	@echo "MD5 CHECKSUM: `md5sum $(TAR) | cut -d' ' -f1`"
+	$(COMPOSER_BIN) update
 	@touch $@
 
 
