@@ -452,7 +452,25 @@ class File extends AbstractNode implements FileInterface
      *
      * @return array
      */
-    public function getAttributes(array $attributes = []): array
+    public function getAttributes(): array
+    {
+        return [
+            'id' => $this->_id,
+            'name' => $this->name,
+            'hash' => $this->hash,
+            'size' => $this->size,
+            'version' => $this->version,
+            'meta' => $this->meta,
+            'mime' => $this->mime,
+            'deleted' => $this->deleted,
+            'changed' => $this->changed,
+            'created' => $this->created,
+            'destroy' => $this->destroy,
+            'readonly' => $this->readonly,
+        ];
+    }
+
+    /*public function getAttributes(array $attributes = []): array
     {
         if (empty($attributes)) {
             $attributes = [
@@ -485,7 +503,7 @@ class File extends AbstractNode implements FileInterface
         $attributes = parent::getAttributes($attributes);
 
         return array_merge($build, $attributes);
-    }
+    }*/
 
     /**
      * Get filename extension.
@@ -531,6 +549,26 @@ class File extends AbstractNode implements FileInterface
     public function getETag(): string
     {
         return "'".$this->hash."'";
+    }
+
+    /**
+     * Get hash.
+     *
+     * @return string
+     */
+    public function getHash(): string
+    {
+        return $this->hash;
+    }
+
+    /**
+     * Get version.
+     *
+     * @return int
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
     }
 
     /**

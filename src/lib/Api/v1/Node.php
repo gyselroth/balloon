@@ -18,6 +18,7 @@ use Balloon\Api\v1\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\AbstractNode;
+use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -61,16 +62,25 @@ class Node extends Controller
     protected $user;
 
     /**
+     * Decorator.
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
      * Initialize.
      *
-     * @param Server          $server
-     * @param LoggerInterface $logger
+     * @param Server             $server
+     * @param AttributeDecorator $decorator
+     * @param LoggerInterface    $logger
      */
-    public function __construct(Server $server, LoggerInterface $logger)
+    public function __construct(Server $server, AttributeDecorator $decorator, LoggerInterface $logger)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
+        $this->decorator = $decorator;
         $this->logger = $logger;
     }
 
@@ -521,13 +531,13 @@ class Node extends Controller
         if (is_array($id) || is_array($p)) {
             $nodes = [];
             foreach ($this->_getNodes($id, $p) as $node) {
-                $nodes[] = Helper::escape($node->getAttributes($attributes));
+                $nodes[] = Helper::escape($this->decorator->decorate($node, $attributes));
             }
 
             return (new Response())->setCode(200)->setBody($nodes);
         }
         $result = Helper::escape(
-                $this->_getNode($id, $p)->getAttributes($attributes)
+                $this->decorator->decorate($this->_getNode($id, $p), $attributes)
             );
 
         return (new Response())->setCode(200)->setBody($result);
@@ -582,9 +592,7 @@ class Node extends Controller
     public function getParent(?string $id = null, ?string $p = null, array $attributes = []): Response
     {
         $result = Helper::escape(
-            $this->_getNode($id, $p)
-                 ->getParent()
-                 ->getAttributes($attributes)
+            $this->decorator->decorate($this->_getNode($id, $p)->getParent(), $attributes)
         );
 
         return (new Response())->setCode(200)->setBody($result);

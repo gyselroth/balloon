@@ -83,7 +83,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @var bool
      */
-    protected $directory = false;
+    //protected $directory = false;
 
     /**
      * Is shared?
@@ -215,19 +215,13 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
-     * Get property.
+     * Get owner.
      *
-     * @return mixed
+     * @return ObjectId
      */
-    public function __call(string $attribute, array $params = [])
+    public function getOwner(): ObjectId
     {
-        $prefix = 'get';
-        $attr = strtolower(substr($attribute, 3));
-        if (property_exists($this, $attr)) {
-            return $this->{$attr};
-        }
-
-        throw new Exception('method '.$attribute.' does not exists');
+        return $this->owner;
     }
 
     /**
@@ -552,7 +546,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @return mixed
      */
-    public function getAttribute(string $attribute)
+    /*public function getAttribute(string $attribute)
     {
         $attributes = $this->getAttributes([$attribute]);
 
@@ -1174,7 +1168,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @return array
      */
-    protected function getAttributes(array $attributes = []): array
+    /*protected function getAttributes(array $attributes = []): array
     {
         $meta = [];
         $clean = [];
@@ -1318,7 +1312,7 @@ abstract class AbstractNode implements NodeInterface
         }
 
         return $build;
-    }
+    }*/
 
     /**
      * Duplicate name with a uniqid within name.

@@ -191,11 +191,9 @@ interface NodeInterface extends DAV\INode
     /**
      * Get attribute.
      *
-     * @param string $attribute
-     *
-     * @return mixed
+     * @return array
      */
-    public function getAttribute(string $attribute);
+    public function getAttributes(): array;
 
     /**
      * Undelete.

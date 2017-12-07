@@ -156,13 +156,37 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
     }
 
     /**
+     * Get Attributes.
+     *
+     * @param array $attributes
+     *
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        return [
+            'id' => $this->_id,
+            'name' => $this->name,
+            'shared' => $this->shared,
+            'reference' => $this->reference,
+            'meta' => $this->meta,
+            'mime' => $this->mime,
+            'deleted' => $this->deleted,
+            'changed' => $this->changed,
+            'created' => $this->created,
+            'destroy' => $this->destroy,
+            'readonly' => $this->readonly,
+        ];
+    }
+
+    /**
      * Get Attribute.
      *
      * @param array $attributes
      *
      * @return array
      */
-    public function getAttributes(array $attributes = []): array
+    /*public function getAttributes(array $attributes = []): array
     {
         if (empty($attributes)) {
             $attributes = [
@@ -180,7 +204,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
         }
 
         return parent::getAttributes($attributes);
-    }
+    }*/
 
     /**
      * Get collection.
