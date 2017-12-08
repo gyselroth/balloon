@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -126,7 +126,7 @@ class Acl
                 return 'd';
             }
 
-            if ((string) $share['owner'] === (string) $user->getId()) {
+            if ((string)$share['owner'] === (string)$user->getId()) {
                 return 'rw';
             }
 
@@ -172,7 +172,7 @@ class Acl
 
         $groups = [];
         foreach ($acl as $rule) {
-            if (self::TYPE_USER === $rule['type'] && $rule['id'] === (string) $user->getId()) {
+            if (self::TYPE_USER === $rule['type'] && $rule['id'] === (string)$user->getId()) {
                 $priv = $rule['privilege'];
             } elseif (self::TYPE_GROUP === $rule['type'] && in_array($rule['id'], $groups, true)) {
                 $priv = $rule['privilege'];

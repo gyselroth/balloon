@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -56,7 +56,7 @@ interface NodeInterface extends DAV\INode
      *
      * @return bool
      */
-    public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool;
+    public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true) : bool;
 
     /**
      * Set filesystem.
@@ -101,21 +101,20 @@ interface NodeInterface extends DAV\INode
      *
      * @return NodeInterface
      */
-    public function copyTo(Collection $parent, int $conflict = self::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): self;
+    public function copyTo(Collection $parent, int $conflict = self::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true) : self;
 
     /**
      * Get share id.
      *
      * @param bool $reference
      *
-     * @return ObjectId
+     * @return ObjectId|null
      */
     public function getShareId(bool $reference = false): ?ObjectId;
 
     /**
      * Get share node.
      *
-     * @param bool $reference
      *
      * @return Collection
      */
@@ -204,7 +203,7 @@ interface NodeInterface extends DAV\INode
      *
      * @return bool
      */
-    public function undelete(int $conflict = self::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool;
+    public function undelete(int $conflict = self::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true) : bool;
 
     /**
      * Is node deleted?
@@ -234,7 +233,7 @@ interface NodeInterface extends DAV\INode
      *
      * @return array
      */
-    public function getParents(?self $node = null, array $parents = []): array;
+    public function getParents(?self $node = null, array $parents = []) : array;
 
     /**
      * Download.

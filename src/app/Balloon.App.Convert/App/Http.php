@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -36,7 +36,7 @@ class Http implements AppInterface
             ->prependRoute(new Route('/api/v1/file/convert', Convert::class))
             ->prependRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}/convert', Convert::class));
 
-        $decorator->addDecorator('master', function ($node, $attributes) use ($fs, $decorator) {
+        $decorator->addDecorator('master', function($node, $attributes) use ($fs, $decorator) {
             $master = $node->getAppAttribute('Balloon\\App\\Convert', 'master');
             if (null === $master) {
                 return null;

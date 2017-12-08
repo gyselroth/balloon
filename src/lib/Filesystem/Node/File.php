@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -20,7 +20,6 @@ use Balloon\Filesystem\Storage;
 use Balloon\Helper;
 use Balloon\Hook;
 use Balloon\Mime;
-use Balloon\Server\User;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 
@@ -46,14 +45,14 @@ class File extends AbstractNode implements FileInterface
      * @param array
      **/
     protected $temp_files = [
-        '/^\._(.*)$/',     // OS/X resource forks
-        '/^.DS_Store$/',   // OS/X custom folder settings
+        '/^\._(.*)$/', // OS/X resource forks
+        '/^.DS_Store$/', // OS/X custom folder settings
         '/^desktop.ini$/', // Windows custom folder settings
-        '/^Thumbs.db$/',   // Windows thumbnail cache
-        '/^.(.*).swpx$/',  // ViM temporary files
-        '/^.(.*).swx$/',   // ViM temporary files
-        '/^.(.*).swp$/',   // ViM temporary files
-        '/^\.dat(.*)$/',   // Smultron seems to create these
+        '/^Thumbs.db$/', // Windows thumbnail cache
+        '/^.(.*).swpx$/', // ViM temporary files
+        '/^.(.*).swx$/', // ViM temporary files
+        '/^.(.*).swp$/', // ViM temporary files
+        '/^\.dat(.*)$/', // Smultron seems to create these
         '/^~lock.(.*)#$/', // Windows 7 lockfiles
     ];
 
@@ -154,7 +153,7 @@ class File extends AbstractNode implements FileInterface
      *
      * @return NodeInterface
      */
-    public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
+    public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true) : NodeInterface
     {
         $this->_hook->run(
             'preCopyFile',
@@ -198,7 +197,7 @@ class File extends AbstractNode implements FileInterface
         $filtered = [];
 
         foreach ($history as $version) {
-            $v = (array) $version;
+            $v = (array)$version;
 
             $v['user'] = $this->_fs->getServer()->getUserById($version['user'])->getUsername();
             $v['changed'] = Helper::DateTimeToUnix($version['changed']);
@@ -320,7 +319,7 @@ class File extends AbstractNode implements FileInterface
      *
      * @return bool
      */
-    public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
+    public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true) : bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
             throw new ForbiddenException(
@@ -551,7 +550,7 @@ class File extends AbstractNode implements FileInterface
         }
 
         $this->hash = $new_hash;
-        $max = (int) (string) $this->_fs->getServer()->getMaxFileVersion();
+        $max = (int)(string)$this->_fs->getServer()->getMaxFileVersion();
         if (count($this->history) >= $max) {
             $del = key($this->history);
             $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [
@@ -589,7 +588,7 @@ class File extends AbstractNode implements FileInterface
         ]);
 
         $this->addVersion($attributes)
-             ->postPutFile($file, $new, $attributes);
+                ->postPutFile($file, $new, $attributes);
 
         return $this->version;
     }
@@ -645,8 +644,8 @@ class File extends AbstractNode implements FileInterface
     {
         assert(16 === strlen($data));
 
-        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+        $data[6] = chr(ord($data[6])&0x0f|0x40); // set version to 0100
+        $data[8] = chr(ord($data[8])&0x3f|0x80); // set bits 6-7 to 10
 
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
@@ -694,9 +693,9 @@ class File extends AbstractNode implements FileInterface
      * @param string $path
      * @param bool   $new
      *
-     * @return bool
+     * @return string
      */
-    protected function verifyFile(?string $path, bool $new = false): string
+    protected function verifyFile(?string $path, bool $new = false) : string
     {
         if (null === $path) {
             $this->size = 0;
@@ -749,11 +748,11 @@ class File extends AbstractNode implements FileInterface
 
             $tmp_file = $tmp.DIRECTORY_SEPARATOR.$this->guidv4(openssl_random_pseudo_bytes(16));
             $stream = fopen($tmp_file, 'w+');
-            $size = stream_copy_to_stream($file, $stream, ((int) $this->_fs->getServer()->getMaxFileSize() + 1));
+            $size = stream_copy_to_stream($file, $stream, ((int)$this->_fs->getServer()->getMaxFileSize() + 1));
             rewind($stream);
             fclose($file);
 
-            if ($size > (int) $this->_fs->getServer()->getMaxFileSize()) {
+            if ($size > (int)$this->_fs->getServer()->getMaxFileSize()) {
                 unlink($tmp_file);
 
                 throw new Exception\InsufficientStorage(
@@ -827,7 +826,7 @@ class File extends AbstractNode implements FileInterface
     /**
      * Finalize put request.
      *
-     * @param resource|string $file
+     * @param string|null $file
      * @param bool            $new
      * @param array           $attributes
      *

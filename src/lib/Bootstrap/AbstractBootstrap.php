@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -62,12 +62,12 @@ abstract class AbstractBootstrap
             'category' => get_class($this),
         ]);
 
-        $this->container->add(get_class($composer), function () use ($composer) {
+        $this->container->add(get_class($composer), function() use ($composer) {
             return $composer;
         });
 
         $container = $this->container;
-        $this->container->add(Client::class, function () use ($container) {
+        $this->container->add(Client::class, function() use ($container) {
             return new Client($container->getParam(Client::class, 'uri'), [], [
                 'typeMap' => [
                     'root' => 'array',
@@ -77,7 +77,7 @@ abstract class AbstractBootstrap
             ]);
         });
 
-        $this->container->add(Database::class, function () use ($container) {
+        $this->container->add(Database::class, function() use ($container) {
             return $container->get(Client::class)->balloon;
         });
 
@@ -133,7 +133,7 @@ abstract class AbstractBootstrap
      */
     protected function setErrorHandler(): self
     {
-        set_error_handler(function ($severity, $message, $file, $line) {
+        set_error_handler(function($severity, $message, $file, $line) {
             $log = $message.' in '.$file.':'.$line;
 
             if (null === $this->container) {

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -37,7 +37,7 @@ class Db implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
+    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []) : bool
     {
         $this->notifier->postNotification($receiver, $sender, $subject, $body, $context);
 

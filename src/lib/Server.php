@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -119,7 +119,7 @@ class Server
      *
      * @return Server
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?Iterable $config = null) : self
     {
         if (null === $config) {
             return $this;
@@ -128,12 +128,12 @@ class Server
         foreach ($config as $name => $value) {
             switch ($name) {
                 case 'temp_dir':
-                    $this->temp_dir = (string) $value;
+                    $this->temp_dir = (string)$value;
 
                 break;
                 case 'max_file_version':
                 case 'max_file_size':
-                    $this->{$name} = (int) $value;
+                    $this->{$name} = (int)$value;
 
                 break;
                 default:
@@ -179,7 +179,7 @@ class Server
      *
      * @return Filesystem
      */
-    public function getFilesystem(?User $user = null): Filesystem
+    public function getFilesystem(?User $user = null) : Filesystem
     {
         if (null !== $user) {
             return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl, $user);
@@ -200,7 +200,7 @@ class Server
      *
      * @return ObjectId
      */
-    public function addUser(string $username, ?string $password = null, array $attributes = []): ObjectId
+    public function addUser(string $username, ?string $password = null, array $attributes = []) : ObjectId
     {
         if ($this->userExists($username)) {
             throw new UserException('user does already exists', UserException::ALREADY_EXISTS);

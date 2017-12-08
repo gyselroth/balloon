@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -112,7 +112,7 @@ class Notification extends Controller
         $body = [];
         foreach ($this->notifier->getNotifications($this->user) as $message) {
             $note = $message;
-            $note['id'] = (string) $note['_id'];
+            $note['id'] = (string)$note['_id'];
             unset($note['_id'], $note['receiver']);
 
             $note['sender'] = $this->server->getUserById($note['sender'])->getAttribute([
@@ -251,7 +251,7 @@ class Notification extends Controller
                     $this->notifier->subscribe($this->fs->getNode($id, $p), $subscribe);
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id' => (string) $node->getId(),
+                        'id' => (string)$node->getId(),
                         'name' => $node->getName(),
                         'error' => get_class($e),
                         'message' => $e->getMessage(),

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -24,7 +24,7 @@ class Helper
      *
      * @return stdClass
      */
-    public static function DateTimeToUnix(?UTCDateTime $date): ?stdClass
+    public static function DateTimeToUnix(?UTCDateTime $date) : ?stdClass
     {
         if (null === $date) {
             return null;
@@ -87,7 +87,7 @@ class Helper
      */
     public static function isValidTimestamp(string $timestamp): bool
     {
-        return ((string) (int) $timestamp === $timestamp)
+        return ((string)(int)$timestamp === $timestamp)
             && ($timestamp <= PHP_INT_MAX)
             && ($timestamp >= ~PHP_INT_MAX);
     }

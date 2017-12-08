@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -81,7 +81,7 @@ class NewShareAdded extends AbstractHook
      *
      * @return AbstractHook
      */
-    public function setOptions(?Iterable $config = null): AbstractHook
+    public function setOptions(?Iterable $config = null) : AbstractHook
     {
         if (null === $config) {
             return $this;
@@ -91,7 +91,7 @@ class NewShareAdded extends AbstractHook
             switch ($option) {
                 case 'body':
                 case 'subject':
-                    $this->{$option} = (string) $value;
+                    $this->{$option} = (string)$value;
 
                 break;
                 default:
@@ -113,7 +113,7 @@ class NewShareAdded extends AbstractHook
      * @param string        $recursion
      * @param bool          $recursion_first
      */
-    public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
+    public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first) : void
     {
         if (!($node instanceof Collection)) {
             return;
@@ -130,24 +130,24 @@ class NewShareAdded extends AbstractHook
         foreach ($node->getAcl() as $rule) {
             if ('user' === $rule['type']) {
                 $user = $this->server->getUserById(new ObjectId($rule['id']));
-                if (!isset($receiver[(string) $user->getId()]) && $this->checkNotify($node, $user)) {
-                    $receiver[(string) $user->getId()] = $user;
+                if (!isset($receiver[(string)$user->getId()]) && $this->checkNotify($node, $user)) {
+                    $receiver[(string)$user->getId()] = $user;
                 }
             } elseif ('group' === $rule['type']) {
                 foreach ($this->server->getGroupById($rule['id'])->getResolvedMember() as $user) {
-                    if (!isset($receiver[(string) $user->getId()]) && $this->checkNotify($node, $user)) {
-                        $receiver[(string) $user->getId()] = $user;
+                    if (!isset($receiver[(string)$user->getId()]) && $this->checkNotify($node, $user)) {
+                        $receiver[(string)$user->getId()] = $user;
                     }
                 }
             }
         }
 
         if (!empty($receiver)) {
-            $body = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) {
+            $body = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function($match) {
                 return '';
                 //return $node->getAttributes()[$match[2]];
             }, $this->body);
-            $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) {
+            $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function($match) {
                 return '';
                 //return $node->getAttributes()[$match[2]];
             }, $this->subject);
@@ -162,7 +162,7 @@ class NewShareAdded extends AbstractHook
      * @param NodeInterface $node
      * @param User          $user
      *
-     * @return string
+     * @return boolean
      */
     protected function checkNotify(NodeInterface $node, User $user): bool
     {

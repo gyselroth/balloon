@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -69,7 +69,7 @@ class AttributeDecorator
      *
      * @return array
      */
-    public function decorate(NodeInterface $node, ?array $attributes): array
+    public function decorate(NodeInterface $node, ? array $attributes) : array
     {
         if (null === $attributes) {
             $attributes = [];
@@ -115,7 +115,7 @@ class AttributeDecorator
      *
      * @return array
      */
-    protected function prepare(NodeInterface $node, ?array $attributes): array
+    protected function prepare(NodeInterface $node, ? array $attributes) : array
     {
         $clean = [
             'attributes' => [],
@@ -170,25 +170,25 @@ class AttributeDecorator
         $server = $this->server;
 
         return [
-            'id' => (string) $attributes['id'],
-            'name' => (string) $attributes['name'],
-            'mime' => (string) $attributes['mime'],
-            'readonly' => (bool) $attributes['readonly'],
+            'id' => (string)$attributes['id'],
+            'name' => (string)$attributes['name'],
+            'mime' => (string)$attributes['mime'],
+            'readonly' => (bool)$attributes['readonly'],
             'directory' => $node instanceof Collection,
-            'meta' => function ($node, $requested) {
-                return (object) $node->getMetaAttribute([]);
+            'meta' => function($node, $requested) {
+                return (object)$node->getMetaAttribute([]);
             },
-            'size' => function ($node, $requested) {
+            'size' => function($node, $requested) {
                 return $node->getSize();
             },
-            'path' => function ($node, $requested) {
+            'path' => function($node, $requested) {
                 try {
                     return $node->getPath();
                 } catch (\Exception $e) {
                     return null;
                 }
             },
-            'parent' => function ($node, $requested) {
+            'parent' => function($node, $requested) {
                 $parent = $node->getParent();
 
                 if (null === $parent || $parent->isRoot()) {
@@ -225,20 +225,20 @@ class AttributeDecorator
     protected function getTimeAttributes(NodeInterface $node, array $attributes): array
     {
         return [
-            'created' => function ($node, $requested) use ($attributes) {
+            'created' => function($node, $requested) use ($attributes) {
                 return Helper::DateTimeToUnix($attributes['created']);
             },
-            'changed' => function ($node, $requested) use ($attributes) {
+            'changed' => function($node, $requested) use ($attributes) {
                 return Helper::DateTimeToUnix($attributes['changed']);
             },
-            'deleted' => function ($node, $requested) use ($attributes) {
+            'deleted' => function($node, $requested) use ($attributes) {
                 if (false === $attributes['deleted']) {
                     return false;
                 }
 
                 return Helper::DateTimeToUnix($attributes['deleted']);
             },
-            'destroy' => function ($node, $requested) use ($attributes) {
+            'destroy' => function($node, $requested) use ($attributes) {
                 if (false === $attributes['destroy']) {
                     return false;
                 }
@@ -271,14 +271,14 @@ class AttributeDecorator
         return [
             'shared' => $node->isShared(),
             'reference' => $node->isReference(),
-            'filter' => function ($node, $requested) use ($attributes) {
+            'filter' => function($node, $requested) use ($attributes) {
                 if (null === $attributes['filter']) {
                     return null;
                 }
 
                 return json_decode($attributes['filter']);
             },
-            'share' => function ($node, $requested) {
+            'share' => function($node, $requested) {
                 if ($node->isShare() || !$node->isSpecial()) {
                     return null;
                 }
@@ -289,7 +289,7 @@ class AttributeDecorator
                     return null;
                 }
             },
-            'shareowner' => function ($node, $requested) use ($server, $fs) {
+            'shareowner' => function($node, $requested) use ($server, $fs) {
                 if ($node->isShare() || !$node->isSpecial()) {
                     return null;
                 }

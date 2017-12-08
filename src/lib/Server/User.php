@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -144,18 +144,18 @@ class User
      * @var array
      */
     protected static $valid_attributes = [
-         'id',
-         'username',
-         'created',
-         'soft_quota',
-         'hard_quota',
-         'mail',
-         'namespace',
-         'last_attr_sync',
-         'avatar',
-         'created',
-         'admin',
-     ];
+            'id',
+            'username',
+            'created',
+            'soft_quota',
+            'hard_quota',
+            'mail',
+            'namespace',
+            'last_attr_sync',
+            'avatar',
+            'created',
+            'admin',
+        ];
 
     /**
      * Instance user.
@@ -241,7 +241,7 @@ class User
 
             switch ($attr) {
                 case 'id':
-                    $this->_id = (string) $value;
+                    $this->_id = (string)$value;
 
                 break;
                 case 'avatar':
@@ -287,7 +287,7 @@ class User
         if (empty($attribute)) {
             $requested = $default;
         } elseif (is_string($attribute)) {
-            $requested = (array) $attribute;
+            $requested = (array)$attribute;
         } elseif (is_array($attribute)) {
             $requested = $attribute;
         }
@@ -300,7 +300,7 @@ class User
 
             switch ($attr) {
                 case 'id':
-                    $resolved['id'] = (string) $this->_id;
+                    $resolved['id'] = (string)$this->_id;
 
                 break;
                 case 'avatar':
@@ -356,7 +356,7 @@ class User
             }
 
             if (true === $string) {
-                $found[] = (string) $share;
+                $found[] = (string)$share;
             } else {
                 $found[] = $share;
             }
@@ -458,7 +458,7 @@ class User
             '$or' => [
                 ['acl' => [
                     '$elemMatch' => [
-                        'id' => (string) $this->_id,
+                        'id' => (string)$this->_id,
                         'type' => 'user',
                     ],
                 ]],
@@ -474,7 +474,7 @@ class User
         $list = [];
         foreach ($item as $child) {
             $found[] = $child['_id'];
-            $list[(string) $child['_id']] = $child;
+            $list[(string)$child['_id']] = $child;
         }
 
         if (empty($found)) {
@@ -511,7 +511,7 @@ class User
 
         $new = array_diff($found, $exists);
         foreach ($new as $add) {
-            $node = $list[(string) $add];
+            $node = $list[(string)$add];
 
             $this->logger->info('found new share ['.$node['_id'].']', [
                 'category' => get_class($this),
@@ -594,7 +594,7 @@ class User
      */
     public function setHardQuota(int $quota): self
     {
-        $this->hard_quota = (int) $quota;
+        $this->hard_quota = (int)$quota;
         $this->save(['hard_quota']);
 
         return $this;
@@ -609,7 +609,7 @@ class User
      */
     public function setSoftQuota(int $quota): self
     {
-        $this->soft_quota = (int) $quota;
+        $this->soft_quota = (int)$quota;
         $this->save(['soft_quota']);
 
         return $this;
@@ -618,7 +618,7 @@ class User
     /**
      * Save.
      *
-     * @param array $attributes
+     * @param string[] $attributes
      *
      * @throws Exception\InvalidArgument if a given argument is not valid
      *
@@ -799,8 +799,8 @@ class User
 
         $ops[] = [
             '$sort' => [
-               'sum' => -1,
-               '_id' => 1,
+                'sum' => -1,
+                '_id' => 1,
             ],
         ];
 

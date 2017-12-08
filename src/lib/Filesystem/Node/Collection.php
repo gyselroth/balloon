@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -87,7 +87,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      *
      * @return NodeInterface
      */
-    public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
+    public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true) : NodeInterface
     {
         if (null === $recursion) {
             $recursion_first = true;
@@ -401,7 +401,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      *
      * @return bool
      */
-    public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
+    public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true) : bool
     {
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
             throw new ForbiddenException(
@@ -504,7 +504,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
 
         $node = $this->_db->storage->findOne($find);
 
-        return (bool) $node;
+        return (bool)$node;
     }
 
     /**
@@ -672,7 +672,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      *
      * @return array
      */
-    public function getChildrenRecursive(?ObjectId $id = null, ?array &$shares = [], ?array &$files = []): array
+    public function getChildrenRecursive(?ObjectId $id = null, ? array &$shares = [], ? array &$files = []) : array
     {
         $list = [];
         $result = $this->_db->storage->find([
@@ -972,7 +972,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      *
      * @return bool
      */
-    protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
+    protected function _forceDelete(?string $recursion = null, bool $recursion_first = true) : bool
     {
         if (!$this->isReference()) {
             $this->doRecursiveAction('delete', [
