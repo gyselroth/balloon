@@ -36,7 +36,7 @@ class PreviewIntoApp extends AbstractDelta
         if (isset($object['thumbnail'])) {
             return [
                 '$unset' => 'thumbnail',
-                '$set' => ['app_attributes.Balloon_App_Preview.preview' => $object['thumbnail']],
+                '$set' => ['app.Balloon\App\Preview.preview' => $object['thumbnail']],
             ];
         }
 

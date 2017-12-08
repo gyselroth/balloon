@@ -18,7 +18,6 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Storage;
-use Balloon\Helper;
 use Balloon\Hook;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -58,7 +57,7 @@ abstract class AbstractNode implements NodeInterface
     protected $owner;
 
     /**
-     * Mime
+     * Mime.
      *
      * @var string
      */
@@ -139,7 +138,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @var array
      */
-    protected $app_attributes = [];
+    protected $app = [];
 
     /**
      * Filesystem.
@@ -836,8 +835,8 @@ abstract class AbstractNode implements NodeInterface
      */
     public function setAppAttributes(string $namespace, array $attributes): NodeInterface
     {
-        $this->app_attributes[$namespace] = $attributes;
-        $this->save('app_attributes');
+        $this->app[$namespace] = $attributes;
+        $this->save('app');
 
         return $this;
     }
@@ -853,12 +852,12 @@ abstract class AbstractNode implements NodeInterface
      */
     public function setAppAttribute(string $namespace, string $attribute, $value): NodeInterface
     {
-        if (!isset($this->app_attributes[$namespace])) {
-            $this->app_attributes[$namespace] = [];
+        if (!isset($this->app[$namespace])) {
+            $this->app[$namespace] = [];
         }
 
-        $this->app_attributes[$namespace][$attribute] = $value;
-        $this->save('app_attributes');
+        $this->app[$namespace][$attribute] = $value;
+        $this->save('app');
 
         return $this;
     }
@@ -872,9 +871,9 @@ abstract class AbstractNode implements NodeInterface
      */
     public function unsetAppAttributes(string $namespace): NodeInterface
     {
-        if (isset($this->app_attributes[$namespace])) {
-            unset($this->app_attributes[$namespace]);
-            $this->save('app_attributes');
+        if (isset($this->app[$namespace])) {
+            unset($this->app[$namespace]);
+            $this->save('app');
         }
 
         return $this;
@@ -890,9 +889,9 @@ abstract class AbstractNode implements NodeInterface
      */
     public function unsetAppAttribute(string $namespace, string $attribute): NodeInterface
     {
-        if (isset($this->app_attributes[$namespace][$attribute])) {
-            unset($this->app_attributes[$namespace][$attribute]);
-            $this->save('app_attributes');
+        if (isset($this->app[$namespace][$attribute])) {
+            unset($this->app[$namespace][$attribute]);
+            $this->save('app');
         }
 
         return $this;
@@ -908,8 +907,8 @@ abstract class AbstractNode implements NodeInterface
      */
     public function getAppAttribute(string $namespace, string $attribute)
     {
-        if (isset($this->app_attributes[$namespace][$attribute])) {
-            return $this->app_attributes[$namespace][$attribute];
+        if (isset($this->app[$namespace][$attribute])) {
+            return $this->app[$namespace][$attribute];
         }
 
         return null;
@@ -924,8 +923,8 @@ abstract class AbstractNode implements NodeInterface
      */
     public function getAppAttributes(string $namespace): array
     {
-        if (isset($this->app_attributes[$namespace])) {
-            return $this->app_attributes[$namespace];
+        if (isset($this->app[$namespace])) {
+            return $this->app[$namespace];
         }
 
         return [];

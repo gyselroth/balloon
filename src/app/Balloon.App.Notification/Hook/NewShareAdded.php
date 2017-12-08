@@ -143,11 +143,13 @@ class NewShareAdded extends AbstractHook
         }
 
         if (!empty($receiver)) {
-            $body = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($node) {
-                return $node->getAttribute($match[2]);
+            $body = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) {
+                return '';
+                //return $node->getAttributes()[$match[2]];
             }, $this->body);
-            $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($node) {
-                return $node->getAttribute($match[2]);
+            $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) {
+                return '';
+                //return $node->getAttributes()[$match[2]];
             }, $this->subject);
 
             $this->notifier->notify($receiver, $this->server->getIdentity(), $subject, $body);

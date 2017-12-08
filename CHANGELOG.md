@@ -61,6 +61,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [FEATURE] Rewritten storage implementation, it is now possible to use multiple (and different) storage adapter (Default: MongoDB GridFS)
 * CORE: [FEATURE] Rewritten notification implementation, it is now possible to use multiple (and different) transport adapter (Default: Mail and Database)
 * CORE: [FEATURE] Subscribe for node updates and receive node changes #109
+* CORE: [CHANGE] Implemented AttributeDecorator which handles all attribute conversion
 * API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version
@@ -73,6 +74,8 @@ This major relase contains various fixes, changes and new features including:
 * API: [FEATURE] GET /api and GET /api/v1 are now public readable #46
 * API: [CHANGE] Removed attribute history from GET /file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
+* API: [CHANGE] endpoints which return attributes (which can also be filtered with $attributes) do now return all attributes by default
+* API: [CHANGE] attributes with sub node attributes can now be filtered from endpoints which return attributes, for example (parent.id, parent.name, share.name, ...)
 * API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Convert, see apidoc
 * API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Notification, see apidoc
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 

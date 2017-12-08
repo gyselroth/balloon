@@ -23,7 +23,7 @@ class Installation extends AbstractDelta
      */
     public function init(): bool
     {
-        $this->db->selectCollection('storage')->createIndex(['app_attributes.Balloon_App_Sharelink.token' => 1]);
+        $this->db->selectCollection('storage')->createIndex(['app.Balloon\App\Sharelink.token' => 1]);
 
         return true;
     }

@@ -123,7 +123,6 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
                 'deleted' => $this->deleted,
                 'filter' => $this->filter,
                 'meta' => $this->meta,
-                'app_attributes' => $this->app_attributes,
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
@@ -250,7 +249,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             }
         }
 
-        if ($this->filter !== null) {
+        if (null !== $this->filter) {
             foreach ($this->_fs->findNodesByFilterUser($deleted, json_decode($this->filter)) as $node) {
                 yield $node;
             }

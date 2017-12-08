@@ -116,12 +116,12 @@ class Office implements AdapterInterface
     ];
 
     /**
-     * One way formats
+     * One way formats.
      *
      * @param array
      */
     protected $locked_formats = [
-        'pdf' => 'application/pdf'
+        'pdf' => 'application/pdf',
     ];
 
     /**
@@ -214,9 +214,9 @@ class Office implements AdapterInterface
      */
     public function getSupportedFormats(File $file): array
     {
-        if(in_array($file->getContentType(), $this->locked_formats)) {
+        if (in_array($file->getContentType(), $this->locked_formats, true)) {
             return [
-                array_search($file->getContentType(), $this->locked_formats)
+                array_search($file->getContentType(), $this->locked_formats, true),
             ];
         }
 

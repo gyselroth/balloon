@@ -15,6 +15,7 @@ namespace Balloon\App\Elasticsearch\Api\v1;
 use Balloon\Api\Controller;
 use Balloon\App\Elasticsearch\Elasticsearch;
 use Balloon\Exception;
+use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Helper;
 use Micro\Http\Response;
 use Psr\Log\LoggerInterface;
@@ -29,6 +30,13 @@ class Search extends Controller
     protected $es;
 
     /**
+     * Attribut decorator.
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
      * Logger.
      *
      * @var LoggerInterface
@@ -38,12 +46,14 @@ class Search extends Controller
     /**
      * Constructor.
      *
-     * @param Elasticsearch   $es
-     * @param LoggerInterface $logger
+     * @param Elasticsearch      $es
+     * @param AttributeDecorator $decorator
+     * @param LoggerInterface    $logger
      */
-    public function __construct(Elasticsearch $es, LoggerInterface $logger)
+    public function __construct(Elasticsearch $es, AttributeDecorator $decorator, LoggerInterface $logger)
     {
         $this->es = $es;
+        $this->decorator = $decorator;
         $this->logger = $logger;
     }
 
@@ -108,7 +118,7 @@ class Search extends Controller
 
         foreach ($nodes as $node) {
             try {
-                $child = Helper::escape($node->getAttributes($attributes));
+                $child = Helper::escape($this->decorator->decorate($node, $attributes));
                 $children[] = $child;
             } catch (\Exception $e) {
                 $this->logger->info('error occured during loading attributes, skip search result node', [

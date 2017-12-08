@@ -15,8 +15,8 @@ namespace Balloon\Filesystem;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta\Exception;
-use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
@@ -47,7 +47,7 @@ class Delta
     protected $user;
 
     /**
-     * Decorator
+     * Decorator.
      *
      * @var AttributeDecorator
      */

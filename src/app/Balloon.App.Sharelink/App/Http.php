@@ -16,6 +16,7 @@ use Balloon\App\AppInterface;
 use Balloon\App\Sharelink\Api\v1\ShareLink;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Exception;
+use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
@@ -45,12 +46,13 @@ class Http implements AppInterface
     /**
      * Init.
      *
-     * @param Router          $router
-     * @param Hook            $hook
-     * @param Share           $sharelink
-     * @param LoggerInterface $logger
+     * @param Router             $router
+     * @param Hook               $hook
+     * @param Share              $sharelink
+     * @param AttributeDecorator $decorator
+     * @param LoggerInterface    $logger
      */
-    public function __construct(Router $router, Hook $hook, Share $sharelink, LoggerInterface $logger)
+    public function __construct(Router $router, Hook $hook, Share $sharelink, AttributeDecorator $decorator, LoggerInterface $logger)
     {
         $router
             ->appendRoute(new Route('/share', $this, 'start'))
@@ -64,6 +66,10 @@ class Http implements AppInterface
                     $auth->injectAdapter(new AuthNone());
                 }
             }
+        });
+
+        $decorator->addDecorator('sharelink', function ($node, $attributes) use ($sharelink) {
+            return $sharelink->isSharelink($node);
         });
 
         $this->logger = $logger;

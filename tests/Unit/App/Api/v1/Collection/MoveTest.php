@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Balloon\Testsuite\Unit\App\Api\v1\Collection;
 
 use Balloon\Api\v1\Collection;
-use Balloon\Testsuite\Unit\App\Api\v1\Test;
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Testsuite\Unit\App\Api\v1\Test;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;

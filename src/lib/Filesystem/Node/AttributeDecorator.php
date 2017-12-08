@@ -12,50 +12,47 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Node;
 
-use Balloon\Filesystem\Acl;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Acl;
 use Balloon\Helper;
 use Balloon\Server;
 use Closure;
-use MongoDB\BSON\UTCDateTime;
 
 class AttributeDecorator
 {
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
-
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var Filesystem
      */
     protected $fs;
 
     /**
-     * Acl
+     * Acl.
      *
      * @var Acl
      */
     protected $acl;
 
     /**
-     * Custom attributes
+     * Custom attributes.
      *
      * @var array
      */
     protected $custom = [];
 
-
     /**
-     * Init
+     * Init.
      *
      * @param Server $server
-     * @param Acl $acl
+     * @param Acl    $acl
      */
     public function __construct(Server $server, Acl $acl)
     {
@@ -65,15 +62,16 @@ class AttributeDecorator
     }
 
     /**
-     * Decorate attributes
+     * Decorate attributes.
      *
      * @param NodeInterface $node
-     * @param array $attributes
+     * @param array         $attributes
+     *
      * @return array
      */
     public function decorate(NodeInterface $node, ?array $attributes): array
     {
-        if($attributes === null) {
+        if (null === $attributes) {
             $attributes = [];
         }
 
@@ -81,25 +79,25 @@ class AttributeDecorator
         $attributes = $node->getAttributes();
 
         $attrs = array_merge(
-            $this->getAttributes($node, $attributes, $requested),
-            $this->getTimeAttributes($node, $attributes, $requested),
-            $this->getTypeAttributes($node, $attributes, $requested),
+            $this->getAttributes($node, $attributes),
+            $this->getTimeAttributes($node, $attributes),
+            $this->getTypeAttributes($node, $attributes),
             $this->custom
         );
 
-        if (count($requested['attributes']) === 0) {
-            return $this->translateAttributes($node, $attrs);
+        if (0 === count($requested['attributes'])) {
+            return $this->translateAttributes($node, $attrs, $requested);
         }
 
-        return $this->translateAttributes($node, array_intersect_key($attrs, array_flip($requested['attributes'])));
+        return $this->translateAttributes($node, array_intersect_key($attrs, array_flip($requested['attributes'])), $requested);
     }
 
-
     /**
-     * Add decorator
+     * Add decorator.
      *
-     * @param string $attribute
+     * @param string  $attribute
      * @param Closure $decorator
+     *
      * @return AttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self
@@ -109,12 +107,12 @@ class AttributeDecorator
         return $this;
     }
 
-
     /**
-     * Prepare requested attributes
+     * Prepare requested attributes.
      *
      * @param NodeInterface $node
-     * @param array $attributes
+     * @param array         $attributes
+     *
      * @return array
      */
     protected function prepare(NodeInterface $node, ?array $attributes): array
@@ -125,7 +123,7 @@ class AttributeDecorator
             'share' => [],
             'parent' => [],
             'owner' => [],
-            'shareowner' => []
+            'shareowner' => [],
         ];
 
         foreach ($attributes as $key => $attr) {
@@ -142,14 +140,14 @@ class AttributeDecorator
                 $prefix = array_shift($keys);
             }
 
-            if (('file' === $prefix || 'collection' === $prefix) && count($keys) === 1) {
+            if (('file' === $prefix || 'collection' === $prefix) && 1 === count($keys)) {
                 $clean['attributes'][] = $keys[0];
-            } elseif(count($keys) === 0) {
+            } elseif (0 === count($keys)) {
                 $clean['attributes'][] = $attr;
             } elseif ('meta' === $prefix && 1 === count($keys)) {
                 $clean['attributes'][] = 'meta';
                 $clean['meta'][] = $keys[0];
-            } elseif(isset($clean[$prefix])) {
+            } elseif (isset($clean[$prefix])) {
                 $clean['attributes'][] = $prefix;
                 $clean[$prefix][] = $attr;
             }
@@ -163,11 +161,10 @@ class AttributeDecorator
      *
      * @param NodeInterface
      * @param array $attributes
-     * @param array $requested
      *
      * @return array
      */
-    protected function getAttributes(NodeInterface $node, array $attributes, ?array $requested): array
+    protected function getAttributes(NodeInterface $node, array $attributes): array
     {
         $acl = $this->acl;
         $server = $this->server;
@@ -178,20 +175,20 @@ class AttributeDecorator
             'mime' => (string) $attributes['mime'],
             'readonly' => (bool) $attributes['readonly'],
             'directory' => $node instanceof Collection,
-            'meta' => function ($node) {
+            'meta' => function ($node, $requested) {
                 return (object) $node->getMetaAttribute([]);
             },
-            'size' => function ($node) {
+            'size' => function ($node, $requested) {
                 return $node->getSize();
             },
-            'path' => function ($node) {
+            'path' => function ($node, $requested) {
                 try {
                     return $node->getPath();
                 } catch (\Exception $e) {
                     return null;
                 }
             },
-            'parent' => function ($node) use ($requested) {
+            'parent' => function ($node, $requested) {
                 $parent = $node->getParent();
 
                 if (null === $parent || $parent->isRoot()) {
@@ -200,46 +197,44 @@ class AttributeDecorator
 
                 return $this->decorate($node->getParent(), $requested['parent']);
             },
-            'access' => function($node) use($acl) {
+            'access' => function ($node, $requested) use ($acl) {
                 return $acl->getAclPrivilege($node);
             },
-            'owner' => function($node) use($server, $requested) {
+            'owner' => function ($node, $requested) use ($server) {
                 try {
                     return $server->getUserById($node->getOwner())->getAttribute($requested['owner']);
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     return null;
                 }
-            }
+            },
         ];
     }
-
 
     /**
      * Get Attributes.
      *
      * @param NodeInterface
      * @param array $attributes
-     * @param array $requested
      *
      * @return array
      */
-    protected function getTimeAttributes(NodeInterface $node, array $attributes, ?array $requested): array
+    protected function getTimeAttributes(NodeInterface $node, array $attributes): array
     {
         return [
-            'created' => function ($node) use ($attributes) {
+            'created' => function ($node, $requested) use ($attributes) {
                 return Helper::DateTimeToUnix($attributes['created']);
             },
-            'changed' => function ($node) use ($attributes) {
+            'changed' => function ($node, $requested) use ($attributes) {
                 return Helper::DateTimeToUnix($attributes['changed']);
             },
-            'deleted' => function ($node) use ($attributes) {
+            'deleted' => function ($node, $requested) use ($attributes) {
                 if (false === $attributes['deleted']) {
                     return false;
                 }
 
                 return Helper::DateTimeToUnix($attributes['deleted']);
             },
-            'destroy' => function ($node) use ($attributes) {
+            'destroy' => function ($node, $requested) use ($attributes) {
                 if (false === $attributes['destroy']) {
                     return false;
                 }
@@ -254,16 +249,15 @@ class AttributeDecorator
      *
      * @param NodeInterface
      * @param array $attributes
-     * @param array $requested
      *
      * @return array
      */
-    protected function getTypeAttributes(NodeInterface $node, array $attributes, ?array $requested): array
+    protected function getTypeAttributes(NodeInterface $node, array $attributes): array
     {
         $server = $this->server;
         $fs = $this->fs;
 
-        if($node instanceof File) {
+        if ($node instanceof File) {
             return [
                 'version' => $attributes['version'],
                 'hash' => $attributes['hash'],
@@ -273,15 +267,15 @@ class AttributeDecorator
         return [
             'shared' => $node->isShared(),
             'reference' => $node->isReference(),
-            'filter' => function($node) use($attributes) {
-                if($attributes['filter'] === null) {
+            'filter' => function ($node, $requested) use ($attributes) {
+                if (null === $attributes['filter']) {
                     return null;
                 }
 
                 return json_decode($attributes['filter']);
             },
-            'share' => function($node) use($requested) {
-                if(!$node->isShare())  {
+            'share' => function ($node, $requested) {
+                if ($node->isShare() || !$node->isSpecial()) {
                     return null;
                 }
 
@@ -291,37 +285,37 @@ class AttributeDecorator
                     return null;
                 }
             },
-            'shareowner' => function($node) use($server, $fs, $requested) {
-                if(!$node->isSpecial())  {
+            'shareowner' => function ($node, $requested) use ($server, $fs) {
+                if ($node->isShare() || !$node->isSpecial()) {
                     return null;
                 }
 
                 try {
                     return $server->getUserById($fs->findRawNode($node->getShareId())['owner'])
                         ->getAttribute($requested['shareowner']);
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     return null;
                 }
-            }
+            },
         ];
     }
 
-
     /**
-     * Execute closures
+     * Execute closures.
      *
      * @param NodeInterface
      * @param array $attributes
+     * @param array $requested
      *
      * @return array
      */
-    protected function translateAttributes(NodeInterface $node, array $attributes): array
+    protected function translateAttributes(NodeInterface $node, array $attributes, array $requested): array
     {
         foreach ($attributes as $key => &$value) {
             if ($value instanceof Closure) {
-                $result = $value($node);
+                $result = $value($node, $requested);
 
-                if($result === null) {
+                if (null === $result) {
                     unset($attributes[$key]);
                 } else {
                     $value = $result;

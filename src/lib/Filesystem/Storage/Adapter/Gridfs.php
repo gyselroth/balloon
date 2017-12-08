@@ -68,6 +68,10 @@ class Gridfs implements AdapterInterface
      */
     public function deleteFile(File $file, array $attributes): bool
     {
+        if (!isset($attributes['_id'])) {
+            throw new Exception('attributes do not contain a gridfs id');
+        }
+
         $exists = $this->getFileById($attributes['_id']);
 
         if (null === $exists) {
@@ -114,6 +118,10 @@ class Gridfs implements AdapterInterface
      */
     public function getFile(File $file, array $attributes)
     {
+        if (!isset($attributes['_id'])) {
+            throw new Exception('attributes do not contain a gridfs id');
+        }
+
         return $this->gridfs->openDownloadStream($attributes['_id']);
     }
 
@@ -122,6 +130,10 @@ class Gridfs implements AdapterInterface
      */
     public function getFileMeta(File $file, array $attributes): array
     {
+        if (!isset($attributes['_id'])) {
+            throw new Exception('attributes do not contain a gridfs id');
+        }
+
         $file = $this->getFileById($attributes['_id']);
         if (null === $file) {
             throw new Exception('file was not found');

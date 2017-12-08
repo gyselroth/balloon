@@ -459,13 +459,12 @@ class User
                 ['acl' => [
                     '$elemMatch' => [
                         'id' => (string) $this->_id,
-                     //   'type' => 'user'
+                        'type' => 'user',
                     ],
                 ]],
                 ['acl' => [
                     '$elemMatch' => [
                         '$in' => $this->groups,
-                    //    'type' => 'group'
                     ],
                 ]],
             ],

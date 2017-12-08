@@ -36,7 +36,7 @@ class SharelinkIntoApp extends AbstractDelta
         if (isset($object['sharelink'])) {
             return [
                 '$unset' => 'sharelink',
-                '$set' => ['app_attributes.Balloon_App_Sharelink' => $object['sharelink']],
+                '$set' => ['app.Balloon\App\Sharelink' => $object['sharelink']],
             ];
         }
 

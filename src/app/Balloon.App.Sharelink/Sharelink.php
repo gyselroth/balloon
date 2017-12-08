@@ -150,7 +150,7 @@ class Sharelink
     public function findNodeWithShareToken(string $token): NodeInterface
     {
         $node = $this->fs->findNodeByFilter([
-            'app_attributes.'.__NAMESPACE__.'.token' => $token,
+            'app.'.__NAMESPACE__.'.token' => $token,
             'deleted' => false,
         ]);
 

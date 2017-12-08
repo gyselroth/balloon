@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Delta\Exception;
+use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\UTCDateTime;
 
