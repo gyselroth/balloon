@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -102,7 +102,7 @@ class Notifier implements AdapterAwareInterface
      *
      * @return Notifier
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?Iterable $config = null) : self
     {
         if (null === $config) {
             return $this;
@@ -145,7 +145,7 @@ class Notifier implements AdapterAwareInterface
      *
      * @return bool
      */
-    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
+    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []) : bool
     {
         if (0 === count($this->adapter)) {
             $this->logger->warning('there are no notification adapter enabled, notification can not be sent', [
@@ -185,7 +185,7 @@ class Notifier implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
+    public function injectAdapter($adapter, ?string $name = null) : AdapterAwareInterface
     {
         if (!($adapter instanceof AdapterInterface)) {
             throw new Exception('adapter needs to implement AdapterInterface');
@@ -251,14 +251,14 @@ class Notifier implements AdapterAwareInterface
      * Add notification.
      *
      * @param array  $receiver
-     * @param User   $user
      * @param string $subject
      * @param string $body
      * @param array  $context
+     * @param User $sender
      *
      * @return ObjectId
      */
-    public function postNotification(array $receiver, ?User $sender, string $subject, string $body, array $context = []): ObjectId
+    public function postNotification(array $receiver, ?User $sender, string $subject, string $body, array $context = []) : ObjectId
     {
         $data = [
             'subject' => $subject,
@@ -295,7 +295,7 @@ class Notifier implements AdapterAwareInterface
     /**
      * Get notifications.
      *
-     * @param ObjectId $id
+     * @param User $id
      *
      * @return bool
      */
@@ -349,8 +349,8 @@ class Notifier implements AdapterAwareInterface
                 'category' => get_class($this),
             ]);
 
-            if (isset($subs[(string) $this->user->getId()])) {
-                unset($subs[(string) $this->user->getId()]);
+            if (isset($subs[(string)$this->user->getId()])) {
+                unset($subs[(string)$this->user->getId()]);
             }
 
             $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
@@ -359,7 +359,7 @@ class Notifier implements AdapterAwareInterface
                 'category' => get_class($this),
             ]);
 
-            $subs[(string) $this->user->getId()] = new UTCDateTime();
+            $subs[(string)$this->user->getId()] = new UTCDateTime();
             $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
         }
 

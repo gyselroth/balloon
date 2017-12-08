@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -156,7 +156,7 @@ class Group
      * @param string $id
      * @param string $name
      */
-    public function getMember(?string $id = null, ?string $name = null): Response
+    public function getMember(?string $id = null, ?string $name = null) : Response
     {
         $result = $this->_getGroup($id, $name)->getGroups();
 
@@ -195,7 +195,7 @@ class Group
      *
      * @return Response
      */
-    public function getAttributes(?string $id = null, ?string $name = null, array $attributes = []): Response
+    public function getAttributes(?string $id = null, ?string $name = null, array $attributes = []) : Response
     {
         $result = $this->_getGroup($id, $name)->getAttribute($attributes);
 
@@ -224,7 +224,7 @@ class Group
      *
      * @return Response
      */
-    public function head(?string $id = null, ?string $name = null): Response
+    public function head(?string $id = null, ?string $name = null) : Response
     {
         $result = $this->_getGroup($id, $name, true);
 
@@ -266,7 +266,7 @@ class Group
     {
         $id = $this->server->addGroup($name, $member, $attributes);
 
-        return (new Response())->setBody((string) $id)->setCode(201);
+        return (new Response())->setBody((string)$id)->setCode(201);
     }
 
     /**
@@ -296,7 +296,7 @@ class Group
      *
      * @return Response
      */
-    public function postAttributes(array $attributes = [], ?string $id = null, ?string $name = null): Response
+    public function postAttributes(array $attributes = [], ?string $id = null, ?string $name = null) : Response
     {
         $this->_getGroup($id, $name, true)->setAttribute($attributes)->save(array_keys($attributes));
 
@@ -338,7 +338,7 @@ class Group
      *
      * @return Response
      */
-    public function delete(?string $id = null, ?string $name = null): Response
+    public function delete(?string $id = null, ?string $name = null) : Response
     {
         $group = $this->_getGroup($id, $name, true);
         $group->delete();
@@ -367,7 +367,7 @@ class Group
      *
      * @return Response
      */
-    public function postUndelete(?string $id = null, ?string $name = null): Response
+    public function postUndelete(?string $id = null, ?string $name = null) : Response
     {
         $this->_getGroup($id, $name)->undelete();
 

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -86,7 +86,7 @@ class ImagickImage implements AdapterInterface
      *
      * @return AdapterInterface
      */
-    public function setOptions(?Iterable $config = null): AdapterInterface
+    public function setOptions(?Iterable $config = null) : AdapterInterface
     {
         if (null === $config) {
             return $this;
@@ -95,7 +95,7 @@ class ImagickImage implements AdapterInterface
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'preview_max_size':
-                    $this->preview_max_size = (int) $value;
+                    $this->preview_max_size = (int)$value;
 
                     break;
                 default:
@@ -111,7 +111,7 @@ class ImagickImage implements AdapterInterface
      */
     public function match(File $file): bool
     {
-        return (bool) preg_match($this->match_convert, $file->getContentType());
+        return (bool)preg_match($this->match_convert, $file->getContentType());
     }
 
     /**

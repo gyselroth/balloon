@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -94,7 +94,7 @@ class Subscription extends AbstractHook
      *
      * @return AbstractHook
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?Iterable $config = null) : self
     {
         if (null === $config) {
             return $this;
@@ -104,7 +104,7 @@ class Subscription extends AbstractHook
             switch ($option) {
                 case 'body':
                 case 'subject':
-                    $this->{$option} = (string) $value;
+                    $this->{$option} = (string)$value;
 
                 break;
                 default:
@@ -134,7 +134,7 @@ class Subscription extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void
+    public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first) : void
     {
         $this->notify($node->getParent());
     }
@@ -150,7 +150,7 @@ class Subscription extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function postDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
+    public function postDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first) : void
     {
         $this->notify($node->getParent());
     }
@@ -171,7 +171,7 @@ class Subscription extends AbstractHook
     protected function notify(Collection $collection): void
     {
         $subs = $collection->getAppAttribute('Balloon\\App\\Notification', 'subscription');
-        if (isset($subs[(string) $this->user->getId()])) {
+        if (isset($subs[(string)$this->user->getId()])) {
             $this->logger->info('user ['.$this->user->getId().'] got a subscription for node ['.$collection->getId().']', [
                 'category' => get_class($this),
             ]);
@@ -184,14 +184,14 @@ class Subscription extends AbstractHook
         }
 
         $throttle = $collection->getAppAttribute('Balloon\\App\\Notification', 'notification_throttle');
-        if (is_array($throttle) && isset($throttle[(string) $collection->getId()])) {
-            $last = $throttle[(string) $collection->getId()];
+        if (is_array($throttle) && isset($throttle[(string)$collection->getId()])) {
+            $last = $throttle[(string)$collection->getId()];
         }
 
-        $body = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($collection) {
+        $body = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function($match) use ($collection) {
             return $collection->getAttribute($match[2]);
         }, $this->body);
-        $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($collection) {
+        $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function($match) use ($collection) {
             return $collection->getAttribute($match[2]);
         }, $this->subject);
 

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -85,7 +85,7 @@ class Elasticsearch
      *
      * @return Elasticsearch
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?Iterable $config = null) : self
     {
         if (null === $config) {
             return $this;
@@ -94,11 +94,11 @@ class Elasticsearch
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'server':
-                    $this->es_server = (array) $value;
+                    $this->es_server = (array)$value;
 
                 break;
                 case 'index':
-                    $this->es_index = (string) $value;
+                    $this->es_index = (string)$value;
 
                 break;
                 default:
@@ -148,7 +148,7 @@ class Elasticsearch
             ],
         ]);
 
-        $user = (string) $this->user->getId();
+        $user = (string)$this->user->getId();
         foreach ($result['hits']['hits'] as $node) {
             $id = false;
 
@@ -159,8 +159,8 @@ class Elasticsearch
                     $_node = $this->fs->findNodeById($id);
                     if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
                      || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
-                        if (!($_node->isShared() && !$_node->isOwnerRequest()) && !isset($list[(string) $_node->getId()])) {
-                            $list[(string) $_node->getId()] = $_node;
+                        if (!($_node->isShared() && !$_node->isOwnerRequest()) && !isset($list[(string)$_node->getId()])) {
+                            $list[(string)$_node->getId()] = $_node;
                         }
                     }
                 } catch (\Exception $e) {
@@ -221,7 +221,7 @@ class Elasticsearch
      * Search.
      *
      * @param array $query
-     * @param array $share
+     * @param array $shares
      *
      * @return array
      */
@@ -230,8 +230,8 @@ class Elasticsearch
         $bool = $query['body']['query'];
 
         $filter1 = [];
-        $filter1['bool']['should'][]['term']['owner'] = (string) $this->user->getId();
-        $filter1['bool']['should'][]['term']['metadata.ref.owner'] = (string) $this->user->getId();
+        $filter1['bool']['should'][]['term']['owner'] = (string)$this->user->getId();
+        $filter1['bool']['should'][]['term']['metadata.ref.owner'] = (string)$this->user->getId();
 
         $share_filter = [
             'bool' => [

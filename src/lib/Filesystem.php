@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -204,7 +204,7 @@ class Filesystem
      *
      * @return NodeInterface
      */
-    public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
+    public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE) : NodeInterface
     {
         if (!is_string($id) && !($id instanceof ObjectId)) {
             throw new Exception\InvalidArgument($id.' node id has to be a string or instance of \MongoDB\BSON\ObjectId');
@@ -261,7 +261,7 @@ class Filesystem
      *
      * @return NodeInterface
      */
-    public function findNodeByPath(string $path = '', ?string $class = null): NodeInterface
+    public function findNodeByPath(string $path = '', ?string $class = null) : NodeInterface
     {
         if (empty($path) || '/' !== $path[0]) {
             $path = '/'.$path;
@@ -291,11 +291,11 @@ class Filesystem
      *
      * @param array  $id
      * @param string $class   Force check node type
-     * @param bool   $deleted
+     * @param integer   $deleted
      *
      * @return Generator
      */
-    public function findNodesById(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): Generator
+    public function findNodesById(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE) : Generator
     {
         $find = [];
         foreach ($id as $i) {
@@ -341,7 +341,7 @@ class Filesystem
      *
      * @return Generator
      */
-    public function findNodesByPath(array $path = [], ?string $class = null): Generator
+    public function findNodesByPath(array $path = [], ?string $class = null) : Generator
     {
         $find = [];
         foreach ($path as $p) {
@@ -379,7 +379,7 @@ class Filesystem
      *
      * @return Generator
      */
-    public function getNodes(?array $id = null, ?array $path = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
+    public function getNodes(? array $id = null, ? array $path = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE) : Generator
     {
         if (null === $id && null === $path) {
             throw new Exception\InvalidArgument('neither parameter id nor p (path) was given');
@@ -411,7 +411,7 @@ class Filesystem
      * @param string $class      Force set node type
      * @param bool   $multiple   Allow $id to be an array
      * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
+     * @param integer   $deleted    How to handle deleted node
      *
      * @return NodeInterface
      */

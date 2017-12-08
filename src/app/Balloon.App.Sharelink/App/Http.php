@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -68,7 +68,7 @@ class Http implements AppInterface
             }
         });
 
-        $decorator->addDecorator('sharelink', function ($node, $attributes) use ($sharelink) {
+        $decorator->addDecorator('sharelink', function($node, $attributes) use ($sharelink) {
             return $sharelink->isSharelink($node);
         });
 
@@ -86,7 +86,7 @@ class Http implements AppInterface
         if (isset($_GET['t']) && !empty($_GET['t'])) {
             $token = $_GET['t'];
             if (isset($_GET['download'])) {
-                $download = (bool) $_GET['download'];
+                $download = (bool)$_GET['download'];
             } else {
                 $download = false;
             }

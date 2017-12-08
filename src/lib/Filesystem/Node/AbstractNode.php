@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -549,7 +549,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @return bool
      */
-    public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
+    public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true) : bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
             throw new ForbiddenException(
@@ -657,7 +657,7 @@ abstract class AbstractNode implements NodeInterface
     public function getLastModified(): int
     {
         if ($this->changed instanceof UTCDateTime) {
-            return (int) $this->changed->toDateTime()->format('U');
+            return (int)$this->changed->toDateTime()->format('U');
         }
 
         return 0;
@@ -671,7 +671,7 @@ abstract class AbstractNode implements NodeInterface
     public function getId(bool $string = false)
     {
         if (true === $string) {
-            return (string) $this->_id;
+            return (string)$this->_id;
         }
 
         return $this->_id;
@@ -720,7 +720,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @return array
      */
-    public function getParents(?NodeInterface $node = null, array $parents = []): array
+    public function getParents(?NodeInterface $node = null, array $parents = []) : array
     {
         if (null === $node) {
             $node = $this;
@@ -762,7 +762,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @return bool
      */
-    public function zip(ZipStream $archive, bool $self = true, ?NodeInterface $parent = null, string $path = '', int $depth = 0): bool
+    public function zip(ZipStream $archive, bool $self = true, ?NodeInterface $parent = null, string $path = '', int $depth = 0) : bool
     {
         if (null === $parent) {
             $parent = $this;
@@ -1021,7 +1021,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @return bool
      */
-    public function setDestroyable(?UTCDateTime $ts): bool
+    public function setDestroyable(?UTCDateTime $ts) : bool
     {
         $this->destroy = $ts;
 
@@ -1089,7 +1089,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @return bool
      */
-    public function save($attributes = [], $remove = [], ?string $recursion = null, bool $recursion_first = true): bool
+    public function save($attributes = [], $remove = [], ?string $recursion = null, bool $recursion_first = true) : bool
     {
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
             throw new ForbiddenException(
@@ -1102,8 +1102,8 @@ abstract class AbstractNode implements NodeInterface
             return false;
         }
 
-        $remove = (array) $remove;
-        $attributes = (array) $attributes;
+        $remove = (array)$remove;
+        $attributes = (array)$attributes;
         $this->_hook->run(
             'preSaveNodeAttributes',
             [$this, &$attributes, &$remove, &$recursion, &$recursion_first]
@@ -1161,7 +1161,7 @@ abstract class AbstractNode implements NodeInterface
      *
      * @return string
      */
-    protected function getDuplicateName(?string $name = null): string
+    protected function getDuplicateName(?string $name = null) : string
     {
         if (null === $name) {
             $name = $this->name;

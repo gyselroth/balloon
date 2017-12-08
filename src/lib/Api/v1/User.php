@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -155,7 +155,7 @@ class User
      *
      * @return Response
      */
-    public function getIsAdmin(?string $uid = null, ?string $uname = null): Response
+    public function getIsAdmin(?string $uid = null, ?string $uname = null) : Response
     {
         $result = $this->_getUser($uid, $uname)->isAdmin();
 
@@ -192,7 +192,7 @@ class User
      *
      * @return Response
      */
-    public function getWhoami(?string $uid = null, ?string $uname = null): Response
+    public function getWhoami(?string $uid = null, ?string $uname = null) : Response
     {
         $result = $this->_getUser($uid, $uname)->getUsername();
 
@@ -231,7 +231,7 @@ class User
      *
      * @return Response
      */
-    public function getNodeAttributeSummary(?string $uid = null, ?string $uname = null, array $attributes = [], int $limit = 25): Response
+    public function getNodeAttributeSummary(?string $uid = null, ?string $uname = null, array $attributes = [], int $limit = 25) : Response
     {
         $result = $this->_getUser($uid, $uname)->getNodeAttributeSummary($attributes, $limit);
 
@@ -269,7 +269,7 @@ class User
      * @param string $uid
      * @param string $uname
      */
-    public function getGroups(?string $uid = null, ?string $uname = null): Response
+    public function getGroups(?string $uid = null, ?string $uname = null) : Response
     {
         $result = $this->_getUser($uid, $uname)->getGroups();
 
@@ -309,7 +309,7 @@ class User
      *
      * @return Response
      */
-    public function getShares(?string $uid = null, ?string $uname = null): Response
+    public function getShares(?string $uid = null, ?string $uname = null) : Response
     {
         $result = $this->_getUser($uid, $uname)->getShares();
 
@@ -355,7 +355,7 @@ class User
      *
      * @return Response
      */
-    public function getQuotaUsage(?string $uid = null, ?string $uname = null): Response
+    public function getQuotaUsage(?string $uid = null, ?string $uname = null) : Response
     {
         $result = $this->_getUser($uid, $uname)->getQuotaUsage();
 
@@ -394,7 +394,7 @@ class User
      *
      * @return Response
      */
-    public function getAttributes(?string $uid = null, ?string $uname = null, array $attributes = []): Response
+    public function getAttributes(?string $uid = null, ?string $uname = null, array $attributes = []) : Response
     {
         $result = $this->_getUser($uid, $uname)->getAttribute($attributes);
 
@@ -423,7 +423,7 @@ class User
      *
      * @return Response
      */
-    public function head(?string $uid = null, ?string $uname = null): Response
+    public function head(?string $uid = null, ?string $uname = null) : Response
     {
         $result = $this->_getUser($uid, $uname, true);
 
@@ -464,7 +464,7 @@ class User
      *
      * @return Response
      */
-    public function post(string $username, string $mail, ?string $namespace = null, ?string $password = null, int $hard_quota = 10000000, int $soft_quota = 10000000): Response
+    public function post(string $username, string $mail, ?string $namespace = null, ?string $password = null, int $hard_quota = 10000000, int $soft_quota = 10000000) : Response
     {
         $id = $this->server->addUser($username, $password, [
             'mail' => $mail,
@@ -473,7 +473,7 @@ class User
             'soft_quota' => $soft_quota,
         ]);
 
-        return (new Response())->setBody((string) $id)->setCode(201);
+        return (new Response())->setBody((string)$id)->setCode(201);
     }
 
     /**
@@ -503,7 +503,7 @@ class User
      *
      * @return Response
      */
-    public function postAttributes(array $attributes = [], ?string $uid = null, ?string $uname = null): Response
+    public function postAttributes(array $attributes = [], ?string $uid = null, ?string $uname = null) : Response
     {
         $this->_getUser($uid, $uname, true)->setAttribute($attributes)->save(array_keys($attributes));
 
@@ -546,7 +546,7 @@ class User
      *
      * @return Response
      */
-    public function delete(?string $uid = null, ?string $uname = null, bool $force = false): Response
+    public function delete(?string $uid = null, ?string $uname = null, bool $force = false) : Response
     {
         $user = $this->_getUser($uid, $uname, true);
 
@@ -583,7 +583,7 @@ class User
      *
      * @return Response
      */
-    public function postUndelete(?string $uid = null, ?string $uname = null): Response
+    public function postUndelete(?string $uid = null, ?string $uname = null) : Response
     {
         $this->_getUser($uid, $uname, true)->undelete();
 

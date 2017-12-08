@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -43,7 +43,7 @@ class Collection extends Node
      *
      * @return Response
      */
-    public function headChildren(?string $id = null, ?string $p = null): Response
+    public function headChildren(?string $id = null, ?string $p = null) : Response
     {
         $result = $this->fs->getNode($id, $p, null, false, true);
         $children = $result->getSize();
@@ -105,7 +105,7 @@ class Collection extends Node
         int $deleted = 0,
         array $filter = [],
         array $attributes = []
-    ): Response {
+    ) : Response {
         $children = [];
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
 
@@ -155,7 +155,7 @@ class Collection extends Node
      *
      * @return Response
      */
-    public function getShare(?string $id = null, ?string $p = null): Response
+    public function getShare(?string $id = null, ?string $p = null) : Response
     {
         $result = $this->fs->getNode($id, $p)->getAcl();
 
@@ -204,7 +204,7 @@ class Collection extends Node
      *
      * @return Response
      */
-    public function postShare(array $acl, ?string $id = null, ?string $p = null): Response
+    public function postShare(array $acl, ?string $id = null, ?string $p = null) : Response
     {
         $node = $this->fs->getNode($id, $p);
         $result = $node->share($acl);
@@ -240,7 +240,7 @@ class Collection extends Node
      *
      * @return Response
      */
-    public function deleteShare(?string $id = null, ?string $p = null): Response
+    public function deleteShare(?string $id = null, ?string $p = null) : Response
     {
         $node = $this->fs->getNode($id, $p);
         $result = $node->unshare();
@@ -300,7 +300,7 @@ class Collection extends Node
         ?string $name = null,
         array $attributes = [],
         int $conflict = 0
-    ): Response {
+    ) : Response {
         if (null !== $p && null !== $name) {
             throw new Exception\InvalidArgument('p and name can not be used at the same time');
         }

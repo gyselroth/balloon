@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Balloon
@@ -116,13 +116,13 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function head(?string $id = null, ?string $p = null, int $deleted = 0): Response
+    public function head(?string $id = null, ?string $p = null, int $deleted = 0) : Response
     {
         try {
             $result = $this->_getNode($id, $p, null, false, false, $deleted);
 
             $response = (new Response())
-                ->setHeader('Content-Length', (string) $result->getSize())
+                ->setHeader('Content-Length', (string)$result->getSize())
                 ->setHeader('Content-Type', $result->getContentType())
                 ->setCode(200);
 
@@ -178,7 +178,7 @@ class Node extends Controller
         ?string $destid = null,
         ?string $destp = null,
         int $conflict = 0
-    ): Response {
+    ) : Response {
         $parent = null;
 
         if (true === $move) {
@@ -205,7 +205,7 @@ class Node extends Controller
                     }
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id' => (string) $node->getId(),
+                        'id' => (string)$node->getId(),
                         'name' => $node->getName(),
                         'error' => get_class($e),
                         'message' => $e->getMessage(),
@@ -282,7 +282,7 @@ class Node extends Controller
      * @param array|string $id
      * @param array|string $p
      * @param int          $offset
-     * @param int          $legnth
+     * @param int          $length
      * @param string       $encode
      * @param bool         $download
      * @param string       $name
@@ -295,14 +295,14 @@ class Node extends Controller
         ?string $encode = null,
         bool $download = false,
         string $name = 'selected'
-    ): ?Response {
+    ) : ?Response {
         if (is_array($id) || is_array($p)) {
             return $this->combine($id, $p, $name);
         }
 
         $node = $this->_getNode($id, $p);
         if ($node instanceof Collection) {
-            return (new Response())->setBody(function () use ($node) {
+            return (new Response())->setBody(function() use ($node) {
                 $node->getZip();
             });
         }
@@ -313,57 +313,57 @@ class Node extends Controller
             $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\''.rawurlencode($name));
             $response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
             $response->setHeader('Content-Type', 'application/octet-stream');
-            $response->setHeader('Content-Length', (string) $node->getSize());
+            $response->setHeader('Content-Length', (string)$node->getSize());
             $response->setHeader('Content-Transfer-Encoding', 'binary');
         } else {
             $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\''.rawurlencode($name));
         }
 
         return (new Response())
-          ->setOutputFormat(null)
-          ->setBody(function () use ($node, $encode, $offset, $length) {
-              $mime = $node->getContentType();
-              $stream = $node->get();
-              $name = $node->getName();
+            ->setOutputFormat(null)
+            ->setBody(function () use ($node, $encode, $offset, $length) {
+                $mime = $node->getContentType();
+                $stream = $node->get();
+                $name = $node->getName();
 
-              if (null === $stream) {
-                  return;
-              }
+                if (null === $stream) {
+                    return;
+                }
 
-              if (0 !== $offset) {
-                  if (fseek($stream, $offset) === -1) {
-                      throw new Exception\Conflict(
+                if (0 !== $offset) {
+                    if (fseek($stream, $offset) === -1) {
+                        throw new Exception\Conflict(
                         'invalid offset requested',
                         Exception\Conflict::INVALID_OFFSET
                     );
-                  }
-              }
+                    }
+                }
 
-              $read = 0;
-              header('Content-Type: '.$mime.'');
-              if ('base64' === $encode) {
-                  header('Content-Encoding: base64');
-                  while (!feof($stream)) {
-                      if (0 !== $length && $read + 8192 > $length) {
-                          echo base64_encode(fread($stream, $length - $read));
-                          exit();
-                      }
+                $read = 0;
+                header('Content-Type: '.$mime.'');
+                if ('base64' === $encode) {
+                    header('Content-Encoding: base64');
+                    while (!feof($stream)) {
+                        if (0 !== $length && $read + 8192 > $length) {
+                            echo base64_encode(fread($stream, $length - $read));
+                            exit();
+                        }
 
-                      echo base64_encode(fread($stream, 8192));
-                      $read += 8192;
-                  }
-              } else {
-                  while (!feof($stream)) {
-                      if (0 !== $length && $read + 8192 > $length) {
-                          echo fread($stream, $length - $read);
-                          exit();
-                      }
+                        echo base64_encode(fread($stream, 8192));
+                        $read += 8192;
+                    }
+                } else {
+                    while (!feof($stream)) {
+                        if (0 !== $length && $read + 8192 > $length) {
+                            echo fread($stream, $length - $read);
+                            exit();
+                        }
 
-                      echo fread($stream, 8192);
-                      $read += 8192;
-                  }
-              }
-          });
+                        echo fread($stream, 8192);
+                        $read += 8192;
+                    }
+                }
+            });
     }
 
     /**
@@ -401,7 +401,7 @@ class Node extends Controller
                     $node->setReadonly($readonly);
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id' => (string) $node->getId(),
+                        'id' => (string)$node->getId(),
                         'name' => $node->getName(),
                         'error' => get_class($e),
                         'message' => $e->getMessage(),
@@ -589,7 +589,7 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function getParent(?string $id = null, ?string $p = null, array $attributes = []): Response
+    public function getParent(?string $id = null, ?string $p = null, array $attributes = []) : Response
     {
         $result = Helper::escape(
             $this->decorator->decorate($this->_getNode($id, $p)->getParent(), $attributes)
@@ -669,7 +669,7 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function getParents(?string $id = null, ?string $p = null, array $attributes = [], bool $self = false): Response
+    public function getParents(?string $id = null, ?string $p = null, array $attributes = [], bool $self = false) : Response
     {
         $request = $this->_getNode($id, $p);
         $parents = $request->getParents();
@@ -719,7 +719,7 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function postMetaAttributes(?string $id = null, ?string $p = null): Response
+    public function postMetaAttributes(?string $id = null, ?string $p = null) : Response
     {
         if (is_array($id) || is_array($p)) {
             $failures = [];
@@ -728,7 +728,7 @@ class Node extends Controller
                     $node->setMetaAttribute(Helper::filter($_POST));
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id' => (string) $node->getId(),
+                        'id' => (string)$node->getId(),
                         'name' => $node->getName(),
                         'error' => get_class($e),
                         'message' => $e->getMessage(),
@@ -781,7 +781,7 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function postName(string $name, ?string $id = null, ?string $p = null): Response
+    public function postName(string $name, ?string $id = null, ?string $p = null) : Response
     {
         $this->_getNode($id, $p)->setName($name);
 
@@ -825,7 +825,7 @@ class Node extends Controller
         ?string $destid = null,
         ?string $destp = null,
         int $conflict = 0
-    ): Response {
+    ) : Response {
         try {
             $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
@@ -842,7 +842,7 @@ class Node extends Controller
                     $node->copyTo($parent, $conflict);
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id' => (string) $node->getId(),
+                        'id' => (string)$node->getId(),
                         'name' => $node->getName(),
                         'error' => get_class($e),
                         'message' => $e->getMessage(),
@@ -864,7 +864,7 @@ class Node extends Controller
         }
         $result = $this->_getNode($id, $p)->copyTo($parent, $conflict);
 
-        return (new Response())->setCode(201)->setBody((string) $result->getId());
+        return (new Response())->setCode(201)->setBody((string)$result->getId());
     }
 
     /**
@@ -911,7 +911,7 @@ class Node extends Controller
         ?string $destid = null,
         ?string $destp = null,
         int $conflict = 0
-    ): Response {
+    ) : Response {
         try {
             $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
@@ -928,7 +928,7 @@ class Node extends Controller
                     $node->setParent($parent, $conflict);
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id' => (string) $node->getId(),
+                        'id' => (string)$node->getId(),
                         'name' => $node->getName(),
                         'error' => get_class($e),
                         'message' => $e->getMessage(),
@@ -995,7 +995,7 @@ class Node extends Controller
         bool $force = false,
         bool $ignore_flag = false,
         ?string $at = null
-    ): Response {
+    ) : Response {
         $failures = [];
 
         if (null !== $at && '0' !== $at) {
@@ -1015,7 +1015,7 @@ class Node extends Controller
                     }
                 } catch (\Exception $e) {
                     $failures[] = [
-                        'id' => (string) $node->getId(),
+                        'id' => (string)$node->getId(),
                         'name' => $node->getName(),
                         'error' => get_class($e),
                         'message' => $e->getMessage(),
@@ -1243,7 +1243,7 @@ class Node extends Controller
         ?string $cursor = null,
         int $limit = 250,
         array $attributes = []
-    ): Response {
+    ) : Response {
         if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
         } else {
@@ -1358,7 +1358,7 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function getEventLog(?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100): Response
+    public function getEventLog(?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100) : Response
     {
         if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
@@ -1399,7 +1399,7 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function getLastCursor(?string $id = null, ?string $p = null): Response
+    public function getLastCursor(?string $id = null, ?string $p = null) : Response
     {
         if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
@@ -1420,7 +1420,7 @@ class Node extends Controller
      * @param string $class      Force set node type
      * @param bool   $multiple   Allow $id to be an array
      * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
+     * @param integer   $deleted    How to handle deleted node
      *
      * @return NodeInterface
      */
@@ -1431,7 +1431,7 @@ class Node extends Controller
         bool $multiple = false,
         bool $allow_root = false,
         int $deleted = 2
-    ): NodeInterface {
+    ) : NodeInterface {
         if (null === $class) {
             switch (get_class($this)) {
                 case ApiFile::class:
@@ -1454,7 +1454,7 @@ class Node extends Controller
      * @param string $id
      * @param string $path
      * @param string $class   Force set node type
-     * @param bool   $deleted How to handle deleted node
+     * @param integer   $deleted How to handle deleted node
      *
      * @return Generator
      */
@@ -1463,7 +1463,7 @@ class Node extends Controller
         $path = null,
         ?string $class = null,
         int $deleted = 2
-    ): Generator {
+    ) : Generator {
         if (null === $class) {
             switch (get_class($this)) {
                 case ApiFile::class:
@@ -1502,9 +1502,9 @@ class Node extends Controller
                 $node->zip($archive);
             } catch (\Exception $e) {
                 $this->logger->debug('failed zip node in multi node request ['.$node->getId().']', [
-                   'category' => get_class($this),
-                   'exception' => $e,
-               ]);
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
             }
         }
 
@@ -1548,7 +1548,7 @@ class Node extends Controller
 
                 break;
                 case 'filter':
-                    $attributes['filter'] = json_encode((array) $attributes['filter']);
+                    $attributes['filter'] = json_encode((array)$attributes['filter']);
 
                 break;
                 case 'destroy':
@@ -1563,14 +1563,14 @@ class Node extends Controller
                     if (!Helper::isValidTimestamp($value)) {
                         throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
                     }
-                    if ((int) $value > time()) {
+                    if ((int)$value > time()) {
                         throw new Exception\InvalidArgument($attribute.' timestamp can not be set greater than the server time');
                     }
                     $attributes[$attribute] = new UTCDateTime($value.'000');
 
                 break;
                 case 'readonly':
-                    $attributes['readonly'] = (bool) $attributes['readonly'];
+                    $attributes['readonly'] = (bool)$attributes['readonly'];
 
                 break;
             }
