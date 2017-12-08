@@ -201,6 +201,10 @@ class AttributeDecorator
                 return $acl->getAclPrivilege($node);
             },
             'owner' => function ($node, $requested) use ($server) {
+                if ($node->isShare() || !$node->isSpecial()) {
+                    return null;
+                }
+
                 try {
                     return $server->getUserById($node->getOwner())->getAttribute($requested['owner']);
                 } catch (\Exception $e) {
