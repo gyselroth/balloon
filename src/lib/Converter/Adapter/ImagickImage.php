@@ -111,7 +111,7 @@ class ImagickImage implements AdapterInterface
      */
     public function match(File $file): bool
     {
-        return (bool) preg_match($this->match_convert, $file->getMime());
+        return (bool) preg_match($this->match_convert, $file->getContentType());
     }
 
     /**
@@ -119,7 +119,7 @@ class ImagickImage implements AdapterInterface
      */
     public function matchPreview(File $file): bool
     {
-        return preg_match($this->match_preview, $file->getMime()) || isset($this->formats[$file->getExtension()]);
+        return preg_match($this->match_preview, $file->getContentType()) || isset($this->formats[$file->getExtension()]);
     }
 
     /**

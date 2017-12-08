@@ -16,10 +16,12 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta\Exception;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Helper;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Database;
 
 class Delta
 {
@@ -33,7 +35,7 @@ class Delta
     /**
      * Db.
      *
-     * @var \MongoDB\Database
+     * @var Database
      */
     protected $db;
 
@@ -45,15 +47,23 @@ class Delta
     protected $user;
 
     /**
+     * Decorator
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
      * Initialize delta.
      *
      * @param Filesystem $fs
      */
-    public function __construct(Filesystem $fs)
+    public function __construct(Filesystem $fs, Database $db, AttributeDecorator $decorator)
     {
         $this->fs = $fs;
-        $this->db = $fs->getDatabase();
+        $this->db = $db;
         $this->user = $fs->getUser();
+        $this->decorator = $decorator;
     }
 
     /**
@@ -108,7 +118,7 @@ class Delta
             $current_cursor = $cursor[1];
         }
 
-        $children = $this->fs->findNodeAttributesWithCustomFilter(
+        $children = $this->findNodeAttributesWithCustomFilter(
             $filter,
             $attributes,
             $limit,
@@ -205,12 +215,10 @@ class Delta
         $last = $this->getLastRecord($node);
 
         if (null === $last) {
-            $cursor = base64_encode('delta|0|0|0|'.new UTCDateTime());
-        } else {
-            $cursor = base64_encode('delta|0|0|'.$last['_id'].'|'.$last['timestamp']);
+            return base64_encode('delta|0|0|0|'.new UTCDateTime());
         }
 
-        return $cursor;
+        return $cursor = base64_encode('delta|0|0|'.$last['_id'].'|'.$last['timestamp']);
     }
 
     /**
@@ -304,12 +312,12 @@ class Delta
                     ]);
 
                     foreach ($members as $share_member) {
-                        $member_attrs = $share_member->getAttributes($attributes);
+                        $member_attrs = $this->decorator->decorate($share_member, $attributes);
                         $list[$member_attrs['path']] = $member_attrs;
                     }
                 }
 
-                $fields = $log_node->getAttributes($attributes);
+                $fields = $this->decorator->decorate($log_node, $attributes);
 
                 if (array_key_exists('previous', $log)) {
                     if (array_key_exists('parent', $log['previous'])) {
@@ -574,5 +582,61 @@ class Delta
                 ],
             ],
         ];
+    }
+
+    /**
+     * Get children with custom filter.
+     *
+     * @param array         $filter
+     * @param array         $attributes
+     * @param int           $limit
+     * @param string        $cursor
+     * @param bool          $has_more
+     * @param NodeInterface $parent
+     *
+     * @return array
+     */
+    protected function findNodeAttributesWithCustomFilter(
+        ?array $filter = null,
+        array $attributes = ['_id'],
+        ?int $limit = null,
+        ?int &$cursor = null,
+        ?bool &$has_more = null,
+        ?NodeInterface $parent = null
+    ) {
+        $list = [];
+
+        $result = $this->db->storage->find($filter, [
+            'skip' => $cursor,
+            'limit' => $limit,
+        ]);
+
+        $left = $this->db->storage->count($filter, [
+            'skip' => $cursor,
+        ]);
+
+        $result = $result->toArray();
+        $count = count($result);
+        $has_more = ($left - $count) > 0;
+
+        foreach ($result as $node) {
+            ++$cursor;
+
+            try {
+                $node = $this->fs->initNode($node);
+
+                if (null !== $parent && !$parent->isSubNode($node)) {
+                    continue;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            $list[] = $this->decorator->decorate($node, $attributes);
+        }
+
+        $has_more = ($left - $count) > 0;
+
+        return $list;
     }
 }

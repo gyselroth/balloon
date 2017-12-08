@@ -116,6 +116,15 @@ class Office implements AdapterInterface
     ];
 
     /**
+     * One way formats
+     *
+     * @param array
+     */
+    protected $locked_formats = [
+        'pdf' => 'application/pdf'
+    ];
+
+    /**
      * Initialize.
      *
      * @param LoggerInterface $logger
@@ -184,7 +193,7 @@ class Office implements AdapterInterface
     public function match(File $file): bool
     {
         foreach ($this->formats as $type => $formats) {
-            if (in_array($file->getMime(), $formats, true)) {
+            if (in_array($file->getContentType(), $formats, true)) {
                 return true;
             }
         }
@@ -205,8 +214,14 @@ class Office implements AdapterInterface
      */
     public function getSupportedFormats(File $file): array
     {
+        if(in_array($file->getContentType(), $this->locked_formats)) {
+            return [
+                array_search($file->getContentType(), $this->locked_formats)
+            ];
+        }
+
         foreach ($this->formats as $type => $formats) {
-            if (in_array($file->getMime(), $formats, true)) {
+            if (in_array($file->getContentType(), $formats, true)) {
                 return array_keys($formats);
             }
         }

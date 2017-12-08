@@ -15,6 +15,7 @@ namespace Balloon;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta;
+use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -168,7 +169,10 @@ class Filesystem
             return $this->delta;
         }
 
-        return $this->delta = new Delta($this);
+        return $this->delta = new Delta($this, $this->db, new AttributeDecorator(
+            $this->server,
+            $this->acl
+        ));
     }
 
     /**
@@ -529,68 +533,6 @@ class Filesystem
                 ]);
             }
         }
-    }
-
-    /**
-     * Get children with custom filter.
-     *
-     * @param array         $filter
-     * @param array         $attributes
-     * @param int           $limit
-     * @param string        $cursor
-     * @param bool          $has_more
-     * @param NodeInterface $parent
-     *
-     * @return array
-     */
-    public function findNodeAttributesWithCustomFilter(
-        ?array $filter = null,
-        array $attributes = ['_id'],
-        ?int $limit = null,
-        ?int &$cursor = null,
-        ?bool &$has_more = null,
-        ?NodeInterface $parent = null
-    ) {
-        $list = [];
-
-        $result = $this->db->storage->find($filter, [
-            'skip' => $cursor,
-            'limit' => $limit,
-        ]);
-
-        $left = $this->db->storage->count($filter, [
-            'skip' => $cursor,
-        ]);
-
-        $result = $result->toArray();
-        $count = count($result);
-        $has_more = ($left - $count) > 0;
-
-        foreach ($result as $node) {
-            ++$cursor;
-
-            try {
-                $node = $this->initNode($node);
-
-                if (null !== $parent && !$parent->isSubNode($node)) {
-                    continue;
-                }
-            } catch (\Exception $e) {
-                $this->logger->error('remove node from result list, failed load node', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-
-                continue;
-            }
-
-            $values = $node->getAttributes($attributes);
-            $list[] = $values;
-        }
-
-        $has_more = ($left - $count) > 0;
-
-        return $list;
     }
 
     /**

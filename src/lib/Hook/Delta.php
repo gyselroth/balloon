@@ -20,6 +20,12 @@ use MongoDB\BSON\ObjectId;
 
 class Delta extends AbstractHook
 {
+    /*public function __construct(Database $db, Server $server)
+    {
+        $this->db = $db;
+        $this->f
+    }*/
+
     /**
      * Client.
      *
@@ -340,17 +346,17 @@ class Delta extends AbstractHook
 
         if (in_array('shared', $attributes, true) && !$node->isShared() && array_key_exists('shared', $raw) && true === $raw['shared']) {
             $log['operation'] = 'unshareCollection';
-        } elseif (in_array('parent', $attributes, true) && $raw['parent'] !== $node->getAttribute('parent')) {
+        } elseif (in_array('parent', $attributes, true) && $raw['parent'] !== $node->getAttributes()['parent']) {
             $log['operation'] = 'move'.$suffix.$suffix2;
             $log['previous'] = [
                 'parent' => $raw['parent'],
             ];
-        } elseif (in_array('name', $attributes, true) && $raw['name'] !== $node->getAttribute('name')) {
+        } elseif (in_array('name', $attributes, true) && $raw['name'] !== $node->getName()) {
             $log['operation'] = 'rename'.$suffix.$suffix2;
             $log['previous'] = [
                 'name' => $raw['name'],
             ];
-        } elseif (in_array('deleted', $attributes, true) && $raw['deleted'] !== $node->getAttribute('deleted')
+        } elseif (in_array('deleted', $attributes, true) && $raw['deleted'] !== $node->getAttributes()['deleted']
             && !$node->isDeleted()) {
             $log['operation'] = 'undelete'.$suffix.$suffix2;
         } elseif (in_array('shared', $attributes, true) && $raw['shared'] !== $node->isShare() && $node->isShare()) {

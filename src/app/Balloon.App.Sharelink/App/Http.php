@@ -109,7 +109,7 @@ class Http implements AppInterface
                     $stream = $node->getZip();
                     $name = $node->getName().'.zip';
                 } else {
-                    $mime = $node->getMime();
+                    $mime = $node->getContentType();
                     $stream = $node->get();
                     $name = $node->getName();
                 }

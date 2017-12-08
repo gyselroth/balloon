@@ -33,13 +33,6 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
     const ROOT_FOLDER = '/';
 
     /**
-     * Mime type.
-     *
-     * @var string
-     */
-    protected $mime = 'inode/directory';
-
-    /**
      * Children.
      *
      * @var array
@@ -56,9 +49,9 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
     /**
      * filter.
      *
-     * @param array
+     * @param string
      */
-    protected $filter = [];
+    protected $filter;
 
     /**
      * Initialize.
@@ -80,6 +73,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             $this->{$attr} = $value;
         }
 
+        $this->mime = 'inode/directory';
         $this->raw_attributes = $attributes;
     }
 
@@ -158,8 +152,6 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
     /**
      * Get Attributes.
      *
-     * @param array $attributes
-     *
      * @return array
      */
     public function getAttributes(): array
@@ -169,8 +161,10 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             'name' => $this->name,
             'shared' => $this->shared,
             'reference' => $this->reference,
+            'parent' => $this->parent,
             'meta' => $this->meta,
             'mime' => $this->mime,
+            'filter' => $this->filter,
             'deleted' => $this->deleted,
             'changed' => $this->changed,
             'created' => $this->created,
@@ -178,33 +172,6 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             'readonly' => $this->readonly,
         ];
     }
-
-    /**
-     * Get Attribute.
-     *
-     * @param array $attributes
-     *
-     * @return array
-     */
-    /*public function getAttributes(array $attributes = []): array
-    {
-        if (empty($attributes)) {
-            $attributes = [
-                'id',
-                'name',
-                'meta',
-                'mime',
-                'reference',
-                'deleted',
-                'changed',
-                'created',
-                'share',
-                'directory',
-            ];
-        }
-
-        return parent::getAttributes($attributes);
-    }*/
 
     /**
      * Get collection.
@@ -283,7 +250,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             }
         }
 
-        if (!empty($this->filter)) {
+        if ($this->filter !== null) {
             foreach ($this->_fs->findNodesByFilterUser($deleted, json_decode($this->filter)) as $node) {
                 yield $node;
             }

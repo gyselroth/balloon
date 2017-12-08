@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\Filesystem\Node;
 
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem;
 use Balloon\Helper;
 use Balloon\Server;
 use Closure;
@@ -20,19 +21,87 @@ use MongoDB\BSON\UTCDateTime;
 
 class AttributeDecorator
 {
+    /**
+     * Server
+     *
+     * @var Server
+     */
+    protected $server;
+
+
+    /**
+     * Filesystem
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+    /**
+     * Acl
+     *
+     * @var Acl
+     */
+    protected $acl;
+
+    /**
+     * Custom attributes
+     *
+     * @var array
+     */
     protected $custom = [];
 
+
+    /**
+     * Init
+     *
+     * @param Server $server
+     * @param Acl $acl
+     */
     public function __construct(Server $server, Acl $acl)
     {
+        $this->server = $server;
         $this->fs = $server->getFilesystem();
         $this->acl = $acl;
     }
 
+    /**
+     * Decorate attributes
+     *
+     * @param NodeInterface $node
+     * @param array $attributes
+     * @return array
+     */
     public function decorate(NodeInterface $node, ?array $attributes): array
     {
-        return $this->getAttributes($node, $this->prepare($node, $attributes));
+        if($attributes === null) {
+            $attributes = [];
+        }
+
+        $requested = $this->prepare($node, $attributes);
+        $attributes = $node->getAttributes();
+
+        $attrs = array_merge(
+            $this->getAttributes($node, $attributes, $requested),
+            $this->getTimeAttributes($node, $attributes, $requested),
+            $this->getTypeAttributes($node, $attributes, $requested),
+            $this->custom
+        );
+
+        if (count($requested['attributes']) === 0) {
+            return $this->translateAttributes($node, $attrs);
+        }
+
+        return $this->translateAttributes($node, array_intersect_key($attrs, array_flip($requested['attributes'])));
     }
 
+
+    /**
+     * Add decorator
+     *
+     * @param string $attribute
+     * @param Closure $decorator
+     * @return AttributeDecorator
+     */
     public function addDecorator(string $attribute, Closure $decorator): self
     {
         $this->custom[$attribute] = $decorator;
@@ -40,18 +109,24 @@ class AttributeDecorator
         return $this;
     }
 
-    protected function prepare(NodeInterface $node, $attributes)
-    {
-        /*
-        file.
-        collection.
-        meta.
-        share.
-        parent.
-        */
 
-        $meta = [];
-        $clean = [];
+    /**
+     * Prepare requested attributes
+     *
+     * @param NodeInterface $node
+     * @param array $attributes
+     * @return array
+     */
+    protected function prepare(NodeInterface $node, ?array $attributes): array
+    {
+        $clean = [
+            'attributes' => [],
+            'meta' => [],
+            'share' => [],
+            'parent' => [],
+            'owner' => [],
+            'shareowner' => []
+        ];
 
         foreach ($attributes as $key => $attr) {
             $keys = explode('.', $attr);
@@ -67,34 +142,37 @@ class AttributeDecorator
                 $prefix = array_shift($keys);
             }
 
-            if ('meta' === $prefix && 1 === count($keys)) {
-                $meta[] = $keys[0];
-            } elseif (1 === count($keys)) {
-                $clean[] = $keys[0];
-            } else {
-                $clean[] = $attr;
+            if (('file' === $prefix || 'collection' === $prefix) && count($keys) === 1) {
+                $clean['attributes'][] = $keys[0];
+            } elseif(count($keys) === 0) {
+                $clean['attributes'][] = $attr;
+            } elseif ('meta' === $prefix && 1 === count($keys)) {
+                $clean['attributes'][] = 'meta';
+                $clean['meta'][] = $keys[0];
+            } elseif(isset($clean[$prefix])) {
+                $clean['attributes'][] = $prefix;
+                $clean[$prefix][] = $attr;
             }
         }
 
-        if (count($meta) > 0) {
-            $clean[] = 'meta';
-        }
-
-        $attributes = $clean;
+        return $clean;
     }
 
     /**
      * Get Attributes.
      *
+     * @param NodeInterface
      * @param array $attributes
+     * @param array $requested
      *
      * @return array
      */
-    protected function getAttributes(NodeInterface $node, ?array $requested): array
+    protected function getAttributes(NodeInterface $node, array $attributes, ?array $requested): array
     {
-        $attributes = $node->getAttributes();
+        $acl = $this->acl;
+        $server = $this->server;
 
-        $attrs = [
+        return [
             'id' => (string) $attributes['id'],
             'name' => (string) $attributes['name'],
             'mime' => (string) $attributes['mime'],
@@ -106,6 +184,48 @@ class AttributeDecorator
             'size' => function ($node) {
                 return $node->getSize();
             },
+            'path' => function ($node) {
+                try {
+                    return $node->getPath();
+                } catch (\Exception $e) {
+                    return null;
+                }
+            },
+            'parent' => function ($node) use ($requested) {
+                $parent = $node->getParent();
+
+                if (null === $parent || $parent->isRoot()) {
+                    return null;
+                }
+
+                return $this->decorate($node->getParent(), $requested['parent']);
+            },
+            'access' => function($node) use($acl) {
+                return $acl->getAclPrivilege($node);
+            },
+            'owner' => function($node) use($server, $requested) {
+                try {
+                    return $server->getUserById($node->getOwner())->getAttribute($requested['owner']);
+                } catch(\Exception $e) {
+                    return null;
+                }
+            }
+        ];
+    }
+
+
+    /**
+     * Get Attributes.
+     *
+     * @param NodeInterface
+     * @param array $attributes
+     * @param array $requested
+     *
+     * @return array
+     */
+    protected function getTimeAttributes(NodeInterface $node, array $attributes, ?array $requested): array
+    {
+        return [
             'created' => function ($node) use ($attributes) {
                 return Helper::DateTimeToUnix($attributes['created']);
             },
@@ -126,149 +246,89 @@ class AttributeDecorator
 
                 return Helper::DateTimeToUnix($attributes['destroy']);
             },
-            'path' => function ($node) {
+        ];
+    }
+
+    /**
+     * Get Attributes.
+     *
+     * @param NodeInterface
+     * @param array $attributes
+     * @param array $requested
+     *
+     * @return array
+     */
+    protected function getTypeAttributes(NodeInterface $node, array $attributes, ?array $requested): array
+    {
+        $server = $this->server;
+        $fs = $this->fs;
+
+        if($node instanceof File) {
+            return [
+                'version' => $attributes['version'],
+                'hash' => $attributes['hash'],
+            ];
+        }
+
+        return [
+            'shared' => $node->isShared(),
+            'reference' => $node->isReference(),
+            'filter' => function($node) use($attributes) {
+                if($attributes['filter'] === null) {
+                    return null;
+                }
+
+                return json_decode($attributes['filter']);
+            },
+            'share' => function($node) use($requested) {
+                if(!$node->isShare())  {
+                    return null;
+                }
+
                 try {
-                    return $node->getPath();
+                    return $this->decorate($node->getShareNode(), $requested['share']);
                 } catch (\Exception $e) {
                     return null;
                 }
             },
-            'parent' => function ($node) use ($requested) {
-                $parent = $node->getParent();
-
-                if (null === $parent) {
+            'shareowner' => function($node) use($server, $fs, $requested) {
+                if(!$node->isSpecial())  {
                     return null;
                 }
 
-                return $this->getAttributes($node->getParent(), $requested);
-            },
+                try {
+                    return $server->getUserById($fs->findRawNode($node->getShareId())['owner'])
+                        ->getAttribute($requested['shareowner']);
+                } catch(\Exception $e) {
+                    return null;
+                }
+            }
         ];
-
-        $attrs = array_merge($attrs, $this->custom);
-
-        if (null === $requested) {
-            return $this->translateAttributes($node, $attrs);
-        }
-
-        return $this->translateAttributes($node, array_intersect_key($attrs, array_flip($requested)));
     }
 
+
+    /**
+     * Execute closures
+     *
+     * @param NodeInterface
+     * @param array $attributes
+     *
+     * @return array
+     */
     protected function translateAttributes(NodeInterface $node, array $attributes): array
     {
-        foreach ($attributes as &$value) {
+        foreach ($attributes as $key => &$value) {
             if ($value instanceof Closure) {
-                $value = $value($node);
+                $result = $value($node);
+
+                if($result === null) {
+                    unset($attributes[$key]);
+                } else {
+                    $value = $result;
+                }
             }
         }
 
         return $attributes;
     }
-
-    /*
-    
-            try {
-                $sharenode = $this->getShareNode();
-            } catch (\Exception $e) {
-                $sharenode = null;
-            }
-    
-            $build = [];
-    
-            foreach ($attributes as $key => $attr) {
-                switch ($attr) {
-                    case 'id':
-                        $build['id'] = (string) $this->_id;
-    
-                    break;
-                    case 'name':
-                    case 'mime':
-                    case 'readonly':
-                    case 'directory':
-                        $build[$attr] = $this->{$attr};
-    
-                    break;
-                    case 'parent':
-                        try {
-                            $parent = $this->getParent();
-                            if (null === $parent || null === $parent->getId()) {
-                                $build[$attr] = null;
-                            } else {
-                                $build[$attr] = (string) $parent->getId();
-                            }
-                        } catch (\Exception $e) {
-                            $build[$attr] = null;
-                        }
-    
-                    break;
-                    case 'meta':
-                        $build['meta'] = (object) $this->getMetaAttribute($meta);
-    
-                    break;
-                    case 'size':
-                        $build['size'] = $this->getSize();
-    
-                    break;
-                    case 'deleted':
-                    case 'changed':
-                    case 'created':
-                    case 'destroy':
-                        if ($this->{$attr} instanceof UTCDateTime) {
-                            $build[$attr] = Helper::DateTimeToUnix($this->{$attr});
-                        } else {
-                            $build[$attr] = $this->{$attr};
-                        }
-    
-                    break;
-                    case 'path':
-                        try {
-                            $build['path'] = $this->getPath();
-                        } catch (\Balloon\Exception\NotFound $e) {
-                            $build['path'] = null;
-                        }
-    
-                    break;
-                    case 'shared':
-                        if (true === $this->directory) {
-                            $build['shared'] = $this->isShared();
-                        }
-    
-                    break;
-                    case 'filtered':
-                        if (true === $this->directory) {
-                            $build['filtered'] = $this->isCustomFilter();
-                        }
-    
-                    break;
-                    case 'reference':
-                        if (true === $this->directory) {
-                            $build['reference'] = $this->isReference();
-                        }
-    
-                    break;
-                    case 'share':
-                        if ($this->isSpecial() && null !== $sharenode) {
-                            $build['share'] = $sharenode->getName();
-                        } else {
-                            $build['share'] = false;
-                        }
-    
-                    break;
-                    case 'access':
-                        if ($this->isSpecial() && null !== $sharenode) {
-                            $build['access'] = $this->_acl->getAclPrivilege($sharenode);
-                        }
-    
-                    break;
-                    case 'shareowner':
-                        if ($this->isSpecial() && null !== $sharenode) {
-                            $build['shareowner'] = $this->_server->getUserById($this->_fs->findRawNode($this->getShareId())['owner'])
-                              ->getUsername();
-                        }
-    
-                    break;
-                }
-            }
-    
-            return $build;
-    */
 }

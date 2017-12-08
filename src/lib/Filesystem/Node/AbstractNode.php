@@ -58,6 +58,13 @@ abstract class AbstractNode implements NodeInterface
     protected $owner;
 
     /**
+     * Mime
+     *
+     * @var string
+     */
+    protected $mime;
+
+    /**
      * Meta attributes.
      *
      * @var array
@@ -77,13 +84,6 @@ abstract class AbstractNode implements NodeInterface
      * @var bool|UTCDateTime
      */
     protected $deleted = false;
-
-    /**
-     * Is collection.
-     *
-     * @var bool
-     */
-    //protected $directory = false;
 
     /**
      * Is shared?
@@ -226,6 +226,8 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Set filesystem.
+     *
+     * @param Filesystem $fs
      *
      * @return NodeInterface
      */
@@ -540,24 +542,6 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
-     * Get attribute.
-     *
-     * @param string $attribute
-     *
-     * @return mixed
-     */
-    /*public function getAttribute(string $attribute)
-    {
-        $attributes = $this->getAttributes([$attribute]);
-
-        if (!isset($attributes[$attribute])) {
-            throw new Exception('attribute was not found');
-        }
-
-        return $attributes[$attribute];
-    }
-
-    /**
      * Undelete.
      *
      * @param int    $conflict
@@ -820,6 +804,16 @@ abstract class AbstractNode implements NodeInterface
         }
 
         return true;
+    }
+
+    /**
+     * Get mime type.
+     *
+     * @return string
+     */
+    public function getContentType(): string
+    {
+        return $this->mime;
     }
 
     /**
@@ -1160,159 +1154,6 @@ abstract class AbstractNode implements NodeInterface
             throw $e;
         }
     }
-
-    /**
-     * Get Attributes.
-     *
-     * @param array $attributes
-     *
-     * @return array
-     */
-    /*protected function getAttributes(array $attributes = []): array
-    {
-        $meta = [];
-        $clean = [];
-        $apps = [];
-
-        foreach ($attributes as $key => $attr) {
-            $keys = explode('.', $attr);
-            $prefix = array_shift($keys);
-
-            if ('file' === $prefix && ($this instanceof Collection)) {
-                continue;
-            }
-            if ('collection' === $prefix && ($this instanceof File)) {
-                continue;
-            }
-            if (('file' === $prefix || 'collection' === $prefix) && count($keys) > 1) {
-                $prefix = array_shift($keys);
-            }
-
-            if ('apps' === $prefix && count($keys) > 1) {
-                $apps[] = implode('.', $keys);
-            } elseif ('meta' === $prefix && 1 === count($keys)) {
-                $meta[] = $keys[0];
-            } elseif (1 === count($keys)) {
-                $clean[] = $keys[0];
-            } else {
-                $clean[] = $attr;
-            }
-        }
-
-        if (count($meta) > 0) {
-            $clean[] = 'meta';
-        }
-        if (count($apps) > 0) {
-            $clean[] = 'apps';
-        }
-
-        $attributes = $clean;
-
-        try {
-            $sharenode = $this->getShareNode();
-        } catch (\Exception $e) {
-            $sharenode = null;
-        }
-
-        $build = [];
-
-        foreach ($attributes as $key => $attr) {
-            switch ($attr) {
-                case 'id':
-                    $build['id'] = (string) $this->_id;
-
-                break;
-                case 'name':
-                case 'mime':
-                case 'readonly':
-                case 'directory':
-                    $build[$attr] = $this->{$attr};
-
-                break;
-                case 'parent':
-                    try {
-                        $parent = $this->getParent();
-                        if (null === $parent || null === $parent->getId()) {
-                            $build[$attr] = null;
-                        } else {
-                            $build[$attr] = (string) $parent->getId();
-                        }
-                    } catch (\Exception $e) {
-                        $build[$attr] = null;
-                    }
-
-                break;
-                case 'meta':
-                    $build['meta'] = (object) $this->getMetaAttribute($meta);
-
-                break;
-                case 'size':
-                    $build['size'] = $this->getSize();
-
-                break;
-                case 'deleted':
-                case 'changed':
-                case 'created':
-                case 'destroy':
-                    if ($this->{$attr} instanceof UTCDateTime) {
-                        $build[$attr] = Helper::DateTimeToUnix($this->{$attr});
-                    } else {
-                        $build[$attr] = $this->{$attr};
-                    }
-
-                break;
-                case 'path':
-                    try {
-                        $build['path'] = $this->getPath();
-                    } catch (\Balloon\Exception\NotFound $e) {
-                        $build['path'] = null;
-                    }
-
-                break;
-                case 'shared':
-                    if (true === $this->directory) {
-                        $build['shared'] = $this->isShared();
-                    }
-
-                break;
-                case 'filtered':
-                    if (true === $this->directory) {
-                        $build['filtered'] = $this->isCustomFilter();
-                    }
-
-                break;
-                case 'reference':
-                    if (true === $this->directory) {
-                        $build['reference'] = $this->isReference();
-                    }
-
-                break;
-                case 'share':
-                    if ($this->isSpecial() && null !== $sharenode) {
-                        $build['share'] = $sharenode->getName();
-                    } else {
-                        $build['share'] = false;
-                    }
-
-                break;
-                case 'access':
-                    if ($this->isSpecial() && null !== $sharenode) {
-                        $build['access'] = $this->_acl->getAclPrivilege($sharenode);
-                    }
-
-                break;
-                case 'shareowner':
-                    if ($this->isSpecial() && null !== $sharenode) {
-                        $build['shareowner'] = $this->_server->getUserById($this->_fs->findRawNode($this->getShareId())['owner'])
-                          ->getUsername();
-                    }
-
-                break;
-            }
-        }
-
-        return $build;
-    }*/
 
     /**
      * Duplicate name with a uniqid within name.

@@ -123,7 +123,7 @@ class Node extends Controller
 
             $response = (new Response())
                 ->setHeader('Content-Length', (string) $result->getSize())
-                ->setHeader('Content-Type', $result->getMime())
+                ->setHeader('Content-Type', $result->getContentType())
                 ->setCode(200);
 
             return $response;
@@ -322,7 +322,7 @@ class Node extends Controller
         return (new Response())
           ->setOutputFormat(null)
           ->setBody(function () use ($node, $encode, $offset, $length) {
-              $mime = $node->getMime();
+              $mime = $node->getContentType();
               $stream = $node->get();
               $name = $node->getName();
 
@@ -676,11 +676,11 @@ class Node extends Controller
         $result = [];
 
         if (true === $self && $request instanceof Collection) {
-            $result[] = $request->getAttributes($attributes);
+            $result[] = $this->decorator->decorate($request, $attributes);
         }
 
         foreach ($parents as $node) {
-            $result[] = $node->getAttributes($attributes);
+            $result[] = $this->decorator->decorate($node, $attributes);
         }
 
         $result = Helper::escape($result);

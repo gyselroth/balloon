@@ -79,13 +79,6 @@ class File extends AbstractNode implements FileInterface
     protected $size = 0;
 
     /**
-     * Mimetype.
-     *
-     * @var string
-     */
-    protected $mime = '';
-
-    /**
      * History.
      *
      * @var array
@@ -448,8 +441,6 @@ class File extends AbstractNode implements FileInterface
     /**
      * Get Attributes.
      *
-     * @param array $attributes
-     *
      * @return array
      */
     public function getAttributes(): array
@@ -460,6 +451,7 @@ class File extends AbstractNode implements FileInterface
             'hash' => $this->hash,
             'size' => $this->size,
             'version' => $this->version,
+            'parent' => $this->parent,
             'meta' => $this->meta,
             'mime' => $this->mime,
             'deleted' => $this->deleted,
@@ -469,41 +461,6 @@ class File extends AbstractNode implements FileInterface
             'readonly' => $this->readonly,
         ];
     }
-
-    /*public function getAttributes(array $attributes = []): array
-    {
-        if (empty($attributes)) {
-            $attributes = [
-                'id',
-                'name',
-                'hash',
-                'size',
-                'version',
-                'meta',
-                'mime',
-                'deleted',
-                'changed',
-                'created',
-                'share',
-                'directory',
-            ];
-        }
-
-        $build = [];
-        foreach ($attributes as $key => $attr) {
-            switch ($attr) {
-               case 'hash':
-               case 'version':
-                   $build[$attr] = $this->{$attr};
-
-               break;
-            }
-        }
-
-        $attributes = parent::getAttributes($attributes);
-
-        return array_merge($build, $attributes);
-    }*/
 
     /**
      * Get filename extension.
@@ -518,16 +475,6 @@ class File extends AbstractNode implements FileInterface
         }
 
         return substr($ext, 1);
-    }
-
-    /**
-     * Get mime type.
-     *
-     * @return string
-     */
-    public function getContentType(): string
-    {
-        return $this->mime;
     }
 
     /**
