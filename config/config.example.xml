@@ -211,7 +211,7 @@
         </adapter>
     </service>
 
-    <service m:name="Psr\Log\LoggerInterface" use="Micro\Log">
+    <service m:name="Psr\Log\LoggerInterface" use="Micro\Log\Log">
         <adapter>
             <adapter m:name="file" enabled="1" use="Micro\Log\Adapter\File">
                 <options>
@@ -247,7 +247,7 @@
         </adapter>
     </service>
 
-    <service m:name="Micro\Auth">
+    <service m:name="Micro\Auth\Auth">
         <adapter>
             <adapter enabled="1" m:name="basic_db" use="Balloon\Auth\Adapter\Basic\Db"/>
 

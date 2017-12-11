@@ -17,7 +17,7 @@ use Balloon\Console\ConsoleInterface;
 use Balloon\Console\Migration;
 use Composer\Autoload\ClassLoader as Composer;
 use GetOpt\GetOpt;
-use Micro\Config;
+use Micro\Config\Config;
 use Micro\Log\Adapter\Stdout;
 use Psr\Log\LoggerInterface;
 

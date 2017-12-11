@@ -18,7 +18,11 @@
     },
     "require": {
         "php": ">=7.1",
-        "gyselroth/micro": "dev-master",
+        "gyselroth/micro-auth": "*",
+        "gyselroth/micro-container": "*",
+        "gyselroth/micro-log": "*",
+        "gyselroth/micro-http": "*",
+        "gyselroth/micro-config": "*",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",

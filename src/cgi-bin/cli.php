@@ -8,7 +8,7 @@
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 use Balloon\Bootstrap\Cli;
-use Micro\Config;
+use Micro\Config\Config;
 use Micro\Config\Struct;
 use Micro\Config\Xml;
 

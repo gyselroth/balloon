@@ -15,7 +15,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [CHANGE] php ext imagick is now optional (if not installed, image previews will fail)
 * CORE: [CHANGE] php ext ldap is now optional (if not installed ldap authentication or ldap sync core app will not be available)
 * CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
-* CORE: [!BREAKER] Migrated core classes to \Micro components (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
+* CORE: [!BREAKER] Migrated core classes to micro components (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
 * CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
 * CORE: [CHANGE] changed hook preAuthentication() first param to Auth $auth instead auth adapters
 * CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon\Plugin => \Balloon\Hook #55, \Balloon\Queue => \Balloon\Async
@@ -56,7 +56,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [FEATURE] New share privilege "manage" #7 
 * CORE: [CHANGE] Removed deprecated share privilege "writeonly" #73, all existing rules with writeonly get upgraded to a mailbox privilege (see upgrade guide)
 * CORE: [CHANGE] Rewritten acl, extracted acl as separate instance, various acl improvements
-* CORE: [!BREAKER] Comes with the latest micro version, therefore the auth adapter "preauth" is not available anymore, use OpenID-connect instead!
+* CORE: [!BREAKER] Comes with the latest micro-auth version, therefore the auth adapter "preauth" is not available anymore, use OpenID-connect instead!
 * CORE: [CHANGE] Default preview width/height is now 500px (instead 300px)
 * CORE: [FEATURE] Rewritten storage implementation, it is now possible to use multiple (and different) storage adapter (Default: MongoDB GridFS)
 * CORE: [FEATURE] Rewritten notification implementation, it is now possible to use multiple (and different) transport adapter (Default: Mail and Database)

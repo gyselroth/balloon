@@ -72,7 +72,7 @@ class Db extends AbstractBasic
      *
      * @return bool
      */
-    protected function plainAuth(string $username, string $password): bool
+    public function plainAuth(string $username, string $password): bool
     {
         $result = $this->findIdentity($username);
 

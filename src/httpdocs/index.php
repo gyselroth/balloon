@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 
 use Balloon\Bootstrap\Http;
-use Micro\Config;
+use Micro\Config\Config;
 use Micro\Config\Struct;
 use Micro\Config\Xml;
 

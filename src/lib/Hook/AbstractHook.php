@@ -17,7 +17,7 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
-use Micro\Auth;
+use Micro\Auth\Auth;
 use Micro\Auth\Identity;
 
 abstract class AbstractHook implements HookInterface

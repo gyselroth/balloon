@@ -20,8 +20,8 @@ use Balloon\App\Office\App;
 use Balloon\App\Office\Exception;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
-use Micro\Auth;
 use Micro\Auth\Adapter\None as AuthNone;
+use Micro\Auth\Auth;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
