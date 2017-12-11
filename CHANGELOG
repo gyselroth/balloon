@@ -5,10 +5,10 @@ CHANGELOG
 Thu Nov 30 16:23:22 CET 2017
 --
 * CORE: [FIX] fixed invalid share references in delta #102
-* CORE: [FIX] meta data gets now copied as well during cloning a node #105
+* CORE: [FIX] meta data now gets copied as well while cloning a node #105
 * CORE: [FIX] changed timestamp on a collection now gets changed after adding a new child node #101
 * CORE: [FIX] fixed nested collection filter encoding #111
-* Webinterface: [FIX] UI allows now a dot in a tag name #110
+* Webinterface: [FIX] UI now allows a dot in a tag name #110
 
 
 --
@@ -17,11 +17,11 @@ Fri Nov 17 13:51:22 CET 2017
 --
 CORE: [FIX] delta does not include sub nodes of shares anymore where the reference was deleted #81 
 CORE: [FIX] undeleting a share reference does not undelete share members #96
-CORE: [FIX] delta does not include delteded sub nodes of a added share reference anymore, fixes #91 and #97
-CORE: [FIX] delta no more includes nodes marked as deleted and owned by other other users with mailbox permission level #80
+CORE: [FIX] delta does not include deleted sub nodes of an added share reference anymore, fixes #91 and #97
+CORE: [FIX] delta no longer includes nodes marked as deleted and owned by other users with mailbox permission level #80
 CORE: [FIX] elasticsearch result list does not contain duplicate entries #60
-CORE: [FIX] access nodes by path is now case insensitive #100
-CORE: [FIX] it is now possible to rename an node from test to tesT (caseinsenitive), #99
+CORE: [FIX] access nodes by path are now case insensitive #100
+CORE: [FIX] it is now possible to rename an node from test to tesT (caseinsensitive), #99
 Webinterface: [FIX] search result pane is now bigger and properties more resizable
 
 
@@ -29,9 +29,9 @@ Webinterface: [FIX] search result pane is now bigger and properties more resizab
 1.0.16 - Raffael Sahli <sahli@gyselroth.com>
 Tue Sept 28 14:35:32 CEST 2017
 --
-API: [FIX] POST /node/move can not move a node into a shared mailbox collection which holds a node with the same name #75 
-API: [FIX] PUT /file returns Exception\Conflict with code 19 instead Exception\Forbidden code 40 if a file gets uploaded into a shared mailbox collection and the collection already holds a node with the same name #75
-API: [FIX] PUT /file and POST /collection now create a node within a writeonly collection without a Exception\Forbidden response, his feature (writeonly) is deprecated now and will get removed in v2, replacement is the newly (v1.x) introduced permission mailbox)
+API: [FIX] POST /node/move cannot move a node into a shared mailbox collection which holds a node with the same name #75 
+API: [FIX] PUT /file returns Exception\Conflict with code 19 instead of Exception\Forbidden code 40 if a file gets uploaded into a shared mailbox collection and the collection already holds a node with the same name #75
+API: [FIX] PUT /file and POST /collection now create a node within a writeonly collection without an Exception\Forbidden response, this feature (writeonly) is deprecated now and will get removed in v2, replacement is the newly (v1.x) introduced permission mailbox)
 API: [FIX] PUT /file does not throw an error anymore if an application/zip file with an unknown mimetype gets uploaded
 
 
@@ -48,14 +48,14 @@ API: [FIX] fixed XSS via X-Client header
 Mon July 17 11:13:00 CET 2017
 --
 CORE: [FIX] fixed ldap auto share sync plugin #45
-API: [FIX] missing delta entry if node gets moved and a new node is created at the old place #44
+API: [FIX] missing delta entry if node gets moved and a new node is created in the old place #44
 
 
 --
 1.0.13 - Raffael Sahli <sahli@gyselroth.com>
 Fri June 30 16:04:32 CET 2017
 --
-CORE: [FIX] added missing node name in Exception\NotFound during requesting child by name
+CORE: [FIX] added missing node name in Exception\NotFound while requesting child by name
 CORE: [FIX] fixed #40 webdav adding new file return error 500
 API: [FIX] fixed #41 Error (Undefined class constant 'DESTINATION_NOT_FOUND') during POST /node/move request
 
@@ -64,7 +64,7 @@ API: [FIX] fixed #41 Error (Undefined class constant 'DESTINATION_NOT_FOUND') du
 1.0.12 GA - Raffael Sahli <sahli@gyselroth.com>
 Thu June 22 10:04:32 CET 2017
 --
-CORE: [FIX] fixed destroy node via cli plugin if node is a sub node of a share but destroy timestamp was set by share member 
+CORE: [FIX] fixed destroy node via cli plugin if node is a sub node of a share but destroy timestamp was set by a share member 
 
 
 --
@@ -72,7 +72,7 @@ CORE: [FIX] fixed destroy node via cli plugin if node is a sub node of a share b
 Tue June 20 09:30:00 CET 2017
 --
 CORE: [FIX] fixed decoding ldap filter from xml configuration &amp; => &
-API: [FIX] fixed GET node/attributes if parent is a share reference and attribute parent is requested the id is now the id of the reference instead the one of the share
+API: [FIX] fixed GET node/attributes if parent is a share reference and attribute parent is requested, then the id is now the id of the reference instead the one of the share
 Webinterface: [CHANGE] client hostname in event log is now more Unknown, if not available then there will be no client hostname
 
 
@@ -80,24 +80,24 @@ Webinterface: [CHANGE] client hostname in event log is now more Unknown, if not 
 1.0.10 RC4 - Raffael Sahli <sahli@gyselroth.com>
 Tue June 13 09:30:00 CET 2017
 --
-CORE: [FIX] fixed Balloon\Exception\Coding Undefined index: acl after unshare share and access request from a member
+CORE: [FIX] fixed Balloon\Exception\Coding Undefined index: acl after unshare, share and access request from a member
 CORE: [FIX] Balloon\Plugin\Delta now works in cli mode as well which is essential for some other plugins (there are now delta entries for destroy,cleantrash,...)
 CORE: [CHANGE] added system client log to system events within Balloon\Plugin\Delta
 CORE: [FIX] fixed invalid editFile delta entry during forceDeleteCollection event
 CORE: [FIX] fixed Balloon\Exception\Coding Undefined variable: $exists after restoring file content to a version with a 0byte file
 CORE: [CHANGE] .. and . are now invalid node names, Exception\InvalidArgument gets thrown
 CORE: [FIX] there is now a delta entry if event unshareCollection was triggered and endpoint GET node/delta is requested 
-CORE: [FIX] fixed delta entries for share children after a refernece was added but the cursor was already more further
-CORE: [FIX] fixed parent collection /[COLLECTION_NAME] was not found instead conflict exception
+CORE: [FIX] fixed delta entries for share children after a reference was added but the cursor is already further away
+CORE: [FIX] fixed parent collection /[COLLECTION_NAME] was not found instead of conflict exception
 DOC: [CHANGE] extended /user docs with some information regarding admin privilege
-Webinterface: [FIX] fixed multiple german locale translations (event log)
+Webinterface: [FIX] fixed multiple German locale translations (event log)
 Webinterface: [CHANGE] changed coordinate filed from select to simple text input
 Webinterface: [CHANGE] node names are now highlighted in the event log viewer
 Webinterface: [FIX] deleted nodes are now markes correctly as such in all event messages
 Webinterface: [FIX] hidden tree filter checkbox is now unchecked as default
-Webinterface: [FIX] fixed balloon.nodeExists() to be case insensitive
-Webinterface: [FIX] fixed byte size calculation, 1024Kb is now displayed as 1MB, (<1.0.10RC4 files > 1024kB got calculated as MB)
-Webinterface: [CHANGE] previews have now a white background
+Webinterface: [FIX] fixed balloon.nodeExists() is to be case insensitive
+Webinterface: [FIX] fixed byte size calculation, 1024kB is now displayed as 1MB, (<1.0.10RC4 files > 1024kB got calculated as MB)
+Webinterface: [CHANGE] previews now have a white background
 
 
 --
@@ -106,12 +106,12 @@ Tue June 7 16:00:00 CET 2017
 --
 CORE: [FIX] fixed major errors in delta, paths are now dynamically generated, fixed delta for share members
 CORE: [FIX] fixed delta entries for a newly created share with existing sub nodes
-CORE: [FIX] editFile delta entry now stores correctly the previous file version
+CORE: [FIX] editFile delta entry now stores the previous file version correctly
 CORE: [FIX] share references are now synchronized during calling getDelta()
-CORE: [FIX] temporary file gets now removed if checksums are equal
+CORE: [FIX] temporary file now gets removed if checksums are equal
 CORE: [CHANGE] used quota does now not include files with the deleted flag set
 API: [FIX] new shares now get added if delta gets called
-API: [CHANGE] GET /node/delta the delta gets now generated recursively from the given node via param id or p
+API: [CHANGE] GET /node/delta the delta now gets generated recursively from the given node via param id or p
 API: [FIX] fixed Balloon\Exception (parent collection was not found) if requested via param p and file is readonly
 API: [FIX] fixed application/xml response
 API: [FIX] xml response does now include Content-Type: application/xml; charset=UTF8 header
@@ -133,11 +133,11 @@ Webinterface: [FIX] fixed build script minify (multiple locale build.build files
 1.0.8 RC2 - Raffael Sahli <sahli@gyselroth.com>
 Tue May 2 11:02:00 CET 2017
 --
-CORE: [CHANGE] node names are now case insensitive, meaning A and a can not exist under the same parent collection
-CORE: [FIX] fixed parent node empty string instead null in raw delta (db)
+CORE: [CHANGE] node names are now case insensitive, e.g. 'A' and 'a' cannot exist under the same parent collection
+CORE: [FIX] fixed parent node empty string instead of null in raw delta (db)
 CORE: [FIX] some minor fixes in Balloon\Log
 CORE: [FIX] some minor fixes in Balloon\Config
-Webinterface: [FIX] fixed tree keybindings with focused textarea,input,select areas
+Webinterface: [FIX] fixed tree keybindings with focused textarea, input, select areas
 Webinterface: [FIX] fixed undefined in undo move event prompt message
 Webinterface: [FIX] smaller next/previous arrows in viewer
 Webinterface: [FIX] fixed move icon
@@ -165,24 +165,24 @@ API: [FEATURE] Added params offset and length to GET /node to request a specific
 API: [FIX] GET /node now sets response header Content-Disposition: inline; with file name if param download is not true
 API: [FIX] PUT /file/chunk now throws an Exception\InvalidArgument if param index is greater than param chunks
 Webinterface: [CHANGE] Error window displays exception code
-Webinterface: [CHANGE] swaped trash restore icon
+Webinterface: [CHANGE] swapped trash restore icon
 Webinterface: [CHANGE] changed some file type icons
 Webinterface: [CHANGE] renamed writeonly+ permission to mailbox
 Webinterface: [FIX] drag&drop files from desktop now highlight the entire upload area and highlight the current dragover folder with a different color
-webinterface: [FIX] drop file from desktop onto ".." folder uploads now into the parent folder
+webinterface: [FIX] drop file from desktop onto ".." folder now uploads into the parent folder
 Webinterface: [FIX] disabled new file in mobile view
 Webinterface: [FIX] fixed filename download if display does not work
 Webinterface: [FIX] office viewer is now disabled in mobile view
 Webinterface: [FIX] fixed search reset in mobile view
 Webinterface: [CHANGE] replaced native browser radiobuttons with on/off switches since the native ones are not responsive
-Webinterface: [CHANGE] filer select window is now similar designed to create new file menu in app office
+Webinterface: [CHANGE] filter select window is now similarly designed to create new file menu in app office
 Webinterface: [FIX] increased action buttin sizes in mobile view
 Webinterface: [FIX] fixed fullscreen popup in mobile view webkit rendering
 Webinterface: [FIX] fixed z-index position for new file/filter select box if root is empty
 Webinterface: [CHANGE] rename can now be aborted via ESC
 Webinterface: [FIX] fixed default focus in hint window and closing with ESC if focus is active
-Webinterface: [CHANGE] Added startup prompt in office app and added de and en translations
-Webinterface: [CHANGE] editor now asks if the file should be saved if changed made or gets closed immediately if no changes made
+Webinterface: [CHANGE] added startup prompt in office app and added de and en translations
+Webinterface: [CHANGE] editor now asks if the file should be saved if changes are made or gets closed immediately if no changes are made
 Webinterface: [FIX] tree actions with keyboard are no longer possible if a popup is active
 Webinterface: [FIX] changed text in close prompt for office window
 Webinterface: [FIX] fixed locale detection, added none country specific de, en locales since a lot of browsers do have the languange as primary locale and not a country based locale
@@ -191,12 +191,12 @@ Webinterface: [CHANGE] shortened breadcrumb from max. 4 nodes to 3 nodes
 Webinterface: [FIX] fixed node links after reload browser (id parent node input via query string)
 Webinterface: [FIX] fixed strange icon change animation in properties for share node attribute icon
 Webinterface: [FIX] various minor layout fixes including modified line-heights and paddings
-Webinterface: [FIX] upload manager now catches invalid access exception as asks if the file should be re-uploaded with a different name
-AppOffice-Core: [FEATURE] Allowence of multple edit sessions
+Webinterface: [FIX] upload manager now catches invalid access exception if the file should be re-uploaded with a different name
+AppOffice-Core: [FEATURE] Allowance of multple edit sessions
 AppOffice-API: [FEATURE] added DELETE /app/office/session
 AppOffice-API: [FEATURE] added POST /app/office/session to create a new session (besides join)
 AppOffice-Webinterface: [FIX] session now gets removed after closing the window therfore no hidden auto saves anymore
-AppOffice-Webinterface: [FEATURE] Prompt for session management, can handle one or multiple session and their joinable now
+AppOffice-Webinterface: [FEATURE] Prompt for session management, can handle one or multiple session and they are joinable now
 AppOffice-Webinterface: [FIX] code cleanup
 
 
