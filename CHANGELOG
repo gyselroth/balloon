@@ -196,7 +196,7 @@ AppOffice-Core: [FEATURE] Allowance of multple edit sessions
 AppOffice-API: [FEATURE] added DELETE /app/office/session
 AppOffice-API: [FEATURE] added POST /app/office/session to create a new session (besides join)
 AppOffice-Webinterface: [FIX] session now gets removed after closing the window therfore no hidden auto saves anymore
-AppOffice-Webinterface: [FEATURE] Prompt for session management, can handle one or multiple session and they are joinable now
+AppOffice-Webinterface: [FEATURE] Prompt for session management, can handle one or multiple session and they are now joinable 
 AppOffice-Webinterface: [FIX] code cleanup
 
 
@@ -206,26 +206,26 @@ Thu Mar 9 16:20:00 CET 2017
 --
 CORE: [FEATURE] Plugin\Delta now stores information about the client used (webinterface/api, version, app)
 CORE: [CHANGE] Log format variables are now encapsled with {} instead %%
-CORE: [CHANGE] Plugin\MailNotification variables are now encapsled with {} instead %%
+CORE: [CHANGE] Plugin\MailNotification variables are now encapsuled with {} instead %%
 CORE: [CHANGE] format variables can now be any possible node attribute in Plugin\MailNotification 
 CORE: [CHANGE] renamed configuration myaccount_filter for auth adapters to account_filter
-CORE: [FIX] fixed write only share privilege
-CORE: [FIX] references get now deleted after the source share gets deleted
+CORE: [FIX] fixed write-only share privilege
+CORE: [FIX] references now get deleted after the source share gets deleted
 CORE: [CHANGE] changed use Balloon\Logger to use \Psr\Log\LoggerInterface as Logger;
-CORE: [FIX] preview converter do now return false in match() if the file is empty
-CORE: [CHANGE] preview manager does now throw an exception if no converter matched
+CORE: [FIX] preview converter now return false in match() if the file is empty
+CORE: [CHANGE] preview manager now throws an exception if no converter is matched
 CORE: [FIX] fixed preview creation for text files with no file extension
 CORE: [CHANGE] added error codes for Balloon\Exception\{Forbidden,NotFound,Conflict}
 CORE: [FIX] reversed recursive removal fix from 1.0.5
 CORE: [FIX] fixed binary user attribute (avatar especially)
-CORE: [FIX] fixed destroyer plugin (wrong timestamp comparsion)
-CORE: [CHANGE] filesystem multi node getter do now yield nodes instead returning them
-DOC: [FIX] removed version comapre options (will probably come in a furture version again)
+CORE: [FIX] fixed destroyer plugin (wrong timestamp comparison)
+CORE: [CHANGE] filesystem multi node getter now yields nodes instead of returning them
+DOC: [FIX] removed version compare options (will probably come in a furture version again)
 DOC: [FEATURE] documented error codes
-DOC: [CHANGE] removed REST wording from documentation since its not real REST
+DOC: [CHANGE] removed REST wording from documentation since it is not real REST
 Webinterface: [CHANGE] extended search pannel gets inserted after node properties
-Webinterface: [FEATURE] event log shows with what client changed were made
-Webinterface: [CHANGE] advanced settings get now saved by hitting the newly added save button
+Webinterface: [FEATURE] event log shows with what client changes were made
+Webinterface: [CHANGE] advanced settings now get saved by hitting the newly added save button
 Webinterface: [FIX] fixed reseting destroy timestamp
 Webinterface: [FIX] fixed "did you now" icons
 Webinterface: [FIX] only the file name parts get selected (excluding file extension) during a rename activity
@@ -237,8 +237,8 @@ Fri Mar 3 17:00:00 CET 2017
 --
 CORE: [FIX] fixed preauth adapter (auth was not possible in 1.0.4)
 CORE: [FIX] fixed Balloon\Exception\Forbidden: not allowed to access node in initial delta request (triggered if a reference points to a deleted share)
-CORE: [FIX] fixed Balloon\Exception\Forbidden: not allowed to acces snode in delta request (triggered if a share or collection got deleted/undeleted)
-CORE: [FIX] fixed isAllowed() read permission for collection master shares, its now forbidden to request a master share instead the reference (expect the share owner)
+CORE: [FIX] fixed Balloon\Exception\Forbidden: not allowed to access node in delta request (triggered if a share or collection got deleted/undeleted)
+CORE: [FIX] fixed isAllowed() read permission for collection master shares, it is now forbidden to request a master share instead the reference (expect the share owner)
 CORE: [CHANGE] simplified node initialization and filesystem node loading
 CORE: [FEATURE] All exception do now have a specific error code
 CORE: [FIX] share references gets now completely removed if the master share gets removed
