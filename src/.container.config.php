@@ -16,10 +16,12 @@ use Micro\Log\Adapter\File;
 use MongoDB\Client;
 use Psr\Log\LoggerInterface;
 use Balloon\App\Notification\Notification;
-use Balloon\Database;
-use Balloon\Database\Delta\CoreInstallation;
-use Balloon\Database\Delta\FileToStorageAdapter;
-use Balloon\Database\Delta\QueueToCappedCollection;
+use Balloon\Migration;
+use Balloon\Migration\Delta\CoreInstallation;
+use Balloon\Migration\Delta\FileToStorageAdapter;
+use Balloon\Migration\Delta\QueueToCappedCollection;
+use Balloon\Migration\Delta\JsonEncodeFilteredCollection;
+use Balloon\Migration\Delta\v1AclTov2Acl;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Sendmail;
 
@@ -49,11 +51,13 @@ return [
     Hook::class => [
         'adapter' => Hook::DEFAULT_ADAPTER
     ],
-    Database::class => [
+    Migration::class => [
         'adapter' => [
             CoreInstallation::class => [],
             FileToStorageAdapter::class => [],
             QueueToCappedCollection::class => [],
+            JsonEncodeFilteredCollection::class => [],
+            v1AclTov2Acl::class => [],
         ]
     ],
     Auth::class => [

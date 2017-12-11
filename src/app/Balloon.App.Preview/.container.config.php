@@ -1,9 +1,9 @@
 <?php
 use Balloon\Hook;
 use Balloon\App\Preview\Hook as PreviewHook;
-use Balloon\Database;
-use Balloon\App\Preview\Database\Delta\Installation;
-use Balloon\App\Preview\Database\Delta\PreviewIntoApp;
+use Balloon\Migration;
+use Balloon\App\Preview\Migration\Delta\Installation;
+use Balloon\App\Preview\Migration\Delta\PreviewIntoApp;
 
 return [
     Hook::class => [
@@ -11,7 +11,7 @@ return [
             PreviewHook::class => []
         ],
     ],
-    Database::class => [
+    Migration::class => [
         'adapter' => [
             Installation::class => [],
             PreviewIntoApp::class => [],

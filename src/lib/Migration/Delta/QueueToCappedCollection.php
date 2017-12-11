@@ -10,21 +10,37 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Database\Delta;
+namespace Balloon\Migration\Delta;
 
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
-use MongoDB\Driver\Exception\RuntimeException;
 use TaskScheduler\Async;
 
-class QueueToCappedCollection extends AbstractDelta
+class QueueToCappedCollection implements DeltaInterface
 {
     /**
-     * Upgrade database.
+     * Database.
+     *
+     * @var Database
+     */
+    protected $db;
+
+    /**
+     * Construct.
+     *
+     * @param Database $db
+     */
+    public function __construct(Database $db)
+    {
+        $this->db = $db;
+    }
+
+    /**
+     * Start.
      *
      * @return bool
      */
-    public function postObjects(): bool
+    public function start(): bool
     {
         try {
             $this->db->command([
@@ -41,31 +57,13 @@ class QueueToCappedCollection extends AbstractDelta
             }
         }
 
-        return true;
-    }
-
-    /**
-     * Get collection.
-     *
-     * @return string
-     */
-    public function getCollection(): string
-    {
-        return 'queue';
-    }
-
-    /**
-     * Upgrade object.
-     *
-     * @return array
-     */
-    public function upgradeObject(array $object): array
-    {
-        return [
+        $this->db->queue->updateMany([], [
             '$set' => [
                 'timestamp' => new UTCDateTime(),
                 'status' => Async::STATUS_WAITING,
             ],
-        ];
+        ]);
+
+        return true;
     }
 }

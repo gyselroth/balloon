@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Balloon\Console;
 
-use Balloon\Database as DatabaseSetup;
+use Balloon\Migration as Migrator;
 use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
 
-class Database implements ConsoleInterface
+class Migration implements ConsoleInterface
 {
     /**
      * Getopt.
@@ -33,22 +33,22 @@ class Database implements ConsoleInterface
     protected $logger;
 
     /**
-     * Container.
+     * Migration.
      *
-     * @var DatabaseSetup
+     * @var Migrator
      */
-    protected $db;
+    protected $migration;
 
     /**
      * Constructor.
      *
-     * @param DatabaseSetup   $db
+     * @param Migrator        $migration
      * @param LoggerInterface $logger
      * @param GetOpt          $getopt
      */
-    public function __construct(DatabaseSetup $db, LoggerInterface $logger, GetOpt $getopt)
+    public function __construct(Migrator $migration, LoggerInterface $logger, GetOpt $getopt)
     {
-        $this->db = $db;
+        $this->migration = $migration;
         $this->logger = $logger;
         $this->getopt = $getopt;
         $this->setOptions();
@@ -62,8 +62,8 @@ class Database implements ConsoleInterface
     public function setOptions(): ConsoleInterface
     {
         $this->getopt->addOptions([
-            \GetOpt\Option::create('i', 'init'),
             \GetOpt\Option::create('u', 'upgrade'),
+            \GetOpt\Option::create('f', 'force'),
         ]);
 
         return $this;
@@ -76,11 +76,8 @@ class Database implements ConsoleInterface
      */
     public function start(): bool
     {
-        if (null !== $this->getopt->getOption('init')) {
-            return $this->db->init();
-        }
         if (null !== $this->getopt->getOption('upgrade')) {
-            return $this->db->upgrade();
+            return $this->migration->start((bool) $this->getopt->getOption('force'));
         }
 
         return false;

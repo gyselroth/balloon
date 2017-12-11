@@ -1,10 +1,10 @@
 <?php
-use Balloon\Database;
-use Balloon\App\Sharelink\Database\Delta\Installation;
-use Balloon\App\Sharelink\Database\Delta\SharelinkIntoApp;
+use Balloon\Migration;
+use Balloon\App\Sharelink\Migration\Delta\Installation;
+use Balloon\App\Sharelink\Migration\Delta\SharelinkIntoApp;
 
 return [
-    Database::class => [
+    Migration::class => [
         'adapter' => [
             Installation::class => [],
             SharelinkIntoApp::class => [],

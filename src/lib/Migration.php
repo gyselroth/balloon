@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Database\Delta\DeltaInterface;
-use Balloon\Database\Exception;
+use Balloon\Migration\Delta\DeltaInterface;
+use Balloon\Migration\Exception;
 use Micro\Container\AdapterAwareInterface;
 use MongoDB\Database as MongoDB;
 use Psr\Log\LoggerInterface;
 
-class Database implements AdapterAwareInterface
+class Migration implements AdapterAwareInterface
 {
     /**
      * Databse.
@@ -51,48 +51,15 @@ class Database implements AdapterAwareInterface
     /**
      * Construct.
      *
-     * @param Server          $server
+     * @param MongoDB         $db
      * @param LoggerInterface $logger
+     * @param string          $meta_collection
      */
     public function __construct(MongoDB $db, LoggerInterface $logger, string $meta_collection = 'delta')
     {
         $this->db = $db;
         $this->logger = $logger;
         $this->meta_collection = $meta_collection;
-    }
-
-    /**
-     * Initialize database.
-     *
-     * @return bool
-     */
-    public function init(): bool
-    {
-        $this->logger->info('initialize mongodb', [
-            'category' => get_class($this),
-        ]);
-
-        if (0 === count($this->delta)) {
-            $this->logger->warning('cannot initialize mongodb, no deltas have been applied', [
-                'category' => get_class($this),
-            ]);
-
-            return false;
-        }
-
-        foreach ($this->delta as $name => $delta) {
-            $this->logger->info('initialize database from delta ['.$name.']', [
-                'category' => get_class($this),
-            ]);
-
-            $delta->init();
-        }
-
-        $this->logger->info('initialization database setup completed', [
-            'category' => get_class($this),
-        ]);
-
-        return true;
     }
 
     /**
@@ -108,20 +75,22 @@ class Database implements AdapterAwareInterface
     }
 
     /**
-     * Upgrade database.
+     * Execute migration deltas.
+     *
+     * @param bool $force
      *
      * @return bool
      */
-    public function upgrade(): bool
+    public function start(bool $force = false): bool
     {
-        $this->logger->info('upgrade mongodb', [
+        $this->logger->info('execute migration deltas', [
             'category' => get_class($this),
         ]);
 
         $instances = [];
 
         if (0 === count($this->delta)) {
-            $this->logger->warning('cannot upgrade mongodb, no deltas have been applied', [
+            $this->logger->warning('no deltas have been configured', [
                 'category' => get_class($this),
             ]);
 
@@ -129,28 +98,21 @@ class Database implements AdapterAwareInterface
         }
 
         foreach ($this->delta as $name => $delta) {
-            if (false && $this->hasDelta($name)) {
+            if (false === $force && $this->hasDelta($name)) {
                 $this->logger->debug('skip existing delta ['.$name.']', [
                     'category' => get_class($this),
                 ]);
             } else {
-                $this->logger->info('apply database delta ['.$name.']', [
+                $this->logger->info('apply delta ['.$name.']', [
                     'category' => get_class($this),
                 ]);
 
-                $delta->preObjects();
-                $instances[] = $delta;
+                $delta->start();
+                $this->db->{$this->meta_collection}->insertOne(['class' => get_class($delta)]);
             }
         }
 
-        $this->upgradeObjects($instances);
-
-        foreach ($instances as $delta) {
-            $delta->postObjects();
-            $this->db->{$this->meta_collection}->insertOne(['class' => get_class($delta)]);
-        }
-
-        $this->logger->info('executed database deltas successfully', [
+        $this->logger->info('executed migration deltas successfully', [
             'category' => get_class($this),
         ]);
 
@@ -173,47 +135,6 @@ class Database implements AdapterAwareInterface
         }
 
         return $collections;
-    }
-
-    /**
-     * Upgrade objects.
-     *
-     * @return bool
-     */
-    public function upgradeObjects(array $deltas)
-    {
-        foreach ($this->getCollections() as $collection) {
-            $this->logger->info('execute deltas for collection ['.$collection.']', [
-                'category' => get_class($this),
-            ]);
-
-            foreach ($this->db->{$collection}->find() as $object) {
-                $update = [];
-                $this->logger->debug('find deltas for object ['.$object['_id'].'] from ['.$collection.']', [
-                    'category' => get_class($this),
-                ]);
-
-                foreach ($deltas as $delta) {
-                    if ($delta->getCollection() === $collection) {
-                        $update = array_merge($update, $delta->upgradeObject($object));
-                    }
-                }
-
-                if (0 === count($update)) {
-                    $this->logger->debug('object ['.$object['_id'].'] from ['.$collection.'] does not need to be updated', [
-                        'category' => get_class($this),
-                    ]);
-                } else {
-                    $this->logger->debug('update object ['.$object['_id'].'] from ['.$collection.']', [
-                        'category' => get_class($this),
-                    ]);
-
-                    $this->db->{$collection}->updateOne(['_id' => $object['_id']], $update);
-                }
-            }
-        }
-
-        return true;
     }
 
     /**

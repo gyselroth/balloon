@@ -14,7 +14,7 @@ namespace Balloon\Bootstrap;
 
 use Balloon\Console\Async;
 use Balloon\Console\ConsoleInterface;
-use Balloon\Console\Database;
+use Balloon\Console\Migration;
 use Composer\Autoload\ClassLoader as Composer;
 use GetOpt\GetOpt;
 use Micro\Config;
@@ -30,7 +30,7 @@ class Cli extends AbstractBootstrap
      */
     protected $module = [
         'async' => Async::class,
-        'database' => Database::class,
+        'migration' => Migration::class,
     ];
 
     /**
@@ -108,9 +108,9 @@ class Cli extends AbstractBootstrap
 
         if (null === $module) {
             $help .= "\nModules:\n";
-            $help .= "help (MODULE)\t Displays a reference for module\n";
+            $help .= "help (MODULE)\t Displays a reference for a module\n";
             $help .= "async\t\t Handles asynchronous jobs\n";
-            $help .= "database\t Initialize and upgrade database\n\n";
+            $help .= "migration\t Initialize and upgrade\n\n";
         }
 
         return $help;
