@@ -24,7 +24,7 @@ use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
-class User
+class User implements RoleInterface
 {
     /**
      * User unique id.
@@ -90,6 +90,16 @@ class User
     protected $created;
 
     /**
+     * Changed.
+     *
+     * @var UTCDateTime
+     */
+    protected $changed;
+
+    /**
+     * avatar.
+     *
+     * /**
      * avatar.
      *
      * @var Binary
@@ -220,6 +230,7 @@ class User
 
             return $this->save($save);
         }
+
         $this->logger->debug('user auth attribute sync cache is in time', [
                 'category' => get_class($this),
             ]);
@@ -264,68 +275,24 @@ class User
     }
 
     /**
-     * Get user attribute.
+     * Get Attributes.
      *
-     * @param array|string $attribute
-     *
-     * @return mixed
+     * @return array
      */
-    public function getAttribute($attribute = null)
+    public function getAttributes(): array
     {
-        $default = [
-            'id',
-            'username',
-            'namespace',
-            'created',
-            'soft_quota',
-            'hard_quota',
-            'mail',
+        return [
+            'id' => $this->_id,
+            'username' => $this->username,
+            'namespace' => $this->namespace,
+            'created' => $this->created,
+            'changed' => $this->changed,
+            'deleted' => $this->deleted,
+            'soft_quota' => $this->soft_quota,
+            'hard_quota' => $this->hard_quota,
+            'mail' => $this->mail,
+            'avatar' => $this->avatar,
         ];
-
-        $requested = $default;
-
-        if (empty($attribute)) {
-            $requested = $default;
-        } elseif (is_string($attribute)) {
-            $requested = (array) $attribute;
-        } elseif (is_array($attribute)) {
-            $requested = $attribute;
-        }
-
-        $resolved = [];
-        foreach ($requested as $attr) {
-            if (!in_array($attr, self::$valid_attributes, true)) {
-                throw new Exception\InvalidArgument('requested attribute '.$attr.' does not exists');
-            }
-
-            switch ($attr) {
-                case 'id':
-                    $resolved['id'] = (string) $this->_id;
-
-                break;
-                case 'avatar':
-                    if ($this->avatar instanceof Binary) {
-                        $resolved['avatar'] = base64_encode($this->avatar->getData());
-                    }
-
-                break;
-                case 'created':
-                case 'last_attr_sync':
-                    $resolved[$attr] = Helper::DateTimeToUnix($this->{$attr});
-
-                break;
-                default:
-                    $resolved[$attr] = $this->{$attr};
-
-                break;
-            }
-        }
-
-        if (is_string($attribute)) {
-            return $resolved[$attribute];
-        }
-
-        return $resolved;
     }
 
     /**
@@ -491,7 +458,7 @@ class User
 
         $exists = [];
         foreach ($item as $child) {
-            if (!in_array($child['reference'], $found, true)) {
+            if (!in_array($child['reference'], $found)) {
                 $this->logger->debug('found dead reference ['.$child['_id'].'] pointing to share ['.$child['reference'].']', [
                     'category' => get_class($this),
                 ]);
@@ -534,9 +501,9 @@ class User
             $dir = $this->getFilesystem()->getRoot();
 
             try {
-                $dir->addDirectory($node['name'], $attrs);
+                $dir->addDirectory($node['share_name'], $attrs);
             } catch (Exception\Conflict $e) {
-                $new = $node['name'].' ('.substr(uniqid('', true), -4).')';
+                $new = $node['share_name'].' ('.substr(uniqid('', true), -4).')';
                 $dir->addDirectory($new, $attrs);
             } catch (\Exception $e) {
                 $this->logger->error('failed create new share reference to share ['.$node['_id'].']', [

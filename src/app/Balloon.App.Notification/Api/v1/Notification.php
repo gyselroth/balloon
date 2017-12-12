@@ -115,7 +115,7 @@ class Notification extends Controller
             $note['id'] = (string) $note['_id'];
             unset($note['_id'], $note['receiver']);
 
-            $note['sender'] = $this->server->getUserById($note['sender'])->getAttribute([
+            $note['sender'] = $this->server->getUserById($note['sender'])->getAttributes([
                 'id',
                 'username',
             ]);
@@ -216,7 +216,7 @@ class Notification extends Controller
     {
         $mail = new Message();
         $mail->setBody($body);
-        $mail->setFrom($this->user->getAttribute('username'), $this->user->getAttribute('mail'));
+        $mail->setFrom($this->user->getAttributes()['username'], $this->user->getAttributes()['mail']);
         $mail->setSubject($subject);
         $mail->setBcc($receiver);
         $this->async->addJob(Mail::class, ['mail' => $mail->toString()]);

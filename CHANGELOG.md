@@ -61,7 +61,9 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [FEATURE] Rewritten storage implementation, it is now possible to use multiple (and different) storage adapter (Default: MongoDB GridFS)
 * CORE: [FEATURE] Rewritten notification implementation, it is now possible to use multiple (and different) transport adapter (Default: Mail and Database)
 * CORE: [FEATURE] Subscribe for node updates and receive node changes #109
-* CORE: [CHANGE] Implemented AttributeDecorator which handles all attribute conversion
+* CORE: [CHANGE] Implemented AttributeDecorator which handles all attribute conversion for nodes
+* CORE: [CHANGE] Implemented AttributeDecorator which handles all attribute conversion for roles
+* CORE: [FIX] change Node::getId(bool $string=false) remove $string param #4
 * API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version

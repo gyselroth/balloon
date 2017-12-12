@@ -216,9 +216,9 @@ interface NodeInterface extends DAV\INode
     /**
      * Get unique id.
      *
-     * @return ObjectId|string
+     * @return ObjectId
      */
-    public function getId(bool $string = false);
+    public function getId(): ?ObjectId;
 
     /**
      * Get parent.

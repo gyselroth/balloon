@@ -20,6 +20,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectId;
@@ -171,7 +172,8 @@ class Filesystem
 
         return $this->delta = new Delta($this, $this->db, new AttributeDecorator(
             $this->server,
-            $this->acl
+            $this->acl,
+            new RoleAttributeDecorator($this->server)
         ));
     }
 

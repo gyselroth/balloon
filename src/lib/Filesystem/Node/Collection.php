@@ -47,6 +47,13 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
     protected $acl = [];
 
     /**
+     * Share name.
+     *
+     * @var string
+     */
+    protected $share_name;
+
+    /**
      * filter.
      *
      * @param string
@@ -145,7 +152,19 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      */
     public function getAcl(): array
     {
-        return $this->_acl->resolveAclTable($this->_server, $this->acl);
+        $acl = $this->_fs->findRawNode($this->getShareId())['acl'];
+
+        return $this->_acl->resolveAclTable($this->_server, $acl);
+    }
+
+    /**
+     * Get Share name.
+     *
+     * @return string
+     */
+    public function getShareName(): string
+    {
+        return $this->_fs->findRawNode($this->getShareId())['share_name'];
     }
 
     /**
@@ -159,6 +178,8 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             'id' => $this->_id,
             'name' => $this->name,
             'shared' => $this->shared,
+            'share_name' => $this->share_name,
+            'acl' => $this->acl,
             'reference' => $this->reference,
             'parent' => $this->parent,
             'meta' => $this->meta,
@@ -510,11 +531,12 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
     /**
      * Share collection.
      *
-     * @param array $acl
+     * @param array  $acl
+     * @param string $name
      *
      * @return bool
      */
-    public function share(array $acl): bool
+    public function share(array $acl, string $name): bool
     {
         if ($this->isShareMember()) {
             throw new Exception('a sub node of a share can not be shared');
@@ -556,12 +578,14 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
         if ($this->getRealId() === $this->_id) {
             $this->acl = $acl;
             $this->shared = true;
-            $this->save(['acl', 'shared']);
+            $this->share_name = $name;
+            $this->save(['acl', 'shared', 'share_name']);
         } else {
             $this->_db->storage->updateOne([
                 '_id' => $this->getRealId(),
             ], [
                 '$set' => [
+                    'share_name' => $name,
                     'acl' => $acl,
                 ],
             ]);
@@ -582,7 +606,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             ];
 
             $this->_db->{'fs.files'}->updateOne(
-                $node['storage']['attributes'],
+                $node['storage'],
                 [
                     '$addToSet' => [
                         'metadata.share_ref' => $share_ref,
@@ -616,6 +640,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
         }
 
         $this->shared = false;
+        $this->share_name = null;
         $this->acl = [];
         $action = [
             '$unset' => [
@@ -634,7 +659,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             ],
         ], $action);
 
-        $result = $this->save(['shared'], ['acl']);
+        $result = $this->save(['shared'], ['acl', 'share_name']);
 
         if (!is_array($files)) {
             return true;

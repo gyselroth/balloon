@@ -12,18 +12,15 @@ declare(strict_types=1);
 
 namespace Balloon\Server;
 
-use Balloon\Exception;
-use Balloon\Helper;
 use Balloon\Server;
 use Generator;
-use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
-class Group
+class Group implements RoleInterface
 {
     /**
      * User unique id.
@@ -73,6 +70,13 @@ class Group
      * @var UTCDateTime
      */
     protected $created;
+
+    /**
+     * Changed.
+     *
+     * @var UTCDateTime
+     */
+    protected $changed;
 
     /**
      * avatar.
@@ -146,133 +150,22 @@ class Group
     }
 
     /**
-     * Update user with identity attributes.
+     * Get Attributes.
      *
-     * @param Identity   $identity
-     * @param null|mixed $attribute
-     *
-     * @return bool
+     * @return array
      */
-    /*public function updateIdentity(Identity $identity): bool
+    public function getAttributes(): array
     {
-        $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
-        if ($attr_sync === -1) {
-            return true;
-        }
-
-        $cache = ($this->last_attr_sync instanceof UTCDateTime ?
-        $this->last_attr_sync->toDateTime()->format('U') : 0);
-
-        if (time() - $attr_sync > $cache) {
-            $this->logger->info('user attribute sync cache time expired, resync with auth attributes', [
-                'category' => get_class($this),
-            ]);
-
-            $attributes = $identity->getAttributes();
-            foreach ($attributes as $attr => $value) {
-                $this->{$attr} = $value;
-            }
-
-            $this->last_attr_sync = new UTCDateTime();
-
-            $save = array_keys($attributes);
-            $save[] = 'last_attr_sync';
-
-            return $this->save($save);
-        }
-        $this->logger->debug('user auth attribute sync cache is in time', [
-                'category' => get_class($this),
-            ]);
-
-        return true;
-    }*/
-
-    /**
-     * Get user attribute.
-     *
-     * @param array|string $attribute
-     *
-     * @return mixed
-     */
-    public function getAttribute($attribute = null)
-    {
-        $valid = [
-            'id',
-            'username',
-            'created',
-            'soft_quota',
-            'hard_quota',
-            'mail',
-            'namespace',
-            'last_attr_sync',
-            'avatar',
-            'created',
+        return [
+            'id' => $this->_id,
+            'name' => $this->name,
+            'namespace' => $this->namespace,
+            'created' => $this->created,
+            'changed' => $this->changed,
+            'deleted' => $this->deleted,
+            'mail' => $this->mail,
+            'avatar' => $this->avatar,
         ];
-
-        $default = [
-            'id',
-            'username',
-            'namespace',
-            'created',
-            'soft_quota',
-            'hard_quota',
-            'mail',
-        ];
-
-        $requested = [];
-
-        if (empty($attribute)) {
-            $requested = $default;
-        } elseif (is_string($attribute)) {
-            $requested = (array) $attribute;
-        } elseif (is_array($attribute)) {
-            $requested = $attribute;
-        }
-
-        $resolved = [];
-        foreach ($requested as $attr) {
-            if (!in_array($attr, $valid, true)) {
-                throw new Exception\InvalidArgument('requested attribute '.$attr.' does not exists');
-            }
-
-            switch ($attr) {
-                case 'id':
-                    $resolved['id'] = (string) $this->_id;
-
-                break;
-                case 'avatar':
-                    if ($this->avatar instanceof Binary) {
-                        $resolved['avatar'] = base64_encode($this->avatar->getData());
-                    }
-
-                break;
-                case 'created':
-                case 'last_attr_sync':
-                    $resolved[$attr] = Helper::DateTimeToUnix($this->{$attr});
-
-                break;
-                default:
-                    $resolved[$attr] = $this->{$attr};
-
-                break;
-            }
-        }
-
-        if (is_string($attribute)) {
-            return $resolved[$attribute];
-        }
-
-        return $resolved;
-    }
-
-    /**
-     * Is Admin user?
-     *
-     * @return bool
-     */
-    public function isAdmin(): bool
-    {
-        return $this->admin;
     }
 
     /**
@@ -299,7 +192,7 @@ class Group
             $set[$attr] = $this->{$attr};
         }
 
-        $result = $this->db->user->updateOne([
+        $result = $this->db->group->updateOne([
             '_id' => $this->_id,
         ], [
             '$set' => $set,

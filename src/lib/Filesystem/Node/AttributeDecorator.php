@@ -16,6 +16,7 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Helper;
 use Balloon\Server;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Closure;
 
 class AttributeDecorator
@@ -42,6 +43,13 @@ class AttributeDecorator
     protected $acl;
 
     /**
+     * Role decorator.
+     *
+     * @var RoleDecorator
+     */
+    protected $decorator;
+
+    /**
      * Custom attributes.
      *
      * @var array
@@ -51,14 +59,16 @@ class AttributeDecorator
     /**
      * Init.
      *
-     * @param Server $server
-     * @param Acl    $acl
+     * @param Server    $server
+     * @param Acl       $acl
+     * @param Decorator $role_decorator
      */
-    public function __construct(Server $server, Acl $acl)
+    public function __construct(Server $server, Acl $acl, RoleAttributeDecorator $role_decorator)
     {
         $this->server = $server;
         $this->fs = $server->getFilesystem();
         $this->acl = $acl;
+        $this->role_decorator = $role_decorator;
     }
 
     /**
@@ -149,7 +159,7 @@ class AttributeDecorator
                 $clean['meta'][] = $keys[0];
             } elseif (isset($clean[$prefix])) {
                 $clean['attributes'][] = $prefix;
-                $clean[$prefix][] = $attr;
+                $clean[$prefix][] = $keys[0];
             }
         }
 
@@ -168,6 +178,8 @@ class AttributeDecorator
     {
         $acl = $this->acl;
         $server = $this->server;
+        $fs = $this->fs;
+        $decorator = $this->role_decorator;
 
         return [
             'id' => (string) $attributes['id'],
@@ -200,13 +212,49 @@ class AttributeDecorator
             'access' => function ($node, $requested) use ($acl) {
                 return $acl->getAclPrivilege($node);
             },
-            'owner' => function ($node, $requested) use ($server) {
+            'owner' => function ($node, $requested) use ($server, $decorator) {
                 if ($node->isShare() || !$node->isSpecial()) {
                     return null;
                 }
 
                 try {
-                    return $server->getUserById($node->getOwner())->getAttribute($requested['owner']);
+                    return $decorator->decorate($server->getUserById($node->getOwner()), $requested['owner']);
+                } catch (\Exception $e) {
+                    return null;
+                }
+            },
+            'share' => function ($node, $requested) {
+                if ($node->isShared() || !$node->isSpecial()) {
+                    return null;
+                }
+
+                try {
+                    return $this->decorate($node->getShareNode(), $requested['share']);
+                } catch (\Exception $e) {
+                    return null;
+                }
+            },
+            'sharename' => function ($node, $requested) {
+                if (!$node->isShared()) {
+                    return null;
+                }
+
+                try {
+                    return $node->getShareName();
+                } catch (\Exception $e) {
+                    return null;
+                }
+            },
+            'shareowner' => function ($node, $requested) use ($server, $fs, $decorator) {
+                if (!$node->isSpecial()) {
+                    return null;
+                }
+
+                try {
+                    return $decorator->decorate(
+                        $server->getUserById($fs->findRawNode($node->getShareId())['owner']),
+                        $requested['shareowner']
+                    );
                 } catch (\Exception $e) {
                     return null;
                 }
@@ -277,29 +325,6 @@ class AttributeDecorator
                 }
 
                 return json_decode($attributes['filter']);
-            },
-            'share' => function ($node, $requested) {
-                if ($node->isShare() || !$node->isSpecial()) {
-                    return null;
-                }
-
-                try {
-                    return $this->decorate($node->getShareNode(), $requested['share']);
-                } catch (\Exception $e) {
-                    return null;
-                }
-            },
-            'shareowner' => function ($node, $requested) use ($server, $fs) {
-                if ($node->isShare() || !$node->isSpecial()) {
-                    return null;
-                }
-
-                try {
-                    return $server->getUserById($fs->findRawNode($node->getShareId())['owner'])
-                        ->getAttribute($requested['shareowner']);
-                } catch (\Exception $e) {
-                    return null;
-                }
             },
         ];
     }

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\Api\v1;
 
 use Balloon\Server;
+use Balloon\Server\AttributeDecorator;
 use Micro\Http\Response;
 use MongoDB\BSON\Regex;
 
@@ -33,14 +34,23 @@ class Resource
     protected $user;
 
     /**
+     * Attribute decorator.
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
      * Initialize.
      *
-     * @param Server $server
+     * @param Server             $server
+     * @param AttributeDecorator $decorator
      */
-    public function __construct(Server $server)
+    public function __construct(Server $server, AttributeDecorator $decorator)
     {
         $this->server = $server;
         $this->user = $server->getIdentity();
+        $this->decorator = $decorator;
     }
 
     /**
@@ -54,13 +64,13 @@ class Resource
      * @apiExample Example usage:
      * curl -XGET "https://SERVER/api/v1/user/acl-roles?q=peter"
      *
-     * @apiParam (GET Parameter) {string} [1] Search query (user/group)
+     * @apiParam (GET Parameter) {string} [q] Search query (user/group)
      * @apiParam (GET Parameter) {boolean} [single] Search request for a single user (Don't have to be in namespace)
+     * @apiParam (GET Parameter) {array} [attributes] Specify user/group attributes
      * @apiSuccess {number} status Status Code
-     * @apiSuccess {object[]} roles All roles found with query search string
-     * @apiSuccess {string} roles.type ACL role type (user|group)
-     * @apiSuccess {string} roles.id Role identifier (Could be the same as roles.name)
-     * @apiSuccess {string} roles.name Role name (human readable name)
+     * @apiSuccess {object[]} data All roles found with query search string
+     * @apiSuccess {string} data.type ACL role type (user|group)
+     * @apiSuccess {object} data.role Role attributes (user/group)
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
@@ -68,23 +78,28 @@ class Resource
      *     "data": [
      *          {
      *              "type": "user",
-     *              "id": "peter.meier",
-     *              "name": "peter.meier"
+     *              "role": {,
+     *                  "id": "5a2e6e43db830e003c3eb3b2",
+     *                  "username": "peter.example"
+     *              }
      *          },
      *          {
      *              "type": "group",
-     *              "id": "peters",
-     *              "name": "peters"
+     *              "role": {
+     *                  "id": "5a2e6e43db830e003c3eb3ca",
+     *                  "name": "testgroup"
+     *              }
      *          }
      *      ]
      * }
      *
      * @param string $q
      * @param bool   $single
+     * @param array  $attributes
      *
      * @return Response
      */
-    public function getAclRoles(string $q, bool $single = false): Response
+    public function getAclRoles(string $q, bool $single = false, array $attributes = []): Response
     {
         if (true === $single) {
             $regex = new Regex('^'.preg_quote($q).'$', 'i');
@@ -110,17 +125,15 @@ class Resource
 
         foreach ($this->server->getGroups($groups_filter) as $role) {
             $body[] = [
-               'type' => 'group',
-               'id' => (string) $role->getId(),
-                'name' => $role->getName(),
+                'type' => 'group',
+                'role' => $this->decorator->decorate($role, $attributes),
             ];
         }
 
         foreach ($this->server->getUsers($users_filter) as $role) {
             $body[] = [
                 'type' => 'user',
-                'id' => (string) $role->getId(),
-                'name' => $role->getUsername(),
+                'role' => $this->decorator->decorate($role, $attributes),
             ];
         }
 

@@ -45,7 +45,9 @@ $config = PhpCsFixer\Config::create()
         'phpdoc_types_order' => true,
         'semicolon_after_instruction' => true,
         'single_line_comment_style' => true,
-        'strict_param' => true,
+        'strict_param' => false,
+        'phpdoc_add_missing_param_annotation' => true,
+        'yoda_style' => false
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()

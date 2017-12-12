@@ -102,14 +102,14 @@ class Mail implements AdapterInterface
         if (null === $sender) {
             $mail->setFrom($this->sender_address, $this->sender_name);
         } else {
-            $mail->setFrom($this->sender_address, $sender->getAttribute('username'));
+            $mail->setFrom($this->sender_address, $sender->getAttributes()['username']);
         }
 
         $mail->setTo($mail->getFrom());
         $mail->setSubject($subject);
 
         foreach ($receiver as $user) {
-            $address = $user->getAttribute('mail');
+            $address = $user->getAttributes()['mail'];
             if (null === $address) {
                 $this->logger->debug('skip mail notifcation ['.$subject.'] for user ['.$user->getId().'], user does not have a valid mail address', [
                     'category' => get_class($this),

@@ -168,7 +168,7 @@ class Gridfs implements AdapterInterface
         if ($file->isShareMember()) {
             $action['$addToSet']['metadata.share_ref'] = [
                 'id' => $file->getId(),
-                'share' => $file->getShared(),
+                'share' => $file->getShareId(),
             ];
         }
 
@@ -221,7 +221,7 @@ class Gridfs implements AdapterInterface
         if ($file->isShareMember()) {
             $meta['share_ref'] = [[
                 'id' => $file->getId(),
-                'share' => $file->getShared(),
+                'share' => $file->getShareId(),
             ]];
         } else {
             $meta['share_ref'] = [];

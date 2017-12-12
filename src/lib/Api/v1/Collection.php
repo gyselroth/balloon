@@ -117,12 +117,12 @@ class Collection extends Node
     }
 
     /**
-     * @api {get} /api/v1/collection/share?id=:id Get Share parameters
+     * @api {get} /api/v1/collection/share?id=:id Get Share settings
      * @apiVersion 1.0.0
      * @apiName getShare
      * @apiGroup Node\Collection
      * @apiPermission none
-     * @apiDescription Get share parameters
+     * @apiDescription Get share acl and share name
      * @apiUse _getNode
      *
      * @apiExample (cURL) example:
@@ -131,35 +131,53 @@ class Collection extends Node
      * curl -XGET "https://SERVER/api/v1/collection/share?p=/absolute/path/to/my/collection&pretty"
      *
      * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} data Share ACL with roles and permissions
-     * @apiSuccess (200 OK) {string} data.type Either group or user
-     * @apiSuccess (200 OK) {string} data.id A unique role identifier
-     * @apiSuccess (200 OK) {string} data.name Could be the same as id, but don't have to (human readable name)
-     * @apiSuccess (200 OK) {string} data.priv Permission to access share
+     * @apiSuccess (200 OK) {string} data.name Share name
+     * @apiSuccess (200 OK) {object[]} data.acl ACL rules
+     * @apiSuccess (200 OK) {string} data.acl.type Either group or user
+     * @apiSuccess (200 OK) {object} data.acl.role Role attributes
+     * @apiSuccess (200 OK) {string} data.acl.priv Permission to access share
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
      *      "status":200,
-     *      "data":[
-     *          {
-     *              "type":"user",
-     *              "id":"peter.meier",
-     *              "name":"peter.meier",
-     *              "priv":"rw"
-     *          }
-     *      ]
+     *      "data":{
+     *          "name": "my share",
+     *          "acl": [
+     *              {
+     *                  "type":"user",
+     *                  "role": {
+     *                      "id": "212323eeffe2322355224411",
+     *                  },
+     *                  "privilege":"rw"
+     *              }
+     *          ]
+     *      }
      *}
      *
      * @param string $id
      * @param string $p
+     * @param array  $attributes
      *
      * @return Response
      */
-    public function getShare(?string $id = null, ?string $p = null): Response
+    public function getShare(?string $id = null, ?string $p = null, array $attributes = []): Response
     {
-        $result = $this->fs->getNode($id, $p)->getAcl();
+        $node = $this->fs->getNode($id, $p);
 
-        return (new Response())->setCode(200)->setBody($result);
+        if (!$node->isShared()) {
+            throw new Exception\Conflict('node is not a share', Exception\Conflict::NOT_SHARED);
+        }
+
+        $acl = $node->getAcl();
+
+        foreach ($acl as &$rule) {
+            $rule['role'] = $this->role_decorator->decorate($rule['role'], $attributes);
+        }
+
+        return (new Response())->setCode(200)->setBody([
+            'name' => $node->getShareName(),
+            'acl' => $acl,
+        ]);
     }
 
     /**
@@ -174,17 +192,15 @@ class Collection extends Node
      * @apiExample (cURL) example:
      * curl -XPOST "https://SERVER/api/v1/collection/share?id=212323eeffe2322344224452&pretty"
      *
-     * @apiParam (POST Parameter) {object} acl Share ACL
-     * @apiParam (POST Parameter) {object[]} acl.user User ACL rules
-     * @apiParam (POST Parameter) {string} acl.user.user Username which should match ACL rule
-     * @apiParam (POST Parameter) {string} acl.user.priv Permission to access share, could be on of the following:</br>
+     * @apiParam (POST Parameter) {object[]} acl ACL rules
+     * @apiParam (POST Parameter) {string} acl.type user or group
+     * @apiParam (POST Parameter) {string} acl.role Role id (user or group id)
+     * @apiParam (POST Parameter) {string} acl.privilege Permission to access share, could be on of the following:</br>
      *  rw - READ/WRITE </br>
      *  r - READONLY </br>
-     *  w - WRITEONLY </br>
+     *  w+ - INBOX (Only Access to owned nodes) </br>
+     *  m - Manage </br>
      *  d - DENY </br>
-     * @apiParam (POST Parameter) {object[]} acl.group Group ACL rules
-     * @apiParam (POST Parameter) {string} acl.group Groupname which should match ACL rule
-     * @apiParam (POST Parameter) {string} acl.priv Permission to access share, see possible permissions above
      *
      * @apiSuccess (201 Created) {number} status Status code
      * @apiSuccess (201 Created) {boolean} data
@@ -201,13 +217,14 @@ class Collection extends Node
      * @param string $id
      * @param string $p
      * @param array  $acl
+     * @param string $name
      *
      * @return Response
      */
-    public function postShare(array $acl, ?string $id = null, ?string $p = null): Response
+    public function postShare(array $acl, string $name, ?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
-        $result = $node->share($acl);
+        $result = $node->share($acl, $name);
 
         if (null === $result) {
             return (new Response())->setCode(204);
@@ -315,9 +332,9 @@ class Collection extends Node
             $parent_path = dirname($p);
             $name = basename($p);
             $parent = $this->fs->findNodeWithPath($parent_path, 'Collection');
-            $result = $parent->addDirectory($name, $attributes, $conflict)->getId(true);
+            $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
 
-            return (new Response())->setCode(201)->setBody($result);
+            return (new Response())->setCode(201)->setBody((string) $result);
         }
         if (null !== $id && null === $name) {
             throw new Exception\InvalidArgument('name must be set with id');
@@ -328,8 +345,8 @@ class Collection extends Node
             throw new Exception\InvalidArgument('name must be a valid string');
         }
 
-        $result = $parent->addDirectory($name, $attributes, $conflict)->getId(true);
+        $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
 
-        return (new Response())->setCode(201)->setBody($result);
+        return (new Response())->setCode(201)->setBody((string) $result);
     }
 }

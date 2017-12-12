@@ -392,12 +392,14 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Get share node.
      *
-     * @param bool $reference
-     *
      * @return Collection
      */
     public function getShareNode(): ?Collection
     {
+        if ($this->isShare()) {
+            return $this;
+        }
+
         if ($this->isSpecial()) {
             return $this->_fs->findNodeById($this->getShareId(true));
         }
@@ -666,14 +668,10 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Get unique id.
      *
-     * @return ObjectId|string
+     * @return ObjectId
      */
-    public function getId(bool $string = false)
+    public function getId(): ?ObjectId
     {
-        if (true === $string) {
-            return (string) $this->_id;
-        }
-
         return $this->_id;
     }
 

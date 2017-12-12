@@ -24,6 +24,7 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Generator;
 use Micro\Http\Response;
@@ -69,19 +70,26 @@ class Node extends Controller
     protected $decorator;
 
     /**
+     * Role decorator.
+     *
+     * @var RoleAttributeDecorator
+     */
+
+    /**
      * Initialize.
      *
      * @param Server             $server
      * @param AttributeDecorator $decorator
      * @param LoggerInterface    $logger
      */
-    public function __construct(Server $server, AttributeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, LoggerInterface $logger)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
         $this->decorator = $decorator;
         $this->logger = $logger;
+        $this->role_decorator = $role_decorator;
     }
 
     /**

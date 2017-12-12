@@ -249,11 +249,9 @@ class Acl
         foreach ($acl as $key => &$rule) {
             try {
                 if ('user' === $rule['type']) {
-                    $rule['name'] = $server->getUserById(new ObjectId($rule['id']))
-                        ->getAttribute('username');
+                    $rule['role'] = $server->getUserById(new ObjectId($rule['id']));
                 } elseif ('group' === $rule['type']) {
-                    $rule['name'] = $server->getGroupById(new ObjectId($rule['id']))
-                        ->getAttribute('name');
+                    $rule['role'] = $server->getGroupById(new ObjectId($rule['id']));
                 } else {
                     throw new Exception('invalid acl rule resource type');
                 }

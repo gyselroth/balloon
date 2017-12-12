@@ -15,6 +15,7 @@ namespace Balloon\Api\v1;
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
+use Balloon\Server\AttributeDecorator;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
@@ -35,14 +36,22 @@ class User
     protected $server;
 
     /**
+     * Decorator.
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
      * Initialize.
      *
      * @param Server $server
      */
-    public function __construct(Server $server)
+    public function __construct(Server $server, AttributeDecorator $decorator)
     {
         $this->user = $server->getIdentity();
         $this->server = $server;
+        $this->decorator = $decorator;
     }
 
     /**
@@ -396,7 +405,7 @@ class User
      */
     public function getAttributes(?string $uid = null, ?string $uname = null, array $attributes = []): Response
     {
-        $result = $this->_getUser($uid, $uname)->getAttribute($attributes);
+        $result = $this->decorator->decorate($this->_getUser($uid, $uname), $attributes);
 
         return (new Response())->setCode(200)->setBody($result);
     }
