@@ -1,6 +1,7 @@
 # balloon
 [![GitHub release](https://img.shields.io/github/release/gyselroth/balloon.svg)](https://github.com/gyselroth/balloon/releases)
 [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon?ref=badge_shield)
 
 balloon is both a cloud server and a document management system
 
@@ -56,3 +57,7 @@ For installation from source, see the [wiki page](https://github.com/gyselroth/b
 ## Docker image
 
 There is a ready-to-go docker image on [Docker Hub](https://hub.docker.com/r/gyselroth/balloon/).
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon?ref=badge_large)
