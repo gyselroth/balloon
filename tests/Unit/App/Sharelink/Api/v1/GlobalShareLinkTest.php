@@ -17,7 +17,7 @@ use Balloon\App\Sharelink\Api\v1\ShareLink;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Node\AttributeDecorator;
-use Balloon\Testsuite\Unit\Test;
+use Balloon\Testsuite\Unit\App\Api\v1\Test;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
@@ -35,7 +35,7 @@ class GlobalShareLinkTest extends Test
         $server = $this->getMockServer();
         $share = new Share($server);
         $this->sharelink = new ShareLink($share, $server);
-        $this->controller = new Collection($server, new AttributeDecorator($server, $this->createMock(Acl::class)), $this->createMock(LoggerInterface::class));
+        $this->controller = $this->getCollectionController();
     }
 
     public function testCreate()

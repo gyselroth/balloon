@@ -14,7 +14,10 @@ namespace Balloon\Testsuite\Unit\App\Api\v1;
 
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
+use Balloon\Api\v1\Collection;
 use Balloon\Hook;
+use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Hook\Delta;
 use Balloon\Server;
 use Balloon\Testsuite\Unit\Mock;
@@ -74,5 +77,13 @@ abstract class Test extends UnitTest
         $this->assertSame(200, $res->getCode());
 
         return $res->getBody();
+    }
+
+    public function getCollectionController()
+    {
+        $server = $this->getMockServer();
+        $decorator = new RoleAttributeDecorator($server);
+        return new Collection($server, new AttributeDecorator($server, $this->createMock(Acl::class), $decorator),
+          $decorator, $this->createMock(LoggerInterface::class));
     }
 }

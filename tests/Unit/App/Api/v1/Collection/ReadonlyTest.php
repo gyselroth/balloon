@@ -27,8 +27,7 @@ class ReadonlyTest extends Test
 {
     public function setUp()
     {
-        $server = $this->getMockServer();
-        $this->controller = new Collection($server, new AttributeDecorator($server, $this->createMock(Acl::class)), $this->createMock(LoggerInterface::class));
+        $this->controller = $this->getCollectionController();
     }
 
     public function testCreate()

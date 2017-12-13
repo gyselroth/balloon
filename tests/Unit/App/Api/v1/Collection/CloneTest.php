@@ -15,6 +15,7 @@ namespace Balloon\Testsuite\Unit\App\Api\v1\Collection;
 use Balloon\Api\v1\Collection;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Testsuite\Unit\App\Api\v1\Test;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -29,8 +30,7 @@ class CloneTest extends Test
 
     public function setUp()
     {
-        $server = $this->getMockServer();
-        $this->controller = new Collection($server, new AttributeDecorator($server, $this->createMock(Acl::class)), $this->createMock(LoggerInterface::class));
+        $this->controller = $this->getCollectionController();
     }
 
     public function testReceiveLastDelta()

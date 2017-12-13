@@ -15,6 +15,7 @@ namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
@@ -36,7 +37,8 @@ class GetLastRecordTest extends Test
     {
         $this->server = $this->getMockServer();
         $this->fs = $this->server->getFilesystem();
-        $this->delta = new Delta($this->fs, self::getMockDatabase(), new AttributeDecorator($this->server, $this->createMock(Acl::class)));
+        $decorator = new RoleAttributeDecorator($this->server);
+        $this->delta = new Delta($this->fs, self::getMockDatabase(), new AttributeDecorator($this->server, $this->createMock(Acl::class), $decorator));
     }
 
     public function testGetOneRecord()
