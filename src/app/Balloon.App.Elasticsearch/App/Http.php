@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Elasticsearch\App;
 
 use Balloon\App\AppInterface;
-use Balloon\App\Elasticsearch\Api\v1\Search as Api;
+use Balloon\App\Elasticsearch\Api\Latest\Search as Api;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
@@ -26,6 +26,6 @@ class Http implements AppInterface
      */
     public function __construct(Router $router)
     {
-        $router->prependRoute(new Route('/api/v1/node/search', Api::class));
+        $router->prependRoute(new Route('/api/v2/node/search', Api::class));
     }
 }

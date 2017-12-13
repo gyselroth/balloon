@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\App;
 
+use Balloon\App\Api\Latest;
+use Balloon\App\Api\v1;
 use Balloon\App\AppInterface;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
@@ -45,19 +47,29 @@ class Http implements AppInterface
     public function __construct(Router $router, Hook $hook)
     {
         $router
-            ->appendRoute(new Route('/api/v1/user', 'Balloon\Api\v1\User'))
-            ->appendRoute(new Route('/api/v1/user', 'Balloon\Api\v1\Admin\User'))
-            ->appendRoute(new Route('/api/v1/user/{uid:#([0-9a-z]{24})#}', 'Balloon\Api\v1\User'))
-            ->appendRoute(new Route('/api/v1/resource', 'Balloon\Api\v1\Resource'))
-            ->appendRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}', 'Balloon\Api\v1\File'))
-            ->appendRoute(new Route('/api/v1/file', 'Balloon\Api\v1\File'))
-            ->appendRoute(new Route('/api/v1/collection/{id:#([0-9a-z]{24})#}', 'Balloon\Api\v1\Collection'))
-            ->appendRoute(new Route('/api/v1/collection', 'Balloon\Api\v1\Collection'))
-            ->appendRoute(new Route('/api/v1/node/{id:#([0-9a-z]{24})#}', 'Balloon\Api\v1\Node'))
-            ->appendRoute(new Route('/api/v1/node', 'Balloon\Api\v1\Node'))
-            ->appendRoute(new Route('/api/v1$', 'Balloon\Api\v1\Api'))
-            ->appendRoute(new Route('/api/v1', 'Balloon\Api\v1\Api'))
-            ->appendRoute(new Route('/api$', 'Balloon\Api\v1\Api'));
+            ->appendRoute(new Route('/api/v2/user', Latest\User::class))
+            ->appendRoute(new Route('/api/v2/user/{uid:#([0-9a-z]{24})#}', Latest\User::class))
+            ->appendRoute(new Route('/api/v2/resource', Latest\Resource::class))
+            ->appendRoute(new Route('/api/v2/file/{id:#([0-9a-z]{24})#}', Latest\File::class))
+            ->appendRoute(new Route('/api/v2/file', Latest\File::class))
+            ->appendRoute(new Route('/api/v2/collection/{id:#([0-9a-z]{24})#}', Latest\Collection::class))
+            ->appendRoute(new Route('/api/v2/collection', Latest\Collection::class))
+            ->appendRoute(new Route('/api/v2/node/{id:#([0-9a-z]{24})#}', Latest\Node::class))
+            ->appendRoute(new Route('/api/v2/node', Latest\Node::class))
+            ->appendRoute(new Route('/api/v2$', Latest\Api::class))
+            ->appendRoute(new Route('/api/v2', Latest\Api::class))
+            ->appendRoute(new Route('/api$', Latest\Api::class))
+            ->appendRoute(new Route('/api/v1/user', v1\User::class))
+            ->appendRoute(new Route('/api/v1/user/{uid:#([0-9a-z]{24})#}', v1\User::class))
+            ->appendRoute(new Route('/api/v1/resource', v1\Resource::class))
+            ->appendRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}', v1\File::class))
+            ->appendRoute(new Route('/api/v1/file', v1\File::class))
+            ->appendRoute(new Route('/api/v1/collection/{id:#([0-9a-z]{24})#}', v1\Collection::class))
+            ->appendRoute(new Route('/api/v1/collection', v1\Collection::class))
+            ->appendRoute(new Route('/api/v1/node/{id:#([0-9a-z]{24})#}', v1\Node::class))
+            ->appendRoute(new Route('/api/v1/node', v1\Node::class))
+            ->appendRoute(new Route('/api/v1$', v1\Api::class))
+            ->appendRoute(new Route('/api/v1', v1\Api::class));
 
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void

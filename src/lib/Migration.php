@@ -15,7 +15,7 @@ namespace Balloon;
 use Balloon\Migration\Delta\DeltaInterface;
 use Balloon\Migration\Exception;
 use Micro\Container\AdapterAwareInterface;
-use MongoDB\Database as MongoDB;
+use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
 class Migration implements AdapterAwareInterface
@@ -51,11 +51,11 @@ class Migration implements AdapterAwareInterface
     /**
      * Construct.
      *
-     * @param MongoDB         $db
+     * @param Database        $db
      * @param LoggerInterface $logger
      * @param string          $meta_collection
      */
-    public function __construct(MongoDB $db, LoggerInterface $logger, string $meta_collection = 'delta')
+    public function __construct(Database $db, LoggerInterface $logger, string $meta_collection = 'delta')
     {
         $this->db = $db;
         $this->logger = $logger;

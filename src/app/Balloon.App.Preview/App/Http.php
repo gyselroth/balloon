@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Preview\App;
 
 use Balloon\App\AppInterface;
-use Balloon\App\Preview\Api\v1\Preview;
+use Balloon\App\Preview\Api\Latest\Preview;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
@@ -27,7 +27,7 @@ class Http implements AppInterface
     public function __construct(Router $router)
     {
         $router
-            ->prependRoute(new Route('/api/v1/file/preview', Preview::class))
-            ->prependRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}/preview', Preview::class));
+            ->prependRoute(new Route('/api/v2/file/preview', Preview::class))
+            ->prependRoute(new Route('/api/v2/file/{id:#([0-9a-z]{24})#}/preview', Preview::class));
     }
 }

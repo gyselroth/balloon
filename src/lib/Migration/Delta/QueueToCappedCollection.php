@@ -14,6 +14,7 @@ namespace Balloon\Migration\Delta;
 
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
+use MongoDB\Exception\RuntimeException;
 use TaskScheduler\Async;
 
 class QueueToCappedCollection implements DeltaInterface
@@ -48,11 +49,7 @@ class QueueToCappedCollection implements DeltaInterface
                 'size' => 100000,
             ]);
         } catch (RuntimeException $e) {
-            if (26 === $e->getCode()) {
-                $this->logger->debug('queue collection does not exists, skip upgrade', [
-                    'category' => get_class($this),
-                ]);
-            } else {
+            if (26 !== $e->getCode()) {
                 throw $e;
             }
         }

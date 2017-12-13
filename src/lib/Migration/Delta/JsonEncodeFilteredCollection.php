@@ -47,16 +47,13 @@ class JsonEncodeFilteredCollection implements DeltaInterface
         );
 
         foreach ($cursor as $object) {
-            if (!is_string($node['filter'])) {
-                $filter = json_encode($node['filter']);
-
-                $this->db->storage->updateOne(
-                    ['_id' => $object['_id']],
-                    [
-                        '$set' => ['filter' => $filter],
-                    ]
-                );
-            }
+            $filter = json_encode($object['filter']);
+            $this->db->storage->updateOne(
+                ['_id' => $object['_id']],
+                [
+                   '$set' => ['filter' => $filter],
+                ]
+            );
         }
 
         return true;

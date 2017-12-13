@@ -5,7 +5,7 @@
   "apidoc": {
     "sampleUrl": " ",
     "template": {
-      "withCompare": false
+      "withCompare": true
     },
     "header": {
       "title": "Getting Started",

@@ -45,9 +45,9 @@ class AttributeDecorator
     /**
      * Role decorator.
      *
-     * @var RoleDecorator
+     * @var RoleAttributeDecorator
      */
-    protected $decorator;
+    protected $role_decorator;
 
     /**
      * Custom attributes.

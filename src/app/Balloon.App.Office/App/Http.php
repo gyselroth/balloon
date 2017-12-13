@@ -13,10 +13,9 @@ declare(strict_types=1);
 namespace Balloon\App\Office\App;
 
 use Balloon\App\AppInterface;
-use Balloon\App\Office\Api\v1\Document;
-use Balloon\App\Office\Api\v1\Session;
-use Balloon\App\Office\Api\v1\Wopi\Document as WopiDocument;
-use Balloon\App\Office\App;
+use Balloon\App\Office\Api\Latest\Document;
+use Balloon\App\Office\Api\Latest\Session;
+use Balloon\App\Office\Api\Latest\Wopi\Document as WopiDocument;
 use Balloon\App\Office\Exception;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
@@ -56,8 +55,8 @@ class Http implements AppInterface
             public function preAuthentication(Auth $auth): void
             {
                 $skip = [
-                    '/index.php/api/v1/app/office/wopi/document',
-                    '/index.php/api/v1/app/office/wopi/document/contents',
+                    '/index.php/api/v2/office/wopi/document',
+                    '/index.php/api/v2/office/wopi/document/contents',
                 ];
 
                 foreach ($skip as $path) {
@@ -71,10 +70,10 @@ class Http implements AppInterface
         });
 
         $router
-            ->prependRoute(new Route('/api/v1/app/office/document', Document::class))
-            ->prependRoute(new Route('/api/v1/app/office/session', Session::class))
-            ->prependRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
-            ->prependRoute(new Route('/api/v1/app/office/wopi/document', WopiDocument::class));
+            ->prependRoute(new Route('/api/v2/office/document', Document::class))
+            ->prependRoute(new Route('/api/v2/office/session', Session::class))
+            ->prependRoute(new Route('/api/v2/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
+            ->prependRoute(new Route('/api/v2/office/wopi/document', WopiDocument::class));
     }
 
     /**

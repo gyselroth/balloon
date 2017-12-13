@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Sharelink\App;
 
 use Balloon\App\AppInterface;
-use Balloon\App\Sharelink\Api\v1\ShareLink;
+use Balloon\App\Sharelink\Api\Latest\ShareLink;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Exception;
 use Balloon\Filesystem\Node\AttributeDecorator;
@@ -56,8 +56,8 @@ class Http implements AppInterface
     {
         $router
             ->appendRoute(new Route('/share', $this, 'start'))
-            ->prependRoute(new Route('/api/v1/(node|file|collection)/share-link', ShareLink::class))
-            ->prependRoute(new Route('/api/v1/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
+            ->prependRoute(new Route('/api/v2/(node|file|collection)/share-link', ShareLink::class))
+            ->prependRoute(new Route('/api/v2/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
 
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void

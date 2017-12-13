@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\DesktopClient\App;
 
 use Balloon\App\AppInterface;
-use Balloon\App\DesktopClient\Api\v1\Download;
+use Balloon\App\DesktopClient\Api\Latest\Download;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
@@ -27,6 +27,6 @@ class Http implements AppInterface
     public function __construct(Router $router)
     {
         $router
-            ->prependRoute(new Route('/api/v1/desktop-client$', Download::class));
+            ->prependRoute(new Route('/api/v2/desktop-client$', Download::class));
     }
 }
