@@ -74,7 +74,8 @@ class Http implements AppInterface
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
-                if ('/index.php/api' === $_SERVER['ORIG_SCRIPT_NAME'] || '/index.php/api/v1' === $_SERVER['ORIG_SCRIPT_NAME']) {
+                if ('/index.php/api' === $_SERVER['ORIG_SCRIPT_NAME'] || '/index.php/api/v1' === $_SERVER['ORIG_SCRIPT_NAME'] ||
+                  '/index.php/api/v2' === $_SERVER['ORIG_SCRIPT_NAME']) {
                     $auth->injectAdapter(new AuthNone());
                 }
             }

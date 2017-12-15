@@ -94,20 +94,8 @@ class Mail implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
+    public function notify(array $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {
-        $mail = new Message();
-        $mail->setBody($body);
-
-        if (null === $sender) {
-            $mail->setFrom($this->sender_address, $this->sender_name);
-        } else {
-            $mail->setFrom($this->sender_address, $sender->getAttributes()['username']);
-        }
-
-        $mail->setTo($mail->getFrom());
-        $mail->setSubject($subject);
-
         foreach ($receiver as $user) {
             $address = $user->getAttributes()['mail'];
             if (null === $address) {
@@ -118,15 +106,16 @@ class Mail implements AdapterInterface
                 continue;
             }
 
-            $mail->setBcc($address);
-        }
 
-        if (0 === count($mail->getBcc())) {
-            $this->logger->warning('skip mail notifcation ['.$subject.'], no receiver available', [
-                'category' => get_class($this),
-            ]);
+            $mail = new Message();
+            $mail->setSubject($message->getSubject($user));
+            $mail->setBody($message->getBody($user));
 
-            return false;
+            if (null === $sender) {
+                $mail->setFrom($this->sender_address, $this->sender_name);
+            } else {
+                $mail->setFrom($this->sender_address, $sender->getAttributes()['username']);
+            }
         }
 
         return $this->async->addJob(MailJob::class, $mail->toString(), [

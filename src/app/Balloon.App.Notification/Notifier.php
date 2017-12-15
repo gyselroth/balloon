@@ -145,7 +145,7 @@ class Notifier implements AdapterAwareInterface
      *
      * @return bool
      */
-    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
+    public function notify(array $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {
         if (0 === count($this->adapter)) {
             $this->logger->warning('there are no notification adapter enabled, notification can not be sent', [
@@ -261,7 +261,7 @@ class Notifier implements AdapterAwareInterface
     public function postNotification(array $receiver, ?User $sender, string $subject, string $body, array $context = []): ObjectId
     {
         $data = [
-            'subject' => $subject,
+            'subject' => $message->getSubject(),
             'body' => $body,
             'context' => $context,
             'receiver' => [],

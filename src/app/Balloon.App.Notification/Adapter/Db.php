@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Adapter;
 
 use Balloon\App\Notification\Notifier;
+use Balloon\App\Notification\MessageInterface;
 use Balloon\Server\User;
 
 class Db implements AdapterInterface
@@ -37,9 +38,9 @@ class Db implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function notify(array $receiver, ?User $sender, string $subject, string $body, array $context = []): bool
+    public function notify(array $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {
-        $this->notifier->postNotification($receiver, $sender, $subject, $body, $context);
+        $this->notifier->postNotification($receiver, $sender, $message, $context);
 
         return true;
     }
