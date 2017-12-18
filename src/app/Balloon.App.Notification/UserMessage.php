@@ -24,7 +24,6 @@ class UserMessage implements MessageInterface
      */
     protected $user;
 
-
     /**
      * Constructor.
      *
@@ -41,22 +40,21 @@ class UserMessage implements MessageInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSubject(User $user): string
     {
         $role_decorator = $this->role_decorator;
 
-        $string = preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use($user, $role_decorator) {
+        $string = preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use ($user, $role_decorator) {
             return $role_decorator->decorate($user, [$match[2]])[$match[2]];
         }, $this->subject);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getBody(User $user): string
     {
-
     }
 }

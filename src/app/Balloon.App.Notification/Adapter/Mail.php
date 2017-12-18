@@ -106,7 +106,6 @@ class Mail implements AdapterInterface
                 continue;
             }
 
-
             $mail = new Message();
             $mail->setSubject($message->getSubject($user));
             $mail->setBody($message->getBody($user));

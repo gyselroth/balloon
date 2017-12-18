@@ -21,9 +21,9 @@ interface AdapterInterface
      * Send notification.
      *
      * @param array receiver
-     * @param User   $sender
+     * @param User             $sender
      * @param MessageInterface $message
-     * @param array  $context
+     * @param array            $context
      *
      * @return bool
      */

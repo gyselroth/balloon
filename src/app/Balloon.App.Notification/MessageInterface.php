@@ -17,7 +17,7 @@ use Balloon\Server\User;
 interface MessageInterface
 {
     /**
-     * Get subject
+     * Get subject.
      *
      * @param User $user
      *
@@ -26,10 +26,10 @@ interface MessageInterface
     public function getSubject(User $user): string;
 
     /**
-     * Get body
+     * Get body.
      *
      * @param User $user
-
+     *
      * @return string
      */
     public function getBody(User $user): string;

@@ -250,19 +250,16 @@ class Notifier implements AdapterAwareInterface
     /**
      * Add notification.
      *
-     * @param array  $receiver
-     * @param User   $user
-     * @param string $subject
-     * @param string $body
-     * @param array  $context
+     * @param array            $receiver
+     * @param User             $user
+     * @param MessageInterface $message
+     * @param array            $context
      *
      * @return ObjectId
      */
-    public function postNotification(array $receiver, ?User $sender, string $subject, string $body, array $context = []): ObjectId
+    public function postNotification(array $receiver, ?User $sender, MessageInterface $message, array $context = []): ObjectId
     {
         $data = [
-            'subject' => $message->getSubject(),
-            'body' => $body,
             'context' => $context,
             'receiver' => [],
         ];
@@ -272,7 +269,10 @@ class Notifier implements AdapterAwareInterface
         }
 
         foreach ($receiver as $user) {
-            $data['receiver'][] = $user->getId();
+            $notifcation = $data;
+            $notification['subject'] = $message->getSubject($user);
+            $notification['body'] = $message->getBody($user);
+            $notification['receiver'] = $user->getId();
         }
 
         $result = $this->db->{$this->collection_name}->insertOne($data);
@@ -301,7 +301,7 @@ class Notifier implements AdapterAwareInterface
      */
     public function deleteNotification(ObjectId $id): bool
     {
-        $result = $this->db->{$this->collection_name}->findOne([
+        $result = $this->db->{$this->collection_name}->deleteOne([
             '_id' => $id,
             'receiver' => $this->user->getId(),
         ]);
@@ -310,24 +310,9 @@ class Notifier implements AdapterAwareInterface
             throw new Exception('notification not found');
         }
 
-        if (count($result['receiver']) <= 1) {
-            $this->logger->debug('notification ['.$id.'] has only one member left, remove it', [
-                'category' => get_class($this),
-            ]);
-
-            $result = $this->db->{$this->collection_name}->deleteOne(['_id' => $id]);
-        } else {
-            $this->logger->debug('notification ['.$id.'] has other members left, remove member ['.$this->user->getId().']', [
-                'category' => get_class($this),
-            ]);
-
-            $result = $this->db->{$this->collection_name}->update([
-                '_id' => $id,
-                '$pull' => [
-                    'receiver' => $this->user->getId(),
-                ],
-            ]);
-        }
+        $this->logger->debug('notification ['.$id.'] removed from user ['.$this->user->getId().']', [
+            'category' => get_class($this),
+        ]);
 
         return true;
     }

@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Adapter;
 
-use Balloon\App\Notification\Notifier;
 use Balloon\App\Notification\MessageInterface;
+use Balloon\App\Notification\Notifier;
 use Balloon\Server\User;
 
 class Db implements AdapterInterface
