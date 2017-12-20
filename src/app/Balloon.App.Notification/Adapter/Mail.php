@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Adapter;
 
 use Balloon\App\Notification\Exception;
+use Balloon\App\Notification\MessageInterface;
 use Balloon\Async\Mail as MailJob;
 use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
@@ -99,7 +100,7 @@ class Mail implements AdapterInterface
         foreach ($receiver as $user) {
             $address = $user->getAttributes()['mail'];
             if (null === $address) {
-                $this->logger->debug('skip mail notifcation ['.$subject.'] for user ['.$user->getId().'], user does not have a valid mail address', [
+                $this->logger->debug('skip mail notifcation for user ['.$user->getId().'], user does not have a valid mail address', [
                     'category' => get_class($this),
                 ]);
 
@@ -115,10 +116,12 @@ class Mail implements AdapterInterface
             } else {
                 $mail->setFrom($this->sender_address, $sender->getAttributes()['username']);
             }
+
+            return $this->async->addJob(MailJob::class, $mail->toString(), [
+                Async::OPTION_RETRY => 2,
+            ]);
         }
 
-        return $this->async->addJob(MailJob::class, $mail->toString(), [
-            Async::OPTION_RETRY => 2,
-        ]);
+        return true;
     }
 }

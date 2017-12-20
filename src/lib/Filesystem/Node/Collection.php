@@ -152,7 +152,13 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      */
     public function getAcl(): array
     {
-        $acl = $this->_fs->findRawNode($this->getShareId())['acl'];
+        if ($this->isReference()) {
+            $acl = $this->_fs->findRawNode($this->getShareId())['acl'];
+        } elseif ($this->isShare()) {
+            $acl = $this->acl;
+        } else {
+            return [];
+        }
 
         return $this->_acl->resolveAclTable($this->_server, $acl);
     }
@@ -424,7 +430,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
+        if (!$this->isReference() && !$this->_acl->isAllowed($this, 'w')) {
             throw new ForbiddenException(
                 'not allowed to delete node '.$this->name,
                 ForbiddenException::NOT_ALLOWED_TO_DELETE

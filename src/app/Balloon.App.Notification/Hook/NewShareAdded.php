@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Hook;
 
 use Balloon\App\Notification\Exception;
+use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
 use Balloon\Async\Mail;
 use Balloon\Filesystem\Node\AttributeDecorator;
@@ -20,7 +21,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
 use Balloon\Server;
-use Balloon\Server\AttributeDecorator;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
@@ -63,19 +64,33 @@ class NewShareAdded extends AbstractHook
     protected $logger;
 
     /**
+     * Node attribute decorator.
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
+     * Role attribute decorator.
+     *
+     * @var RoleAttributeDecorator
+     */
+    protected $role_decorator;
+
+    /**
      * Constructor.
      *
      * @param Notification $notifier
      * @param Server       $server
      */
-    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, AttributeDecorator $decorator, RoleAttributeDecorator $user_decorator, ?Iterable $config = null)
+    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, ?Iterable $config = null)
     {
         $this->notifier = $notifier;
         $this->server = $server;
         $this->setOptions($config);
         $this->logger = $logger;
         $this->decorator = $decorator;
-        $this->user_decorator = $user_decorator;
+        $this->role_decorator = $role_decorator;
     }
 
     /**
@@ -147,7 +162,7 @@ class NewShareAdded extends AbstractHook
         }
 
         if (!empty($receiver)) {
-            $message = new Message($this->subject, $this->body, $node, $this->decorator, $this->user_decorator);
+            $message = new NodeMessage($this->subject, $this->body, $node, $this->decorator, $this->role_decorator);
             $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
         }
     }

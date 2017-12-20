@@ -12,30 +12,58 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification;
 
+use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\AttributeDecorator;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 
 class NodeMessage implements MessageInterface
 {
     /**
-     * User.
+     * Subject.
      *
-     * @var User
+     * @var string
      */
-    protected $user;
+    protected $subject;
 
+    /**
+     * Message.
+     *
+     * @var string
+     */
+    protected $message;
+
+    /**
+     * Node.
+     *
+     * @var NodeInterface
+     */
+    protected $node;
+
+    /**
+     * Attribute decorator.
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
+     * Role Attribute decorator.
+     *
+     * @var RoleAttributeDecorator
+     */
+    protected $role_decorator;
 
     /**
      * Constructor.
      *
-     * @param Database       $db
-     * @param Server         $server
-     * @param LoggerInterace $logger
-     * @param iterable       $config
+     * @param string                 $subject
+     * @param string                 $message
+     * @param NodeInterface          $node
+     * @param AttributeDecorator     $decorator
+     * @param RoleAttributeDecorator $role_decorator
      */
-    public function __construct(string $subject, string $message, NodeInterface $node, AttributeDecorator, $decorator, RoleAttributeDecorator $role_decorator)
+    public function __construct(string $subject, string $message, NodeInterface $node, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator)
     {
         $this->subject = $subject;
         $this->message = $message;
@@ -45,28 +73,41 @@ class NodeMessage implements MessageInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSubject(User $user): string
+    {
+        return $this->decorate('subject', $user);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBody(User $user): string
+    {
+        return $this->decorate('message', $user);
+    }
+
+    /**
+     * Replace variables.
+     *
+     * @param string $type
+     * @param User   $user
+     */
+    protected function decorate(string $type, User $user): string
     {
         $node = $this->node;
         $decorator = $this->decorator;
         $role_decorator = $this->role_decorator;
 
-        $string = preg_replace_callback('/(\{node\.(([a-z]\.*)+)\})/', function ($match) use($node, $decorator) {
+        $string = preg_replace_callback('/(\{node\.(([a-z]\.*)+)\})/', function ($match) use ($node, $decorator) {
             return $decorator->decorate($node, [$match[2]])[$match[2]];
-        }, $this->subject);
+        }, $this->{$type});
 
-        $string = preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use($user, $role_decorator) {
+        $string = preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use ($user, $role_decorator) {
             return $role_decorator->decorate($user, [$match[2]])[$match[2]];
-        }, $this->subject);
-    }
+        }, $this->{$type});
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getBody(User $user): string
-    {
-
+        return $string;
     }
 }

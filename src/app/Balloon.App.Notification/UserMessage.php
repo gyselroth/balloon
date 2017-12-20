@@ -18,19 +18,32 @@ use Balloon\Server\User;
 class UserMessage implements MessageInterface
 {
     /**
-     * User.
+     * Subject.
      *
-     * @var User
+     * @var string
      */
-    protected $user;
+    protected $subject;
+
+    /**
+     * Message.
+     *
+     * @var string
+     */
+    protected $message;
+
+    /**
+     * Role Attribute decorator.
+     *
+     * @var RoleAttributeDecorator
+     */
+    protected $role_decorator;
 
     /**
      * Constructor.
      *
-     * @param Database       $db
-     * @param Server         $server
-     * @param LoggerInterace $logger
-     * @param iterable       $config
+     * @param string                 $subject
+     * @param string                 $message
+     * @param RoleAttributeDecorator $role_decorator
      */
     public function __construct(string $subject, string $message, RoleAttributeDecorator $role_decorator)
     {
@@ -44,11 +57,7 @@ class UserMessage implements MessageInterface
      */
     public function getSubject(User $user): string
     {
-        $role_decorator = $this->role_decorator;
-
-        $string = preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use ($user, $role_decorator) {
-            return $role_decorator->decorate($user, [$match[2]])[$match[2]];
-        }, $this->subject);
+        return $this->decorate('subject', $user);
     }
 
     /**
@@ -56,5 +65,23 @@ class UserMessage implements MessageInterface
      */
     public function getBody(User $user): string
     {
+        return $this->decorate('message', $user);
+    }
+
+    /**
+     * Replace variables.
+     *
+     * @param string $type
+     * @param User   $user
+     */
+    protected function decorate(string $type, User $user): string
+    {
+        $role_decorator = $this->role_decorator;
+
+        $string = preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use ($user, $role_decorator) {
+            return $role_decorator->decorate($user, [$match[2]])[$match[2]];
+        }, $this->{$type});
+
+        return $string;
     }
 }

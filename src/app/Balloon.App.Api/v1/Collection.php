@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v1;
 
+use Balloon\App\Api\Latest\Collection as LatestCollection;
 use Balloon\Helper;
 use Micro\Http\Response;
 
-class Collection extends Node
+class Collection extends LatestCollection
 {
     /**
      * @api {get} /api/v1/collection/children Get children
@@ -109,10 +110,11 @@ class Collection extends Node
      *
      * @param string $id
      * @param string $p
+     * @param array  $attributes
      *
      * @return Response
      */
-    public function getShare(?string $id = null, ?string $p = null): Response
+    public function getShare(?string $id = null, ?string $p = null, array $attributes = []): Response
     {
         $result = $this->fs->getNode($id, $p)->getShare();
 
@@ -158,10 +160,11 @@ class Collection extends Node
      * @param string $id
      * @param string $p
      * @param array  $acl
+     * @param string $name
      *
      * @return Response
      */
-    public function postShare(array $acl, ?string $id = null, ?string $p = null): Response
+    public function postShare(array $acl, string $name = null, ?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
         $result = $node->share($acl);

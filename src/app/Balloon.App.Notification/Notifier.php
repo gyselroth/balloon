@@ -156,11 +156,11 @@ class Notifier implements AdapterAwareInterface
         }
 
         foreach ($this->adapter as $name => $adapter) {
-            $this->logger->debug('send notification ['.$subject.'] via adpater ['.$name.']', [
+            $this->logger->debug('send notification via adpater ['.$name.']', [
                 'category' => get_class($this),
             ]);
 
-            $adapter->notify($receiver, $sender, $subject, $body, $context);
+            $adapter->notify($receiver, $sender, $message, $context);
         }
 
         return true;

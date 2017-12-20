@@ -135,7 +135,7 @@ class Acl
             try {
                 $share = $fs->findRawNode($node->getShareId());
             } catch (\Exception $e) {
-                $this->logger->error('could not found share node ['.$node->getShareId().'] for reference ['.$node->getId().'], dead reference?', [
+                $this->logger->error('could not find share node ['.$node->getShareId().'] for reference ['.$node->getId().'], dead reference?', [
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);

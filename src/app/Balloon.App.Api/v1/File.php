@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v1;
 
+use Balloon\App\Api\Latest\File as LatestFile;
 use Balloon\Helper;
 use Micro\Http\Response;
 
-class File extends Node
+class File extends LatestFile
 {
     /**
      * @api {get} /api/v1/file/history?id=:id Get history
