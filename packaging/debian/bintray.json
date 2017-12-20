@@ -1,7 +1,7 @@
 {
     "package": {
         "name": "balloon",
-        "repo": "balloon-stable",
+        "repo": "balloon",
         "subject": "gyselroth",
         "desc": "balloon cloud server",
         "website_url": "https://github.com/gyselroth/balloon",
@@ -14,13 +14,11 @@
         "public_download_numbers": true,
         "public_stats": true
     },
-
     "version": {
         "name": "{version}",
         "released": "{date}",
-        "gpgSign": false
+        "gpgSign": true
     },
-
     "files": [
         {"includePattern": "dist/(.*\.deb)", "uploadPattern": "$1",
         "matrixParams": {
