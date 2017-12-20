@@ -11,8 +11,6 @@ addons:
 before_install:
 - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 - echo "\n" | pecl install imagick
-services:
-  - docker
 script: make
 notifications:
   email: false
@@ -42,10 +40,6 @@ deploy:
     secure: rGB84zJKDudTJYUsWSMQAgzSbgIvAmDaQBPtRDmuGeG89XX8wG1v1WZfqcnIaA5gPNJIDAIRixJY8RnBXeNWw2fx6vOCa6gUJzVYv5aPLuE98ei4eXHxlZKATIB3Kg1JGJ3SzqlZEeJvuJhLUYkWfZ673fQeGsY/Rdzk7NjkpM/+6WQUP7f5eop0o5TOUZ7iquNful/2gMWDuNCvAwmn2VwSvyzHRe8MpNxYmPVTWa4Nstze3ijw2zf7ddVqlL4zaqXdX5wWc0/ncmQ2phBPLik6QC+be7t6uuThKf2BPFrwM9lTboCTOcQRviR0sP0VGoy8cYyMgi27McZ38Qfk3jY/uXmgJPeUlkU7qDRjJDWgM/fCk2taLgKxnwemQKBTeyQgHl0A7EIvlrt2tKuHlf/ikZnHiMwDO4fAWfyN8kZtG2d9bk2+9nCmijS595XJfYGv/zMIGAP0cjeKeLwIF4OVnPWo7ZJWbawzsjt50xxxxI/UcE6dWbiBVbNbcv7P0cLMkkwBAPzHXNEw5I2occgYvzZkb4ERKtL4k2Ky227jWnr1HiV7OQnrSIiaup46x5MEcRhqTatHvVlzbb9Da5/aI8W0DnpzV83I2lhaLkV45lTjiI46h+d8+Zb5Wo7fxlJdIOT/CYtCHvXV8HOVK0GMfR/i9ujVKqJNdwkgfpc=
   on:
     condition: $TRAVIS_BRANCH == "master" || -n $TRAVIS_TAG
-- provider: script
-  script: packaging/docker/deploy.sh $deb_distribution
-  on:
-    tags: true
 env:
   global:
   - secure: LjC8Zu68XzcVquPGXd418t40542xqNzc5efrnWnYVBcxBEenGJuYCtx/Y++j1w0aZ2zEFWqEq4zN3wXAi19Mq55eu/xG3fD6YnWmTCz/ndNunYM1/7syLBcE31/MMcOT+x6gJwno0EylbP5BZuB/kwxti7QM6HE1FShd30qQPXuwvQ1n5KRxwupOnFHCaUMqWfjPE7e/fq+8yGgUhHjFmXtIxTkmEtfTAlQ4xGBsrEljJODJu0HmDlhrHA6/qKIT4oddal/f+rY7OfdnOLh6v9ftt7iqqPOhPd/boDFRZLetZkFRiCiv9KhQ6q9YQzjlLRhZm5CciXwEUCqrgS+83EW8qK1daarmkJOrrZxZvTKNbKjbK+B/Xo8WD00i/4rwJJvB7HRFbkwr13jljBFD6CHf6xj2KCKXfoWebx/YjK+WNsdbt6qLp2Ecs3Oxckv0QKRu1qNR2SN8yLT+5ewNnIlIKGaPDJF/rhtKjwvTQn4GKNOdDfBeDDrOTOe+qQ1DYUMsp0ho8TuDxMet+c3YiHGOIy2XekEcURFezeOjg/IAap5sCan3oMi4eIZrLLfT9+348vmylYRpWKc1OgFiJguTN0/6mgZEGeEdAp6Gx5Ci4hxBRSk+KLefNf7O2Yu8JV8KIefeRJlV2BQP3P8tMqzGYrTM1M6anAo7Y1Skd64=
