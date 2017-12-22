@@ -10,6 +10,7 @@ parameters:
         - '#Balloon\\Testsuite\\Unit\\Mock\\Identity\:\:\_\_construct\(\) does not call parent constructor from Micro\\Auth\\Identity\.#'
         - '#Call to an undefined method Balloon\\Filesystem\\Node\\AbstractNode#'
         - '#Function apc_exists not found#'
+        - '#Function apc_store not found#'
         - '#Function apc_fetch not found#'
 
     reportUnmatchedIgnoredErrors: false
