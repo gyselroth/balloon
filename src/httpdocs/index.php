@@ -15,15 +15,21 @@ use Micro\Config\Config;
 use Micro\Config\Struct;
 use Micro\Config\Xml;
 
-defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'));
+defined('BALLOON_PATH')
+    || define('BALLOON_PATH', (getenv('BALLOON_PATH') ? getenv('BALLOON_PATH') : realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..')));
 
-defined('APPLICATION_ENV')
-    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
+defined('BALLOON_ENV')
+    || define('BALLOON_ENV', (getenv('BALLOON_ENV') ? getenv('BALLOON_ENV') : 'production'));
+
+defined('BALLOON_CONFIG_DIR')
+    || define('BALLOON_CONFIG_DIR', (getenv('BALLOON_CONFIG_DIR') ? getenv('BALLOON_CONFIG_DIR') : constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'config'));
+
+defined('BALLOON_LOG_DIR')
+    || define('BALLOON_LOG_DIR', (getenv('BALLOON_LOG_DIR') ? getenv('BALLOON_LOG_DIR') : constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'log'));
 
 set_include_path(implode(PATH_SEPARATOR, [
-    constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'lib',
-    constant('APPLICATION_PATH').DIRECTORY_SEPARATOR,
+    constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'lib',
+    constant('BALLOON_PATH').DIRECTORY_SEPARATOR,
     get_include_path(),
 ]));
 
@@ -32,17 +38,17 @@ $composer = require 'vendor/autoload.php';
 if (extension_loaded('apc') && apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
-    $file = constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
-    $default = require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php';
+    $file = constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'config.xml';
+    $default = require constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'.container.config.php';
     $config = new Config(new Struct($default));
 
     if (is_readable($file)) {
-        $xml = new Xml(constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', constant('APPLICATION_ENV'));
+        $xml = new Xml($file, constant('BALLOON_ENV'));
         $config->inject($xml);
     }
 
     if (extension_loaded('apc')) {
-        //apc_store('config', $config);
+        apc_store('config', $config);
     }
 }
 

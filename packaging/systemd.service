@@ -3,7 +3,7 @@ Description=Ballooon
 After=network.target
 
 [Service]
-ExecStart=src/cgi-bin/cli.php -q -d
+ExecStart=/usr/bin/ballooncli async -d
 ExecReload=/bin/kill -HUP $MAINPID
 User=balloon
 KillMode=process

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ ! -d /var/log/balloon ]; then
+  mkdir /var/log/balloon
+fi
+
+if [ -f /etc/php/7.1/fpm/pool.d/www.conf ]; then
+    echo "env[BALLOON_ENV]=production" >> /etc/php/7.1/fpm/pool.d/www.conf
+    echo "env[BALLOON_PATH]=/usr/share/balloon" >> /etc/php/7.1/fpm/pool.d/www.conf
+    echo "env[BALLOON_DIR_CONFIG]=/etc/balloon" >> /etc/php/7.1/fpm/pool.d/www.conf
+    echo "env[BALLOON_DIR_LOG]=/var/log/balloon" >> /etc/php/7.1/fpm/pool.d/www.conf
+fi

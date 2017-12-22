@@ -17,19 +17,35 @@ git clone https://github.com/gyselroth/balloon.git
 ```
 
 ### Container
-The easiest way is to grab the balloon docker container and build it for development:
+The recomended way to get started in development is to use the available docker images.
+You need (docker)[https://docs.docker.com/engine/installation/linux/docker-ce/debian/] and (docker-compose)[https://docs.docker.com/compose/install/] installed on your local machine.
+
+Create a file named `docker-compose.yml` in the root of your balloon git clone.
 ```
-git clone https://github.com/gyselroth/balloon-dockerimage
-cd balloon-dockerimage
-docker build -t balloon .
-cd ..
+web:
+    image: balloon-webinterface:latest
+    ports:
+        - "8080:80"
+    volumes:
+        - ./site.conf:/etc/nginx/conf.d/site.conf
+    links:
+        - balloon
+
+mongodb:
+    image: mongo:3.6.0
+
+balloon:
+    image: balloon-dev:latest
+    ports:
+        - "8081:443"
+    volumes:
+        - ./:/srv/www/balloon
+    links:
+        - mongodb
 ```
 
-### Start server
-Now you can start the server and inject the local balloon git reposiory into your docker container:
-```
-docker run -p 8081:443 -v /path/to/balloon:/srv/www/balloon balloon
-```
+And then startup the dev environment via `docker-compose up`.
+
 
 ### Install dependencies
 To setup your development base you can make use of the the make buildtool to install all dependencies:
