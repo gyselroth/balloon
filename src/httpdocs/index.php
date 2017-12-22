@@ -39,7 +39,7 @@ if (extension_loaded('apc') && apc_exists('config')) {
     $config = apc_fetch('config');
 } else {
     $file = constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'config.xml';
-    $default = require constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'.container.config.php';
+    $default = require constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'.container.config.php';
     $config = new Config(new Struct($default));
 
     if (is_readable($file)) {

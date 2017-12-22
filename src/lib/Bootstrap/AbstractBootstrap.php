@@ -58,7 +58,7 @@ abstract class AbstractBootstrap
             'category' => get_class($this),
         ]);
 
-        $this->container->get(LoggerInterface::class)->info('use ['.constant('APPLICATION_ENV').'] environment', [
+        $this->container->get(LoggerInterface::class)->info('use ['.constant('BALLOON_ENV').'] environment', [
             'category' => get_class($this),
         ]);
 
@@ -100,7 +100,7 @@ abstract class AbstractBootstrap
             $context = 'Cli';
         }
 
-        foreach (glob(constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
+        foreach (glob(constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
             $ns = str_replace('.', '\\', basename($app)).'\\';
             $composer->addPsr4($ns, $app);
             $name = $ns.'App';
