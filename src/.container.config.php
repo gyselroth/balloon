@@ -39,7 +39,7 @@ return [
                 'use' => File::class,
                 'options' => [
                     'config' => [
-                        'file' => APPLICATION_PATH.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'out.log',
+                        'file' => constant('BALLOON_LOG_DIR').DIRECTORY_SEPARATOR.'out.log',
                         'level' => 10,
                         'date_format' => 'Y-d-m H:i:s',
                         'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}',
