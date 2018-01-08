@@ -108,9 +108,11 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/etc/balloon
+	@mkdir -p $(BUILD_DIR)/etc/systemd/system
 	@mkdir -p $(BUILD_DIR)/usr/bin
 	@rsync -a --exclude='.git' $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(DOC_DIR) $(BUILD_DIR)/usr/share/balloon
+	@cp -p $(BASE_DIR)/packaging/balloon-jobs.service $(BUILD_DIR)/etc/systemd/system/
 	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/bin/ballooncli
 	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon/src

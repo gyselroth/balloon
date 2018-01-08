@@ -135,20 +135,21 @@ service:
             date_format: "Y-d-m H:i:s"
             format: "{date} [{context.category},{level}]: {message} {context.params} {context.exception}"
             level: 3
-            ident: 3
+            ident: "balloon"
+            facility: 1
   Micro\Auth\Auth:
     adapter:
       basic_db:
         enabled: true
         use: "Balloon\\Auth\\Adapter\\Basic\\Db"
       oidc:
-        enabled: true
+        enabled: false
         use: "Micro\\Auth\\Adapter\\Oidc"
         options:
           config:
             provider_url: "https://openidconnect.example.net"
       ldap:
-        enabled: true
+        enabled: false
         use: "Micro\\Auth\\Adapter\\Basic\\Ldap"
         service:
           Micro\Ldap:

@@ -13,3 +13,5 @@ fi
 
 /usr/bin/ballooncli migrate -u
 /usr/bin/ballooncli useradd -u admin -p admin -m root@localhost -a
+
+service balloon-jobs restart
