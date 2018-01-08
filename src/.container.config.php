@@ -33,7 +33,6 @@ return [
     'service' => [
         Client::class => [
             'options' => [
-                'uri' => 'mongodb://localhost:27017',
                 'db' => 'balloon',
             ],
         ],
@@ -70,7 +69,7 @@ return [
                 'async' => [
                     'use' => Async::class
                 ],
-                'migration' => [
+                'migrate' => [
                     'use' => MigrationCli::class
                 ],
                 'useradd' => [

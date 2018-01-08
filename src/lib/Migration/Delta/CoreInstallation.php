@@ -51,7 +51,7 @@ class CoreInstallation implements DeltaInterface
             ['key' => ['acl.group.group' => 1]],
             ['key' => ['acl.user.user' => 1]],
             ['key' => ['hash' => 1]],
-            ['key' => ['parent' => 1, 'owner' => 1], ['sparse' => true]],
+            ['key' => ['parent' => 1, 'owner' => 1]],
             ['key' => ['reference' => 1]],
             ['key' => ['shared' => 1]],
             ['key' => ['deleted' => 1]],
