@@ -15,11 +15,10 @@ namespace Balloon\Bootstrap;
 use Balloon\App;
 use Composer\Autoload\ClassLoader as Composer;
 use ErrorException;
-use Micro\Config\Config;
-use Micro\Config\Struct;
 use Micro\Container\Container;
 use MongoDB\Client;
 use MongoDB\Database;
+use Noodlehaus\Config;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractBootstrap
@@ -42,23 +41,25 @@ abstract class AbstractBootstrap
      * Init bootstrap.
      *
      * @param Composer $composer
-     * @param Config   $config
      *
      * @return bool
      */
-    public function __construct(Composer $composer, ?Config $config)
+    public function __construct(Composer $composer)
     {
-        $this->config = $config;
         $this->setErrorHandler();
-        $this->detectApps($composer);
-        $this->container = new Container($this->config);
+        $configs = $this->detectApps($composer);
+        $this->config = $this->loadConfig($configs);
+
+        if (isset($this->config['service'])) {
+            $container = $this->config['service'];
+        } else {
+            $container = [];
+        }
+
+        $this->container = new Container($container);
         $this->setErrorHandler();
 
         $this->container->get(LoggerInterface::class)->info('--------------------------------------------------> PROCESS', [
-            'category' => get_class($this),
-        ]);
-
-        $this->container->get(LoggerInterface::class)->info('use ['.constant('BALLOON_ENV').'] environment', [
             'category' => get_class($this),
         ]);
 
@@ -88,41 +89,103 @@ abstract class AbstractBootstrap
     }
 
     /**
+     * Load config.
+     *
+     * @param array $configs
+     *
+     * @return Config
+     */
+    protected function loadConfig(array $configs = []): Config
+    {
+        /*if (extension_loaded('apc') && apc_exists('config')) {
+            $config = apc_fetch('config');
+        } else {
+            $file = constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'config.xml';
+            $default = require constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'.container.config.php';
+            $config = new Config(new Struct($default));
+        
+            if (is_readable($file)) {
+                $xml = new Xml($file, constant('BALLOON_ENV'));
+                $config->inject($xml);
+            }
+        
+            if (extension_loaded('apc')) {
+                apc_store('config', $config);
+            }
+        }*/
+
+        array_unshift($configs, __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php');
+        foreach (glob(constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'*.yaml') as $path) {
+            $configs[] = $path;
+        }
+
+        $config = new Config($configs);
+
+        $apps = $config['service'];
+        $context = $this->getContext();
+
+        foreach ($apps[App::class]['adapter'] as $app => &$options) {
+            $options['expose'] = true;
+            $options['use'] = $app.'\\'.$context;
+
+            if (!class_exists($options['use'])) {
+                $options['enabled'] = '0';
+            }
+        }
+
+        $config['service'] = $apps;
+
+        return $config;
+    }
+
+    /**
+     * Get context.
+     *
+     * @return string
+     */
+    protected function getContext(): string
+    {
+        if ($this instanceof Http) {
+            return 'Http';
+        }
+
+        return 'Cli';
+    }
+
+    /**
      * Find apps.
      *
      * @return AbstractBootstrap
      */
-    protected function detectApps(Composer $composer): self
+    protected function detectApps(Composer $composer): array
     {
-        if ($this instanceof Http) {
-            $context = 'Http';
-        } else {
-            $context = 'Cli';
-        }
+        $apps = [];
 
         foreach (glob(constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
             $ns = str_replace('.', '\\', basename($app)).'\\';
             $composer->addPsr4($ns, $app);
             $name = $ns.'App';
 
-            if (!isset($this->config[App::class]['adapter'][$name])) {
+            /*if (!isset($this->config[App::class]['adapter'][$name])) {
                 $this->config[App::class]['adapter'][$name] = new Config();
-            }
+            }*/
 
             if (file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
-                $this->config->inject(new Struct(require_once $app.DIRECTORY_SEPARATOR.'.container.config.php'));
+                $configs[] = $app.DIRECTORY_SEPARATOR.'.container.config.php';
+                //         $this->config->inject(new Struct(require_once $app.DIRECTORY_SEPARATOR.'.container.config.php'));
             }
         }
 
-        foreach ($this->config[App::class]['adapter'] as $app => $options) {
+        /*foreach ($this->config[App::class]['adapter'] as $app => $options) {
             $this->config[App::class]['adapter'][$app]['expose'] = true;
             $this->config[App::class]['adapter'][$app]['use'] = $app.'\\'.$context;
 
             if (!class_exists($this->config[App::class]['adapter'][$app]['use'])) {
                 $this->config[App::class]['adapter'][$app]['enabled'] = '0';
             }
-        }
+        }*/
 
+        return $configs;
         return $this;
     }
 

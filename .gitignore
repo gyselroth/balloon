@@ -1,7 +1,8 @@
 composer.lock
 vendor
-config/config.xml
+config/*
 docker-compose.yml
+docker-compose-dev.yml
 build
 doc
 dist

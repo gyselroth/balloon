@@ -20,4 +20,18 @@ interface ConsoleInterface
      * @return bool
      */
     public function start(): bool;
+
+    /**
+     * Set options.
+     *
+     * @return ConsoleInterface
+     */
+    public function setOptions(): self;
+
+    /**
+     * Get description.
+     *
+     * @return string
+     */
+    public function getDescription(): string;
 }

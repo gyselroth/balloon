@@ -22,7 +22,6 @@
         "gyselroth/micro-container": "*",
         "gyselroth/micro-log": "*",
         "gyselroth/micro-http": "*",
-        "gyselroth/micro-config": "*",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",
@@ -41,7 +40,9 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "^3.0",
         "zendframework/zend-mail": "2.7.*",
-        "gyselroth/mongodb-php-task-scheduler": "*"
+        "gyselroth/mongodb-php-task-scheduler": "*",
+        "hassankhan/config": "^0.11.2",
+        "symfony/yaml": "^4.0"
     },
     "repositories": [
         {

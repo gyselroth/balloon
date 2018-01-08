@@ -1,0 +1,183 @@
+service:
+  MongoDB\Client:
+    options:
+      db: balloon
+      uri: "{ENV(BALLOON_MONGODB_URI,mongodb://localhost:27017)}"
+  Balloon\Server:
+    options:
+      config:
+        temp_dir: "/tmp/balloon"
+        max_file_version: 8
+        max_file_size: 1073741824
+  Balloon\App\ClamAv\Scanner:
+    options:
+      config:
+        socket: "{ENV(BALLOON_CLAMAV_URI,unix:///var/run/clamav/clamd.ctl)}"
+        max_stream_size: 26214400
+        aggressiveness: 3
+        timeout: 30
+  Balloon\App\Notification\Notifier:
+    adapter:
+      Balloon\App\Notification\Adapter\Db:
+        enabled: true
+      Balloon\App\Notification\Adapter\Mail:
+        enabled: true
+        options:
+          config:
+            sender_address: "no-reply@localhost"
+            sender_name: "balloon"
+  Balloon\App\Elasticsearch\Elasticsearch:
+    options:
+      config:
+        hosts:
+          server: "{ENV(BALLOON_ELASTICSEARCH_URI,http://localhost:9200)}"
+        index: "balloon"
+  Balloon\App:
+    adapter:
+      Balloon\App\Api\App:
+        enabled: true
+      Balloon\App\Webdav\App:
+        enabled: true
+      Balloon\App\Sharelink\App:
+        enabled: true
+      Balloon\App\Convert\App:
+        enabled: true
+      Balloon\App\DesktopClient\App:
+        enabled: true
+      Balloon\App\Preview\App:
+        enabled: true
+      Balloon\App\ClamAv\App:
+        enabled: true
+      Balloon\App\Notification\App:
+        enabled: true
+      Balloon\App\Office\App:
+        enabled: true
+        options:
+          config:
+            loleaflet: "{ENV(BALLOON_OFFICE_URI,https://localhost:9980/loleaflet)}/dist/loleaflet.html"
+            token_ttl: 3600
+  Balloon\App\DesktopClient\DesktopClient:
+    options:
+      config:
+        github_request_url: "https://api.github.com/repos/gyselroth/balloon-client-desktop/releases/latest"
+        github_request_timeout: 10
+        github_request_useragent: "balloon server"
+        formats: ""
+        github_mapping: ""
+  Zend\Mail\Transport\TransportInterface:
+    use: "Zend\\Mail\\Transport\\Sendmail"
+  Balloon\Filesystem\Storage:
+    adapter:
+      gridfs:
+        enabled: 1
+        use: "Balloon\\Filesystem\\Storage\\Adapter\\Gridfs"
+  Balloon\Hook:
+    adapter:
+      Balloon\Hook\Delta:
+        enabled: true
+      Balloon\Hook\AutoCreateUser:
+        enabled: false
+        options:
+          config:
+            attributes:
+              soft_quota: 1000000
+              hard_quota: 1000000
+      Balloon\Hook\CleanTrash:
+        enabled: true
+        options:
+          config:
+            interval: 28800
+      Balloon\Hook\AutoDestroy:
+        enabled: true
+        options:
+          config:
+            interval: 28800
+  Balloon\Convert:
+    adapter:
+      Balloon\Convert\Adapter\Imagick:
+        enabled: true
+        options:
+          config:
+            preview_max_size: 300
+      Balloon\Convert\Adapte\Office:
+        enabled: true
+        options:
+          config:
+            preview_max_size: 500
+            timeout: 10
+            tmp: "/tmp/balloon"
+            soffice: "/usr/bin/soffice"
+  Psr\Log\LoggerInterface:
+    use: "Micro\\Log\\Log"
+    adapter:
+      file:
+        use: "Micro\\Log\\Adapter\\File"
+        enabled: true
+        options:
+          config:
+            file: "{ENV(BALLOON_LOG_PATH)}/log/out.log"
+            date_format: "Y-d-m H:i:s"
+            format: "{date} [{context.category},{level}]: {message} {context.params} {context.exception}"
+            level: 10
+      stdout:
+        use: "Micro\\Log\\Adapter\\Stdout"
+        enabled: false
+        options:
+          config:
+            date_format: "Y-d-m H:i:s"
+            format: "{date} [{context.category},{level}]: {message} {context.params} {context.exception}"
+            level: 3
+      syslog:
+        use: "Micro\\Log\\Adapter\\Syslog"
+        enabled: false
+        options:
+          config:
+            date_format: "Y-d-m H:i:s"
+            format: "{date} [{context.category},{level}]: {message} {context.params} {context.exception}"
+            level: 3
+            ident: 3
+  Micro\Auth\Auth:
+    adapter:
+      basic_db:
+        enabled: true
+        use: "Balloon\\Auth\\Adapter\\Basic\\Db"
+      oidc:
+        enabled: true
+        use: "Micro\\Auth\\Adapter\\Oidc"
+        options:
+          config:
+            provider_url: "https://openidconnect.example.net"
+      ldap:
+        enabled: true
+        use: "Micro\\Auth\\Adapter\\Basic\\Ldap"
+        service:
+          Micro\Ldap:
+            options:
+              config:
+                uri: "ldap://localhost:389"
+                basedn: "dc=example,dc=org"
+                binddn: "cn=admin,dc=example,dc=org"
+                bindpw: 1234
+                tls: 1
+                options:
+                  LDAP_OPT_PROTOCOL_VERSION: 3
+        options:
+          config:
+            account_filter: "(uid=%s)"
+            attr_sync_cache: 3600
+            map:
+              namespace:
+                type: "string"
+                attr: "o"
+              avatar:
+                type: "binary"
+                attr: "jpegPhoto"
+              hard_quota:
+                type: "int"
+                attr: "customHardQuotaAttribue"
+              soft_quota:
+                type: "int"
+                attr: "customSoftQuotaAttribue"
+              mail:
+                type: "string"
+                attr: "mail"

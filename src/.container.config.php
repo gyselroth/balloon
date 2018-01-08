@@ -16,6 +16,10 @@ use Micro\Log\Adapter\File;
 use MongoDB\Client;
 use Psr\Log\LoggerInterface;
 use Balloon\App\Notification\Notification;
+use Balloon\Console;
+use Balloon\Console\Migration as MigrationCli;
+use Balloon\Console\Async;
+use Balloon\Console\Useradd;
 use Balloon\Migration;
 use Balloon\Migration\Delta\CoreInstallation;
 use Balloon\Migration\Delta\FileToStorageAdapter;
@@ -26,51 +30,66 @@ use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Sendmail;
 
 return [
-    Client::class => [
-        'options' => [
-            'uri' => 'mongodb://localhost:27017',
-            'db' => 'balloon',
+    'service' => [
+        Client::class => [
+            'options' => [
+                'uri' => 'mongodb://localhost:27017',
+                'db' => 'balloon',
+            ],
         ],
-    ],
-    LoggerInterface::class => [
-        'use' => Log::class,
-        'adapter' => [
-            'file' => [
-                'use' => File::class,
-                'options' => [
-                    'config' => [
-                        'file' => constant('BALLOON_LOG_DIR').DIRECTORY_SEPARATOR.'out.log',
-                        'level' => 10,
-                        'date_format' => 'Y-d-m H:i:s',
-                        'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}',
+        LoggerInterface::class => [
+            'use' => Log::class,
+            'adapter' => [
+                'file' => [
+                    'use' => File::class,
+                    'options' => [
+                        'config' => [
+                            'file' => constant('BALLOON_LOG_DIR').DIRECTORY_SEPARATOR.'out.log',
+                            'level' => 10,
+                            'date_format' => 'Y-d-m H:i:s',
+                            'format' => '[{context.category},{level}]: {message} {context.params} {context.exception}',
+                        ],
                     ],
                 ],
             ],
         ],
-    ],
-    Hook::class => [
-        'adapter' => Hook::DEFAULT_ADAPTER
-    ],
-    Migration::class => [
-        'adapter' => [
-            CoreInstallation::class => [],
-            FileToStorageAdapter::class => [],
-            QueueToCappedCollection::class => [],
-            JsonEncodeFilteredCollection::class => [],
-            v1AclTov2Acl::class => [],
-        ]
-    ],
-    Auth::class => [
-        'adapter' => [
-            'basic_db' => [
-                'use' => Db::class,
+        Hook::class => [
+            'adapter' => Hook::DEFAULT_ADAPTER
+        ],
+        Migration::class => [
+            'adapter' => [
+                CoreInstallation::class => [],
+                FileToStorageAdapter::class => [],
+                QueueToCappedCollection::class => [],
+                JsonEncodeFilteredCollection::class => [],
+                v1AclTov2Acl::class => [],
+            ]
+        ],
+        Console::class => [
+            'adapter' => [
+                'async' => [
+                    'use' => Async::class
+                ],
+                'migration' => [
+                    'use' => MigrationCli::class
+                ],
+                'useradd' => [
+                    'use' => Useradd::class
+                ],
+            ]
+        ],
+        Auth::class => [
+            'adapter' => [
+                'basic_db' => [
+                    'use' => Db::class,
+                ],
             ],
         ],
-    ],
-    App::class => [
-        'adapter' => []
-    ],
-    TransportInterface::class => [
-        'use' => Sendmail::class
+        App::class => [
+            'adapter' => []
+        ],
+        TransportInterface::class => [
+            'use' => Sendmail::class
+        ]
     ]
 ];

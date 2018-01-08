@@ -63,7 +63,16 @@ class Async implements ConsoleInterface
         $this->logger = $logger;
         $this->getopt = $getopt;
         $this->async = $async;
-        $this->setOptions();
+    }
+
+    /**
+     * Get description.
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return 'Handles asynchronous job queue';
     }
 
     /**

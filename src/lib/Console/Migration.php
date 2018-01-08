@@ -51,7 +51,16 @@ class Migration implements ConsoleInterface
         $this->migration = $migration;
         $this->logger = $logger;
         $this->getopt = $getopt;
-        $this->setOptions();
+    }
+
+    /**
+     * Get description.
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return 'Execute migration scripts between upgrades';
     }
 
     /**

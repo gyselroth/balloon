@@ -7,32 +7,20 @@
  * @copyright   copryright (c) 2012-2017 gyselroth GmbH
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
-use Balloon\Bootstrap\Cli;
-use Micro\Config\Config;
-use Micro\Config\Struct;
-use Micro\Config\Xml;
+defined('BALLOON_PATH')
+    || define('BALLOON_PATH', (getenv('BALLOON_PATH') ? getenv('BALLOON_PATH') : realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..')));
 
-defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'));
+defined('BALLOON_CONFIG_DIR')
+    || define('BALLOON_CONFIG_DIR', (getenv('BALLOON_CONFIG_DIR') ? getenv('BALLOON_CONFIG_DIR') : constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'config'));
 
-defined('APPLICATION_ENV')
-    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
+defined('BALLOON_LOG_DIR')
+    || define('BALLOON_LOG_DIR', (getenv('BALLOON_LOG_DIR') ? getenv('BALLOON_LOG_DIR') : constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'log'));
 
 set_include_path(implode(PATH_SEPARATOR, [
-     constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'lib',
-     constant('APPLICATION_PATH'),
+    constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'lib',
+    constant('BALLOON_PATH').DIRECTORY_SEPARATOR,
     get_include_path(),
 ]));
 
 $composer = require 'vendor/autoload.php';
-
-$file = constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml';
-$default = require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php';
-$config = new Config(new Struct($default));
-
-if (is_readable($file)) {
-    $xml = new Xml(constant('APPLICATION_PATH').DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.xml', constant('APPLICATION_ENV'));
-    $config->inject($xml);
-}
-
-new Cli($composer, $config);
+new Balloon\Bootstrap\Cli($composer);
