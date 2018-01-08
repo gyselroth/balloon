@@ -62,13 +62,6 @@ class Scanner
      */
     protected $logger;
 
-    /**
-     * Socket.
-     *
-     * @var Socket
-     */
-    protected $clamav_socket;
-
     /*
      * Socket factory
      *
@@ -154,18 +147,13 @@ class Scanner
                 'category' => get_class($this),
             ]);
 
-            if (!($this->clamav_socket instanceof Socket)) {
-                $this->clamav_socket = $this->socket_factory->createClient($this->socket);
-            }
+            $socket = $this->socket_factory->createClient($this->socket);
+            $clamav = new ClamAv($socket, $this->timeout, PHP_NORMAL_READ);
         } catch (\Exception $e) {
             throw new Exception('scan of file ['.$file->getId().'] failed: '.$e->getMessage());
         }
 
         try {
-            // Create a new instance of the Client
-            $clamav = new ClamAv($this->socket, $this->timeout, PHP_NORMAL_READ);
-
-            // Scan file
             $result = $clamav->scanResourceStream($file->get());
 
             $this->logger->debug('scan result for file ['.$file->getId().']: '.$result['status'], [
