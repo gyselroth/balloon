@@ -66,6 +66,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [FIX] change Node::getId(bool $string=false) remove $string param #4
 * CORE: [!BREAKER] Moved from xml to yaml configuration (See upgrade guide)
 * CORE: [FEATURE] Added user management console module to create users
+* CORE: [FEATURE] Implemented unlimited quota (-1) which is also the default
 * API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version

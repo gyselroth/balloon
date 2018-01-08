@@ -59,14 +59,14 @@ class User implements RoleInterface
      *
      * @var int
      */
-    protected $soft_quota = 0;
+    protected $soft_quota = -1;
 
     /**
      * Hard Quota.
      *
      * @var int
      */
-    protected $hard_quota = 0;
+    protected $hard_quota = -1;
 
     /**
      * Is user deleted?
@@ -650,6 +650,10 @@ class User implements RoleInterface
      */
     public function checkQuota(int $add): bool
     {
+        if ($this->hard_quota === -1) {
+            return true;
+        }
+
         $quota = $this->getQuotaUsage();
 
         if (($quota['used'] + $add) > $quota['hard_quota']) {
