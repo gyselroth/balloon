@@ -6,15 +6,17 @@ use Balloon\App\Preview\Migration\Delta\Installation;
 use Balloon\App\Preview\Migration\Delta\PreviewIntoApp;
 
 return [
-    Hook::class => [
-        'adapter' => [
-            PreviewHook::class => []
+    'service' => [
+        Hook::class => [
+            'adapter' => [
+                PreviewHook::class => []
+            ],
         ],
-    ],
-    Migration::class => [
-        'adapter' => [
-            Installation::class => [],
-            PreviewIntoApp::class => [],
-        ]
-    ],
+        Migration::class => [
+            'adapter' => [
+                Installation::class => [],
+                PreviewIntoApp::class => [],
+            ]
+        ],
+    ]
 ];

@@ -2,11 +2,13 @@
 use Balloon\App;
 
 return [
-    App::class => [
-       'adapter' => [
-            'Balloon\App\Office\App' => [
-                'enabled' => 0
-            ]
+    'service' => [
+        App::class => [
+           'adapter' => [
+                'Balloon\App\Office\App' => [
+                    'enabled' => 0
+                ]
+            ],
         ],
-    ],
+    ]
 ];
