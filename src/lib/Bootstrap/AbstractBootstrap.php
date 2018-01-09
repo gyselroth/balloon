@@ -3,10 +3,9 @@
 declare(strict_types=1);
 
 /**
- * Balloon
+ * balloon
  *
- * @author      Raffael Sahli <sahli@gyselroth.net>
- * @copyright   Copryright (c) 2012-2017 gyselroth GmbH (https://gyselroth.com)
+ * @copyright   Copryright (c) 2012-2018 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
@@ -103,12 +102,12 @@ abstract class AbstractBootstrap
             $file = constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'config.xml';
             $default = require constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'.container.config.php';
             $config = new Config(new Struct($default));
-        
+
             if (is_readable($file)) {
                 $xml = new Xml($file, constant('BALLOON_ENV'));
                 $config->inject($xml);
             }
-        
+
             if (extension_loaded('apc')) {
                 apc_store('config', $config);
             }

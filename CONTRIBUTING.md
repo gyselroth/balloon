@@ -16,55 +16,27 @@ to report your concern.
 git clone https://github.com/gyselroth/balloon.git
 ```
 
-### Container
+### Development
 The recomended way to get started in development is to use the available docker images.
 You need (docker)[https://docs.docker.com/engine/installation/linux/docker-ce/debian/] and (docker-compose)[https://docs.docker.com/compose/install/] installed on your local machine.
 
-Create a file named `docker-compose.yml` in the root of your balloon git clone.
-```
-web:
-    image: balloon-webinterface:latest
-    ports:
-        - "8080:80"
-    volumes:
-        - ./site.conf:/etc/nginx/conf.d/site.conf
-    links:
-        - balloon
+For starters you cann use the full stack development composing configuration `docker-compose-dev.yml`.
+Bootup the development stack via `docker-compose -c docker-compose-dev.yml up`
 
-mongodb:
-    image: mongo:3.6.0
+#### Make
+Always execute make via `docker exec` if your are developing with the balloon docker image.
 
-balloon:
-    image: balloon-dev:latest
-    ports:
-        - "8081:443"
-    volumes:
-        - ./:/srv/www/balloon
-    links:
-        - mongodb
-```
-
-And then startup the dev environment via `docker-compose up`.
-
-
-### Install dependencies
-To setup your development base you can make use of the the make buildtool to install all dependencies:
+Update depenencies:
 ```
 docker exec INSTANCE make -C /srv/www/balloon deps
 ```
+(You do not need to install dependencies manually, the dev container automatically installs all depencies during start)
 
-### Make
-Always execute make via `docker exec` if your are developing with the balloon docker image.
-
-
-## Testsuite
-You can execute the testsuite via a make call:
-```
-make test
-```
+See Building bellow for other make targets.
 
 ## Building
 Besides npm scripts like build and start you can use make to build this software. The following make targets are supported:
+
 * `build` Build software, but do not package
 * `clean` Clear build and dependencies
 * `deb` Create debian packages
