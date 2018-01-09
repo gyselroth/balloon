@@ -1,0 +1,19 @@
+mongodb:
+    image: mongo:3.6.0
+clamav:
+    image: dinkel/clamavd:latest
+libreoffice:
+    image: libreoffice/online:master
+balloon-dev:
+    image: gyselroth/balloon-development:latest
+    ports:
+        - "8081:443"
+    volumes:
+        - .:/srv/www/balloon
+    links:
+        - libreoffice
+        - clamav
+        - mongodb
+    environment:
+        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+        - BALLOON_CLAMAV_URI=tcp://clamav:3310
