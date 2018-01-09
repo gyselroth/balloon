@@ -117,7 +117,7 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon/src
 	@cp -Rp $(SRC_DIR)/.container.config.php $(BUILD_DIR)/usr/share/balloon/src
-	@cp $(CONFIG_DIR)/config.example.xml $(BUILD_DIR)/etc/balloon/config.xml.orig
+	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon/config.yaml.dist
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@dpkg-deb --build $(BUILD_DIR) $@
 	$(COMPOSER_BIN) update
