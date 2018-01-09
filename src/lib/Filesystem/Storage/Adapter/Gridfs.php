@@ -90,7 +90,8 @@ class Gridfs implements AdapterInterface
 
         $ref = $exists['metadata']['ref'];
 
-        if ($key = array_search((string) $file->getId(), array_column($ref, 'id'), true)) {
+        $key = array_search($file->getId(), array_column($ref, 'id'));
+        if ($key !== false) {
             unset($ref[$key]);
         }
 
