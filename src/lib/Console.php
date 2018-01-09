@@ -106,7 +106,7 @@ class Console implements AdapterAwareInterface
      *
      * @param ConsoleInterface $adapter
      *
-     * @return AdapterInterface
+     * @return AdapterAwareInterface
      */
     public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
@@ -136,7 +136,7 @@ class Console implements AdapterAwareInterface
      *
      * @param string $name
      *
-     * @return AdapterInterface
+     * @return ConsoleInterface
      */
     public function getAdapter(string $name)
     {

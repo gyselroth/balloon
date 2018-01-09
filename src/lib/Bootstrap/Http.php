@@ -16,7 +16,6 @@ use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
 use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Auth\Auth;
-use Micro\Config\Config;
 use Micro\Http\Response;
 use Micro\Http\Router;
 use Psr\Log\LoggerInterface;
@@ -24,11 +23,11 @@ use Psr\Log\LoggerInterface;
 class Http extends AbstractBootstrap
 {
     /**
-     * Init bootstrap.
+     * {@inheritdoc}
      */
-    public function __construct(Composer $composer, ?Config $config = null)
+    public function __construct(Composer $composer)
     {
-        parent::__construct($composer, $config);
+        parent::__construct($composer);
         $this->setExceptionHandler();
 
         $this->container->get(LoggerInterface::class)->info('processing incoming http ['.$_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [

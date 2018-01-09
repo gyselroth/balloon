@@ -13,7 +13,6 @@ namespace Balloon\Bootstrap;
 
 use Balloon\Console;
 use Composer\Autoload\ClassLoader as Composer;
-use Micro\Config\Config;
 use Psr\Log\LoggerInterface;
 
 class Cli extends AbstractBootstrap
@@ -26,14 +25,11 @@ class Cli extends AbstractBootstrap
     protected $adapter = [];
 
     /**
-     * Init bootstrap.
-     *
-     * @param Composer $composer
-     * @param Config   $config
+     * {@inheritdoc}
      */
-    public function __construct(Composer $composer, ?Config $config = null)
+    public function __construct(Composer $composer)
     {
-        parent::__construct($composer, $config);
+        parent::__construct($composer);
         $this->setExceptionHandler();
         $this->container->get(Console::class)->parseCmd();
     }

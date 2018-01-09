@@ -40,8 +40,6 @@ abstract class AbstractBootstrap
      * Init bootstrap.
      *
      * @param Composer $composer
-     *
-     * @return bool
      */
     public function __construct(Composer $composer)
     {
@@ -83,8 +81,6 @@ abstract class AbstractBootstrap
 
         //register all app bootstraps
         $this->container->get(App::class);
-
-        return true;
     }
 
     /**
@@ -154,38 +150,23 @@ abstract class AbstractBootstrap
     /**
      * Find apps.
      *
-     * @return AbstractBootstrap
+     * @return array
      */
     protected function detectApps(Composer $composer): array
     {
-        $apps = [];
+        $configs = [];
 
         foreach (glob(constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
             $ns = str_replace('.', '\\', basename($app)).'\\';
             $composer->addPsr4($ns, $app);
             $name = $ns.'App';
 
-            /*if (!isset($this->config[App::class]['adapter'][$name])) {
-                $this->config[App::class]['adapter'][$name] = new Config();
-            }*/
-
             if (file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
                 $configs[] = $app.DIRECTORY_SEPARATOR.'.container.config.php';
-                //         $this->config->inject(new Struct(require_once $app.DIRECTORY_SEPARATOR.'.container.config.php'));
             }
         }
 
-        /*foreach ($this->config[App::class]['adapter'] as $app => $options) {
-            $this->config[App::class]['adapter'][$app]['expose'] = true;
-            $this->config[App::class]['adapter'][$app]['use'] = $app.'\\'.$context;
-
-            if (!class_exists($this->config[App::class]['adapter'][$app]['use'])) {
-                $this->config[App::class]['adapter'][$app]['enabled'] = '0';
-            }
-        }*/
-
         return $configs;
-        return $this;
     }
 
     /**

@@ -114,7 +114,7 @@ class Converter implements AdapterAwareInterface
      *
      * @param AdapterInterface $adapter
      *
-     * @return AdapterInterface
+     * @return AdapterAwareInterface
      */
     public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
