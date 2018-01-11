@@ -3,7 +3,9 @@ mongodb:
 clamav:
     image: dinkel/clamavd:latest
 libreoffice:
-    image: libreoffice/online:master
+    image: collabora/code
+    links:
+        - balloon-dev
 elasticsearch:
     image: gyselroth/balloon-elasticsearch:latest
 balloon-dev:
