@@ -13,6 +13,7 @@ before_install:
 - echo "\n" | pecl install imagick
 - export version=$TRAVIS_TAG
 - if [[ "${version:0:1}" == "v" ]]; then version=${version:1}; fi;
+- if [ "$version" == "" ]; then version=$TRAVIS_BUILD_NUMBER; fi;
 script: make VERSION=$version
 notifications:
   email: false
