@@ -67,6 +67,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [!BREAKER] Moved from xml to yaml configuration (See upgrade guide)
 * CORE: [FEATURE] Added user management console module to create users
 * CORE: [FEATURE] Implemented unlimited quota (-1) which is also the default
+* CORE: [FEATURE] Balloon.App.Elasticsearch now syncs documents to elasticsearch internally #121
 * API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v1/about
 * API: [CHANGE] removed GET /api/v1/version

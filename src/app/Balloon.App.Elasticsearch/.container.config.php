@@ -1,19 +1,19 @@
 <?php
+use Balloon\Migration;
+use Balloon\App\Elasticsearch\Migration\Delta\Installation;
+use Balloon\App\Elasticsearch\Hook as ElasticsearchHook;
 use Balloon\Hook;
-use Balloon\App\ClamAv\Hook as ClamAvHook;
 
 return [
     'service' => [
+        Migration::class => [
+            'adapter' => [
+                Installation::class => [],
+            ]
+        ],
         Hook::class => [
             'adapter' => [
-                ClamAvHook::class => []
-            ],
-        ],
-        App::class => [
-           'adapter' => [
-                'Balloon\App\ClamAv\App' => [
-                    'enabled' => 0
-                ]
+                ElasticsearchHook::class => []
             ],
         ],
     ]

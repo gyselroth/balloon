@@ -25,6 +25,6 @@ class Http implements AppInterface
      */
     public function __construct(Router $router)
     {
-        $router->prependRoute(new Route('/api/v2/node/search', Api::class));
+        $router->prependRoute(new Route('/api/v(1|2)/(node|file|collection)/search', Api::class));
     }
 }

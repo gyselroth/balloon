@@ -201,11 +201,21 @@ class Elasticsearch
     }
 
     /**
+     * Get index name.
+     *
+     * @return string
+     */
+    public function getIndex(): string
+    {
+        return $this->es_index;
+    }
+
+    /**
      * Get es client.
      *
      * @return Elasticsearch
      */
-    protected function getEsClient(): Client
+    public function getEsClient(): Client
     {
         if ($this->client instanceof Client) {
             return $this->client;
