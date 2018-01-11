@@ -27,7 +27,6 @@ class Hook extends AbstractHook
     /**
      * Constructor.
      *
-     * @param App   $app
      * @param Async $async
      */
     public function __construct(Async $async)
@@ -36,14 +35,7 @@ class Hook extends AbstractHook
     }
 
     /**
-     * Run: postPutFile.
-     *
-     * Executed pre a put file request
-     *
-     * @param File            $node
-     * @param resource|string $content
-     * @param bool            $force
-     * @param array           $attributes
+     * {@inheritdoc}
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {

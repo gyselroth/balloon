@@ -34,8 +34,8 @@ class Job extends AbstractJob
     /**
      * Constructor.
      *
-     * @param App    $app
-     * @param Server $server
+     * @param Scanner $scanner
+     * @param Server  $server
      */
     public function __construct(Scanner $scanner, Server $server)
     {
@@ -44,9 +44,7 @@ class Job extends AbstractJob
     }
 
     /**
-     * Run job.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function start(): bool
     {

@@ -29,9 +29,16 @@ service:
   Balloon\App\Elasticsearch\Elasticsearch:
     options:
       config:
-        hosts:
-          server: "{ENV(BALLOON_ELASTICSEARCH_URI,http://localhost:9200)}"
+        server: "{ENV(BALLOON_ELASTICSEARCH_URI,http://localhost:9200)}"
         index: "balloon"
+  Balloon\App\Elasticsearch\Job:
+    options:
+      config:
+        size_limit: 52428800
+  Balloon\App\Elasticsearch\Migration\Delta\Installation:
+    options:
+      config:
+        #index_configuration: "/path/to/index.json"
   Balloon\App:
     adapter:
       Balloon\App\Api\App:
@@ -47,6 +54,8 @@ service:
       Balloon\App\Preview\App:
         enabled: true
       Balloon\App\ClamAv\App:
+        enabled: true
+      Balloon\App\Elasticsearch\App:
         enabled: true
       Balloon\App\Notification\App:
         enabled: true
@@ -92,6 +101,12 @@ service:
         options:
           config:
             interval: 28800
+      Balloon\App\Elasticsearch\Hook:
+        enabled: true
+      Balloon\App\ClamAV\Hook:
+        enabled: true
+      Balloon\App\Notification\Hook:
+        enabled: true
   Balloon\Convert:
     adapter:
       Balloon\Convert\Adapter\Imagick:

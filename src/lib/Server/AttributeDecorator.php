@@ -50,7 +50,7 @@ class AttributeDecorator
      *
      * @return array
      */
-    public function decorate(RoleInterface $role, ?array $attributes): array
+    public function decorate(RoleInterface $role, ?array $attributes = null): array
     {
         if (null === $attributes) {
             $attributes = [];

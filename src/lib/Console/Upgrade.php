@@ -15,7 +15,7 @@ use Balloon\Migration as Migrator;
 use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
 
-class Migration implements ConsoleInterface
+class Upgrade implements ConsoleInterface
 {
     /**
      * Getopt.
@@ -70,7 +70,6 @@ class Migration implements ConsoleInterface
     public function setOptions(): ConsoleInterface
     {
         $this->getopt->addOptions([
-            \GetOpt\Option::create('u', 'upgrade'),
             \GetOpt\Option::create('f', 'force'),
         ]);
 
@@ -84,10 +83,6 @@ class Migration implements ConsoleInterface
      */
     public function start(): bool
     {
-        if (null !== $this->getopt->getOption('upgrade')) {
-            return $this->migration->start((bool) $this->getopt->getOption('force'));
-        }
-
-        return false;
+        return $this->migration->start((bool) $this->getopt->getOption('force'));
     }
 }

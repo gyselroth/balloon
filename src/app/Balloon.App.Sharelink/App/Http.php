@@ -55,8 +55,8 @@ class Http implements AppInterface
     {
         $router
             ->appendRoute(new Route('/share', $this, 'start'))
-            ->prependRoute(new Route('/api/v2/(node|file|collection)/share-link', ShareLink::class))
-            ->prependRoute(new Route('/api/v2/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
+            ->prependRoute(new Route('/api/v(1|2)/(node|file|collection)/share-link', ShareLink::class))
+            ->prependRoute(new Route('/api/v(1|2)/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
 
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void

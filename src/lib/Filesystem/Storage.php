@@ -77,10 +77,10 @@ class Storage implements AdapterAwareInterface
     /**
      * Inject adapter.
      *
-     * @param string           $name
      * @param AdapterInterface $adapter
+     * @param string           $name
      *
-     * @return AdapterInterface
+     * @return AdapterAwareInterface
      */
     public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
     {
@@ -153,30 +153,23 @@ class Storage implements AdapterAwareInterface
      *
      * @return bool
      */
-    public function hasFile(File $file, array $attributes, ?string $adapter = null): bool
+    public function hasFile(File $file, ?array $attributes = null, ?string $adapter = null): bool
     {
-        if (null === $adapter) {
-            $adapter = 'gridfs';
-        }
-
-        return $this->getAdapter($adapter)->hasFile($file, $attributes);
+        return $this->execAdapter('hasFile', $file, $attributes, $adapter);
     }
 
     /**
      * Get metadata for a file.
      *
-     * @param File  $file
-     * @param array $attributes
+     * @param File   $file
+     * @param array  $attributes
+     * @param string $adapter
      *
      * @return array
      */
-    public function getFileMeta(File $file, array $attributes, ?string $adapter = null): array
+    public function getFileMeta(File $file, ?array $attributes = null, ?string $adapter = null): array
     {
-        if (null === $adapter) {
-            $adapter = 'gridfs';
-        }
-
-        return $this->getAdapter($adapter)->getFileMeta($file, $attributes);
+        return $this->execAdapter('getFileMeta', $file, $attributes, $adapter);
     }
 
     /**
@@ -188,13 +181,9 @@ class Storage implements AdapterAwareInterface
      *
      * @return bool
      */
-    public function deleteFile(File $file, array $attributes, ?string $adapter = null): bool
+    public function deleteFile(File $file, ?array $attributes = null, ?string $adapter = null): bool
     {
-        if (null === $adapter) {
-            $adapter = 'gridfs';
-        }
-
-        return $this->getAdapter($adapter)->deleteFile($file, $attributes);
+        return $this->execAdapter('deleteFile', $file, $attributes, $adapter);
     }
 
     /**
@@ -206,13 +195,9 @@ class Storage implements AdapterAwareInterface
      *
      * @return resource
      */
-    public function getFile(File $file, array $attributes, ?string $adapter = null)
+    public function getFile(File $file, ?array $attributes = null, ?string $adapter = null)
     {
-        if (null === $adapter) {
-            $adapter = 'gridfs';
-        }
-
-        return $this->getAdapter($adapter)->getFile($file, $attributes);
+        return $this->execAdapter('getFile', $file, $attributes, $adapter);
     }
 
     /**
@@ -224,12 +209,43 @@ class Storage implements AdapterAwareInterface
      *
      * @return mixed
      */
-    public function storeFile(File $file, $contents, ?string $adapter = null)
+    public function storeFile(File $file, $contents, ?string &$adapter = null)
     {
-        if (null === $adapter) {
+        $attrs = $file->getAttributes();
+
+        if ($attrs['storage_adapter']) {
+            $adapter = $attrs['storage_adapter'];
+        } elseif (null === $adapter) {
             $adapter = 'gridfs';
         }
 
         return $this->getAdapter($adapter)->storeFile($file, $contents);
+    }
+
+    /**
+     * Execute command on adapter.
+     *
+     * @param string $method
+     * @param File   $file
+     * @param array  $attributes
+     * @param string $adapter
+     *
+     * @return mixed
+     */
+    protected function execAdapter(string $method, File $file, ?array $attributes = null, ?string $adapter = null)
+    {
+        $attrs = $file->getAttributes();
+
+        if ($attrs['storage_adapter']) {
+            $adapter = $attrs['storage_adapter'];
+        } elseif (null === $adapter) {
+            $adapter = 'gridfs';
+        }
+
+        if ($attributes === null) {
+            $attributes = $attrs['storage'];
+        }
+
+        return $this->getAdapter($adapter)->{$method}($file, $attributes);
     }
 }

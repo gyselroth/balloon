@@ -19,12 +19,6 @@ use MongoDB\BSON\ObjectId;
 
 class Delta extends AbstractHook
 {
-    /*public function __construct(Database $db, Server $server)
-    {
-        $this->db = $db;
-        $this->f
-    }*/
-
     /**
      * Client.
      *
@@ -74,13 +68,7 @@ class Delta extends AbstractHook
     }
 
     /**
-     * Run: postCreateCollection.
-     *
-     * Executed post a directory was created
-     *
-     * @param Collection $parent
-     * @param Collection $node
-     * @param bool       $clone
+     * {@inheritdoc}
      */
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
@@ -111,16 +99,7 @@ class Delta extends AbstractHook
     }
 
     /**
-     * Run: postCopyCollection.
-     *
-     * Executed post a directory will be cloned
-     *
-     * @param Collection $node
-     * @param Collection $parent
-     * @param Collection $new_node
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * {@inheritdoc}
      */
     public function postCopyCollection(
         Collection $node,
@@ -151,16 +130,7 @@ class Delta extends AbstractHook
     }
 
     /**
-     * Run: postCopyFile.
-     *
-     * Executed post a file will be cloned
-     *
-     * @param File       $node
-     * @param Collection $parent
-     * @param File       $new_node
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * {@inheritdoc}
      */
     public function postCopyFile(
         File $node,
@@ -191,13 +161,7 @@ class Delta extends AbstractHook
     }
 
     /**
-     * Run: postCreateFile.
-     *
-     * Executed post a file was created
-     *
-     * @param Collection $parent
-     * @param File       $node
-     * @param bool       $clone
+     * {@inheritdoc}
      */
     public function postCreateFile(Collection $parent, File $node, bool $clone): void
     {
@@ -222,14 +186,7 @@ class Delta extends AbstractHook
     }
 
     /**
-     * Run: postDeleteCollection.
-     *
-     * Executed post a directory was deleted
-     *
-     * @param Collection $node
-     * @param bool       $force
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * {@inheritdoc}
      */
     public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
@@ -265,14 +222,7 @@ class Delta extends AbstractHook
     }
 
     /**
-     * Run: postDeleteFile.
-     *
-     * Executed post a file was deleted
-     *
-     * @param File   $node
-     * @param bool   $force
-     * @param string $recursion
-     * @param bool   $recursion_first
+     * {@inheritdoc}
      */
     public function postDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
@@ -300,15 +250,7 @@ class Delta extends AbstractHook
     }
 
     /**
-     * Run: postSaveNodeAttributes.
-     *
-     * Executed post node attributes were saved to mongodb
-     *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     * @param array         $remove
-     * @param string        $recursion
-     * @param bool          $recursion_first
+     * {@inheritdoc}
      */
     public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
     {

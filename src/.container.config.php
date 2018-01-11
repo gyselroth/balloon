@@ -17,8 +17,8 @@ use MongoDB\Client;
 use Psr\Log\LoggerInterface;
 use Balloon\App\Notification\Notification;
 use Balloon\Console;
-use Balloon\Console\Migration as MigrationCli;
-use Balloon\Console\Async;
+use Balloon\Console\Upgrade;
+use Balloon\Console\Jobs;
 use Balloon\Console\Useradd;
 use Balloon\Migration;
 use Balloon\Migration\Delta\CoreInstallation;
@@ -66,11 +66,11 @@ return [
         ],
         Console::class => [
             'adapter' => [
-                'async' => [
-                    'use' => Async::class
+                'jobs' => [
+                    'use' => Jobs::class
                 ],
-                'migrate' => [
-                    'use' => MigrationCli::class
+                'upgrade' => [
+                    'use' => Upgrade::class
                 ],
                 'useradd' => [
                     'use' => Useradd::class

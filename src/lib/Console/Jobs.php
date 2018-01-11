@@ -15,9 +15,9 @@ use Balloon\Hook;
 use GetOpt\GetOpt;
 use GetOpt\Option;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Async as AsyncQueue;
+use TaskScheduler\Async;
 
-class Async implements ConsoleInterface
+class Jobs implements ConsoleInterface
 {
     /**
      * Logger.
@@ -36,7 +36,7 @@ class Async implements ConsoleInterface
     /**
      * Async.
      *
-     * @var AsyncQueue
+     * @var Async
      */
     protected $async;
 
@@ -51,11 +51,11 @@ class Async implements ConsoleInterface
      * Constructor.
      *
      * @param App             $app
-     * @param AsyncQueue      $async
+     * @param Async           $async
      * @param LoggerInterface $logger
      * @param GetOpt          $getopt
      */
-    public function __construct(Hook $hook, AsyncQueue $async, LoggerInterface $logger, GetOpt $getopt)
+    public function __construct(Hook $hook, Async $async, LoggerInterface $logger, GetOpt $getopt)
     {
         $this->async = $async;
         $this->hook = $hook;

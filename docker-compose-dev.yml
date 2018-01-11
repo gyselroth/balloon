@@ -4,6 +4,8 @@ clamav:
     image: dinkel/clamavd:latest
 libreoffice:
     image: libreoffice/online:master
+elasticsearch:
+    image: gyselroth/balloon-elasticsearch:latest
 balloon-dev:
     image: gyselroth/balloon-development:latest
     ports:
@@ -11,9 +13,10 @@ balloon-dev:
     volumes:
         - .:/srv/www/balloon
     links:
-        - libreoffice
         - clamav
         - mongodb
+        - elasticsearch
     environment:
         - BALLOON_MONGODB_URI=mongodb://mongodb:27017
         - BALLOON_CLAMAV_URI=tcp://clamav:3310
+        - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200

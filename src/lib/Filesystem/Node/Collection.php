@@ -187,6 +187,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             'acl' => $this->acl,
             'reference' => $this->reference,
             'parent' => $this->parent,
+            'owner' => $this->owner,
             'meta' => $this->meta,
             'mime' => $this->mime,
             'filter' => $this->filter,
@@ -462,11 +463,9 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
         $this->deleted = new UTCDateTime();
 
         if (!$this->isReference()) {
-            $this->doRecursiveAction('delete', [
-                'force' => false,
-                'recursion' => $recursion,
-                'recursion_first' => false,
-            ], NodeInterface::DELETED_EXCLUDE, false);
+            $this->doRecursiveAction(function ($node) use ($recursion) {
+                $node->delete(false, $recursion, false);
+            }, NodeInterface::DELETED_EXCLUDE, false);
         }
 
         if (null !== $this->_id) {
@@ -972,23 +971,18 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
     /**
      * Do recursive Action.
      *
-     * @param string $method
-     * @param array  $params
-     * @param int    $deleted
-     * @param bool   $ignore_exception
+     * @param callable $callable
+     * @param int      $deleted
+     * @param bool     $ignore_exception
      *
      * @return bool
      */
-    protected function doRecursiveAction(string $method, array $params = [], int $deleted = NodeInterface::DELETED_EXCLUDE, bool $ignore_exception = true): bool
+    public function doRecursiveAction(callable $callable, int $deleted = NodeInterface::DELETED_EXCLUDE, bool $ignore_exception = true): bool
     {
-        if (!is_callable([$this, $method])) {
-            throw new Exception("method $method is not callable in ".__CLASS__);
-        }
-
         $children = $this->getChildNodes($deleted, [], $ignore_exception);
 
         foreach ($children as $child) {
-            call_user_func_array([$child, $method], $params);
+            $callable($child);
         }
 
         return true;
@@ -1005,11 +999,9 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
     protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->isReference()) {
-            $this->doRecursiveAction('delete', [
-                'force' => true,
-                'recursion' => $recursion,
-                'recursion_first' => false,
-            ], NodeInterface::DELETED_INCLUDE, false);
+            $this->doRecursiveAction(function ($node) use ($recursion) {
+                $node->delete(true, $recursion, false);
+            }, NodeInterface::DELETED_INCLUDE, false);
         }
 
         try {

@@ -11,7 +11,7 @@ if [ -f /etc/php/7.1/fpm/pool.d/www.conf ]; then
     echo "env[BALLOON_DIR_LOG]=/var/log/balloon" >> /etc/php/7.1/fpm/pool.d/www.conf
 fi
 
-/usr/bin/ballooncli migrate -u
+/usr/bin/ballooncli upgrade
 /usr/bin/ballooncli useradd -u admin -p admin -m root@localhost -a
 
 service balloon-jobs restart

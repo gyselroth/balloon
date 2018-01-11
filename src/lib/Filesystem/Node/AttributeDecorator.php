@@ -78,7 +78,7 @@ class AttributeDecorator
      *
      * @return array
      */
-    public function decorate(NodeInterface $node, ?array $attributes): array
+    public function decorate(NodeInterface $node, ?array $attributes = null): array
     {
         if (null === $attributes) {
             $attributes = [];

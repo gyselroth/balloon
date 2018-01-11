@@ -629,15 +629,9 @@ abstract class AbstractNode implements NodeInterface
             return true;
         }
 
-        return $this->doRecursiveAction(
-                'undelete',
-                [
-                    'conflict' => $conflict,
-                    'recursion' => $recursion,
-                    'recursion_first' => false,
-                ],
-                NodeInterface::DELETED_ONLY
-            );
+        return $this->doRecursiveAction(function ($node) use ($conflict, $recursion) {
+            $node->undelete($conflict, $recursion, false);
+        }, NodeInterface::DELETED_ONLY);
     }
 
     /**

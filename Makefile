@@ -17,7 +17,7 @@ BUILD_DIR = $(BASE_DIR)/build
 
 # VERSION
 ifeq ($(VERSION),)
-VERSION := "nightly"
+VERSION := "0.0.1"
 endif
 
 # PACKAGES

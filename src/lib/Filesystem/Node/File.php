@@ -134,7 +134,7 @@ class File extends AbstractNode implements FileInterface
                 return null;
             }
 
-            return $this->_storage->getFile($this, $this->storage, $this->storage_adapter);
+            return $this->_storage->getFile($this);
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'content not found',
@@ -452,11 +452,15 @@ class File extends AbstractNode implements FileInterface
             'parent' => $this->parent,
             'meta' => $this->meta,
             'mime' => $this->mime,
+            'owner' => $this->owner,
+            'shared' => $this->shared,
             'deleted' => $this->deleted,
             'changed' => $this->changed,
             'created' => $this->created,
             'destroy' => $this->destroy,
             'readonly' => $this->readonly,
+            'storage_adapter' => $this->storage_adapter,
+            'storage' => $this->storage,
         ];
     }
 
@@ -843,6 +847,7 @@ class File extends AbstractNode implements FileInterface
                 'version',
                 'history',
                 'storage',
+                'storage_adapter',
             ]);
 
             $this->_logger->debug('modifed file metadata ['.$this->_id.']', [
