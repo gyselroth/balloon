@@ -40,6 +40,13 @@ class Http implements AppInterface
     protected $token_ttl = 1800;
 
     /**
+     * WOPI URL.
+     *
+     * @var string
+     */
+    protected $wopi_url = 'https://localhost';
+
+    /**
      * Constructor.
      *
      * @param Hook
@@ -56,6 +63,8 @@ class Http implements AppInterface
                 $skip = [
                     '/index.php/api/v2/office/wopi/document',
                     '/index.php/api/v2/office/wopi/document/contents',
+                    '/index.php/api/v1/app/office/wopi/document',
+                    '/index.php/api/v1/app/office/wopi/document/contents',
                 ];
 
                 foreach ($skip as $path) {
@@ -69,6 +78,10 @@ class Http implements AppInterface
         });
 
         $router
+            ->prependRoute(new Route('/api/v1/app/office/document', Document::class))
+            ->prependRoute(new Route('/api/v1/app/office/session', Session::class))
+            ->prependRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
+            ->prependRoute(new Route('/api/v1/app/office/wopi/document', WopiDocument::class))
             ->prependRoute(new Route('/api/v2/office/document', Document::class))
             ->prependRoute(new Route('/api/v2/office/session', Session::class))
             ->prependRoute(new Route('/api/v2/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
@@ -91,7 +104,8 @@ class Http implements AppInterface
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'loleaflet':
-                    $this->loleaflet = (string) $value;
+                case 'wopi_url':
+                    $this->{$option} = (string) $value;
 
                 break;
                 case 'token_ttl':
@@ -104,6 +118,16 @@ class Http implements AppInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Get WOPI url.
+     *
+     * @return string
+     */
+    public function getWopiUrl(): string
+    {
+        return $this->wopi_url;
     }
 
     /**

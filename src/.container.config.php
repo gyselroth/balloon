@@ -34,6 +34,7 @@ return [
         Client::class => [
             'options' => [
                 'db' => 'balloon',
+                'uri' => 'mongodb://localhost:27017'
             ],
         ],
         LoggerInterface::class => [

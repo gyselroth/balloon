@@ -64,6 +64,7 @@ service:
         options:
           config:
             loleaflet: "{ENV(BALLOON_OFFICE_URI,https://localhost:9980/loleaflet)}/dist/loleaflet.html"
+            wopi_url: "{ENV(BALLOON_WOPI_URL,https://localhost)}"
             token_ttl: 3600
   Balloon\App\DesktopClient\DesktopClient:
     options:
@@ -104,8 +105,6 @@ service:
       Balloon\App\Elasticsearch\Hook:
         enabled: true
       Balloon\App\ClamAV\Hook:
-        enabled: true
-      Balloon\App\Notification\Hook:
         enabled: true
   Balloon\Convert:
     adapter:

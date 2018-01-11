@@ -119,15 +119,17 @@ abstract class AbstractBootstrap
         $apps = $config['service'];
         $context = $this->getContext();
 
-        foreach ($apps[App::class]['adapter'] as $app => &$options) {
+        foreach ($apps[App::class]['adapter'] as $app => $options) {
             $options['expose'] = true;
             $options['use'] = $app.'\\'.$context;
 
             if (!class_exists($options['use'])) {
                 $options['enabled'] = '0';
             }
-        }
 
+            $apps[App::class]['adapter'][$options['use']] = $options;
+            unset($apps[App::class]['adapter'][$app]);
+        }
         $config['service'] = $apps;
 
         return $config;

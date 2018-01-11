@@ -68,23 +68,25 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [FEATURE] Added user management console module to create users
 * CORE: [FEATURE] Implemented unlimited quota (-1) which is also the default
 * CORE: [FEATURE] Balloon.App.Elasticsearch now syncs documents to elasticsearch internally #121
-* API: [FEATURE] Implemented new endpoint GET /api/v1/desktop-client?format=format to fetch desktop client
-* API: [CHANGE] removed GET /api/v1/about
-* API: [CHANGE] removed GET /api/v1/version
-* API: [CHANGE] added 'name' to output of GET /api and GET /api/v1 #46
+* API: [CHANGE] New API version v2 available, v1 is still fully functional, but new features are only available in v2. See upgrade guide.
+* API: [FEATURE] Implemented new endpoint GET /api/v2/desktop-client?format=format to fetch desktop client
+* API: [CHANGE] removed GET /api/v2/about
+* API: [CHANGE] removed GET /api/v2/version
+* API: [CHANGE] added 'name' to output of GET /api and GET /api/v2 #46
 * API: [FEATURE] All endopints which accept an array of id s do now accept an array of paths as well #49
 * API: [FEATURE] POST /node/meta-attribtues does now accept a multi node request
 * API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
-* API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v1 since all timestamps are in UTC anyway #61
-* API: [FEATURE] GET /api and GET /api/v1 are now public readable #46
-* API: [CHANGE] Removed attribute history from GET /file/attributes
+* API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v2 since all timestamps are in UTC anyway #61
+* API: [FEATURE] GET /api and GET /api/v(1|2) are now public readable #46
+* API: [CHANGE] Removed attribute history from GET /api/v2/file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
 * API: [CHANGE] endpoints which return attributes (which can also be filtered with $attributes) do now return all attributes by default
 * API: [CHANGE] attributes with sub node attributes can now be filtered from endpoints which return attributes, for example (parent.id, parent.name, share.name, ...)
-* API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Convert, see apidoc
-* API: [FEATURE] Multiple new api endpoints provided by Balloon.App.Notification, see apidoc
+* API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Convert, see apidoc
+* API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Notification, see apidoc
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
+* API: [CHANGE] Balloon.App.Office API is available under /api/v2/office/* instead /api/v2/app/office/*
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 

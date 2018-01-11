@@ -13,6 +13,7 @@ namespace Balloon\App\Api\v1;
 
 use Balloon\App\Api\Latest\Node as LatestNode;
 use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Filesystem\Node\FileInterface;
 use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
@@ -557,6 +558,14 @@ class Node extends LatestNode
             } catch (\Exception $e) {
                 return null;
             }
+        });
+
+        $this->decorator->addDecorator('history', function ($node, $requested) {
+            if ($node instanceof FileInterface) {
+                return $node->getHistory();
+            }
+
+            return null;
         });
 
         $this->decorator->addDecorator('filter', function ($node, $requested) {
