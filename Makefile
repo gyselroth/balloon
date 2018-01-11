@@ -16,7 +16,9 @@ LOG_DIR = $(BASE_DIR)/log
 BUILD_DIR = $(BASE_DIR)/build
 
 # VERSION
-VERSION = $(shell cat $(BASE_DIR)/VERSION)
+ifeq ($(VERSION),)
+VERSION := "nightly"
+endif
 
 # PACKAGES
 DEB_LIGHT = $(DIST_DIR)/balloon-light-$(VERSION).deb
