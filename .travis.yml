@@ -11,13 +11,13 @@ addons:
 before_install:
 - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 - echo "\n" | pecl install imagick
+- export version=$TRAVIS_TAG
 - if [[ "${version:0:1}" == "v" ]]; then version=${version:1}; fi;
 script: make VERSION=$version
 notifications:
   email: false
 before_deploy:
 - if [[ "$TRAVIS_PHP_VERSION" != "7.1" ]]; then exit; fi;
-- export version=$TRAVIS_TAG
 - if [[ "$version" == *"-"* ]]; then export deb_distribution=unstable; else export deb_distribution=stable; fi;
 - if [[ "$TRAVIS_BRANCH" == "master" ]]; then export deb_distribution=nightly; fi;
 - export date=$(date +%Y-%m-%d)
