@@ -108,7 +108,7 @@ class Job extends AbstractJob
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'size_limit':
-                    $this->size_limit = (int) $vak;
+                    $this->size_limit = (int) $value;
 
                 break;
                 default:
@@ -205,7 +205,7 @@ class Job extends AbstractJob
 
         $params = $this->getParams($node);
         $params['body'] = $this->decorator->decorate($node);
-        $this->es->getEsClient()->update($params);
+        $this->es->getEsClient()->index($params);
         $that = $this;
 
         if ($node instanceof CollectionInterface) {

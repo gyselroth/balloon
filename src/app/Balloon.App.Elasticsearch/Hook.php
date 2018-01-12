@@ -93,5 +93,9 @@ class Hook extends AbstractHook
      */
     public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
     {
+        $this->async->addJob(Job::class, [
+            'id' => $node->getId(),
+            'action' => Job::ACTION_UPDATE,
+        ]);
     }
 }
