@@ -184,7 +184,7 @@ class Scanner
      *
      * @return bool
      */
-    public function handleFile(File $file, $infected = false): bool
+    public function handleFile(File $file, bool $infected = false): bool
     {
         if ($infected) {
             switch ($this->aggressiveness) {

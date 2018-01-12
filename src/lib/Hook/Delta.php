@@ -14,59 +14,9 @@ namespace Balloon\Hook;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Helper;
-use MongoDB\BSON\ObjectId;
 
 class Delta extends AbstractHook
 {
-    /**
-     * Client.
-     *
-     * @var array
-     */
-    protected $client = [
-        'type' => null,
-        'app' => null,
-        'v' => null,
-        'hostname' => null,
-    ];
-
-    /**
-     * Init.
-     */
-    public function init(): void
-    {
-        if (PHP_SAPI === 'cli') {
-            $this->client = [
-                'type' => 'system',
-                'app' => 'system',
-                'v' => null,
-                'hostname' => null,
-            ];
-        } else {
-            if (isset($_SERVER['HTTP_X_CLIENT'])) {
-                $parts = explode('|', Helper::filter($_SERVER['HTTP_X_CLIENT']));
-                $count = count($parts);
-
-                if (3 === $count) {
-                    $this->client['v'] = $parts[1];
-                    $this->client['hostname'] = $parts[2];
-                } elseif (2 === $count) {
-                    $this->client['v'] = $parts[1];
-                }
-
-                $this->client['app'] = $parts[0];
-            }
-
-            if (isset($_SERVER['PATH_INFO'])) {
-                $parts = explode('/', $_SERVER['PATH_INFO']);
-                if (count($parts) >= 2) {
-                    $this->client['type'] = $parts[1];
-                }
-            }
-        }
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -83,19 +33,10 @@ class Delta extends AbstractHook
         }
 
         $event = [
-            'operation' => $operation,
-            'node' => $node->getId(),
             'parent' => $parent->getRealId(),
-            'name' => $node->getName(),
-            'client' => $this->client,
-            'owner' => $this->getEventOwner($node),
         ];
 
-        if ($node->isShareMember()) {
-            $event['share'] = $node->getShareId();
-        }
-
-        $parent->getFilesystem()->getDelta()->add($event);
+        $parent->getFilesystem()->getDelta()->add($operation, $node, $event);
     }
 
     /**
@@ -114,19 +55,10 @@ class Delta extends AbstractHook
         }
 
         $event = [
-            'operation' => 'copyCollection',
-            'node' => $new_node->getId(),
             'parent' => $parent->getRealId(),
-            'name' => $new_node->getName(),
-            'client' => $this->client,
-            'owner' => $this->getEventOwner($new_node),
         ];
 
-        if ($node->isShareMember()) {
-            $event['share'] = $node->getShareId();
-        }
-
-        $parent->getFilesystem()->getDelta()->add($event);
+        $parent->getFilesystem()->getDelta()->add('copyCollection', $new_node, $event);
     }
 
     /**
@@ -145,19 +77,10 @@ class Delta extends AbstractHook
         }
 
         $event = [
-            'operation' => 'copyFile',
-            'node' => $new_node->getId(),
             'parent' => $parent->getRealId(),
-            'name' => $new_node->getName(),
-            'client' => $this->client,
-            'owner' => $this->getEventOwner($new_node),
         ];
 
-        if ($node->isShareMember()) {
-            $event['share'] = $node->getShareId();
-        }
-
-        $parent->getFilesystem()->getDelta()->add($event);
+        $parent->getFilesystem()->getDelta()->add('copyFile', $node, $event);
     }
 
     /**
@@ -170,19 +93,10 @@ class Delta extends AbstractHook
         }
 
         $event = [
-            'operation' => 'addFile',
-            'node' => $node->getId(),
             'parent' => $parent->getRealId(),
-            'name' => $node->getName(),
-            'client' => $this->client,
-            'owner' => $this->getEventOwner($node),
         ];
 
-        if ($node->isShareMember()) {
-            $event['share'] = $node->getShareId();
-        }
-
-        $parent->getFilesystem()->getDelta()->add($event);
+        $parent->getFilesystem()->getDelta()->add('addFile', $node, $event);
     }
 
     /**
@@ -194,31 +108,24 @@ class Delta extends AbstractHook
             return;
         }
 
-        $attributes = $node->getAttributes(['parent', 'name']);
-        $attributes['node'] = $node->getId();
+        $event = $node->getAttributes(['parent']);
 
         if ($node->isReference()) {
             if (true === $force) {
-                $attributes['operation'] = 'forceDeleteCollectionReference';
+                $operation = 'forceDeleteCollectionReference';
             } else {
-                $attributes['operation'] = 'deleteCollectionReference';
+                $operation = 'deleteCollectionReference';
             }
         } else {
             if (true === $force) {
-                $attributes['operation'] = 'forceDeleteCollection';
+                $operation = 'forceDeleteCollection';
             } else {
-                $attributes['operation'] = 'deleteCollection';
+                $operation = 'deleteCollection';
             }
         }
 
-        if ($node->isShareMember()) {
-            $attributes['share'] = $node->getShareId();
-        }
-
-        $attributes['client'] = $this->client;
-        $attributes['owner'] = $this->getEventOwner($node);
-        $attributes['force'] = $force;
-        $node->getFilesystem()->getDelta()->add($attributes);
+        $event['force'] = $force;
+        $node->getFilesystem()->getDelta()->add($operation, $node, $event);
     }
 
     /**
@@ -230,23 +137,16 @@ class Delta extends AbstractHook
             return;
         }
 
-        $attributes = $node->getAttributes(['parent', 'name']);
-        $attributes['node'] = $node->getId();
+        $event = $node->getAttributes(['parent']);
 
         if (true === $force) {
-            $attributes['operation'] = 'forceDeleteFile';
+            $operation = 'forceDeleteFile';
         } else {
-            $attributes['operation'] = 'deleteFile';
+            $operation = 'deleteFile';
         }
 
-        if ($node->isShareMember()) {
-            $attributes['share'] = $node->getShareId();
-        }
-
-        $attributes['client'] = $this->client;
-        $attributes['owner'] = $this->getEventOwner($node);
-        $attributes['force'] = $force;
-        $node->getFilesystem()->getDelta()->add($attributes);
+        $event['force'] = $force;
+        $node->getFilesystem()->getDelta()->add($operation, $node, $event);
     }
 
     /**
@@ -260,16 +160,8 @@ class Delta extends AbstractHook
 
         $raw = $node->getRawAttributes();
         $log = [
-            'name' => $node->getName(),
             'parent' => $node->getParent()->getRealId(),
-            'node' => $node->getId(),
         ];
-
-        if ($node->isShareMember()) {
-            $log['share'] = $node->getShareId();
-        }
-
-        $log['owner'] = $this->getEventOwner($node);
 
         if ($node instanceof Collection) {
             $suffix = 'Collection';
@@ -286,42 +178,42 @@ class Delta extends AbstractHook
         }
 
         if (in_array('shared', $attributes, true) && !$node->isShared() && array_key_exists('shared', $raw) && true === $raw['shared']) {
-            $log['operation'] = 'unshareCollection';
+            $operation = 'unshareCollection';
         } elseif (in_array('parent', $attributes, true) && $raw['parent'] !== $node->getAttributes()['parent']) {
-            $log['operation'] = 'move'.$suffix.$suffix2;
+            $operation = 'move'.$suffix.$suffix2;
             $log['previous'] = [
                 'parent' => $raw['parent'],
             ];
         } elseif (in_array('name', $attributes, true) && $raw['name'] !== $node->getName()) {
-            $log['operation'] = 'rename'.$suffix.$suffix2;
+            $operation = 'rename'.$suffix.$suffix2;
             $log['previous'] = [
                 'name' => $raw['name'],
             ];
         } elseif (in_array('deleted', $attributes, true) && $raw['deleted'] !== $node->getAttributes()['deleted']
             && !$node->isDeleted()) {
-            $log['operation'] = 'undelete'.$suffix.$suffix2;
+            $operation = 'undelete'.$suffix.$suffix2;
         } elseif (in_array('shared', $attributes, true) && $raw['shared'] !== $node->isShare() && $node->isShare()) {
-            $log['operation'] = 'add'.$suffix.$suffix2;
+            $operation = 'add'.$suffix.$suffix2;
 
-            if ('addCollectionShare' === $log['operation']) {
+            if ('addCollectionShare' === $operation) {
                 $this->updateExistingDeltaShareMember($node);
             }
         } elseif (in_array('shared', $attributes, true) && $raw['shared'] !== $node->isShare() && !$node->isShare()) {
-            $log['operation'] = 'delete'.$suffix.$suffix2;
+            $operation = 'delete'.$suffix.$suffix2;
         } elseif ($node instanceof File && $node->getVersion() !== $raw['version']) {
             $history = $node->getHistory();
             $last = end($history);
 
             switch ($last['type']) {
                 case File::HISTORY_EDIT:
-                    $log['operation'] = 'editFile';
+                    $operation = 'editFile';
                     $log['previous'] = [
                         'version' => $raw['version'],
                     ];
 
                     break;
                 case File::HISTORY_RESTORE:
-                    $log['operation'] = 'restoreFile';
+                    $operation = 'restoreFile';
                     $log['previous'] = [
                         'version' => $raw['version'],
                     ];
@@ -330,28 +222,9 @@ class Delta extends AbstractHook
             }
         }
 
-        $log['client'] = $this->client;
-
-        if (isset($log['operation'])) {
-            $node->getFilesystem()->getDelta()->add($log);
+        if (isset($operation)) {
+            $node->getFilesystem()->getDelta()->add($operation, $node, $log);
         }
-    }
-
-    /**
-     * Get Event owner id.
-     *
-     * @param NodeInterface $node
-     *
-     * @return ObjectId
-     */
-    protected function getEventOwner(NodeInterface $node): ObjectId
-    {
-        $user = $node->getFilesystem()->getUser();
-        if (null === $user) {
-            return $node->getOwner();
-        }
-
-        return $user->getId();
     }
 
     /**

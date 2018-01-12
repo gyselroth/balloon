@@ -1100,7 +1100,7 @@ class Node extends Controller
         $nodes = $this->fs->findNodesByFilterUser($deleted, $filter);
 
         foreach ($nodes as $node) {
-            $child = Helper::escape($node->getAttributes($attributes));
+            $child = Helper::escape($this->decorator->decorate($node, $attributes));
             $children[] = $child;
         }
 
@@ -1149,7 +1149,7 @@ class Node extends Controller
             } catch (\Exception $e) {
             }
 
-            $child = Helper::escape($node->getAttributes($attributes));
+            $child = Helper::escape($this->decorator->decorate($node, $attributes));
             $children[] = $child;
         }
 

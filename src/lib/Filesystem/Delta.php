@@ -13,7 +13,6 @@ namespace Balloon\Filesystem;
 
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
-use Balloon\Filesystem\Delta\Exception;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
@@ -53,6 +52,18 @@ class Delta
     protected $decorator;
 
     /**
+     * Client.
+     *
+     * @var array
+     */
+    protected $client = [
+        'type' => null,
+        'app' => null,
+        'v' => null,
+        'hostname' => null,
+    ];
+
+    /**
      * Initialize delta.
      *
      * @param Filesystem $fs
@@ -63,28 +74,33 @@ class Delta
         $this->db = $db;
         $this->user = $fs->getUser();
         $this->decorator = $decorator;
+        $this->parseClient();
     }
 
     /**
      * Add delta event.
      *
-     * @param array $options
+     * @param string        $name
+     * @param NodeInterface $node
+     * @param array         $options
      *
-     * @return bool
+     * @return ObjectId
      */
-    public function add(array $options): bool
+    public function add(string $event, NodeInterface $node, array $context): ObjectId
     {
-        if (!$this->isValidDeltaEvent($options)) {
-            throw new Exception('invalid delta structure given');
+        $context['operation'] = $event;
+        $context['owner'] = $this->getEventOwner($node);
+        $context['name'] = $node->getName();
+
+        if ($node->isShareMember()) {
+            $context['share'] = $node->getShareId();
         }
 
-        if (!array_key_exists('timestamp', $options)) {
-            $options['timestamp'] = new UTCDateTime();
-        }
+        $context['timestamp'] = new UTCDateTime();
+        $context['client'] = $this->client;
+        $result = $this->db->delta->insertOne($context);
 
-        $result = $this->db->delta->insertOne($options);
-
-        return $result->isAcknowledged();
+        return $result->getInsertedId();
     }
 
     /**
@@ -520,6 +536,63 @@ class Delta
         }
 
         return array_values($events);
+    }
+
+    /**
+     * Init.
+     *
+     * @return bool
+     */
+    protected function parseClient(): bool
+    {
+        if (PHP_SAPI === 'cli') {
+            $this->client = [
+                'type' => 'system',
+                'app' => 'system',
+                'v' => null,
+                'hostname' => null,
+            ];
+        } else {
+            if (isset($_SERVER['HTTP_X_CLIENT'])) {
+                $parts = explode('|', Helper::filter($_SERVER['HTTP_X_CLIENT']));
+                $count = count($parts);
+
+                if (3 === $count) {
+                    $this->client['v'] = $parts[1];
+                    $this->client['hostname'] = $parts[2];
+                } elseif (2 === $count) {
+                    $this->client['v'] = $parts[1];
+                }
+
+                $this->client['app'] = $parts[0];
+            }
+
+            if (isset($_SERVER['PATH_INFO'])) {
+                $parts = explode('/', $_SERVER['PATH_INFO']);
+                if (count($parts) >= 2) {
+                    $this->client['type'] = $parts[1];
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get Event owner id.
+     *
+     * @param NodeInterface $node
+     *
+     * @return ObjectId
+     */
+    protected function getEventOwner(NodeInterface $node): ObjectId
+    {
+        $user = $node->getFilesystem()->getUser();
+        if (null === $user) {
+            return $node->getOwner();
+        }
+
+        return $user->getId();
     }
 
     /**
