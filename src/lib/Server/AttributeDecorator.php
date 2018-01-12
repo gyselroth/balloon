@@ -61,6 +61,7 @@ class AttributeDecorator
         $attrs = array_merge(
             $this->getAttributes($role, $role_attributes),
             $this->getUserAttributes($role, $role_attributes),
+            $this->getGroupAttributes($role, $role_attributes),
             $this->custom
         );
 
@@ -98,15 +99,7 @@ class AttributeDecorator
     {
         return [
             'id' => (string) $attributes['id'],
-            'mail' => (string) $attributes['mail'],
             'namespace' => (string) $attributes['namespace'],
-            'avatar' => function ($role, $requested) use ($attributes) {
-                if ($attributes['avatar'] instanceof Binary) {
-                    return base64_encode($attributes['avatar']);
-                }
-
-                return null;
-            },
             'created' => function ($role, $requested) use ($attributes) {
                 return Helper::DateTimeToUnix($attributes['created']);
             },
@@ -124,7 +117,26 @@ class AttributeDecorator
     }
 
     /**
-     * Get Attributes.
+     * Get group Attributes.
+     *
+     * @param RoleInterface
+     * @param array $attributes
+     *
+     * @return array
+     */
+    protected function getGroupAttributes(RoleInterface $role, array $attributes): array
+    {
+        if (!($role instanceof Group)) {
+            return [];
+        }
+
+        return [
+            'name' => (string) $attributes['name'],
+        ];
+    }
+
+    /**
+     * Get user Attributes.
      *
      * @param RoleInterface
      * @param array $attributes
@@ -141,6 +153,14 @@ class AttributeDecorator
 
         return [
             'name' => (string) $attributes['username'],
+            'mail' => (string) $attributes['mail'],
+            'avatar' => function ($role, $requested) use ($attributes) {
+                if ($attributes['avatar'] instanceof Binary) {
+                    return base64_encode($attributes['avatar']->getData());
+                }
+
+                return null;
+            },
             'soft_quota' => function ($role, $requested) use ($attributes, $user) {
                 if ($user === null) {
                     return null;

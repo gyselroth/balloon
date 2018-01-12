@@ -11,11 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\Latest;
 
-use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
+use Balloon\Server\User\Exception;
 use Micro\Http\Response;
+use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 
 class User
@@ -64,7 +65,7 @@ class User
      * {
      *      "status": 403,
      *      "data": {
-     *          "error": "Balloon\\Exception\\Forbidden",
+     *          "error": "Balloon\\Filesystem\\Acl\\Exception\\Forbidden",
      *          "message": "submitted parameters require to have admin privileges",
      *          "code": 41
      *      }
@@ -75,7 +76,7 @@ class User
      * {
      *      "status": 404,
      *      "data": {
-     *          "error": "Balloon\\Exception\\NotFound",
+     *          "error": "Balloon\\Server\\User\\Exception",
      *          "message": "requested user was not found",
      *          "code": 53
      *      }
@@ -450,13 +451,15 @@ class User
      * curl -XPOST "https://SERVER/api/v2/user"
      *
      * @apiParam (POST Parameter) {string} username Name of the new user
-     * @apiParam (POST Parameter) {string} mail Mail address of the new user
-     * @apiParam (POST Parameter) {string} [namespace] Namespace of the new user
-     * @apiParam (POST Parameter) {number} [hard] The new hard quota in bytes
-     * @apiParam (POST Parameter) {number} [soft] The new soft quota in bytes
+     * @apiParam (POST Parameter) {string} [attributes.password] Password
+     * @apiParam (POST Parameter) {string} [attributes.mail] Mail address
+     * @apiParam (POST Parameter) {string} [attributes.avatar] Avatar image base64 encoded
+     * @apiParam (POST Parameter) {string} [attributes.namespace] User namespace
+     * @apiParam (POST Parameter) {number} [attributes.hard_quota] The new hard quota in bytes (Unlimited by default)
+     * @apiParam (POST Parameter) {number} [attributes.soft_quota] The new soft quota in bytes (Unlimited by default)
      *
      * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} user attributes
+     * @apiSuccess (200 OK) {string} data User ID
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 201 Created
@@ -466,20 +469,17 @@ class User
      * }
      *
      * @param string $username
-     * @param string $mail
-     * @param int    $hard_quota
-     * @param int    $soft_quota
+     * @param array  $attributes
      *
      * @return Response
      */
-    public function post(string $username, string $mail, ?string $namespace = null, ?string $password = null, int $hard_quota = 200000, int $soft_quota = 200000): Response
+    public function post(string $username, array $attributes = []): Response
     {
-        $id = $this->server->addUser($username, $password, [
-            'mail' => $mail,
-            'namespace' => $namespace,
-            'hard_quota' => $hard_quota,
-            'soft_quota' => $soft_quota,
-        ]);
+        if (isset($attributes['avatar'])) {
+            $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binaray::TYPE_GENERIC);
+        }
+
+        $id = $this->server->addUser($username, $attributes);
 
         return (new Response())->setBody((string) $id)->setCode(201);
     }
@@ -513,7 +513,11 @@ class User
      */
     public function postAttributes(array $attributes = [], ?string $uid = null, ?string $uname = null): Response
     {
-        $this->_getUser($uid, $uname, true)->setAttribute($attributes)->save(array_keys($attributes));
+        if (isset($attributes['avatar'])) {
+            $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binaray::TYPE_GENERIC);
+        }
+
+        $this->_getUser($uid, $uname, true)->setAttributes($attributes);
 
         return (new Response())->setCode(204);
     }
@@ -540,7 +544,7 @@ class User
      * {
      *      "status": 400,
      *      "data": {
-     *          "error": "Balloon\\Exception\\Conflict",
+     *          "error": "Balloon\\Server\\User\\Exception",
      *          "message": "requested user was not found"
      *      }
      * }
@@ -559,9 +563,9 @@ class User
         $user = $this->_getUser($uid, $uname, true);
 
         if ($user->getId() === $this->user->getId()) {
-            throw new Exception\Conflict(
+            throw new Exception(
                 'can not delete yourself',
-                Exception\Conflict::CAN_NOT_DELETE_OWN_ACCOUNT
+                Exception::CAN_NOT_DELETE_OWN_ACCOUNT
             );
         }
 

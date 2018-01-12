@@ -21,7 +21,7 @@ The recomended way to get started in development is to use the available docker 
 You need (docker)[https://docs.docker.com/engine/installation/linux/docker-ce/debian/] and (docker-compose)[https://docs.docker.com/compose/install/] installed on your local machine.
 
 For starters you cann use the full stack development composing configuration `docker-compose-dev.yml`.
-Bootup the development stack via `docker-compose -c docker-compose-dev.yml up`
+Start the development stack `docker-compose -c docker-compose-dev.yml up`
 
 #### Make
 Always execute make via `docker exec` if your are developing with the balloon docker image.

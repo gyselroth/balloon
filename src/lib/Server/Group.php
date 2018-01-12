@@ -162,8 +162,6 @@ class Group implements RoleInterface
             'created' => $this->created,
             'changed' => $this->changed,
             'deleted' => $this->deleted,
-            'mail' => $this->mail,
-            'avatar' => $this->avatar,
         ];
     }
 
@@ -175,6 +173,24 @@ class Group implements RoleInterface
     public function getId(): ObjectId
     {
         return $this->_id;
+    }
+
+    /**
+     * Set group attributes.
+     *
+     * @param array $attributes
+     *
+     * @return bool
+     */
+    public function setAttributes(array $attributes = []): bool
+    {
+        $attributes = $this->server->validateGroupAttributes($attributes);
+
+        foreach ($attributes as $attr => $value) {
+            $this->{$attr} = $value;
+        }
+
+        return $this->save(array_keys($attributes));
     }
 
     /**
@@ -253,6 +269,11 @@ class Group implements RoleInterface
         return $this->member;
     }
 
+    /**
+     * Get resolved member.
+     *
+     * @return Generator
+     */
     public function getResolvedMember(): ?Generator
     {
         foreach ($this->member as $member) {

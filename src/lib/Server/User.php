@@ -14,7 +14,6 @@ namespace Balloon\Server;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Helper;
 use Balloon\Server;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
@@ -98,9 +97,6 @@ class User implements RoleInterface
     /**
      * avatar.
      *
-     * /**
-     * avatar.
-     *
      * @var Binary
      */
     protected $avatar;
@@ -146,25 +142,6 @@ class User implements RoleInterface
      * @var Filesystem
      */
     protected $fs;
-
-    /**
-     * Valid attributes.
-     *
-     * @var array
-     */
-    protected static $valid_attributes = [
-         'id',
-         'username',
-         'created',
-         'soft_quota',
-         'hard_quota',
-         'mail',
-         'namespace',
-         'last_attr_sync',
-         'avatar',
-         'created',
-         'admin',
-     ];
 
     /**
      * Instance user.
@@ -238,39 +215,21 @@ class User implements RoleInterface
     }
 
     /**
-     * Set user attribute.
+     * Set user attributes.
      *
-     * @param array $attribute
+     * @param array $attributes
+     *
+     * @return bool
      */
-    public function setAttribute($attribute = [])
+    public function setAttributes(array $attributes = []): bool
     {
-        foreach ($attribute as $attr => $value) {
-            if (!in_array($attr, self::$valid_attributes, true)) {
-                throw new Exception\InvalidArgument('requested attribute '.$attr.' does not exists');
-            }
+        $attributes = $this->server->validateUserAttributes($attributes);
 
-            switch ($attr) {
-                case 'id':
-                    $this->_id = (string) $value;
-
-                break;
-                case 'avatar':
-                    $this->avatar = new Binary(base64_decode($value, true));
-
-                break;
-                case 'created':
-                case 'last_attr_sync':
-                    $this->{$attr} = Helper::DateTimeToUnix($value);
-
-                break;
-                default:
-                    $this->{$attr} = $value;
-
-                break;
-            }
+        foreach ($attributes as $attr => $value) {
+            $this->{$attr} = $value;
         }
 
-        return $this;
+        return $this->save(array_keys($attributes));
     }
 
     /**
@@ -586,17 +545,15 @@ class User implements RoleInterface
      *
      * @param array $attributes
      *
-     * @throws Exception\InvalidArgument if a given argument is not valid
-     *
      * @return bool
      */
     public function save(array $attributes = []): bool
     {
+        $this->changed = new UTCDateTime();
+        $attributes[] = 'changed';
+
         $set = [];
         foreach ($attributes as $attr) {
-            if (!in_array($attr, self::$valid_attributes, true)) {
-                throw new Exception\InvalidArgument('attribute '.$attr.' is not valid');
-            }
             $set[$attr] = $this->{$attr};
         }
 

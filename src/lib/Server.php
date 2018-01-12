@@ -20,6 +20,7 @@ use Balloon\Server\User;
 use Balloon\Server\User\Exception as UserException;
 use Generator;
 use Micro\Auth\Identity;
+use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
@@ -91,6 +92,20 @@ class Server
     protected $max_file_size = 1073741824;
 
     /**
+     * Password policy.
+     *
+     * @var string
+     */
+    protected $password_policy = '/.*/';
+
+    /**
+     * Password hash.
+     *
+     * @var int
+     */
+    protected $password_hash = PASSWORD_DEFAULT;
+
+    /**
      * Initialize.
      *
      * @param Database        $db
@@ -127,11 +142,13 @@ class Server
         foreach ($config as $name => $value) {
             switch ($name) {
                 case 'temp_dir':
-                    $this->temp_dir = (string) $value;
+                case 'password_policy':
+                    $this->{$name} = (string) $value;
 
                 break;
                 case 'max_file_version':
                 case 'max_file_size':
+                case 'password_hash':
                     $this->{$name} = (int) $value;
 
                 break;
@@ -191,32 +208,152 @@ class Server
     }
 
     /**
+     * Verify group attributes.
+     *
+     * @param array $attributes
+     *
+     * @return array
+     */
+    public function validateGroupAttributes(array $attributes): array
+    {
+        foreach ($attributes as $attribute => &$value) {
+            switch ($attribute) {
+                case 'namespace':
+                case 'description':
+                    if (!is_string($value)) {
+                        throw new GroupException($attribute.' must be a valid string');
+                    }
+
+                break;
+                case 'name':
+                    if (!is_string($value)) {
+                        throw new GroupException($attribute.' must be a valid string');
+                    }
+
+                    if ($this->groupExists($value)) {
+                        throw new GroupException('group does already exists', GroupException::ALREADY_EXISTS);
+                    }
+
+                break;
+                case 'member':
+                    if (!is_array($value)) {
+                        throw new GroupException('member must be an array of user');
+                    }
+
+                    $valid = [];
+                    foreach ($value as $id) {
+                        if ($id instanceof User) {
+                            $id = $id->getId();
+                        } else {
+                            $id = new ObjectId($id);
+                            if (!$this->userExists($id)) {
+                                throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
+                            }
+                        }
+
+                        if (in_array($id, $valid)) {
+                            throw new GroupException('group can only hold a user once', GroupException::UNIQUE_MEMBER);
+                        }
+
+                        $valid[] = $id;
+                    }
+
+                    $value = $value;
+
+                break;
+                default:
+                    throw new GroupException('invalid attribute '.$attribute.' given');
+            }
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Verify user attributes.
+     *
+     * @param array $attributes
+     *
+     * @return array
+     */
+    public function validateUserAttributes(array $attributes): array
+    {
+        foreach ($attributes as $attribute => &$value) {
+            switch ($attribute) {
+                case 'username':
+                    if (!preg_match('/^[A-Za-z0-9\.-_\@]$/', $value)) {
+                        throw new UserException('username does not match required regex /^[A-Za-z0-9\.-_\@]$/');
+                    }
+
+                    if ($this->userExists($value)) {
+                        throw new UserException('user does already exists', UserException::ALREADY_EXISTS);
+                    }
+
+                break;
+                case 'password':
+                    if (!preg_match($this->password_policy, $value)) {
+                        throw new UserException('password does not follow password policy '.$this->password_policy);
+                    }
+
+                    $value = password_hash($password, $this->password_hash);
+
+                break;
+                case 'soft_quota':
+                case 'hard_quota':
+                    if (!is_numeric($value)) {
+                        throw new UserException($attribute.' must be numeric');
+                    }
+
+                break;
+                case 'avatar':
+                    if (!$value instanceof Binary) {
+                        throw new UserException('avatar must be an instance of Binary');
+                    }
+
+                break;
+                case 'mail':
+                    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                        throw new UserException('mail address given is invalid');
+                    }
+
+                break;
+                case 'admin':
+                    $value = (bool) $value;
+
+                break;
+                case 'namespace':
+                    if (!is_string($value)) {
+                        throw new UserException('namespace must be a valid string');
+                    }
+
+                break;
+                default:
+                    throw new UserException('invalid attribute '.$attribute.' given');
+            }
+        }
+
+        return $attributes;
+    }
+
+    /**
      * Add user.
      *
      * @param string $username
-     * @param string $password
      * @param array  $attributes
      *
      * @return ObjectId
      */
-    public function addUser(string $username, ?string $password = null, array $attributes = []): ObjectId
+    public function addUser(string $username, array $attributes = []): ObjectId
     {
-        if ($this->userExists($username)) {
-            throw new UserException('user does already exists', UserException::ALREADY_EXISTS);
-        }
+        $attributes['username'] = $username;
+        $attributes = $this->validateUserAttributes($attributes);
 
         $defaults = [
+            'created' => new UTCDateTime(),
             'deleted' => false,
         ];
 
         $attributes = array_merge($defaults, $attributes);
-        $attributes['created'] = new UTCDateTime();
-        $attributes['username'] = $username;
-
-        if (null !== $password) {
-            $attributes['password'] = password_hash($password, PASSWORD_DEFAULT);
-        }
-
         $result = $this->db->user->insertOne($attributes);
 
         return $result->getInsertedId();
@@ -429,34 +566,19 @@ class Server
      *
      * @return ObjectId
      */
-    public function addGroup(string $name, array $member, array $attributes = []): ObjectId
+    public function addGroup(string $name, array $member = [], array $attributes = []): ObjectId
     {
-        if ($this->groupExists($name)) {
-            throw new GroupException('group does already exists', GroupException::ALREADY_EXISTS);
-        }
+        $attributes['name'] = $name;
+        $attributes['member'] = $member;
+        $attributes = $this->validateGroupAttributes($attributes);
 
         $defaults = [
-            'name' => $name,
             'created' => new UTCDateTime(),
             'deleted' => false,
             'member' => [],
         ];
 
         $attributes = array_merge($attributes, $defaults);
-
-        foreach ($member as $id) {
-            $id = new ObjectId($id);
-            if (!$this->userExists($id)) {
-                throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
-            }
-
-            if (!in_array($id, $attributes['member'], true)) {
-                throw new GroupException('group can only hold a user once', GroupException::UNIQUE_MEMBER);
-            }
-
-            $attributes['member'][] = $id;
-        }
-
         $result = $this->db->group->insertOne($attributes);
 
         return $result->getInsertedId();

@@ -9,6 +9,8 @@ service:
         temp_dir: "/tmp/balloon"
         max_file_version: 8
         max_file_size: 1073741824
+        password_policy: '/.*/'
+        password_hash: 0
   Balloon\App\ClamAv\Scanner:
     options:
       config:

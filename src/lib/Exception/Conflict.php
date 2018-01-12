@@ -26,7 +26,6 @@ class Conflict extends \Sabre\DAV\Exception\Conflict
     const READONLY = 25;
     const CANT_COPY_INTO_ITSELF = 272;
     const NOT_SHARED = 273;
-    const CAN_NOT_DELETE_OWN_ACCOUNT = 274;
     const CHUNKS_LOST = 275;
     const CHUNKS_INVALID_SIZE = 276;
     const INVALID_OFFSET = 278;

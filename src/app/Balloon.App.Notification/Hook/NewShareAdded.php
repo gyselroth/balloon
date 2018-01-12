@@ -152,7 +152,7 @@ class NewShareAdded extends AbstractHook
                     $receiver[(string) $user->getId()] = $user;
                 }
             } elseif ('group' === $rule['type']) {
-                foreach ($this->server->getGroupById($rule['id'])->getResolvedMember() as $user) {
+                foreach ($this->server->getGroupById(new ObjectId($rule['id']))->getResolvedMember() as $user) {
                     if (!isset($receiver[(string) $user->getId()]) && $this->checkNotify($node, $user)) {
                         $receiver[(string) $user->getId()] = $user;
                     }

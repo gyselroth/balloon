@@ -13,6 +13,7 @@ namespace Balloon\Console;
 
 use Balloon\Server;
 use GetOpt\GetOpt;
+use MongoDB\BSON\Binary;
 use Psr\Log\LoggerInterface;
 
 class Useradd implements ConsoleInterface
@@ -41,6 +42,7 @@ class Useradd implements ConsoleInterface
     /**
      * Constructor.
      *
+     * @param Server          $server
      * @param LoggerInterface $logger
      * @param GetOpt          $getopt
      */
@@ -69,14 +71,28 @@ class Useradd implements ConsoleInterface
     public function setOptions(): ConsoleInterface
     {
         $this->getopt->addOptions([
-            \GetOpt\Option::create('u', 'username', GetOpt::REQUIRED_ARGUMENT),
-            \GetOpt\Option::create('p', 'password', GetOpt::REQUIRED_ARGUMENT),
-            \GetOpt\Option::create('a', 'admin', GetOpt::NO_ARGUMENT),
-            \GetOpt\Option::create('m', 'mail', GetOpt::REQUIRED_ARGUMENT),
-            \GetOpt\Option::create('f', 'firstname', GetOpt::REQUIRED_ARGUMENT),
-            \GetOpt\Option::create('l', 'lastname', GetOpt::REQUIRED_ARGUMENT),
-            \GetOpt\Option::create('s', 'softquota', GetOpt::REQUIRED_ARGUMENT),
-            \GetOpt\Option::create('h', 'hardquota', GetOpt::REQUIRED_ARGUMENT),
+            \GetOpt\Option::create('u', 'username', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Specify the username [REQUIRED]'),
+            \GetOpt\Option::create('p', 'password', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Specify a password'),
+            \GetOpt\Option::create('a', 'admin', GetOpt::NO_ARGUMENT)
+                ->setDescription('Admin account flag'),
+            \GetOpt\Option::create('A', 'avatar', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Set an avatar image (Path/URL to JPEG image)'),
+            \GetOpt\Option::create('m', 'mail', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Mail address'),
+            \GetOpt\Option::create('d', 'description', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('User description'),
+            \GetOpt\Option::create('f', 'firstname', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Firstname'),
+            \GetOpt\Option::create('l', 'lastname', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Lastname'),
+            \GetOpt\Option::create('s', 'softquota', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Softquota in bytes'),
+            \GetOpt\Option::create('h', 'hardquota', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Hardquota in bytes'),
+            \GetOpt\Option::create('n', 'namespace', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('A namespace'),
         ]);
 
         return $this;
@@ -88,6 +104,23 @@ class Useradd implements ConsoleInterface
      * @return bool
      */
     public function start(): bool
+    {
+        $options = $this->parseParams();
+        $result = $this->server->addUser($this->getopt->getOption('username'), $options);
+
+        $this->logger->info('new user ['.$result.'] created', [
+            'category' => get_class($this),
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Parse params.
+     *
+     * @return arrray
+     */
+    protected function parseParams(): array
     {
         $options = [];
         if ($this->getopt->getOption('firstname') !== null) {
@@ -110,16 +143,22 @@ class Useradd implements ConsoleInterface
             $options['hard_quota'] = $this->getopt->getOption('hardquota');
         }
 
+        if ($this->getopt->getOption('namespace') !== null) {
+            $options['namespace'] = $this->getopt->getOption('namespace');
+        }
+
+        if ($this->getopt->getOption('description') !== null) {
+            $options['description'] = $this->getopt->getOption('description');
+        }
+
+        if ($this->getopt->getOption('avatar') !== null) {
+            $options['avatar'] = new Binary(file_get_contents($this->getopt->getOption('avatar')), Binary::TYPE_GENERIC);
+        }
+
         if ($this->getopt->getOption('admin') !== null) {
             $options['admin'] = true;
         }
 
-        $result = $this->server->addUser($this->getopt->getOption('username'), $this->getopt->getOption('password'), $options);
-
-        $this->logger->info('new user ['.$result.'] created', [
-            'category' => get_class($this),
-        ]);
-
-        return true;
+        return $options;
     }
 }

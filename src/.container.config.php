@@ -20,6 +20,9 @@ use Balloon\Console;
 use Balloon\Console\Upgrade;
 use Balloon\Console\Jobs;
 use Balloon\Console\Useradd;
+use Balloon\Console\Usermod;
+use Balloon\Console\Groupadd;
+use Balloon\Console\Groupmod;
 use Balloon\Migration;
 use Balloon\Migration\Delta\CoreInstallation;
 use Balloon\Migration\Delta\FileToStorageAdapter;
@@ -75,6 +78,15 @@ return [
                 ],
                 'useradd' => [
                     'use' => Useradd::class
+                ],
+                'usermod' => [
+                    'use' => Usermod::class
+                ],
+                'groupadd' => [
+                    'use' => Groupadd::class
+                ],
+                'groupmod' => [
+                    'use' => Groupmod::class
                 ],
             ]
         ],
