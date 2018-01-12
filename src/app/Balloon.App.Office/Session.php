@@ -13,7 +13,7 @@ namespace Balloon\App\Office;
 
 use Balloon\App\Office\Session\Member;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\FileInterface;
 use Balloon\Server;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
@@ -151,7 +151,7 @@ class Session
      */
     public static function getByAccessToken(Server $server, ObjectId $session_id, string $access_token): self
     {
-        $result = $server->getDatabase()->app_office_session->findOne([
+        $result = $server->getFilesystem()->getDatabase()->app_office_session->findOne([
             '_id' => $session_id,
             'member' => [
                 '$elemMatch' => [
@@ -174,7 +174,7 @@ class Session
             if ($member['access_token'] === $access_token) {
                 $user = $server->getUserById($member['user']);
                 $fs = $user->getFilesystem();
-                $node = $fs->findNodeById($result['node'], 'File');
+                $node = $fs->findNodeById($result['node'], FileInterface::class);
                 $document = new Document($fs->getDatabase(), $node);
 
                 return new self($fs, $document, 0, $result);
@@ -203,7 +203,7 @@ class Session
             throw new Exception('session does not exists');
         }
 
-        $node = $fs->findNodeById($result['node'], File::class);
+        $node = $fs->findNodeById($result['node'], FileInterface::class);
         $document = new Document($fs->getDatabase(), $node);
 
         return new self($fs, $document, 0, $result);

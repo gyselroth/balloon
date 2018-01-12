@@ -76,7 +76,8 @@ class Session extends Controller
      * {
      *      "status": 201,
      *      "data": {
-     *          "id": "544627ed3c58891f058bbbaa"
+     *          "id": "544627ed3c58891f058bbbaa",
+     *          "wopi_url": "https://localhost",
      *          "access_token": "544627ed3c58891f058b4622",
      *          "access_token_ttl": "1486989000"
      *       }
@@ -100,6 +101,7 @@ class Session extends Controller
 
         return (new Response())->setCode(201)->setBody([
             'id' => (string) $session->getId(),
+            'wopi_url' => $this->app->getWopiUrl(),
             'access_token' => $member->getAccessToken(),
             'access_token_ttl' => ($member->getTTL()->toDateTime()->format('U') * 1000),
         ]);

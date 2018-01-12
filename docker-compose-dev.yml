@@ -8,6 +8,8 @@ libreoffice:
         - "9980:9980"
     links:
         - balloon-dev
+    environment:
+        - domain=balloon-dev
 elasticsearch:
     image: gyselroth/balloon-elasticsearch:latest
 balloon-dev:
@@ -24,4 +26,4 @@ balloon-dev:
         - BALLOON_MONGODB_URI=mongodb://mongodb:27017
         - BALLOON_CLAMAV_URI=tcp://clamav:3310
         - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-        - BALLOON_WOPI_URL=https://localhost:8081
+        - BALLOON_WOPI_URL=https://balloon-dev

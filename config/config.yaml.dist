@@ -104,8 +104,6 @@ service:
             interval: 28800
       Balloon\App\Elasticsearch\Hook:
         enabled: true
-      Balloon\App\ClamAV\Hook:
-        enabled: true
   Balloon\Convert:
     adapter:
       Balloon\Convert\Adapter\Imagick:
@@ -129,7 +127,7 @@ service:
         enabled: true
         options:
           config:
-            file: "{ENV(BALLOON_LOG_PATH)}/log/out.log"
+            file: "{ENV(BALLOON_LOG_DIR)}/out.log"
             date_format: "Y-d-m H:i:s"
             format: "{date} [{context.category},{level}]: {message} {context.params} {context.exception}"
             level: 10

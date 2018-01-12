@@ -69,7 +69,7 @@ class Http implements AppInterface
 
                 foreach ($skip as $path) {
                     if (preg_match('#^'.$path.'#', $_SERVER['ORIG_SCRIPT_NAME'])) {
-                        $auth->injectAdapter('none', (new AuthNone()));
+                        $auth->injectAdapter(new AuthNone());
 
                         break;
                     }
@@ -80,12 +80,12 @@ class Http implements AppInterface
         $router
             ->prependRoute(new Route('/api/v1/app/office/document', Document::class))
             ->prependRoute(new Route('/api/v1/app/office/session', Session::class))
-            ->prependRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
             ->prependRoute(new Route('/api/v1/app/office/wopi/document', WopiDocument::class))
+            ->prependRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
             ->prependRoute(new Route('/api/v2/office/document', Document::class))
             ->prependRoute(new Route('/api/v2/office/session', Session::class))
-            ->prependRoute(new Route('/api/v2/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
-            ->prependRoute(new Route('/api/v2/office/wopi/document', WopiDocument::class));
+            ->prependRoute(new Route('/api/v2/office/wopi/document', WopiDocument::class))
+            ->prependRoute(new Route('/api/v2/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class));
     }
 
     /**
