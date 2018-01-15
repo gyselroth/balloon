@@ -189,11 +189,11 @@ class Subscription extends AbstractHook
 
         $body = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($collection) {
             return (string) $collection;
-            //return $collection->getAttribute($match[2]);
+        //return $collection->getAttribute($match[2]);
         }, $this->body);
         $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($collection) {
             return (string) $collection;
-            //return $collection->getAttribute($match[2]);
+        //return $collection->getAttribute($match[2]);
         }, $this->subject);
 
         $this->notifier->notify($this->user, null, $subject, $body);

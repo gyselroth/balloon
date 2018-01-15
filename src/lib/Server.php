@@ -258,7 +258,7 @@ class Server
                         $valid[] = $id;
                     }
 
-                    $value = $value;
+                    $value = $valid;
 
                 break;
                 default:
@@ -388,15 +388,19 @@ class Server
      */
     public function getUserById(ObjectId $id): User
     {
-        $attributes = $this->db->user->findOne([
-           '_id' => $id,
-        ]);
+        $aggregation = $this->getUserAggregationPipes();
+        array_unshift($aggregation, ['$match' => ['_id' => $id]]);
+        $users = $this->db->user->aggregate($aggregation)->toArray();
 
-        if (null === $attributes) {
+        if (count($users) > 1) {
+            throw new UserException('multiple user found', UserException::MULTIPLE_USER_FOUND);
+        }
+
+        if (count($users) === 0) {
             throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
         }
 
-        return new User($attributes, $this, $this->db, $this->logger);
+        return new User(array_shift($users), $this, $this->db, $this->logger);
     }
 
     /**
@@ -417,7 +421,9 @@ class Server
             '_id' => ['$in' => $find],
         ];
 
-        $users = $this->db->user->find($filter);
+        $aggregation = $this->getUserAggregationPipes();
+        array_unshift($aggregation, $filter);
+        $users = $this->db->user->aggregate($aggregation);
 
         foreach ($users as $attributes) {
             yield new User($attributes, $this, $this->db, $this->logger);
@@ -433,21 +439,21 @@ class Server
      */
     public function setIdentity(Identity $identity): bool
     {
-        $result = $this->db->user->findOne(['username' => $identity->getIdentifier()]);
-        $this->hook->run('preServerIdentity', [$identity, &$result]);
-
-        if (null === $result) {
+        try {
+            $user = $this->getUserByName($identity->getIdentifier());
+        } catch (\Exception $e) {
             throw new Exception\NotAuthenticated('user does not exists', Exception\NotAuthenticated::USER_DOES_NOT_EXISTS);
         }
 
-        if (isset($result['deleted']) && true === $result['deleted']) {
+        $this->hook->run('preServerIdentity', [$identity, &$result]);
+
+        if ($user->isDeleted()) {
             throw new Exception\NotAuthenticated(
                 'user is disabled and can not be used',
                 Exception\NotAuthenticated::USER_DELETED
             );
         }
 
-        $user = new User($result, $this, $this->db, $this->logger);
         $this->identity = $user;
         $user->updateIdentity($identity);
         $this->hook->run('postServerIdentity', [$this, $user]);
@@ -474,15 +480,19 @@ class Server
      */
     public function getUserByName(string $name): User
     {
-        $attributes = $this->db->user->findOne([
-           'username' => $name,
-        ]);
+        $aggregation = $this->getUserAggregationPipes();
+        array_unshift($aggregation, ['$match' => ['username' => $name]]);
+        $users = $this->db->user->aggregate($aggregation)->toArray();
 
-        if (null === $attributes) {
+        if (count($users) > 1) {
+            throw new UserException('multiple user found', UserException::MULTIPLE_USER_FOUND);
+        }
+
+        if (count($users) === 0) {
             throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
         }
 
-        return new User($attributes, $this, $this->db, $this->logger);
+        return new User(array_shift($users), $this, $this->db, $this->logger);
     }
 
     /**
@@ -494,7 +504,13 @@ class Server
      */
     public function getUsers(array $filter): Generator
     {
-        $users = $this->db->user->find($filter);
+        $aggregation = $this->getUserAggregationPipes();
+
+        if (count($filter) > 0) {
+            array_unshift($aggregation, ['$match' => $filter]);
+        }
+
+        $users = $this->db->user->aggregate($aggregation);
 
         foreach ($users as $attributes) {
             yield new User($attributes, $this, $this->db, $this->logger);
@@ -527,7 +543,7 @@ class Server
     public function getGroupByName(string $name): Group
     {
         $attributes = $this->db->group->findOne([
-           'username' => $name,
+           'name' => $name,
         ]);
 
         if (null === $attributes) {
@@ -568,19 +584,44 @@ class Server
      */
     public function addGroup(string $name, array $member = [], array $attributes = []): ObjectId
     {
-        $attributes['name'] = $name;
         $attributes['member'] = $member;
+        $attributes['name'] = $name;
         $attributes = $this->validateGroupAttributes($attributes);
 
         $defaults = [
             'created' => new UTCDateTime(),
             'deleted' => false,
-            'member' => [],
         ];
 
         $attributes = array_merge($attributes, $defaults);
         $result = $this->db->group->insertOne($attributes);
 
         return $result->getInsertedId();
+    }
+
+    /**
+     * Get user aggregation pipe.
+     *
+     * @return array
+     */
+    protected function getUserAggregationPipes(): array
+    {
+        return [
+            ['$lookup' => [
+                'from' => 'group',
+                'localField' => '_id',
+                'foreignField' => 'member',
+                'as' => 'groups',
+            ]],
+            ['$addFields' => [
+                'groups' => [
+                    '$map' => [
+                        'input' => '$groups',
+                        'as' => 'group',
+                        'in' => '$$group._id',
+                    ],
+                ],
+            ]],
+        ];
     }
 }

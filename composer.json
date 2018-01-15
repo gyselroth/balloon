@@ -18,6 +18,7 @@
     },
     "require": {
         "php": ">=7.1",
+        "cboden/ratchet": "^0.4",
         "gyselroth/micro-auth": "*",
         "gyselroth/micro-container": "*",
         "gyselroth/micro-log": "*",

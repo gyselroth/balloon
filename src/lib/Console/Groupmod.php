@@ -32,6 +32,8 @@ class Groupmod extends Groupadd
      */
     public function setOptions(): ConsoleInterface
     {
+        parent::setOptions();
+
         $this->getopt->addOptions([
             \GetOpt\Option::create('N', 'new-name', GetOpt::REQUIRED_ARGUMENT)
                 ->setDescription('Specify the groupname [REQUIRED]'),
@@ -58,7 +60,7 @@ class Groupmod extends Groupadd
             $options['name'] = $this->getopt->getOption('new-name');
         }
 
-        $group = $this->server->getGroupbyName($this->getopt->getOption('username'));
+        $group = $this->server->getGroupbyName($this->getopt->getOption('name'));
 
         $this->logger->info('update group ['.$group->getId().']', [
             'category' => get_class($this),
@@ -96,7 +98,7 @@ class Groupmod extends Groupadd
             $append = array_map('trim', $append);
 
             foreach ($append as $user) {
-                $member[] = $this->server->getGroupByName($user);
+                $member[] = $this->server->getUserByName($user);
             }
         }
 

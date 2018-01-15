@@ -11,10 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Migration\Delta;
 
-use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use MongoDB\Exception\RuntimeException;
-use TaskScheduler\Async;
 
 class QueueToCappedCollection implements DeltaInterface
 {
@@ -53,12 +51,7 @@ class QueueToCappedCollection implements DeltaInterface
             }
         }
 
-        $this->db->queue->updateMany([], [
-            '$set' => [
-                'timestamp' => new UTCDateTime(),
-                'status' => Async::STATUS_WAITING,
-            ],
-        ]);
+        $this->db->queue->removeMany([]);
 
         return true;
     }

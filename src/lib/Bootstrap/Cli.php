@@ -42,6 +42,7 @@ class Cli extends AbstractBootstrap
     protected function setExceptionHandler(): self
     {
         set_exception_handler(function ($e) {
+            echo $e;
             $logger = $this->container->get(LoggerInterface::class);
             $logger->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),

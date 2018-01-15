@@ -18,4 +18,5 @@ class Exception extends \Balloon\Server\Exception
     const ALREADY_EXISTS = 100;
     const DOES_NOT_EXISTS = 101;
     const CAN_NOT_DELETE_OWN_ACCOUNT = 102;
+    const MULTIPLE_USER_FOUND = 103;
 }

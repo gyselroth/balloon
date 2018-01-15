@@ -80,7 +80,7 @@ class Delta extends AbstractHook
             'parent' => $parent->getRealId(),
         ];
 
-        $parent->getFilesystem()->getDelta()->add('copyFile', $node, $event);
+        $parent->getFilesystem()->getDelta()->add('copyFile', $new_node, $event);
     }
 
     /**

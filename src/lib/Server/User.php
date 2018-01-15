@@ -137,6 +137,13 @@ class User implements RoleInterface
     protected $server;
 
     /**
+     * Password.
+     *
+     * @var string
+     */
+    protected $password;
+
+    /**
      * Filesystem.
      *
      * @var Filesystem
@@ -389,7 +396,8 @@ class User implements RoleInterface
                 ]],
                 ['acl' => [
                     '$elemMatch' => [
-                        '$in' => $this->groups,
+                        'id' => ['$in' => array_map('strval', $this->groups)],
+                        'type' => 'group',
                     ],
                 ]],
             ],

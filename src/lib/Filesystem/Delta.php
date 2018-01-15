@@ -91,6 +91,7 @@ class Delta
         $context['operation'] = $event;
         $context['owner'] = $this->getEventOwner($node);
         $context['name'] = $node->getName();
+        $context['node'] = $node->getId();
 
         if ($node->isShareMember()) {
             $context['share'] = $node->getShareId();
@@ -98,6 +99,7 @@ class Delta
 
         $context['timestamp'] = new UTCDateTime();
         $context['client'] = $this->client;
+
         $result = $this->db->delta->insertOne($context);
 
         return $result->getInsertedId();

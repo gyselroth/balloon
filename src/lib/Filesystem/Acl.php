@@ -169,11 +169,11 @@ class Acl
             return 'd';
         }
 
-        $groups = [];
+        $groups = $user->getGroups();
         foreach ($acl as $rule) {
             if (self::TYPE_USER === $rule['type'] && $rule['id'] === (string) $user->getId()) {
                 $priv = $rule['privilege'];
-            } elseif (self::TYPE_GROUP === $rule['type'] && in_array($rule['id'], $groups, true)) {
+            } elseif (self::TYPE_GROUP === $rule['type'] && in_array($rule['id'], $groups)) {
                 $priv = $rule['privilege'];
             } else {
                 continue;
