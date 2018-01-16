@@ -49,19 +49,31 @@ class v1AclTov2Acl implements DeltaInterface
             $acl = [];
 
             foreach ($object['acl']['group'] as $rule) {
-                $acl[] = [
-                    'type' => 'group',
-                    'privilege' => $rule['privilege'],
-                    'role' => $rule['role'],
-                ];
+                $group = $db->group->findOne(['ldapdn' => $rule['group']]);
+                if ($group !== null) {
+                    $acl[] = [
+                        'type' => 'group',
+                        'privilege' => $rule['privilege'] === 'w' ? 'w+' : $rule['privilege'],
+                        'role' => (string) $group['_id'],
+                    ];
+                }
             }
 
             foreach ($object['acl']['user'] as $rule) {
-                $acl[] = [
-                    'type' => 'user',
-                    'privilege' => $rule['privilege'],
-                    'role' => $rule['role'],
-                ];
+                $user = null;
+                if (isset($rule['ldapdn'])) {
+                    $user = $db->user->findOne(['ldapdn' => $rule['ldapdn']]);
+                } elseif (isset($rule['user'])) {
+                    $user = $db->user->findOne(['username' => $rule['user']]);
+                }
+
+                if ($user !== null) {
+                    $acl[] = [
+                        'type' => 'user',
+                        'privilege' => $rule['privilege'] === 'w' ? 'w+' : $rule['privilege'],
+                        'role' => (string) $user['_id'],
+                    ];
+                }
             }
 
             $this->db->storage->updateOne(

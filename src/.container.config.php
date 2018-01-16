@@ -29,6 +29,7 @@ use Balloon\Migration\Delta\FileToStorageAdapter;
 use Balloon\Migration\Delta\QueueToCappedCollection;
 use Balloon\Migration\Delta\JsonEncodeFilteredCollection;
 use Balloon\Migration\Delta\v1AclTov2Acl;
+use Balloon\Migration\Delta\ShareName;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Sendmail;
 
@@ -66,6 +67,7 @@ return [
                 QueueToCappedCollection::class => [],
                 JsonEncodeFilteredCollection::class => [],
                 v1AclTov2Acl::class => [],
+                ShareName::class => [],
             ]
         ],
         Console::class => [
