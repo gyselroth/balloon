@@ -38,7 +38,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [CHANGE] added AbstractNode::getAttributes(array $attributes=[]) besides AbstractNode::getAttribute()
 * CORE: [FIX] fixed application/octet-stream mime type for office files (issue since 1.x)
 * CORE: [CHANGE] Moved mime detection to \Balloon\Mime
-* CORE: [FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file slaves
+* CORE: [FEATURE] New converter app Balloon.App.Convert to convert files into other formats and supporting file slaves #9
 * CORE: [CHANGE] changed use \Psr\Log\LoggerInterface as Logger to use \Psr\Log\LoggerInterface
 * CORE: [CHANGE] apps are now shipped without ui parts (ui componets got moved to balloon-client-web as separate apps)
 * CORE: [CHANGE] apps are now automatically loaded once they are placed in the app directory
