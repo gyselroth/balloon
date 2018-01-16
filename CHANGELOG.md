@@ -84,7 +84,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] Removed attribute history from GET /api/v2/file/attributes
 * API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
 * API: [CHANGE] endpoints which return attributes (which can also be filtered with $attributes) do now return all attributes by default
-* API: [CHANGE] attributes with sub node attributes can now be filtered from endpoints which return attributes, for example (parent.id, parent.name, share.name, ...)
+* API: [CHANGE] attributes with sub node attributes can now be filtered from endpoints which return attributes, for example (parent.id, parent.name, share.name, ...) #21
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Convert, see apidoc
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Notification, see apidoc
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
