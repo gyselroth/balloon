@@ -697,27 +697,27 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/meta-attributes?id=:id Write meta attributes
+     * @api {post} /api/v2/node/meta-attributes?id=:id Change meta attributes
      * @apiVersion 2.0.0
      * @apiName postMetaAttributes
      * @apiGroup Node
      * @apiPermission none
-     * @apiDescription Get meta attributes of a node
+     * @apiDescription Change meta attributes of a node
      * @apiUse _getNodes
      * @apiUse _multiError
      *
-     * @apiParam (POST Parameter) {string} [description] UTF-8 Text Description
-     * @apiParam (POST Parameter) {string} [color] Color Tag (HEX) (Like: #000000)
-     * @apiParam (POST Parameter) {string} [author] Author
-     * @apiParam (POST Parameter) {string} [mail] Mail contact address
-     * @apiParam (POST Parameter) {string} [license] License
-     * @apiParam (POST Parameter) {string} [opyright] Copyright string
-     * @apiParam (POST Parameter) {string[]} [tags] Search Tags
+     * @apiParam (GET Parameter) {string} [attributes.description] UTF-8 Text Description - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [attributes.color] Color Tag - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [attributes.author] Author - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [attributes.mail] Mail contact address - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [attributes.license] License - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [attributes.copyright] Copyright string - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string[]} [attributes.tags] Tags - Must be an array full of strings
      *
      * @apiExample (cURL) example:
-     * curl -XPOST -d author=peter.mier -d license="GPLv2" "https://SERVER/api/v2/node/meta-attributes?id=544627ed3c58891f058b4686"
-     * curl -XPOST -d author=authorname "https://SERVER/api/v2/node/544627ed3c58891f058b4686/meta-attributes"
-     * curl -XPOST -d license="GPLv3" "https://SERVER/api/v2/node/meta-attributes?p=/absolute/path/to/my/node"
+     * curl -XPOST "https://SERVER/api/v2/node/meta-attributes?id=544627ed3c58891f058b4686&author=peter.meier"
+     * curl -XPOST "https://SERVER/api/v2/node/544627ed3c58891f058b4686/meta-attributes?author=example"
+     * curl -XPOST "https://SERVER/api/v2/node/meta-attributes?p=/absolute/path/to/my/node?license=GPL-3.0"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
@@ -727,15 +727,13 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function postMetaAttributes(?string $id = null, ?string $p = null): Response
+    public function postMetaAttributes(array $attributes, ?string $id = null, ?string $p = null): Response
     {
-        var_dump($_SERVER);
-        var_dump($_POST);
         if (is_array($id) || is_array($p)) {
             $failures = [];
             foreach ($this->_getNodes($id, $p) as $node) {
                 try {
-                    $node->setMetaAttribute(Helper::filter($_POST));
+                    $node->setMetaAttributes(Helper::filter($attributes));
                 } catch (\Exception $e) {
                     $failures[] = [
                         'id' => (string) $node->getId(),
@@ -759,7 +757,7 @@ class Node extends Controller
             return (new Response())->setCode(400)->setBody($failures);
         }
 
-        $this->_getNode($id, $p)->setMetaAttribute(Helper::filter($_POST));
+        $this->_getNode($id, $p)->setMetaAttributes(Helper::filter($attributes));
 
         return (new Response())->setCode(204);
     }

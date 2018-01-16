@@ -45,12 +45,6 @@
         "hassankhan/config": "^0.11.2",
         "symfony/yaml": "^4.0"
     },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/raffis/php-mongomock"
-        }
-    ],
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
         "ext-imagick": "Required for image previews and converter",

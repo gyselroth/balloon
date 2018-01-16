@@ -439,7 +439,7 @@ class Server
      */
     public function setIdentity(Identity $identity): bool
     {
-        $this->hook->run('preServerIdentity', [$identity->getIdentifier(), &$result]);
+        $this->hook->run('preServerIdentity', [$identity, &$result]);
 
         try {
             $user = $this->getUserByName($identity->getIdentifier());

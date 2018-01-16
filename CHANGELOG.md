@@ -78,7 +78,8 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] removed GET /api/v2/help (My be reintroduced later with #86)
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v2 #46
 * API: [FEATURE] All endopints which accept an array of id s do now accept an array of paths as well #49
-* API: [FEATURE] POST /node/meta-attribtues does now accept a multi node request
+* API: [FEATURE] POST /api/v2/node/meta-attributes does now accept a multi node request
+* API: [CHANGE] meta attributes must now be sent via $attributes to POST /api/v2/node/meta-attributes and can be implemented within the query string or a json body instead Content-Type application/x-www-form-urlencoded #95
 * API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 * API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v2 since all timestamps are in UTC anyway #61

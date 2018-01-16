@@ -924,17 +924,17 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Set meta attributes.
      *
-     * @param   array $attributes
+     * @param array $attributes
      *
      * @return NodeInterface
      */
     public function setMetaAttributes(array $attributes): NodeInterface
     {
-        $attributes = self::validateMetaAttribute($attributes);
-        foreach($attributes as $attribute => $value) {
-            if(empty($value) && isset($this->meta[$attribute])) {
+        $attributes = $this->validateMetaAttributes($attributes);
+        foreach ($attributes as $attribute => $value) {
+            if (empty($value) && isset($this->meta[$attribute])) {
                 unset($this->meta[$attribute]);
-            } elseif(!empty($value)) {
+            } elseif (!empty($value)) {
                 $this->meta[$attribute] = $value;
             }
         }
@@ -942,32 +942,6 @@ abstract class AbstractNode implements NodeInterface
         $this->save('meta');
 
         return $this;
-    }
-
-    /**
-     * Validate meta attributes
-     *
-     * @param array $attributes
-     * @return array
-     */
-    public static function validateMetaAttributes(array $attributes): array
-    {
-        foreach ($attributes as $attribute => $value) {
-            $const = NodeInterface.'::META_'.strtoupper($attribute);
-            if (!defined($const)) {
-                throw new Exception('meta attribute '.$attribute.' is not valid');
-            }
-
-            if($attribute === NodeInterface::META_TAGS && (!is_array($value) || array_filter($value, 'is_string') != $value)) {
-                throw new Exception('tag meta attribute must be an array of strings')
-            }
-
-            if(!is_string($value)) {
-                throw new Exception($attribute.' meta attribute must be a string');
-            }
-        }
-
-        return $attributes;
     }
 
     /**
@@ -981,7 +955,8 @@ abstract class AbstractNode implements NodeInterface
     {
         if (empty($attributes)) {
             return $this->meta;
-        } elseif (is_array($attributes)) {
+        }
+        if (is_array($attributes)) {
             return array_intersect_key($this->meta, array_flip($attributes));
         }
     }
@@ -1138,6 +1113,33 @@ abstract class AbstractNode implements NodeInterface
 
             throw $e;
         }
+    }
+
+    /**
+     * Validate meta attributes.
+     *
+     * @param array $attributes
+     *
+     * @return array
+     */
+    protected function validateMetaAttributes(array $attributes): array
+    {
+        foreach ($attributes as $attribute => $value) {
+            $const = __CLASS__.'::META_'.strtoupper($attribute);
+            if (!defined($const)) {
+                throw new Exception('meta attribute '.$attribute.' is not valid');
+            }
+
+            if ($attribute === NodeInterface::META_TAGS && (!is_array($value) || array_filter($value, 'is_string') != $value)) {
+                throw new Exception('tag meta attribute must be an array of strings');
+            }
+
+            if (!is_string($value)) {
+                throw new Exception($attribute.' meta attribute must be a string');
+            }
+        }
+
+        return $attributes;
     }
 
     /**

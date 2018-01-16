@@ -284,9 +284,9 @@ class Node extends LatestNode
      *
      * @return Response
      */
-    public function postMetaAttributes(?string $id = null, ?string $p = null): Response
+    public function postMetaAttributes(array $attributes = [], ?string $id = null, ?string $p = null): Response
     {
-        $this->_getNode($id, $p)->setMetaAttribute(Helper::filter($_POST));
+        $this->_getNode($id, $p)->setMetaAttributes(Helper::filter($_POST));
 
         return (new Response())->setCode(204);
     }
