@@ -5,8 +5,7 @@
 [ ![Download](https://api.bintray.com/packages/gyselroth/balloon/balloon/images/download.svg) ](https://bintray.com/gyselroth/balloon/balloon/_latestVersion) 
  [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/gyselroth/balloon/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/gyselroth/balloon/?branch=dev)
-
-balloon cloud server
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon?ref=badge_shield)
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/app/img/balloon-startup.png"/>
@@ -16,7 +15,7 @@ balloon cloud server
 
 * Virtual Filesystem based on MongoDB which is highly scalable
 * Multiple types of authentication, local (MongoDB), LDAP, OpenID-Connect
-* HTTP REST API
+* HTTP API
 * WebDAV Support (Support for network drives on Windows)
 * Various DMS features like tagging, meta data, sharing, file history and more
 * Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
@@ -31,7 +30,7 @@ balloon cloud server
 * Automatically let your files convert to other file formats (Keep an auotmatic updated pdf file for a word file for example)
 * Automatically destroy files/folders at a certain time
 * Globally accessible share links 
-* Asynchronous background mechanism (Available as a daemon) to not bother your users with long requests
+* Task scheduler
 * Cluster/Distributed system support
 * Support for cloud native deployment
 * Packaged for debian and as docker image
