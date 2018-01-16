@@ -76,8 +76,12 @@ service:
         github_request_useragent: "balloon server"
         formats: ""
         github_mapping: ""
+  Zend\Mail\Transport\SmtpOptions:
+    host: '{ENV(BALLOON_SMTP_HOST,127.0.0.1)}'
+    port: 25
   Zend\Mail\Transport\TransportInterface:
-    use: "Zend\\Mail\\Transport\\Sendmail"
+    use: "Zend\\Mail\\Transport\\Smtp"
+    #use: "Zend\\Mail\\Transport\\Sendmail"
   Balloon\Filesystem\Storage:
     adapter:
       gridfs:

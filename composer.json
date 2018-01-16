@@ -43,7 +43,8 @@
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "*",
         "hassankhan/config": "^0.11.2",
-        "symfony/yaml": "^4.0"
+        "symfony/yaml": "^4.0",
+        "zendframework/zend-servicemanager": "^3.3"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",

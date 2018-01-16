@@ -219,7 +219,7 @@ class Notification extends Controller
           ->setSubject($subject)
           ->setTo($this->user->getAttributes()['mail'], 'Undisclosed Recipients')
           ->setBcc($receiver);
-        $this->async->addJob(Mail::class, ['mail' => $mail->toString()]);
+        $this->async->addJob(Mail::class, $mail->toString());
 
         return (new Response())->setCode(204);
     }
