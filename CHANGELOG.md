@@ -73,6 +73,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [FEATURE] Implemented new endpoint GET /api/v2/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v2/about
 * API: [CHANGE] removed GET /api/v2/version
+* API: [CHANGE] removed GET /api/v2/help (My be reintroduced later with #86)
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v2 #46
 * API: [FEATURE] All endopints which accept an array of id s do now accept an array of paths as well #49
 * API: [FEATURE] POST /node/meta-attribtues does now accept a multi node request
