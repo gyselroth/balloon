@@ -68,6 +68,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [FEATURE] Added user management console module to create users
 * CORE: [FEATURE] Implemented unlimited quota (-1) which is also the default
 * CORE: [FEATURE] Balloon.App.Elasticsearch now syncs documents to elasticsearch internally #121
+* CORE: [CHANGE] removed coordinate meta file #117, no migration required since it was only a testing meta field
 * API: [CHANGE] New API version v2 available, v1 is still fully functional, but new features are only available in v2. See upgrade guide.
 * API: [FEATURE] Implemented new endpoint GET /api/v2/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v2/about
