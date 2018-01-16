@@ -90,7 +90,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Notification, see apidoc
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
 * API: [CHANGE] Balloon.App.Office API is available under /api/v2/office/* instead /api/v2/app/office/*
-* API: [FEATURE] Various new API endpoints for user and group management #14
+* API: [FEATURE] Various new API endpoints for user and group management #14, #85
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 
