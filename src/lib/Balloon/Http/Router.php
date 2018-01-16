@@ -334,26 +334,36 @@ class Router
             }
             
             foreach ($params as $param) {
-                if ($optional = $param->isOptional()) {
-                    $default = $param->getDefaultValue();
-                } else {
-                    $default = null;
-                }
+                $type = (string)$param->getType();
+                $optional = $param->isOptional();
 
                 if (isset($request_params[$param->name]) && $request_params[$param->name] !== '') {
-                    if (is_bool($default)) {
-                        $return[$param->name] = Helper::boolParam($request_params[$param->name]);
-                    } elseif (is_int($default)) {
-                        $return[$param->name] = (int)$request_params[$param->name];
-                    } elseif (is_array($default)) {
-                        $return[$param->name] = (array)$request_params[$param->name];
-                    } else {
-                        $return[$param->name] = $request_params[$param->name];
-                    }
+                    $param_value = $request_params[$param->name];
                 } elseif (isset($json_params[$param->name])) {
-                    $return[$param->name] = $json_params[$param->name];
+                    $param_value = $json_params[$param->name];
+                } else if($optional === true) {
+                    $param_value = $param->getDefaultValue();
                 } else {
-                    $return[$param->name] = $default;
+                    $param_value = null;
+                }
+
+                switch($type) {
+                    case 'bool':
+                        $return[$param->name] = Helper::boolParam($param_value);
+                    break;
+                    case 'int':
+                        $return[$param->name] = (int)$param_value;
+                    break;
+                    case 'array':
+                        $return[$param->name] = (array)$param_value;
+                    break;
+                    default:
+                        if(class_exists($type) && $param_value!==null) {
+                            $return[$param->name] = new $type($param, $param_value);
+                        } else {
+                            $return[$param->name] = $param_value;
+                        }
+                    break;
                 }
 
                 if ($return[$param->name] === null && $optional === false) {

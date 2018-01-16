@@ -3,6 +3,7 @@ vendor
 src/httpdocs/ui/vendor
 config/config.xml
 config/local.xml
+config/cli.xml
 log/*
 src/httpdocs/ui/config.js
 src/httpdocs/ui/index.build.html
