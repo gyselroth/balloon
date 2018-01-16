@@ -88,7 +88,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] endpoints which return attributes (which can also be filtered with $attributes) do now return all attributes by default
 * API: [CHANGE] attributes with sub node attributes can now be filtered from endpoints which return attributes, for example (parent.id, parent.name, share.name, ...) #21
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Convert, see apidoc
-* API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Notification, see apidoc
+* API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Notification, see apidoc, includes #67
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
 * API: [CHANGE] Balloon.App.Office API is available under /api/v2/office/* instead /api/v2/app/office/*
 * API: [FEATURE] Various new API endpoints for user and group management #14, #85
@@ -343,7 +343,7 @@ AppOffice-Webinterface: [FIX] code cleanup
 * CORE: [FIX] fixed restoring collections with data if collection already exists at the destination
 * CORE: [FIX] fixed recursive removal
 * CORE: [FIX] fixed restoring share reference
-* API: [CHANGE] all api calls automatically load the share reference if the master share is requested (and the other way around), this also includes the feature that url's can be shared and loaded correctly with an other user account (this was only partially possible since 1.0.0)
+* API: [CHANGE] all api calls automatically load the share reference if the master share is requested (and the other way around), this also includes the feature that url can be shared and loaded correctly with an other user account (this was only partially possible since 1.0.0)
 * UI: [FIX] disabled delete by keydown delete if query view (parent node) is active
 * UI: [FIX] window prompt has a fixed width now
 * UI: [CHANGE] replaced confirm/abort with yes/no
@@ -418,7 +418,7 @@ AppOffice-Webinterface: [FIX] code cleanup
 * UI: [FIX] fixed previous.parent null check in event log
 * UI: [FIX] upload under search views is now possible (only if a collection is selected/active)
 * UI: [FIX] events window gets now correctly refresh after an undo event has been triggered
-* UI: [FIX] events undo button won't get displayed when node is null (node has been deleted completely)
+* UI: [FIX] events undo button wont get displayed when node is null (node has been deleted completely)
 * UI: [FIX] no Exception\InvalidArgument anymore after trigger an undo event from a version rollback
 * UI: [FIX] fixed events window if opened while events view is active / fixed center position
 * UI: [FIX] prompt is now centered if opened more than once
@@ -455,7 +455,7 @@ AppOffice-Webinterface: [FIX] code cleanup
 * CORE: [CHANGE] Changed all file headers
 * CORE: [FEATURE] Rewritten http router, it is now possible to configure regex routes besides static ones
 * CORE: [!BREAKER] Combined api.php, webdav.php and share.php into index.php, added custom routes for each (Implemented new bootstap classes for each), @see upgrade guide
-* CORE: [FEATURE] Integrated possibility to add 3rd party applications. They can add features or change functionalitye how the core works. It's also possible to extend the webinterface with 3rd party apps.
+* CORE: [FEATURE] Integrated possibility to add 3rd party applications. They can add features or change functionalitye how the core works. It is also possible to extend the webinterface with 3rd party apps.
 * CORE: [FIX] removed logging of bin attribute "avatar" during user initialization
 * CORE: [!BREAKER] upgraded codebase to php7.1, new required php version is at least php 7.1, @see upgrade guide
 * CORE: [FEATURE] Migrated to mongo user level api mongo-php-library https://github.com/mongodb/mongo-php-library since there is no support for the legacy driver with php7.1
@@ -640,7 +640,7 @@ STABLE RELEASE 0.4.x
 * CORE: [FIX] Fixed search interface and removed filteredSearch()
 * CORE: [FIX] User::_getAttributeSummary() now excludes deleted nodes
 * CORE: [CHANGE] Upgraded sabredav from 3.0.* to 3.2.*
-* CORE: [FEATURE] createCollection is now capable of an additional attribute filter in param $attributes  and getChildren() actually can handle stored filter on the node itself. Its possible to create a stored filtered node with a dynamic range of children, not only parent=>this but also for example a folder which contains all pdf's.
+* CORE: [FEATURE] createCollection is now capable of an additional attribute filter in param $attributes  and getChildren() actually can handle stored filter on the node itself. Its possible to create a stored filtered node with a dynamic range of children, not only parent=>this but also for example a folder which contains all pdf.
 * CORE: [CHANGE] Rewritten File::getAttribue(), Collection::getAttribute and added TNode::getAttribute()
 * CORE: [FEATURE] Implemented readonly flag for nodes
 * CORE: [FIX] Http\Response::send() only sends response without a body if response code is 204, if not the body would just be NULL
@@ -672,7 +672,7 @@ STABLE RELEASE 0.4.x
 * API: [FEATURE] Paramater $attribute in PUT /file and POST /collection also accepts now meta attributes.
 * API: [FEATURE] POST /collection param $attribute now accepts an additional attribute filter in which stored filter can be stored.
 * API: [FIX] Does now throw an exception if any request except GET /collection/children, HEAD /collection/children, POST /collection or PUT /file goes to the ROOT collection
-* API: [FEATURE] Added POST /node/readonly to mark a node as readonly (or remove the readonly flags), it's also possible to set the readonly flag during creation of a new subnode via the $attributes parameter
+* API: [FEATURE] Added POST /node/readonly to mark a node as readonly (or remove the readonly flags), it is also possible to set the readonly flag during creation of a new subnode via the $attributes parameter
 * API: [CHANGE] collection attribute childcount GET /collection/attributes is replaced with size, the number of children is now stored under the attribue size and not childcount
 * API: [FEATURE] Added move, destid, destp and conflict to POST /node/undelete, this will allow to undelte a node and restore it within another directory
 * UI: [FEATURE] Added event-log viewer with undo possibilities (right user menu)
@@ -718,7 +718,7 @@ STABLE RELEASE 0.4.x
 * UI: [FEATURE] It will ask if you would like to restore a node to your root direcory if the desired destination does not exists or is deleted
 * UI: [FIX] Autocomplete lists are now sorted alphabetically (tag list, share resources)
 * UI: [FEATURE] Remember username during login, leave it when login failed and remeber it in localStorage if auth was successful
-* UI: [FIX] Interface doesn't reload the righ pannel anymore if a resort of the tree happened
+* UI: [FIX] Interface does not reload the righ pannel anymore if a resort of the tree happened
 * UI: [FIX] Instead sending an invalid share request if no share roles were selected, the interface wont send the request and will focus on the resource search input
 * UI: [FIX] Fixed bug to open node using [ENTER]
 * UI: [FEATURE] Various new keyboard shortcuts to perform actions like cut, paste, copy, download, upload and add new file

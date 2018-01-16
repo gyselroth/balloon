@@ -191,7 +191,7 @@ class Notification extends Controller
                 );
         }
 
-        $users = $this->server->getUsersByFilter([]);
+        $users = $this->server->getUsers();
         $this->notifier->notify($users, $this->user, $subject, $body);
 
         return (new Response())->setCode(204);
@@ -214,10 +214,11 @@ class Notification extends Controller
     public function postMail(array $receiver, string $subject, string $body)
     {
         $mail = new Message();
-        $mail->setBody($body);
-        $mail->setFrom($this->user->getAttributes()['username'], $this->user->getAttributes()['mail']);
-        $mail->setSubject($subject);
-        $mail->setBcc($receiver);
+        $mail->setBody($body)
+          ->setFrom($this->user->getAttributes()['mail'], $this->user->getAttributes()['username'])
+          ->setSubject($subject)
+          ->setTo($this->user->getAttributes()['mail'], 'Undisclosed Recipients')
+          ->setBcc($receiver);
         $this->async->addJob(Mail::class, ['mail' => $mail->toString()]);
 
         return (new Response())->setCode(204);
