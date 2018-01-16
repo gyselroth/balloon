@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\Migration\Delta;
 
 use MongoDB\Database;
-use MongoDB\Exception\RuntimeException;
 
 class ShareName implements DeltaInterface
 {
@@ -42,7 +41,7 @@ class ShareName implements DeltaInterface
     {
         $cursor = $this->db->storage->find([
             'directory' => true,
-            'shared' => true
+            'shared' => true,
         ]);
 
         foreach ($cursor as $object) {

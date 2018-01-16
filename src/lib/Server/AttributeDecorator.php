@@ -19,11 +19,11 @@ use MongoDB\BSON\Binary;
 class AttributeDecorator
 {
     /**
-     * User.
+     * Server.
      *
-     * @var User
+     * @var Server
      */
-    protected $user;
+    protected $server;
 
     /**
      * Custom attributes.
@@ -39,7 +39,7 @@ class AttributeDecorator
      */
     public function __construct(Server $server)
     {
-        $this->user = $server->getIdentity();
+        $this->server = $server;
     }
 
     /**
@@ -97,9 +97,12 @@ class AttributeDecorator
      */
     protected function getAttributes(RoleInterface $role, array $attributes): array
     {
+        $user = $this->server->getIdentity();
+        if ($attributes['id'] != $user->getId() && !$user->isAdmin()) {
+            return [];
+        }
+
         return [
-            'id' => (string) $attributes['id'],
-            'namespace' => (string) $attributes['namespace'],
             'created' => function ($role, $requested) use ($attributes) {
                 return Helper::DateTimeToUnix($attributes['created']);
             },
@@ -131,7 +134,9 @@ class AttributeDecorator
         }
 
         return [
+            'id' => (string) $attributes['id'],
             'name' => (string) $attributes['name'],
+            'namespace' => (string) $attributes['namespace'],
         ];
     }
 
@@ -149,10 +154,12 @@ class AttributeDecorator
             return [];
         }
 
-        $user = $this->user;
+        $user = $this->server->getIdentity();
 
         return [
+            'id' => (string) $attributes['id'],
             'name' => (string) $attributes['username'],
+            'namespace' => (string) $attributes['namespace'],
             'mail' => (string) $attributes['mail'],
             'avatar' => function ($role, $requested) use ($attributes) {
                 if ($attributes['avatar'] instanceof Binary) {
