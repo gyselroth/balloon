@@ -71,6 +71,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [CHANGE] removed coordinate meta file #117, no migration required since it was only a testing meta field
 * CORE: [CHANGE] Introduce revisited group system, groups do now exists locally, no ldap server is required anymore #3
 * CORE: [FEATURE] It is now possible to set a specific share name #94 
+* CORE: [FIX] Its not possible anymore to set invalid meta data #108
 * API: [CHANGE] New API version v2 available, v1 is still fully functional, but new features are only available in v2. See upgrade guide.
 * API: [FEATURE] Implemented new endpoint GET /api/v2/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v2/about
