@@ -135,53 +135,58 @@ class Group
     }
 
     /**
-     * @api {get} /api/v2/group/member Group member
+     * @api {get} /api/v2/group/member Get group member
      * @apiVersion 2.0.0
-     * @apiName getGroups
+     * @apiName getMember
      * @apiUse _getGroup
      * @apiGroup Group
      * @apiPermission none
-     * @apiDescription Get all group groups
-     * If you want to receive your own groups you have to leave the parameters id and name empty.
-     * Requesting this api with parameter id or name requires admin privileges.
+     * @apiDescription Request all member of a group
      *
      * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/group/groups?pretty"
-     * curl -XGET "https://SERVER/api/v2/group/544627ed3c58891f058b4611/groups?pretty"
-     * curl -XGET "https://SERVER/api/v2/group/groups?name=logingroup&pretty"
+     * curl -XGET "https://SERVER/api/v2/group/member?pretty"
+     * curl -XGET "https://SERVER/api/v2/group/544627ed3c58891f058b4611/member?pretty"
+     * curl -XGET "https://SERVER/api/v2/group/member?name=logingroup&pretty"
      *
      * @apiSuccess {number} status Status Code
-     * @apiSuccess {string[]} data  All groups with membership
+     * @apiSuccess {object[]} data Group member
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
      *     "status": 200,
      *     "data": [
-     *          "group1",
-     *          "group2",
+     *          {
+     *              "id": "544627ed3c58891f058b4613",
+     *              "username": "ted",
+     *              "mail": "test@example.org"
+     *          }
      *     ]
      * }
      *
      * @param string $id
      * @param string $name
+     * @param array  $attributes
      */
-    public function getMember(?string $id = null, ?string $name = null): Response
+    public function getMember(?string $id = null, ?string $name = null, array $attributes = []): Response
     {
-        $result = $this->_getGroup($id, $name)->getGroups();
+        $result = $this->_getGroup($id, $name)->getResolvedMember();
+        $body = [];
 
-        return (new Response())->setCode(200)->setBody($result);
+        foreach ($result as $member) {
+            $body[] = $this->decorator->decorate($member, $attributes);
+        }
+
+        return (new Response())->setCode(200)->setBody($body);
     }
 
     /**
-     * @api {get} /api/v2/group/attributes Group attributes
+     * @api {get} /api/v2/group/attributes Get group attributes
      * @apiVersion 2.0.0
      * @apiName getAttributes
      * @apiUse _getGroup
      * @apiGroup Group
      * @apiPermission none
-     * @apiDescription Get all group attributes including groupname, mail, id,....
-     * If you want to receive your own attributes you have to leave the parameters id and name empty.
-     * Requesting this api with parameter id or name requires admin privileges.
+     * @apiDescription Get group attributes
      *
      * @apiExample Example usage:
      * curl -XGET "https://SERVER/api/v2/group/attributes?pretty"
@@ -189,13 +194,13 @@ class Group
      * curl -XGET "https://SERVER/api/v2/group/attributes?name=loginser&pretty"
      *
      * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} group attributes
+     * @apiSuccess (200 OK) {object} group attributes
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
      *      "status": 200,
-     *      "data": [] //shortened
+     *      "data": {} //shortened
      * }
      *
      * @param string $id
@@ -241,7 +246,7 @@ class Group
     }
 
     /**
-     * @api {post} /api/v2/group
+     * @api {post} /api/v2/group Create group
      * @apiVersion 2.0.0
      * @apiName postGroup
      * @apiGroup Group
@@ -279,7 +284,7 @@ class Group
     }
 
     /**
-     * @api {post} /api/v2/group/attributes?id=:id Set attributes
+     * @api {post} /api/v2/group/attributes?id=:id Change group attributes
      * @apiVersion 2.0.0
      * @apiName postAttributes
      * @apiUse _getGroup
@@ -307,7 +312,7 @@ class Group
      */
     public function postAttributes(array $attributes = [], ?string $id = null, ?string $name = null): Response
     {
-        $this->_getGroup($id, $name, true)->setAttribute($attributes)->save(array_keys($attributes));
+        $this->_getGroup($id, $name, true)->setAttributes($attributes);
 
         return (new Response())->setCode(204);
     }
@@ -319,15 +324,14 @@ class Group
      * @apiUse _getGroup
      * @apiGroup Group
      * @apiPermission admin
-     * @apiDescription Delete group account, this will also remove any data owned by the group. If force is false, all data gets moved to the trash. If force
-     * is true all data owned by the group gets ereased.
+     * @apiDescription Delete group
      *
      * @apiExample Example usage:
      * curl -XDELETE "https://SERVER/api/v2/group/544627ed3c58891f058b4611?force=1"
      * curl -XDELETE "https://SERVER/api/v2/group?name=logingroup"
      *
-     * @apiParam (GET Parameter) {bool} [force=false] Per default the group account will be disabled, if force is set
-     * the group account gets removed completely.
+     * @apiParam (GET Parameter) {bool} [force=false] Per default the group gets disabled, if force is set
+     * the group gets removed completely.
      *
      * @apiErrorExample {json} Error-Response (Can not delete yourself):
      * HTTP/1.1 400 Bad Request
@@ -344,25 +348,26 @@ class Group
      *
      * @param string $name
      * @param string $id
+     * @param bool   $force
      *
      * @return Response
      */
-    public function delete(?string $id = null, ?string $name = null): Response
+    public function delete(?string $id = null, ?string $name = null, bool $force = false): Response
     {
         $group = $this->_getGroup($id, $name, true);
-        $group->delete();
+        $group->delete($force);
 
         return (new Response())->setCode(204);
     }
 
     /**
-     * @api {post} /api/v2/group/undelete?id=:id Reactivate group account
+     * @api {post} /api/v2/group/undelete?id=:id Restore group
      * @apiVersion 2.0.0
      * @apiName postUndelete
      * @apiUse _getGroup
      * @apiGroup Group
      * @apiPermission admin
-     * @apiDescription Apiore group account. This endpoint does not restore any data, it only does reactivate an existing group account.
+     * @apiDescription Restore deleted group
      *
      * @apiExample Example usage:
      * curl -XPOST "https://SERVER/api/v2/group/544627ed3c58891f058b4611/undelete"
