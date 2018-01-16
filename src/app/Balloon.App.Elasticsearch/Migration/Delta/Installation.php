@@ -50,6 +50,7 @@ class Installation implements DeltaInterface
     {
         $this->es = $es;
         $this->logger = $logger;
+        $this->setOptions($config);
     }
 
     /**

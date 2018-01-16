@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Elasticsearch;
 
+use Balloon\Exception\NotFound as NotFoundException;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Exception\NotFound as NotFoundException;
 use Balloon\Filesystem\Node\CollectionInterface;
 use Balloon\Filesystem\Node\FileInterface;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -147,7 +147,7 @@ class Job extends AbstractJob
 
             break;
             case self::ACTION_DELETE:
-                $this->deleteDocument($node->getId());
+                $this->deleteDocument($node->getId(), $this->data['storage']);
 
             break;
             case self::ACTION_UPDATE:
@@ -224,10 +224,11 @@ class Job extends AbstractJob
      * Create document.
      *
      * @param ObjectId $node
+     * @param array storage_reference
      *
      * @return bool
      */
-    public function deleteDocument(ObjectId $node): bool
+    public function deleteDocument(ObjectId $node, array $storage_reference): bool
     {
         $this->logger->info('delete elasticsearch document for node ['.$node.']', [
             'category' => get_class($this),
@@ -247,7 +248,7 @@ class Job extends AbstractJob
                 $that->deleteDocument($node);
             }, NodeInterface::DELETED_INCLUDE);
         } elseif ($node instanceof FileInterface) {
-            $this->deleteBlob($node);
+            $this->deleteBlob($node, $storage_reference);
         }
 
         return true;
@@ -267,6 +268,27 @@ class Job extends AbstractJob
             'id' => (string) $node->getId(),
             'type' => 'storage',
         ];
+    }
+
+    /**
+     * Delete blob.
+     *
+     * @param ObjectId $node
+     * @param array    $storage_reference
+     *
+     * @return bool
+     */
+    protected function deleteBlob(ObjectId $node, array $storage_reference): bool
+    {
+        $params = [
+            'index' => $this->es->getIndex(),
+            'id' => (string) $storage_reference['_id'],
+            'type' => 'fs',
+        ];
+
+        $this->es->getEsClient()->delete($params);
+
+        return true;
     }
 
     /**

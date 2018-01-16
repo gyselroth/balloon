@@ -729,6 +729,8 @@ class Node extends Controller
      */
     public function postMetaAttributes(?string $id = null, ?string $p = null): Response
     {
+        var_dump($_SERVER);
+        var_dump($_POST);
         if (is_array($id) || is_array($p)) {
             $failures = [];
             foreach ($this->_getNodes($id, $p) as $node) {

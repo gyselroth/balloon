@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\Latest;
 
+use Balloon\Exception\InvalidArgument as InvalidArgumentException;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
@@ -115,7 +116,7 @@ class User
         if (null !== $uid || null !== $uname || true === $require_admin) {
             if ($this->user->isAdmin()) {
                 if (null !== $uid && null !== $uname) {
-                    throw new Exception\InvalidArgument('provide either uid (user id) or uname (username)');
+                    throw new InvalidArgumentException('provide either uid (user id) or uname (username)');
                 }
 
                 if (null !== $uid) {
@@ -476,7 +477,7 @@ class User
     public function post(string $username, array $attributes = []): Response
     {
         if (isset($attributes['avatar'])) {
-            $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binaray::TYPE_GENERIC);
+            $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);
         }
 
         $id = $this->server->addUser($username, $attributes);
@@ -514,7 +515,7 @@ class User
     public function postAttributes(array $attributes = [], ?string $uid = null, ?string $uname = null): Response
     {
         if (isset($attributes['avatar'])) {
-            $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binaray::TYPE_GENERIC);
+            $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);
         }
 
         $this->_getUser($uid, $uname, true)->setAttributes($attributes);

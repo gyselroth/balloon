@@ -55,6 +55,7 @@ class Hook extends AbstractHook
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_CREATE,
+            'storage' => $node->getAttributes()['storage'],
         ]);
     }
 
@@ -69,7 +70,7 @@ class Hook extends AbstractHook
 
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
-            'action' => Job::ACTION_DELETE,
+            'action' => $force === true ? Job::ACTION_DELETE : Job::ACTION_UPDATE,
         ]);
     }
 
@@ -84,7 +85,8 @@ class Hook extends AbstractHook
 
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
-            'action' => Job::ACTION_DELETE,
+            'action' => $force === true ? Job::ACTION_DELETE : Job::ACTION_UPDATE,
+            'storage' => $node->getAttributes()['storage'],
         ]);
     }
 

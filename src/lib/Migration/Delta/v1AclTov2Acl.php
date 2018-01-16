@@ -49,7 +49,7 @@ class v1AclTov2Acl implements DeltaInterface
             $acl = [];
 
             foreach ($object['acl']['group'] as $rule) {
-                $group = $db->group->findOne(['ldapdn' => $rule['group']]);
+                $group = $this->db->group->findOne(['ldapdn' => $rule['group']]);
                 if ($group !== null) {
                     $acl[] = [
                         'type' => 'group',
@@ -62,9 +62,9 @@ class v1AclTov2Acl implements DeltaInterface
             foreach ($object['acl']['user'] as $rule) {
                 $user = null;
                 if (isset($rule['ldapdn'])) {
-                    $user = $db->user->findOne(['ldapdn' => $rule['ldapdn']]);
+                    $user = $this->db->user->findOne(['ldapdn' => $rule['ldapdn']]);
                 } elseif (isset($rule['user'])) {
-                    $user = $db->user->findOne(['username' => $rule['user']]);
+                    $user = $this->db->user->findOne(['username' => $rule['user']]);
                 }
 
                 if ($user !== null) {

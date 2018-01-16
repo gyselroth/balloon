@@ -60,7 +60,7 @@ class NodeAttributeDecorator
             'mime' => (string) $attributes['mime'],
             'readonly' => (bool) $attributes['readonly'],
             'directory' => $node instanceof CollectionInterface,
-            'meta' => $node->getMetaAttribute([]),
+            'meta' => $node->getMetaAttributes(),
             'size' => $node->getSize(),
             'parent' => function ($node, $requested) use ($attributes) {
                 $parent = $node->getParent();

@@ -922,72 +922,67 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
-     * Set meta attribute.
+     * Set meta attributes.
      *
-     * @param   array|string
-     * @param mixed $value
-     * @param mixed $attributes
+     * @param   array $attributes
      *
      * @return NodeInterface
      */
-    public function setMetaAttribute($attributes, $value = null): NodeInterface
+    public function setMetaAttributes(array $attributes): NodeInterface
     {
-        $this->meta = self::validateMetaAttribute($attributes, $value, $this->meta);
+        $attributes = self::validateMetaAttribute($attributes);
+        foreach($attributes as $attribute => $value) {
+            if(empty($value) && isset($this->meta[$attribute])) {
+                unset($this->meta[$attribute]);
+            } elseif(!empty($value)) {
+                $this->meta[$attribute] = $value;
+            }
+        }
+
         $this->save('meta');
 
         return $this;
     }
 
     /**
-     * validate meta attribut.
+     * Validate meta attributes
      *
-     * @param array|string $attributes
-     * @param mixed        $value
-     * @param array        $set
-     *
+     * @param array $attributes
      * @return array
      */
-    public static function validateMetaAttribute($attributes, $value = null, array $set = []): array
+    public static function validateMetaAttributes(array $attributes): array
     {
-        if (is_string($attributes)) {
-            $attributes = [
-                $attributes => $value,
-            ];
-        }
-
         foreach ($attributes as $attribute => $value) {
-            $const = __CLASS__.'::META_'.strtoupper($attribute);
+            $const = NodeInterface.'::META_'.strtoupper($attribute);
             if (!defined($const)) {
                 throw new Exception('meta attribute '.$attribute.' is not valid');
             }
 
-            if (empty($value) && array_key_exists($attribute, $set)) {
-                unset($set[$attribute]);
-            } else {
-                $set[$attribute] = $value;
+            if($attribute === NodeInterface::META_TAGS && (!is_array($value) || array_filter($value, 'is_string') != $value)) {
+                throw new Exception('tag meta attribute must be an array of strings')
+            }
+
+            if(!is_string($value)) {
+                throw new Exception($attribute.' meta attribute must be a string');
             }
         }
 
-        return $set;
+        return $attributes;
     }
 
     /**
      * Get meta attributes as array.
      *
-     * @param array|string $attribute Specify attributes to return
+     * @param array $attribute Specify attributes to return
      *
-     * @return array|string
+     * @return array
      */
-    public function getMetaAttribute($attribute = [])
+    public function getMetaAttributes(array $attributes = []): array
     {
-        if (is_string($attribute)) {
-            if (isset($this->meta[$attribute])) {
-                return $this->meta[$attribute];
-            }
-        } elseif (empty($attribute)) {
+        if (empty($attributes)) {
             return $this->meta;
-        } elseif (is_array($attribute)) {
-            return array_intersect_key($this->meta, array_flip($attribute));
+        } elseif (is_array($attributes)) {
+            return array_intersect_key($this->meta, array_flip($attributes));
         }
     }
 

@@ -187,7 +187,7 @@ class AttributeDecorator
             'readonly' => (bool) $attributes['readonly'],
             'directory' => $node instanceof Collection,
             'meta' => function ($node, $requested) {
-                return (object) $node->getMetaAttribute([]);
+                return (object) $node->getMetaAttributes();
             },
             'size' => function ($node, $requested) {
                 return $node->getSize();

@@ -295,7 +295,7 @@ class Server
                         throw new UserException('password does not follow password policy '.$this->password_policy);
                     }
 
-                    $value = password_hash($password, $this->password_hash);
+                    $value = password_hash($value, $this->password_hash);
 
                 break;
                 case 'soft_quota':
@@ -439,13 +439,13 @@ class Server
      */
     public function setIdentity(Identity $identity): bool
     {
+        $this->hook->run('preServerIdentity', [$identity->getIdentifier(), &$result]);
+
         try {
             $user = $this->getUserByName($identity->getIdentifier());
         } catch (\Exception $e) {
             throw new Exception\NotAuthenticated('user does not exists', Exception\NotAuthenticated::USER_DOES_NOT_EXISTS);
         }
-
-        $this->hook->run('preServerIdentity', [$identity, &$result]);
 
         if ($user->isDeleted()) {
             throw new Exception\NotAuthenticated(
