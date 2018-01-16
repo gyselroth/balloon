@@ -41,7 +41,6 @@ interface NodeInterface extends DAV\INode
     const META_LICENSE = 'license';
     const META_COPYRIGHT = 'copyright';
     const META_TAGS = 'tags';
-    const META_COORDINATE = 'coordinate';
 
     /**
      * Delete node.
