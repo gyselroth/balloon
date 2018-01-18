@@ -13,11 +13,9 @@ namespace Balloon;
 
 use Balloon\Console\ConsoleInterface;
 use GetOpt\GetOpt;
-use Micro\Container\AdapterAwareInterface;
-use Micro\Log\Adapter\Stdout;
 use Psr\Log\LoggerInterface;
 
-class Console implements AdapterAwareInterface
+class Console
 {
     /**
      * Adapter.

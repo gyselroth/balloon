@@ -9,9 +9,8 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Office\App;
+namespace Balloon\App\Office\Constructor;
 
-use Balloon\App\AppInterface;
 use Balloon\App\Office\Api\Latest\Document;
 use Balloon\App\Office\Api\Latest\Session;
 use Balloon\App\Office\Api\Latest\Wopi\Document as WopiDocument;
@@ -23,7 +22,7 @@ use Micro\Auth\Auth;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
-class Http implements AppInterface
+class Http
 {
     /**
      * Lolaflet.
@@ -49,8 +48,8 @@ class Http implements AppInterface
     /**
      * Constructor.
      *
-     * @param Hook
-     * @param Router
+     * @param Hook $hook
+     * @param Router $router
      * @param iterable $config
      */
     public function __construct(Hook $hook, Router $router, ?Iterable $config = null)

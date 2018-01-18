@@ -9,24 +9,30 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Notification\App;
+namespace Balloon\App\Notification\Constructor;
 
-use Balloon\App\AppInterface;
 use Balloon\App\Notification\Api\Latest\Notification as Api;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
+use Balloon\Filesystem\Node\AttributeDecorator;
 
-class Http implements AppInterface
+class Http
 {
     /**
      * Constructor.
      *
      * @param Router $router
+     * @param AttributeDecorator $decorator
      */
-    public function __construct(Router $router)
+    public function __construct(Router $router, AttributeDecorator $decorator)
     {
         $router
             ->prependRoute(new Route('/api/v2/notification', Api::class))
             ->prependRoute(new Route('/api/v2/notification/{id:#([0-9a-z]{24})#}', Api::class));
+
+
+        $decorator->addDecorator('subscription', function($node) {
+            return (bool)$node->getAppAttribute('Balloon\\App\\Notification', 'subscription');
+        });
     }
 }

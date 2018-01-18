@@ -9,15 +9,14 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Webdav\App;
+namespace Balloon\App\Webdav\Constructor;
 
-use Balloon\App\AppInterface;
 use Balloon\Server;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 use Sabre\DAV;
 
-class Http implements AppInterface
+class Http
 {
     /**
      * Server.

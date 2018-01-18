@@ -9,16 +9,15 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Convert\App;
+namespace Balloon\App\Convert\Constructor;
 
-use Balloon\App\AppInterface;
 use Balloon\App\Convert\Api\Latest\Convert;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Server;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
-class Http implements AppInterface
+class Http
 {
     /**
      * Constructor.

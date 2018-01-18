@@ -13,11 +13,10 @@ namespace Balloon;
 
 use Balloon\Migration\Delta\DeltaInterface;
 use Balloon\Migration\Exception;
-use Micro\Container\AdapterAwareInterface;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
-class Migration implements AdapterAwareInterface
+class Migration
 {
     /**
      * Databse.

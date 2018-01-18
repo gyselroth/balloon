@@ -19,6 +19,10 @@ use MongoDB\Client;
 use MongoDB\Database;
 use Noodlehaus\Config;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 abstract class AbstractBootstrap
 {
@@ -46,16 +50,8 @@ abstract class AbstractBootstrap
         $this->setErrorHandler();
         $configs = $this->detectApps($composer);
         $this->config = $this->loadConfig($configs);
-
-        if (isset($this->config['service'])) {
-            $container = $this->config['service'];
-        } else {
-            $container = [];
-        }
-
-        $this->container = new Container($container);
+        $this->container = new Container($this->config);
         $this->setErrorHandler();
-
         $this->container->get(LoggerInterface::class)->info('--------------------------------------------------> PROCESS', [
             'category' => get_class($this),
         ]);
@@ -65,22 +61,38 @@ abstract class AbstractBootstrap
         });
 
         $container = $this->container;
-        $this->container->add(Client::class, function () use ($container) {
-            return new Client($container->getParam(Client::class, 'uri'), [], [
-                'typeMap' => [
-                    'root' => 'array',
-                    'document' => 'array',
-                    'array' => 'array',
-                ],
-            ]);
-        });
-
-        $this->container->add(Database::class, function () use ($container) {
+        $this->container->add(Database::class, function () use($container) {
             return $container->get(Client::class)->balloon;
         });
 
+        $this->registerAppConstructors();
+    }
+
+    /**
+     * Execute app constructors
+     *
+     * @return AbstractBootstrap
+     */
+    protected function registerAppConstructors(): AbstractBootstrap
+    {
         //register all app bootstraps
-        $this->container->get(App::class);
+        $context = $this->getContext();
+        foreach($this->config['apps'] as $app => $enabled) {
+            $class = str_replace('.', '\\', $app).'\\Constructor\\'.$context;
+            if($enabled === true && class_exists($class)) {
+                $this->container->get(LoggerInterface::class)->debug('found and execute app constructor ['.$class.']', [
+                    'category' => get_class($this)
+                ]);
+
+                $this->container->get($class);
+            } elseif($enabled === false) {
+                $this->container->get(LoggerInterface::class)->debug('skip disabled app constructor ['.$class.']', [
+                    'category' => get_class($this)
+                ]);
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -92,47 +104,12 @@ abstract class AbstractBootstrap
      */
     protected function loadConfig(array $configs = []): Config
     {
-        /*if (extension_loaded('apc') && apc_exists('config')) {
-            $config = apc_fetch('config');
-        } else {
-            $file = constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'config.xml';
-            $default = require constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'.container.config.php';
-            $config = new Config(new Struct($default));
-
-            if (is_readable($file)) {
-                $xml = new Xml($file, constant('BALLOON_ENV'));
-                $config->inject($xml);
-            }
-
-            if (extension_loaded('apc')) {
-                apc_store('config', $config);
-            }
-        }*/
-
         array_unshift($configs, __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php');
         foreach (glob(constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'*.yaml') as $path) {
             $configs[] = $path;
         }
 
-        $config = new Config($configs);
-
-        $apps = $config['service'];
-        $context = $this->getContext();
-
-        foreach ($apps[App::class]['adapter'] as $app => $options) {
-            $options['expose'] = true;
-            $options['use'] = $app.'\\'.$context;
-
-            if (!class_exists($options['use'])) {
-                $options['enabled'] = '0';
-            }
-
-            $apps[App::class]['adapter'][$options['use']] = $options;
-            unset($apps[App::class]['adapter'][$app]);
-        }
-        $config['service'] = $apps;
-
-        return $config;
+        return new Config($configs);
     }
 
     /**
@@ -152,6 +129,7 @@ abstract class AbstractBootstrap
     /**
      * Find apps.
      *
+     * @param Composer $composer
      * @return array
      */
     protected function detectApps(Composer $composer): array

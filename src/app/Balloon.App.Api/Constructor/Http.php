@@ -9,11 +9,10 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Api\App;
+namespace Balloon\App\Api\Constructor;
 
 use Balloon\App\Api\Latest;
 use Balloon\App\Api\v1;
-use Balloon\App\AppInterface;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
 use Micro\Auth\Adapter\None as AuthNone;
@@ -21,7 +20,7 @@ use Micro\Auth\Auth;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
-class Http implements AppInterface
+class Http
 {
     /**
      * Router.

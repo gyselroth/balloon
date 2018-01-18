@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Sharelink\App;
+namespace Balloon\App\Sharelink\Constructor;
 
 use Balloon\App\AppInterface;
 use Balloon\App\Sharelink\Api\Latest\ShareLink;
@@ -26,7 +26,7 @@ use Micro\Http\Router;
 use Micro\Http\Router\Route;
 use Psr\Log\LoggerInterface;
 
-class Http implements AppInterface
+class Http
 {
     /**
      * Sharelink.

@@ -9,14 +9,13 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Preview\App;
+namespace Balloon\App\Preview\Constructor;
 
-use Balloon\App\AppInterface;
 use Balloon\App\Preview\Api\Latest\Preview;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
-class Http implements AppInterface
+class Http
 {
     /**
      * Constructor.

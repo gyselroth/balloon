@@ -93,6 +93,13 @@ class Filesystem
     protected $acl;
 
     /**
+     * Node storage cache
+     *
+     * @var array
+     */
+    protected $cache = [];
+
+    /**
      * Initialize.
      *
      * @param Server          $server
@@ -185,6 +192,10 @@ class Filesystem
      */
     public function findRawNode(ObjectId $id): array
     {
+        if(isset($this->cache[(string)$id])) {
+            return $this->cache[(string)$id]->getRawAttributes();
+        }
+
         $node = $this->db->storage->findOne(['_id' => $id]);
         if (null === $node) {
             throw new Exception\NotFound(
@@ -207,6 +218,10 @@ class Filesystem
      */
     public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
     {
+        if(isset($this->cache[(string)$id])) {
+            return $this->cache[(string)$id];
+        }
+
         if (!is_string($id) && !($id instanceof ObjectId)) {
             throw new Exception\InvalidArgument($id.' node id has to be a string or instance of \MongoDB\BSON\ObjectId');
         }
@@ -503,7 +518,7 @@ class Filesystem
     public function findNodesByFilterUser(int $deleted, array $filter): Generator
     {
         if ($this->user instanceof User) {
-//            $this->user->findNewShares();
+            //$this->user->findNewShares();
         }
 
         $shares = $this->user->getShares();
@@ -586,6 +601,7 @@ class Filesystem
             throw new Exception\Conflict('node is not available anymore');
         }
 
+        $this->cache[(string)$node['_id']] = $instance;
         return $instance;
     }
 

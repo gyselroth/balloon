@@ -21,7 +21,6 @@
         "cboden/ratchet": "^0.4",
         "gyselroth/micro-auth": "*",
         "gyselroth/micro-container": "*",
-        "gyselroth/micro-log": "*",
         "gyselroth/micro-http": "*",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
@@ -44,7 +43,7 @@
         "gyselroth/mongodb-php-task-scheduler": "*",
         "hassankhan/config": "^0.11.2",
         "symfony/yaml": "^4.0",
-        "zendframework/zend-servicemanager": "^3.3"
+        "monolog/monolog": "^1.23"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",

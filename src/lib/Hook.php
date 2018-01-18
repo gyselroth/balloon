@@ -16,20 +16,10 @@ use Balloon\Hook\CleanTrash;
 use Balloon\Hook\Delta;
 use Balloon\Hook\Exception;
 use Balloon\Hook\HookInterface;
-use Micro\Container\AdapterAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class Hook implements AdapterAwareInterface
+class Hook
 {
-    /**
-     * Default hooks.
-     */
-    const DEFAULT_ADAPTER = [
-        Delta::class => [],
-        CleanTrash::class => [],
-        AutoDestroy::class => [],
-    ];
-
     /**
      * Hooks.
      *

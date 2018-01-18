@@ -17,25 +17,14 @@ use Balloon\App\Notification\Adapter\Mail;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
-use Micro\Container\AdapterAwareInterface;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use MongoDB\Driver\Cursor;
 use Psr\Log\LoggerInterface;
 
-class Notifier implements AdapterAwareInterface
+class Notifier
 {
-    /**
-     * Default adapter.
-     *
-     * @var array
-     */
-    const DEFAULT_ADAPTER = [
-        Mail::class => [],
-        Db::class => [],
-    ];
-
     /**
      * Notifications.
      *

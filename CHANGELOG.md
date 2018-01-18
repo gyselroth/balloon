@@ -94,6 +94,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
 * API: [CHANGE] Balloon.App.Office API is available under /api/v2/office/* instead /api/v2/app/office/*
 * API: [FEATURE] Various new API endpoints for user and group management #14, #85
+* API: [CHANGE] Per default api endpoints which return attributes do now return all attributes, this affects both v1 and v2 api. If you want to filter you can by providing the filter parameter.
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 

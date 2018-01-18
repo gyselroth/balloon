@@ -17,21 +17,10 @@ use Balloon\Converter\Adapter\Office;
 use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
-use Micro\Container\AdapterAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class Converter implements AdapterAwareInterface
+class Converter
 {
-    /**
-     * Default adapter.
-     *
-     * @var array
-     */
-    const DEFAULT_ADAPTER = [
-        ImagickImage::class => [],
-        Office::class => [],
-    ];
-
     /**
      * LoggerInterface.
      *

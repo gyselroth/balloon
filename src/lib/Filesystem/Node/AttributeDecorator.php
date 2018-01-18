@@ -65,7 +65,7 @@ class AttributeDecorator
     public function __construct(Server $server, Acl $acl, RoleAttributeDecorator $role_decorator)
     {
         $this->server = $server;
-        $this->fs = $server->getFilesystem();
+        //$this->fs = $server->getFilesystem();
         $this->acl = $acl;
         $this->role_decorator = $role_decorator;
     }
@@ -177,7 +177,7 @@ class AttributeDecorator
     {
         $acl = $this->acl;
         $server = $this->server;
-        $fs = $this->fs;
+        $fs = $this->server->getFilesystem();
         $decorator = $this->role_decorator;
 
         return [
@@ -306,7 +306,7 @@ class AttributeDecorator
     protected function getTypeAttributes(NodeInterface $node, array $attributes): array
     {
         $server = $this->server;
-        $fs = $this->fs;
+        $fs = $this->server->getFilesystem();
 
         if ($node instanceof File) {
             return [
