@@ -70,7 +70,8 @@ class Upgrade implements ConsoleInterface
     public function setOptions(): ConsoleInterface
     {
         $this->getopt->addOptions([
-            \GetOpt\Option::create('f', 'force'),
+            \GetOpt\Option::create('f', 'force')->setDescription('Force apply deltas even if a delta has already been applied before'),
+            \GetOpt\Option::create('i', 'ignore')->setDescription('Do not abort if any error is encountered'),
         ]);
 
         return $this;
@@ -83,6 +84,9 @@ class Upgrade implements ConsoleInterface
      */
     public function start(): bool
     {
-        return $this->migration->start((bool) $this->getopt->getOption('force'));
+        return $this->migration->start(
+            (bool) $this->getopt->getOption('force'),
+            (bool) $this->getopt->getOption('ignore')
+        );
     }
 }

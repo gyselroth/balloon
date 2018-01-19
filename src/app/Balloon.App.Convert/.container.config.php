@@ -4,8 +4,11 @@ use Balloon\App\Convert\Hook as ConvertHook;
 
 return [
     Hook::class => [
-        'adapter' => [
-            ConvertHook::class => []
+        'calls' => [
+            ConvertHook::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.ConvertHook::class.'}']
+            ]
         ],
     ],
 ];

@@ -12,7 +12,8 @@ declare(strict_types=1);
 namespace Balloon\Migration\Delta;
 
 use MongoDB\Database;
-use MongoDB\Exception\RuntimeException;
+use MongoDB\Driver\Exception\BulkWriteException;
+use MongoDB\Driver\Exception\RuntimeException;
 
 class QueueToCappedCollection implements DeltaInterface
 {
@@ -41,17 +42,19 @@ class QueueToCappedCollection implements DeltaInterface
     public function start(): bool
     {
         try {
+            $this->db->queue->deleteMany([]);
+
             $this->db->command([
                 'convertToCapped' => 'queue',
                 'size' => 100000,
             ]);
+        } catch (BulkWriteException $e) {
+            return true;
         } catch (RuntimeException $e) {
             if (26 !== $e->getCode()) {
                 throw $e;
             }
         }
-
-        $this->db->queue->removeMany([]);
 
         return true;
     }

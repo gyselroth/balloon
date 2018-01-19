@@ -12,8 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Notification;
 
 use Balloon\App\Notification\Adapter\AdapterInterface;
-use Balloon\App\Notification\Adapter\Db;
-use Balloon\App\Notification\Adapter\Mail;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -100,7 +98,7 @@ class Notifier
             switch ($option) {
                 case 'adapter':
                     foreach ($value as $name => $adapter) {
-                        $this->injectAdapter($name, $adapter);
+                        $this->injectAdapter($adapter, $name);
                     }
 
                 break;
@@ -110,16 +108,6 @@ class Notifier
         }
 
         return $this;
-    }
-
-    /**
-     * Get default adapter.
-     *
-     * @return array
-     */
-    public function getDefaultAdapter(): array
-    {
-        return self::DEFAULT_ADAPTER;
     }
 
     /**
@@ -170,15 +158,12 @@ class Notifier
      * Inject adapter.
      *
      * @param AdapterInterface $adapter
+     * @param string           $name
      *
-     * @return AdapterInterface
+     * @return Notifier
      */
-    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
+    public function injectAdapter(AdapterInterface $adapter, ?string $name = null): self
     {
-        if (!($adapter instanceof AdapterInterface)) {
-            throw new Exception('adapter needs to implement AdapterInterface');
-        }
-
         if (null === $name) {
             $name = get_class($adapter);
         }
@@ -203,7 +188,7 @@ class Notifier
      *
      * @return AdapterInterface
      */
-    public function getAdapter(string $name)
+    public function getAdapter(string $name): AdapterInterface
     {
         if (!$this->hasAdapter($name)) {
             throw new Exception('adapter '.$name.' is not registered');
@@ -217,7 +202,7 @@ class Notifier
      *
      * @param array $adapters
      *
-     * @return array
+     * @return AdapterInterface[]
      */
     public function getAdapters(array $adapters = []): array
     {

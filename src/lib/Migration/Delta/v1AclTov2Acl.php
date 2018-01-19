@@ -48,40 +48,44 @@ class v1AclTov2Acl implements DeltaInterface
         foreach ($cursor as $object) {
             $acl = [];
 
-            foreach ($object['acl']['group'] as $rule) {
-                $group = $this->db->group->findOne(['ldapdn' => $rule['group']]);
-                if ($group !== null) {
-                    $acl[] = [
-                        'type' => 'group',
-                        'privilege' => $rule['privilege'] === 'w' ? 'w+' : $rule['privilege'],
-                        'role' => (string) $group['_id'],
-                    ];
+            if (isset($object['acl']['group'])) {
+                foreach ($object['acl']['group'] as $rule) {
+                    $group = $this->db->group->findOne(['ldapdn' => $rule['group']]);
+                    if ($group !== null) {
+                        $acl[] = [
+                            'type' => 'group',
+                            'privilege' => $rule['privilege'] === 'w' ? 'w+' : $rule['privilege'],
+                            'role' => (string) $group['_id'],
+                        ];
+                    }
                 }
             }
 
-            foreach ($object['acl']['user'] as $rule) {
-                $user = null;
-                if (isset($rule['ldapdn'])) {
-                    $user = $this->db->user->findOne(['ldapdn' => $rule['ldapdn']]);
-                } elseif (isset($rule['user'])) {
-                    $user = $this->db->user->findOne(['username' => $rule['user']]);
+            if (isset($object['acl']['user'])) {
+                foreach ($object['acl']['user'] as $rule) {
+                    $user = null;
+                    if (isset($rule['ldapdn'])) {
+                        $user = $this->db->user->findOne(['ldapdn' => $rule['ldapdn']]);
+                    } elseif (isset($rule['user'])) {
+                        $user = $this->db->user->findOne(['username' => $rule['user']]);
+                    }
+
+                    if ($user !== null) {
+                        $acl[] = [
+                            'type' => 'user',
+                            'privilege' => $rule['privilege'] === 'w' ? 'w+' : $rule['privilege'],
+                            'role' => (string) $user['_id'],
+                        ];
+                    }
                 }
 
-                if ($user !== null) {
-                    $acl[] = [
-                        'type' => 'user',
-                        'privilege' => $rule['privilege'] === 'w' ? 'w+' : $rule['privilege'],
-                        'role' => (string) $user['_id'],
-                    ];
-                }
+                $this->db->storage->updateOne(
+                    ['_id' => $object['_id']],
+                    [
+                        '$set' => ['acl' => $acl],
+                    ]
+                );
             }
-
-            $this->db->storage->updateOne(
-                ['_id' => $object['_id']],
-                [
-                    '$set' => ['acl' => $acl],
-                ]
-            );
         }
 
         return true;

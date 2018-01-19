@@ -15,14 +15,8 @@ use Balloon\App;
 use Composer\Autoload\ClassLoader as Composer;
 use ErrorException;
 use Micro\Container\Container;
-use MongoDB\Client;
-use MongoDB\Database;
 use Noodlehaus\Config;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 abstract class AbstractBootstrap
 {
@@ -56,38 +50,30 @@ abstract class AbstractBootstrap
             'category' => get_class($this),
         ]);
 
-        $this->container->add(get_class($composer), function () use ($composer) {
-            return $composer;
-        });
-
-        $container = $this->container;
-        $this->container->add(Database::class, function () use($container) {
-            return $container->get(Client::class)->balloon;
-        });
-
+        $this->container->add(get_class($composer), $composer);
         $this->registerAppConstructors();
     }
 
     /**
-     * Execute app constructors
+     * Execute app constructors.
      *
      * @return AbstractBootstrap
      */
-    protected function registerAppConstructors(): AbstractBootstrap
+    protected function registerAppConstructors(): self
     {
         //register all app bootstraps
         $context = $this->getContext();
-        foreach($this->config['apps'] as $app => $enabled) {
+        foreach ($this->config['apps'] as $app => $enabled) {
             $class = str_replace('.', '\\', $app).'\\Constructor\\'.$context;
-            if($enabled === true && class_exists($class)) {
+            if ($enabled === true && class_exists($class)) {
                 $this->container->get(LoggerInterface::class)->debug('found and execute app constructor ['.$class.']', [
-                    'category' => get_class($this)
+                    'category' => get_class($this),
                 ]);
 
                 $this->container->get($class);
-            } elseif($enabled === false) {
+            } elseif ($enabled === false) {
                 $this->container->get(LoggerInterface::class)->debug('skip disabled app constructor ['.$class.']', [
-                    'category' => get_class($this)
+                    'category' => get_class($this),
                 ]);
             }
         }
@@ -130,6 +116,7 @@ abstract class AbstractBootstrap
      * Find apps.
      *
      * @param Composer $composer
+     *
      * @return array
      */
     protected function detectApps(Composer $composer): array

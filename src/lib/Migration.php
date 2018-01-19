@@ -67,7 +67,7 @@ class Migration
      *
      * @return bool
      */
-    public function hasDelta(string $class): bool
+    public function isDeltaApplied(string $class): bool
     {
         return null !== $this->db->{$this->meta_collection}->findOne(['class' => $class]);
     }
@@ -76,10 +76,11 @@ class Migration
      * Execute migration deltas.
      *
      * @param bool $force
+     * @param bool $ignore
      *
      * @return bool
      */
-    public function start(bool $force = false): bool
+    public function start(bool $force = false, bool $ignore = false): bool
     {
         $this->logger->info('execute migration deltas', [
             'category' => get_class($this),
@@ -96,7 +97,7 @@ class Migration
         }
 
         foreach ($this->delta as $name => $delta) {
-            if (false === $force && $this->hasDelta($name)) {
+            if (false === $force && $this->isDeltaApplied($name)) {
                 $this->logger->debug('skip existing delta ['.$name.']', [
                     'category' => get_class($this),
                 ]);
@@ -105,8 +106,19 @@ class Migration
                     'category' => get_class($this),
                 ]);
 
-                $delta->start();
-                $this->db->{$this->meta_collection}->insertOne(['class' => get_class($delta)]);
+                try {
+                    $delta->start();
+                    $this->db->{$this->meta_collection}->insertOne(['class' => get_class($delta)]);
+                } catch (\Exception $e) {
+                    $this->logger->error('failed to apply delta ['.get_class($delta).']', [
+                        'category' => get_class($this),
+                        'exception' => $e,
+                    ]);
+
+                    if ($ignore === false) {
+                        throw $e;
+                    }
+                }
             }
         }
 
@@ -136,67 +148,53 @@ class Migration
     }
 
     /**
-     * Get default adapter.
-     *
-     * @return array
-     */
-    public function getDefaultAdapter(): array
-    {
-        return [];
-    }
-
-    /**
-     * Has adapter.
+     * Has delta.
      *
      * @param string $name
      *
      * @return bool
      */
-    public function hasAdapter(string $name): bool
+    public function hasDelta(string $name): bool
     {
         return isset($this->delta[$name]);
     }
 
     /**
-     * Inject adapter.
+     * Inject delta.
      *
-     * @param mixed $adapter
+     * @param DeltaInterface $delta
      *
-     * @return AdapterAwareInterface
+     * @return Migration
      */
-    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
+    public function injectDelta(DeltaInterface $delta, ?string $name = null): self
     {
-        if (!($adapter instanceof DeltaInterface)) {
-            throw new Exception('delta needs to implement DeltaInterface');
-        }
-
         if (null === $name) {
-            $name = get_class($adapter);
+            $name = get_class($delta);
         }
 
-        $this->logger->debug('inject delta ['.$name.'] of type ['.get_class($adapter).']', [
+        $this->logger->debug('inject delta ['.$name.'] of type ['.get_class($delta).']', [
             'category' => get_class($this),
         ]);
 
-        if ($this->hasAdapter($name)) {
+        if ($this->hasDelta($name)) {
             throw new Exception('delta '.$name.' is already registered');
         }
 
-        $this->delta[$name] = $adapter;
+        $this->delta[$name] = $delta;
 
         return $this;
     }
 
     /**
-     * Get adapter.
+     * Get delta.
      *
      * @param string $name
      *
-     * @return mixed
+     * @return DeltaInterface
      */
-    public function getAdapter(string $name)
+    public function getDelta(string $name): DeltaInterface
     {
-        if (!$this->hasAdapter($name)) {
+        if (!$this->hasDelta($name)) {
             throw new Exception('delta '.$name.' is not registered');
         }
 
@@ -204,20 +202,20 @@ class Migration
     }
 
     /**
-     * Get adapters.
+     * Get deltas.
      *
-     * @param array $adapters
+     * @param array $deltas
      *
-     * @return array
+     * @return DeltaInterface[]
      */
-    public function getAdapters(array $adapters = []): array
+    public function getDeltas(array $deltas = []): array
     {
-        if (empty($adapter)) {
+        if (empty($delta)) {
             return $this->delta;
         }
         $list = [];
-        foreach ($adapter as $name) {
-            if (!$this->hasAdapter($name)) {
+        foreach ($delta as $name) {
+            if (!$this->hasDelta($name)) {
                 throw new Exception('delta '.$name.' is not registered');
             }
             $list[$name] = $this->delta[$name];

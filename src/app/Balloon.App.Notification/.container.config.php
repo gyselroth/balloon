@@ -5,17 +5,24 @@ use Balloon\App\Notification\Adapter\Db;
 use Balloon\App\Notification\Adapter\Mail;
 
 return [
-    'service' => [
-        Notifier::class => [
-            'adapter' => [
-                Db::class => [],
-                Mail::class => [],
-            ]
-        ],
-        Hook::class => [
-            'adapter' => [
-                NewShareAdded::class => []
+    Notifier::class => [
+        'calls' => [
+            Db::class => [
+                'method' => 'injectAdapter',
+                'arguments' => '{'.Db::class.'}'
             ],
+            Mail::class => [
+                'method' => 'injectAdapter',
+                'arguments' => '{'.Mail::class.'}'
+            ]
+        ]
+    ],
+    Hook::class => [
+        'calls' => [
+            NewShareAdded::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.NewShareAdded::class.'}']
+            ]
         ],
     ]
 ];

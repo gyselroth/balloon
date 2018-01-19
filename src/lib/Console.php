@@ -12,17 +12,21 @@ declare(strict_types=1);
 namespace Balloon;
 
 use Balloon\Console\ConsoleInterface;
+use Bramus\Monolog\Formatter\ColoredLineFormatter;
 use GetOpt\GetOpt;
+use Monolog\Handler\FilterHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 class Console
 {
     /**
-     * Adapter.
+     * Module.
      *
      * @var array
      */
-    protected $adapter = [];
+    protected $module = [];
 
     /**
      * Getopt.
@@ -59,7 +63,7 @@ class Console
     {
         $this->getopt->addOption(['v', 'verbose', GetOpt::NO_ARGUMENT, 'Verbose']);
 
-        $module = $this->getModule();
+        $module = $this->parseModule();
 
         if ($module instanceof ConsoleInterface) {
             $module->setOptions();
@@ -78,91 +82,77 @@ class Console
     }
 
     /**
-     * Get default adapter.
-     *
-     * @return array
-     */
-    public function getDefaultAdapter(): array
-    {
-        return [];
-    }
-
-    /**
-     * Has adapter.
+     * Has module.
      *
      * @param string $name
      *
      * @return bool
      */
-    public function hasAdapter(string $name): bool
+    public function hasModule(string $name): bool
     {
-        return isset($this->adapter[$name]);
+        return isset($this->module[$name]);
     }
 
     /**
-     * Inject adapter.
+     * Inject module.
      *
-     * @param ConsoleInterface $adapter
+     * @param ConsoleInterface $module
      *
-     * @return AdapterAwareInterface
+     * @return Console
      */
-    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
+    public function injectModule(ConsoleInterface $module, ?string $name = null): self
     {
-        if (!($adapter instanceof ConsoleInterface)) {
-            throw new Exception('adapter needs to implement ConsoleInterface');
-        }
-
         if (null === $name) {
-            $name = get_class($adapter);
+            $name = get_class($module);
         }
 
-        $this->logger->debug('inject console adapter ['.$name.'] of type ['.get_class($adapter).']', [
+        $this->logger->debug('inject console module ['.$name.'] of type ['.get_class($module).']', [
             'category' => get_class($this),
         ]);
 
-        if ($this->hasAdapter($name)) {
-            throw new Exception('adapter '.$name.' is already registered');
+        if ($this->hasModule($name)) {
+            throw new Exception('module '.$name.' is already registered');
         }
 
-        $this->adapter[$name] = $adapter;
+        $this->module[$name] = $module;
 
         return $this;
     }
 
     /**
-     * Get adapter.
+     * Get module.
      *
      * @param string $name
      *
      * @return ConsoleInterface
      */
-    public function getAdapter(string $name)
+    public function getModule(string $name): ConsoleInterface
     {
-        if (!$this->hasAdapter($name)) {
-            throw new Exception('adapter '.$name.' is not registered');
+        if (!$this->hasModule($name)) {
+            throw new Exception('module '.$name.' is not registered');
         }
 
-        return $this->adapter[$name];
+        return $this->module[$name];
     }
 
     /**
-     * Get adapters.
+     * Get modules.
      *
-     * @param array $adapters
+     * @param array $modules
      *
-     * @return array
+     * @return ConsoleInterface[]
      */
-    public function getAdapters(array $adapters = []): array
+    public function getModules(array $modules = []): array
     {
-        if (empty($adapter)) {
-            return $this->adapter;
+        if (empty($module)) {
+            return $this->module;
         }
         $list = [];
-        foreach ($adapter as $name) {
-            if (!$this->hasAdapter($name)) {
-                throw new Exception('adapter '.$name.' is not registered');
+        foreach ($module as $name) {
+            if (!$this->hasModule($name)) {
+                throw new Exception('module '.$name.' is not registered');
             }
-            $list[$name] = $this->adapter[$name];
+            $list[$name] = $this->module[$name];
         }
 
         return $list;
@@ -176,18 +166,32 @@ class Console
     protected function configureLogger(?int $level = null): self
     {
         if (null === $level) {
-            $level = 4;
+            $level = 400;
         } else {
-            $level += 4;
+            $level = (4 - $level) * 100;
         }
 
-        if (!$this->logger->hasAdapter('stdout')) {
-            $this->logger->injectAdapter(new Stdout([
-                'level' => $level,
-                'format' => '{date} [{context.category},{level}]: {message} {context.params} {context.exception}', ]), 'stdout');
-        } else {
-            $this->logger->getAdapter('stdout')->setOptions(['level' => $level]);
+        //disable any existing stdout/sterr log handlers
+        foreach ($this->logger->getHandlers() as $handler) {
+            if ($handler instanceof StreamHandler) {
+                if ($handler->getUrl() === 'php://stderr' || $handler->getUrl() === 'php://stdout') {
+                    $handler->setLevel(1000);
+                }
+            } elseif ($handler instanceof FilterHandler) {
+                $handler->setAcceptedLevels(1000, 1000);
+            }
         }
+
+        $formatter = new ColoredLineFormatter();
+        $handler = new StreamHandler('php://stderr', Logger::EMERGENCY);
+        $handler->setFormatter($formatter);
+        $this->logger->pushHandler($handler);
+
+        $handler = new StreamHandler('php://stdout', $level);
+        $filter = new FilterHandler($handler, $level, Logger::ERROR);
+        $handler->setFormatter($formatter);
+
+        $this->logger->pushHandler($filter);
 
         return $this;
     }
@@ -201,7 +205,7 @@ class Console
      */
     protected function getHelp(?ConsoleInterface $module = null): string
     {
-        $help = "Balloon\n";
+        $help = "balloon\n\n";
         $help .= "balloon (GLOBAL OPTIONS) [MODULE] (MODULE OPTIONS)\n\n";
 
         $help .= "Options:\n";
@@ -212,8 +216,8 @@ class Console
         if (null === $module) {
             $help .= "\nModules:\n";
             $help .= "help (MODULE)\t Displays a reference for a module\n";
-            foreach ($this->adapter as $name => $adapter) {
-                $help .= $name."\t\t".$adapter->getDescription()."\n";
+            foreach ($this->module as $name => $module) {
+                $help .= $name."\t\t".$module->getDescription()."\n";
             }
         }
 
@@ -225,11 +229,11 @@ class Console
      *
      * @return ConsoleInterface
      */
-    protected function getModule(): ?ConsoleInterface
+    protected function parseModule(): ?ConsoleInterface
     {
         foreach ($_SERVER['argv'] as $option) {
-            if (isset($this->adapter[$option])) {
-                return $this->adapter[$option];
+            if (isset($this->module[$option])) {
+                return $this->module[$option];
             }
         }
 

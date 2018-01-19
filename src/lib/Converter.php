@@ -12,8 +12,6 @@ declare(strict_types=1);
 namespace Balloon;
 
 use Balloon\Converter\Adapter\AdapterInterface;
-use Balloon\Converter\Adapter\ImagickImage;
-use Balloon\Converter\Adapter\Office;
 use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
@@ -64,7 +62,7 @@ class Converter
             switch ($option) {
                 case 'adapter':
                     foreach ($value as $name => $adapter) {
-                        $this->injectAdapter($name, $value);
+                        $this->injectAdapter($adapter, $name);
                     }
 
                 break;
@@ -74,16 +72,6 @@ class Converter
         }
 
         return $this;
-    }
-
-    /**
-     * Get default adapter.
-     *
-     * @return array
-     */
-    public function getDefaultAdapter(): array
-    {
-        return self::DEFAULT_ADAPTER;
     }
 
     /**
@@ -103,14 +91,10 @@ class Converter
      *
      * @param AdapterInterface $adapter
      *
-     * @return AdapterAwareInterface
+     * @return Converter
      */
-    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
+    public function injectAdapter(AdapterInterface $adapter, ?string $name = null): self
     {
-        if (!($adapter instanceof AdapterInterface)) {
-            throw new Exception('adapter needs to implement AdapterInterface');
-        }
-
         if (null === $name) {
             $name = get_class($adapter);
         }
@@ -135,7 +119,7 @@ class Converter
      *
      * @return AdapterInterface
      */
-    public function getAdapter(string $name)
+    public function getAdapter(string $name): AdapterInterface
     {
         if (!$this->hasAdapter($name)) {
             throw new Exception('adapter '.$name.' is not registered');
@@ -149,7 +133,7 @@ class Converter
      *
      * @param array $adapters
      *
-     * @return array
+     * @return AdapterInterface[]
      */
     public function getAdapters(array $adapters = []): array
     {

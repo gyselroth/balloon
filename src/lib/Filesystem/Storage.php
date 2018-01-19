@@ -14,20 +14,10 @@ namespace Balloon\Filesystem;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
-use Micro\Container\AdapterAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class Storage implements AdapterAwareInterface
+class Storage
 {
-    /**
-     * Default adapter.
-     */
-    const DEFAULT_ADAPTER = [
-        'gridfs' => [
-            'use' => Gridfs::class,
-        ],
-    ];
-
     /**
      * Logger.
      *
@@ -53,16 +43,6 @@ class Storage implements AdapterAwareInterface
     }
 
     /**
-     * Get default adapter.
-     *
-     * @return array
-     */
-    public function getDefaultAdapter(): array
-    {
-        return self::DEFAULT_ADAPTER;
-    }
-
-    /**
      * Has adapter.
      *
      * @param string $name
@@ -80,14 +60,10 @@ class Storage implements AdapterAwareInterface
      * @param AdapterInterface $adapter
      * @param string           $name
      *
-     * @return AdapterAwareInterface
+     * @return Storage
      */
-    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
+    public function injectAdapter(AdapterInterface $adapter, ?string $name = null): self
     {
-        if (!($adapter instanceof AdapterInterface)) {
-            throw new Exception('adapter needs to implement AdapterInterface');
-        }
-
         if (null === $name) {
             $name = get_class($adapter);
         }
@@ -112,7 +88,7 @@ class Storage implements AdapterAwareInterface
      *
      * @return AdapterInterface
      */
-    public function getAdapter(string $name)
+    public function getAdapter(string $name): AdapterInterface
     {
         if (!$this->hasAdapter($name)) {
             throw new Exception('storage adapter '.$name.' is not registered');
@@ -126,7 +102,7 @@ class Storage implements AdapterAwareInterface
      *
      * @param array $adapters
      *
-     * @return array
+     * @return AdapterInterface[]
      */
     public function getAdapters(array $adapters = []): array
     {

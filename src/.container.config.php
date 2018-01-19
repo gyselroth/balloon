@@ -12,6 +12,7 @@ use Micro\Auth\Auth;
 use Micro\Config\Config;
 use Micro\Container\Container;
 use MongoDB\Client;
+use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use Monolog\Logger;
 use Balloon\App\Notification\Notification;
@@ -31,6 +32,9 @@ use Balloon\Migration\Delta\v1AclTov2Acl;
 use Balloon\Migration\Delta\ShareName;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Sendmail;
+use Balloon\Hook\Delta;
+use Balloon\Hook\AutoDestroy;
+use Balloon\Hook\CleanTrash;
 
 return [
     Client::class => [
@@ -44,6 +48,15 @@ return [
                 ]
             ]
         ],
+    ],
+    Database::class => [
+        'use' => '{MongoDB\Client}',
+        'selects' => [[
+            'method' => 'selectDatabase',
+            'arguments' => [
+                'databaseName' => 'balloon'
+            ]
+        ]]
     ],
     LoggerInterface::class => [
         'use' => Logger::class,
@@ -63,60 +76,74 @@ return [
         ]
     ],
     Hook::class => [
+        'calls' => [
+            Delta::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.Delta::class.'}']
+            ],
+            AutoDestroy::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.AutoDestroy::class.'}']
+            ],
+            CleanTrash::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.CleanTrash::class.'}']
+            ],
+        ]
     ],
     Migration::class => [
         'calls' => [
             CoreInstallation::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.CoreInstallation::class.'}']
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.CoreInstallation::class.'}']
             ],
             FileToStorageAdapter::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.FileToStorageAdapter::class.'}']
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.FileToStorageAdapter::class.'}']
             ],
             QueueToCappedCollection::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.QueueToCappedCollection::class.'}']
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.QueueToCappedCollection::class.'}']
             ],
             JsonEncodeFilteredCollection::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.JsonEncodeFilteredCollection::class.'}']
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.JsonEncodeFilteredCollection::class.'}']
             ],
             v1AclTov2Acl::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.v1AclTov2Acl::class.'}']
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.v1AclTov2Acl::class.'}']
             ],
             ShareName::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.ShareName::class.'}']
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.ShareName::class.'}']
             ],
         ],
     ],
     Console::class => [
         'calls' => [
             Jobs::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Jobs::class.'}', 'name' => 'jobs']
+                'method' => 'injectModule',
+                'arguments' => ['module' => '{'.Jobs::class.'}', 'name' => 'jobs']
             ],
             Upgrade::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Upgrade::class.'}', 'name' => 'upgrade']
+                'method' => 'injectModule',
+                'arguments' => ['module' => '{'.Upgrade::class.'}', 'name' => 'upgrade']
             ],
             Useradd::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Useradd::class.'}', 'name' => 'useradd']
+                'method' => 'injectModule',
+                'arguments' => ['module' => '{'.Useradd::class.'}', 'name' => 'useradd']
             ],
             Usermod::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Usermod::class.'}', 'name' => 'usermod']
+                'method' => 'injectModule',
+                'arguments' => ['module' => '{'.Usermod::class.'}', 'name' => 'usermod']
             ],
             Groupadd::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Groupadd::class.'}', 'name' => 'groupadd']
+                'method' => 'injectModule',
+                'arguments' => ['module' => '{'.Groupadd::class.'}', 'name' => 'groupadd']
             ],
             Groupmod::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Groupmod::class.'}', 'name' => 'groupmod']
+                'method' => 'injectModule',
+                'arguments' => ['module' => '{'.Groupmod::class.'}', 'name' => 'groupmod']
             ],
         ]
     ],
@@ -127,9 +154,6 @@ return [
                 'arguments' => ['adapter' => '{'.Db::class.'}', 'name' => 'basic_db']
             ],
         ],
-    ],
-    App::class => [
-        'adapter' => []
     ],
     TransportInterface::class => [
         'use' => Sendmail::class

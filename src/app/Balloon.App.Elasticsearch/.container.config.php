@@ -5,16 +5,20 @@ use Balloon\App\Elasticsearch\Hook as ElasticsearchHook;
 use Balloon\Hook;
 
 return [
-    'service' => [
-        Migration::class => [
-            'adapter' => [
-                Installation::class => [],
-            ]
-        ],
-        Hook::class => [
-            'adapter' => [
-                ElasticsearchHook::class => []
+    Migration::class => [
+        'calls' => [
+            Installation::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Installation::class.'}']
             ],
-        ],
-    ]
+        ]
+    ],
+    Hook::class => [
+        'calls' => [
+            ElasticsearchHook::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.ElasticsearchHook::class.'}']
+            ],
+        ]
+    ],
 ];

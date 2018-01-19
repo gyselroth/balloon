@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink\Constructor;
 
-use Balloon\App\AppInterface;
 use Balloon\App\Sharelink\Api\Latest\ShareLink;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Exception;

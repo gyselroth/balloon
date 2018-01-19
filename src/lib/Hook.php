@@ -11,9 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-use Balloon\Hook\AutoDestroy;
-use Balloon\Hook\CleanTrash;
-use Balloon\Hook\Delta;
 use Balloon\Hook\Exception;
 use Balloon\Hook\HookInterface;
 use Psr\Log\LoggerInterface;
@@ -49,9 +46,9 @@ class Hook
      *
      * @param HookInterface $adapter
      *
-     * @return AdapterAwareInterface
+     * @return Hook
      */
-    public function injectHook(HookInterface $hook): AdapterAwareInterface
+    public function injectHook(HookInterface $hook): self
     {
         $this->logger->debug('inject hook ['.get_class($hook).']', [
             'category' => get_class($this),
@@ -99,7 +96,7 @@ class Hook
      *
      * @param array $hooks
      *
-     * @return array
+     * @return HookInterface[]
      */
     public function getHooks(array $hooks = []): array
     {
@@ -145,64 +142,5 @@ class Hook
         }
 
         return true;
-    }
-
-    /**
-     * Get default adapter.
-     *
-     * @return array
-     */
-    public function getDefaultAdapter(): array
-    {
-        return self::DEFAULT_ADAPTER;
-    }
-
-    /**
-     * Has adapter.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasAdapter(string $name): bool
-    {
-        return $this->hasHook($name);
-    }
-
-    /**
-     * Inject adapter.
-     *
-     * @param mixed  $adapter
-     * @param string $name
-     *
-     * @return AdapterAwareInterface
-     */
-    public function injectAdapter($adapter, ?string $name = null): AdapterAwareInterface
-    {
-        return $this->injectHook($adapter);
-    }
-
-    /**
-     * Get adapter.
-     *
-     * @param string $name
-     *
-     * @return mixed
-     */
-    public function getAdapter(string $name)
-    {
-        return $this->getHook($name);
-    }
-
-    /**
-     * Get adapters.
-     *
-     * @param array $adapters
-     *
-     * @return array
-     */
-    public function getAdapters(array $adapters = []): array
-    {
-        return $this->getHook($adapters);
     }
 }

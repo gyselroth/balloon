@@ -93,7 +93,7 @@ class Filesystem
     protected $acl;
 
     /**
-     * Node storage cache
+     * Node storage cache.
      *
      * @var array
      */
@@ -192,8 +192,8 @@ class Filesystem
      */
     public function findRawNode(ObjectId $id): array
     {
-        if(isset($this->cache[(string)$id])) {
-            return $this->cache[(string)$id]->getRawAttributes();
+        if (isset($this->cache[(string) $id])) {
+            return $this->cache[(string) $id]->getRawAttributes();
         }
 
         $node = $this->db->storage->findOne(['_id' => $id]);
@@ -218,8 +218,8 @@ class Filesystem
      */
     public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
     {
-        if(isset($this->cache[(string)$id])) {
-            return $this->cache[(string)$id];
+        if (isset($this->cache[(string) $id])) {
+            return $this->cache[(string) $id];
         }
 
         if (!is_string($id) && !($id instanceof ObjectId)) {
@@ -601,7 +601,8 @@ class Filesystem
             throw new Exception\Conflict('node is not available anymore');
         }
 
-        $this->cache[(string)$node['_id']] = $instance;
+        $this->cache[(string) $node['_id']] = $instance;
+
         return $instance;
     }
 

@@ -48,8 +48,8 @@ class Http
     /**
      * Constructor.
      *
-     * @param Hook $hook
-     * @param Router $router
+     * @param Hook     $hook
+     * @param Router   $router
      * @param iterable $config
      */
     public function __construct(Hook $hook, Router $router, ?Iterable $config = null)
