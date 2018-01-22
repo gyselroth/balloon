@@ -4,6 +4,8 @@
 **Author**: Raffael Sahli <sahli@gyselroth.net> \
 **Copyright**: gyselroth GmbH 2018
 
+The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in RFC 2119.
+
 ## Description
 This document describes an implementation of a secure client based End-To-End encryption for balloon.
 This document only describes the theory how a possible implementation CAN work and does not specify what exact technology SHALL be used.
