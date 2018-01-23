@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Office\Api\Latest;
 
 use Balloon\App\Api\Controller;
-use Balloon\App\Office\App\Http as App;
+use Balloon\App\Office\Constructor\Http as App;
 use Balloon\App\Office\Document;
 use Balloon\App\Office\Session as WopiSession;
 use Balloon\App\Office\Session\Member;

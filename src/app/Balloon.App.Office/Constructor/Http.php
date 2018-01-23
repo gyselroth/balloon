@@ -92,9 +92,9 @@ class Http
      *
      * @param iterable $config
      *
-     * @return AppInterface
+     * @return Http
      */
-    public function setOptions(?Iterable $config = null): AppInterface
+    public function setOptions(?Iterable $config = null): Http
     {
         if (null === $config) {
             return $this;

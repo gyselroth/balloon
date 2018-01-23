@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Office\Api\Latest;
 
 use Balloon\App\Api\Controller;
-use Balloon\App\Office\App\Http as App;
+use Balloon\App\Office\Constructor\Http as App;
 use Balloon\App\Office\Document as OfficeDoc;
 use Balloon\App\Office\Template;
 use Balloon\Filesystem;

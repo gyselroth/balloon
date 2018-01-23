@@ -132,7 +132,7 @@ class Job extends AbstractJob
                 'category' => get_class($this),
             ]);
 
-            $this->deleteDocument($this->data['id']);
+            $this->deleteDocument($this->data['id'], $this->data['storage']);
 
             return true;
         }
