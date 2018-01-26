@@ -18,6 +18,8 @@ use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
+use Zend\Mime\Message as MimeMessage;
+use Zend\Mime\Part as MimePart;
 
 class Mail implements AdapterInterface
 {
@@ -94,32 +96,36 @@ class Mail implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function notify(array $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
+    public function notify(User $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {
-        foreach ($receiver as $user) {
-            $address = $user->getAttributes()['mail'];
-            if (null === $address) {
-                $this->logger->debug('skip mail notifcation for user ['.$user->getId().'], user does not have a valid mail address', [
-                    'category' => get_class($this),
-                ]);
-
-                continue;
-            }
-
-            $mail = new Message();
-            $mail->setSubject($message->getSubject($user));
-            $mail->setBody($message->getBody($user));
-
-            if (null === $sender) {
-                $mail->setFrom($this->sender_address, $this->sender_name);
-            } else {
-                $mail->setFrom($this->sender_address, $sender->getAttributes()['username']);
-            }
-
-            return $this->async->addJob(MailJob::class, $mail->toString(), [
-                Async::OPTION_RETRY => 2,
+        $address = $receiver->getAttributes()['mail'];
+        if (null === $address) {
+            $this->logger->debug('skip mail notifcation for user ['.$receier->getId().'], user does not have a valid mail address', [
+                'category' => get_class($this),
             ]);
+
+            return false;
         }
+
+        $html = new MimePart($message->getMailBody($receiver));
+        $html->type = "text/html";
+        $body = new MimeMessage();
+        $body->addPart($html);
+
+        $mail = (new Message())
+          ->setSubject($message->getSubject($receiver))
+          ->setBody($body)
+          ->setTo($address);
+
+        if (null === $sender) {
+            $mail->setFrom($this->sender_address, $this->sender_name);
+        } else {
+            $mail->setFrom($this->sender_address, $sender->getAttributes()['username']);
+        }
+
+        $this->async->addJob(MailJob::class, $mail->toString(), [
+            Async::OPTION_RETRY => 2,
+        ]);
 
         return true;
     }

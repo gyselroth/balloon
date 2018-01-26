@@ -13,6 +13,8 @@ namespace Balloon\App\Notification\Hook;
 
 use Balloon\App\Notification\Exception;
 use Balloon\App\Notification\Notifier;
+use Balloon\App\Notification\TemplateHandler;
+use Balloon\App\Notification\NodeMessage;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
@@ -22,20 +24,6 @@ use Psr\Log\LoggerInterface;
 
 class Subscription extends AbstractHook
 {
-    /**
-     * Body.
-     *
-     * @var string
-     */
-    protected $body = "Hi {user.name} \n\r There have been made changes in your balloon directory.";
-
-    /**
-     * Subject.
-     *
-     * @var string
-     */
-    protected $subject = 'change';
-
     /**
      * Notification throttle.
      *
@@ -64,12 +52,7 @@ class Subscription extends AbstractHook
      */
     protected $logger;
 
-    /**
-     * User.
-     *
-     * @var User
-     */
-    protected $user;
+    protected $template;
 
     /**
      * Constructor.
@@ -77,11 +60,11 @@ class Subscription extends AbstractHook
      * @param Notification $notifier
      * @param Server       $server
      */
-    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(Notifier $notifier, Server $server, TemplateHandler $template, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->notifier = $notifier;
+        $this->template = $template;
         $this->server = $server;
-        $this->user = $server->getIdentity();
         $this->setOptions($config);
         $this->logger = $logger;
     }
@@ -120,6 +103,13 @@ class Subscription extends AbstractHook
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
         $this->notify($parent);
+        $user_id = (string)$this->server->getIdentity()->getId();
+        $subs = $parent->getAppAttribute('Balloon\\App\\Notification', 'subscription');
+
+        if(isset($subs[$user_id]) && $subs[$user_id]['recursive'] === true) {
+            $new_subs[$user_id] = $subs[$user_id];
+            $node->setAppAttribute('Balloon\\App\\Notification', 'subscription', $subs);
+        }
     }
 
     /**
@@ -170,32 +160,28 @@ class Subscription extends AbstractHook
     protected function notify(Collection $collection): void
     {
         $subs = $collection->getAppAttribute('Balloon\\App\\Notification', 'subscription');
-        if (isset($subs[(string) $this->user->getId()])) {
-            $this->logger->info('user ['.$this->user->getId().'] got a subscription for node ['.$collection->getId().']', [
-                'category' => get_class($this),
-            ]);
-        } else {
-            $this->logger->info('user ['.$this->user->getId().'] has no subscription for node ['.$collection->getId().']', [
-                'category' => get_class($this),
-            ]);
-
+        if(!is_array($subs)) {
             return;
         }
+
+        $user_id = (string)$this->server->getIdentity()->getId();
+
 
         $throttle = $collection->getAppAttribute('Balloon\\App\\Notification', 'notification_throttle');
         if (is_array($throttle) && isset($throttle[(string) $collection->getId()])) {
             $last = $throttle[(string) $collection->getId()];
         }
 
-        $body = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($collection) {
-            return (string) $collection;
-        //return $collection->getAttribute($match[2]);
-        }, $this->body);
-        $subject = preg_replace_callback('/(\{(([a-z]\.*)+)\})/', function ($match) use ($collection) {
-            return (string) $collection;
-        //return $collection->getAttribute($match[2]);
-        }, $this->subject);
+        if(isset($subs[$user_id]) && $subs[$user_id]['exclude_me'] === true) {
+            $this->logger->debug('skip message for user ['.$user_id.'], user excludes own actions in node ['.$collection->getId().']', [
+                'category' => get_class($this),
+            ]);
 
-        $this->notifier->notify($this->user, null, $subject, $body);
+            unset($subs[$user_id]);
+        }
+
+        $receiver = $this->server->getUsersById(array_keys($subs));
+        $message = new NodeMessage('subscription', $this->template, $collection);
+        $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
     }
 }

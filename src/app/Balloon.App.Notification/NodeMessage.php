@@ -53,22 +53,23 @@ class NodeMessage implements MessageInterface
      */
     protected $role_decorator;
 
+    protected $template;
+
     /**
      * Constructor.
      *
      * @param string                 $subject
      * @param string                 $message
+     * @param TemplateHandler        $template
      * @param NodeInterface          $node
      * @param AttributeDecorator     $decorator
      * @param RoleAttributeDecorator $role_decorator
      */
-    public function __construct(string $subject, string $message, NodeInterface $node, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator)
+    public function __construct(string $type, TemplateHandler $template, NodeInterface $node)
     {
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->type = $type;
+        $this->template = $template;
         $this->node = $node;
-        $this->decorator = $decorator;
-        $this->role_decorator = $role_decorator;
     }
 
     /**
@@ -76,7 +77,7 @@ class NodeMessage implements MessageInterface
      */
     public function getSubject(User $user): string
     {
-        return $this->decorate('subject', $user);
+        return $this->template->parseSubjectTemplate($this->type, $user, $this->node);
     }
 
     /**
@@ -84,29 +85,12 @@ class NodeMessage implements MessageInterface
      */
     public function getBody(User $user): string
     {
-        return $this->decorate('message', $user);
+        return $this->template->parseBodyTemplate($this->type, $user, $this->node);
     }
 
-    /**
-     * Replace variables.
-     *
-     * @param string $type
-     * @param User   $user
-     */
-    protected function decorate(string $type, User $user): string
+
+    public function getMailBody(User $user): string
     {
-        $node = $this->node;
-        $decorator = $this->decorator;
-        $role_decorator = $this->role_decorator;
-
-        $string = preg_replace_callback('/(\{node\.(([a-z]\.*)+)\})/', function ($match) use ($node, $decorator) {
-            return $decorator->decorate($node, [$match[2]])[$match[2]];
-        }, $this->{$type});
-
-        $string = preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use ($user, $role_decorator) {
-            return $role_decorator->decorate($user, [$match[2]])[$match[2]];
-        }, $this->{$type});
-
-        return $string;
+        return $this->template->parseMailBodyTemplate($this->type, $user, $this->node);
     }
 }

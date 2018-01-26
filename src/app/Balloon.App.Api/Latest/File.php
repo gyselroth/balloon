@@ -79,10 +79,7 @@ class File extends Node
      */
     public function getHistory(?string $id = null, ?string $p = null): Response
     {
-        $result = Helper::escape(
-            $this->_getNode($id, $p)->getHistory()
-        );
-
+        $result = $this->_getNode($id, $p)->getHistory();
         return (new Response())->setCode(200)->setBody($result);
     }
 
@@ -268,7 +265,10 @@ class File extends Node
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
-        $chunkgroup = Helper::filter($chunkgroup);
+        if(!preg_match('#^([A-Za-z0-9\.\-_])+$#', $chunkgroup)) {
+            throw new Exception\InvalidArgument('chunkgroup may only contain #^[(A-Za-z0-9\.\-_])+$#');
+        }
+
         $folder = $this->server->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
 
         if (!file_exists($folder)) {
@@ -494,7 +494,6 @@ class File extends Node
                     throw new Exception\InvalidArgument('name must be a valid string');
                 }
 
-                $name = Helper::filter($name);
                 $result = $collection->addFile($name, $content, $attributes)->getId();
 
                 return (new Response())->setCode(201)->setBody((string) $result);
@@ -510,12 +509,11 @@ class File extends Node
                     throw new Exception\InvalidArgument('path (p) must be a valid string');
                 }
 
-                $p = Helper::filter($p);
                 $parent_path = dirname($p);
                 $name = basename($p);
 
                 try {
-                    $parent = $this->fs->findNodeWithPath($parent_path, Collection::class);
+                    $parent = $this->fs->findNodeByPath($parent_path, Collection::class);
 
                     if (!is_string($name) || empty($name)) {
                         throw new Exception\InvalidArgument('name must be a valid string');

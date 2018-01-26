@@ -19,6 +19,7 @@ use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
 use Psr\Log\LoggerInterface;
+use Closure;
 
 class Node extends LatestNode
 {
@@ -286,7 +287,7 @@ class Node extends LatestNode
      */
     public function postMetaAttributes(array $attributes = [], ?string $id = null, ?string $p = null): Response
     {
-        $this->_getNode($id, $p)->setMetaAttributes(Helper::filter($_POST));
+        $this->_getNode($id, $p)->setMetaAttributes($_POST);
 
         return (new Response())->setCode(204);
     }
@@ -413,6 +414,109 @@ class Node extends LatestNode
      *
      * @return Response
      */
+
+    /**
+     * Do bulk operations
+     *
+     * @param string|array $id
+     * @param string|array $p
+     * @param Closure $action
+     */
+    protected function bulk($id, $p, Closure $action): Response
+    {
+        if(is_array($id) || is_array($p)) {
+            $errors = [];
+            $body = [];
+
+            foreach($this->_getNodes($id, $p) as $node) {
+                try {
+                    $body[] = $action->call($this, $node);
+                } catch(\Exception $e) {
+                    $errors[] = [
+                        'error' => get_class($e),
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode(),
+                    ];
+                }
+            }
+
+            if(!empty($errors)) {
+                return (new Response())->setCode(400)->setBody($errors);
+            } elseif(empty($body)) {
+                return (new Response())->setCode(204);
+            } else {
+                $body = array_shift($body);
+                $response = (new Response())->setCode($body['code']);
+
+                if(isset($body['data'])) {
+                    $response->setBody($body['data']);
+                }
+
+                return $response;
+            }
+        }
+
+        $body = $action->call($this, $this->_getNode($id, $p));
+        $response = (new Response())->setCode($body['code']);
+
+        if(isset($body['data'])) {
+            $response->setBody($body['data']);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @api {get} /api/v1/node/parent?id=:id Get parent node
+     * @apiVersion 1.0.0
+     * @apiName getParent
+     * @apiGroup Node
+     * @apiPermission none
+     * @apiDescription Get system attributes of the parent node
+     * @apiUse _getNode
+     * @apiUse _nodeAttributes
+     *
+     * @apiExample (cURL) example:
+     * curl -XGET "https://SERVER/api/v2/node/parent?id=544627ed3c58891f058b4686&pretty"
+     * curl -XGET "https://SERVER/api/v2/node/parent?id=544627ed3c58891f058b4686&attributes[0]=name&attributes[1]=deleted?pretty"
+     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686/parent?pretty"
+     * curl -XGET "https://SERVER/api/v2/node/parent?p=/absolute/path/to/my/node&pretty"
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *     "status": 200,
+     *     "data": {
+     *          "id": "544627ed3c58891f058b46cc",
+     *          "name": "exampledir",
+     *          "meta": {},
+     *          "size": 3,
+     *          "mime": "inode\/directory",
+     *          "deleted": false,
+     *          "changed": {
+     *              "sec": 1413883885,
+     *              "usec": 869000
+     *          },
+     *          "created": {
+     *              "sec": 1413883885,
+     *              "usec": 869000
+     *          },
+     *          "share": false,
+     *          "directory": true
+     *      }
+     * }
+     *
+     * @param string $id
+     * @param string $p
+     * @param array  $attributes
+     *
+     * @return Response
+     */
+    public function getParent(?string $id = null, ?string $p = null, array $attributes = []): Response
+    {
+        $result = $this->decorator->decorate($this->_getNode($id, $p)->getParent(), $attributes);
+        return (new Response())->setCode(200)->setBody($result);
+    }
 
     /**
      * @api {get} /api/v1/node/event-log?id=:id Event log

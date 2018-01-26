@@ -19,12 +19,12 @@ interface AdapterInterface
     /**
      * Send notification.
      *
-     * @param array receiver
+     * @param User $receiver
      * @param User             $sender
      * @param MessageInterface $message
      * @param array            $context
      *
      * @return bool
      */
-    public function notify(array $receiver, ?User $sender, MessageInterface $message, array $context = []): bool;
+    public function notify(User $receiver, ?User $sender, MessageInterface $message, array $context = []): bool;
 }

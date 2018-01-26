@@ -14,6 +14,7 @@ namespace Balloon\App\Preview\Constructor;
 use Balloon\App\Preview\Api\Latest\Preview;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
+use Balloon\Filesystem\Node\FileInterface;
 
 class Http
 {

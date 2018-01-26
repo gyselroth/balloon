@@ -34,14 +34,14 @@ class Http
             ->prependRoute(new Route('/api/v2/file/convert', Convert::class))
             ->prependRoute(new Route('/api/v2/file/{id:#([0-9a-z]{24})#}/convert', Convert::class));
 
-        $decorator->addDecorator('master', function ($node, $attributes) use ($fs, $decorator) {
+        $decorator->addDecorator('master', function ($node) use ($fs, $decorator) {
             $master = $node->getAppAttribute('Balloon\\App\\Convert', 'master');
             if (null === $master) {
                 return null;
             }
 
             try {
-                return $decorator->decorate($fs->findNodeById($master), $attributes['attributes']);
+                return $decorator->decorate($fs->findNodeById($master), ['id', 'name', '_links']);
             } catch (\Exception $e) {
                 return null;
             }

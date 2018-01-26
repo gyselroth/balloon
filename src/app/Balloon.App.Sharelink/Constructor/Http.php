@@ -66,7 +66,7 @@ class Http
             }
         });
 
-        $decorator->addDecorator('sharelink', function ($node, $attributes) use ($sharelink) {
+        $decorator->addDecorator('sharelink', function ($node) use ($sharelink) {
             return $sharelink->isSharelink($node);
         });
 

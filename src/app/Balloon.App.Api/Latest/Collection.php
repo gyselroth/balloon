@@ -14,6 +14,7 @@ namespace Balloon\App\Api\Latest;
 use Balloon\Exception;
 use Balloon\Helper;
 use Micro\Http\Response;
+use Balloon\Filesystem\Node\Collection as NodeCollection;
 
 class Collection extends Node
 {
@@ -109,7 +110,7 @@ class Collection extends Node
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
 
         foreach ($nodes as $node) {
-            $children[] = Helper::escape($this->decorator->decorate($node, $attributes));
+            $children[] = $this->decorator->decorate($node, $attributes);
         }
 
         return (new Response())->setCode(200)->setBody($children);
@@ -330,7 +331,7 @@ class Collection extends Node
 
             $parent_path = dirname($p);
             $name = basename($p);
-            $parent = $this->fs->findNodeWithPath($parent_path, 'Collection');
+            $parent = $this->fs->findNodeByPath($parent_path, NodeCollection::class);
             $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
 
             return (new Response())->setCode(201)->setBody((string) $result);

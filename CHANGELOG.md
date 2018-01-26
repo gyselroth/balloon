@@ -93,8 +93,11 @@ This major relase contains various fixes, changes and new features including:
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Notification, see apidoc, includes #67
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
 * API: [CHANGE] Balloon.App.Office API is available under /api/v2/office/* instead /api/v2/app/office/*
-* API: [FEATURE] Various new API endpoints for user and group management #14, #85
+* API: [FEATURE] Various new v2 API endpoints for user and group management #14, #85
 * API: [CHANGE] Per default api endpoints which return attributes do now return all attributes, this affects both v1 and v2 api. If you want to filter you can by providing the filter parameter.
+* API: [CHANGE] Removed GET /api/v2/node/parent, parent is included as parent node attribute
+* API: [CHANGE] APIv2 bulk operations do now return a HTTP status code 207 and contain a specific HTTP status code for each operation (node action)
+* API: [CHANGE] API output is not escaped anymore (This is also the case for the API v1)
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 
 

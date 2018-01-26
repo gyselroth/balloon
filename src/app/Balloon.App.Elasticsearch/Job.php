@@ -209,11 +209,13 @@ class Job extends AbstractJob
         $this->es->getEsClient()->index($params);
         $that = $this;
 
-        if ($node instanceof CollectionInterface) {
+        /*if ($node instanceof CollectionInterface) {
             $node->doRecursiveAction(function ($node) use ($that) {
                 $that->updateDocument($node);
             }, NodeInterface::DELETED_INCLUDE);
-        } elseif ($node instanceof FileInterface) {
+        } else*/
+
+        if ($node instanceof FileInterface) {
             $this->storeBlob($node);
         }
 

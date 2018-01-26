@@ -94,7 +94,7 @@ class Http
      *
      * @return Http
      */
-    public function setOptions(?Iterable $config = null): Http
+    public function setOptions(?Iterable $config = null): self
     {
         if (null === $config) {
             return $this;

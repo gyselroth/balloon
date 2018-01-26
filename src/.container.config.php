@@ -2,6 +2,8 @@
 use Balloon\App;
 use Balloon\Auth\Adapter\Basic\Db;
 use Balloon\Converter;
+use Balloon\Converter\Adapter\ImagickImage;
+use Balloon\Converter\Adapter\Office;
 use Balloon\Exception;
 use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
@@ -73,6 +75,18 @@ return [
                     'level' => 100
                 ]
             ]
+        ]
+    ],
+    Converter::class => [
+        'calls' => [
+            ImagickImage::class => [
+                'method' => 'injectAdapter',
+                'arguments' => ['adapter' => '{'.ImagickImage::class.'}']
+            ],
+            Office::class => [
+                'method' => 'injectAdapter',
+                'arguments' => ['adapter' => '{'.Office::class.'}']
+            ],
         ]
     ],
     Hook::class => [

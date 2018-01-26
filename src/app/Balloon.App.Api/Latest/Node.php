@@ -26,6 +26,7 @@ use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Generator;
+use Closure;
 use Micro\Http\Response;
 use MongoDB\BSON\UTCDateTime;
 use PHPZip\Zip\Stream\ZipStream;
@@ -188,7 +189,6 @@ class Node extends Controller
         int $conflict = 0
     ): Response {
         $parent = null;
-
         if (true === $move) {
             try {
                 $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
@@ -200,54 +200,26 @@ class Node extends Controller
             }
         }
 
-        if (is_array($id) || is_array($p)) {
-            $failures = [];
-            foreach ($this->_getNodes($id, $p) as $node) {
-                try {
-                    if (true === $move) {
-                        $node = $node->setParent($parent, $conflict);
-                    }
-
-                    if ($node->isDeleted()) {
-                        $node->undelete($conflict);
-                    }
-                } catch (\Exception $e) {
-                    $failures[] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
-
-                    $this->logger->debug('failed undelete node in multi node request ['.$node->getId().']', [
-                        'category' => get_class($this),
-                        'exception' => $e,
-                    ]);
-                }
+        return $this->bulk($id, $p, function($node) use($parent, $conflict, $move) {
+            if (true === $move) {
+                $node = $node->setParent($parent, $conflict);
             }
 
-            if (empty($failures)) {
-                return (new Response())->setCode(204);
+            if ($node->isDeleted()) {
+                $node->undelete($conflict);
             }
 
-            return (new Response())->setCode(400)->setBody($failures);
-        }
-        $node = $this->_getNode($id, $p);
+            if (true === $move && NodeInterface::CONFLICT_RENAME === $conflict) {
+                return [
+                    'code' => 200,
+                    'data' => [
 
-        if (true === $move) {
-            $node = $node->setParent($parent, $conflict);
-        }
-
-        if ($node->isDeleted()) {
-            $result = $node->undelete($conflict);
-        }
-
-        if (true === $move && NodeInterface::CONFLICT_RENAME === $conflict) {
-            return (new Response())->setCode(200)->setBody($node->getName());
-        }
-
-        return (new Response())->setCode(204);
+                    ]
+                ];
+            } else {
+                return ['code' => 204];
+            }
+        });
     }
 
     /**
@@ -402,36 +374,10 @@ class Node extends Controller
      */
     public function postReadonly($id = null, $p = null, bool $readonly = true): Response
     {
-        if (is_array($id) || is_array($p)) {
-            $failures = [];
-            foreach ($this->_getNodes($id, $p) as $node) {
-                try {
-                    $node->setReadonly($readonly);
-                } catch (\Exception $e) {
-                    $failures[] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
-
-                    $this->logger->debug('failed set readonly node in multi node request ['.$node->getId().']', [
-                        'category' => get_class($this),
-                        'exception' => $e,
-                    ]);
-                }
-            }
-
-            if (empty($failures)) {
-                return (new Response())->setCode(204);
-            }
-
-            return (new Response())->setCode(400)->setBody($failures);
-        }
-        $result = $this->_getNode($id, $p)->setReadonly($readonly);
-
-        return (new Response())->setCode(204);
+        return $this->bulk($id, $p, function($node) use($readonly) {
+            $node->setReadonly($readonly);
+            return ['code' => 204];
+        });
     }
 
     /**
@@ -539,70 +485,13 @@ class Node extends Controller
         if (is_array($id) || is_array($p)) {
             $nodes = [];
             foreach ($this->_getNodes($id, $p) as $node) {
-                $nodes[] = Helper::escape($this->decorator->decorate($node, $attributes));
+                $nodes[] = $this->decorator->decorate($node, $attributes);
             }
 
             return (new Response())->setCode(200)->setBody($nodes);
         }
-        $result = Helper::escape(
-                $this->decorator->decorate($this->_getNode($id, $p), $attributes)
-            );
 
-        return (new Response())->setCode(200)->setBody($result);
-    }
-
-    /**
-     * @api {get} /api/v2/node/parent?id=:id Get parent node
-     * @apiVersion 2.0.0
-     * @apiName getParent
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Get system attributes of the parent node
-     * @apiUse _getNode
-     * @apiUse _nodeAttributes
-     *
-     * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/node/parent?id=544627ed3c58891f058b4686&pretty"
-     * curl -XGET "https://SERVER/api/v2/node/parent?id=544627ed3c58891f058b4686&attributes[0]=name&attributes[1]=deleted?pretty"
-     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686/parent?pretty"
-     * curl -XGET "https://SERVER/api/v2/node/parent?p=/absolute/path/to/my/node&pretty"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": {
-     *          "id": "544627ed3c58891f058b46cc",
-     *          "name": "exampledir",
-     *          "meta": {},
-     *          "size": 3,
-     *          "mime": "inode\/directory",
-     *          "deleted": false,
-     *          "changed": {
-     *              "sec": 1413883885,
-     *              "usec": 869000
-     *          },
-     *          "created": {
-     *              "sec": 1413883885,
-     *              "usec": 869000
-     *          },
-     *          "share": false,
-     *          "directory": true
-     *      }
-     * }
-     *
-     * @param string $id
-     * @param string $p
-     * @param array  $attributes
-     *
-     * @return Response
-     */
-    public function getParent(?string $id = null, ?string $p = null, array $attributes = []): Response
-    {
-        $result = Helper::escape(
-            $this->decorator->decorate($this->_getNode($id, $p)->getParent(), $attributes)
-        );
-
+        $result = $this->decorator->decorate($this->_getNode($id, $p), $attributes);
         return (new Response())->setCode(200)->setBody($result);
     }
 
@@ -691,8 +580,6 @@ class Node extends Controller
             $result[] = $this->decorator->decorate($node, $attributes);
         }
 
-        $result = Helper::escape($result);
-
         return (new Response())->setCode(200)->setBody($result);
     }
 
@@ -729,37 +616,10 @@ class Node extends Controller
      */
     public function postMetaAttributes(array $attributes, ?string $id = null, ?string $p = null): Response
     {
-        if (is_array($id) || is_array($p)) {
-            $failures = [];
-            foreach ($this->_getNodes($id, $p) as $node) {
-                try {
-                    $node->setMetaAttributes(Helper::filter($attributes));
-                } catch (\Exception $e) {
-                    $failures[] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
-
-                    $this->logger->debug('failed set metta attributes on node in multi node request ['.$node->getId().']', [
-                        'category' => get_class($this),
-                        'exception' => $e,
-                    ]);
-                }
-            }
-
-            if (empty($failures)) {
-                return (new Response())->setCode(204);
-            }
-
-            return (new Response())->setCode(400)->setBody($failures);
-        }
-
-        $this->_getNode($id, $p)->setMetaAttributes(Helper::filter($attributes));
-
-        return (new Response())->setCode(204);
+        return $this->bulk($id, $p, function($node) use($attributes) {
+            $node->setMetaAttributes($attributes);
+            return ['code' => 204];
+        });
     }
 
     /**
@@ -843,36 +703,13 @@ class Node extends Controller
             );
         }
 
-        if (is_array($id) || is_array($p)) {
-            $failures = [];
-            foreach ($this->_getNodes($id, $p) as $node) {
-                try {
-                    $node->copyTo($parent, $conflict);
-                } catch (\Exception $e) {
-                    $failures[] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
-
-                    $this->logger->debug('failed clone node in multi node request ['.$node->getId().']', [
-                        'category' => get_class($this),
-                        'exception' => $e,
-                    ]);
-                }
-            }
-
-            if (empty($failures)) {
-                return (new Response())->setCode(204);
-            }
-
-            return(new Response())->setCode(400)->setBody($failures);
-        }
-        $result = $this->_getNode($id, $p)->copyTo($parent, $conflict);
-
-        return (new Response())->setCode(201)->setBody((string) $result->getId());
+        return $this->bulk($id, $p, function($node) use($parent, $conflict) {
+            $result = $node->copyTo($parent, $conflict);
+            return [
+                'code' => 201,
+                'data' => $result
+            ];
+        });
     }
 
     /**
@@ -929,41 +766,19 @@ class Node extends Controller
             );
         }
 
-        if (is_array($id) || is_array($p)) {
-            $failures = [];
-            foreach ($this->_getNodes($id, $p) as $node) {
-                try {
-                    $node->setParent($parent, $conflict);
-                } catch (\Exception $e) {
-                    $failures[] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
-
-                    $this->logger->debug('failed move node in multi node request ['.$node->getId().']', [
-                        'category' => get_class($this),
-                        'exception' => $e,
-                    ]);
-                }
+        return $this->bulk($id, $p, function($node) use($parent, $conflict) {
+            $result = $node->setParent($parent, $conflict);
+            if (NodeInterface::CONFLICT_RENAME === $conflict) {
+                return [
+                    'code' => 200,
+                    'data' => $node->getName()
+                ];
             }
 
-            if (empty($failures)) {
-                return (new Response())->setCode(204);
-            }
-
-            return (new Response())->setCode(400)->setBody($failures);
-        }
-        $node = $this->_getNode($id, $p);
-        $result = $node->setParent($parent, $conflict);
-
-        if (NodeInterface::CONFLICT_RENAME === $conflict) {
-            return (new Response())->setCode(200)->setBody($node->getName());
-        }
-
-        return (new Response())->setCode(204);
+            return [
+                'code' => 204
+            ];
+        });
     }
 
     /**
@@ -1010,50 +825,20 @@ class Node extends Controller
             $at = $this->_verifyAttributes(['destroy' => $at])['destroy'];
         }
 
-        if (is_array($id) || is_array($p)) {
-            foreach ($this->_getNodes($id, $p) as $node) {
-                try {
-                    if (null === $at) {
-                        $node->delete($force && $node->isDeleted() || $force && $ignore_flag);
-                    } else {
-                        if ('0' === $at) {
-                            $at = null;
-                        }
-                        $node->setDestroyable($at);
-                    }
-                } catch (\Exception $e) {
-                    $failures[] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
-
-                    $this->logger->debug('failed delete node in multi node request ['.$node->getId().']', [
-                        'category' => get_class($this),
-                        'exception' => $e,
-                    ]);
+        return $this->bulk($id, $p, function($node) use($force, $ignore_flag, $at) {
+            if (null === $at) {
+                $node->delete($force && $node->isDeleted() || $force && $ignore_flag);
+            } else {
+                if ('0' === $at) {
+                    $at = null;
                 }
+                $node->setDestroyable($at);
             }
 
-            if (empty($failures)) {
-                return (new Response())->setCode(204);
-            }
-
-            return (new Response())->setcode(400)->setBody($failures);
-        }
-        if (null === $at) {
-            $result = $this->_getNode($id, $p)->delete($force);
-        } else {
-            if ('0' === $at) {
-                $at = null;
-            }
-
-            $result = $this->_getNode($id, $p)->setDestroyable($at);
-        }
-
-        return (new Response())->setCode(204);
+            return [
+                'code' => 204
+            ];
+        });
     }
 
     /**
@@ -1100,7 +885,7 @@ class Node extends Controller
         $nodes = $this->fs->findNodesByFilterUser($deleted, $filter);
 
         foreach ($nodes as $node) {
-            $child = Helper::escape($this->decorator->decorate($node, $attributes));
+            $child = $this->decorator->decorate($node, $attributes);
             $children[] = $child;
         }
 
@@ -1149,7 +934,7 @@ class Node extends Controller
             } catch (\Exception $e) {
             }
 
-            $child = Helper::escape($this->decorator->decorate($node, $attributes));
+            $child = $this->decorator->decorate($node, $attributes);
             $children[] = $child;
         }
 
@@ -1419,6 +1204,47 @@ class Node extends Controller
 
         return (new Response())->setCode(200)->setBody($result);
     }
+
+
+    /**
+     * Do bulk operations
+     *
+     * @param string|array $id
+     * @param string|array $p
+     * @param Closure $action
+     */
+    protected function bulk($id, $p, Closure $action): Response
+    {
+        if(is_array($id) || is_array($p)) {
+            $body = [];
+            foreach($this->_getNodes($id, $p) as $node) {
+                try {
+                    $body[(string)$node->getId()] = $action->call($this, $node);
+                } catch(\Exception $e) {
+                    $body[(string)$node->getId()] = [
+                        'code' => 400,
+                        'data' => [
+                            'error' => get_class($e),
+                            'message' => $e->getMessage(),
+                            'code' => $e->getCode(),
+                        ]
+                    ];
+                }
+            }
+
+            return (new Response())->setCode(207)->setBody($body);
+        }
+
+        $body = $action->call($this, $this->_getNode($id, $p));
+        $response = (new Response())->setCode($body['code']);
+
+        if(isset($body['data'])) {
+            $response->setBody($body['data']);
+        }
+
+        return $response;
+    }
+
 
     /**
      * Get node.

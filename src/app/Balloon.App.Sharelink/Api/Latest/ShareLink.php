@@ -78,7 +78,6 @@ class ShareLink extends Controller
     public function post(?string $id = null, ?string $p = null, array $options = []): Response
     {
         $node = $this->fs->getNode($id, $p);
-        $options = Helper::filter($options);
         $options['shared'] = true;
 
         $this->sharelink->shareLink($node, $options);
@@ -153,10 +152,7 @@ class ShareLink extends Controller
     public function get(?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
-        $result = Helper::escape(
-            $this->sharelink->getShareLink($node)
-        );
-
+        $result = $this->sharelink->getShareLink($node);
         return (new Response())->setCode(200)->setBody($result);
     }
 }

@@ -13,6 +13,9 @@ Balloon\Server:
       temp_dir: "/tmp/balloon"
       max_file_version: 8
       max_file_size: 1073741824
+      server_url: "{ENV(BALLOON_URL,https://localhost)}"
+      password_policy: '#^.*$#'
+      password_hash: 1
 Balloon\App\ClamAv\Scanner:
   arguments:
     config:
@@ -59,6 +62,7 @@ apps:
   Balloon.App.ClamAv: true
   Balloon.App.Elasticsearch: true
   Balloon.App.Notification: true
+  Balloon.App.Office: true
 Balloon\App\Office\App:
   enabled: true
   arguments:
@@ -76,8 +80,9 @@ Balloon\App\DesktopClient\DesktopClient:
       github_mapping: ""
 Zend\Mail\Transport\SmtpOptions:
   arguments:
-    host: '{ENV(BALLOON_SMTP_HOST,127.0.0.1)}'
-    port: 25
+    options:
+      host: '{ENV(BALLOON_SMTP_HOST,127.0.0.1)}'
+      port: 25
 Zend\Mail\Transport\TransportInterface:
   use: "Zend\\Mail\\Transport\\Smtp"
 Balloon\Filesystem:
@@ -125,11 +130,11 @@ Balloon\Hook:
           interval: 28800
 Balloon\Convert:
   calls:
-    imagick:
+    Balloon\Convert\Adapter\Imagick:
       method: injectAdapter
       arguments:
         adapter: '{Balloon\Convert\Adapter\Imagick}'
-    office:
+    Balloon\Convert\Adapter\Office:
       method: injectAdapter
       arguments:
         adapter: '{Balloon\Convert\Adapter\Office}'
@@ -168,10 +173,12 @@ Psr\Log\LoggerInterface:
       arguments:
         dateFormat: "Y-d-m H:i:s"
         format: "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
+      calls:
+        - method: includeStacktraces
     file:
       use: Monolog\Handler\StreamHandler
       arguments:
-        stream: '{ENV(BALLOON_LOG_PATH,/tmp)}/out.log'
+        stream: '{ENV(BALLOON_LOG_DIR,/tmp)}/out.log'
         level: 100
       calls:
         formatter:

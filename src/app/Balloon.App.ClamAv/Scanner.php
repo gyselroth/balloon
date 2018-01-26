@@ -17,14 +17,15 @@ use Socket\Raw\Factory as SocketFactory;
 use Socket\Raw\Socket;
 use Xenolope\Quahog\Client as ClamAv;
 use Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
+use MongoDB\BSON\UTCDateTime;
 
 class Scanner
 {
     /**
      * States.
      */
-    const FILE_INFECTED = 0;
-    const FILE_OK = 1;
+    const FILE_INFECTED = 'FOUND';
+    const FILE_OK = 'OK';
 
     /**
      * Socket.
@@ -129,9 +130,9 @@ class Scanner
      *
      * @param File $file
      *
-     * @return int
+     * @return array
      */
-    public function scan(File $file): int
+    public function scan(File $file): array
     {
         $this->logger->debug('scan file ['.$file->getId().'] via clamav', [
             'category' => get_class($this),
@@ -159,15 +160,15 @@ class Scanner
                 'category' => get_class($this),
             ]);
 
-            if ('OK' === $result['status']) {
-                return self::FILE_OK;
+            if (self::FILE_OK === $result['status']) {
+                return $result;
             }
-            if ('FOUND' === $result['status']) {
+            if (self::FILE_INFECTED === $result['status']) {
                 $this->logger->debug('file ['.$file->getId().'] is infected ('.$result['reason'].')', [
                     'category' => get_class($this),
                 ]);
 
-                return self::FILE_INFECTED;
+                return $result;
             }
         } catch (ClamAvConnectionException $e) {
             throw new Exception('scan of file ['.$file->getId().'] failed: '.$e->getMessage());
@@ -180,22 +181,31 @@ class Scanner
      * Execute appropriate action on given file.
      *
      * @param File $file
-     * @param bool $infected
+     * @param array $result
      *
      * @return bool
      */
-    public function handleFile(File $file, bool $infected = false): bool
+    public function handleFile(File $file, array $result): bool
     {
-        if ($infected) {
+        if ($result['status'] === self::FILE_INFECTED) {
             switch ($this->aggressiveness) {
                 case 0:
                     break;
                 case 1:
-                    $file->setAppAttribute(__NAMESPACE__, 'quarantine', true);
+                    $file->setAppAttributes(__NAMESPACE__, [
+                        'quarantine' => true,
+                        'scantime' => new UTCDateTime(),
+                        'reason' => $result['reason']
+                    ]);
 
                     break;
                 case 2:
-                    $file->setAppAttribute(__NAMESPACE__, 'quarantine', true);
+                    $file->setAppAttributes(__NAMESPACE__, [
+                        'quarantine' => true,
+                        'scantime' => new UTCDateTime(),
+                        'reason' => $result['reason']
+                    ]);
+
                     $file->delete();
 
                     break;
@@ -206,7 +216,10 @@ class Scanner
                     break;
             }
         } else {
-            $file->setAppAttribute(__NAMESPACE__, 'quarantine', false);
+            $file->setAppAttributes(__NAMESPACE__, [
+                'quarantine' => false,
+                'scantime' => new UTCDateTime(),
+            ]);
         }
 
         return true;

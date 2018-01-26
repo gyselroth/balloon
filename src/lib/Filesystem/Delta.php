@@ -556,7 +556,7 @@ class Delta
             ];
         } else {
             if (isset($_SERVER['HTTP_X_CLIENT'])) {
-                $parts = explode('|', Helper::filter($_SERVER['HTTP_X_CLIENT']));
+                $parts = explode('|', strip_tags($_SERVER['HTTP_X_CLIENT']));
                 $count = count($parts);
 
                 if (3 === $count) {

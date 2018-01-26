@@ -14,6 +14,7 @@ namespace Balloon\App\Notification\Hook;
 use Balloon\App\Notification\Exception;
 use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
+use Balloon\App\Notification\TemplateHandler;
 use Balloon\Async\Mail;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
@@ -27,20 +28,6 @@ use Psr\Log\LoggerInterface;
 
 class NewShareAdded extends AbstractHook
 {
-    /**
-     * Body.
-     *
-     * @var string
-     */
-    protected $body = 'added a new share {share}';
-
-    /**
-     * Subject.
-     *
-     * @var string
-     */
-    protected $subject = 'new share';
-
     /**
      * Notifier.
      *
@@ -67,14 +54,7 @@ class NewShareAdded extends AbstractHook
      *
      * @var AttributeDecorator
      */
-    protected $decorator;
-
-    /**
-     * Role attribute decorator.
-     *
-     * @var RoleAttributeDecorator
-     */
-    protected $role_decorator;
+    protected $template;
 
     /**
      * Constructor.
@@ -82,42 +62,12 @@ class NewShareAdded extends AbstractHook
      * @param Notification $notifier
      * @param Server       $server
      */
-    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, ?Iterable $config = null)
+    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, TemplateHandler $template, ?Iterable $config = null)
     {
         $this->notifier = $notifier;
         $this->server = $server;
-        $this->setOptions($config);
         $this->logger = $logger;
-        $this->decorator = $decorator;
-        $this->role_decorator = $role_decorator;
-    }
-
-    /**
-     * Set config.
-     *
-     * @param iterable $config
-     *
-     * @return AbstractHook
-     */
-    public function setOptions(?Iterable $config = null): AbstractHook
-    {
-        if (null === $config) {
-            return $this;
-        }
-
-        foreach ($config as $option => $value) {
-            switch ($option) {
-                case 'body':
-                case 'subject':
-                    $this->{$option} = (string) $value;
-
-                break;
-                default:
-                    throw new Exception('invalid option '.$option.' given');
-            }
-        }
-
-        return $this;
+        $this->template = $template;
     }
 
     /**
@@ -161,7 +111,7 @@ class NewShareAdded extends AbstractHook
         }
 
         if (!empty($receiver)) {
-            $message = new NodeMessage($this->subject, $this->body, $node, $this->decorator, $this->role_decorator);
+            $message = new NodeMessage('new_share_added', $this->template, $node);
             $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
         }
     }

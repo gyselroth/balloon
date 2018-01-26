@@ -106,6 +106,13 @@ class Server
     protected $password_hash = PASSWORD_DEFAULT;
 
     /**
+     * Server url
+     *
+     * @var string
+     */
+    protected $server_url = 'https://localhost';
+
+    /**
      * Initialize.
      *
      * @param Database        $db
@@ -143,6 +150,7 @@ class Server
             switch ($name) {
                 case 'temp_dir':
                 case 'password_policy':
+                case 'server_url':
                     $this->{$name} = (string) $value;
 
                 break;
@@ -158,6 +166,16 @@ class Server
         }
 
         return $this;
+    }
+
+    /**
+     * Get server url
+     *
+     * @return string
+     */
+    public function getServerUrl(): string
+    {
+        return $this->server_url;
     }
 
     /**
@@ -418,7 +436,9 @@ class Server
         }
 
         $filter = [
-            '_id' => ['$in' => $find],
+            '$match' => [
+                '_id' => ['$in' => $find],
+            ]
         ];
 
         $aggregation = $this->getUserAggregationPipes();

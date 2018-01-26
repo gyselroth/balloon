@@ -1,0 +1,6 @@
+{
+  "en_US": {
+    "subject": "Changes made in your balloon",
+    "body": "Hi {user.username},\n{user.username} made changes in your folder {node.name}.\n You get this message because you have subscribed {node.name} for updates."
+  }
+}

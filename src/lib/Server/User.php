@@ -39,6 +39,27 @@ class User implements RoleInterface
     protected $username;
 
     /**
+     * Firstname.
+     *
+     * @var string
+     */
+    protected $firstname;
+
+    /**
+     * Lastname.
+     *
+     * @var string
+     */
+    protected $lastname;
+
+    /**
+     * Locale.
+     *
+     * @var string
+     */
+    protected $locale = 'en_US';
+
+    /**
      * Groups.
      *
      * @var array
@@ -249,6 +270,9 @@ class User implements RoleInterface
         return [
             'id' => $this->_id,
             'username' => $this->username,
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
+            'locale' => $this->locale,
             'namespace' => $this->namespace,
             'created' => $this->created,
             'changed' => $this->changed,

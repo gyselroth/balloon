@@ -1,6 +1,7 @@
 <?php
 use Balloon\Hook;
 use Balloon\App\Notification\Hook\NewShareAdded;
+use Balloon\App\Notification\Hook\Subscription;
 use Balloon\App\Notification\Adapter\Db;
 use Balloon\App\Notification\Adapter\Mail;
 
@@ -22,6 +23,10 @@ return [
             NewShareAdded::class => [
                 'method' => 'injectHook',
                 'arguments' => ['hook' => '{'.NewShareAdded::class.'}']
+            ],
+            Subscripiton::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.Subscription::class.'}']
             ]
         ],
     ]

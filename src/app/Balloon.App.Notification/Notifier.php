@@ -13,6 +13,7 @@ namespace Balloon\App\Notification;
 
 use Balloon\App\Notification\Adapter\AdapterInterface;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Server;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
@@ -52,11 +53,11 @@ class Notifier
     protected $db;
 
     /**
-     * User.
+     * Server.
      *
-     * @var User
+     * @var Server
      */
-    protected $user;
+    protected $server;
 
     /**
      * Collection name.
@@ -76,8 +77,8 @@ class Notifier
     public function __construct(Database $db, Server $server, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->logger = $logger;
-        $this->user = $server->getIdentity();
         $this->db = $db;
+        $this->server = $server;
         $this->setOptions($config);
     }
 
@@ -113,7 +114,7 @@ class Notifier
     /**
      * Send notification.
      *
-     * @param array  $receiver
+     * @param Iterable  $receiver
      * @param User   $sender
      * @param string $subject
      * @param string $body
@@ -121,7 +122,7 @@ class Notifier
      *
      * @return bool
      */
-    public function notify(array $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
+    public function notify(Iterable $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {
         if (0 === count($this->adapter)) {
             $this->logger->warning('there are no notification adapter enabled, notification can not be sent', [
@@ -131,12 +132,14 @@ class Notifier
             return false;
         }
 
-        foreach ($this->adapter as $name => $adapter) {
-            $this->logger->debug('send notification via adpater ['.$name.']', [
-                'category' => get_class($this),
-            ]);
+        foreach($receiver as $user) {
+            foreach ($this->adapter as $name => $adapter) {
+                $this->logger->debug('send notification to user ['.$user->getId().'] via adapter ['.$name.']', [
+                    'category' => get_class($this),
+                ]);
 
-            $adapter->notify($receiver, $sender, $message, $context);
+                $adapter->notify($user, $sender, $message, $context);
+            }
         }
 
         return true;
@@ -230,26 +233,20 @@ class Notifier
      *
      * @return ObjectId
      */
-    public function postNotification(array $receiver, ?User $sender, MessageInterface $message, array $context = []): ObjectId
+    public function postNotification(User $receiver, ?User $sender, MessageInterface $message, array $context = []): ObjectId
     {
         $data = [
             'context' => $context,
-            'receiver' => [],
+            'subject' => $message->getSubject($receiver),
+            'body' => $message->getBody($receiver),
+            'receiver' => $receiver->getId(),
         ];
 
         if ($sender instanceof User) {
             $data['sender'] = $sender->getId();
         }
 
-        foreach ($receiver as $user) {
-            $notifcation = $data;
-            $notification['subject'] = $message->getSubject($user);
-            $notification['body'] = $message->getBody($user);
-            $notification['receiver'] = $user->getId();
-        }
-
         $result = $this->db->{$this->collection_name}->insertOne($data);
-
         return $result->getInsertedId();
     }
 
@@ -260,7 +257,7 @@ class Notifier
      */
     public function getNotifications(): Cursor
     {
-        $result = $this->db->{$this->collection_name}->find(['receiver' => $this->user->getId()]);
+        $result = $this->db->{$this->collection_name}->find(['receiver' => $this->server->getIdentity()->getId()]);
 
         return $result;
     }
@@ -276,14 +273,14 @@ class Notifier
     {
         $result = $this->db->{$this->collection_name}->deleteOne([
             '_id' => $id,
-            'receiver' => $this->user->getId(),
+            'receiver' => $this->server->getIdentity()->getId(),
         ]);
 
         if (null === $result) {
             throw new Exception('notification not found');
         }
 
-        $this->logger->debug('notification ['.$id.'] removed from user ['.$this->user->getId().']', [
+        $this->logger->debug('notification ['.$id.'] removed from user ['.$this->server->getIdentity()->getId().']', [
             'category' => get_class($this),
         ]);
 
@@ -295,30 +292,57 @@ class Notifier
      *
      * @param NodeInterface $node
      * @param bool          $subscribe
+     * @param bool $exclude_me
+     * @param bool $recursive
      *
      * @return bool
      */
-    public function subscribeNode(NodeInterface $node, bool $subscribe = true): bool
+    public function subscribeNode(NodeInterface $node, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false): bool
     {
         $subs = $node->getAppAttribute(__NAMESPACE__, 'subscription');
+        $user_id = (string) $this->server->getIdentity()->getId();
 
         if (true === $subscribe) {
-            $this->logger->debug('user ['.$this->user->getId().'] subribes node ['.$node->getId().']', [
+            $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] subribes node ['.$node->getId().']', [
                 'category' => get_class($this),
             ]);
 
-            if (isset($subs[(string) $this->user->getId()])) {
-                unset($subs[(string) $this->user->getId()]);
+            $subscription = [
+                'timestamp' => new UTCDateTime(),
+                'exclude_me' => $exclude_me,
+                'recursive' => $recursive
+            ];
+
+            $subs[$user_id] = $subscription;
+            $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+            if($node instanceof Collection && $recursive === true) {
+                $node->doRecursiveAction(function($child) use($subscription, $user_id) {
+                    $subs = $child->getAppAttribute(__NAMESPACE__, 'subscription');
+                    $subs[$user_id] = $subscription;
+                    $child->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+                });
+            }
+        } else {
+            $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] unsubribes node ['.$node->getId().']', [
+                'category' => get_class($this),
+            ]);
+
+            if(isset($subs[$user_id])) {
+                unset($subs[$user_id]);
             }
 
             $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
-        } else {
-            $this->logger->debug('user ['.$this->user->getId().'] unsubribes node ['.$node->getId().']', [
-                'category' => get_class($this),
-            ]);
 
-            $subs[(string) $this->user->getId()] = new UTCDateTime();
-            $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+            if($node instanceof Collection && $recursive === true) {
+                $node->doRecursiveAction(function($child) use($subscription, $user_id) {
+                    $subs = $child->getAppAttribute(__NAMESPACE__, 'subscription');
+
+                    if(isset($subs[$user_id])) {
+                        unset($subs[$user_id]);
+                    }
+                    $child->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+                });
+            }
         }
 
         return true;

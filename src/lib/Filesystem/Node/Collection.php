@@ -36,7 +36,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      *
      * @var array
      */
-    protected $children = [];
+    protected $children;
 
     /**
      * Share acl.
@@ -227,41 +227,52 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             $this->_user->findNewShares();
         }
 
-        $search = [
-            'parent' => $this->getRealId(),
-        ];
+        if($this->children === null) {
+            $search = [
+                'parent' => $this->getRealId(),
+            ];
 
-        if (NodeInterface::DELETED_EXCLUDE === $deleted) {
-            $search['deleted'] = false;
-        } elseif (NodeInterface::DELETED_ONLY === $deleted) {
-            $search['deleted'] = ['$type' => 9];
-        }
+            if (NodeInterface::DELETED_EXCLUDE === $deleted) {
+                $search['deleted'] = false;
+            } elseif (NodeInterface::DELETED_ONLY === $deleted) {
+                $search['deleted'] = ['$type' => 9];
+            }
 
-        $search = array_merge($filter, $search);
+            $search = array_merge($filter, $search);
 
-        if ($this->shared) {
-            $node = $this->_db->storage->find([
-                '$and' => [
-                    $search,
-                    [
-                        '$or' => [
-                            ['shared' => $this->reference],
-                            ['shared' => $this->shared],
-                            ['shared' => $this->_id],
+            if ($this->shared) {
+                $search = [
+                    '$and' => [
+                        $search,
+                        [
+                            '$or' => [
+                                ['shared' => $this->reference],
+                                ['shared' => $this->shared],
+                                ['shared' => $this->_id],
+                            ],
                         ],
                     ],
-                ],
-            ]);
-        } else {
-            if (null !== $this->_user) {
+                ];
+            } elseif(null !== $this->_user) {
                 $search['owner'] = $this->_user->getId();
             }
 
-            $node = $this->_db->storage->find($search);
+            //$node = $this->_db->storage->find($search);
+            $children = $this->_db->storage->aggregate([
+                ['$match' => $search],
+                ['$lookup' => [
+                    'from' => 'storage',
+                    'localField' => '_id',
+                    'foreignField' => 'parent',
+                    'as' => 'children'
+                ]]
+            ]);
+        } else {
+            $children = $this->children;
         }
 
         $list = [];
-        foreach ($node as $child) {
+        foreach ($children as $child) {
             try {
                 yield $this->_fs->initNode($child);
             } catch (\Exception $e) {

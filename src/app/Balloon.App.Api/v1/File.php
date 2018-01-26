@@ -77,10 +77,7 @@ class File extends LatestFile
      */
     public function getHistory(?string $id = null, ?string $p = null): Response
     {
-        $result = Helper::escape(
-            $this->_getNode($id, $p)->getHistory()
-        );
-
+        $result = $this->_getNode($id, $p)->getHistory();
         return (new Response())->setCode(200)->setBody($result);
     }
 }

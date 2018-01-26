@@ -38,46 +38,6 @@ class Helper
     }
 
     /**
-     * Filter data.
-     *
-     * @param mixed $data
-     *
-     * @return mixed
-     */
-    public static function filter($data)
-    {
-        if (is_array($data)) {
-            foreach ($data as &$elem) {
-                $elem = self::filter($elem);
-            }
-        } else {
-            $data = strip_tags($data);
-        }
-
-        return $data;
-    }
-
-    /**
-     * Escape data.
-     *
-     * @param mixed $data
-     *
-     * @return mixed
-     */
-    public static function escape($data)
-    {
-        if (is_array($data)) {
-            foreach ($data as &$elem) {
-                $elem = self::escape($elem);
-            }
-        } elseif (is_string($data)) {
-            $data = htmlspecialchars($data, ENT_COMPAT, 'UTF-8');
-        }
-
-        return $data;
-    }
-
-    /**
      * Check if param is a valid unix timestamp.
      *
      * @param string $timestamp

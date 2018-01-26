@@ -23,6 +23,7 @@ use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
+use Balloon\Server\AttributeDecorator;
 
 class Notification extends Controller
 {
@@ -69,14 +70,22 @@ class Notification extends Controller
     protected $logger;
 
     /**
+     * Attribute decorator
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
      * Constructor.
      *
      * @param Notifier        $notifier
      * @param Server          $server
      * @param Async           $async
      * @param LoggerInterface $logger
+     * @param AttributeDecorator $decorator
      */
-    public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger)
+    public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, AttributeDecorator $decorator)
     {
         $this->notifier = $notifier;
         $this->user = $server->getIdentity();
@@ -84,6 +93,7 @@ class Notification extends Controller
         $this->server = $server;
         $this->async = $async;
         $this->logger = $logger;
+        $this->decorator = $decorator;
     }
 
     /**
@@ -114,11 +124,7 @@ class Notification extends Controller
             $note['id'] = (string) $note['_id'];
             unset($note['_id'], $note['receiver']);
 
-            $note['sender'] = $this->server->getUserById($note['sender'])->getAttributes([
-                'id',
-                'username',
-            ]);
-
+            $note['sender'] = $this->decorator->decorate($this->server->getUserById($note['sender']), ['id', 'username']);
             $body[] = $note;
         }
 
@@ -180,7 +186,7 @@ class Notification extends Controller
      * curl -XPOST "https://SERVER/api/v2/notification/broadcast"
      *
      * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 202 Accepted
      */
     public function postBroadcast(string $subject, string $body): Response
     {
@@ -194,7 +200,7 @@ class Notification extends Controller
         $users = $this->server->getUsers();
         $this->notifier->notify($users, $this->user, $subject, $body);
 
-        return (new Response())->setCode(204);
+        return (new Response())->setCode(202);
     }
 
     /**
@@ -209,7 +215,7 @@ class Notification extends Controller
      * curl -XGET "https://SERVER/api/v2/notification/mail"
      *
      * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 202 Accepted
      */
     public function postMail(array $receiver, string $subject, string $body)
     {
@@ -221,7 +227,7 @@ class Notification extends Controller
           ->setBcc($receiver);
         $this->async->addJob(Mail::class, $mail->toString());
 
-        return (new Response())->setCode(204);
+        return (new Response())->setCode(202);
     }
 
     /**
@@ -243,12 +249,12 @@ class Notification extends Controller
      * @param null|mixed $id
      * @param null|mixed $p
      */
-    public function postSubscribe($id = null, $p = null, bool $subscribe = true)
+    public function postSubscribe($id = null, $p = null, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false)
     {
         if (is_array($id) || is_array($p)) {
             foreach ($this->fs->findNodesById($id) as $node) {
                 try {
-                    $this->notifier->subscribe($this->fs->getNode($id, $p), $subscribe);
+                    $this->notifier->subscribeNode($this->fs->getNode($id, $p), $subscribe);
                 } catch (\Exception $e) {
                     $failures[] = [
                         'id' => (string) $node->getId(),
@@ -272,7 +278,7 @@ class Notification extends Controller
             return (new Response())->setcode(400)->setBody($failures);
         }
 
-        $this->notifier->subscribe($this->fs->getNode($id, $p), $subscribe);
+        $this->notifier->subscribeNode($this->fs->getNode($id, $p), $subscribe, $exclude_me, $recursive);
 
         return (new Response())->setCode(204);
     }

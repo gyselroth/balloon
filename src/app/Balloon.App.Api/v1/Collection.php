@@ -67,7 +67,7 @@ class Collection extends LatestCollection
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
 
         foreach ($nodes as $node) {
-            $children[] = Helper::escape($this->decorator->decorate($node, $attributes));
+            $children[] = $this->decorator->decorate($node, $attributes);
         }
 
         return (new Response())->setCode(200)->setBody($children);

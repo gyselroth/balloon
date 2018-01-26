@@ -117,7 +117,7 @@ class Search extends Controller
 
         foreach ($nodes as $node) {
             try {
-                $child = Helper::escape($this->decorator->decorate($node, $attributes));
+                $child = $this->decorator->decorate($node, $attributes);
                 $children[] = $child;
             } catch (\Exception $e) {
                 $this->logger->info('error occured during loading attributes, skip search result node', [
