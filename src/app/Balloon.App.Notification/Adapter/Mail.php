@@ -108,7 +108,7 @@ class Mail implements AdapterInterface
         }
 
         $html = new MimePart($message->getMailBody($receiver));
-        $html->type = "text/html";
+        $html->type = 'text/html';
         $body = new MimeMessage();
         $body->addPart($html);
 

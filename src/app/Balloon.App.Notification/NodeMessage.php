@@ -88,7 +88,6 @@ class NodeMessage implements MessageInterface
         return $this->template->parseBodyTemplate($this->type, $user, $this->node);
     }
 
-
     public function getMailBody(User $user): string
     {
         return $this->template->parseMailBodyTemplate($this->type, $user, $this->node);

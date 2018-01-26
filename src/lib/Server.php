@@ -106,7 +106,7 @@ class Server
     protected $password_hash = PASSWORD_DEFAULT;
 
     /**
-     * Server url
+     * Server url.
      *
      * @var string
      */
@@ -169,7 +169,7 @@ class Server
     }
 
     /**
-     * Get server url
+     * Get server url.
      *
      * @return string
      */
@@ -438,7 +438,7 @@ class Server
         $filter = [
             '$match' => [
                 '_id' => ['$in' => $find],
-            ]
+            ],
         ];
 
         $aggregation = $this->getUserAggregationPipes();

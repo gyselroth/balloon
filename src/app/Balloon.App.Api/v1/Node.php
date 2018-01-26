@@ -14,12 +14,11 @@ namespace Balloon\App\Api\v1;
 use Balloon\App\Api\Latest\Node as LatestNode;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\FileInterface;
-use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
+use Closure;
 use Micro\Http\Response;
 use Psr\Log\LoggerInterface;
-use Closure;
 
 class Node extends LatestNode
 {
@@ -293,180 +292,6 @@ class Node extends LatestNode
     }
 
     /**
-     * @api {get} /api/v1/node/query Custom query
-     * @apiVersion 1.0.0
-     * @apiName getQuery
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription A custom query is similar requet to children. You do not have to provide any parent node (id or p)
-     * but you have to provide a filter therefore you can collect any nodes which do match the provided filter. It is a form of a search
-     * (search) but does not use the search engine like GET /node/search does. You can also create a persistent query collection, just look at
-     * POST /collection, there you can attach a filter option to the attributes paramater which would be the same as a custom query but just persistent.
-     * Since query parameters can only be strings and you perhaps would like to filter other data types, you have to send json as parameter to the server.
-     * @apiUse _nodeAttributes_v1
-     *
-     * @apiExample (cURL) example:
-     * curl -XGET https://SERVER/api/v1/node/query?{%22filter%22:{%22shared%22:true,%22reference%22:{%22$exists%22:0}}}
-     *
-     * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
-     * @apiParam (GET Parameter) {string[]} [filter] Filter nodes
-     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
-     * - 0 Exclude deleted</br>
-     * - 1 Only deleted</br>
-     * - 2 Include deleted</br>
-     *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} data Children
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "status":200,
-     *      "data": [{..}, {...}] //Shorted
-     * }
-     *
-     * @param int   $deleted
-     * @param array $filter
-     * @param array $attributes
-     *
-     * @return Response
-     */
-
-    /**
-     * @api {get} /api/v1/node/trash Get trash
-     * @apiName getTrash
-     * @apiVersion 1.0.0
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription A similar endpoint to /api/v1/node/query filer={'deleted': {$type: 9}] but instead returning all deleted
-     * nodes (including children which are deleted as well) this enpoint only returns the first deleted node from every subtree)
-     * @apiUse _nodeAttributes_v1
-     *
-     * @apiExample (cURL) example:
-     * curl -XGET https://SERVER/api/v1/node/trash?pretty
-     *
-     * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
-     *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} data Children
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "status":200,
-     *      "data": [{..}, {...}] //Shorted
-     * }
-     *
-     * @param array $attributes
-     *
-     * @return Response
-     */
-
-    /**
-     * @api {get} /api/v1/node/search Search
-     * @apiVersion 1.0.0
-     * @apiName getSearch
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Extended search query, using the integrated search engine (elasticsearch).
-     * @apiUse _nodeAttributes_v1
-     *
-     * @apiExample (cURL) example:
-     * #Fulltext search and search for a name
-     * curl -XGET -H 'Content-Type: application/json' "https://SERVER/api/v1/node/search?pretty" -d '{
-     *           "body": {
-     *               "query": {
-     *                   "bool": {
-     *                       "should": [
-     *                           {
-     *                               "match": {
-     *                                   "content": "house"
-     *                               }
-     *                           },
-     *                           {
-     *                               "match": {
-     *                                   "name": "file.txt"
-     *                               }
-     *                           }
-     *                       ]
-     *                   }
-     *               }
-     *           }
-     *       }'
-     *
-     * @apiParam (GET Parameter) {object} query Elasticsearch query object
-     * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
-     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
-     * - 0 Exclude deleted</br>
-     * - 1 Only deleted</br>
-     * - 2 Include deleted</br>
-     *
-     * @apiSuccess (200 OK) {object[]} data Node list (matched nodes)
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "status":200,
-     *      "data": [{...}, {...}]
-     *      }
-     * }
-     *
-     * @param array $query
-     * @param array $attributes
-     * @param int   $deleted
-     *
-     * @return Response
-     */
-
-    /**
-     * Do bulk operations
-     *
-     * @param string|array $id
-     * @param string|array $p
-     * @param Closure $action
-     */
-    protected function bulk($id, $p, Closure $action): Response
-    {
-        if(is_array($id) || is_array($p)) {
-            $errors = [];
-            $body = [];
-
-            foreach($this->_getNodes($id, $p) as $node) {
-                try {
-                    $body[] = $action->call($this, $node);
-                } catch(\Exception $e) {
-                    $errors[] = [
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
-                }
-            }
-
-            if(!empty($errors)) {
-                return (new Response())->setCode(400)->setBody($errors);
-            } elseif(empty($body)) {
-                return (new Response())->setCode(204);
-            } else {
-                $body = array_shift($body);
-                $response = (new Response())->setCode($body['code']);
-
-                if(isset($body['data'])) {
-                    $response->setBody($body['data']);
-                }
-
-                return $response;
-            }
-        }
-
-        $body = $action->call($this, $this->_getNode($id, $p));
-        $response = (new Response())->setCode($body['code']);
-
-        if(isset($body['data'])) {
-            $response->setBody($body['data']);
-        }
-
-        return $response;
-    }
-
-    /**
      * @api {get} /api/v1/node/parent?id=:id Get parent node
      * @apiVersion 1.0.0
      * @apiName getParent
@@ -515,6 +340,7 @@ class Node extends LatestNode
     public function getParent(?string $id = null, ?string $p = null, array $attributes = []): Response
     {
         $result = $this->decorator->decorate($this->_getNode($id, $p)->getParent(), $attributes);
+
         return (new Response())->setCode(200)->setBody($result);
     }
 
@@ -632,6 +458,182 @@ class Node extends LatestNode
         $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);
 
         return (new Response())->setCode(200)->setBody($result);
+    }
+
+    /**
+     * @api {get} /api/v1/node/query Custom query
+     * @apiVersion 1.0.0
+     * @apiName getQuery
+     * @apiGroup Node
+     * @apiPermission none
+     * @apiDescription A custom query is similar requet to children. You do not have to provide any parent node (id or p)
+     * but you have to provide a filter therefore you can collect any nodes which do match the provided filter. It is a form of a search
+     * (search) but does not use the search engine like GET /node/search does. You can also create a persistent query collection, just look at
+     * POST /collection, there you can attach a filter option to the attributes paramater which would be the same as a custom query but just persistent.
+     * Since query parameters can only be strings and you perhaps would like to filter other data types, you have to send json as parameter to the server.
+     * @apiUse _nodeAttributes_v1
+     *
+     * @apiExample (cURL) example:
+     * curl -XGET https://SERVER/api/v1/node/query?{%22filter%22:{%22shared%22:true,%22reference%22:{%22$exists%22:0}}}
+     *
+     * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
+     * @apiParam (GET Parameter) {string[]} [filter] Filter nodes
+     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
+     * - 0 Exclude deleted</br>
+     * - 1 Only deleted</br>
+     * - 2 Include deleted</br>
+     *
+     * @apiSuccess (200 OK) {number} status Status Code
+     * @apiSuccess (200 OK) {object[]} data Children
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "status":200,
+     *      "data": [{..}, {...}] //Shorted
+     * }
+     *
+     * @param int   $deleted
+     * @param array $filter
+     * @param array $attributes
+     * @param mixed $id
+     * @param mixed $p
+     *
+     * @return Response
+     */
+
+    /**
+     * @api {get} /api/v1/node/trash Get trash
+     * @apiName getTrash
+     * @apiVersion 1.0.0
+     * @apiGroup Node
+     * @apiPermission none
+     * @apiDescription A similar endpoint to /api/v1/node/query filer={'deleted': {$type: 9}] but instead returning all deleted
+     * nodes (including children which are deleted as well) this enpoint only returns the first deleted node from every subtree)
+     * @apiUse _nodeAttributes_v1
+     *
+     * @apiExample (cURL) example:
+     * curl -XGET https://SERVER/api/v1/node/trash?pretty
+     *
+     * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
+     *
+     * @apiSuccess (200 OK) {number} status Status Code
+     * @apiSuccess (200 OK) {object[]} data Children
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "status":200,
+     *      "data": [{..}, {...}] //Shorted
+     * }
+     *
+     * @param array $attributes
+     *
+     * @return Response
+     */
+
+    /**
+     * @api {get} /api/v1/node/search Search
+     * @apiVersion 1.0.0
+     * @apiName getSearch
+     * @apiGroup Node
+     * @apiPermission none
+     * @apiDescription Extended search query, using the integrated search engine (elasticsearch).
+     * @apiUse _nodeAttributes_v1
+     *
+     * @apiExample (cURL) example:
+     * #Fulltext search and search for a name
+     * curl -XGET -H 'Content-Type: application/json' "https://SERVER/api/v1/node/search?pretty" -d '{
+     *           "body": {
+     *               "query": {
+     *                   "bool": {
+     *                       "should": [
+     *                           {
+     *                               "match": {
+     *                                   "content": "house"
+     *                               }
+     *                           },
+     *                           {
+     *                               "match": {
+     *                                   "name": "file.txt"
+     *                               }
+     *                           }
+     *                       ]
+     *                   }
+     *               }
+     *           }
+     *       }'
+     *
+     * @apiParam (GET Parameter) {object} query Elasticsearch query object
+     * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
+     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
+     * - 0 Exclude deleted</br>
+     * - 1 Only deleted</br>
+     * - 2 Include deleted</br>
+     *
+     * @apiSuccess (200 OK) {object[]} data Node list (matched nodes)
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "status":200,
+     *      "data": [{...}, {...}]
+     *      }
+     * }
+     *
+     * @param array $query
+     * @param array $attributes
+     * @param int   $deleted
+     *
+     * @return Response
+     */
+
+    /**
+     * Do bulk operations.
+     *
+     * @param array|string $id
+     * @param array|string $p
+     * @param Closure      $action
+     */
+    protected function bulk($id, $p, Closure $action): Response
+    {
+        if (is_array($id) || is_array($p)) {
+            $errors = [];
+            $body = [];
+
+            foreach ($this->_getNodes($id, $p) as $node) {
+                try {
+                    $body[] = $action->call($this, $node);
+                } catch (\Exception $e) {
+                    $errors[] = [
+                        'error' => get_class($e),
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode(),
+                    ];
+                }
+            }
+
+            if (!empty($errors)) {
+                return (new Response())->setCode(400)->setBody($errors);
+            }
+            if (empty($body)) {
+                return (new Response())->setCode(204);
+            }
+            $body = array_shift($body);
+            $response = (new Response())->setCode($body['code']);
+
+            if (isset($body['data'])) {
+                $response->setBody($body['data']);
+            }
+
+            return $response;
+        }
+
+        $body = $action->call($this, $this->_getNode($id, $p));
+        $response = (new Response())->setCode($body['code']);
+
+        if (isset($body['data'])) {
+            $response->setBody($body['data']);
+        }
+
+        return $response;
     }
 
     /**

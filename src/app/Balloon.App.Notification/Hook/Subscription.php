@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Hook;
 
 use Balloon\App\Notification\Exception;
+use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
 use Balloon\App\Notification\TemplateHandler;
-use Balloon\App\Notification\NodeMessage;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
@@ -103,10 +103,10 @@ class Subscription extends AbstractHook
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
         $this->notify($parent);
-        $user_id = (string)$this->server->getIdentity()->getId();
+        $user_id = (string) $this->server->getIdentity()->getId();
         $subs = $parent->getAppAttribute('Balloon\\App\\Notification', 'subscription');
 
-        if(isset($subs[$user_id]) && $subs[$user_id]['recursive'] === true) {
+        if (isset($subs[$user_id]) && $subs[$user_id]['recursive'] === true) {
             $new_subs[$user_id] = $subs[$user_id];
             $node->setAppAttribute('Balloon\\App\\Notification', 'subscription', $subs);
         }
@@ -160,19 +160,18 @@ class Subscription extends AbstractHook
     protected function notify(Collection $collection): void
     {
         $subs = $collection->getAppAttribute('Balloon\\App\\Notification', 'subscription');
-        if(!is_array($subs)) {
+        if (!is_array($subs)) {
             return;
         }
 
-        $user_id = (string)$this->server->getIdentity()->getId();
-
+        $user_id = (string) $this->server->getIdentity()->getId();
 
         $throttle = $collection->getAppAttribute('Balloon\\App\\Notification', 'notification_throttle');
         if (is_array($throttle) && isset($throttle[(string) $collection->getId()])) {
             $last = $throttle[(string) $collection->getId()];
         }
 
-        if(isset($subs[$user_id]) && $subs[$user_id]['exclude_me'] === true) {
+        if (isset($subs[$user_id]) && $subs[$user_id]['exclude_me'] === true) {
             $this->logger->debug('skip message for user ['.$user_id.'], user excludes own actions in node ['.$collection->getId().']', [
                 'category' => get_class($this),
             ]);

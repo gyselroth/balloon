@@ -12,12 +12,12 @@ declare(strict_types=1);
 namespace Balloon\App\ClamAv;
 
 use Balloon\Filesystem\Node\File;
+use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Socket\Raw\Factory as SocketFactory;
 use Socket\Raw\Socket;
 use Xenolope\Quahog\Client as ClamAv;
 use Xenolope\Quahog\Exception\ConnectionException as ClamAvConnectionException;
-use MongoDB\BSON\UTCDateTime;
 
 class Scanner
 {
@@ -180,7 +180,7 @@ class Scanner
     /**
      * Execute appropriate action on given file.
      *
-     * @param File $file
+     * @param File  $file
      * @param array $result
      *
      * @return bool
@@ -195,7 +195,7 @@ class Scanner
                     $file->setAppAttributes(__NAMESPACE__, [
                         'quarantine' => true,
                         'scantime' => new UTCDateTime(),
-                        'reason' => $result['reason']
+                        'reason' => $result['reason'],
                     ]);
 
                     break;
@@ -203,7 +203,7 @@ class Scanner
                     $file->setAppAttributes(__NAMESPACE__, [
                         'quarantine' => true,
                         'scantime' => new UTCDateTime(),
-                        'reason' => $result['reason']
+                        'reason' => $result['reason'],
                     ]);
 
                     $file->delete();

@@ -227,7 +227,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
             $this->_user->findNewShares();
         }
 
-        if($this->children === null) {
+        if ($this->children === null) {
             $search = [
                 'parent' => $this->getRealId(),
             ];
@@ -253,7 +253,7 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
                         ],
                     ],
                 ];
-            } elseif(null !== $this->_user) {
+            } elseif (null !== $this->_user) {
                 $search['owner'] = $this->_user->getId();
             }
 
@@ -264,8 +264,8 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
                     'from' => 'storage',
                     'localField' => '_id',
                     'foreignField' => 'parent',
-                    'as' => 'children'
-                ]]
+                    'as' => 'children',
+                ]],
             ]);
         } else {
             $children = $this->children;

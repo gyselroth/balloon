@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Balloon\App\Notification;
 
 use Balloon\App\Notification\Adapter\AdapterInterface;
-use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
@@ -114,11 +114,11 @@ class Notifier
     /**
      * Send notification.
      *
-     * @param Iterable  $receiver
-     * @param User   $sender
-     * @param string $subject
-     * @param string $body
-     * @param array  $context
+     * @param iterable $receiver
+     * @param User     $sender
+     * @param string   $subject
+     * @param string   $body
+     * @param array    $context
      *
      * @return bool
      */
@@ -132,7 +132,7 @@ class Notifier
             return false;
         }
 
-        foreach($receiver as $user) {
+        foreach ($receiver as $user) {
             foreach ($this->adapter as $name => $adapter) {
                 $this->logger->debug('send notification to user ['.$user->getId().'] via adapter ['.$name.']', [
                     'category' => get_class($this),
@@ -247,6 +247,7 @@ class Notifier
         }
 
         $result = $this->db->{$this->collection_name}->insertOne($data);
+
         return $result->getInsertedId();
     }
 
@@ -292,8 +293,8 @@ class Notifier
      *
      * @param NodeInterface $node
      * @param bool          $subscribe
-     * @param bool $exclude_me
-     * @param bool $recursive
+     * @param bool          $exclude_me
+     * @param bool          $recursive
      *
      * @return bool
      */
@@ -310,13 +311,13 @@ class Notifier
             $subscription = [
                 'timestamp' => new UTCDateTime(),
                 'exclude_me' => $exclude_me,
-                'recursive' => $recursive
+                'recursive' => $recursive,
             ];
 
             $subs[$user_id] = $subscription;
             $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
-            if($node instanceof Collection && $recursive === true) {
-                $node->doRecursiveAction(function($child) use($subscription, $user_id) {
+            if ($node instanceof Collection && $recursive === true) {
+                $node->doRecursiveAction(function ($child) use ($subscription, $user_id) {
                     $subs = $child->getAppAttribute(__NAMESPACE__, 'subscription');
                     $subs[$user_id] = $subscription;
                     $child->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
@@ -327,17 +328,17 @@ class Notifier
                 'category' => get_class($this),
             ]);
 
-            if(isset($subs[$user_id])) {
+            if (isset($subs[$user_id])) {
                 unset($subs[$user_id]);
             }
 
             $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
 
-            if($node instanceof Collection && $recursive === true) {
-                $node->doRecursiveAction(function($child) use($subscription, $user_id) {
+            if ($node instanceof Collection && $recursive === true) {
+                $node->doRecursiveAction(function ($child) use ($subscription, $user_id) {
                     $subs = $child->getAppAttribute(__NAMESPACE__, 'subscription');
 
-                    if(isset($subs[$user_id])) {
+                    if (isset($subs[$user_id])) {
                         unset($subs[$user_id]);
                     }
                     $child->setAppAttribute(__NAMESPACE__, 'subscription', $subs);

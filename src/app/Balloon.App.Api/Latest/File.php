@@ -14,7 +14,6 @@ namespace Balloon\App\Api\Latest;
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Helper;
 use Micro\Http\Response;
 
 class File extends Node
@@ -80,6 +79,7 @@ class File extends Node
     public function getHistory(?string $id = null, ?string $p = null): Response
     {
         $result = $this->_getNode($id, $p)->getHistory();
+
         return (new Response())->setCode(200)->setBody($result);
     }
 
@@ -265,7 +265,7 @@ class File extends Node
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
-        if(!preg_match('#^([A-Za-z0-9\.\-_])+$#', $chunkgroup)) {
+        if (!preg_match('#^([A-Za-z0-9\.\-_])+$#', $chunkgroup)) {
             throw new Exception\InvalidArgument('chunkgroup may only contain #^[(A-Za-z0-9\.\-_])+$#');
         }
 

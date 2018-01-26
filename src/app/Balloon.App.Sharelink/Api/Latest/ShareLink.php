@@ -14,7 +14,6 @@ namespace Balloon\App\Sharelink\Api\Latest;
 use Balloon\App\Api\Controller;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Filesystem;
-use Balloon\Helper;
 use Balloon\Server;
 use Micro\Http\Response;
 
@@ -153,6 +152,7 @@ class ShareLink extends Controller
     {
         $node = $this->fs->getNode($id, $p);
         $result = $this->sharelink->getShareLink($node);
+
         return (new Response())->setCode(200)->setBody($result);
     }
 }

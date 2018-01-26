@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v1;
 
 use Balloon\App\Api\Latest\Collection as LatestCollection;
-use Balloon\Helper;
 use Micro\Http\Response;
 
 class Collection extends LatestCollection

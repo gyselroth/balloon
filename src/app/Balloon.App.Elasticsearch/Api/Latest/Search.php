@@ -15,7 +15,6 @@ use Balloon\App\Api\Controller;
 use Balloon\App\Elasticsearch\Elasticsearch;
 use Balloon\Exception;
 use Balloon\Filesystem\Node\AttributeDecorator;
-use Balloon\Helper;
 use Micro\Http\Response;
 use Psr\Log\LoggerInterface;
 

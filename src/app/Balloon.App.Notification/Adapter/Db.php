@@ -40,6 +40,7 @@ class Db implements AdapterInterface
     public function notify(User $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {
         $this->notifier->postNotification($receiver, $sender, $message, $context);
+
         return true;
     }
 }

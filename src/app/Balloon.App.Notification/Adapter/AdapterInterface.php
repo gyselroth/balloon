@@ -19,7 +19,7 @@ interface AdapterInterface
     /**
      * Send notification.
      *
-     * @param User $receiver
+     * @param User             $receiver
      * @param User             $sender
      * @param MessageInterface $message
      * @param array            $context

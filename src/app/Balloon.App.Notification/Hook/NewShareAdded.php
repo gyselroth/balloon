@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
-use Balloon\App\Notification\Exception;
 use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
 use Balloon\App\Notification\TemplateHandler;
@@ -21,7 +20,6 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
 use Balloon\Server;
-use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;

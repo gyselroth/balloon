@@ -195,7 +195,8 @@ class AttributeDecorator
             'owner' => function ($node) use ($server, $fs, $decorator) {
                 try {
                     return $decorator->decorate(
-                        $server->getUserById($node->getOwner()), ['id', 'name', '_links']
+                        $server->getUserById($node->getOwner()),
+                        ['id', 'name', '_links']
                     );
                 } catch (\Exception $e) {
                     return null;
@@ -237,7 +238,6 @@ class AttributeDecorator
             },
         ];
     }
-
 
     /**
      * Get Attributes.

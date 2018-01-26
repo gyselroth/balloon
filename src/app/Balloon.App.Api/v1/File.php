@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v1;
 
 use Balloon\App\Api\Latest\File as LatestFile;
-use Balloon\Helper;
 use Micro\Http\Response;
 
 class File extends LatestFile
@@ -78,6 +77,7 @@ class File extends LatestFile
     public function getHistory(?string $id = null, ?string $p = null): Response
     {
         $result = $this->_getNode($id, $p)->getHistory();
+
         return (new Response())->setCode(200)->setBody($result);
     }
 }

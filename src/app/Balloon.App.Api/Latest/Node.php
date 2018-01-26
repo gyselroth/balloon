@@ -25,8 +25,8 @@ use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
-use Generator;
 use Closure;
+use Generator;
 use Micro\Http\Response;
 use MongoDB\BSON\UTCDateTime;
 use PHPZip\Zip\Stream\ZipStream;
@@ -200,7 +200,7 @@ class Node extends Controller
             }
         }
 
-        return $this->bulk($id, $p, function($node) use($parent, $conflict, $move) {
+        return $this->bulk($id, $p, function ($node) use ($parent, $conflict, $move) {
             if (true === $move) {
                 $node = $node->setParent($parent, $conflict);
             }
@@ -213,12 +213,11 @@ class Node extends Controller
                 return [
                     'code' => 200,
                     'data' => [
-
-                    ]
+                    ],
                 ];
-            } else {
-                return ['code' => 204];
             }
+
+            return ['code' => 204];
         });
     }
 
@@ -374,8 +373,9 @@ class Node extends Controller
      */
     public function postReadonly($id = null, $p = null, bool $readonly = true): Response
     {
-        return $this->bulk($id, $p, function($node) use($readonly) {
+        return $this->bulk($id, $p, function ($node) use ($readonly) {
             $node->setReadonly($readonly);
+
             return ['code' => 204];
         });
     }
@@ -492,6 +492,7 @@ class Node extends Controller
         }
 
         $result = $this->decorator->decorate($this->_getNode($id, $p), $attributes);
+
         return (new Response())->setCode(200)->setBody($result);
     }
 
@@ -616,8 +617,9 @@ class Node extends Controller
      */
     public function postMetaAttributes(array $attributes, ?string $id = null, ?string $p = null): Response
     {
-        return $this->bulk($id, $p, function($node) use($attributes) {
+        return $this->bulk($id, $p, function ($node) use ($attributes) {
             $node->setMetaAttributes($attributes);
+
             return ['code' => 204];
         });
     }
@@ -703,11 +705,12 @@ class Node extends Controller
             );
         }
 
-        return $this->bulk($id, $p, function($node) use($parent, $conflict) {
+        return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {
             $result = $node->copyTo($parent, $conflict);
+
             return [
                 'code' => 201,
-                'data' => $result
+                'data' => $result,
             ];
         });
     }
@@ -766,17 +769,17 @@ class Node extends Controller
             );
         }
 
-        return $this->bulk($id, $p, function($node) use($parent, $conflict) {
+        return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {
             $result = $node->setParent($parent, $conflict);
             if (NodeInterface::CONFLICT_RENAME === $conflict) {
                 return [
                     'code' => 200,
-                    'data' => $node->getName()
+                    'data' => $node->getName(),
                 ];
             }
 
             return [
-                'code' => 204
+                'code' => 204,
             ];
         });
     }
@@ -825,7 +828,7 @@ class Node extends Controller
             $at = $this->_verifyAttributes(['destroy' => $at])['destroy'];
         }
 
-        return $this->bulk($id, $p, function($node) use($force, $ignore_flag, $at) {
+        return $this->bulk($id, $p, function ($node) use ($force, $ignore_flag, $at) {
             if (null === $at) {
                 $node->delete($force && $node->isDeleted() || $force && $ignore_flag);
             } else {
@@ -836,7 +839,7 @@ class Node extends Controller
             }
 
             return [
-                'code' => 204
+                'code' => 204,
             ];
         });
     }
@@ -1205,29 +1208,28 @@ class Node extends Controller
         return (new Response())->setCode(200)->setBody($result);
     }
 
-
     /**
-     * Do bulk operations
+     * Do bulk operations.
      *
-     * @param string|array $id
-     * @param string|array $p
-     * @param Closure $action
+     * @param array|string $id
+     * @param array|string $p
+     * @param Closure      $action
      */
     protected function bulk($id, $p, Closure $action): Response
     {
-        if(is_array($id) || is_array($p)) {
+        if (is_array($id) || is_array($p)) {
             $body = [];
-            foreach($this->_getNodes($id, $p) as $node) {
+            foreach ($this->_getNodes($id, $p) as $node) {
                 try {
-                    $body[(string)$node->getId()] = $action->call($this, $node);
-                } catch(\Exception $e) {
-                    $body[(string)$node->getId()] = [
+                    $body[(string) $node->getId()] = $action->call($this, $node);
+                } catch (\Exception $e) {
+                    $body[(string) $node->getId()] = [
                         'code' => 400,
                         'data' => [
                             'error' => get_class($e),
                             'message' => $e->getMessage(),
                             'code' => $e->getCode(),
-                        ]
+                        ],
                     ];
                 }
             }
@@ -1238,13 +1240,12 @@ class Node extends Controller
         $body = $action->call($this, $this->_getNode($id, $p));
         $response = (new Response())->setCode($body['code']);
 
-        if(isset($body['data'])) {
+        if (isset($body['data'])) {
             $response->setBody($body['data']);
         }
 
         return $response;
     }
-
 
     /**
      * Get node.

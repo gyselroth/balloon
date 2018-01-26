@@ -17,13 +17,13 @@ use Balloon\Async\Mail;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
+use Balloon\Server\AttributeDecorator;
 use Balloon\Server\User;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
-use Balloon\Server\AttributeDecorator;
 
 class Notification extends Controller
 {
@@ -70,7 +70,7 @@ class Notification extends Controller
     protected $logger;
 
     /**
-     * Attribute decorator
+     * Attribute decorator.
      *
      * @var AttributeDecorator
      */
@@ -79,10 +79,10 @@ class Notification extends Controller
     /**
      * Constructor.
      *
-     * @param Notifier        $notifier
-     * @param Server          $server
-     * @param Async           $async
-     * @param LoggerInterface $logger
+     * @param Notifier           $notifier
+     * @param Server             $server
+     * @param Async              $async
+     * @param LoggerInterface    $logger
      * @param AttributeDecorator $decorator
      */
     public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, AttributeDecorator $decorator)

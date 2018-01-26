@@ -22,13 +22,13 @@ class Http
      */
     public function __construct(AttributeDecorator $decorator)
     {
-        $decorator->addDecorator('malware_quarantine', function($node) {
-            return (bool)$node->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine');
+        $decorator->addDecorator('malware_quarantine', function ($node) {
+            return (bool) $node->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine');
         });
-        $decorator->addDecorator('malware_scantime', function($node) {
+        $decorator->addDecorator('malware_scantime', function ($node) {
             return $node->getAppAttribute('Balloon\\App\\ClamAv', 'scantime');
         });
-        $decorator->addDecorator('malware_reason', function($node) {
+        $decorator->addDecorator('malware_reason', function ($node) {
             return $node->getAppAttribute('Balloon\\App\\ClamAv', 'reason');
         });
     }
