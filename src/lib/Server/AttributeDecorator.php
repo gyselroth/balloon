@@ -98,7 +98,7 @@ class AttributeDecorator
     protected function getAttributes(RoleInterface $role, array $attributes): array
     {
         $user = $this->server->getIdentity();
-        if ($attributes['id'] != $user->getId() && !$user->isAdmin()) {
+        if ($user === null || $attributes['id'] != $user->getId() && !$user->isAdmin()) {
             return [];
         }
 

@@ -292,7 +292,7 @@
                     <tr>
                       <td>
                         <p>Hi {user.name}</p>
-                        <p>There are changes made in {node.path}</p>
+                        <p>There are changes made in your balloon ({node.path}).</p>
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
                             <tr>

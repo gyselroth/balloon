@@ -30,6 +30,7 @@ class Job extends AbstractJob
     const ACTION_CREATE = 0;
     const ACTION_DELETE = 1;
     const ACTION_UPDATE = 2;
+    const ACTION_TRASH = 3;
 
     /**
      * Filesystem.
@@ -178,14 +179,36 @@ class Job extends AbstractJob
         $params['body'] = $this->decorator->decorate($node);
 
         $this->es->getEsClient()->index($params);
+
+        if ($node instanceof FileInterface) {
+            $this->storeBlob($node);
+        }
+
+        return true;
+    }
+
+    /**
+     * Update document.
+     *
+     * @param NodeInterface $node
+     *
+     * @return bool
+     */
+    public function trashDocument(NodeInterface $node): bool
+    {
+        $this->logger->info('update elasticsearch document for node ['.$node->getId().']', [
+            'category' => get_class($this),
+        ]);
+
+        $params = $this->getParams($node);
+        $params['body'] = $this->decorator->decorate($node);
+        $this->es->getEsClient()->index($params);
         $that = $this;
 
         if ($node instanceof CollectionInterface) {
             $node->doRecursiveAction(function ($node) use ($that) {
-                $that->createDocument($node);
+                $that->updateDocument($node);
             }, NodeInterface::DELETED_INCLUDE);
-        } elseif ($node instanceof FileInterface) {
-            $this->storeBlob($node);
         }
 
         return true;
@@ -207,13 +230,6 @@ class Job extends AbstractJob
         $params = $this->getParams($node);
         $params['body'] = $this->decorator->decorate($node);
         $this->es->getEsClient()->index($params);
-        $that = $this;
-
-        /*if ($node instanceof CollectionInterface) {
-            $node->doRecursiveAction(function ($node) use ($that) {
-                $that->updateDocument($node);
-            }, NodeInterface::DELETED_INCLUDE);
-        } else*/
 
         if ($node instanceof FileInterface) {
             $this->storeBlob($node);
