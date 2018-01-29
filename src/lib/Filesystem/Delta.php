@@ -250,8 +250,6 @@ class Delta
      */
     public function getDeltaFeed(?string $cursor = null, int $limit = 250, array $attributes = [], ?NodeInterface $node = null): array
     {
-        $this->user->findNewShares();
-
         $attributes = array_merge(
             ['id', 'directory', 'deleted',  'path', 'changed', 'created', 'owner'],
             $attributes

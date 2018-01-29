@@ -122,10 +122,6 @@ class Elasticsearch
      */
     public function search(array $query, int $deleted = NodeInterface::DELETED_INCLUDE): array
     {
-        //if ($user instanceof User) {
-        //    $user->findNewShares();
-        //}
-
         $list = [];
         $id = false;
 

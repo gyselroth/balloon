@@ -481,7 +481,8 @@ class Server
         }
 
         $this->identity = $user;
-        $user->updateIdentity($identity);
+        $user->updateIdentity($identity)
+             ->updateShares();
         $this->hook->run('postServerIdentity', [$user]);
 
         return true;

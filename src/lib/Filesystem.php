@@ -517,10 +517,6 @@ class Filesystem
      */
     public function findNodesByFilterUser(int $deleted, array $filter): Generator
     {
-        if ($this->user instanceof User) {
-            //$this->user->findNewShares();
-        }
-
         $shares = $this->user->getShares();
         $stored_filter = ['$and' => [
             [],

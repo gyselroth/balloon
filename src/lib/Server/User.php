@@ -205,13 +205,13 @@ class User implements RoleInterface
      *
      * @param Identity $identity
      *
-     * @return bool
+     * @return User
      */
-    public function updateIdentity(Identity $identity): bool
+    public function updateIdentity(Identity $identity): User
     {
         $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
         if ($attr_sync === -1) {
-            return true;
+            return $this;
         }
 
         $cache = ($this->last_attr_sync instanceof UTCDateTime ?
@@ -236,10 +236,10 @@ class User implements RoleInterface
         }
 
         $this->logger->debug('user auth attribute sync cache is in time', [
-                'category' => get_class($this),
-            ]);
+            'category' => get_class($this),
+        ]);
 
-        return true;
+        return $this;
     }
 
     /**
@@ -403,9 +403,9 @@ class User implements RoleInterface
     /**
      * Find new shares and create reference.
      *
-     * @return bool
+     * @return User
      */
-    public function findNewShares(): bool
+    public function updateShares(): User
     {
         $item = $this->db->storage->find([
             'deleted' => false,
@@ -435,7 +435,7 @@ class User implements RoleInterface
         }
 
         if (empty($found)) {
-            return false;
+            return $this;
         }
 
         //check for references
@@ -509,7 +509,7 @@ class User implements RoleInterface
             ]);
         }
 
-        return true;
+        return $this;
     }
 
     /**

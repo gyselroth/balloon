@@ -223,10 +223,6 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      */
     public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], bool $skip_exception = true): Generator
     {
-        if ($this->_user instanceof User) {
-            $this->_user->findNewShares();
-        }
-
         if ($this->children === null) {
             $search = [
                 'parent' => $this->getRealId(),
