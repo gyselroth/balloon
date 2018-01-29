@@ -15,7 +15,6 @@ use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
 use Balloon\App\Notification\TemplateHandler;
 use Balloon\Async\Mail;
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
@@ -48,9 +47,9 @@ class NewShareAdded extends AbstractHook
     protected $logger;
 
     /**
-     * Node attribute decorator.
+     * Template handler.
      *
-     * @var AttributeDecorator
+     * @var TemplateHandler
      */
     protected $template;
 
@@ -60,7 +59,7 @@ class NewShareAdded extends AbstractHook
      * @param Notification $notifier
      * @param Server       $server
      */
-    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, TemplateHandler $template, ?Iterable $config = null)
+    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, TemplateHandler $template)
     {
         $this->notifier = $notifier;
         $this->server = $server;

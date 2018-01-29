@@ -16,7 +16,6 @@ use Balloon\App\Api\Latest\Collection as ApiCollection;
 use Balloon\App\Api\Latest\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Node\AbstractNode;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
@@ -1378,10 +1377,6 @@ class Node extends Controller
 
         foreach ($attributes as $attribute => $value) {
             switch ($attribute) {
-                case 'meta':
-                    $attributes['meta'] = AbstractNode::validateMetaAttribute($attributes['meta']);
-
-                break;
                 case 'filter':
                     $attributes['filter'] = json_encode((array) $attributes['filter']);
 

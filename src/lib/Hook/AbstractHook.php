@@ -14,7 +14,6 @@ namespace Balloon\Hook;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Auth\Auth;
 use Micro\Auth\Identity;
@@ -45,14 +44,14 @@ abstract class AbstractHook implements HookInterface
     /**
      * {@inheritdoc}
      */
-    public function preServerIdentity(Identity $identity, ?array &$attributes): void
+    public function preServerIdentity(Identity $identity, ?User $user): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postServerIdentity(Server $server, User $user): void
+    public function postServerIdentity(User $user): void
     {
     }
 

@@ -459,11 +459,17 @@ class Server
      */
     public function setIdentity(Identity $identity): bool
     {
-        $this->hook->run('preServerIdentity', [$identity, &$result]);
+        $user = null;
 
         try {
             $user = $this->getUserByName($identity->getIdentifier());
         } catch (\Exception $e) {
+            //ignore exception
+        }
+
+        $this->hook->run('preServerIdentity', [$identity, &$user]);
+
+        if (!($user instanceof User)) {
             throw new Exception\NotAuthenticated('user does not exists', Exception\NotAuthenticated::USER_DOES_NOT_EXISTS);
         }
 
@@ -476,7 +482,7 @@ class Server
 
         $this->identity = $user;
         $user->updateIdentity($identity);
-        $this->hook->run('postServerIdentity', [$this, $user]);
+        $this->hook->run('postServerIdentity', [$user]);
 
         return true;
     }

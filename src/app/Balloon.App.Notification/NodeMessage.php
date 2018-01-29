@@ -11,26 +11,17 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification;
 
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 
 class NodeMessage implements MessageInterface
 {
     /**
-     * Subject.
+     * Message type.
      *
      * @var string
      */
-    protected $subject;
-
-    /**
-     * Message.
-     *
-     * @var string
-     */
-    protected $message;
+    protected $type;
 
     /**
      * Node.
@@ -40,30 +31,18 @@ class NodeMessage implements MessageInterface
     protected $node;
 
     /**
-     * Attribute decorator.
+     * Template handler.
      *
-     * @var AttributeDecorator
+     * @var TemplateHandler
      */
-    protected $decorator;
-
-    /**
-     * Role Attribute decorator.
-     *
-     * @var RoleAttributeDecorator
-     */
-    protected $role_decorator;
-
     protected $template;
 
     /**
      * Constructor.
      *
-     * @param string                 $subject
-     * @param string                 $message
-     * @param TemplateHandler        $template
-     * @param NodeInterface          $node
-     * @param AttributeDecorator     $decorator
-     * @param RoleAttributeDecorator $role_decorator
+     * @param string          $type
+     * @param TemplateHandler $template
+     * @param NodeInterface   $node
      */
     public function __construct(string $type, TemplateHandler $template, NodeInterface $node)
     {

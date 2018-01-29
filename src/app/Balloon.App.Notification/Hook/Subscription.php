@@ -15,14 +15,14 @@ use Balloon\App\Notification\Exception;
 use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
 use Balloon\App\Notification\TemplateHandler;
-use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
 use Balloon\Server;
 use Balloon\Server\User;
-use Psr\Log\LoggerInterface;
 use MongoDB\BSON\UTCDateTime;
+use Psr\Log\LoggerInterface;
 
 class Subscription extends AbstractHook
 {
@@ -55,7 +55,7 @@ class Subscription extends AbstractHook
     protected $logger;
 
     /**
-     * Template handler
+     * Template handler.
      *
      * @var TemplateHandler
      */
@@ -162,6 +162,7 @@ class Subscription extends AbstractHook
      * Check if we need to notify.
      *
      * @param NodeInterface $node
+     *
      * @return bool
      */
     protected function notify(NodeInterface $node): bool
@@ -169,19 +170,19 @@ class Subscription extends AbstractHook
         $receiver = $this->getReceiver($node);
         $parent = $node->getParent();
 
-        if($parent !== null) {
-            $subs = array_keys((array)$parent->getAppAttribute('Balloon\\App\\Notification', 'subscription'));
+        if ($parent !== null) {
+            $subs = array_keys((array) $parent->getAppAttribute('Balloon\\App\\Notification', 'subscription'));
             $parents = $this->getReceiver($parent);
 
-#var_dump($subs);
-#var_dump($parents);
+            //var_dump($subs);
+            //var_dump($parents);
             $blacklist = array_diff($subs, $parents);
-#var_dump($blacklist);
+            //var_dump($blacklist);
             $receiver = array_diff(array_unique(array_merge($receiver, $parents)), $blacklist);
-#var_dump($receiver);
+            //var_dump($receiver);
         }
 
-        if(empty($receiver)) {
+        if (empty($receiver)) {
             $this->logger->debug('skip subscription notification for node ['.$node->getId().'] due empty receiver list', [
                 'category' => get_class($this),
             ]);
@@ -191,13 +192,15 @@ class Subscription extends AbstractHook
 
         $receiver = $this->server->getUsersById($receiver);
         $message = new NodeMessage('subscription', $this->template, $node);
+
         return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
     }
 
     /**
-     * Get receiver list
+     * Get receiver list.
      *
      * @param NodeInterface $node
+     *
      * @return array
      */
     protected function getReceiver(NodeInterface $node): array
@@ -209,8 +212,8 @@ class Subscription extends AbstractHook
 
         $update = $subs;
 
-        foreach($subs as $key => $subscription) {
-            if(isset($subscription['last_notification']) && ($subscription['last_notification']->toDateTime()->format('U') + $this->notification_throttle) > time()) {
+        foreach ($subs as $key => $subscription) {
+            if (isset($subscription['last_notification']) && ($subscription['last_notification']->toDateTime()->format('U') + $this->notification_throttle) > time()) {
                 $this->logger->debug('skip message for user ['.$key.'], message within throttle time range of ['.$this->notification_throttle.'s]', [
                     'category' => get_class($this),
                 ]);
@@ -223,7 +226,7 @@ class Subscription extends AbstractHook
 
         $node->setAppAttribute('Balloon\\App\\Notification', 'subscription', $update);
 
-        if($this->server->getIdentity() !== null) {
+        if ($this->server->getIdentity() !== null) {
             $user_id = (string) $this->server->getIdentity()->getId();
             if (isset($subs[$user_id]) && $subs[$user_id]['exclude_me'] === true) {
                 $this->logger->debug('skip message for user ['.$user_id.'], user excludes own actions in node ['.$node->getId().']', [

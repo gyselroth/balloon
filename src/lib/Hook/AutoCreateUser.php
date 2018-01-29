@@ -12,10 +12,11 @@ declare(strict_types=1);
 namespace Balloon\Hook;
 
 use Balloon\Exception;
+use Balloon\Server;
+use Balloon\Server\User;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\UTCDateTime;
-use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
 class AutoCreateUser extends AbstractHook
@@ -35,21 +36,21 @@ class AutoCreateUser extends AbstractHook
     protected $logger;
 
     /**
-     * Database.
+     * Server.
      *
-     * @var Database
+     * @var Server
      */
-    protected $db;
+    protected $server;
 
     /**
      * Constructor.
      *
-     * @param Database
-     * @param LoggerInterface
+     * @param Server          $server
+     * @param LoggerInterface $logger
      */
-    public function __construct(Database $db, LoggerInterface $logger)
+    public function __construct(Server $server, LoggerInterface $logger)
     {
-        $this->db = $db;
+        $this->server = $server;
         $this->logger = $logger;
     }
 
@@ -83,9 +84,9 @@ class AutoCreateUser extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function preServerIdentity(Identity $identity, ?array &$attributes): void
+    public function preServerIdentity(Identity $identity, ?User $user): void
     {
-        if (null !== $attributes) {
+        if (null !== $user) {
             return;
         }
 
@@ -131,7 +132,7 @@ class AutoCreateUser extends AbstractHook
             }
         }
 
-        $result = $this->db->user->insertOne($attributes);
+        $result = $this->server->addUser($attributes);
         $attributes['_id'] = $result->getInsertedId();
     }
 }

@@ -45,21 +45,19 @@ interface HookInterface
      *
      * Executed after authentication but before the identity gets authenticated with the server
      *
-     * @param Server   $server
      * @param Identity $identity
-     * @param array    $attributes
+     * @param User     $user
      */
-    public function preServerIdentity(Identity $identity, ?array &$attributes): void;
+    public function preServerIdentity(Identity $identity, ?User $user): void;
 
     /**
      * Run: postCreateCollection.
      *
      * Executed authenticated with the server
      *
-     * @param Server $server
-     * @param User   $user
+     * @param User $user
      */
-    public function postServerIdentity(Server $server, User $user): void;
+    public function postServerIdentity(User $user): void;
 
     /**
      * Run: preRestoreFile.

@@ -90,10 +90,10 @@ class AttributeDecorator
         );
 
         if (0 === count($requested)) {
-            return $this->translateAttributes($node, $attrs, $requested);
+            return $this->translateAttributes($node, $attrs);
         }
 
-        return $this->translateAttributes($node, array_intersect_key($attrs, array_flip($requested)), $attributes);
+        return $this->translateAttributes($node, array_intersect_key($attrs, array_flip($requested)));
     }
 
     /**
@@ -192,7 +192,7 @@ class AttributeDecorator
                     return null;
                 }
             },
-            'owner' => function ($node) use ($server, $fs, $decorator) {
+            'owner' => function ($node) use ($server, $decorator) {
                 try {
                     return $decorator->decorate(
                         $server->getUserById($node->getOwner()),

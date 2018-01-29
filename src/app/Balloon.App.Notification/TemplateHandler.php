@@ -54,11 +54,39 @@ class TemplateHandler
      */
     protected $role_decorator;
 
+    /**
+     * Template storage.
+     *
+     * @var array
+     */
     protected $templates = [];
+
+    /**
+     * Mail template storage.
+     *
+     * @var array
+     */
     protected $mail_templates = [];
 
+    /**
+     * Asset directory.
+     *
+     * @var string
+     */
     protected $asset_dir = __DIR__.DIRECTORY_SEPARATOR.'assets';
+
+    /**
+     * Fallback locale.
+     *
+     * @var string
+     */
     protected $fallback_locale = 'en_US';
+
+    /**
+     * Server.
+     *
+     * @var Server
+     */
     protected $server;
 
     /**
@@ -80,9 +108,9 @@ class TemplateHandler
      *
      * @param iterable $config
      *
-     * @return AbstractHook
+     * @return TemplateHandler
      */
-    public function setOptions(?Iterable $config = null): AbstractHook
+    public function setOptions(?Iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -90,8 +118,8 @@ class TemplateHandler
 
         foreach ($config as $option => $value) {
             switch ($option) {
-                case 'body':
-                case 'subject':
+                case 'asset_dir':
+                case 'fallback_locale':
                     $this->{$option} = (string) $value;
 
                 break;
@@ -118,7 +146,7 @@ class TemplateHandler
         return $this->parseTemplate($notification, 'subject', $user, $node);
     }
 
-    public function parseMessage(string $message, User $user): string
+    /*public function parseMessage(string $message, User $user): string
     {
         $template = $this->load($notification);
         if (!isset($template[$type])) {
@@ -126,7 +154,7 @@ class TemplateHandler
         }
 
         return $this->decorate($this->decorateUser($template[$type], $user));
-    }
+    }*/
 
     protected function load(string $notification)
     {

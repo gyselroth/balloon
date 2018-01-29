@@ -335,7 +335,7 @@ class Notifier
             $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
 
             if ($node instanceof Collection && $recursive === true) {
-                $node->doRecursiveAction(function ($child) use ($subscription, $user_id) {
+                $node->doRecursiveAction(function ($child) use ($user_id) {
                     $subs = $child->getAppAttribute(__NAMESPACE__, 'subscription');
 
                     if (isset($subs[$user_id])) {

@@ -100,7 +100,7 @@ class Mail implements AdapterInterface
     {
         $address = $receiver->getAttributes()['mail'];
         if (null === $address) {
-            $this->logger->debug('skip mail notifcation for user ['.$receier->getId().'], user does not have a valid mail address', [
+            $this->logger->debug('skip mail notifcation for user ['.$receiver->getId().'], user does not have a valid mail address', [
                 'category' => get_class($this),
             ]);
 
