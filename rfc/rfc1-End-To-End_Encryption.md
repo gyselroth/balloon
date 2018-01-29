@@ -95,23 +95,26 @@ Once there are at least two setup devices the user still can access its data and
 ### Server apps 
 All server apps which work content based are not usable for encrypted content. Following apps are affected and not usable or only partially usable for encrypted files:
  
-* Balloon.App.Preview \
+#### Balloon.App.Preview
 The server is not able to generate previews for encrypted files
 
-* Balloon.App.ClamAv \
+#### Balloon.App.ClamAv
 Encrypted files can not be scanned for any malware/viruses
 
-* Balloon.App.Elasticsearch \
+#### Balloon.App.Elasticsearch
 Fulltext search is not possible due file encryption, however it is still possible to search for meta relevant information like tags, name, author.
 
-* Balloon.App.Office \
+#### Balloon.App.Office
 Office formats like doc, docx, xls, xlsx, ppt, pptx are not editable nor viewable.
 
-* Balloon.App.Convert \
+#### Balloon.App.Convert
 No documents can be converted anymore by the server automatically. This is true for any document.
 
-* Balloon.App.Sharelink \
+#### Balloon.App.Sharelink 
 World wide accessable links theoretically still work for encrypted files, however since the content is encrypted and can only be decrypted by specific clients the contents provided by those links would be unsuable.
+
+#### Balloon.App.Webdav
+Theoretically is webdav still usuable as long as no encrypted content get downloaded. Encrypted files would be unusable. The can not be decrypted by any webdav client.
 
 ## Server
 
