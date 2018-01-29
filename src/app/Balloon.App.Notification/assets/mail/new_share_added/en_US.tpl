@@ -292,7 +292,7 @@
                     <tr>
                       <td>
                         <p>Hi {user.name}</p>
-                        <p>There are changes made in your balloon [{node.path}].</p>
+                        <p>You have received a new share [{node.share_name}].</p>
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
                             <tr>
@@ -300,7 +300,7 @@
                                 <table border="0" cellpadding="0" cellspacing="0">
                                   <tbody>
                                     <tr>
-                                      <td> <a href="{server_url}?menu=cloud&collection={node.parent.id}&selected[]={node.id}&view=preview" target="_blank">Open in browser</a> </td>
+                                      <td> <a href="{server_url}?menu=shared_for_me&selected[]={node.id}&view=preview" target="_blank">Open in browser</a> </td>
                                     </tr>
                                   </tbody>
                                 </table>
@@ -323,7 +323,6 @@
                 <tr>
                   <td class="content-block">
                     <span class="apple-link">balloon cloud</span>
-                    <br>Don't like these emails? <a href="{server_url}?menu=cloud&collection={node.parent.id}&selected[]={node.id}&view=subscribe">Unsubscribe</a>.
                   </td>
                 </tr>
               </table>

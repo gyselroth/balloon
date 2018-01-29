@@ -57,7 +57,7 @@ class HexColorToGenericName implements DeltaInterface
         ]);
 
         foreach ($cursor as $object) {
-            $color = strtolower($object['meta']['color']):
+            $color = strtolower($object['meta']['color']);
 
             if (isset($this->map[$color])) {
                 $this->db->storage->updateOne(

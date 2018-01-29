@@ -233,6 +233,7 @@ class User implements RoleInterface
             $save[] = 'last_attr_sync';
 
             $this->save($save);
+
             return $this;
         }
 
