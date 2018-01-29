@@ -32,6 +32,7 @@ use Balloon\Migration\Delta\QueueToCappedCollection;
 use Balloon\Migration\Delta\JsonEncodeFilteredCollection;
 use Balloon\Migration\Delta\v1AclTov2Acl;
 use Balloon\Migration\Delta\ShareName;
+use Balloon\Migration\Delta\HexColorToGenericName;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Sendmail;
 use Balloon\Hook\Delta;
@@ -130,6 +131,10 @@ return [
             ShareName::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.ShareName::class.'}']
+            ],
+            HexColorToGenericName::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.HexColorToGenericName::class.'}']
             ],
         ],
     ],

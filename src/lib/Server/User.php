@@ -207,7 +207,7 @@ class User implements RoleInterface
      *
      * @return User
      */
-    public function updateIdentity(Identity $identity): User
+    public function updateIdentity(Identity $identity): self
     {
         $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
         if ($attr_sync === -1) {
@@ -405,7 +405,7 @@ class User implements RoleInterface
      *
      * @return User
      */
-    public function updateShares(): User
+    public function updateShares(): self
     {
         $item = $this->db->storage->find([
             'deleted' => false,
