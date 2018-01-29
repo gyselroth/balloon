@@ -232,7 +232,8 @@ class User implements RoleInterface
             $save = array_keys($attributes);
             $save[] = 'last_attr_sync';
 
-            return $this->save($save);
+            $this->save($save);
+            return $this;
         }
 
         $this->logger->debug('user auth attribute sync cache is in time', [

@@ -28,11 +28,11 @@ class HexColorToGenericName implements DeltaInterface
      * @var array
      */
     protected $map = [
-        '#FF4D8D' => 'magenta',
-        '#854DFF' => 'purple',
-        '#4DC9FF' => 'blue',
-        '#4DFF88' => 'green',
-        '#FFE14D' => 'yellow',
+        '#ff4d8d' => 'magenta',
+        '#854dff' => 'purple',
+        '#4dc9ff' => 'blue',
+        '#4dff88' => 'green',
+        '#ffe14d' => 'yellow',
     ];
 
     /**
@@ -57,18 +57,13 @@ class HexColorToGenericName implements DeltaInterface
         ]);
 
         foreach ($cursor as $object) {
-            if (isset($this->map[$object['meta']['color']])) {
+            $color = strtolower($object['meta']['color']):
+
+            if (isset($this->map[$color])) {
                 $this->db->storage->updateOne(
                     ['_id' => $object['_id']],
                     [
-                        '$set' => ['meta.color' => $object['meta']['color']],
-                    ]
-                );
-            } else {
-                $this->db->storage->updateOne(
-                    ['_id' => $object['_id']],
-                    [
-                        '$unset' => ['meta.color'],
+                        '$set' => ['meta.color' => $this->map[$color]],
                     ]
                 );
             }
