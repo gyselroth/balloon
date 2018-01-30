@@ -55,7 +55,6 @@ class Hook extends AbstractHook
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_CREATE,
-            'storage' => $node->getAttributes()['storage'],
         ]);
     }
 
@@ -64,13 +63,13 @@ class Hook extends AbstractHook
      */
     public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
-        if (false === $recursion_first) {
+        if (false === $force) {
             return;
         }
 
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
-            'action' => $force === true ? Job::ACTION_DELETE : Job::ACTION_TRASH,
+            'action' => Job::ACTION_DELETE_COLLECTION,
         ]);
     }
 
@@ -79,13 +78,13 @@ class Hook extends AbstractHook
      */
     public function postDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
-        if (false === $recursion_first) {
+        if (false === $force) {
             return;
         }
 
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
-            'action' => $force === true ? Job::ACTION_DELETE : Job::ACTION_TRASH,
+            'action' => Job::ACTION_DELETE_FILE,
             'storage' => $node->getAttributes()['storage'],
         ]);
     }

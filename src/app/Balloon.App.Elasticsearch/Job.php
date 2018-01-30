@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Elasticsearch;
 
-use Balloon\Exception\NotFound as NotFoundException;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Node\CollectionInterface;
 use Balloon\Filesystem\Node\FileInterface;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage;
@@ -28,9 +26,10 @@ class Job extends AbstractJob
      * Document actions.
      */
     const ACTION_CREATE = 0;
-    const ACTION_DELETE = 1;
-    const ACTION_UPDATE = 2;
-    const ACTION_TRASH = 3;
+    const ACTION_UPDATE = 1;
+    const ACTION_DELETE_COLLECTION = 2;
+    const ACTION_DELETE_FILE = 3;
+    //const ACTION_TRASH = 3;
 
     /**
      * Filesystem.
@@ -126,33 +125,25 @@ class Job extends AbstractJob
      */
     public function start(): bool
     {
-        try {
-            $node = $this->fs->findNodeById($this->data['id']);
-        } catch (NotFoundException $e) {
-            $this->logger->debug('node ['.$this->data['id'].'] is deleted, remove from elasticsearch', [
-                'category' => get_class($this),
-            ]);
-
-            $this->deleteDocument($this->data['id'], $this->data['storage']);
-
-            return true;
-        }
-
         $this->logger->debug('elasticsearch document action ['.$this->data['action'].'] for node ['.$this->data['id'].']', [
             'category' => get_class($this),
         ]);
 
         switch ($this->data['action']) {
             case self::ACTION_CREATE:
-                $this->createDocument($node);
+                $this->createDocument($this->fs->findNodeById($this->data['id']));
 
             break;
-            case self::ACTION_DELETE:
-                $this->deleteDocument($node->getId(), $this->data['storage']);
+            case self::ACTION_DELETE_FILE:
+                $this->deleteFileDocument($this->data['id'], $this->data['storage']);
+
+            break;
+            case self::ACTION_DELETE_COLLECTION:
+                $this->deleteCollectionDocument($this->data['id']);
 
             break;
             case self::ACTION_UPDATE:
-                $this->updateDocument($node);
+                $this->updateDocument($this->fs->findNodeById($this->data['id']));
 
             break;
             default:
@@ -194,33 +185,6 @@ class Job extends AbstractJob
      *
      * @return bool
      */
-    public function trashDocument(NodeInterface $node): bool
-    {
-        $this->logger->info('update elasticsearch document for node ['.$node->getId().']', [
-            'category' => get_class($this),
-        ]);
-
-        $params = $this->getParams($node);
-        $params['body'] = $this->decorator->decorate($node);
-        $this->es->getEsClient()->index($params);
-        $that = $this;
-
-        if ($node instanceof CollectionInterface) {
-            $node->doRecursiveAction(function ($node) use ($that) {
-                $that->updateDocument($node);
-            }, NodeInterface::DELETED_INCLUDE);
-        }
-
-        return true;
-    }
-
-    /**
-     * Update document.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
-     */
     public function updateDocument(NodeInterface $node): bool
     {
         $this->logger->info('update elasticsearch document for node ['.$node->getId().']', [
@@ -246,9 +210,9 @@ class Job extends AbstractJob
      *
      * @return bool
      */
-    public function deleteDocument(ObjectId $node, array $storage_reference): bool
+    public function deleteCollectionDocument(ObjectId $node): bool
     {
-        $this->logger->info('delete elasticsearch document for node ['.$node.']', [
+        $this->logger->info('delete elasticsearch  document for collection ['.$node.']', [
             'category' => get_class($this),
         ]);
 
@@ -259,13 +223,33 @@ class Job extends AbstractJob
         ];
 
         $this->es->getEsClient()->delete($params);
-        $that = $this;
 
-        if ($node instanceof CollectionInterface) {
-            $node->doRecursiveAction(function ($node) use ($that) {
-                $that->deleteDocument($node);
-            }, NodeInterface::DELETED_INCLUDE);
-        } elseif ($node instanceof FileInterface) {
+        return true;
+    }
+
+    /**
+     * Create document.
+     *
+     * @param ObjectId $node
+     * @param array storage_reference
+     *
+     * @return bool
+     */
+    public function deleteFileDocument(ObjectId $node, ?array $storage_reference): bool
+    {
+        $this->logger->info('delete elasticsearch document for file ['.$node.']', [
+            'category' => get_class($this),
+        ]);
+
+        $params = [
+            'id' => (string) $node,
+            'type' => 'storage',
+            'index' => $this->es->getIndex(),
+        ];
+
+        $this->es->getEsClient()->delete($params);
+
+        if ($storage_reference !== null) {
             $this->deleteBlob($node, $storage_reference);
         }
 

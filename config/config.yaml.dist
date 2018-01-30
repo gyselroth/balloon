@@ -48,6 +48,10 @@ Balloon\App\Elasticsearch\Job:
   arguments:
     config:
       size_limit: 52428800
+Balloon\App\Notification\Async\Subscription:
+    arguments:
+        config:
+            notification_throttle: 120
 Balloon\App\Elasticsearch\Migration\Delta\Installation:
   arguments:
     config:

@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Simple Transactional Email</title>
+    <title>You have received a new balloon share</title>
     <style>
       /* -------------------------------------
           GLOBAL RESETS
@@ -292,7 +292,7 @@
                     <tr>
                       <td>
                         <p>Hi {user.name}</p>
-                        <p>You have received a new share [{node.share_name}].</p>
+                        <p>{node.owner.name} has shared a balloon collection [{node.sharename}] with you.</p>
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
                             <tr>
