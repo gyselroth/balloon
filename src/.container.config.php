@@ -42,7 +42,7 @@ use Balloon\Hook\CleanTrash;
 return [
     Client::class => [
         'arguments' => [
-            'uri' => 'mongodb://localhost:27017',
+            'uri' => '{ENV(BALLOON_MONGODB_URI,mongodb://localhost:27017)}',
             'driverOptions' => [
                 'typeMap' => [
                     'root' => 'array',
@@ -63,17 +63,78 @@ return [
     ],
     LoggerInterface::class => [
         'use' => Logger::class,
+        'arguments' => [
+            'name' => 'default'
+        ],
         'calls' => [
             'file' => [
                 'method' => 'pushHandler',
-                'arguments' => ['handler' => '{'.StreamHandler::class.'}']
+                'arguments' => ['handler' => '{file}']
+            ],
+            'stderr' => [
+                'method' => 'pushHandler',
+                'arguments' => ['handler' => '{stderr}']
+            ],
+            'stdout' => [
+                'method' => 'pushHandler',
+                'arguments' => ['handler' => '{stdout}']
             ],
         ],
         'services' => [
-            StreamHandler::class => [
+            'Monolog\Formatter\FormatterInterface' => [
+                'use' => 'Monolog\Formatter\LineFormatter',
                 'arguments' => [
-                    'stream' => '/tmp/my_app.log',
+                    'dateFormat' => 'Y-d-m H:i:s',
+                    'format' => "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
+                ],
+                'calls' => [
+                    ['method' => 'includeStacktraces']
+                ]
+            ],
+            'file' => [
+                'use' => 'Monolog\Handler\StreamHandler',
+                'arguments' => [
+                    'stream' => '{ENV(BALLOON_LOG_DIR,/tmp)}/out.log',
                     'level' => 100
+                 ],
+                'calls' => [
+                    'formatter' => [
+                        'method' => 'setFormatter'
+                    ]
+                ]
+            ],
+            'stderr' => [
+                'use' => 'Monolog\Handler\StreamHandler',
+                'arguments' => [
+                    'stream' => 'php://stderr',
+                    'level' => 600,
+                ],
+                'calls' => [
+                    'formatter' => [
+                        'method' => 'setFormatter'
+                    ]
+                ],
+            ],
+            'stdout' => [
+                'use' => 'Monolog\Handler\FilterHandler',
+                'arguments' => [
+                    'handler' => '{output}',
+                    'minLevelOrList' => 100,
+                    'maxLevel' => 550
+                ],
+                'services' => [
+                    'output' => [
+                        'use' => 'Monolog\Handler\StreamHandler',
+                        'arguments' => [
+                            'stream' => 'php://stdout',
+                            'level' => 100
+                        ],
+                        'calls' => [
+                            'formatter' => [
+                                'method' => 'setFormatter'
+                            ]
+                        ]
+                    ]
                 ]
             ]
         ]
@@ -81,7 +142,7 @@ return [
     Converter::class => [
         'calls' => [
             ImagickImage::class => [
-                'method' => 'injectAdapter',
+                    'method' => 'injectAdapter',
                 'arguments' => ['adapter' => '{'.ImagickImage::class.'}']
             ],
             Office::class => [
@@ -176,5 +237,5 @@ return [
     ],
     TransportInterface::class => [
         'use' => Sendmail::class
-    ]
+    ],
 ];

@@ -42,8 +42,11 @@ abstract class AbstractBootstrap
     public function __construct(Composer $composer)
     {
         $this->setErrorHandler();
-        $configs = $this->detectApps($composer);
-        $this->config = $this->loadConfig($configs);
+
+        $apps = $this->detectApps($composer);
+        $config = $this->loadConfig();
+        $this->config = $this->loadAppConfigs($apps, $config);
+
         $this->container = new Container($this->config);
         $this->setErrorHandler();
         $this->container->get(LoggerInterface::class)->info('--------------------------------------------------> PROCESS', [
@@ -51,7 +54,7 @@ abstract class AbstractBootstrap
         ]);
 
         $this->container->add(get_class($composer), $composer);
-        $this->registerAppConstructors();
+        $this->registerAppConstructors(array_keys($apps));
     }
 
     /**
@@ -59,11 +62,18 @@ abstract class AbstractBootstrap
      *
      * @return AbstractBootstrap
      */
-    protected function registerAppConstructors(): self
+    protected function registerAppConstructors(array $apps): self
     {
-        //register all app bootstraps
         $context = $this->getContext();
-        foreach ($this->config['apps'] as $app => $enabled) {
+        $app_config = (array) $this->config['apps'];
+
+        foreach ($apps as $app) {
+            if (isset($app_config[$app])) {
+                $enabled = $app_config[$app];
+            } else {
+                $enabled = true;
+            }
+
             $class = str_replace('.', '\\', $app).'\\Constructor\\'.$context;
             if ($enabled === true && class_exists($class)) {
                 $this->container->get(LoggerInterface::class)->debug('found and execute app constructor ['.$class.']', [
@@ -82,15 +92,41 @@ abstract class AbstractBootstrap
     }
 
     /**
-     * Load config.
+     * Merge configurations.
      *
-     * @param array $configs
+     * @param array  $apps
+     * @param Config $config
      *
      * @return Config
      */
-    protected function loadConfig(array $configs = []): Config
+    protected function loadAppConfigs(array $apps, Config $config)
     {
-        array_unshift($configs, __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php');
+        $root = new Config(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php');
+        $app_config = (array) $config['apps'];
+        $configs = [];
+
+        foreach ($apps as $name => $config_path) {
+            if (isset($app_config[$name]) && $app_config[$name] === false) {
+                continue;
+            }
+
+            if ($config_path !== null) {
+                $configs[] = $config_path;
+            }
+        }
+
+        $apps = new Config($configs);
+
+        return $root->merge($apps)->merge($config);
+    }
+
+    /**
+     * Load config.
+     *
+     * @return Config
+     */
+    protected function loadConfig(): Config
+    {
         foreach (glob(constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'*.yaml') as $path) {
             $configs[] = $path;
         }
@@ -124,12 +160,14 @@ abstract class AbstractBootstrap
         $configs = [];
 
         foreach (glob(constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'*') as $app) {
-            $ns = str_replace('.', '\\', basename($app)).'\\';
+            $name = basename($app);
+            $ns = str_replace('.', '\\', $name).'\\';
             $composer->addPsr4($ns, $app);
-            $name = $ns.'App';
 
             if (file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
-                $configs[] = $app.DIRECTORY_SEPARATOR.'.container.config.php';
+                $configs[$name] = $app.DIRECTORY_SEPARATOR.'.container.config.php';
+            } else {
+                $configs[$name] = null;
             }
         }
 

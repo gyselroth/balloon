@@ -16,6 +16,12 @@
             "Balloon\\Testsuite\\": "tests"
         }
     },
+    "repositories": [
+         {
+             "type": "git",
+             "url": "https://github.com/raffis/config"
+         }
+    ],
     "require": {
         "php": ">=7.1",
         "cboden/ratchet": "^0.4",
@@ -41,7 +47,7 @@
         "ulrichsg/getopt-php": "^3.0",
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "*",
-        "hassankhan/config": "^0.11.2",
+        "hassankhan/config": "*",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",
         "bramus/monolog-colored-line-formatter": "~2.0",
