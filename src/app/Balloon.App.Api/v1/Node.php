@@ -1323,7 +1323,7 @@ class Node extends Controller
         });
 
         $this->decorator->addDecorator('history', function ($node) {
-            if ($node instanceof FileInterface) {
+            if ($node instanceof File) {
                 return $node->getHistory();
             }
 

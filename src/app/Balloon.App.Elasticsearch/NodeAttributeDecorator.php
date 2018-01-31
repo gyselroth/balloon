@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Elasticsearch;
 
-use Balloon\Filesystem\Node\CollectionInterface;
-use Balloon\Filesystem\Node\FileInterface;
+use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Closure;
 
@@ -59,7 +59,7 @@ class NodeAttributeDecorator
             'name' => (string) $attributes['name'],
             'mime' => (string) $attributes['mime'],
             'readonly' => (bool) $attributes['readonly'],
-            'directory' => $node instanceof CollectionInterface,
+            'directory' => $node instanceof Collection,
             'meta' => $node->getMetaAttributes(),
             'size' => $node->getSize(),
             'parent' => function ($node, $requested) use ($attributes) {
@@ -102,7 +102,7 @@ class NodeAttributeDecorator
      */
     protected function getTypeAttributes(NodeInterface $node, array $attributes): array
     {
-        if ($node instanceof FileInterface) {
+        if ($node instanceof File) {
             return [
                 'version' => $attributes['version'],
                 'hash' => $attributes['hash'],

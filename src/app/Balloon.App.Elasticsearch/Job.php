@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Elasticsearch;
 
 use Balloon\Filesystem;
-use Balloon\Filesystem\Node\FileInterface;
+use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage;
 use Balloon\Server;
@@ -29,7 +29,6 @@ class Job extends AbstractJob
     const ACTION_UPDATE = 1;
     const ACTION_DELETE_COLLECTION = 2;
     const ACTION_DELETE_FILE = 3;
-    //const ACTION_TRASH = 3;
 
     /**
      * Filesystem.
@@ -171,7 +170,7 @@ class Job extends AbstractJob
 
         $this->es->getEsClient()->index($params);
 
-        if ($node instanceof FileInterface) {
+        if ($node instanceof File) {
             $this->storeBlob($node);
         }
 
@@ -195,7 +194,7 @@ class Job extends AbstractJob
         $params['body'] = $this->decorator->decorate($node);
         $this->es->getEsClient()->index($params);
 
-        if ($node instanceof FileInterface) {
+        if ($node instanceof File) {
             $this->storeBlob($node);
         }
 
@@ -296,11 +295,11 @@ class Job extends AbstractJob
     /**
      * Add or update blob.
      *
-     * @param FileInterface $node
+     * @param File $node
      *
      * @return bool
      */
-    protected function storeBlob(FileInterface $node): bool
+    protected function storeBlob(File $node): bool
     {
         $this->logger->debug('store file blob for node ['.$node->getId().'] to elasticsearch', [
             'category' => get_class($this),

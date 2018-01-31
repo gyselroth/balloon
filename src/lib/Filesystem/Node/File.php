@@ -22,7 +22,7 @@ use Balloon\Server\User;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 
-class File extends AbstractNode implements FileInterface
+class File extends AbstractNode
 {
     /**
      * History types.
