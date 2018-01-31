@@ -169,6 +169,10 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
      */
     public function getShareName(): string
     {
+        if ($this->isShare()) {
+            return $this->share_name;
+        }
+
         return $this->_fs->findRawNode($this->getShareId())['share_name'];
     }
 

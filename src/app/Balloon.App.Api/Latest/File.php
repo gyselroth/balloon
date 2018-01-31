@@ -14,6 +14,7 @@ namespace Balloon\App\Api\Latest;
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Helper;
 use Micro\Http\Response;
 
 class File extends Node
@@ -79,8 +80,25 @@ class File extends Node
     public function getHistory(?string $id = null, ?string $p = null): Response
     {
         $result = $this->_getNode($id, $p)->getHistory();
+        $body = [];
+        foreach ($result as $version) {
+            if ($version['user'] === null) {
+                $user = null;
+            } else {
+                $user = $this->server->getUserById($version['user']);
+                $user = $this->role_decorator->decorate($user, ['id', 'name', '_links']);
+            }
 
-        return (new Response())->setCode(200)->setBody($result);
+            $body[] = [
+                'version' => $version['version'],
+                'changed' => Helper::DateTimeToUnix($version['changed']),
+                'type' => $version['type'],
+                'size' => $version['size'],
+                'user' => $user,
+            ];
+        }
+
+        return (new Response())->setCode(200)->setBody($body);
     }
 
     /**

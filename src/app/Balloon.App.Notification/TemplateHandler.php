@@ -237,12 +237,11 @@ class TemplateHandler
         $decorator = $this->decorator;
 
         return preg_replace_callback('/(\{node\.(([a-z]\.*)+)\})/', function ($match) use ($node, $decorator) {
-            $attrs = $decorator->decorate($node, [$match[2]]);
-            if (isset($attrs[$match[2]])) {
-                return $attrs[$match[2]];
-            }
+            $key = explode('.', $match[2]);
+            $key = array_shift($key);
+            $attrs = $decorator->decorate($node, [$key]);
 
-            return '';
+            return $this->getArrayValue($attrs, $match[2]);
         }, $template);
     }
 
@@ -257,12 +256,38 @@ class TemplateHandler
         $role_decorator = $this->role_decorator;
 
         return preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use ($user, $role_decorator) {
-            $attrs = $role_decorator->decorate($user, [$match[2]]);
-            if (isset($attrs[$match[2]])) {
-                return $attrs[$match[2]];
+            $key = explode('.', $match[2]);
+            $key = array_shift($key);
+            $attrs = $role_decorator->decorate($user, [$key]);
+
+            return $this->getArrayValue($attrs, $match[2]);
+        }, $template);
+    }
+
+    /**
+     * Get array value via string path.
+     *
+     * @param iterable $arr
+     * @param string   $path
+     * @param string   $seperator
+     *
+     * @return mixed
+     */
+    protected function getArrayValue(Iterable $array, string $path, string $separator = '.')
+    {
+        if (isset($array[$path])) {
+            return $array[$path];
+        }
+        $keys = explode($separator, $path);
+
+        foreach ($keys as $key) {
+            if (!isset($array[$key])) {
+                return '';
             }
 
-            return '';
-        }, $template);
+            $array = $array[$key];
+        }
+
+        return $array;
     }
 }

@@ -46,7 +46,7 @@ class Scanner
      *
      * @var int
      */
-    protected $aggressiveness = 3;
+    protected $aggressiveness = 2;
 
     /**
      * Timeout.
@@ -199,6 +199,7 @@ class Scanner
                     ]);
 
                     break;
+                default:
                 case 2:
                     $file->setAppAttributes(__NAMESPACE__, [
                         'quarantine' => true,
@@ -210,7 +211,6 @@ class Scanner
 
                     break;
                 case 3:
-                default:
                     $file->delete(true);
 
                     break;

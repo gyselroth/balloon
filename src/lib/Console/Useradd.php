@@ -151,6 +151,10 @@ class Useradd implements ConsoleInterface
             $options['description'] = $this->getopt->getOption('description');
         }
 
+        if ($this->getopt->getOption('password') !== null) {
+            $options['password'] = $this->getopt->getOption('password');
+        }
+
         if ($this->getopt->getOption('avatar') !== null) {
             $options['avatar'] = new Binary(file_get_contents($this->getopt->getOption('avatar')), Binary::TYPE_GENERIC);
         }

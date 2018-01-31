@@ -16,7 +16,6 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Storage;
-use Balloon\Helper;
 use Balloon\Hook;
 use Balloon\Mime;
 use Balloon\Server\User;
@@ -193,18 +192,7 @@ class File extends AbstractNode implements FileInterface
      */
     public function getHistory(): array
     {
-        $history = $this->history;
-        $filtered = [];
-
-        foreach ($history as $version) {
-            $v = (array) $version;
-
-            $v['user'] = $this->_fs->getServer()->getUserById($version['user'])->getUsername();
-            $v['changed'] = Helper::DateTimeToUnix($version['changed']);
-            $filtered[] = $v;
-        }
-
-        return $filtered;
+        return $this->history;
     }
 
     /**
@@ -351,7 +339,7 @@ class File extends AbstractNode implements FileInterface
         $this->history[] = [
             'version' => $this->version,
             'changed' => $ts,
-            'user' => $this->_user->getId(),
+            'user' => ($this->_user === null) ? null : $this->_user->getId(),
             'type' => self::HISTORY_DELETE,
             'storage' => $this->storage,
             'storage_adapter' => $this->storage_adapter,
@@ -450,6 +438,7 @@ class File extends AbstractNode implements FileInterface
             'size' => $this->size,
             'version' => $this->version,
             'parent' => $this->parent,
+            'acl' => $this->acl,
             'meta' => $this->meta,
             'mime' => $this->mime,
             'owner' => $this->owner,

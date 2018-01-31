@@ -21,7 +21,7 @@ Balloon\App\ClamAv\Scanner:
     config:
       socket: "{ENV(BALLOON_CLAMAV_URI,unix:///var/run/clamav/clamd.ctl)}"
       max_stream_size: 26214400
-      aggressiveness: 3
+      aggressiveness: 2
       timeout: 30
 Balloon\App\Notification\Notifier:
   calls:

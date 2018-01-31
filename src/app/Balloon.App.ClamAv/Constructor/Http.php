@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\ClamAv\Constructor;
 
 use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Filesystem\Node\File;
 
 class Http
 {
@@ -23,13 +24,22 @@ class Http
     public function __construct(AttributeDecorator $decorator)
     {
         $decorator->addDecorator('malware_quarantine', function ($node) {
-            return (bool) $node->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine');
+            if ($node instanceof File) {
+                $quarantine = $node->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine');
+                if (is_bool($quarantine)) {
+                    return $quarantine;
+                }
+            }
         });
         $decorator->addDecorator('malware_scantime', function ($node) {
-            return $node->getAppAttribute('Balloon\\App\\ClamAv', 'scantime');
+            if ($node instanceof File) {
+                return $node->getAppAttribute('Balloon\\App\\ClamAv', 'scantime');
+            }
         });
         $decorator->addDecorator('malware_reason', function ($node) {
-            return $node->getAppAttribute('Balloon\\App\\ClamAv', 'reason');
+            if ($node instanceof File) {
+                return $node->getAppAttribute('Balloon\\App\\ClamAv', 'reason');
+            }
         });
     }
 }

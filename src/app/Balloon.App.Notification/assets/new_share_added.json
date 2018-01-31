@@ -1,6 +1,6 @@
 {
   "en_US": {
-    "subject": "A share has been added to your balloon",
-    "body": "Hi {user.username},\n{user.username} made changes in your folder {node.name}.\n You get this message because you have subscribed {node.name} for updates."
+    "subject": "You have received a new balloon share",
+    "body": "Hi {user.username},\n{node.shareowner.name} has shared a balloon collection [{node.sharename}] with you."
   }
 }

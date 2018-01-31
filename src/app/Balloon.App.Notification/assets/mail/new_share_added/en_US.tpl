@@ -292,7 +292,7 @@
                     <tr>
                       <td>
                         <p>Hi {user.name}</p>
-                        <p>{node.owner.name} has shared a balloon collection [{node.sharename}] with you.</p>
+                        <p>{node.shareowner.name} has shared a balloon collection [{node.sharename}] with you.</p>
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
                             <tr>

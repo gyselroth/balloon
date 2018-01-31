@@ -79,10 +79,19 @@ class File extends Node
     public function getHistory(?string $id = null, ?string $p = null): Response
     {
         $result = $this->_getNode($id, $p)->getHistory();
+        $body = [];
+
+        foreach ($result as $version) {
+            $v = (array) $version;
+
+            $v['user'] = $this->_fs->getServer()->getUserById($version['user'])->getUsername();
+            $v['changed'] = Helper::DateTimeToUnix($version['changed']);
+            $body[] = $v;
+        }
 
         return (new Response())->setCode(200)->setBody([
             'code' => 200,
-            'data' => $result,
+            'data' => $body,
         ]);
     }
 
