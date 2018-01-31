@@ -127,6 +127,7 @@ abstract class AbstractBootstrap
      */
     protected function loadConfig(): Config
     {
+        $configs = [];
         foreach (glob(constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'*.yaml') as $path) {
             $configs[] = $path;
         }

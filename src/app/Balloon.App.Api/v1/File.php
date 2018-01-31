@@ -84,7 +84,7 @@ class File extends Node
         foreach ($result as $version) {
             $v = (array) $version;
 
-            $v['user'] = $this->_fs->getServer()->getUserById($version['user'])->getUsername();
+            $v['user'] = $this->server->getUserById($version['user'])->getUsername();
             $v['changed'] = Helper::DateTimeToUnix($version['changed']);
             $body[] = $v;
         }
