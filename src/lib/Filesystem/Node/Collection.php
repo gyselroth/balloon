@@ -810,7 +810,10 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
 
             $save = array_merge($meta, $attributes);
 
-            $result = $this->_db->storage->insertOne($save);
+            $result = $this->_db->storage->insertOne($save, [
+                '$isolated' => true,
+            ]);
+
             $save['_id'] = $result->getInsertedId();
 
             $this->_logger->info('added new collection ['.$save['_id'].'] under parent ['.$this->_id.']', [
@@ -906,7 +909,10 @@ class Collection extends AbstractNode implements CollectionInterface, DAV\IQuota
 
             $save = array_merge($meta, $attributes);
 
-            $result = $this->_db->storage->insertOne($save);
+            $result = $this->_db->storage->insertOne($save, [
+                '$isolated' => true,
+            ]);
+
             $save['_id'] = $result->getInsertedId();
 
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [

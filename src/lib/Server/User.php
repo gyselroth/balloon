@@ -495,8 +495,12 @@ class User implements RoleInterface
             try {
                 $dir->addDirectory($node['share_name'], $attrs);
             } catch (Exception\Conflict $e) {
-                $new = $node['share_name'].' ('.substr(uniqid('', true), -4).')';
-                $dir->addDirectory($new, $attrs);
+                $conflict_node = $dir->getChild($node['share_name']);
+
+                if (!$conflict_node->isReference() && $conflict_node->getShareId() != $attrs['reference']) {
+                    $new = $node['share_name'].' ('.substr(uniqid('', true), -4).')';
+                    $dir->addDirectory($new, $attrs);
+                }
             } catch (\Exception $e) {
                 $this->logger->error('failed create new share reference to share ['.$node['_id'].']', [
                     'category' => get_class($this),

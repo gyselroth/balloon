@@ -51,7 +51,10 @@ class User extends LatestUser
     {
         $result = $this->_getUser($uid, $uname)->getGroups();
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $result,
+        ]);
     }
 
     /**
@@ -91,7 +94,10 @@ class User extends LatestUser
     {
         $result = $this->_getUser($uid, $uname)->getShares();
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $result,
+        ]);
     }
 
     /**
@@ -137,7 +143,10 @@ class User extends LatestUser
     {
         $result = $this->_getUser($uid, $uname)->getQuotaUsage();
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $result,
+        ]);
     }
 
     /**

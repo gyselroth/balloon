@@ -52,7 +52,10 @@ class Api
             'server_timezone' => date_default_timezone_get(),
         ];
 
-        return (new Response())->setCode(200)->setBody($data);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -92,7 +95,10 @@ class Api
             'license' => 'GPLv3',
         ];
 
-        return (new Response())->setCode(200)->setBody($data);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -119,7 +125,10 @@ class Api
      */
     public function getVersion(): Response
     {
-        return (new Response())->setCode(200)->setBody(1);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => 1,
+        ]);
     }
 
     /**
@@ -172,7 +181,10 @@ class Api
             }
         }
 
-        return (new Response())->setCode(200)->setBody($api);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $api,
+        ]);
     }
 
     /**

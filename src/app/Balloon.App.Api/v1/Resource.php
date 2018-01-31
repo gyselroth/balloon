@@ -98,6 +98,9 @@ class Resource extends LatestResource
             ];
         }
 
-        return (new Response())->setCode(200)->setBody($body);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $body,
+        ]);
     }
 }
