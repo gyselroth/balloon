@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v1;
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Helper;
 use Micro\Http\Response;
 
 class File extends Node

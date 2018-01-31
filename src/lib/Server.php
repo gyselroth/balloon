@@ -299,8 +299,8 @@ class Server
         foreach ($attributes as $attribute => &$value) {
             switch ($attribute) {
                 case 'username':
-                    if (!preg_match('/^[A-Za-z0-9\.-_\@]$/', $value)) {
-                        throw new UserException('username does not match required regex /^[A-Za-z0-9\.-_\@]$/');
+                    if (!preg_match('/^[A-Za-z0-9\.-_\@]+$/', $value)) {
+                        throw new UserException('username does not match required regex /^[A-Za-z0-9\.-_\@]+$/');
                     }
 
                     if ($this->userExists($value)) {
