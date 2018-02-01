@@ -463,8 +463,10 @@ class Server
 
         try {
             $user = $this->getUserByName($identity->getIdentifier());
-        } catch (\Exception $e) {
-            //ignore exception
+        } catch (UserException $e) {
+            $this->logger->warning('failed connect authenticated user, user account does not exists', [
+                'category' => get_class($this),
+            ]);
         }
 
         $this->hook->run('preServerIdentity', [$identity, &$user]);
