@@ -6,8 +6,7 @@ sudo: required
 addons:
   apt:
     packages:
-        - imagemagick
-
+    - imagemagick
 before_install:
 - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 - echo "\n" | pecl install imagick
@@ -19,7 +18,8 @@ notifications:
   email: false
 before_deploy:
 - if [[ "$TRAVIS_PHP_VERSION" != "7.1" ]]; then exit; fi;
-- if [[ "$version" == *"-"* ]]; then export deb_distribution=unstable; else export deb_distribution=stable; fi;
+- if [[ "$version" == *"-"* ]]; then export deb_distribution=unstable; else export
+  deb_distribution=stable; fi;
 - if [[ "$TRAVIS_BRANCH" == "master" ]]; then export deb_distribution=nightly; fi;
 - export date=$(date +%Y-%m-%d)
 - cp packaging/debian/bintray.json bintray.json
@@ -51,9 +51,14 @@ deploy:
   key:
     secure: rGB84zJKDudTJYUsWSMQAgzSbgIvAmDaQBPtRDmuGeG89XX8wG1v1WZfqcnIaA5gPNJIDAIRixJY8RnBXeNWw2fx6vOCa6gUJzVYv5aPLuE98ei4eXHxlZKATIB3Kg1JGJ3SzqlZEeJvuJhLUYkWfZ673fQeGsY/Rdzk7NjkpM/+6WQUP7f5eop0o5TOUZ7iquNful/2gMWDuNCvAwmn2VwSvyzHRe8MpNxYmPVTWa4Nstze3ijw2zf7ddVqlL4zaqXdX5wWc0/ncmQ2phBPLik6QC+be7t6uuThKf2BPFrwM9lTboCTOcQRviR0sP0VGoy8cYyMgi27McZ38Qfk3jY/uXmgJPeUlkU7qDRjJDWgM/fCk2taLgKxnwemQKBTeyQgHl0A7EIvlrt2tKuHlf/ikZnHiMwDO4fAWfyN8kZtG2d9bk2+9nCmijS595XJfYGv/zMIGAP0cjeKeLwIF4OVnPWo7ZJWbawzsjt50xxxxI/UcE6dWbiBVbNbcv7P0cLMkkwBAPzHXNEw5I2occgYvzZkb4ERKtL4k2Ky227jWnr1HiV7OQnrSIiaup46x5MEcRhqTatHvVlzbb9Da5/aI8W0DnpzV83I2lhaLkV45lTjiI46h+d8+Zb5Wo7fxlJdIOT/CYtCHvXV8HOVK0GMfR/i9ujVKqJNdwkgfpc=
 after_deploy:
-- "if [ \"$version\" != \"\" ]; then curl -s -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H 'Travis-API-Version: 3' -H \"Authorization: token $TRAVIS_API_TOKEN\" -d '{\"request\":{\"message\":\"trigger build\", \"branch\":\"master\", \"config\":{\"env\":[\"REPOSITORY='\"$deb_distribution\"'\", \"VERSION='\"$version\"'\"]}}}' \"https://api.travis-ci.org/repo/gyselroth%2Fballoon-docker/requests\"; fi"
+- ! 'if [ "$version" != "" ]; then curl -s -X POST -H ''Content-Type: application/json''
+  -H ''Accept: application/json'' -H ''Travis-API-Version: 3'' -H "Authorization:
+  token $TRAVIS_API_TOKEN" -d ''{"request":{"message":"trigger build", "branch":"master",
+  "config":{"env":["REPOSITORY=''"$deb_distribution"''", "VERSION=''"$version"''"]}}}''
+  "https://api.travis-ci.org/repo/gyselroth%2Fballoon-docker/requests"; fi'
 env:
   global:
   - secure: m13MizT1AcfECjdbtO7HkyNU4fNti73FhsAJu88DIY2k97zERfZWybABEcCZYShGByuwJJpi4Gr23G2QIBKb9zDDAGXYJw9BjN3lbCT8SGIu/eEBUi3FZRR0p/sjA3Re9pQuSGHxBZwUouPsUHyyugdLij5/8s0oJBPaWYRv/HWfd862d4y9pV8VpG+2EUEqC2oDWRvRQdFRTNu7/XgSKj/7Xf3Rz0BBFT0jEMb4x11R+9QctqRqDK85WsZEwquTrHOkvs9j50Ojim1DZ/AuPWicv1KYT1aMjeTWkhcZjFQ15tfuKhKj872fA7ohd8Qqp2ygGk88pU+2w0WyeiwHbp8GHtNHOQqO8B7kXqslo2ZXZs36nKP6E/n7Lw37MeJOgW6Py2QIx/1VNRv9tpybTq3CzgxXa2A8uw1gdjwH0kdmJZ/AM+oDq5lq4RjgVx4Ne4bcQpwe0p19AhtdO9P5kjdNPor6UgBmx6IFoyiaBcrrHYbZue7IfPL83BkXuPu07oocFB558kcQ+TV+8RuHhID7Kg+slsWaRwIxia1AUEWNEAjLfVgoXkHzCdTtdvS5HPGvKTz8a62yfQqYCFeCn6Ioi4mPTtYRLsnynuZoktYe3oSzJcqz3T/RKcinOxjTxJ5DJUSgkhbruPaImEwweJS87pwe5SlMMX18xjVNVUo=
   - secure: LjC8Zu68XzcVquPGXd418t40542xqNzc5efrnWnYVBcxBEenGJuYCtx/Y++j1w0aZ2zEFWqEq4zN3wXAi19Mq55eu/xG3fD6YnWmTCz/ndNunYM1/7syLBcE31/MMcOT+x6gJwno0EylbP5BZuB/kwxti7QM6HE1FShd30qQPXuwvQ1n5KRxwupOnFHCaUMqWfjPE7e/fq+8yGgUhHjFmXtIxTkmEtfTAlQ4xGBsrEljJODJu0HmDlhrHA6/qKIT4oddal/f+rY7OfdnOLh6v9ftt7iqqPOhPd/boDFRZLetZkFRiCiv9KhQ6q9YQzjlLRhZm5CciXwEUCqrgS+83EW8qK1daarmkJOrrZxZvTKNbKjbK+B/Xo8WD00i/4rwJJvB7HRFbkwr13jljBFD6CHf6xj2KCKXfoWebx/YjK+WNsdbt6qLp2Ecs3Oxckv0QKRu1qNR2SN8yLT+5ewNnIlIKGaPDJF/rhtKjwvTQn4GKNOdDfBeDDrOTOe+qQ1DYUMsp0ho8TuDxMet+c3YiHGOIy2XekEcURFezeOjg/IAap5sCan3oMi4eIZrLLfT9+348vmylYRpWKc1OgFiJguTN0/6mgZEGeEdAp6Gx5Ci4hxBRSk+KLefNf7O2Yu8JV8KIefeRJlV2BQP3P8tMqzGYrTM1M6anAo7Y1Skd64=
   - secure: PeQAz1LrWaPilAqRXxNDpDXIx7f6Ad9WpDzS1SuQ4HJ8fktkt81Y/3lin8k319a0qUb8yWv3ZV+tXzlkVvhnMpFL7N40tqpiS3aOfWWOoogDu+oFPP7cgonPzLfEbOpwtT28OBug2pNAiu2Pddq+WbsJyHLkLuYEDZMuZdav7alqL5TXI8MyUps/RIgVmtfQAzdu9HkznFcsyxmBqJVYa1gEmntXK2XcD6MU7x8OZQ+FlIEN1fea3jb7hc7ZcGjBocX8czfUJS8Ziv1/rdWfVHzgqcORyiTSIfZ/gH6bWA5I6aQt4QD0g1o51vSrXJiNdfgBmtq+aKkalU02L9S1uOV8CdS/16N/y1FKnznep8VOJOUiR3miqBT/+6UROsDBwwpl3Z/4wu8eccMD4N+GXk4qQwtBIQg1ErHRPZf3NVktsov+QNSXtSxPkjFDgFdNJ0J0gsDsQ7PbyeAvZyCgvgVzU2zNKuaX7t+5+HdBVWyrEo/BzuJfocqWmabQudo6I1VFA0VDPKEHGkZ1DL5En6uLXQPNQZFz6oLGjA1tgvBlYQHZ6bHMr1QmRKJMnumqKHc9NlvIbeXegGJcR+e6g79O/ZvGTERx/gzTnzSSc0p5+m52PkPvwjFGvNRKtdErzRMfyRtfATAAON3RHI8c2MZd3fvc2X+uH5fpBYPRhwU=
+  - secure: zwJgqYXsMjoP4ygs2MCJOnAS0x0StZoI202oBcL7W7oau9MBbPBemdg+FjWODpcBsw71+iyabwXQRaqdL5AKpoSQe7pLhgjqauoO3ATLsD3cgG6q9msWingkZH43w4SSsI5aPJFEKQMxR/gy3Iuks7AbLnhuQhQfS3bv9rlhkpsL3ekZSvFCtDwW0H5ZyZ3ijGraRSEhoiQPlXXFw7TCU6tNcNTmNrUPsqPCQ+RwIaTswuf42OfWs8uzG0fFFOp1ABHKZZ1uKM2SAjmGPpKki7yGqjszFKZHBjlAIACV/KAmaA06MCCKVj3AY1osYC/OfVWJ3aaFMAYvL2OpUWoGwt7ThGHklbcHgjOdUs+d+1WRyxBEjx7K7FHW8Ce3K+U+hnVSsSZCYYqu+eX8+7WmRIgueO+E2XRot7xP7FYtv3tt0kxFIo4Lg8ykvWTFYzLvhApUbMQSPUj49gJo082w/PXXERYEmTFDR2a1iQOeN1OHEzyAvjW8PUMvyJzudTJZwACqR8juZzgvvOKspTXqL/WunsXmBvH+aV8hHhdA/jeytbfQDxQBwso7IYoMEN8sDLxpbnji/m96qu/5NCjqqCLu/qFlAU3Rbr4lU/PxSUxEjWqV0UBFip6P5HmwkgZCjoX6TtXtImheIQnuI9a1cOUWJtS9/pDlS3BAUflRKys=
