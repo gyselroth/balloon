@@ -238,7 +238,7 @@ class EventAttributeDecorator
             if (isset($event['share']) && false === $event['share'] || !isset($event['share'])) {
                 return null;
             }
-            $node = $this->fs->findNodeById($log['share'], null, NodeInterface::DELETED_INCLUDE);
+            $node = $this->fs->findNodeById($event['share'], null, NodeInterface::DELETED_INCLUDE);
 
             return $this->node_decorator->decorate($node, ['id', 'name', 'deleted']);
         } catch (\Exception $e) {
