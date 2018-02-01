@@ -89,7 +89,7 @@ class Server
      *
      * @var int
      */
-    protected $max_file_size = 1073741824;
+    protected $max_file_size = 17179869184;
 
     /**
      * Password policy.

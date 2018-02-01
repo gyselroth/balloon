@@ -10,13 +10,14 @@ This major relase contains various fixes, changes and new features including:
 * Convert certain file formats into other formats (For example txt => docx)
 * Slave nodes: automatically update other nodes every time a master node gets changed (It is also possible to export the content into an other format like docx => pdf)
 * Automatically scan your files for viruses and malware
+* API version 2, there is still full support for API version 1
 
 * CORE: [CHANGE] php ext apc is now optional (cache configuration)
 * CORE: [CHANGE] php ext imagick is now optional (if not installed, image previews will fail)
 * CORE: [CHANGE] php ext ldap is now optional (if not installed ldap authentication or ldap sync core app will not be available)
-* CORE: [!BREAKER] ldap auth configuration host got changed to uri (and removed configuration port)
+* CORE: [!BREAKER] The whole configuration changed completely. Configuration is now yaml and based on a DIC config (\Micro\Container), see upgrade guide
 * CORE: [!BREAKER] Migrated core classes to micro components (Certain adapters are required to be changed to \Micro, see upgrade guide) #19
-* CORE: [!BREAKER] \Micro provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
+* CORE: [!BREAKER] \Micro\Auth provides an OpenID-Connect authentication adapter, the current oauth2 auth adapter \Balloon\Auth\Adapter\Oauth2 gets removed with this release (see upgrade guide) #8
 * CORE: [CHANGE] changed hook preAuthentication() first param to Auth $auth instead auth adapters
 * CORE: [CHANGE] Moved various namespaces: \Balloon\Rest => \Balloon\Api, \Balloon\Plugin => \Balloon\Hook #55, \Balloon\Queue => \Balloon\Async
 * CORE: [CHANGE] PHP set_error_handler now throws ErrorException instead \Balloon\Exception\Coding
@@ -29,7 +30,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchronosuly executed non-stop #56
 * CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks #20
 * CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converter is now useable to convert anything to anything
-* CORE: [CHANGE] config.xml is now completely optional, an example configuration for possible configurations is available at config/example.config.xml #59
+* CORE: [CHANGE] config.yaml is now completely optional, an example configuration is available at config/config.yaml.dist #59
 * CORE: [CHANGE] No more BSONDocument, all cursor get mapped to arrays
 * CORE: [CHANGE] Sharlink is now an entirely removed from the core and operates as an own app Balloon.App.Sharelink
 * CORE: [CHANGE] Preview is now an entirely removed from the core and operates as an own app Balloon.App.Preview
@@ -44,6 +45,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [CHANGE] apps are now automatically loaded once they are placed in the app directory
 * CORE: [CHANGE] Implemented new \Balloon\Filesystem\Storage mechanism which allows to store file blobs via an interface everywhere if an adapter exists
 * CORE: [CHANGE] Various code cleanup and refactoring within \Balloon\Filesystem
+* CORE: [CHANGE] Refactoring attribute output, implemented NodeAttributeDecorator, RoleAttributeDecorator, EventAttributeDecorator
 * CORE: [FEATURE] New module based cli implementation
 * CORE: [FEATURE] Database initialization and delta migration support #78
 * CORE: [FEATURE] Added various db delta upgrade scripts from v1 => v2
@@ -61,19 +63,18 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [FEATURE] Rewritten storage implementation, it is now possible to use multiple (and different) storage adapter (Default: MongoDB GridFS)
 * CORE: [FEATURE] Rewritten notification implementation, it is now possible to use multiple (and different) transport adapter (Default: Mail and Database)
 * CORE: [FEATURE] Subscribe for node updates and receive node changes #109
-* CORE: [CHANGE] Implemented AttributeDecorator which handles all attribute conversion for nodes
-* CORE: [CHANGE] Implemented AttributeDecorator which handles all attribute conversion for roles
 * CORE: [FIX] change Node::getId(bool $string=false) remove $string param #4
-* CORE: [!BREAKER] Moved from xml to yaml configuration (See upgrade guide)
 * CORE: [FEATURE] Added user management console module to create users
 * CORE: [FEATURE] Implemented unlimited quota (-1) which is also the default
 * CORE: [FEATURE] Balloon.App.Elasticsearch now syncs documents to elasticsearch internally #121
 * CORE: [CHANGE] removed coordinate meta file #117, no migration required since it was only a testing meta field
-* CORE: [CHANGE] Introduce revisited group system, groups do now exists locally, no ldap server is required anymore #3
+* CORE: [CHANGE] Introduce rewritten group system, groups do now exists locally, no ldap server is required anymore #3
 * CORE: [FEATURE] It is now possible to set a specific share name #94 
 * CORE: [FIX] Its not possible anymore to set invalid meta data #108
 * CORE: [CHANGE] Shares are now updated during every identy set (after authentication) instead on specific requests
 * CORE: [CHANGE] Meta hex colors are replaced with a generic color name #124
+* CORE: [!BREAKER] Removed plugin LdapAutoShare, use the API to automatically deploy resources
+* CORE: [CHANGE] The default file size limit is now 16G (Is configureable)
 * API: [CHANGE] New API version v2 available, v1 is still fully functional, but new features are only available in v2. See upgrade guide.
 * API: [FEATURE] Implemented new endpoint GET /api/v2/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v2/about
@@ -100,7 +101,11 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] Removed GET /api/v2/node/parent, parent is included as parent node attribute
 * API: [CHANGE] APIv2 bulk operations do now return a HTTP status code 207 and contain a specific HTTP status code for each operation (node action)
 * API: [CHANGE] API output is not escaped anymore (This is also the case for the API v1)
+* API: [CHANGE] API v2 all timestamps are now ISO8601
+* API: [CHANGE] API v2 body is not wrapped in "data" and status in not set anymore
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
+* PACKAGING: [FEATURE] Full packaging support for deb/tar packages #53
+* PACKAGING: [FEATURE] Full suport for docker container, also provides docker-compose.yml and docker-compose-dev.yml as sample deployment
 
 
 ## 1.0.18

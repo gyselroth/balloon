@@ -12,7 +12,7 @@ Balloon\Server:
     config:
       temp_dir: "/tmp/balloon"
       max_file_version: 8
-      max_file_size: 1073741824
+      max_file_size: 17179869184
       server_url: "{ENV(BALLOON_URL,https://localhost)}"
       password_policy: '#^.*$#'
       password_hash: 1
