@@ -15,12 +15,12 @@ if [ ! -h /usr/bin/ballooncli ]; then
     ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
 fi
 
-if [[ ! -h /etc/systemd/system/balloon-jobs.service && -d /etc/systemd/system ]]; then
-    ln -s /usr/share/balloon/scripts/balloon-jobs.service.systemd /etc/systemd/system/balloon-jobs.service
+if [[ ! -f /etc/systemd/system/balloon-jobs.service && -d /etc/systemd/system ]]; then
+    cp /usr/share/balloon/scripts/balloon-jobs.service.systemd /etc/systemd/system/balloon-jobs.service
 fi
 
-if [[ ! -h /etc/init/balloon-jobs.conf && -d /etc/init ]]; then
-    ln -s /usr/share/balloon/scripts/balloon-jobs.service.systemd /etc/init/balloon-jobs.conf
+if [[ ! -f /etc/init/balloon-jobs.conf && -d /etc/init ]]; then
+    cp /usr/share/balloon/scripts/balloon-jobs.service.upstart /etc/init/balloon-jobs.conf
 fi
 
 /usr/bin/ballooncli upgrade -vvv -i
