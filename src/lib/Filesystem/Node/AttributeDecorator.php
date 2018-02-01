@@ -13,7 +13,6 @@ namespace Balloon\Filesystem\Node;
 
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
-use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Closure;
@@ -217,24 +216,24 @@ class AttributeDecorator
     {
         return [
             'created' => function ($node) use ($attributes) {
-                return Helper::DateTimeToUnix($attributes['created']);
+                return $attributes['created']->toDateTime()->format('c');
             },
             'changed' => function ($node) use ($attributes) {
-                return Helper::DateTimeToUnix($attributes['changed']);
+                return $attributes['changed']->toDateTime()->format('c');
             },
             'deleted' => function ($node) use ($attributes) {
                 if (false === $attributes['deleted']) {
-                    return false;
+                    return null;
                 }
 
-                return Helper::DateTimeToUnix($attributes['deleted']);
+                return $attributes['deleted']->toDateTime()->format('c');
             },
             'destroy' => function ($node) use ($attributes) {
-                if (false === $attributes['destroy']) {
-                    return false;
+                if (null === $attributes['destroy']) {
+                    return null;
                 }
 
-                return Helper::DateTimeToUnix($attributes['destroy']);
+                return $attributes['destroy']->toDateTime()->format('c');
             },
         ];
     }

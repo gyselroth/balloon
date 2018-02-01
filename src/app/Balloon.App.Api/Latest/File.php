@@ -14,7 +14,6 @@ namespace Balloon\App\Api\Latest;
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Helper;
 use Micro\Http\Response;
 
 class File extends Node
@@ -91,7 +90,7 @@ class File extends Node
 
             $body[] = [
                 'version' => $version['version'],
-                'changed' => Helper::DateTimeToUnix($version['changed']),
+                'changed' => $version['changed']->toDateTime()->format('c'),
                 'type' => $version['type'],
                 'size' => $version['size'],
                 'user' => $user,

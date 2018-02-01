@@ -16,6 +16,7 @@ use Balloon\App\Api\Latest\Collection as ApiCollection;
 use Balloon\App\Api\Latest\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\EventAttributeDecorator;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
@@ -76,13 +77,20 @@ class Node extends Controller
     protected $role_decorator;
 
     /**
+     * Event decorator.
+     *
+     * @var EventAttributeDecorator
+     */
+    protected $event_decorator;
+
+    /**
      * Initialize.
      *
      * @param Server             $server
      * @param AttributeDecorator $decorator
      * @param LoggerInterface    $logger
      */
-    public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, LoggerInterface $logger)
+    public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, EventAttributeDecorator $event_decorator, LoggerInterface $logger)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
@@ -90,6 +98,7 @@ class Node extends Controller
         $this->decorator = $decorator;
         $this->logger = $logger;
         $this->role_decorator = $role_decorator;
+        $this->event_decorator = $event_decorator;
     }
 
     /**
@@ -1162,8 +1171,12 @@ class Node extends Controller
         }
 
         $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);
+        $body = [];
+        foreach ($result as $event) {
+            $body[] = $this->event_decorator->decorate($event);
+        }
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(200)->setBody($body);
     }
 
     /**

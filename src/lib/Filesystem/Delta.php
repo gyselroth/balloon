@@ -20,6 +20,7 @@ use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
+use MongoDB\Driver\Cursor;
 
 class Delta
 {
@@ -250,10 +251,10 @@ class Delta
      */
     public function getDeltaFeed(?string $cursor = null, int $limit = 250, array $attributes = [], ?NodeInterface $node = null): array
     {
-        $attributes = array_merge(
+        /*$attributes = array_merge(
             ['id', 'directory', 'deleted',  'path', 'changed', 'created', 'owner'],
             $attributes
-        );
+        );*/
 
         $cursor = $this->decodeCursor($cursor);
 
@@ -417,9 +418,9 @@ class Delta
      * @param int           $skip
      * @param NodeInterface $node
      *
-     * @return array
+     * @return Cursor
      */
-    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null): array
+    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null): Cursor
     {
         $filter = $this->getDeltaFilter();
 
@@ -437,105 +438,7 @@ class Delta
             'limit' => $limit,
         ]);
 
-        $client = [
-            'type' => null,
-            'app' => null,
-            'v' => null,
-            'hostname' => null,
-        ];
-
-        $events = [];
-        foreach ($result as $log) {
-            $id = (string) $log['_id'];
-            $events[$id] = [
-                'event' => $id,
-                'timestamp' => Helper::DateTimeToUnix($log['timestamp']),
-                'operation' => $log['operation'],
-                'name' => $log['name'],
-                'client' => isset($log['client']) ? $log['client'] : $client,
-            ];
-
-            if (isset($log['previous'])) {
-                $events[$id]['previous'] = $log['previous'];
-
-                if (array_key_exists('parent', $events[$id]['previous'])) {
-                    if ($events[$id]['previous']['parent'] === null) {
-                        $events[$id]['previous']['parent'] = [
-                            'id' => null,
-                            'name' => null,
-                        ];
-                    } else {
-                        try {
-                            $node = $this->fs->findNodeById($events[$id]['previous']['parent'], null, NodeInterface::DELETED_INCLUDE);
-                            $events[$id]['previous']['parent'] = [
-                                'id' => (string) $node->getId(),
-                                'name' => $node->getName(),
-                            ];
-                        } catch (\Exception $e) {
-                            $events[$id]['previous']['parent'] = null;
-                        }
-                    }
-                }
-            } else {
-                $events[$id]['previous'] = null;
-            }
-
-            try {
-                $node = $this->fs->findNodeById($log['node'], null, NodeInterface::DELETED_INCLUDE);
-                $events[$id]['node'] = [
-                    'id' => (string) $node->getId(),
-                    'name' => $node->getName(),
-                    'deleted' => $node->isDeleted(),
-                ];
-            } catch (\Exception $e) {
-                $events[$id]['node'] = null;
-            }
-
-            try {
-                if (null === $log['parent']) {
-                    $events[$id]['parent'] = [
-                        'id' => null,
-                        'name' => null,
-                    ];
-                } else {
-                    $node = $this->fs->findNodeById($log['parent'], null, NodeInterface::DELETED_INCLUDE);
-                    $events[$id]['parent'] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'deleted' => $node->isDeleted(),
-                    ];
-                }
-            } catch (\Exception $e) {
-                $events[$id]['parent'] = null;
-            }
-
-            try {
-                $user = $this->fs->getServer()->getUserById($log['owner']);
-                $events[$id]['user'] = [
-                    'id' => (string) $user->getId(),
-                    'username' => $user->getUsername(),
-                ];
-            } catch (\Exception $e) {
-                $events[$id]['user'] = null;
-            }
-
-            try {
-                if (isset($log['share']) && false === $log['share'] || !isset($log['share'])) {
-                    $events[$id]['share'] = null;
-                } else {
-                    $node = $this->fs->findNodeById($log['share'], null, NodeInterface::DELETED_INCLUDE);
-                    $events[$id]['share'] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'deleted' => $node->isDeleted(),
-                    ];
-                }
-            } catch (\Exception $e) {
-                $events[$id]['share'] = null;
-            }
-        }
-
-        return array_values($events);
+        return $result;
     }
 
     /**

@@ -13,6 +13,7 @@ namespace Balloon\App\ClamAv\Constructor;
 
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\File;
+use MongoDB\BSON\UTCDateTime;
 
 class Http
 {
@@ -33,7 +34,11 @@ class Http
         });
         $decorator->addDecorator('malware_scantime', function ($node) {
             if ($node instanceof File) {
-                return $node->getAppAttribute('Balloon\\App\\ClamAv', 'scantime');
+                $ts = $node->getAppAttribute('Balloon\\App\\ClamAv', 'scantime');
+
+                if ($ts instanceof UTCDateTime) {
+                    return $ts->toDateTime()->format('c');
+                }
             }
         });
         $decorator->addDecorator('malware_reason', function ($node) {

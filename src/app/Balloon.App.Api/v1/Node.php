@@ -76,13 +76,20 @@ class Node extends Controller
     protected $role_decorator;
 
     /**
+     * Event decorator.
+     *
+     * @var EventAttributeDecorator
+     */
+    protected $event_decorator;
+
+    /**
      * Initialize.
      *
      * @param Server             $server
      * @param AttributeDecorator $decorator
      * @param LoggerInterface    $logger
      */
-    public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, LoggerInterface $logger)
+    public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, EventAttributeDecorator $event_decorator, LoggerInterface $logger)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
@@ -90,6 +97,7 @@ class Node extends Controller
         $this->decorator = $decorator;
         $this->logger = $logger;
         $this->role_decorator = $role_decorator;
+        $this->event_decorator = $event_decorator;
         $this->registerv1Attributes();
     }
 
@@ -1180,11 +1188,19 @@ class Node extends Controller
             $node = null;
         }
 
+        $this->event_decorator->addDecorator('timestamp', function (array $event) {
+            return Helper::dateTimeToUnix($event['timestamp']);
+        });
+
         $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);
+        $body = [];
+        foreach ($result as $event) {
+            $body[] = $this->event_decorator->decorate($event);
+        }
 
         return (new Response())->setCode(200)->setBody([
             'code' => 200,
-            'data' => $result,
+            'data' => $body,
         ]);
     }
 
@@ -1366,12 +1382,32 @@ class Node extends Controller
             return $node->isShare();
         });
 
+        $this->decorator->addDecorator('created', function ($node) {
+            return Helper::DateTimeToUnix($node->getAttributes()['created']);
+        });
+
+        $this->decorator->addDecorator('changed', function ($node) {
+            return Helper::DateTimeToUnix($node->getAttributes()['changed']);
+        });
+
+        $this->decorator->addDecorator('deleted', function ($node) {
+            return Helper::DateTimeToUnix($node->getAttributes()['deleted']);
+        });
+
+        $this->decorator->addDecorator('destroy', function ($node) {
+            return Helper::DateTimeToUnix($node->getAttributes()['destroy']);
+        });
+
         $this->decorator->addDecorator('filtered', function ($node) {
             if (!($node instanceof Collection)) {
                 return null;
             }
 
             return $node->getAttributes()['filter'];
+        });
+
+        $this->role_decorator->addDecorator('username', function ($user) {
+            return $user->getAttributes()['username'];
         });
     }
 
