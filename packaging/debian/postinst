@@ -8,7 +8,7 @@ if [ ! -h /usr/share/balloon/config ]; then
 fi
 
 if [ ! -h /usr/share/balloon/log ]; then
-    ln -s /usr/share/balloon/log /var/log/balloon
+    ln -s /var/log/balloon /usr/share/balloon/log
 fi
 
 if [ ! -h /usr/bin/ballooncli ]; then
