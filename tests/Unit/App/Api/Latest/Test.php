@@ -81,12 +81,15 @@ abstract class Test extends UnitTest
     public function getCollectionController()
     {
         $server = $this->getMockServer();
-        $decorator = new RoleAttributeDecorator($server);
+        $role_decorator = new RoleAttributeDecorator($server);
+        $node_decorator = new AttributeDecorator($server, $this->createMock(Acl::class), $role_decorator);
+        $event_decorator = new EventAttributeDecorator($server, $node_decorator, $role_decorator);
 
         return new Collection(
             $server,
-            new AttributeDecorator($server, $this->createMock(Acl::class), $decorator),
-          $decorator,
+            $node_decorator,
+            $role_decorator,
+            $event_decorator,
             $this->createMock(LoggerInterface::class)
         );
     }

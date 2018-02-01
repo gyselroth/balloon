@@ -16,6 +16,7 @@ use Balloon\App\Api\Latest\Collection as ApiCollection;
 use Balloon\App\Api\Latest\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\EventAttributeDecorator;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
@@ -1189,7 +1190,7 @@ class Node extends Controller
         }
 
         $this->event_decorator->addDecorator('timestamp', function (array $event) {
-            return Helper::dateTimeToUnix($event['timestamp']);
+            return Helper::DateTimeToUnix($event['timestamp']);
         });
 
         $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);

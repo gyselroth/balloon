@@ -37,9 +37,9 @@ class EventAttributeDecorator
     /**
      * Node decorator.
      *
-     * @var RoleAttributeDecorator
+     * @var NodeAttributeDecorator
      */
-    protected $acl;
+    protected $node_decorator;
 
     /**
      * Role decorator.
