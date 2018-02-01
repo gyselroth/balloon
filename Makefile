@@ -53,7 +53,7 @@ PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
 CHANGELOG_TARGET = $(BUILD_DIR)/DEBIAN/changelog
-BUILD_TARGET = $(COMPOSER_TARGET) $(NPM_TARGET) $(PHPCS_CHECK_TARGET) $(PHPSTAN_TARGET) $(APIDOC_TARGET)
+BUILD_TARGET = $(COMPOSER_TARGET) $(NPM_TARGET) $(PHPCS_CHECK_TARGET) $(PHPSTAN_TARGET)
 
 # MACROS
 macro_find_phpfiles = $(shell find $(1) -type f -name "*.php")
@@ -109,14 +109,16 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst
 	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
+	@mkdir -p $(BUILD_DIR)/usr/share/balloon/scripts
+	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@mkdir -p $(BUILD_DIR)/etc/systemd/system
-	@mkdir -p $(BUILD_DIR)/usr/bin
 	@rsync -a --exclude='.git' $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
 	@cp -Rp $(DOC_DIR) $(BUILD_DIR)/usr/share/balloon
-	@cp -p $(BASE_DIR)/packaging/balloon-jobs.service $(BUILD_DIR)/etc/systemd/system/
-	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/bin/ballooncli
-	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon
+	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.systemd $(BUILD_DIR)/usr/share/balloon/scripts
+	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.upstart $(BUILD_DIR)/usr/share/balloon/scripts
+	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/share/balloon/bin/console/ballooncli
+	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon/bin
 	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon/src
 	@cp -Rp $(SRC_DIR)/.container.config.php $(BUILD_DIR)/usr/share/balloon/src
 	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon/config.yaml.dist
@@ -142,8 +144,6 @@ $(TAR): $(BUILD_TARGET)
 	@tar -czf $(TAR) -C $(BUILD_DIR) .
 	@rm -rf $(BUILD_DIR)
 
-	@echo "package available at $(TAR)"
-	@echo "MD5 CHECKSUM: `md5sum $(TAR) | cut -d' ' -f1`"
 	$(COMPOSER_BIN) update
 	@touch $@
 

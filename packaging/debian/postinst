@@ -1,17 +1,30 @@
 #!/bin/bash
-
 if [ ! -d /var/log/balloon ]; then
   mkdir /var/log/balloon
 fi
 
-if [ -f /etc/php/7.1/fpm/pool.d/www.conf ]; then
-    echo "env[BALLOON_ENV]=production" >> /etc/php/7.1/fpm/pool.d/www.conf
-    echo "env[BALLOON_PATH]=/usr/share/balloon" >> /etc/php/7.1/fpm/pool.d/www.conf
-    echo "env[BALLOON_DIR_CONFIG]=/etc/balloon" >> /etc/php/7.1/fpm/pool.d/www.conf
-    echo "env[BALLOON_DIR_LOG]=/var/log/balloon" >> /etc/php/7.1/fpm/pool.d/www.conf
+if [ ! -h /usr/share/balloon/config ]; then
+    ln -s /usr/share/balloon/config /etc/balloon
 fi
 
-/usr/bin/ballooncli upgrade
-/usr/bin/ballooncli useradd -u admin -p admin -m root@localhost -a
+if [ ! -h /usr/share/balloon/log ]; then
+    ln -s /usr/share/balloon/log /var/log/balloon
+fi
 
+if [ ! -h /usr/bin/ballooncli ]; then
+    ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
+fi
+
+if [[ ! -h /etc/systemd/system/balloon-jobs.service && -d /etc/systemd/system ]]; then
+    ln -s /usr/share/balloon/scripts/balloon-jobs.service.systemd /etc/systemd/system/balloon-jobs.service
+fi
+
+if [[ ! -h /etc/init/balloon-jobs.conf && -d /etc/init ]]; then
+    ln -s /usr/share/balloon/scripts/balloon-jobs.service.systemd /etc/init/balloon-jobs.conf
+fi
+
+/usr/bin/ballooncli upgrade -vvv -i
+/usr/bin/ballooncli useradd -u admin -p admin -m root@localhost.local -a
+
+systemctl enable balloon-jobs.service 2> /dev/null
 service balloon-jobs restart
