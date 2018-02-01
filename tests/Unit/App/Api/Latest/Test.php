@@ -13,8 +13,8 @@ namespace Balloon\Testsuite\Unit\App\Api\Latest;
 
 use Balloon\App\Api\Latest\Collection;
 use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\EventAttributeDecorator;
+use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Hook\Delta;
