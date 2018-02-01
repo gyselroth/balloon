@@ -25,6 +25,7 @@ fi
 
 /usr/bin/ballooncli upgrade -vvv -i
 /usr/bin/ballooncli useradd -u admin -p admin -m root@localhost.local -a
+chown -R www-data. /var/log/balloon
 
 systemctl enable balloon-jobs.service 2> /dev/null
 service balloon-jobs restart
