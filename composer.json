@@ -47,7 +47,7 @@
         "ulrichsg/getopt-php": "^3.0",
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "*",
-        "hassankhan/config": "*",
+        "hassankhan/config": "dev-master",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",
         "bramus/monolog-colored-line-formatter": "~2.0",
