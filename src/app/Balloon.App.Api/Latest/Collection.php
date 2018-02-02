@@ -18,7 +18,7 @@ use Micro\Http\Response;
 class Collection extends Node
 {
     /**
-     * @api {head} /api/v2/collection/children?id=:id children exists?
+     * @api {head} /api/v2/collection/:id/children children exists?
      * @apiVersion 2.0.0
      * @apiName head
      * @apiGroup Node\Collection
@@ -60,7 +60,7 @@ class Collection extends Node
     }
 
     /**
-     * @api {get} /api/v2/collection/children Get children
+     * @api {get} /api/v2/collection/:id/children Get children
      * @apiVersion 2.0.0
      * @apiName getChildren
      * @apiGroup Node\Collection
@@ -81,14 +81,12 @@ class Collection extends Node
      * - 1 Only deleted</br>
      * - 2 Include deleted</br>
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} data Children
+     * @apiSuccess (200 OK) {object[]} Children
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *      "status":200,
-     *      "data": [{..}, {...}] //Shorted
-     * }
+     * [
+     *  {..}
+     * ]
      *
      * @param string $id
      * @param string $p
@@ -116,7 +114,7 @@ class Collection extends Node
     }
 
     /**
-     * @api {get} /api/v2/collection/share?id=:id Get Share settings
+     * @api {get} /api/v2/collection/:id/share Get Share settings
      * @apiVersion 2.0.0
      * @apiName getShare
      * @apiGroup Node\Collection
@@ -129,28 +127,25 @@ class Collection extends Node
      * curl -XGET "https://SERVER/api/v2/collection/212323eeffe2322344224452/share?pretty"
      * curl -XGET "https://SERVER/api/v2/collection/share?p=/absolute/path/to/my/collection&pretty"
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {string} data.name Share name
-     * @apiSuccess (200 OK) {object[]} data.acl ACL rules
-     * @apiSuccess (200 OK) {string} data.acl.type Either group or user
-     * @apiSuccess (200 OK) {object} data.acl.role Role attributes
-     * @apiSuccess (200 OK) {string} data.acl.priv Permission to access share
+     * @apiSuccess (200 OK) {string} name Share name
+     * @apiSuccess (200 OK) {object[]} acl ACL rules
+     * @apiSuccess (200 OK) {string} acl.type Either group or user
+     * @apiSuccess (200 OK) {object} acl.role Role attributes
+     * @apiSuccess (200 OK) {string} acl.priv Permission to access share
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *      "status":200,
-     *      "data":{
-     *          "name": "my share",
-     *          "acl": [
-     *              {
-     *                  "type":"user",
-     *                  "role": {
-     *                      "id": "212323eeffe2322355224411",
-     *                  },
-     *                  "privilege":"rw"
-     *              }
-     *          ]
-     *      }
+     *      "name": "my share",
+     *      "acl": [
+     *          {
+     *              "type":"user",
+     *              "role": {
+     *                  "id": "212323eeffe2322355224411",
+     *                  "name": "example"
+     *              },
+     *              "privilege":"rw"
+     *          }
+     *      ]
      *}
      *
      * @param string $id
@@ -180,7 +175,7 @@ class Collection extends Node
     }
 
     /**
-     * @api {post} /api/v2/collection/share?id=:id Create share
+     * @api {post} /api/v2/collection/:id/share Create share
      * @apiVersion 2.0.0
      * @apiGroup Node\Collection
      * @apiPermission none
@@ -191,27 +186,22 @@ class Collection extends Node
      * @apiExample (cURL) example:
      * curl -XPOST "https://SERVER/api/v2/collection/share?id=212323eeffe2322344224452&pretty"
      *
-     * @apiParam (POST Parameter) {object[]} acl ACL rules
-     * @apiParam (POST Parameter) {string} acl.type user or group
-     * @apiParam (POST Parameter) {string} acl.role Role id (user or group id)
-     * @apiParam (POST Parameter) {string} acl.privilege Permission to access share, could be on of the following:</br>
+     * @apiParam (POST Parameter) {object[]} - ACL rules
+     * @apiParam (POST Parameter) {string} -.type user or group
+     * @apiParam (POST Parameter) {string} -.role Role id (user or group id)
+     * @apiParam (POST Parameter) {string} -.privilege Permission to access share, could be on of the following:</br>
      *  rw - READ/WRITE </br>
      *  r - READONLY </br>
      *  w+ - INBOX (Only Access to owned nodes) </br>
      *  m - Manage </br>
      *  d - DENY </br>
      *
-     * @apiSuccess (201 Created) {number} status Status code
-     * @apiSuccess (201 Created) {boolean} data
+     * @apiSuccess (201 Created) {string} id Node ID
      * @apiSuccessExample {json} Success-Response (Created or Modified Share):
-     * HTTP/1.1 201 Created
+     * HTTP/1.1 200 OK
      * {
-     *      "status":201,
-     *      "data": true
+     *      "id": "212323eeffe2322344224452"
      * }
-     *
-     * @apiSuccessExample {json} Success-Response (Removed share):
-     * HTTP/1.1 204 No Content
      *
      * @param string $id
      * @param string $p
@@ -225,15 +215,11 @@ class Collection extends Node
         $node = $this->fs->getNode($id, $p);
         $result = $node->share($acl, $name);
 
-        if (null === $result) {
-            return (new Response())->setCode(204);
-        }
-
         return (new Response())->setCode(201)->setBody($result);
     }
 
     /**
-     * @api {delete} /api/v2/collection/share?id=:id Delete share
+     * @api {delete} /api/v2/collection/:id/share Delete share
      * @apiVersion 2.0.0
      * @apiName deleteShare
      * @apiGroup Node\Collection
@@ -265,7 +251,7 @@ class Collection extends Node
     }
 
     /**
-     * @api {post} /api/v2/collection?id=:id Create collection
+     * @api {post} /api/v2/collection/:id Create collection
      * @apiVersion 2.0.0
      * @apiName post
      * @apiGroup Node\Collection
@@ -294,13 +280,11 @@ class Collection extends Node
      * @apiParam (GET Parameter) {number} attributes.destroy Set specific self-destroy timestamp (UNIX timestamp format)
      * @apiParam (GET Parameter) {array} attributes.filter Set specific set of children instead just parent=this
      *
-     * @apiSuccess (201 Created) {number} status Status Code
-     * @apiSuccess (201 Created) {string} data Node ID
+     * @apiSuccess (201 Created) {string} id Node ID
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 201 Created
      * {
-     *      "status":201,
-     *      "data": "544627ed3c58891f058b4682"
+     *      "id": "544627ed3c58891f058b4682"
      * }
      *
      * @param string $id

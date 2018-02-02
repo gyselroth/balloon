@@ -11,11 +11,128 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v1;
 
-use Balloon\App\Api\Latest\User as LatestUser;
+use Balloon\Exception\InvalidArgument as InvalidArgumentException;
+use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
+use Balloon\Server;
+use Balloon\Server\AttributeDecorator;
 use Micro\Http\Response;
+use MongoDB\BSON\ObjectId;
 
-class User extends LatestUser
+class User
 {
+    /**
+     * User.
+     *
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * Decorator.
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
+     * Initialize.
+     *
+     * @param Server $server
+     */
+    public function __construct(Server $server, AttributeDecorator $decorator)
+    {
+        $this->user = $server->getIdentity();
+        $this->server = $server;
+        $this->decorator = $decorator;
+    }
+
+    /**
+     * @apiDefine _getUser
+     *
+     * @apiParam (GET Parameter) {string[]} uid Either a single uid (user id) or a uname (username) must be given (admin privilege required).
+     * @apiParam (GET Parameter) {string[]} uname Either a single uid (user id) or a uname (username) must be given (admin privilege required).
+     *
+     * @apiErrorExample {json} Error-Response (No admin privileges):
+     * HTTP/1.1 403 Forbidden
+     * {
+     *      "status": 403,
+     *      "data": {
+     *          "error": "Balloon\\Filesystem\\Acl\\Exception\\Forbidden",
+     *          "message": "submitted parameters require to have admin privileges",
+     *          "code": 41
+     *      }
+     * }
+     *
+     * @apiErrorExample {json} Error-Response (User not found):
+     * HTTP/1.1 404 Not Found
+     * {
+     *      "status": 404,
+     *      "data": {
+     *          "error": "Balloon\\Server\\User\\Exception",
+     *          "message": "requested user was not found",
+     *          "code": 53
+     *      }
+     * }
+     *
+     * @apiErrorExample {json} Error-Response (Invalid argument):
+     * HTTP/1.1 400 Bad Request
+     * {
+     *      "status": 400,
+     *      "data": {
+     *          "error": "Balloon\\Exception\\InvalidArgument",
+     *          "message": "provide either uid (user id) or uname (username)",
+     *          "Code": 0
+     *      }
+     * }
+     */
+
+    /**
+     * @apiDefine _getUsers
+     *
+     * @apiParam (GET Parameter) {string[]} uid Either a single uid (user id) as string or multiple as an array or a single uname (username) as string or multiple usernames as array must be given.
+     * @apiParam (GET Parameter) {string[]} uname Either a single uid (userid) as string or multiple as an array or a single uname (username) as string or multiple usernames as array must be given.
+     */
+
+    /**
+     * Get user instance.
+     *
+     * @param string $uid
+     * @param string $uname
+     * @param bool   $require_admin
+     *
+     * @return User
+     */
+    public function _getUser(?string $uid = null, ?string $uname = null, bool $require_admin = false)
+    {
+        if (null !== $uid || null !== $uname || true === $require_admin) {
+            if ($this->user->isAdmin()) {
+                if (null !== $uid && null !== $uname) {
+                    throw new InvalidArgumentException('provide either uid (user id) or uname (username)');
+                }
+
+                if (null !== $uid) {
+                    return $this->server->getUserById(new ObjectId($uid));
+                }
+
+                return $this->server->getUserByName($uname);
+            }
+
+            throw new ForbiddenException(
+                    'submitted parameters require to have admin privileges',
+                    ForbiddenException::ADMIN_PRIV_REQUIRED
+                );
+        }
+
+        return $this->user;
+    }
+
     /**
      * @api {get} /api/v1/user/groups Group membership
      * @apiVersion 1.0.0

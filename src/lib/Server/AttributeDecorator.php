@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\Server;
 
-use Balloon\Helper;
 use Balloon\Server;
 use Closure;
 use MongoDB\BSON\Binary;
@@ -104,17 +103,17 @@ class AttributeDecorator
 
         return [
             'created' => function ($role, $requested) use ($attributes) {
-                return Helper::DateTimeToUnix($attributes['created']);
+                return $attributes['created']->toDateTime()->format('c');
             },
             'changed' => function ($role, $requested) use ($attributes) {
-                return Helper::DateTimeToUnix($attributes['changed']);
+                return $attributes['changed']->toDateTime()->format('c');
             },
             'deleted' => function ($role, $requested) use ($attributes) {
                 if (false === $attributes['deleted']) {
-                    return false;
+                    return null;
                 }
 
-                return Helper::DateTimeToUnix($attributes['deleted']);
+                return $attributes['deleted']->toDateTime()->format('c');
             },
         ];
     }
@@ -135,8 +134,8 @@ class AttributeDecorator
 
         return [
             'id' => (string) $attributes['id'],
-            'name' => (string) $attributes['name'],
-            'namespace' => (string) $attributes['namespace'],
+            'name' => $attributes['name'],
+            'namespace' => $attributes['namespace'],
         ];
     }
 

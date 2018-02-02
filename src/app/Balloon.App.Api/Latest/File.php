@@ -19,7 +19,7 @@ use Micro\Http\Response;
 class File extends Node
 {
     /**
-     * @api {get} /api/v2/file/history?id=:id Get history
+     * @api {get} /api/v2/file/:id/history Get history
      * @apiVersion 2.0.0
      * @apiName getHistory
      * @apiGroup Node\File
@@ -32,44 +32,31 @@ class File extends Node
      * curl -XGET "https://SERVER/api/v2/file/544627ed3c58891f058b4686/history?pretty"
      * curl -XGET "https://SERVER/api/v2/file/history?p=/absolute/path/to/my/file&pretty"
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} data History
-     * @apiSuccess (200 OK) {number} data.version Version
-     * @apiSuccess (200 OK) {object} data.changed Changed timestamp
-     * @apiSuccess (200 OK) {number} data.changed.sec Changed timestamp in Unix time
-     * @apiSuccess (200 OK) {number} data.changed.usec Additional microseconds to changed Unix timestamp
-     * @apiSuccess (200 OK) {string} data.user User which changed the version
-     * @apiSuccess (200 OK) {number} data.type Change type, there are five different change types including:</br>
+     * @apiSuccess (200 OK) {object[]} - History
+     * @apiSuccess (200 OK) {number} -.version Version
+     * @apiSuccess (200 OK) {string} -.changed ISO806 timestamp
+     * @apiSuccess (200 OK) {object} -.user User object
+     * @apiSuccess (200 OK) {number} -.type Change type, there are five different change types including:</br>
      *  0 - Initially added</br>
      *  1 - Content modified</br>
      *  2 - Version rollback</br>
      *  3 - Deleted</br>
      *  4 - Undeleted
-     * @apiSuccess (200 OK) {object} data.file Reference to the content
-     * @apiSuccess (200 OK) {string} data.file.id Content reference ID
-     * @apiSuccess (200 OK) {number} data.size Content size in bytes
-     * @apiSuccess (200 OK) {string} data.mime Content mime type
+     * @apiSuccess (200 OK) {number} -.size Content size in bytes
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *      "status": 200,
-     *      "data": [
-     *          {
-     *              "version": 1,
-     *              "changed": {
-     *                  "sec": 1413883885,
-     *                  "usec": 876000
-     *              },
-     *              "user": "peter.meier",
-     *              "type": 0,
-     *              "file": {
-     *                  "$id": "544627ed3c58891f058b4688"
-     *              },
-     *              "size": 178,
-     *              "mime": "text\/plain"
-     *          }
-     *      ]
-     * }
+     * [
+     *  {
+     *      "version": 1,
+     *      "changed": ""
+     *      "user": {
+     *          "id": "544627ed3c58891f058b4611",
+     *          "name": "peter.meier"
+     *      },
+     *      "type": 0,
+     *      "size": 178,
+     *  }
+     * ]
      *
      * @param string $id
      * @param string $p
@@ -101,7 +88,7 @@ class File extends Node
     }
 
     /**
-     * @api {post} /api/v2/file/restore?id=:id Rollback version
+     * @api {post} /api/v2/file/:id/restore Rollback version
      * @apiVersion 2.0.0
      * @apiName postRestore
      * @apiGroup Node\File

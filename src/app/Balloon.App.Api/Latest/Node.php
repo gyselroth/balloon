@@ -102,7 +102,7 @@ class Node extends Controller
     }
 
     /**
-     * @api {head} /api/v2/node?id=:id Node exists?
+     * @api {head} /api/v2/node/:id Node exists?
      * @apiVersion 2.0.0
      * @apiName head
      * @apiGroup Node
@@ -150,12 +150,12 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/undelete?id=:id Undelete node
+     * @api {post} /api/v2/node/undelete?id=:id Restore node
      * @apiVersion 2.0.0
      * @apiName postUndelete
      * @apiGroup Node
      * @apiPermission none
-     * @apiDescription Undelete (Apiore from trash) a single node or multiple ones.
+     * @apiDescription Undelete (Restore from trash) a single node or multiple ones.
      * @apiUse _getNodes
      * @apiUse _conflictNode
      * @apiUse _multiError
@@ -176,9 +176,8 @@ class Node extends Controller
      * @apiSuccessExample {json} Success-Response (conflict=1):
      * HTTP/1.1 200 OK
      * {
-     *      "status":200,
-     *      "data": "renamed (xy23)"
-     *      }
+     *      "id": "544627ed3c58891f058b4686",
+     *      "name": "renamed (xy23)"
      * }
      *
      * @param array|string $id
@@ -230,9 +229,9 @@ class Node extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node?id=:id Download stream
+     * @api {get} /api/v2/node/:id/stream Download stream
      * @apiVersion 2.0.0
-     * @apiName get
+     * @apiName getStream
      * @apiGroup Node
      * @apiPermission none
      * @apiDescription Download node contents. Collections (Folder) are converted into
@@ -274,7 +273,7 @@ class Node extends Controller
      * @param bool         $download
      * @param string       $name
      */
-    public function get(
+    public function getStream(
         $id = null,
         $p = null,
         int $offset = 0,
@@ -354,12 +353,12 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/readonly?id=:id Mark node as readonly
+     * @api {post} /api/v2/node/:id/readonly Set readonly
      * @apiVersion 2.0.0
      * @apiName postReadonly
      * @apiGroup Node
      * @apiPermission none
-     * @apiDescription Mark (or unmark) node as readonly
+     * @apiDescription Set (or unset) node as readonly
      * @apiUse _getNodes
      * @apiUse _multiError
      * @apiUse _writeAction
@@ -391,53 +390,45 @@ class Node extends Controller
     /**
      * @apiDefine _nodeAttributes
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object} data Attributes
-     * @apiSuccess (200 OK) {string} data.id Unique node id
-     * @apiSuccess (200 OK) {string} data.name Name
-     * @apiSuccess (200 OK) {string} data.hash MD5 content checksum (file node only)
-     * @apiSuccess (200 OK) {object} data.meta Extended meta attributes
-     * @apiSuccess (200 OK) {string} data.meta.description UTF-8 Text Description
-     * @apiSuccess (200 OK) {string} data.meta.color Color Tag (HEX) (Like: #000000)
-     * @apiSuccess (200 OK) {string} data.meta.author Author
-     * @apiSuccess (200 OK) {string} data.meta.mail Mail contact address
-     * @apiSuccess (200 OK) {string} data.meta.license License
-     * @apiSuccess (200 OK) {string} data.meta.copyright Copyright string
-     * @apiSuccess (200 OK) {string[]} data.meta.tags Search Tags
-     * @apiSuccess (200 OK) {number} data.size Size in bytes (Only file node), number of children if collection
-     * @apiSuccess (200 OK) {string} data.mime Mime type
-     * @apiSuccess (200 OK) {boolean} data.sharelink Is node shared?
-     * @apiSuccess (200 OK) {number} data.version File version (file node only)
-     * @apiSuccess (200 OK) {mixed} data.deleted Is boolean false if not deleted, if deleted it contains a deleted timestamp
-     * @apiSuccess (200 OK) {number} data.deleted.sec Unix timestamp
-     * @apiSuccess (200 OK) {number} data.deleted.usec Additional Microsecconds to Unix timestamp
-     * @apiSuccess (200 OK) {object} data.changed Changed timestamp
-     * @apiSuccess (200 OK) {number} data.changed.sec Unix timestamp
-     * @apiSuccess (200 OK) {number} data.changed.usec Additional Microsecconds to Unix timestamp
-     * @apiSuccess (200 OK) {object} data.created Created timestamp
-     * @apiSuccess (200 OK) {number} data.created.sec Unix timestamp
-     * @apiSuccess (200 OK) {number} data.created.usec Additional Microsecconds to Unix timestamp
-     * @apiSuccess (200 OK) {boolean} data.share Node is shared
-     * @apiSuccess (200 OK) {boolean} data.directory Is node a collection or a file?
+     * @apiSuccess (200 OK) {string} id Unique node id
+     * @apiSuccess (200 OK) {string} name Name
+     * @apiSuccess (200 OK) {string} hash MD5 content checksum (file only)
+     * @apiSuccess (200 OK) {object} meta Extended meta attributes
+     * @apiSuccess (200 OK) {string} meta.description UTF-8 Text Description
+     * @apiSuccess (200 OK) {string} meta.color Color Tag (HEX) (Like: #000000)
+     * @apiSuccess (200 OK) {string} meta.author Author
+     * @apiSuccess (200 OK) {string} meta.mail Mail contact address
+     * @apiSuccess (200 OK) {string} meta.license License
+     * @apiSuccess (200 OK) {string} meta.copyright Copyright string
+     * @apiSuccess (200 OK) {string[]} meta.tags Search Tags
+     * @apiSuccess (200 OK) {number} size Size in bytes (file only), number of children if collection
+     * @apiSuccess (200 OK) {string} mime Mime type
+     * @apiSuccess (200 OK) {boolean} sharelink Is node shared?
+     * @apiSuccess (200 OK) {number} version File version (file only)
+     * @apiSuccess (200 OK) {mixed} deleted Is boolean false if not deleted, if deleted it contains a deleted timestamp
+     * @apiSuccess (200 OK) {string} deleted ISO8601 timestamp, only set if node is deleted
+     * @apiSuccess (200 OK) {string} changed ISO8601 timestamp
+     * @apiSuccess (200 OK) {string} created ISO8601 timestamp
+     * @apiSuccess (200 OK) {string} destroy ISO8601 timestamp, only set if node has a destroy timestamp set
+     * @apiSuccess (200 OK) {boolean} share Node is shared
+     * @apiSuccess (200 OK) {boolean} directory Is true if the node is a collection
+     * @apiSuccess (200 OK) {string} access Access permission for the authenticated user (d/r/rw/m)
+     * @apiSuccess (200 OK) {object} shareowner Share owner
+     * @apiSuccess (200 OK) {object} parent Parent node
+     * @apiSuccess (200 OK) {string} path Absolute node path
+     * @apiSuccess (200 OK) {string} filter Node is filtered (collection only)
+     * @apiSuccess (200 OK) {boolean} readonly Readonly
      *
-     * @apiSuccess (200 OK - additional attributes) {string} data.thumbnail Id of preview (file node only)
-     * @apiSuccess (200 OK - additional attributes) {string} data.access Access if node is shared, one of r/rw/w
-     * @apiSuccess (200 OK - additional attributes) {string} data.shareowner Username of the share owner
-     * @apiSuccess (200 OK - additional attributes) {string} data.parent ID of the parent node
-     * @apiSuccess (200 OK - additional attributes) {string} data.path Absolute node path
-     * @apiSuccess (200 OK - additional attributes) {boolean} data.filtered Node is filtered (usually only a collection)
-     * @apiSuccess (200 OK - additional attributes) {boolean} data.readonly Node is readonly
-     *
-     * @apiParam (GET Parameter) {string[]} [attributes] Filter attributes, per default not all attributes would be returned
+     * @apiParam (GET Parameter) {string[]} [attributes] Filter attributes
      *
      * @param null|mixed $id
      * @param null|mixed $p
      */
 
     /**
-     * @api {get} /api/v2/node/attributes?id=:id Get attributes
+     * @api {get} /api/v2/node/:id Get attributes
      * @apiVersion 2.0.0
-     * @apiName getAttributes
+     * @apiName get
      * @apiGroup Node
      * @apiPermission none
      * @apiDescription Get attributes from one or multiple nodes
@@ -448,38 +439,28 @@ class Node extends Controller
      * need other attributes you have to request them (for example "path")
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/node/attributes?id=544627ed3c58891f058b4686&pretty"
-     * curl -XGET "https://SERVER/api/v2/node/attributes?id=544627ed3c58891f058b4686&attributes[0]=name&attributes[1]=deleted&pretty"
-     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686/attributes?pretty"
-     * curl -XGET "https://SERVER/api/v2/node/attributes?p=/absolute/path/to/my/node&pretty"
+     * curl -XGET "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686&pretty"
+     * curl -XGET "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686&attributes[0]=name&attributes[1]=deleted&pretty"
+     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686?pretty"
+     * curl -XGET "https://SERVER/api/v2/node?p=/absolute/path/to/my/node&pretty"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *     "status": 200,
-     *     "data": {
-     *          "id": "544627ed3c58891f058b4686",
-     *          "name": "api.php",
-     *          "hash": "a77f23ed800fd7a600a8c2cfe8cc370b",
-     *          "meta": {
-     *              "license": "GPLv3"
-     *          },
-     *          "size": 178,
-     *          "mime": "text\/plain",
-     *          "sharelink": true,
-     *          "version": 1,
-     *          "deleted": false,
-     *          "changed": {
-     *              "sec": 1413883885,
-     *              "usec": 869000
-     *          },
-     *          "created": {
-     *              "sec": 1413883885,
-     *              "usec": 869000
-     *          },
-     *          "share": false,
-     *          "directory": false
-     *      }
+     *      "id": "544627ed3c58891f058b4686",
+     *      "name": "api.php",
+     *      "hash": "a77f23ed800fd7a600a8c2cfe8cc370b",
+     *      "meta": {
+     *          "license": "GPLv3"
+     *      },
+     *      "size": 178,
+     *      "mime": "text\/plain",
+     *      "sharelink": true,
+     *      "version": 1,
+     *      "changed": "2007-08-31T16:47+00:00",
+     *      "created": "2007-08-31T16:47+00:00",
+     *      "share": false,
+     *      "directory": false
      * }
      *
      * @param array|string $id
@@ -488,7 +469,7 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function getAttributes($id = null, $p = null, array $attributes = []): Response
+    public function get($id = null, $p = null, array $attributes = []): Response
     {
         if (is_array($id) || is_array($p)) {
             $nodes = [];
@@ -505,7 +486,7 @@ class Node extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/parents?id=:id Get parent nodes
+     * @api {get} /api/v2/node/:id/parents Get parent nodes
      * @apiVersion 2.0.0
      * @apiName getParents
      * @apiGroup Node
@@ -514,7 +495,6 @@ class Node extends Controller
      * single level array beginning with the collection on the highest level.
      * @apiUse _getNode
      * @apiUse _nodeAttributes
-     * @apiSuccess (200 OK) {object[]} data Nodes
      *
      * @apiParam (GET Parameter) {boolean} [self=true] Include requested collection itself at the end of the list (Will be ignored if the requested node is a file)
      *
@@ -526,48 +506,31 @@ class Node extends Controller
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": [
-     * {
-     *              "id": "544627ed3c58891f058bbbaa",
-     *              "name": "rootdir",
-     *              "meta": {},
-     *              "size": 1,
-     *              "mime": "inode\/directory",
-     *              "deleted": false,
-     *              "changed": {
-     *                  "sec": 1413883880,
-     *                  "usec": 869001
-     *              },
-     *              },
-     *              "created": {
-     *                  "sec": 1413883880,
-     *                  "usec": 869001
-     *              },
-     *              "share": false,
-     *              "directory": true
-     *          },
-     *          {
-     *              "id": "544627ed3c58891f058b46cc",
-     *              "name": "parentdir",
-     *              "meta": {},
-     *              "size": 3,
-     *              "mime": "inode\/directory",
-     *              "deleted": false,
-     *              "changed": {
-     *                  "sec": 1413883885,
-     *                  "usec": 869000
-     *              },
-     *              "created": {
-     *                  "sec": 1413883885,
-     *                  "usec": 869000
-     *              },
-     *              "share": false,
-     *              "directory": true
-     *          }
-     *      ]
-     * }
+     * [
+     *  {
+     *      "id": "544627ed3c58891f058bbbaa",
+     *      "name": "rootdir",
+     *      "meta": {},
+     *      "size": 1,
+     *      "mime": "inode/directory",
+     *      "created": "2007-08-31T16:47+00:00",
+     *      "changed": "2007-08-31T16:47+00:00",
+     *      "destroy": "2020-08-31T16:47+00:00",
+     *      "share": false,
+     *      "directory": true
+     *  },
+     *  {
+     *      "id": "544627ed3c58891f058b46cc",
+     *      "name": "parentdir",
+     *      "meta": {},
+     *      "size": 3,
+     *      "mime": "inode/directory",
+     *      "created": "2007-08-31T16:47+00:00",
+     *      "changed": "2007-08-31T16:47+00:00",
+     *      "share": false,
+     *      "directory": true
+     *  }
+     * ]
      *
      * @param string $id
      * @param string $p
@@ -593,7 +556,7 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/meta-attributes?id=:id Change meta attributes
+     * @api {post} /api/v2/node/:id/meta-attributes Change meta attributes
      * @apiVersion 2.0.0
      * @apiName postMetaAttributes
      * @apiGroup Node
@@ -633,7 +596,7 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/name?id=:id Rename node
+     * @api {post} /api/v2/node/:id/name Rename node
      * @apiVersion 2.0.0
      * @apiName postName
      * @apiGroup Node
@@ -667,7 +630,7 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/clone?id=:id Clone node
+     * @api {post} /api/v2/node/:id/clone Clone node
      * @apiVersion 2.0.0
      * @apiName postClone
      * @apiGroup Node
@@ -724,7 +687,7 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/move?id=:id Move node
+     * @api {post} /api/v2/node/:id/move Move node
      * @apiVersion 2.0.0
      * @apiName postMove
      * @apiGroup Node
@@ -918,14 +881,13 @@ class Node extends Controller
      *
      * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} data Children
+     * @apiSuccess (200 OK) {object[]} - List of deleted nodes
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *      "status":200,
-     *      "data": [{..}, {...}] //Shorted
-     * }
+     * [
+     *  {
+     *  }
+     * ]
      *
      * @param array $attributes
      *
@@ -977,60 +939,34 @@ class Node extends Controller
      * @apiExample (cURL) example:
      * curl -XGET "https://SERVER/api/v2/node/delta?pretty"
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object} data Delta feed
-     * @apiSuccess (200 OK) {boolean} data.reset If true the local state needs to be reseted, is alway TRUE during
+     * @apiSuccess (200 OK) {boolean} reset If true the local state needs to be reseted, is alway TRUE during
      * the first request to /delta without a cursor or in special cases like server or account maintenance
-     * @apiSuccess (200 OK) {string} data.cursor The cursor needs to be stored and reused to request further deltas
-     * @apiSuccess (200 OK) {boolean} data.has_more If has_more is TRUE /delta can be requested immediatly after the last request
+     * @apiSuccess (200 OK) {string} cursor The cursor needs to be stored and reused to request further deltas
+     * @apiSuccess (200 OK) {boolean} has_more If has_more is TRUE /delta can be requested immediatly after the last request
      * to receive further delta. If it is FALSE we should wait at least 120 seconds before any further delta requests to the api endpoint
-     * @apiSuccess (200 OK) {object[]} data.nodes Node list to process
-     * @apiSuccess (200 OK) {string} data.nodes.id Node ID
-     * @apiSuccess (200 OK) {string} data.nodes.deleted Is node deleted?
-     * @apiSuccess (200 OK) {object} data.nodes.changed Changed timestamp
-     * @apiSuccess (200 OK) {number} data.nodes.changed.sec Unix timestamp
-     * @apiSuccess (200 OK) {number} data.nodes.changed.usec Additional Microsecconds to Unix timestamp
-     * @apiSuccess (200 OK) {object} data.nodes.created Created timestamp (If data.nodes[].deleted is TRUE, created will be NULL)
-     * @apiSuccess (200 OK) {number} data.nodes.created.sec Unix timestamp
-     * @apiSuccess (200 OK) {number} data.nodes.created.usec Additional Microsecconds to Unix timestamp
-     * @apiSuccess (200 OK) {string} data.nodes.path The full absolute path to the node
-     * @apiSuccess (200 OK) {string} data.nodes.directory Is true if node is a directory
+     * @apiSuccess (200 OK) {object[]} nodes Node list to process
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *      "status": 200,
-     *      "data": {
-     *          "reset": false,
-     *          "cursor": "aW5pdGlhbHwxMDB8NTc1YTlhMGIzYzU4ODkwNTE0OGI0NTZifDU3NWE5YTBiM2M1ODg5MDUxNDhiNDU2Yw==",
-     *          "has_more": false,
-     *          "nodes": [
-     *             {
-     *                  "id": "581afa783c5889ad7c8b4572",
-     *                  "deleted": true,
-     *                  "created": null,
-     *                  "changed": {
-     *                      "sec": 1478163064,
-     *                      "usec": 32.0.0
-     *                  },
-     *                  "path": "\/AAA\/AL",
-     *                  "directory": true
-     *              },
-     *              {
-     *                  "id": "581afa783c5889ad7c8b3dcf",
-     *                  "deleted": false,
-     *                  "created": {
-     *                      "sec": 1478163048,
-     *                      "usec": 101000
-     *                  },
-     *                  "changed": {
-     *                      "sec": 1478163048,
-     *                      "usec": 101000
-     *                  },
-     *                  "path": "\/AL",
-     *                  "directory": true
-     *              }
-     *          ]
-     *      }
+     *      "reset": false,
+     *      "cursor": "aW5pdGlhbHwxMDB8NTc1YTlhMGIzYzU4ODkwNTE0OGI0NTZifDU3NWE5YTBiM2M1ODg5MDUxNDhiNDU2Yw==",
+     *      "has_more": false,
+     *       "nodes": [
+     *          {
+     *              "id": "581afa783c5889ad7c8b4572",
+     *              "deleted": " 2008-08-31T16:47+00:00",
+     *              "changed": "2007-08-31T16:47+00:00",
+     *              "path": "\/AAA\/AL",
+     *              "directory": true
+     *          },
+     *          {
+     *              "id": "581afa783c5889ad7c8b3dcf",
+     *              "created": "2007-08-31T16:47+00:00",
+     *              "changed": "2007-09-28T12:33+00:00",
+     *              "path": "\/AL",
+     *              "directory": true
+     *          }
+     *      ]
      * }
      *
      * @param string $id
@@ -1060,7 +996,7 @@ class Node extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/event-log?id=:id Event log
+     * @api {get} /api/v2/node/:id/event-log Event log
      * @apiVersion 2.0.0
      * @apiName getEventLog
      * @apiGroup Node
@@ -1102,58 +1038,43 @@ class Node extends Controller
      * @apiParam (GET Parameter) {number} [limit=100] Sets limit of events to be returned
      * @apiParam (GET Parameter) {number} [skip=0] How many events are skiped (useful for paging)
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} data Events
-     * @apiSuccess (200 OK) {number} data.event Event ID
-     * @apiSuccess (200 OK) {object} data.timestamp event timestamp
-     * @apiSuccess (200 OK) {number} data.timestamp.sec Event timestamp timestamp in Unix time
-     * @apiSuccess (200 OK) {number} data.timestamp.usec Additional microseconds to changed Unix timestamp
-     * @apiSuccess (200 OK) {string} data.operation event operation (like addCollection, deleteFile, ...)
-     * @apiSuccess (200 OK) {string} data.parent ID of the parent node at the time of the event
-     * @apiSuccess (200 OK) {object} data.previous Previous state of actual data which has been modified during an event, can contain either version, name or parent
-     * @apiSuccess (200 OK) {number} data.previous.version Version at the time before the event
-     * @apiSuccess (200 OK) {string} data.previous.name Name at the time before the event
-     * @apiSuccess (200 OK) {string} data.previous.parent Parent node at the time before the event
-     * @apiSuccess (200 OK) {string} data.share If of the shared folder at the time of the event
-     * @apiSuccess (200 OK) {string} data.name Name of the node at the time of the event
-     * @apiSuccess (200 OK) {object} data.node Current data of the node (Not from the time of the event!)
-     * @apiSuccess (200 OK) {boolean} data.node.deleted True if the node is deleted, false otherwise
-     * @apiSuccess (200 OK) {string} data.node.id Actual ID of the node
-     * @apiSuccess (200 OK) {string} data.node.name Current name of the node
-     * @apiSuccess (200 OK) {object} data.user Data which contains information about the user who executed an event
-     * @apiSuccess (200 OK) {string} data.user.id Actual user ID
-     * @apiSuccess (200 OK) {string} data.user.username Current username of executed event
+     * @apiSuccess (200 OK) {object[]} - List of events
+     * @apiSuccess (200 OK) {number} -.event Event ID
+     * @apiSuccess (200 OK) {object} -.timestamp ISO8601 timestamp when the event occured
+     * @apiSuccess (200 OK) {string} -.operation event operation (like addCollection, deleteFile, ...)
+     * @apiSuccess (200 OK) {object} -.parent Parent node object at the time of the event
+     * @apiSuccess (200 OK) {object} -.previous Previous state of actual data which has been modified during an event, can contain either version, name or parent
+     * @apiSuccess (200 OK) {number} -.previous.version Version at the time before the event
+     * @apiSuccess (200 OK) {string} -.previous.name Name at the time before the event
+     * @apiSuccess (200 OK) {object} -.previous.parent Parent node object at the time before the event
+     * @apiSuccess (200 OK) {object} -.share shared collection object at the time of the event (If the node was part of a share)
+     * @apiSuccess (200 OK) {string} -.name Name of the node at the time of the event
+     * @apiSuccess (200 OK) {object} -.node Current node object
+     * @apiSuccess (200 OK) {object} -.user User who executed an event
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *      "status": 200,
-     *      "data": [
-     *          {
-     *              "event": "57628e523c5889026f8b4570",
-     *              "timestamp": {
-     *                  "sec": 1466076753,
-     *                  "usec": 988000
-     *              },
-     *              "operation": "restoreFile",
-     *              "name": "file.txt",
-     *              "previous": {
-     *                  "version": 16
-     *              },
-     *              "node": {
-     *                  "id": "558c0b273c588963078b457a",
-     *                  "name": "3dddsceheckfile.txt",
-     *                  "deleted": false
-     *              },
-     *              "parent": null,
-     *              "user": {
-     *                  "id": "54354cb63c58891f058b457f",
-     *                  "username": "gradmin.bzu"
-     *              },
-     *              "share": null
-     *          }
-     *      ]
-     * }
+     * [
+     *  {
+     *      "id": "57628e523c5889026f8b4570",
+     *      "timestamp": " 2018-01-02T13:22+00:00",
+     *      "operation": "restoreFile",
+     *      "name": "file.txt",
+     *      "previous": {
+     *          "version": 16
+     *      },
+     *      "node": {
+     *          "id": "558c0b273c588963078b457a",
+     *          "name": "3dddsceheckfile.txt",
+     *          "deleted": false
+     *      },
+     *      "parent": null,
+     *      "user": {
+     *          "id": "54354cb63c58891f058b457f",
+     *          "username": "example"
+     *      }
+     *  }
+     * ]
      *
      * @param string $id
      * @param string $p
@@ -1193,14 +1114,10 @@ class Node extends Controller
      * @apiExample (cURL) example:
      * curl -XGET "https://SERVER/api/v2/node/last-cursor?pretty"
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {string} data Newest cursor
+     * @apiSuccess (200 OK) {string} cursor Latest cursor
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *      "status": 200,
-     *      "data": "aW5pdGlhbHwxMDB8NTc1YTlhMGIzYzU4ODkwNTE0OGI0NTZifDU3NWE5YTBiM2M1ODg5MDUxNDhiNDU2Yw=="
-     * }
+     * "aW5pdGlhbHwxMDB8NTc1YTlhMGIzYzU4ODkwNTE0OGI0NTZifDU3NWE5YTBiM2M1ODg5MDUxNDhiNDU2Yw=="
      *
      * @param string $id
      * @param string $p

@@ -25,20 +25,15 @@ class Api extends Controller
      * @apiDescription Get server time and api status/version
      *
      * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v1?pretty"
+     * curl -XGET "https://SERVER/api/v2?pretty"
      *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {object} data API/Server information
-     * @apiSuccess {string} data.name balloon identifier
-     * @apiSuccess {number} data.api_version API Version
+     * @apiSuccess {string} name balloon identifier
+     * @apiSuccess {number} api_version API Version
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *     "status": 200,
-     *     "data": {
-     *         "name": "balloon",
-     *         "api_version": 1
-     *     }
+     *      "name": "balloon",
+     *      "api_version": 2
      * }
      *
      * @return Response

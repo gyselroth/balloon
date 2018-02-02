@@ -90,9 +90,6 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v2 since all timestamps are in UTC anyway #61
 * API: [FEATURE] GET /api and GET /api/v(1|2) are now public readable #46
 * API: [CHANGE] Removed attribute history from GET /api/v2/file/attributes
-* API: [FEATURE] param $attributes can now be called to filter specific attributes for file or collection like 'file.size' which can be used for all endopoints which understand a param $attributes
-* API: [CHANGE] endpoints which return attributes (which can also be filtered with $attributes) do now return all attributes by default
-* API: [CHANGE] attributes with sub node attributes can now be filtered from endpoints which return attributes, for example (parent.id, parent.name, share.name, ...) #21
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Convert, see apidoc
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Notification, see apidoc, includes #67
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
@@ -104,6 +101,12 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] API output is not escaped anymore (This is also the case for the API v1)
 * API: [CHANGE] API v2 all timestamps are now ISO8601
 * API: [CHANGE] API v2 body is not wrapped in "data" and status in not set anymore
+* API: [CHANGE] Removed GET /api/v2/user/is-admin (Can be queried via /user/attributes)
+* API: [CHANGE] Removed GET /api/v2/user/shares (Can be queried via /node/query)
+* API: [CHANGE] GET /api/v2/node is now GET /api/v2/node/:id/stream
+* API: [CHANGE] GET /api/v2/node/attributes is now GET /api/v2/node
+* API: [CHANGE] GET /api/v2/user/attributes is now GET /api/v2/user
+* API: [CHANGE] GET /api/v2/user/whoami returns now an entire user object instead just the username
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 * PACKAGING: [FEATURE] Full packaging support for deb/tar packages #53
 * PACKAGING: [FEATURE] Full suport for docker container, also provides docker-compose.yml and docker-compose-dev.yml as sample deployment

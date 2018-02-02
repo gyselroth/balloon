@@ -16,7 +16,6 @@ use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
-use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 
 class AutoCreateUser extends AbstractHook
@@ -84,21 +83,17 @@ class AutoCreateUser extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function preServerIdentity(Identity $identity, ?User $user): void
+    public function preServerIdentity(Identity $identity, ?User &$user): void
     {
         if (null !== $user) {
             return;
         }
 
-        $this->logger->info('found first time username ['.$identity->getIdentifier().'], auto-create user in mongodb user collection', [
+        $this->logger->info('found first time username ['.$identity->getIdentifier().'], auto-create user', [
              'category' => get_class($this),
         ]);
 
-        $attributes = [
-            'username' => $identity->getIdentifier(),
-            'created' => new UTCDateTime(),
-            'deleted' => false,
-        ];
+        $attributes = [];
 
         foreach ($this->attributes as $attr => $value) {
             if (!isset($value['type'])) {
@@ -132,7 +127,7 @@ class AutoCreateUser extends AbstractHook
             }
         }
 
-        $result = $this->server->addUser($attributes);
-        $attributes['_id'] = $result->getInsertedId();
+        $id = $this->server->addUser($identity->getIdentifier(), $attributes);
+        $user = $this->server->getUserById($id);
     }
 }

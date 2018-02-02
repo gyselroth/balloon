@@ -18,6 +18,7 @@ use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Auth\Auth;
 use Micro\Http\Response;
 use Micro\Http\Router;
+use MongoDB\BSON\Binary;
 use Psr\Log\LoggerInterface;
 
 class Http extends AbstractBootstrap
@@ -35,10 +36,15 @@ class Http extends AbstractBootstrap
         ]);
 
         $auth = $this->container->get(Auth::class);
+
         $this->container->get(Hook::class)->run('preAuthentication', [$auth]);
 
         if ($auth->requireOne()) {
             if (!($auth->getIdentity()->getAdapter() instanceof AuthNone)) {
+                $auth->getIdentity()->getAttributeMap()->addMapper('binary', function ($value) {
+                    return new Binary($value, Binary::TYPE_GENERIC);
+                });
+
                 $this->container->get(Server::class)->setIdentity($auth->getIdentity());
             }
 

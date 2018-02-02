@@ -48,7 +48,7 @@ interface HookInterface
      * @param Identity $identity
      * @param User     $user
      */
-    public function preServerIdentity(Identity $identity, ?User $user): void;
+    public function preServerIdentity(Identity $identity, ?User &$user): void;
 
     /**
      * Run: postCreateCollection.

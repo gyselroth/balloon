@@ -109,12 +109,15 @@ class Notification extends Controller
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *      "status": 200,
-     *      "data": [{
-     *          "message": "Hi there, this is a notification"
-     *      }]
-     * }
+     * [
+     *  "id": "",
+     *  "message": "Hi there, this is a notification",
+     *  "subject": "Hi",
+     *  "sender": {
+     *      "id": "",
+     *      "name": ""
+     *  }
+     * ]
      */
     public function get(): Response
     {

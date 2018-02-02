@@ -80,8 +80,8 @@ Balloon\App\DesktopClient\DesktopClient:
       github_request_url: "https://api.github.com/repos/gyselroth/balloon-client-desktop/releases/latest"
       github_request_timeout: 10
       github_request_useragent: "balloon server"
-      formats: ""
-      github_mapping: ""
+      #formats: ""
+      #github_asset_mapping: ""
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:
@@ -235,8 +235,8 @@ Micro\Auth\Auth:
               basedn: "dc=example,dc=org"
               binddn: "cn=admin,dc=example,dc=org"
               bindpw: 1234
-              tls: 1
-              arguments:
+              tls: true
+              options:
                 LDAP_OPT_PROTOCOL_VERSION: 3
       arguments:
         config:
@@ -248,13 +248,13 @@ Micro\Auth\Auth:
               attr: "o"
             avatar:
               type: "binary"
-              attr: "jpegPhoto"
+              attr: "jpegphoto"
             hard_quota:
               type: "int"
-              attr: "customHardQuotaAttribue"
+              attr: "customhardquota"
             soft_quota:
               type: "int"
-              attr: "customSoftQuotaAttribue"
+              attr: "customsoftquota"
             mail:
               type: "string"
               attr: "mail"

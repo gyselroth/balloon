@@ -15,6 +15,7 @@ use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Server;
+use Generator;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
@@ -722,6 +723,20 @@ class User implements RoleInterface
     public function getGroups(): array
     {
         return $this->groups;
+    }
+
+    /**
+     * Get resolved groups.
+     *
+     * @return Generator
+     */
+    public function getResolvedGroups(): ?Generator
+    {
+        foreach ($this->groups as $group) {
+            yield $this->server->getGroupById($group);
+        }
+
+        return null;
     }
 
     /**

@@ -38,8 +38,8 @@ class DesktopClient
         'deb' => '#.*\.deb$#',
         'rpm' => '#.*\.rpm$#',
         'exe' => '#.*\.exe$#',
-        'linux_zip' => '#.*\.zip$#',
-        'dmg' => '#.*\.dmg$#',
+        'zip' => '#.*\.zip$#',
+        'pkg' => '#.*\.pkg$#',
     ];
 
     /**
@@ -92,6 +92,7 @@ class DesktopClient
             switch ($option) {
                 case 'github_request_url':
                 case 'github_request_timeout':
+                case 'github_request_useragent':
                     $this->{$option} = (string) $value;
 
                 break;
@@ -108,6 +109,8 @@ class DesktopClient
                     throw new Exception('invalid option '.$option.' given');
             }
         }
+
+        return $this;
     }
 
     /**

@@ -44,7 +44,7 @@ abstract class AbstractHook implements HookInterface
     /**
      * {@inheritdoc}
      */
-    public function preServerIdentity(Identity $identity, ?User $user): void
+    public function preServerIdentity(Identity $identity, ?User &$user): void
     {
     }
 

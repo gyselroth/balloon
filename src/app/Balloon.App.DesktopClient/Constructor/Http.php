@@ -25,6 +25,7 @@ class Http
     public function __construct(Router $router)
     {
         $router
-            ->prependRoute(new Route('/api/v2/desktop-client$', Download::class));
+            ->prependRoute(new Route('/api/v2/desktop-client', Download::class))
+            ->prependRoute(new Route('/api/v2/desktop-client/{format:#([a-z]+)#}', Download::class));
     }
 }

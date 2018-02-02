@@ -60,7 +60,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {get} /api/v2/file/convert/supported-formats?id=:id Get supported formats
+     * @api {get} /api/v2/file/:id/convert/supported-formats Get supported formats
      * @apiVersion 2.0.0
      * @apiName getSupportedFormats
      * @apiGroup App\Convert
@@ -71,16 +71,14 @@ class Convert extends Controller
      * @apiExample (cURL) exmaple:
      * curl -XGET "https://SERVER/api/v2/file/convert/supported-formats?id=544627ed3c58891f058b4686"
      *
+     * @apiSuccess {string[]} - List of supported formats
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *      "status": 200,
-     *      "data": [
-     *          "png",
-     *          "jpg",
-     *          "tiff"
-     *      ]
-     * }
+     * [
+     *  "png",
+     *  "jpg",
+     *  "tiff"
+     * ]
      *
      * @param string $id
      * @param string $p
@@ -93,7 +91,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {get} /api/v2/file/convert/slaves?id=:id Get slaves
+     * @api {get} /api/v2/file/:id/convert/slaves Get slaves
      * @apiVersion 2.0.0
      * @apiName getSlaves
      * @apiGroup App\Convert
@@ -106,11 +104,8 @@ class Convert extends Controller
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *      "status": 200,
-     *      "data": [
-     *      ]
-     * }
+     * [
+     * ]
      *
      * @param string $id
      * @param string $p
@@ -124,7 +119,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {post} /api/v2/file/convert/slave?id=:id Add new slave
+     * @api {post} /api/v2/file/:id/convert/slave Add new slave
      * @apiVersion 2.0.0
      * @apiName postSlave
      * @apiGroup App\Convert
@@ -138,8 +133,8 @@ class Convert extends Controller
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 201 Created
      * {
-     *      "status": 200,
-     *      "data": "944627ed3c58891f058b4686"
+     *      "id": "944627ed3c58891f058b4686",
+     *      "format": "png",
      * }
      *
      * @param string $id
@@ -178,7 +173,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/file/convert/slave?id=:id Delete slave
+     * @api {delete} /api/v2/file/:id/convert/slave Delete slave
      * @apiVersion 2.0.0
      * @apiName deleteSlave
      * @apiGroup App\Convert

@@ -135,7 +135,7 @@ class Group
     }
 
     /**
-     * @api {get} /api/v2/group/member Get group member
+     * @api {get} /api/v2/group/:id/member Get group member
      * @apiVersion 2.0.0
      * @apiName getMember
      * @apiUse _getGroup
@@ -148,20 +148,19 @@ class Group
      * curl -XGET "https://SERVER/api/v2/group/544627ed3c58891f058b4611/member?pretty"
      * curl -XGET "https://SERVER/api/v2/group/member?name=logingroup&pretty"
      *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {object[]} data Group member
+     * @apiSuccess {object[]} - List of user
+     * @apiSuccess {string} -.id User ID
+     * @apiSuccess {string} -.name Username
+     * @apiSuccess {string} -.mail Mail address
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": [
-     *          {
-     *              "id": "544627ed3c58891f058b4613",
-     *              "username": "ted",
-     *              "mail": "test@example.org"
-     *          }
-     *     ]
-     * }
+     * [
+     *  {
+     *      "id": "544627ed3c58891f058b4613",
+     *      "name": "ted",
+     *      "mail": "test@example.org"
+     *  }
+     * ]
      *
      * @param string $id
      * @param string $name
@@ -180,9 +179,9 @@ class Group
     }
 
     /**
-     * @api {get} /api/v2/group/attributes Get group attributes
+     * @api {get} /api/v2/group/:id Get group attributes
      * @apiVersion 2.0.0
-     * @apiName getAttributes
+     * @apiName get
      * @apiUse _getGroup
      * @apiGroup Group
      * @apiPermission none
@@ -193,14 +192,14 @@ class Group
      * curl -XGET "https://SERVER/api/v2/group/544627ed3c58891f058b4611/attributes?pretty"
      * curl -XGET "https://SERVER/api/v2/group/attributes?name=loginser&pretty"
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object} group attributes
+     * @apiSuccess (200 OK) {string} id group ID
+     * @apiSuccess (200 OK) {string} name group name
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *      "status": 200,
-     *      "data": {} //shortened
+     *      "id": "544627ed3c58891f058b46cd",
+     *      "name": "test"
      * }
      *
      * @param string $id
@@ -209,7 +208,7 @@ class Group
      *
      * @return Response
      */
-    public function getAttributes(?string $id = null, ?string $name = null, array $attributes = []): Response
+    public function get(?string $id = null, ?string $name = null, array $attributes = []): Response
     {
         $result = $this->decorator->decorate($this->_getGroup($id, $name), $attributes);
 
@@ -217,7 +216,7 @@ class Group
     }
 
     /**
-     * @api {head} /api/v2/group?id=:id Group exists?
+     * @api {head} /api/v2/group/:id Group exists
      * @apiVersion 2.0.0
      * @apiName postQuota
      * @apiUse _getGroup
@@ -260,14 +259,14 @@ class Group
      * @apiParam (POST Parameter) {string[]} ID of group member
      * @apiParam (POST Parameter) {string[]} Attributes
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} group attributes
+     * @apiSuccess (200 OK) {string} id group ID
+     * @apiSuccess (200 OK) {string} name group name
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 201 Created
      * {
-     *      "status": 201,
-     *      "data": "544627ed3c58891f058b4633"
+     *      "id": "544627ed3c58891f058b46cd",
+     *      "name": "test"
      * }
      *
      * @param string $name
@@ -284,7 +283,7 @@ class Group
     }
 
     /**
-     * @api {post} /api/v2/group/attributes?id=:id Change group attributes
+     * @api {post} /api/v2/group/:id/attributes Change group attributes
      * @apiVersion 2.0.0
      * @apiName postAttributes
      * @apiUse _getGroup
@@ -318,7 +317,7 @@ class Group
     }
 
     /**
-     * @api {delete} /api/v2/group?id=:id Delete group
+     * @api {delete} /api/v2/group/:id Delete group
      * @apiVersion 2.0.0
      * @apiName delete
      * @apiUse _getGroup
@@ -361,7 +360,7 @@ class Group
     }
 
     /**
-     * @api {post} /api/v2/group/undelete?id=:id Restore group
+     * @api {post} /api/v2/group/:id/undelete Restore group
      * @apiVersion 2.0.0
      * @apiName postUndelete
      * @apiUse _getGroup

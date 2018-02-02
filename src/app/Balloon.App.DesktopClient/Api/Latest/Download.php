@@ -34,17 +34,17 @@ class Download
     }
 
     /**
-     * @api {get} /api/v2/desktop-client
+     * @api {get} /api/v2/desktop-client/:format/stream
      * @apiVersion 2.0.0
-     * @apiName get
+     * @apiName getStream
      * @apiGroup App\DesktopClient
      * @apiPermission none
      * @apiDescription Download balloon desktop client
      *
      * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/desktop-client?format=exe > balloon-desktop.exe"
+     * curl -XGET "https://SERVER/api/v2/desktop-client/exe/stream > balloon-desktop.exe"
      *
-     * @apiParam (GET Parameter) {string} [format] Request client foramt (deb, rpm, exe, dmg, linux_zip or a custom format)
+     * @apiParam (GET Parameter) {string} [format] Request client foramt (deb, rpm, exe, pkg, zip or a custom format)
      *
      * @apiSuccessExample {binary} Success-Response:
      * HTTP/1.1 200 OK
@@ -53,13 +53,16 @@ class Download
      *
      * @return Response
      */
-    public function get(string $format): Response
+    public function getStream(string $format): Response
     {
         $url = $this->client->getUrl($format);
 
         return (new Response())
             ->setCode(200)
-            ->setOutputFormat(null)
+            ->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\''.rawurlencode('balloon-desktop.'.$format))
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
+            ->setHeader('Content-Type', 'application/octet-stream')
+            ->setHeader('Content-Transfer-Encoding', 'binary')
             ->setBody(
                 function () use ($url) {
                     $stream = fopen($url, 'r');

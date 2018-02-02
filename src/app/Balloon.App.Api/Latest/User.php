@@ -136,43 +136,6 @@ class User
     }
 
     /**
-     * @api {get} /api/v2/user/is-admin Is Admin?
-     * @apiVersion 2.0.0
-     * @apiName getIsAdmin
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission none
-     * @apiDescription Check if the authenicated user has admin rights.
-     * If you want to check your own admin status you have to leave the parameters uid and uname empty.
-     * Requesting this api with parameter uid or uname requires admin privileges.
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/user/is-admin"
-     * curl -XGET "https://SERVER/api/v2/user/544627ed3c58891f058b4611/is-admin"
-     * curl -XGET "https://SERVER/api/v2/user/is-admin?uname=loginuser"
-     *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {boolean} data TRUE if admin
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": true
-     * }
-     *
-     * @param string $uid
-     * @param string $uname
-     *
-     * @return Response
-     */
-    public function getIsAdmin(?string $uid = null, ?string $uname = null): Response
-    {
-        $result = $this->_getUser($uid, $uname)->isAdmin();
-
-        return (new Response())->setCode(200)->setBody($result);
-    }
-
-    /**
      * @api {get} /api/v2/user/whoami Who am I?
      * @apiVersion 2.0.0
      * @apiName getWhoami
@@ -185,16 +148,14 @@ class User
      *
      * @apiExample Example usage:
      * curl -XGET "https://SERVER/api/v2/user/whoami?pretty"
-     * curl -XGET "https://SERVER/api/v2/user/544627ed3c58891f058b4611/whoami?pretty"
-     * curl -XGET "https://SERVER/api/v2/user/whoami?uname=loginuser"
      *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {string} data  The username
+     * @apiSuccess {string} id User ID
+     * @apiSuccess {string} name Username
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *     "status": 200,
-     *     "data": "peter.meier"
+     *     "id": "544627ed3c58891f058b4611",
+     *     "name": "peter.meier"
      * }
      *
      * @param string $uid
@@ -202,11 +163,11 @@ class User
      *
      * @return Response
      */
-    public function getWhoami(?string $uid = null, ?string $uname = null): Response
+    public function getWhoami(array $attributes = []): Response
     {
-        $result = $this->_getUser($uid, $uname)->getUsername();
+        $result = $this->_getUser();
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(200)->setBody($this->decorator->decorate($result, $attributes));
     }
 
     /**
@@ -224,15 +185,6 @@ class User
      * curl -XGET "https://SERVER/api/v2/user/node-attribute-summary?pretty"
      * curl -XGET "https://SERVER/api/v2/user/544627ed3c58891f058b4611/node-attribute-summary?pretty"
      * curl -XGET "https://SERVER/api/v2/user/node-attribute-summary?uname=loginuser&pretty"
-     *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {string} data  The username
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": [...]
-     * }
      *
      * @param string $uid
      * @param string $uname
@@ -264,70 +216,34 @@ class User
      * curl -XGET "https://SERVER/api/v2/user/544627ed3c58891f058b4611/groups?pretty"
      * curl -XGET "https://SERVER/api/v2/user/groups?uname=loginuser&pretty"
      *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {string[]} data  All groups with membership
+     * @apiSuccess {object[]} - List of groups
+     * @apiSuccess {string} -.id Group ID
+     * @apiSuccess {string} -.name Name
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": [
-     *          "group1",
-     *          "group2",
-     *     ]
-     * }
+     * [
+     *  {
+     *      "id": "544627ed3c58891f058b4611",
+     *      "name": "group"
+     *  }
+     * ]
      *
      * @param string $uid
      * @param string $uname
      */
-    public function getGroups(?string $uid = null, ?string $uname = null): Response
+    public function getGroups(?string $uid = null, ?string $uname = null, array $attributes = []): Response
     {
-        $result = $this->_getUser($uid, $uname)->getGroups();
+        $body = [];
 
-        return (new Response())->setCode(200)->setBody($result);
+        foreach ($this->_getUser($uid, $uname)->getGroups() as $group) {
+            $body[] = $this->decorator->decorate($group, $attributes);
+        }
+
+        return (new Response())->setCode(200)->setBody($body);
     }
 
     /**
-     * @api {get} /api/v2/user/shares Share membership
-     * @apiVersion 2.0.0
-     * @apiName getShares
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission none
-     * @apiDescription Get all shares
-     * If you want to receive your own shares (member or owner) you have to leave the parameters uid and uname empty.
-     * Requesting this api with parameter uid or uname requires admin privileges.
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/user/shares?pretty"
-     * curl -XGET "https://SERVER/api/v2/user/544627ed3c58891f058b4611/shares?pretty"
-     * curl -XGET "https://SERVER/api/v2/user/shares?uname=loginuser&pretty"
-     *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {string[]} data  All shares with membership
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": [
-     *          "shareid1",
-     *          "shareid2",
-     *     ]
-     * }
-     *
-     * @param string $uid
-     * @param string $uname
-     *
-     * @return Response
-     */
-    public function getShares(?string $uid = null, ?string $uname = null): Response
-    {
-        $result = $this->_getUser($uid, $uname)->getShares();
-
-        return (new Response())->setCode(200)->setBody($result);
-    }
-
-    /**
-     * @api {get} /api/v2/user/quota-usage Quota usage
+     * @api {get} /api/v2/user/:id/quota-usage Quota usage
      * @apiVersion 2.0.0
      * @apiName getQuotaUsage
      * @apiUse _getUser
@@ -342,22 +258,17 @@ class User
      * curl -XGET "https://SERVER/api/v2/user/544627ed3c58891f058b4611/quota-usage?pretty"
      * curl -XGET "https://SERVER/api/v2/user/quota-usage?uname=loginuser&pretty"
      *
-     * @apiSuccess {number} status Status Code
-     * @apiSuccess {object} data Quota stats
-     * @apiSuccess {number} data.used Used quota in bytes
-     * @apiSuccess {number} data.available Quota left in bytes
-     * @apiSuccess {number} data.hard_quota Hard quota in bytes
-     * @apiSuccess {number} data.soft_quota Soft quota (Warning) in bytes
+     * @apiSuccess {number} used Used quota in bytes
+     * @apiSuccess {number} available Quota left in bytes
+     * @apiSuccess {number} hard_quota Hard quota in bytes
+     * @apiSuccess {number} soft_quota Soft quota (Warning) in bytes
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *     "status": 200,
-     *     "data": {
-     *         "used": 15543092,
-     *         "available": 5353166028,
-     *         "hard_quota": 5368709120,
-     *         "soft_quota": 5368709120
-     *     }
+     *      "used": 15543092,
+     *      "available": 5353166028,
+     *      "hard_quota": 5368709120,
+     *      "soft_quota": 5368709120
      * }
      *
      * @param string $uid
@@ -373,9 +284,9 @@ class User
     }
 
     /**
-     * @api {get} /api/v2/user/attributes User attributes
+     * @api {get} /api/v2/user/:id User attributes
      * @apiVersion 2.0.0
-     * @apiName getAttributes
+     * @apiName get
      * @apiUse _getUser
      * @apiGroup User
      * @apiPermission none
@@ -388,14 +299,13 @@ class User
      * curl -XGET "https://SERVER/api/v2/user/544627ed3c58891f058b4611/attributes?pretty"
      * curl -XGET "https://SERVER/api/v2/user/attributes?uname=loginser&pretty"
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} user attributes
+     * @apiSuccess (200 OK) {string} id User ID
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *      "status": 200,
-     *      "data": [] //shortened
+     *      "id": "544627ed3c58891f058b4611",
+     *      "name": "loginuser"
      * }
      *
      * @param string $uid
@@ -404,7 +314,7 @@ class User
      *
      * @return Response
      */
-    public function getAttributes(?string $uid = null, ?string $uname = null, array $attributes = []): Response
+    public function get(?string $uid = null, ?string $uname = null, array $attributes = []): Response
     {
         $result = $this->decorator->decorate($this->_getUser($uid, $uname), $attributes);
 
@@ -459,14 +369,12 @@ class User
      * @apiParam (POST Parameter) {number} [attributes.hard_quota] The new hard quota in bytes (Unlimited by default)
      * @apiParam (POST Parameter) {number} [attributes.soft_quota] The new soft quota in bytes (Unlimited by default)
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {string} data User ID
+     * @apiSuccess (200 OK) {string} id User ID
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 201 Created
      * {
-     *      "status": 201,
-     *      "data": "544627ed3c58891f058b4633"
+     *      "id": "544627ed3c58891f058b4633"
      * }
      *
      * @param string $username
@@ -486,7 +394,7 @@ class User
     }
 
     /**
-     * @api {post} /api/v2/user/attributes?uid=:uid Set attributes
+     * @api {post} /api/v2/user/:id/attributes Change attributes
      * @apiVersion 2.0.0
      * @apiName postAttributes
      * @apiUse _getUser
@@ -500,8 +408,9 @@ class User
      * curl -XPOST "https://SERVER/api/v2/user/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
      * curl -XPOST "https://SERVER/api/v2/user/quota?uname=loginuser"  -d '{"attributes": ["admin": "false"]}'
      *
-     * @apiParam (POST Parameter) {number} hard The new hard quota in bytes
-     * @apiParam (POST Parameter) {number} soft The new soft quota in bytes
+     * @apiParam (POST Parameter) {[]} attributes
+     * @apiParam (POST Parameter) {number} attributes.hard_quota The new hard quota in bytes
+     * @apiParam (POST Parameter) {number} attributes.soft_quota The new soft quota in bytes
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
@@ -524,7 +433,7 @@ class User
     }
 
     /**
-     * @api {delete} /api/v2/user?uid=:uid Delete user
+     * @api {delete} /api/v2/user/:id Delete user
      * @apiVersion 2.0.0
      * @apiName delete
      * @apiUse _getUser
@@ -576,7 +485,7 @@ class User
     }
 
     /**
-     * @api {post} /api/v2/user/undelete?uid=:uid Reactivate user account
+     * @api {post} /api/v2/user/:id/undelete Enable user account
      * @apiVersion 2.0.0
      * @apiName postUndelete
      * @apiUse _getUser
