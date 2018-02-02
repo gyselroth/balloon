@@ -1,0 +1,6 @@
+Package: balloon
+Version: {version}
+Architecture: all
+Maintainer: Raffael Sahli <sahli@gyselroth.com>
+Homepage: https://github.com/gyselroth/balloon
+Description: balloon cloud server
