@@ -53,8 +53,7 @@ PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
 CHANGELOG_TARGET = $(BUILD_DIR)/DEBIAN/changelog
-#BUILD_TARGET = $(COMPOSER_TARGET) $(NPM_TARGET) $(PHPCS_CHECK_TARGET) $(PHPSTAN_TARGET) $(APIDOC_TARGET)
-BUILD_TARGET = $(APIDOC_TARGET)
+BUILD_TARGET = $(COMPOSER_TARGET) $(NPM_TARGET) $(PHPCS_CHECK_TARGET) $(PHPSTAN_TARGET) $(APIDOC_TARGET)
 
 # MACROS
 macro_find_phpfiles = $(shell find $(1) -type f -name "*.php")
@@ -104,11 +103,13 @@ dist: tar deb
 deb: $(DIST_DIR)/balloon-light-$(VERSION).deb $(DIST_DIR)/balloon-full-$(VERSION).deb $(DIST_DIR)/balloon-nodeps-$(VERSION).deb
 
 $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
-	$(COMPOSER_BIN) update --no-dev
+	#$(COMPOSER_BIN) update --no-dev
 	@mkdir -p $(BUILD_DIR)/DEBIAN
 	@cp $(BASE_DIR)/packaging/debian/control-$* $(BUILD_DIR)/DEBIAN/control
-	@if [ "$*" != "nodeps" ]; then\
+	@if [[ "$*" != "nodeps" ]]; then\
 		cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst;\
+	else\
+		rm $(BUILD_DIR)/DEBIAN/postinst;\
 	fi
 	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
