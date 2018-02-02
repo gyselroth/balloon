@@ -28,4 +28,4 @@ fi
 chown -R www-data. /var/log/balloon
 
 systemctl enable balloon-jobs.service 2> /dev/null
-service balloon-jobs restart
+service balloon-jobs restart 2> /dev/null
