@@ -34,4 +34,6 @@ echo "create systemctl service"
 systemctl enable balloon-jobs.service 2> /dev/null
 
 echo "restart balloon-jobs service"
-service balloon-jobs restart 2> /dev/null
+if service --status-all | grep -Fq 'balloon-jobs'; then
+  service balloon-jobs restart
+fi
