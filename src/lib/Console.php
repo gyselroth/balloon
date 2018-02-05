@@ -215,9 +215,9 @@ class Console
 
         if (null === $module) {
             $help .= "\nModules:\n";
-            $help .= "help (MODULE)\t Displays a reference for a module\n";
+            $help .= str_pad('help', 15).'Displays a reference for a module'."\n";
             foreach ($this->module as $name => $module) {
-                $help .= $name."\t\t".$module->getDescription()."\n";
+                $help .= str_pad($name, 15).$module->getDescription()."\n";
             }
         }
 

@@ -28,6 +28,7 @@ use Balloon\Console\Groupmod;
 use Balloon\Migration;
 use Balloon\Migration\Delta\CoreInstallation;
 use Balloon\Migration\Delta\FileToStorageAdapter;
+use Balloon\Migration\Delta\LdapGroupsToLocalGroups;
 use Balloon\Migration\Delta\QueueToCappedCollection;
 use Balloon\Migration\Delta\JsonEncodeFilteredCollection;
 use Balloon\Migration\Delta\v1AclTov2Acl;
@@ -169,9 +170,9 @@ return [
     ],
     Migration::class => [
         'calls' => [
-            CoreInstallation::class => [
+            LdapGroupsToLocalGroups::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.CoreInstallation::class.'}']
+                'arguments' => ['delta' => '{'.LdapGroupsToLocalGroups::class.'}']
             ],
             FileToStorageAdapter::class => [
                 'method' => 'injectDelta',
@@ -196,6 +197,10 @@ return [
             HexColorToGenericName::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.HexColorToGenericName::class.'}']
+            ],
+            CoreInstallation::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.CoreInstallation::class.'}']
             ],
         ],
     ],

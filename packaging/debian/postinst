@@ -6,7 +6,7 @@ if [ ! -d /var/log/balloon ]; then
 fi
 
 if [ ! -h /usr/share/balloon/config ]; then
-    ln -s /usr/share/balloon/config /etc/balloon
+    ln -s /etc/balloon /usr/share/balloon/config
 fi
 
 if [ ! -h /usr/share/balloon/log ]; then

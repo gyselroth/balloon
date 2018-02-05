@@ -54,7 +54,7 @@ class v1AclTov2Acl implements DeltaInterface
                     if ($group !== null) {
                         $acl[] = [
                             'type' => 'group',
-                            'privilege' => $rule['privilege'] === 'w' ? 'w+' : $rule['privilege'],
+                            'privilege' => $rule['priv'] === 'w' ? 'w+' : $rule['priv'],
                             'role' => (string) $group['_id'],
                         ];
                     }
@@ -73,19 +73,22 @@ class v1AclTov2Acl implements DeltaInterface
                     if ($user !== null) {
                         $acl[] = [
                             'type' => 'user',
-                            'privilege' => $rule['privilege'] === 'w' ? 'w+' : $rule['privilege'],
+                            'privilege' => $rule['priv'] === 'w' ? 'w+' : $rule['priv'],
                             'role' => (string) $user['_id'],
                         ];
                     }
                 }
-
-                $this->db->storage->updateOne(
-                    ['_id' => $object['_id']],
-                    [
-                        '$set' => ['acl' => $acl],
-                    ]
-                );
             }
+
+            $this->db->storage->updateOne(
+                ['_id' => $object['_id']],
+                [
+                    '$set' => [
+                        'migration.v1AclTov2Acl.acl' => $object['acl'],
+            'acl' => $acl,
+            ],
+                ]
+            );
         }
 
         return true;

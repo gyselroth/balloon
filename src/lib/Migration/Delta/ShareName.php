@@ -42,6 +42,7 @@ class ShareName implements DeltaInterface
         $cursor = $this->db->storage->find([
             'directory' => true,
             'shared' => true,
+            'reference' => ['$exists' => false],
         ]);
 
         foreach ($cursor as $object) {
