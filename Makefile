@@ -100,17 +100,13 @@ dist: tar deb
 
 
 .PHONY: deb
-deb: $(DIST_DIR)/balloon-light-$(VERSION).deb $(DIST_DIR)/balloon-full-$(VERSION).deb $(DIST_DIR)/balloon-nodeps-$(VERSION).deb
+deb: $(DIST_DIR)/balloon-light-$(VERSION).deb $(DIST_DIR)/balloon-full-$(VERSION).deb
 
 $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	#$(COMPOSER_BIN) update --no-dev
 	@mkdir -p $(BUILD_DIR)/DEBIAN
 	@cp $(BASE_DIR)/packaging/debian/control-$* $(BUILD_DIR)/DEBIAN/control
-	@if [[ "$*" != "nodeps" ]]; then\
-		cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst;\
-	else\
-		rm $(BUILD_DIR)/DEBIAN/postinst;\
-	fi
+	@cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst
 	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/scripts
