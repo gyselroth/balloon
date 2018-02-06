@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Convert\Api\Latest;
+namespace Balloon\App\Convert\Api\v2;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Convert\Exception;
@@ -60,7 +60,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {get} /api/v2/file/:id/convert/supported-formats Get supported formats
+     * @api {get} /api/v2/files/:id/convert/supported-formats Get supported formats
      * @apiVersion 2.0.0
      * @apiName getSupportedFormats
      * @apiGroup App\Convert
@@ -69,7 +69,7 @@ class Convert extends Controller
      * @apiUse _getNode
      *
      * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/file/convert/supported-formats?id=544627ed3c58891f058b4686"
+     * curl -XGET "https://SERVER/api/v2/files/convert/supported-formats?id=544627ed3c58891f058b4686"
      *
      * @apiSuccess {string[]} - List of supported formats
      * @apiSuccessExample {string} Success-Response:
@@ -86,12 +86,13 @@ class Convert extends Controller
     public function getSupportedFormats(?string $id = null, ?string $p = null): Response
     {
         $file = $this->fs->getNode($id, $p, File::class);
+        $result = $this->converter->getSupportedFormats($file);
 
-        return (new Response())->setCode(200)->setBody($this->converter->getSupportedFormats($file));
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
-     * @api {get} /api/v2/file/:id/convert/slaves Get slaves
+     * @api {get} /api/v2/files/:id/convert/slaves Get slaves
      * @apiVersion 2.0.0
      * @apiName getSlaves
      * @apiGroup App\Convert
@@ -100,7 +101,7 @@ class Convert extends Controller
      * @apiUse _getNode
      *
      * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/file/convert/slaves?id=544627ed3c58891f058b4686"
+     * curl -XGET "https://SERVER/api/v2/files/convert/slaves?id=544627ed3c58891f058b4686"
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 200 OK
@@ -119,16 +120,16 @@ class Convert extends Controller
     }
 
     /**
-     * @api {post} /api/v2/file/:id/convert/slave Add new slave
+     * @api {post} /api/v2/files/:id/convert/slaves Add new slave
      * @apiVersion 2.0.0
-     * @apiName postSlave
+     * @apiName postSlaves
      * @apiGroup App\Convert
      * @apiPermission none
      * @apiDescription Add new conversion slave
      * @apiUse _getNode
      *
      * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/file/convert/slave?id=544627ed3c58891f058b4686"
+     * curl -XPOST "https://SERVER/api/v2/files/convert/slave?id=544627ed3c58891f058b4686"
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 201 Created
@@ -141,7 +142,7 @@ class Convert extends Controller
      * @param string $p
      * @param string $format
      */
-    public function postSlave(string $format, ?string $id = null, ?string $p = null): Response
+    public function postSlaves(string $format, ?string $id = null, ?string $p = null): Response
     {
         $file = $this->fs->getNode($id, $p, File::class);
         $supported = $this->converter->getSupportedFormats($file);
@@ -173,16 +174,16 @@ class Convert extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/file/:id/convert/slave Delete slave
+     * @api {delete} /api/v2/files/:id/convert/slaves Delete slave
      * @apiVersion 2.0.0
-     * @apiName deleteSlave
+     * @apiName deleteSlaves
      * @apiGroup App\Convert
      * @apiPermission none
      * @apiDescription Delete conversion slave
      * @apiUse _getNode
      *
      * @apiExample (cURL) exmaple:
-     * curl -XDELETE "https://SERVER/api/v2/file/convert/slave?id=544627ed3c58891f058b4686"
+     * curl -XDELETE "https://SERVER/api/v2/files/convert/slave?id=544627ed3c58891f058b4686"
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 204 No Content
@@ -192,7 +193,7 @@ class Convert extends Controller
      * @param string $slave
      * @param bool   $node
      */
-    public function deleteSlave(string $slave, ?string $id = null, ?string $p = null, bool $node = false): Response
+    public function deleteSlaves(string $slave, ?string $id = null, ?string $p = null, bool $node = false): Response
     {
         $file = $this->fs->getNode($id, $p, File::class);
 

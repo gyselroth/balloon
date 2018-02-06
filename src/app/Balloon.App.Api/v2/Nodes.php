@@ -9,11 +9,11 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Api\Latest;
+namespace Balloon\App\Api\v2;
 
 use Balloon\App\Api\Controller;
-use Balloon\App\Api\Latest\Collection as ApiCollection;
-use Balloon\App\Api\Latest\File as ApiFile;
+use Balloon\App\Api\v2\Collection as ApiCollection;
+use Balloon\App\Api\v2\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\EventAttributeDecorator;
@@ -32,7 +32,7 @@ use MongoDB\BSON\UTCDateTime;
 use PHPZip\Zip\Stream\ZipStream;
 use Psr\Log\LoggerInterface;
 
-class Node extends Controller
+class Nodes extends Controller
 {
     /**
      * Filesystem.
@@ -86,9 +86,11 @@ class Node extends Controller
     /**
      * Initialize.
      *
-     * @param Server             $server
-     * @param AttributeDecorator $decorator
-     * @param LoggerInterface    $logger
+     * @param Server                  $server
+     * @param AttributeDecorator      $decorator
+     * @param RoleAttributeDecorator  $role_decorator
+     * @param EventAttributeDecorator $event_decorator
+     * @param LoggerInterface         $logger
      */
     public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, EventAttributeDecorator $event_decorator, LoggerInterface $logger)
     {
@@ -150,7 +152,7 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/undelete?id=:id Restore node
+     * @api {post} /api/v2/node/:id/undelete Restore node
      * @apiVersion 2.0.0
      * @apiName postUndelete
      * @apiGroup Node
@@ -169,9 +171,6 @@ class Node extends Controller
      *
      * @apiParam (GET Parameter) {string} [destid] Either destid or destp (path) of the new parent collection node must be given.
      * @apiParam (GET Parameter) {string} [destp] Either destid or destp (path) of the new parent collection node must be given.
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
      *
      * @apiSuccessExample {json} Success-Response (conflict=1):
      * HTTP/1.1 200 OK
@@ -216,30 +215,24 @@ class Node extends Controller
                 $node->undelete($conflict);
             }
 
-            if (true === $move && NodeInterface::CONFLICT_RENAME === $conflict) {
-                return [
-                    'code' => 200,
-                    'data' => [
-                    ],
-                ];
-            }
-
-            return ['code' => 204];
+            return [
+                'code' => 200,
+                'data' => $this->decorator->deocrate($node),
+            ];
         });
     }
 
     /**
-     * @api {get} /api/v2/node/:id/stream Download stream
+     * @api {get} /api/v2/node/:id/content Download stream
      * @apiVersion 2.0.0
-     * @apiName getStream
+     * @apiName getContent
      * @apiGroup Node
      * @apiPermission none
-     * @apiDescription Download node contents. Collections (Folder) are converted into
-     * a zip file in realtime.
+     * @apiDescription Download node contents. Collections are zipped during streaming.
      * @apiUse _getNode
      *
-     * @apiParam (GET Parameter) {number} [offset=0] Get content from a specific offset in bytes
-     * @apiParam (GET Parameter) {number} [length=0] Get content with until length in bytes reached
+     * @apiParam (GET Parameter) {number} [offset=0] Read stream from a specific offset in bytes
+     * @apiParam (GET Parameter) {number} [length=0] Read stream until a specific limit in bytes
      * @apiParam (GET Parameter) {string} [encode] Can be set to base64 to encode content as base64.
      * @apiParam (GET Parameter) {boolean} [download=false] Force download file (Content-Disposition: attachment HTTP header)
      *
@@ -273,7 +266,7 @@ class Node extends Controller
      * @param bool         $download
      * @param string       $name
      */
-    public function getStream(
+    public function getContent(
         $id = null,
         $p = null,
         int $offset = 0,
@@ -296,17 +289,16 @@ class Node extends Controller
         $response = new Response();
 
         if (true === $download) {
-            $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\''.rawurlencode($name));
+            $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\''.rawurlencode($node->getName()));
             $response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
             $response->setHeader('Content-Type', 'application/octet-stream');
             $response->setHeader('Content-Length', (string) $node->getSize());
             $response->setHeader('Content-Transfer-Encoding', 'binary');
         } else {
-            $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\''.rawurlencode($name));
+            $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\''.rawurlencode($node->getName()));
         }
 
-        return (new Response())
-          ->setOutputFormat(null)
+        return $response
           ->setBody(function () use ($node, $encode, $offset, $length) {
               $mime = $node->getContentType();
               $stream = $node->get();
@@ -556,9 +548,9 @@ class Node extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/:id/meta-attributes Change meta attributes
+     * @api {patch} /api/v2/node/:id/meta Change meta attributes
      * @apiVersion 2.0.0
-     * @apiName postMetaAttributes
+     * @apiName patchMeta
      * @apiGroup Node
      * @apiPermission none
      * @apiDescription Change meta attributes of a node
@@ -586,7 +578,7 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function postMetaAttributes(array $attributes, ?string $id = null, ?string $p = null): Response
+    public function patchMeta(array $attributes, ?string $id = null, ?string $p = null): Response
     {
         return $this->bulk($id, $p, function ($node) use ($attributes) {
             $node->setMetaAttributes($attributes);
@@ -650,8 +642,12 @@ class Node extends Controller
      * curl -XPOST "https://SERVER/api/v2/node/clone?p=/absolute/path/to/my/node&conflict=0&destp=/new/parent"
      *
      * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 201 Created
      *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     *
+     * @param array|string $id
      * @param array|string $id
      * @param array|string $p
      * @param string       $destid
@@ -677,11 +673,12 @@ class Node extends Controller
         }
 
         return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {
+            $parent = $node->getParent();
             $result = $node->copyTo($parent, $conflict);
 
             return [
-                'code' => 201,
-                'data' => $result,
+                'code' => $parent == $result ? 200 : 201,
+                'data' => $this->decorator->decorate($result),
             ];
         });
     }
@@ -742,15 +739,10 @@ class Node extends Controller
 
         return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {
             $result = $node->setParent($parent, $conflict);
-            if (NodeInterface::CONFLICT_RENAME === $conflict) {
-                return [
-                    'code' => 200,
-                    'data' => $node->getName(),
-                ];
-            }
 
             return [
-                'code' => 204,
+                'code' => 200,
+                'data' => $this->decorator->decorate($node),
             ];
         });
     }
@@ -838,8 +830,7 @@ class Node extends Controller
      * - 1 Only deleted</br>
      * - 2 Include deleted</br>
      *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object[]} data Children
+     * @apiSuccess (200 OK) {object[]} - List of nodes
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
@@ -1114,7 +1105,7 @@ class Node extends Controller
      * @apiExample (cURL) example:
      * curl -XGET "https://SERVER/api/v2/node/last-cursor?pretty"
      *
-     * @apiSuccess (200 OK) {string} cursor Latest cursor
+     * @apiSuccess (200 OK) {string} cursor v2 cursor
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * "aW5pdGlhbHwxMDB8NTc1YTlhMGIzYzU4ODkwNTE0OGI0NTZifDU3NWE5YTBiM2M1ODg5MDUxNDhiNDU2Yw=="

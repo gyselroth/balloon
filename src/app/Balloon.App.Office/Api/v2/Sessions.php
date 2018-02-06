@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Office\Api\Latest;
+namespace Balloon\App\Office\Api\v2;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Office\Constructor\Http as App;
@@ -23,7 +23,7 @@ use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
-class Session extends Controller
+class Sessions extends Controller
 {
     /**
      * App.
@@ -60,7 +60,7 @@ class Session extends Controller
     }
 
     /**
-     * @api {post} /api/v2/office/session Create session
+     * @api {post} /api/v2/office/sessions Create session
      * @apiName post
      * @apiVersion 2.0.0
      * @apiGroup App\Office
@@ -74,13 +74,10 @@ class Session extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 201 Created
      * {
-     *      "status": 201,
-     *      "data": {
-     *          "id": "544627ed3c58891f058bbbaa",
-     *          "wopi_url": "https://localhost",
-     *          "access_token": "544627ed3c58891f058b4622",
-     *          "access_token_ttl": "1486989000"
-     *       }
+     *      "id": "544627ed3c58891f058bbbaa",
+     *      "wopi_url": "https://localhost",
+     *      "access_token": "544627ed3c58891f058b4622",
+     *      "access_token_ttl": "1486989000"
      * }
      *
      * @param string $id
@@ -108,12 +105,12 @@ class Session extends Controller
     }
 
     /**
-     * @api {post} /api/v2/office/session Join session
+     * @api {post} /api/v2/office/sessions/:id/join Join session
      * @apiName postJoin
      * @apiVersion 2.0.0
      * @apiGroup App\Office
      * @apiPermission none
-     * @apiDescription Create new session for a document
+     * @apiDescription Join running session
      * @apiParam (GET Parameter) {string} session_id The session id to join to
      *
      * @apiExample (cURL) example:
@@ -122,12 +119,10 @@ class Session extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *      "status": 201,
-     *      "data": {
-     *          "wopi_url": "https://localhost",
-     *          "access_token": "544627ed3c58891f058b4622",
-     *          "access_token_ttl": "1486989000"
-     *      }
+     *      "id": "544627ed3c58891f058bbbaa",
+     *      "wopi_url": "https://localhost",
+     *      "access_token": "544627ed3c58891f058b4622",
+     *      "access_token_ttl": "1486989000"
      * }
      *
      * @param string $id
@@ -143,6 +138,7 @@ class Session extends Controller
                 ->store();
 
         return (new Response())->setCode(200)->setBody([
+            'id' => (string) $session->getId(),
             'wopi_url' => $this->app->getWopiUrl(),
             'access_token' => $member->getAccessToken(),
             'access_token_ttl' => ($member->getTTL()->toDateTime()->format('U') * 1000),
@@ -150,7 +146,7 @@ class Session extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/office/session Delete session
+     * @api {delete} /api/v2/office/session/:id Delete session
      * @apiName delete
      * @apiVersion 2.0.0
      * @apiGroup App\Office

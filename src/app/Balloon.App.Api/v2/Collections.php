@@ -9,16 +9,16 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Api\Latest;
+namespace Balloon\App\Api\v2;
 
 use Balloon\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
 use Micro\Http\Response;
 
-class Collection extends Node
+class Collections extends Nodes
 {
     /**
-     * @api {head} /api/v2/collection/:id/children children exists?
+     * @api {head} /api/v2/collections/:id/children children exists?
      * @apiVersion 2.0.0
      * @apiName head
      * @apiGroup Node\Collection
@@ -27,9 +27,9 @@ class Collection extends Node
      * @apiUse _getNode
      *
      * @apiExample (cURL) example:
-     * curl -XHEAD "https://SERVER/api/v2/collection/children?id=544627ed3c58891f058b4686"
-     * curl -XHEAD "https://SERVER/api/v2/collection/544627ed3c58891f058b4686/children"
-     * curl -XHEAD "https://SERVER/api/v2/collection/children?p=/absolute/path/to/my/collection"
+     * curl -XHEAD "https://SERVER/api/v2/collections/children?id=544627ed3c58891f058b4686"
+     * curl -XHEAD "https://SERVER/api/v2/collections/544627ed3c58891f058b4686/children"
+     * curl -XHEAD "https://SERVER/api/v2/collections/children?p=/absolute/path/to/my/collection"
      *
      * @apiSuccessExample {json} Success-Response (Children exists):
      * HTTP/1.1 204 Not Content
@@ -60,7 +60,7 @@ class Collection extends Node
     }
 
     /**
-     * @api {get} /api/v2/collection/:id/children Get children
+     * @api {get} /api/v2/collections/:id/children Get children
      * @apiVersion 2.0.0
      * @apiName getChildren
      * @apiGroup Node\Collection
@@ -70,9 +70,9 @@ class Collection extends Node
      * @apiUse _nodeAttributes
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/collection/children?id=212323eeffe2322344224452&pretty"
-     * curl -XGET "https://SERVER/api/v2/collection/212323eeffe2322344224452/children?pretty&deleted=0"
-     * curl -XGET "https://SERVER/api/v2/collection/children?p=/absolute/path/to/my/collection&deleted=1"
+     * curl -XGET "https://SERVER/api/v2/collections/children?id=212323eeffe2322344224452&pretty"
+     * curl -XGET "https://SERVER/api/v2/collections/212323eeffe2322344224452/children?pretty&deleted=0"
+     * curl -XGET "https://SERVER/api/v2/collections/children?p=/absolute/path/to/my/collection&deleted=1"
      *
      * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
      * @apiParam (GET Parameter) {string[]} [filter] Filter nodes
@@ -114,7 +114,7 @@ class Collection extends Node
     }
 
     /**
-     * @api {get} /api/v2/collection/:id/share Get Share settings
+     * @api {get} /api/v2/collections/:id/share Get Share ACL
      * @apiVersion 2.0.0
      * @apiName getShare
      * @apiGroup Node\Collection
@@ -123,9 +123,9 @@ class Collection extends Node
      * @apiUse _getNode
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/collection/share?id=212323eeffe2322344224452&pretty"
-     * curl -XGET "https://SERVER/api/v2/collection/212323eeffe2322344224452/share?pretty"
-     * curl -XGET "https://SERVER/api/v2/collection/share?p=/absolute/path/to/my/collection&pretty"
+     * curl -XGET "https://SERVER/api/v2/collections/share?id=212323eeffe2322344224452&pretty"
+     * curl -XGET "https://SERVER/api/v2/collections/212323eeffe2322344224452/share?pretty"
+     * curl -XGET "https://SERVER/api/v2/collections/share?p=/absolute/path/to/my/collection&pretty"
      *
      * @apiSuccess (200 OK) {string} name Share name
      * @apiSuccess (200 OK) {object[]} acl ACL rules
@@ -175,7 +175,7 @@ class Collection extends Node
     }
 
     /**
-     * @api {post} /api/v2/collection/:id/share Create share
+     * @api {post} /api/v2/collections/:id/share Create share
      * @apiVersion 2.0.0
      * @apiGroup Node\Collection
      * @apiPermission none
@@ -184,7 +184,7 @@ class Collection extends Node
      * @apiUse _writeAction
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/collection/share?id=212323eeffe2322344224452&pretty"
+     * curl -XPOST "https://SERVER/api/v2/collections/share?id=212323eeffe2322344224452&pretty"
      *
      * @apiParam (POST Parameter) {object[]} - ACL rules
      * @apiParam (POST Parameter) {string} -.type user or group
@@ -213,13 +213,14 @@ class Collection extends Node
     public function postShare(array $acl, string $name, ?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
-        $result = $node->share($acl, $name);
+        $node->share($acl, $name);
+        $result = $this->decorator->decorate($node);
 
-        return (new Response())->setCode(201)->setBody($result);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
-     * @api {delete} /api/v2/collection/:id/share Delete share
+     * @api {delete} /api/v2/collections/:id/share Delete share
      * @apiVersion 2.0.0
      * @apiName deleteShare
      * @apiGroup Node\Collection
@@ -230,9 +231,9 @@ class Collection extends Node
      * @apiUse _writeAction
      *
      * @apiExample (cURL) example:
-     * curl -XDELETE "https://SERVER/api/v2/collection/share?id=212323eeffe2322344224452"
-     * curl -XDELETE "https://SERVER/api/v2/collection/212323eeffe2322344224452/share"
-     * curl -XDELETE "https://SERVER/api/v2/collection/share?p=/absolute/path/to/my/collection"
+     * curl -XDELETE "https://SERVER/api/v2/collections/share?id=212323eeffe2322344224452"
+     * curl -XDELETE "https://SERVER/api/v2/collections/212323eeffe2322344224452/share"
+     * curl -XDELETE "https://SERVER/api/v2/collections/share?p=/absolute/path/to/my/collection"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
@@ -251,7 +252,7 @@ class Collection extends Node
     }
 
     /**
-     * @api {post} /api/v2/collection/:id Create collection
+     * @api {post} /api/v2/collections/:id Create collection
      * @apiVersion 2.0.0
      * @apiName post
      * @apiGroup Node\Collection
@@ -266,9 +267,9 @@ class Collection extends Node
      * @apiUse _writeAction
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/collection?id=544627ef3c58891f058b468f&name=MyNewFolder&pretty"
-     * curl -XGET "https://SERVER/api/v2/collection/544627ef3c58891f058b468f?name=MyNewFolder&pretty"
-     * curl -XGET "https://SERVER/api/v2/collection/?p=/absolute/path/to/my/collection&name=MyNewFolder&pretty&conflict=2"
+     * curl -XGET "https://SERVER/api/v2/collections?id=544627ef3c58891f058b468f&name=MyNewFolder&pretty"
+     * curl -XGET "https://SERVER/api/v2/collections/544627ef3c58891f058b468f?name=MyNewFolder&pretty"
+     * curl -XGET "https://SERVER/api/v2/collections/?p=/absolute/path/to/my/collection&name=MyNewFolder&pretty&conflict=2"
      *
      * @apiParam (GET Parameter) {string} id Either id or p (path) of a node must be given.
      * @apiParam (GET Parameter) {string} p Either id or p (path) of a node must be given. If a path is given, no name must be set,
@@ -315,9 +316,10 @@ class Collection extends Node
             $parent_path = dirname($p);
             $name = basename($p);
             $parent = $this->fs->findNodeByPath($parent_path, NodeCollection::class);
-            $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
+            $result = $parent->addDirectory($name, $attributes, $conflict);
+            $result = $this->decorator->decorate($result);
 
-            return (new Response())->setCode(201)->setBody((string) $result);
+            return (new Response())->setCode(201)->setBody($result);
         }
         if (null !== $id && null === $name) {
             throw new Exception\InvalidArgument('name must be set with id');
@@ -328,8 +330,9 @@ class Collection extends Node
             throw new Exception\InvalidArgument('name must be a valid string');
         }
 
-        $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
+        $result = $parent->addDirectory($name, $attributes, $conflict);
+        $result = $this->decorator->decorate($result);
 
-        return (new Response())->setCode(201)->setBody((string) $result);
+        return (new Response())->setCode(201)->setBody($result);
     }
 }

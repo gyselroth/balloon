@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Sharelink\Api\Latest;
+namespace Balloon\App\Sharelink\Api\v2;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Sharelink\Sharelink as Share;
@@ -46,7 +46,7 @@ class ShareLink extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/share-link?id=:id Create sharing link
+     * @api {post} /api/v2/nodes/:id/share-link Create share link
      * @apiVersion 2.0.0
      * @apiName postShareLink
      * @apiGroup Node
@@ -85,7 +85,7 @@ class ShareLink extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/node/share-link?id=:id Delete sharing link
+     * @api {delete} /api/v2/nodes/:id/share-link Delete share link
      * @apiVersion 2.0.0
      * @apiName deleteShareLink
      * @apiGroup Node
@@ -116,7 +116,7 @@ class ShareLink extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/share-link?id=:id Get sharing link
+     * @api {get} /api/v2/nodes/:id/share-link Get share link
      * @apiVersion 2.0.0
      * @apiName getShareLink
      * @apiGroup Node

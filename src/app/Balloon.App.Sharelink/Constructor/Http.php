@@ -54,8 +54,10 @@ class Http
     {
         $router
             ->appendRoute(new Route('/share', $this, 'start'))
-            ->prependRoute(new Route('/api/v(1|2)/(node|file|collection)/share-link', ShareLink::class))
-            ->prependRoute(new Route('/api/v(1|2)/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', ShareLink::class));
+            ->prependRoute(new Route('/api/v1/(node|file|collection)/share-link', v1\ShareLink::class))
+            ->prependRoute(new Route('/api/v1/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', v1\ShareLink::class))
+            ->prependRoute(new Route('/api/v2/(nodes|files|collections)/share-link', v2\ShareLink::class))
+            ->prependRoute(new Route('/api/v2/(nodes|files|collections)/{id:#([0-9a-z]{24})#}/share-link', v2\ShareLink::class));
 
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void

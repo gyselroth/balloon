@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Api\Latest;
+namespace Balloon\App\Api\v2;
 
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
@@ -18,7 +18,7 @@ use Balloon\Server\AttributeDecorator;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
-class Group
+class Groups
 {
     /**
      * Group.
@@ -278,14 +278,15 @@ class Group
     public function post(string $name, array $member, array $attributes = []): Response
     {
         $id = $this->server->addGroup($name, $member, $attributes);
+        $result = $this->decorator->decorate($this->server->getGroupById($id));
 
-        return (new Response())->setBody((string) $id)->setCode(201);
+        return (new Response())->setBody($result)->setCode(201);
     }
 
     /**
-     * @api {post} /api/v2/group/:id/attributes Change group attributes
+     * @api {patch} /api/v2/group/:id Change group attributes
      * @apiVersion 2.0.0
-     * @apiName postAttributes
+     * @apiName patch
      * @apiUse _getGroup
      * @apiGroup Group
      * @apiPermission admin
@@ -297,9 +298,6 @@ class Group
      * curl -XPOST "https://SERVER/api/v2/group/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
      * curl -XPOST "https://SERVER/api/v2/group/quota?name=logingroup"  -d '{"attributes": ["admin": "false"]}'
      *
-     * @apiParam (POST Parameter) {number} hard The new hard quota in bytes
-     * @apiParam (POST Parameter) {number} soft The new soft quota in bytes
-     *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
@@ -309,7 +307,7 @@ class Group
      *
      * @return Response
      */
-    public function postAttributes(array $attributes = [], ?string $id = null, ?string $name = null): Response
+    public function patch(array $attributes = [], ?string $id = null, ?string $name = null): Response
     {
         $this->_getGroup($id, $name, true)->setAttributes($attributes);
 
@@ -382,7 +380,7 @@ class Group
      */
     public function postUndelete(?string $id = null, ?string $name = null): Response
     {
-        $this->_getGroup($id, $name)->undelete();
+        $this->_getGroup($id, $name, true)->undelete();
 
         return (new Response())->setCode(204);
     }

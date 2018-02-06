@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\DesktopClient\Constructor;
 
-use Balloon\App\DesktopClient\Api\Latest\Download;
+use Balloon\App\DesktopClient\Api\v2\Download;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
@@ -25,7 +25,7 @@ class Http
     public function __construct(Router $router)
     {
         $router
-            ->prependRoute(new Route('/api/v2/desktop-client', Download::class))
-            ->prependRoute(new Route('/api/v2/desktop-client/{format:#([a-z]+)#}', Download::class));
+            ->prependRoute(new Route('/api/v2/desktop-clients', Download::class))
+            ->prependRoute(new Route('/api/v2/desktop-clients/{format:#([a-z]+)#}', Download::class));
     }
 }

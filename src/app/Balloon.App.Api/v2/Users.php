@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Api\Latest;
+namespace Balloon\App\Api\v2;
 
 use Balloon\Exception\InvalidArgument as InvalidArgumentException;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
@@ -20,7 +20,7 @@ use Micro\Http\Response;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 
-class User
+class Users
 {
     /**
      * User.
@@ -165,13 +165,13 @@ class User
      */
     public function getWhoami(array $attributes = []): Response
     {
-        $result = $this->_getUser();
+        $result = $this->decorator->decorate($this->_getUser(), $attributes);
 
-        return (new Response())->setCode(200)->setBody($this->decorator->decorate($result, $attributes));
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
-     * @api {get} /api/v2/user/node-attribute-summary Node attribute summary
+     * @api {get} /api/v2/user/:id/node-attribute-summary Node attribute summary
      * @apiVersion 2.0.0
      * @apiName getNodeAttributeSummary
      * @apiUse _getUser
@@ -201,7 +201,7 @@ class User
     }
 
     /**
-     * @api {get} /api/v2/user/groups Group membership
+     * @api {get} /api/v2/user/:id/groups Group membership
      * @apiVersion 2.0.0
      * @apiName getGroups
      * @apiUse _getUser
@@ -322,7 +322,7 @@ class User
     }
 
     /**
-     * @api {head} /api/v2/user?uid=:uid User exists?
+     * @api {head} /api/v2/user/:id User exists?
      * @apiVersion 2.0.0
      * @apiName postQuota
      * @apiUse _getUser
@@ -351,7 +351,7 @@ class User
     }
 
     /**
-     * @api {post} /api/v2/user
+     * @api {post} /api/v2/user Create user
      * @apiVersion 2.0.0
      * @apiName postUser
      * @apiGroup User
@@ -389,14 +389,15 @@ class User
         }
 
         $id = $this->server->addUser($username, $attributes);
+        $result = $this->decorator->decorate($this->server->getUserById($id));
 
-        return (new Response())->setBody((string) $id)->setCode(201);
+        return (new Response())->setBody($result)->setCode(201);
     }
 
     /**
-     * @api {post} /api/v2/user/:id/attributes Change attributes
+     * @api {patch} /api/v2/user/:id Change attributes
      * @apiVersion 2.0.0
-     * @apiName postAttributes
+     * @apiName patch
      * @apiUse _getUser
      * @apiGroup User
      * @apiPermission admin
@@ -421,7 +422,7 @@ class User
      *
      * @return Response
      */
-    public function postAttributes(array $attributes = [], ?string $uid = null, ?string $uname = null): Response
+    public function patch(array $attributes = [], ?string $uid = null, ?string $uname = null): Response
     {
         if (isset($attributes['avatar'])) {
             $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);

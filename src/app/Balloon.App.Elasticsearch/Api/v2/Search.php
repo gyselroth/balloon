@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Elasticsearch\Api\Latest;
+namespace Balloon\App\Elasticsearch\Api\v2;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Elasticsearch\Elasticsearch;
@@ -56,8 +56,8 @@ class Search extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/search Search
-     * @apiVersion 1.0.0
+     * @api {get} /api/v2/nodes/search Search
+     * @apiVersion 2.0.0
      * @apiName getSearch
      * @apiGroup Node
      * @apiPermission none

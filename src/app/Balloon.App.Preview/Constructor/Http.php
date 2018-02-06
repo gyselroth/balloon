@@ -11,7 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Preview\Constructor;
 
-use Balloon\App\Preview\Api\Latest\Preview;
+use Balloon\App\Preview\Api\v1;
+use Balloon\App\Preview\Api\v2;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
@@ -25,7 +26,9 @@ class Http
     public function __construct(Router $router)
     {
         $router
-            ->prependRoute(new Route('/api/v(1|2)/file/preview', Preview::class))
-            ->prependRoute(new Route('/api/v(1|2)/file/{id:#([0-9a-z]{24})#}/preview', Preview::class));
+            ->prependRoute(new Route('/api/v1/file/preview', v1\Preview::class))
+            ->prependRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}/preview', v1\Preview::class))
+            ->prependRoute(new Route('/api/v2/files/preview', v2\Preview::class))
+            ->prependRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}/preview', v2\Preview::class));
     }
 }

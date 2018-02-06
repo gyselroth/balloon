@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Convert\Constructor;
 
-use Balloon\App\Convert\Api\Latest\Convert;
+use Balloon\App\Convert\Api\v2\Convert;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Server;
 use Micro\Http\Router;
@@ -31,8 +31,8 @@ class Http
         $fs = $server->getFilesystem();
 
         $router
-            ->prependRoute(new Route('/api/v2/file/convert', Convert::class))
-            ->prependRoute(new Route('/api/v2/file/{id:#([0-9a-z]{24})#}/convert', Convert::class));
+            ->prependRoute(new Route('/api/v2/files/convert', Convert::class))
+            ->prependRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}/convert', Convert::class));
 
         $decorator->addDecorator('master', function ($node) use ($fs, $decorator) {
             $master = $node->getAppAttribute('Balloon\\App\\Convert', 'master');

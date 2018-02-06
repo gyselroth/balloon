@@ -11,9 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Office\Constructor;
 
-use Balloon\App\Office\Api\Latest\Document;
-use Balloon\App\Office\Api\Latest\Session;
-use Balloon\App\Office\Api\Latest\Wopi\Document as WopiDocument;
+use Balloon\App\Office\Api\v1;
+use Balloon\App\Office\Api\v2;
 use Balloon\App\Office\Exception;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
@@ -77,14 +76,14 @@ class Http
         });
 
         $router
-            ->prependRoute(new Route('/api/v1/app/office/document', Document::class))
-            ->prependRoute(new Route('/api/v1/app/office/session', Session::class))
-            ->prependRoute(new Route('/api/v1/app/office/wopi/document', WopiDocument::class))
-            ->prependRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class))
-            ->prependRoute(new Route('/api/v2/office/document', Document::class))
-            ->prependRoute(new Route('/api/v2/office/session', Session::class))
-            ->prependRoute(new Route('/api/v2/office/wopi/document', WopiDocument::class))
-            ->prependRoute(new Route('/api/v2/office/wopi/document/{id:#([0-9a-z]{24})#}', WopiDocument::class));
+            ->prependRoute(new Route('/api/v1/app/office/document', v1\Document::class))
+            ->prependRoute(new Route('/api/v1/app/office/session', v1\Session::class))
+            ->prependRoute(new Route('/api/v1/app/office/wopi/document', v1\Wopi\Document::class))
+            ->prependRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', v1\Wopi\Document::class))
+            ->prependRoute(new Route('/api/v2/office/documents', v2\Document::class))
+            ->prependRoute(new Route('/api/v2/office/sessions', v2\Session::class))
+            ->prependRoute(new Route('/api/v2/office/wopi/document', v2\Wopi\Document::class))
+            ->prependRoute(new Route('/api/v2/office/wopi/document/{id:#([0-9a-z]{24})#}', v2\Wopi\Document::class));
     }
 
     /**

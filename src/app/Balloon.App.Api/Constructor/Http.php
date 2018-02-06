@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\Constructor;
 
-use Balloon\App\Api\Latest;
 use Balloon\App\Api\v1;
+use Balloon\App\Api\v2;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
 use Micro\Auth\Adapter\None as AuthNone;
@@ -45,18 +45,18 @@ class Http
     public function __construct(Router $router, Hook $hook)
     {
         $router
-            ->appendRoute(new Route('/api/v2/user', Latest\User::class))
-            ->appendRoute(new Route('/api/v2/user/{uid:#([0-9a-z]{24})#}', Latest\User::class))
-            ->appendRoute(new Route('/api/v2/resource', Latest\Resource::class))
-            ->appendRoute(new Route('/api/v2/file/{id:#([0-9a-z]{24})#}', Latest\File::class))
-            ->appendRoute(new Route('/api/v2/file', Latest\File::class))
-            ->appendRoute(new Route('/api/v2/collection/{id:#([0-9a-z]{24})#}', Latest\Collection::class))
-            ->appendRoute(new Route('/api/v2/collection', Latest\Collection::class))
-            ->appendRoute(new Route('/api/v2/node/{id:#([0-9a-z]{24})#}', Latest\Node::class))
-            ->appendRoute(new Route('/api/v2/node', Latest\Node::class))
-            ->appendRoute(new Route('/api/v2$', Latest\Api::class))
-            ->appendRoute(new Route('/api/v2', Latest\Api::class))
-            ->appendRoute(new Route('/api$', Latest\Api::class))
+            ->appendRoute(new Route('/api/v2/users', v2\Users::class))
+            ->appendRoute(new Route('/api/v2/users/{uid:#([0-9a-z]{24})#}', v2\Users::class))
+            ->appendRoute(new Route('/api/v2/resource', v2\Resource::class))
+            ->appendRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}', v2\Files::class))
+            ->appendRoute(new Route('/api/v2/files', v2\Files::class))
+            ->appendRoute(new Route('/api/v2/collections/{id:#([0-9a-z]{24})#}', v2\Collections::class))
+            ->appendRoute(new Route('/api/v2/collections', v2\Collections::class))
+            ->appendRoute(new Route('/api/v2/nodes/{id:#([0-9a-z]{24})#}', v2\Nodes::class))
+            ->appendRoute(new Route('/api/v2/nodes', v2\Nodes::class))
+            ->appendRoute(new Route('/api/v2$', v2\Api::class))
+            ->appendRoute(new Route('/api/v2', v2\Api::class))
+            ->appendRoute(new Route('/api$', v2\Api::class))
             ->appendRoute(new Route('/api/v1/user', v1\User::class))
             ->appendRoute(new Route('/api/v1/user/{uid:#([0-9a-z]{24})#}', v1\User::class))
             ->appendRoute(new Route('/api/v1/resource', v1\Resource::class))

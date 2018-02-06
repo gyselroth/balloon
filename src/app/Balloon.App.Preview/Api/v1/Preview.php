@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Preview\Api\Latest;
+namespace Balloon\App\Preview\Api\v1;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Preview\Preview as PreviewGetter;
@@ -48,7 +48,7 @@ class Preview extends Controller
 
     /**
      * @api {get} /api/v2/file/preview?id=:id Get Preview
-     * @apiVersion 2.0.0
+     * @apiVersion 1.0.0
      * @apiName get
      * @apiGroup Node\File
      * @apiPermission none

@@ -9,17 +9,18 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Api\Latest;
+namespace Balloon\App\Api\v2;
 
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\Collection;
 use Micro\Http\Response;
+use MongoDB\BSON\ObjectId;
 
-class File extends Node
+class Files extends Nodes
 {
     /**
-     * @api {get} /api/v2/file/:id/history Get history
+     * @api {get} /api/v2/files/:id/history Get history
      * @apiVersion 2.0.0
      * @apiName getHistory
      * @apiGroup Node\File
@@ -28,9 +29,9 @@ class File extends Node
      * @apiUse _getNode
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/file/history?id=544627ed3c58891f058b4686&pretty"
-     * curl -XGET "https://SERVER/api/v2/file/544627ed3c58891f058b4686/history?pretty"
-     * curl -XGET "https://SERVER/api/v2/file/history?p=/absolute/path/to/my/file&pretty"
+     * curl -XGET "https://SERVER/api/v2/files/history?id=544627ed3c58891f058b4686&pretty"
+     * curl -XGET "https://SERVER/api/v2/files/544627ed3c58891f058b4686/history?pretty"
+     * curl -XGET "https://SERVER/api/v2/files/history?p=/absolute/path/to/my/file&pretty"
      *
      * @apiSuccess (200 OK) {object[]} - History
      * @apiSuccess (200 OK) {number} -.version Version
@@ -88,7 +89,7 @@ class File extends Node
     }
 
     /**
-     * @api {post} /api/v2/file/:id/restore Rollback version
+     * @api {post} /api/v2/files/:id/restore Rollback version
      * @apiVersion 2.0.0
      * @apiName postRestore
      * @apiGroup Node\File
@@ -97,14 +98,14 @@ class File extends Node
      * @apiUse _getNode
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/file/restore?id=544627ed3c58891f058b4686&pretty&vesion=11"
-     * curl -XPOST "https://SERVER/api/v2/file/544627ed3c58891f058b4686/restore?pretty&version=1"
-     * curl -XPOST "https://SERVER/api/v2/file/restore?p=/absolute/path/to/my/file&pretty&version=3"
+     * curl -XPOST "https://SERVER/api/v2/files/restore?id=544627ed3c58891f058b4686&pretty&vesion=11"
+     * curl -XPOST "https://SERVER/api/v2/files/544627ed3c58891f058b4686/restore?pretty&version=1"
+     * curl -XPOST "https://SERVER/api/v2/files/restore?p=/absolute/path/to/my/file&pretty&version=3"
      *
      * @apiParam (GET Parameter) {number} version The version from history to rollback to
      *
      * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 200 OK
      *
      * @param string $id
      * @param string $p
@@ -115,12 +116,13 @@ class File extends Node
     public function postRestore(int $version, ?string $id = null, ?string $p = null): Response
     {
         $result = $this->_getNode($id, $p)->restore($version);
+        $result = $this->decorator->decorate($result);
 
-        return (new Response())->setCode(204);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
-     * @api {put} /api/v2/file/chunk Upload file chunk
+     * @api {put} /api/v2/files/chunk Upload file chunk
      * @apiVersion 2.0.0
      * @apiName putChunk
      * @apiGroup Node\File
@@ -137,14 +139,14 @@ class File extends Node
      * @apiExample (cURL) example:
      * # Upload a new file myfile.jpg into the collection 544627ed3c58891f058b4686.
      * 1. First splitt the file into multiple 8M (For example, you could also use a smaller or bigger size) chunks
-     * 2. Create a unique name for the chunkgroup (Could also be the filename), best thing is to create a UUIDv4
+     * 2. Create a unique name for the session (Could also be the filename), best thing is to create a UUIDv4
      * 3. Upload each chunk successively (follow the binary order of your file!) using the chunk PUT method
      *   (The server identifies each chunk with the index parameter, beginning with #1).
      * 4. If chunk number 3 will be reached, the server automatically place all chunks to the new file node
      *
-     * curl -XPUT "https://SERVER/api/v2/file/chunk?collection=544627ed3c58891f058b4686&name=myfile.jpg&index=1&chunks=3&chunkgroup=myuniquechunkgroup&size=12342442&pretty" --data-binary @chunk1.bin
-     * curl -XPUT "https://SERVER/api/v2/file/chunk?collection=544627ed3c58891f058b4686&name=myfile.jpg&index=2&chunks=3&chunkgroup=myuniquechunkgroup&size=12342442&pretty" --data-binary @chunk2.bin
-     * curl -XPUT "https://SERVER/api/v2/file/chunk?collection=544627ed3c58891f058b4686&name=myfile.jpg&index=3&chunks=3&chunkgroup=myuniquechunkgroup&size=12342442&pretty" --data-binary @chunk3.bin
+     * curl -XPUT "https://SERVER/api/v2/files/chunk?collection=544627ed3c58891f058b4686&name=myfile.jpg&index=1&chunks=3&session=myuniquesession&size=12342442&pretty" --data-binary @chunk1.bin
+     * curl -XPUT "https://SERVER/api/v2/files/chunk?collection=544627ed3c58891f058b4686&name=myfile.jpg&index=2&chunks=3&session=myuniquesession&size=12342442&pretty" --data-binary @chunk2.bin
+     * curl -XPUT "https://SERVER/api/v2/files/chunk?collection=544627ed3c58891f058b4686&name=myfile.jpg&index=3&chunks=3&session=myuniquesession&size=12342442&pretty" --data-binary @chunk3.bin
      *
      * @apiParam (GET Parameter) {string} [id] Either id, p (path) of a file node or a parent collection id must be given
      * @apiParam (GET Parameter) {string} [p] Either id, p (path) of a file node or a parent collection id must be given
@@ -153,7 +155,7 @@ class File extends Node
      * @apiParam (GET Parameter) {string} [name] Needs to be set if the chunk belongs to a new file
      * @apiParam (GET Parameter) {number} index Chunk ID (consider chunk order!)
      * @apiParam (GET Parameter) {number} chunks Total number of chunks
-     * @apiParam (GET Parameter) {string} chunkgroup A unique name which identifes a group of chunks (One file)
+     * @apiParam (GET Parameter) {string} session A unique name which identifes a group of chunks (One file)
      * @apiParam (GET Parameter) {number} size The total file size in bytes
      * @apiParam (GET Parameter) {object} [attributes] Overwrite some attributes which are usually generated on the server
      * @apiParam (GET Parameter) {number} [attributes.created] Set specific created timestamp (UNIX timestamp format)
@@ -172,22 +174,23 @@ class File extends Node
      * @apiSuccessExample {json} Success-Response (Not the last chunk yet):
      * HTTP/1.1 206 Partial Content
      * {
-     *      "status": 206,
-     *      "data": "1"
+     *      "session": "78297329329389e332234341",
+     *      "size": 12323244224,
+     *      "chunks_left": 4
      * }
      *
      * @apiSuccessExample {json} Success-Response (New file created, Last chunk):
      * HTTP/1.1 201 Created
      * {
-     *      "status": 201,
-     *      "data": "78297329329389e332234342"
+     *      "id": "78297329329389e332234342",
+     *      "version": 1
      * }
      *
      * @apiSuccessExample {json} Success-Response (File updated, Last chunk):
      * HTTP/1.1 200 OK
      * {
-     *      "status": 200,
-     *      "data": 2
+     *      "id": "78297329329389e332234342",
+     *      "version": 2
      * }
      *
      * @apiErrorExample {json} Error-Response (quota full):
@@ -240,7 +243,7 @@ class File extends Node
      * @param string $name
      * @param int    $index
      * @param int    $chunks
-     * @param string $chunkgroup
+     * @param string $session
      * @param int    $size
      * @param array  $attributes
      * @param int    $conflict
@@ -248,7 +251,7 @@ class File extends Node
      * @return Response
      */
     public function putChunk(
-        string $chunkgroup,
+        ?ObjectId $session = null,
         ?string $id = null,
         ?string $p = null,
         ?string $collection = null,
@@ -261,16 +264,12 @@ class File extends Node
     ) {
         ini_set('auto_detect_line_endings', '1');
         $input_handler = fopen('php://input', 'rb');
-        if (!is_string($chunkgroup) || empty($chunkgroup)) {
-            throw new Exception\InvalidArgument('chunkgroup must be valid unique string');
-        }
-
         if ($index > $chunks) {
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
-        if (!preg_match('#^([A-Za-z0-9\.\-_])+$#', $chunkgroup)) {
-            throw new Exception\InvalidArgument('chunkgroup may only contain #^[(A-Za-z0-9\.\-_])+$#');
+        if ($session === null) {
+            $session = new ObjectId();
         }
 
         $folder = $this->server->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
@@ -279,7 +278,7 @@ class File extends Node
             mkdir($folder, 0700, true);
         }
 
-        $file = $folder.DIRECTORY_SEPARATOR.$chunkgroup;
+        $file = $folder.DIRECTORY_SEPARATOR.$session;
 
         $tmp_size = 0;
         if (file_exists($file)) {
@@ -291,15 +290,15 @@ class File extends Node
             );
         }
 
-        $chunkgroup_handler = fopen($file, 'a+');
+        $session_handler = fopen($file, 'a+');
         while (!feof($input_handler)) {
             $data = fread($input_handler, 1024);
-            $wrote = fwrite($chunkgroup_handler, $data);
+            $wrote = fwrite($session_handler, $data);
             $tmp_size += $wrote;
 
             if ($tmp_size > (int) $this->server->getMaxFileSize()) {
                 fclose($input_handler);
-                fclose($chunkgroup_handler);
+                fclose($session_handler);
                 unlink($file);
 
                 throw new Exception\InsufficientStorage(
@@ -319,7 +318,7 @@ class File extends Node
             }
 
             if ($tmp_size !== $size) {
-                fclose($chunkgroup_handler);
+                fclose($session_handler);
                 unlink($file);
 
                 throw new Exception\Conflict(
@@ -338,12 +337,16 @@ class File extends Node
                 throw $e;
             }
         } else {
-            return (new Response())->setCode(206)->setBody($index);
+            return (new Response())->setCode(206)->setBody([
+                'session' => (string) $session,
+                'size' => $tmp_size,
+                'chunks_left' => $chunks - $index,
+            ]);
         }
     }
 
     /**
-     * @api {put} /api/v2/file Upload file
+     * @api {put} /api/v2/files Upload file
      * @apiVersion 2.0.0
      * @apiName put
      * @apiGroup Node\File
@@ -357,11 +360,11 @@ class File extends Node
      *
      * @apiExample (cURL) example:
      * #Update content of file 544627ed3c58891f058b4686
-     * curl -XPUT "https://SERVER/api/v2/file?id=544627ed3c58891f058b4686" --data-binary myfile.txt
-     * curl -XPUT "https://SERVER/api/v2/file/544627ed3c58891f058b4686" --data-binary myfile.txt
+     * curl -XPUT "https://SERVER/api/v2/files?id=544627ed3c58891f058b4686" --data-binary myfile.txt
+     * curl -XPUT "https://SERVER/api/v2/files/544627ed3c58891f058b4686" --data-binary myfile.txt
      *
      * #Upload new file under collection 544627ed3c58891f058b3333
-     * curl -XPUT "https://SERVER/api/v2/file?collection=544627ed3c58891f058b3333&name=myfile.txt" --data-binary myfile.txt
+     * curl -XPUT "https://SERVER/api/v2/files?collection=544627ed3c58891f058b3333&name=myfile.txt" --data-binary myfile.txt
      *
      * @apiParam (GET Parameter) {string} [id] Either id, p (path) of a file node or a parent collection id must be given
      *
@@ -476,12 +479,14 @@ class File extends Node
             if (null !== $p) {
                 $node = $this->_getNode(null, $p);
                 $result = $node->put($content, false, $attributes);
+                $result = $this->decorator->decorate($node);
 
                 return (new Response())->setCode(200)->setBody($result);
             }
             if (null !== $id && null === $collection) {
                 $node = $this->_getNode($id);
                 $result = $node->put($content, false, $attributes);
+                $result = $this->decorator->decorate($node);
 
                 return (new Response())->setCode(200)->setBody($result);
             }
@@ -491,6 +496,7 @@ class File extends Node
                 if ($collection->childExists($name)) {
                     $child = $collection->getChild($name);
                     $result = $child->put($content, false, $attributes);
+                    $result = $this->decorator->decorate($child);
 
                     return (new Response())->setCode(200)->setBody($result);
                 }
@@ -498,9 +504,10 @@ class File extends Node
                     throw new Exception\InvalidArgument('name must be a valid string');
                 }
 
-                $result = $collection->addFile($name, $content, $attributes)->getId();
+                $result = $collection->addFile($name, $content, $attributes);
+                $result = $this->decorator->decorate($result);
 
-                return (new Response())->setCode(201)->setBody((string) $result);
+                return (new Response())->setCode(201)->setBody($result);
             }
         } catch (ForbiddenException $e) {
             throw new Exception\Conflict(
@@ -523,9 +530,10 @@ class File extends Node
                         throw new Exception\InvalidArgument('name must be a valid string');
                     }
 
-                    $result = $parent->addFile($name, $content, $attributes)->getId();
+                    $result = $parent->addFile($name, $content, $attributes);
+                    $result = $this->decorator->decorate($result);
 
-                    return (new Response())->setCode(201)->setBody((string) $result);
+                    return (new Response())->setCode(201)->setBody($result);
                 } catch (Exception\NotFound $e) {
                     throw new Exception('parent collection '.$parent_path.' was not found');
                 }

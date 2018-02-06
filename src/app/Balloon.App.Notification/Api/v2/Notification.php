@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Notification\Api\Latest;
+namespace Balloon\App\Notification\Api\v2;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Notification\Notifier;
@@ -97,7 +97,7 @@ class Notification extends Controller
     }
 
     /**
-     * @api {get} /api/v2/notification Get notifications
+     * @api {get} /api/v2/notifications Get notifications
      * @apiVersion 2.0.0
      * @apiName get
      * @apiGroup App\Notification
@@ -135,7 +135,7 @@ class Notification extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/notification Delete notification
+     * @api {delete} /api/v2/notifications Delete notification
      * @apiVersion 2.0.0
      * @apiName delete
      * @apiGroup App\Notification
@@ -156,7 +156,7 @@ class Notification extends Controller
     }
 
     /**
-     * @api {post} /api/v2/notification Post a notification to a group of users
+     * @api {post} /api/v2/notifications Post a notification to a group of users
      * @apiVersion 2.0.0
      * @apiName post
      * @apiGroup App\Notification
@@ -178,7 +178,7 @@ class Notification extends Controller
     }
 
     /**
-     * @api {post} /api/v2/notification/broadcast Post a notification to all users (or to a bunch of users)
+     * @api {post} /api/v2/notifications/broadcast Post a notification to all users (or to a bunch of users)
      * @apiVersion 2.0.0
      * @apiName postBroadcast
      * @apiGroup App\Notification
@@ -186,7 +186,7 @@ class Notification extends Controller
      * @apiDescription Send notification
      *
      * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/notification/broadcast"
+     * curl -XPOST "https://SERVER/api/v2/notifications/broadcast"
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 202 Accepted
@@ -207,7 +207,7 @@ class Notification extends Controller
     }
 
     /**
-     * @api {post} /api/v2/notification/mail Send a mail
+     * @api {post} /api/v2/notifications/mail Send a mail
      * @apiVersion 2.0.0
      * @apiName postMail
      * @apiGroup App\Notification
@@ -215,7 +215,7 @@ class Notification extends Controller
      * @apiDescription Send mail
      *
      * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/notification/mail"
+     * curl -XGET "https://SERVER/api/v2/notifications/mail"
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 202 Accepted
@@ -234,7 +234,7 @@ class Notification extends Controller
     }
 
     /**
-     * @api {post} /api/v2/notification/subscribe Subscribe for node update
+     * @api {post} /api/v2/notifications/subscribe Subscribe for node update
      * @apiVersion 2.0.0
      * @apiName postSubscribe
      * @apiGroup App\Notification
@@ -244,7 +244,7 @@ class Notification extends Controller
      * @apiUse _multiError
      *
      * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/notification/subscribe"
+     * curl -XPOST "https://SERVER/api/v2/notifications/subscribe"
      *
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 204 No Content
