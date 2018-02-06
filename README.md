@@ -50,7 +50,7 @@ Elasticsearch provides full text search over all stored documents. The elasticse
 
 ### ClamAV - Antivirus engine
 
-Autmatically scan your uploaded files in the background for viruses and other malware.
+Automatically scan your uploaded files in the background for viruses and other malware.
 
 ## Requirements
 
