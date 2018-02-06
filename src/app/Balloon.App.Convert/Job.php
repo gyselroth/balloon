@@ -103,7 +103,7 @@ class Job extends AbstractJob
         ]);
 
         try {
-            $name = substr($file->getName(), -strlen($file->getExtension()));
+            $name = substr($file->getName(), 0, (strlen($file->getExtension()) + 1) * -1);
             $name .= '.'.$slave['format'];
         } catch (\Exception $e) {
             $name = $file->getName().'.'.$slave['format'];

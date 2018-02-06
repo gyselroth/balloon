@@ -263,11 +263,10 @@ class Job extends AbstractJob
      */
     protected function setMemoryLimit(): self
     {
-        $limit = (int) ini_get('memory_limit');
+        $limit = (int) ini_get('memory_limit') * 1024 * 1024;
         $required = $this->size_limit * 2;
-
         if ($limit !== -1 && $limit < $limit + $required) {
-            ini_set('memory_limit', (string) ($limit + $required));
+            ini_set('memory_limit', (string) (($limit + $required) * 1024 * 1024));
         }
 
         return $this;
