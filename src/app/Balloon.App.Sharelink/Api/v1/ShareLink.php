@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Sharelink\Api\Latest;
+namespace Balloon\App\Sharelink\Api\v1;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Sharelink\Sharelink as Share;

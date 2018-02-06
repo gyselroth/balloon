@@ -11,12 +11,48 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v1;
 
-use Balloon\App\Api\Latest\Resource as LatestResource;
+use Balloon\Server;
+use Balloon\Server\AttributeDecorator;
+use Balloon\Server\User;
 use Micro\Http\Response;
 use MongoDB\BSON\Regex;
 
-class Resource extends LatestResource
+class Resource
 {
+    /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * User.
+     *
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * Attribute decorator.
+     *
+     * @var AttributeDecorator
+     */
+    protected $decorator;
+
+    /**
+     * Initialize.
+     *
+     * @param Server             $server
+     * @param AttributeDecorator $decorator
+     */
+    public function __construct(Server $server, AttributeDecorator $decorator)
+    {
+        $this->server = $server;
+        $this->user = $server->getIdentity();
+        $this->decorator = $decorator;
+    }
+
     /**
      * @api {get} /api/v1/resource/acl-roles?q=:query&namespace=:namespace Query available acl roles
      * @apiVersion 1.0.0

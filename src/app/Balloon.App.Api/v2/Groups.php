@@ -15,17 +15,19 @@ use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
+use Balloon\Server\Group;
+use Balloon\Server\User;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
 class Groups
 {
     /**
-     * Group.
+     * User.
      *
-     * @var Group
+     * @var User
      */
-    protected $group;
+    protected $user;
 
     /**
      * Server.
@@ -49,7 +51,7 @@ class Groups
      */
     public function __construct(Server $server, AttributeDecorator $decorator)
     {
-        $this->group = $server->getIdentity();
+        $this->user = $server->getIdentity();
         $this->server = $server;
         $this->decorator = $decorator;
     }
@@ -110,10 +112,10 @@ class Groups
      *
      * @return Group
      */
-    public function _getGroup(?string $id = null, ?string $name = null, bool $require_admin = false)
+    public function _getGroup(?string $id = null, ?string $name = null, bool $require_admin = false): Group
     {
         if (null !== $id || null !== $name || true === $require_admin) {
-            if ($this->group->isAdmin()) {
+            if ($this->user->isAdmin()) {
                 if (null !== $id && null !== $name) {
                     throw new Exception\InvalidArgument('provide either id (group id) or name (groupname)');
                 }
@@ -130,8 +132,6 @@ class Groups
                     ForbiddenException::ADMIN_PRIV_REQUIRED
                 );
         }
-
-        return $this->group;
     }
 
     /**

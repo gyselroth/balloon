@@ -13,6 +13,7 @@ namespace Balloon\App\Api\v2;
 
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
+use Balloon\Server\User;
 use Micro\Http\Response;
 use MongoDB\BSON\Regex;
 

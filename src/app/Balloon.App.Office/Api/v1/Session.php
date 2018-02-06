@@ -23,7 +23,7 @@ use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
-class Sessions extends Controller
+class Session extends Controller
 {
     /**
      * App.
@@ -100,10 +100,13 @@ class Sessions extends Controller
                 ->store();
 
         return (new Response())->setCode(201)->setBody([
-            'id' => (string) $session->getId(),
-            'wopi_url' => $this->app->getWopiUrl(),
-            'access_token' => $member->getAccessToken(),
-            'access_token_ttl' => ($member->getTTL()->toDateTime()->format('U') * 1000),
+            'code' => 201,
+            'data' => [
+                'id' => (string) $session->getId(),
+                'wopi_url' => $this->app->getWopiUrl(),
+                'access_token' => $member->getAccessToken(),
+                'access_token_ttl' => ($member->getTTL()->toDateTime()->format('U') * 1000),
+            ],
         ]);
     }
 
@@ -143,9 +146,12 @@ class Sessions extends Controller
                 ->store();
 
         return (new Response())->setCode(200)->setBody([
-            'wopi_url' => $this->app->getWopiUrl(),
-            'access_token' => $member->getAccessToken(),
-            'access_token_ttl' => ($member->getTTL()->toDateTime()->format('U') * 1000),
+            'code' => 200,
+            'data' => [
+                'wopi_url' => $this->app->getWopiUrl(),
+                'access_token' => $member->getAccessToken(),
+                'access_token_ttl' => ($member->getTTL()->toDateTime()->format('U') * 1000),
+            ],
         ]);
     }
 

@@ -104,8 +104,11 @@ class Document extends Controller
         }
 
         $result = [
-            'loleaflet' => $this->app->getLoleaflet(),
-            'session' => $sessions,
+            'code' => 200,
+            'data' => [
+                'loleaflet' => $this->app->getLoleaflet(),
+                'session' => $sessions,
+            ],
         ];
 
         return (new Response())->setCode(200)->setBody($result);
@@ -165,6 +168,9 @@ class Document extends Controller
         $tpl = new Template($type);
         $result = $parent->addFile($name, $tpl->get(), $attributes);
 
-        return (new Response())->setCode(201)->setBody((string) $result->getId());
+        return (new Response())->setCode(201)->setBody([
+            'code' => 201,
+            'data' => (string) $result->getId(),
+        ]);
     }
 }
