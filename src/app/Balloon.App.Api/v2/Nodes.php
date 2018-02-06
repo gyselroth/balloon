@@ -296,11 +296,12 @@ class Nodes extends Controller
             $response->setHeader('Content-Transfer-Encoding', 'binary');
         } else {
             $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\''.rawurlencode($node->getName()));
+            $response->setHeader('Content-Type', $node->getContentType());
         }
 
         return $response
+          ->setOutputFormat(null)
           ->setBody(function () use ($node, $encode, $offset, $length) {
-              $mime = $node->getContentType();
               $stream = $node->get();
               $name = $node->getName();
 
@@ -318,7 +319,6 @@ class Nodes extends Controller
               }
 
               $read = 0;
-              header('Content-Type: '.$mime.'');
               if ('base64' === $encode) {
                   header('Content-Encoding: base64');
                   while (!feof($stream)) {
@@ -340,6 +340,8 @@ class Nodes extends Controller
                       echo fread($stream, 8192);
                       $read += 8192;
                   }
+
+                  exit();
               }
           });
     }

@@ -15,6 +15,7 @@ use Balloon\Exception\InvalidArgument as InvalidArgumentException;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
+use Balloon\Server\User;
 use Balloon\Server\User\Exception;
 use Micro\Http\Response;
 use MongoDB\BSON\Binary;

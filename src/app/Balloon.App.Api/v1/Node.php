@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v1;
 
 use Balloon\App\Api\Controller;
-use Balloon\App\Api\Latest\Collection as ApiCollection;
-use Balloon\App\Api\Latest\File as ApiFile;
+use Balloon\App\Api\v1\Collection as ApiCollection;
+use Balloon\App\Api\v1\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\EventAttributeDecorator;

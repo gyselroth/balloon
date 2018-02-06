@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Office\Api\Latest\Wopi;
+namespace Balloon\App\Office\Api\v1\Wopi;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Office\Session;
@@ -49,9 +49,9 @@ class Document extends Controller
     }
 
     /**
-     * @api {get} /api/v2/office/wopi/document Get document sesssion information
+     * @api {get} /api/v1/office/wopi/document Get document sesssion information
      * @apiName get
-     * @apiVersion 2.0.0
+     * @apiVersion 1.0.0
      * @apiGroup App\Office
      * @apiPermission none
      * @apiDescription Get document session information including document owner, session user and document size
@@ -60,7 +60,7 @@ class Document extends Controller
      * @apiParam (GET Parameter) {string} access_token An access token to access the document
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/office/wopi/document/58a18a4ca271f962af6fdbc4?access_token=aae366363ee743412abb"
+     * curl -XGET "https://SERVER/api/v1/office/wopi/document/58a18a4ca271f962af6fdbc4?access_token=aae366363ee743412abb"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
@@ -81,9 +81,9 @@ class Document extends Controller
     }
 
     /**
-     * @api {post} /api/v2/office/wopi/document/contents Save document contents
+     * @api {post} /api/v1/office/wopi/document/contents Save document contents
      * @apiName postContents
-     * @apiVersion 2.0.0
+     * @apiVersion 1.0.0
      * @apiGroup App\Office
      * @apiPermission none
      * @apiDescription Save document contents
@@ -92,7 +92,7 @@ class Document extends Controller
      * @apiParam (GET Parameter) {string} access_token An access token to access the document
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/office/wopi/document/58a18a4ca271f962af6fdbaa/contents?access_token=aae366363ee743412abb"
+     * curl -XPOST "https://SERVER/api/v1/office/wopi/document/58a18a4ca271f962af6fdbaa/contents?access_token=aae366363ee743412abb"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
@@ -118,9 +118,9 @@ class Document extends Controller
     }
 
     /**
-     * @api {get} /api/v2/office/wopi/document/contents Get document contents
+     * @api {get} /api/v1/office/wopi/document/contents Get document contents
      * @apiName getContents
-     * @apiVersion 2.0.0
+     * @apiVersion 1.0.0
      * @apiGroup App\Office
      * @apiPermission none
      * @apiDescription Get document contents
@@ -129,7 +129,7 @@ class Document extends Controller
      * @apiParam (GET Parameter) {string} access_token An access token to access the document
      *
      * @apiExample (cURL) Exampl:
-     * curl -XGET "https://SERVER/api/v2/office/document/58a18a4ca271f962af6fdbaa/contents?access_token=aae366363ee743412abb"
+     * curl -XGET "https://SERVER/api/v1/office/document/58a18a4ca271f962af6fdbaa/contents?access_token=aae366363ee743412abb"
      *
      * @apiSuccessExample {binary} Success-Response:
      * HTTP/1.1 200 OK

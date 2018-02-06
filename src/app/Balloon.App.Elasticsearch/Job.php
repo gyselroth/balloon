@@ -90,6 +90,7 @@ class Job extends AbstractJob
         $this->decorator = $decorator;
         $this->logger = $logger;
         $this->setOptions($config);
+        $this->setMemoryLimit();
     }
 
     /**
@@ -256,6 +257,23 @@ class Job extends AbstractJob
     }
 
     /**
+     * Set memory limit.
+     *
+     * @return Job
+     */
+    protected function setMemoryLimit(): self
+    {
+        $limit = (int) ini_get('memory_limit');
+        $required = $this->size_limit * 2;
+
+        if ($limit !== -1 && $limit < $limit + $required) {
+            ini_set('memory_limit', (string) ($limit + $required));
+        }
+
+        return $this;
+    }
+
+    /**
      * Get params.
      *
      * @param NodeInterface $node
@@ -303,6 +321,7 @@ class Job extends AbstractJob
     {
         $this->logger->debug('store file blob for node ['.$node->getId().'] to elasticsearch', [
             'category' => get_class($this),
+            'size' => $node->getSize(),
         ]);
 
         if ($node->getSize() > $this->size_limit) {
@@ -321,7 +340,7 @@ class Job extends AbstractJob
         }
 
         $meta = $this->storage->getFileMeta($node);
-        $content = base64_encode(stream_get_contents($node->get()));
+        $content = json_encode(base64_encode(stream_get_contents($node->get())));
 
         $metadata = $meta['metadata'];
         array_walk_recursive($metadata, function (&$value) { $value = (string) $value; });

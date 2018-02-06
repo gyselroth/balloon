@@ -34,15 +34,15 @@ class Download
     }
 
     /**
-     * @api {get} /api/v2/desktop-clients/:format
+     * @api {get} /api/v2/desktop-clients/:format/content
      * @apiVersion 2.0.0
-     * @apiName get
+     * @apiName getContent
      * @apiGroup App\DesktopClient
      * @apiPermission none
      * @apiDescription Download balloon desktop client
      *
      * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/desktop-clients/exe > balloon-desktop.exe"
+     * curl -XGET "https://SERVER/api/v2/desktop-clients/exe/content > balloon-desktop.exe"
      *
      * @apiParam (GET Parameter) {string} [format] Request client foramt (deb, rpm, exe, pkg, zip or a custom format)
      *
@@ -53,7 +53,7 @@ class Download
      *
      * @return Response
      */
-    public function get(string $format): Response
+    public function getContent(string $format): Response
     {
         $url = $this->client->getUrl($format);
 
@@ -63,6 +63,7 @@ class Download
             ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
             ->setHeader('Content-Type', 'application/octet-stream')
             ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setOutputFormat(null)
             ->setBody(function () use ($url) {
                 $stream = fopen($url, 'r');
                 while (!feof($stream)) {

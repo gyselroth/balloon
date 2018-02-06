@@ -228,7 +228,7 @@ Micro\Auth\Auth:
     ldap:
       use: "Micro\\Auth\\Adapter\\Basic\\Ldap"
       services:
-        Micro\Ldap:
+        Micro\Auth\Ldap:
           arguments:
             config:
               uri: "ldap://localhost:389"

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Office\Api\Latest;
+namespace Balloon\App\Office\Api\v1;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Office\Constructor\Http as App;
@@ -59,7 +59,7 @@ class Document extends Controller
     }
 
     /**
-     * @api {get} /api/v2/office/document?id=:id Get document
+     * @api {get} /api/v1/office/document?id=:id Get document
      * @apiName get
      * @apiVersion 1.0.0
      * @apiUse _getNode
@@ -68,8 +68,8 @@ class Document extends Controller
      * @apiDescription Retreive office document
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/app/office/document/544627ed3c58891f058b4611"
-     * curl -XGET "https://SERVER/api/v2/app/office/document?id=544627ed3c58891f058b4611"
+     * curl -XGET "https://SERVER/api/v1/app/office/document/544627ed3c58891f058b4611"
+     * curl -XGET "https://SERVER/api/v1/app/office/document?id=544627ed3c58891f058b4611"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
@@ -112,7 +112,7 @@ class Document extends Controller
     }
 
     /**
-     * @api {put} /api/v2/office/document Create new empty document
+     * @api {put} /api/v1/office/document Create new empty document
      * @apiName put
      * @apiVersion 1.0.0
      * @apiGroup App\Office
@@ -142,7 +142,7 @@ class Document extends Controller
      * @apiParam (GET Parameter) {string[]} attributes Node attributes
      *
      * @apiExample (cURL) example:
-     * curl -XPUT "https://SERVER/api/v2/app/office/document?type=xlsx"
+     * curl -XPUT "https://SERVER/api/v1/app/office/document?type=xlsx"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 201 Created

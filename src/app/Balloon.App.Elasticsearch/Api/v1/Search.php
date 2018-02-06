@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Elasticsearch\Api\v2;
+namespace Balloon\App\Elasticsearch\Api\v1;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Elasticsearch\Elasticsearch;
@@ -56,8 +56,8 @@ class Search extends Controller
     }
 
     /**
-     * @api {get} /api/v2/nodes/search Search
-     * @apiVersion 2.0.0
+     * @api {get} /api/v1/node/search Search
+     * @apiVersion 1.0.0
      * @apiName getSearch
      * @apiGroup Node
      * @apiPermission none
@@ -94,15 +94,14 @@ class Search extends Controller
      * - 1 Only deleted</br>
      * - 2 Include deleted</br>
      *
-     * @apiSuccess (200 OK) {object[]} - List of nodes
-     * @apiSuccess (200 OK) {string} -.id Node ID
+     * @apiSuccess (200 OK) {object[]} data Node list (matched nodes)
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * [
-     *  {
-     *      "id": "5a745e57dbbb21002668a702"
-     *  }
-     * ]
+     * {
+     *      "status":200,
+     *      "data": [{...}, {...}]
+     *      }
+     * }
      *
      * @param array $query
      * @param array $attributes

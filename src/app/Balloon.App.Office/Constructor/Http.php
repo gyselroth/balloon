@@ -80,8 +80,8 @@ class Http
             ->prependRoute(new Route('/api/v1/app/office/session', v1\Session::class))
             ->prependRoute(new Route('/api/v1/app/office/wopi/document', v1\Wopi\Document::class))
             ->prependRoute(new Route('/api/v1/app/office/wopi/document/{id:#([0-9a-z]{24})#}', v1\Wopi\Document::class))
-            ->prependRoute(new Route('/api/v2/office/documents', v2\Document::class))
-            ->prependRoute(new Route('/api/v2/office/sessions', v2\Session::class))
+            ->prependRoute(new Route('/api/v2/office/documents', v2\Documents::class))
+            ->prependRoute(new Route('/api/v2/office/sessions', v2\Sessions::class))
             ->prependRoute(new Route('/api/v2/office/wopi/document', v2\Wopi\Document::class))
             ->prependRoute(new Route('/api/v2/office/wopi/document/{id:#([0-9a-z]{24})#}', v2\Wopi\Document::class));
     }
