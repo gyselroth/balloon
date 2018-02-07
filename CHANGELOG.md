@@ -83,13 +83,13 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] removed GET /api/v2/help (My be reintroduced later with #86)
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v2 #46
 * API: [FEATURE] All endopints which accept an array of id s do now accept an array of paths as well #49
-* API: [FEATURE] POST /api/v2/node/meta-attributes does now accept a multi node request
-* API: [CHANGE] meta attributes must now be sent via $attributes to POST /api/v2/node/meta-attributes and can be implemented within the query string or a json body instead Content-Type application/x-www-form-urlencoded #95
+* API: [FEATURE] PATCH /api/v2/nodes/meta does now accept a multi node request
+* API: [CHANGE] meta attributes must now be sent via $attributes to PATCH /api/v2/nodes/meta and can be implemented within the query string or a json body instead Content-Type application/x-www-form-urlencoded #95
 * API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 * API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v2 since all timestamps are in UTC anyway #61
 * API: [FEATURE] GET /api and GET /api/v(1|2) are now public readable #46
-* API: [CHANGE] Removed attribute history from GET /api/v2/file/attributes
+* API: [CHANGE] Removed attribute history from GET /api/v2/files
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Convert, see apidoc
 * API: [FEATURE] Multiple new api v2 endpoints provided by Balloon.App.Notification, see apidoc, includes #67
 * API: [CHANGE] Removed POST /api/v1/user/quota in favour of POST /api/v1/user/attributes 
@@ -103,10 +103,13 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] API v2 body is not wrapped in "data" and status in not set anymore
 * API: [CHANGE] Removed GET /api/v2/user/is-admin (Can be queried via /user/attributes)
 * API: [CHANGE] Removed GET /api/v2/user/shares (Can be queried via /node/query)
-* API: [CHANGE] GET /api/v2/node is now GET /api/v2/node/:id/stream
-* API: [CHANGE] GET /api/v2/node/attributes is now GET /api/v2/node
-* API: [CHANGE] GET /api/v2/user/attributes is now GET /api/v2/user
-* API: [CHANGE] GET /api/v2/user/whoami returns now an entire user object instead just the username
+* API: [CHANGE] GET /api/v2/nodes is now GET /api/v2/nodes/:id/content
+* API: [CHANGE] GET /api/v2/nodes/attributes is now GET /api/v2/nodes/:id
+* API: [CHANGE] GET /api/v2/users/attributes is now GET /api/v2/users/:id
+* API: [CHANGE] GET /api/v2/users/whoami returns now an entire user object instead just the username
+* API: [CHANGE] Renamed most api v2 endpoints to the plural form
+* API: [CHANGE] Most POST/PUT/PATCH requests do now respond with 200 OK and return the entire object instead just 204 or 200 with an ID
+* API: [CHANGE] Removed GET /api/v2/nodes/share-link, those attributes are now attached to the node output object
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 * PACKAGING: [FEATURE] Full packaging support for deb/tar packages #53
 * PACKAGING: [FEATURE] Full suport for docker container, also provides docker-compose.yml and docker-compose-dev.yml as sample deployment

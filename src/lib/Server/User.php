@@ -40,18 +40,11 @@ class User implements RoleInterface
     protected $username;
 
     /**
-     * Firstname.
+     * Optional user attributes.
      *
-     * @var string
+     * @var array
      */
-    protected $firstname;
-
-    /**
-     * Lastname.
-     *
-     * @var string
-     */
-    protected $lastname;
+    protected $optional = [];
 
     /**
      * Locale.
@@ -273,8 +266,6 @@ class User implements RoleInterface
         return [
             'id' => $this->_id,
             'username' => $this->username,
-            'firstname' => $this->firstname,
-            'lastname' => $this->lastname,
             'locale' => $this->locale,
             'namespace' => $this->namespace,
             'created' => $this->created,
@@ -283,6 +274,7 @@ class User implements RoleInterface
             'soft_quota' => $this->soft_quota,
             'hard_quota' => $this->hard_quota,
             'mail' => $this->mail,
+            'optional' => $this->optional,
             'avatar' => $this->avatar,
         ];
     }

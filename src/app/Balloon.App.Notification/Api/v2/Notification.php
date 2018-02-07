@@ -16,8 +16,9 @@ use Balloon\App\Notification\Notifier;
 use Balloon\Async\Mail;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
+use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Server;
-use Balloon\Server\AttributeDecorator;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -70,22 +71,30 @@ class Notification extends Controller
     protected $logger;
 
     /**
-     * Attribute decorator.
+     * Role attribute decorator.
      *
-     * @var AttributeDecorator
+     * @var RoleAttributeDecorator
      */
-    protected $decorator;
+    protected $role_decorator;
+
+    /**
+     * Role attribute decorator.
+     *
+     * @var NodeAttributeDecorator
+     */
+    protected $node_decorator;
 
     /**
      * Constructor.
      *
-     * @param Notifier           $notifier
-     * @param Server             $server
-     * @param Async              $async
-     * @param LoggerInterface    $logger
-     * @param AttributeDecorator $decorator
+     * @param Notifier               $notifier
+     * @param Server                 $server
+     * @param Async                  $async
+     * @param LoggerInterface        $logger
+     * @param RoleAttributeDecorator $role_decorator
+     * @param NodeAttributeDecorator $node_decorator
      */
-    public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, AttributeDecorator $decorator)
+    public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, RoleAttributeDecorator $role_decorator, NodeAttributeDecorator $node_decorator)
     {
         $this->notifier = $notifier;
         $this->user = $server->getIdentity();
@@ -93,7 +102,8 @@ class Notification extends Controller
         $this->server = $server;
         $this->async = $async;
         $this->logger = $logger;
-        $this->decorator = $decorator;
+        $this->role_decorator = $role_decorator;
+        $this->node_decorator = $node_decorator;
     }
 
     /**
@@ -127,7 +137,7 @@ class Notification extends Controller
             $note['id'] = (string) $note['_id'];
             unset($note['_id'], $note['receiver']);
 
-            $note['sender'] = $this->decorator->decorate($this->server->getUserById($note['sender']), ['id', 'username']);
+            $note['sender'] = $this->role_decorator->decorate($this->server->getUserById($note['sender']), ['id', 'username']);
             $body[] = $note;
         }
 
@@ -247,7 +257,10 @@ class Notification extends Controller
      * curl -XPOST "https://SERVER/api/v2/notifications/subscribe"
      *
      * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 200 OK
+     * {
+     *      "id": ""
+     * }
      *
      * @param null|mixed $id
      * @param null|mixed $p
@@ -281,8 +294,10 @@ class Notification extends Controller
             return (new Response())->setcode(400)->setBody($failures);
         }
 
-        $this->notifier->subscribeNode($this->fs->getNode($id, $p), $subscribe, $exclude_me, $recursive);
+        $node = $this->fs->getNode($id, $p);
+        $this->notifier->subscribeNode($node, $subscribe, $exclude_me, $recursive);
+        $result = $this->node_decorator->decorate($node);
 
-        return (new Response())->setCode(204);
+        return (new Response())->setCode(200)->setBody($result);
     }
 }

@@ -14,6 +14,7 @@ namespace Balloon\App\Sharelink\Api\v2;
 use Balloon\App\Api\Controller;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Server;
 use Micro\Http\Response;
 
@@ -34,15 +35,23 @@ class ShareLink extends Controller
     protected $fs;
 
     /**
+     * Node attribute decorator.
+     *
+     * @var NodeAttributeDecorator
+     */
+    protected $node_decorator;
+
+    /**
      * Constructor.
      *
      * @param Share  $sharelink
      * @param Server $server
      */
-    public function __construct(Share $sharelink, Server $server)
+    public function __construct(Share $sharelink, Server $server, NodeAttributeDecorator $node_decorator)
     {
         $this->fs = $server->getFilesystem();
         $this->sharelink = $sharelink;
+        $this->node_decorator = $node_decorator;
     }
 
     /**
@@ -66,7 +75,10 @@ class ShareLink extends Controller
      * curl -XPOST "https://SERVER/api/v2/node/share-link?p=/absolute/path/to/my/node&pretty"
      *
      * @apiSuccessExample {json} Success-Response (Created or modified share link):
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 200 OK
+     * {
+     *      "id": "544627ed3c58891f058b4686"
+     * }
      *
      * @param string $id
      * @param string $p
@@ -80,8 +92,9 @@ class ShareLink extends Controller
         $options['shared'] = true;
 
         $this->sharelink->shareLink($node, $options);
+        $result = $this->node_decorator->decorate($node);
 
-        return (new Response())->setCode(204);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
@@ -113,46 +126,5 @@ class ShareLink extends Controller
         $this->sharelink->shareLink($node, $options);
 
         return (new Response())->setCode(204);
-    }
-
-    /**
-     * @api {get} /api/v2/nodes/:id/share-link Get share link
-     * @apiVersion 2.0.0
-     * @apiName getShareLink
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Get an existing sharing link
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/node/share-link?id=544627ed3c58891f058b4686&pretty"
-     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686/share-link?pretty"
-     * curl -XGET "https://SERVER/api/v2/node/share-link?p=/path/to/my/node&pretty"
-     *
-     * @apiSuccess (200 OK) {number} status Status Code
-     * @apiSuccess (200 OK) {object} data Share options
-     * @apiSuccess (200 OK) {string} data.token Shared unique node token
-     * @apiSuccess (200 OK) {string} [data.password] Share link is password protected
-     * @apiSuccess (200 OK) {string} [data.expiration] Unix timestamp
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "status": 200,
-     *     "data": {
-     *        "token": "544627ed3c51111f058b468654db6b7daca8e5.69846614",
-     *     }
-     * }
-     *
-     * @param string $id
-     * @param string $p
-     *
-     * @return Response
-     */
-    public function get(?string $id = null, ?string $p = null): Response
-    {
-        $node = $this->fs->getNode($id, $p);
-        $result = $this->sharelink->getShareLink($node);
-
-        return (new Response())->setCode(200)->setBody($result);
     }
 }

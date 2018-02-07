@@ -3,6 +3,7 @@ vendor
 config/*
 docker-compose.yml
 build
+build_apidoc
 doc
 dist
 log/*

@@ -253,6 +253,12 @@ class Server
                     }
 
                 break;
+                case 'optional':
+                    if (is_array($value)) {
+                        throw new GroupException('optional group attributes must be an array');
+                    }
+
+                break;
                 case 'member':
                     if (!is_array($value)) {
                         throw new GroupException('member must be an array of user');
@@ -342,6 +348,12 @@ class Server
                 case 'namespace':
                     if (!is_string($value)) {
                         throw new UserException('namespace must be a valid string');
+                    }
+
+                    // no break
+                case 'optional':
+                    if (is_array($value)) {
+                        throw new UserException('optional user attributes must be an array');
                     }
 
                 break;

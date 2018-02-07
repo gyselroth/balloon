@@ -19,6 +19,7 @@ use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
+use DateTime;
 use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Auth\Auth;
 use Micro\Http\Response;
@@ -69,8 +70,20 @@ class Http
             }
         });
 
-        $decorator->addDecorator('sharelink', function ($node) use ($sharelink) {
-            return $sharelink->isSharelink($node);
+        $decorator->addDecorator('sharelink_token', function ($node) use ($sharelink) {
+            $attributes = $sharelink->getSharelink($node);
+
+            if (isset($attributes['token'])) {
+                return $attributes['token'];
+            }
+        });
+
+        $decorator->addDecorator('sharelink_expire', function ($node) use ($sharelink) {
+            $attributes = $sharelink->getSharelink($node);
+
+            if (isset($attributes['expiration'])) {
+                return (new DateTime($attributes['expiration']))->format('c');
+            }
         });
 
         $this->logger = $logger;

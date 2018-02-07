@@ -14,6 +14,7 @@ UNITTESTS_DIR = $(TESTS_DIR)/Unit
 DIST_DIR = $(BASE_DIR)/dist
 LOG_DIR = $(BASE_DIR)/log
 BUILD_DIR = $(BASE_DIR)/build
+APIDOC_BUILD_DIR = $(BASE_DIR)/build_apidoc
 
 # VERSION
 ifeq ($(VERSION),)
@@ -100,10 +101,10 @@ dist: tar deb
 
 
 .PHONY: deb
-deb: $(DIST_DIR)/balloon-light-$(VERSION).deb $(DIST_DIR)/balloon-full-$(VERSION).deb
+deb: $(DIST_DIR)/balloon-light-$(VERSION).deb $(DIST_DIR)/balloon-full-$(VERSION).deb $(DIST_DIR)/balloon-apidoc-$(VERSION).deb
 
 $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
-	#$(COMPOSER_BIN) update --no-dev
+	$(COMPOSER_BIN) update --no-dev
 	@mkdir -p $(BUILD_DIR)/DEBIAN
 	@cp $(BASE_DIR)/packaging/debian/control-$* $(BUILD_DIR)/DEBIAN/control
 	@cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst
@@ -121,11 +122,19 @@ $(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon/src
 	@cp -Rp $(SRC_DIR)/.container.config.php $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/etc/balloon
-	@cp $(SRC_DIR)/config/config.yaml.dist $(BUILD_DIR)/etc/balloon
-	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/usr/share/balloon/config
+	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@dpkg-deb --build $(BUILD_DIR) $@
 	$(COMPOSER_BIN) update
+
+$(DIST_DIR)/balloon-apidoc-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
+	@mkdir -p $(APIDOC_BUILD_DIR)/DEBIAN
+	@cp $(BASE_DIR)/packaging/debian/control-apidoc $(APIDOC_BUILD_DIR)/DEBIAN/control
+	@sed -i s/'{version}'/$(VERSION)/g $(APIDOC_BUILD_DIR)/DEBIAN/control
+	@mkdir -p $(APIDOC_BUILD_DIR)/usr/share/balloon-apidoc
+	@cp -Rp $(DOC_DIR)/* $(APIDOC_BUILD_DIR)/usr/share/balloon-apidoc
+	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
+	@dpkg-deb --build $(APIDOC_BUILD_DIR) $@
 
 .PHONY: tar
 tar: $(TAR)

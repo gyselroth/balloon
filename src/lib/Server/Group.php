@@ -13,7 +13,6 @@ namespace Balloon\Server;
 
 use Balloon\Server;
 use Generator;
-use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
@@ -43,11 +42,11 @@ class Group implements RoleInterface
     protected $member = [];
 
     /**
-     * Last sync timestamp.
+     * Optional group attributes.
      *
-     * @var UTCDateTime
+     * @var array
      */
-    protected $last_attr_sync;
+    protected $optional = [];
 
     /**
      * Is group deleted?
@@ -76,13 +75,6 @@ class Group implements RoleInterface
      * @var UTCDateTime
      */
     protected $changed;
-
-    /**
-     * avatar.
-     *
-     * @var Binary
-     */
-    protected $avatar;
 
     /**
      * Namespace.
@@ -162,6 +154,7 @@ class Group implements RoleInterface
             'created' => $this->created,
             'changed' => $this->changed,
             'deleted' => $this->deleted,
+            'optional' => $this->optional,
         ];
     }
 

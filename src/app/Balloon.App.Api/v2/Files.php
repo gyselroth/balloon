@@ -106,6 +106,9 @@ class Files extends Nodes
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
+     * {
+     *      "id": "544627ed3c58891f058b4686"
+     * }
      *
      * @param string $id
      * @param string $p
@@ -115,8 +118,9 @@ class Files extends Nodes
      */
     public function postRestore(int $version, ?string $id = null, ?string $p = null): Response
     {
-        $result = $this->_getNode($id, $p)->restore($version);
-        $result = $this->decorator->decorate($result);
+        $node = $this->_getNode($id, $p);
+        $node->restore($version);
+        $result = $this->decorator->decorate($node);
 
         return (new Response())->setCode(200)->setBody($result);
     }

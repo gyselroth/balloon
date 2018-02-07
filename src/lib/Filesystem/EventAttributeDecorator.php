@@ -126,6 +126,7 @@ class EventAttributeDecorator
             'client' => isset($event['client']) ? $event['client'] : null,
             'previous' => $this->getPrevious($event),
             'node' => $this->getNode($event),
+            'share' => $this->getShare($event),
             'parent' => $this->getParent($event),
             'user' => $this->getUser($event),
         ];
@@ -232,7 +233,7 @@ class EventAttributeDecorator
      *
      * @return array
      */
-    protected function getShare(array $event): ?array
+    protected function getShare(array $event)// : ?array
     {
         try {
             if (isset($event['share']) && false === $event['share'] || !isset($event['share'])) {
@@ -265,6 +266,8 @@ class EventAttributeDecorator
                 } else {
                     $value = $result;
                 }
+            } elseif ($value === null) {
+                unset($attributes[$key]);
             }
         }
 

@@ -212,6 +212,8 @@ class AttributeDecorator
                 } else {
                     $value = $result;
                 }
+            } elseif ($value === null) {
+                unset($attributes[$key]);
             }
         }
 

@@ -217,7 +217,7 @@ class Nodes extends Controller
 
             return [
                 'code' => 200,
-                'data' => $this->decorator->deocrate($node),
+                'data' => $this->decorator->decorate($node),
             ];
         });
     }
