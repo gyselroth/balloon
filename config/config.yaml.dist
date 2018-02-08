@@ -93,7 +93,7 @@ Balloon\Filesystem:
   expose: true
 Balloon\Filesystem\Storage:
   calls:
-    Balloon\Filesystem\Storage\Adapter\Gridfs:
+    gridfs:
       method: injectAdapter
       arguments:
         adapter: '{Balloon\Filesystem\Storage\Adapter\Gridfs}'

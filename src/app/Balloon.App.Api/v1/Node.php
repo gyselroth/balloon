@@ -29,8 +29,8 @@ use Closure;
 use Generator;
 use Micro\Http\Response;
 use MongoDB\BSON\UTCDateTime;
-use PHPZip\Zip\Stream\ZipStream;
 use Psr\Log\LoggerInterface;
+use ZipStream\ZipStream;
 
 class Node extends Controller
 {
@@ -1392,11 +1392,21 @@ class Node extends Controller
         });
 
         $this->decorator->addDecorator('deleted', function ($node) {
-            return Helper::DateTimeToUnix($node->getAttributes()['deleted']);
+            $ts = $node->getAttributes()['deleted'];
+            if ($ts === false) {
+                return false;
+            }
+
+            return Helper::DateTimeToUnix($ts);
         });
 
         $this->decorator->addDecorator('destroy', function ($node) {
-            return Helper::DateTimeToUnix($node->getAttributes()['destroy']);
+            $ts = $node->getAttributes()['destroy'];
+            if ($ts === false) {
+                return false;
+            }
+
+            return Helper::DateTimeToUnix($ts);
         });
 
         $this->decorator->addDecorator('filtered', function ($node) {
@@ -1489,13 +1499,7 @@ class Node extends Controller
      */
     protected function combine($id = null, $path = null, string $name = 'selected')
     {
-        $temp = $this->server->getTempDir().DIRECTORY_SEPARATOR.'zip';
-        if (!file_exists($temp)) {
-            mkdir($temp, 0700, true);
-        }
-
-        ZipStream::$temp = $temp;
-        $archive = new ZipStream($name.'.zip', 'application/zip', $name.'.zip');
+        $archive = new ZipStream($name.'.zip');
 
         foreach ($this->_getNodes($id, $path) as $node) {
             try {

@@ -334,6 +334,7 @@ class Collection extends AbstractNode implements DAV\IQuota
         }
 
         return count(iterator_to_array($this->getChildNodes()));
+        return 0;
     }
 
     /**

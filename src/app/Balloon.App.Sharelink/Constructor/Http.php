@@ -82,7 +82,9 @@ class Http
             $attributes = $sharelink->getSharelink($node);
 
             if (isset($attributes['expiration'])) {
-                return (new DateTime($attributes['expiration']))->format('c');
+                $ts = (new DateTime())->setTimestamp($attributes['expiration']);
+
+                return $ts->format('c');
             }
         });
 

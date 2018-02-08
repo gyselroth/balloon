@@ -76,6 +76,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [!BREAKER] Removed plugin LdapAutoShare, use the API to automatically deploy resources
 * CORE: [CHANGE] The default file size limit is now 16G (Is configureable)
 * CORE: [!BREAKER] At least MongoDB 3.4 is required since aggregation $lookup calls are used (See upgrade guide)
+* CORE: [CHANGE] Migrated to ZipStream fork https://github.com/maennchen/ZipStream-PHP
 * API: [CHANGE] New API version v2 available, v1 is still fully functional, but new features are only available in v2. See upgrade guide.
 * API: [FEATURE] Implemented new endpoint GET /api/v2/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v2/about

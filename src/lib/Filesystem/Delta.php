@@ -573,7 +573,7 @@ class Delta
      */
     protected function findNodeAttributesWithCustomFilter(
         ?array $filter = null,
-        array $attributes = ['_id'],
+        array $attributes = ['id'],
         ?int $limit = null,
         ?int &$cursor = null,
         ?bool &$has_more = null,
@@ -607,7 +607,7 @@ class Delta
                 continue;
             }
 
-            $list[] = $this->decorator->decorate($node, $attributes);
+            $list[] = $this->decorator->decorate($node/*, $attributes*/);
         }
 
         $has_more = ($left - $count) > 0;

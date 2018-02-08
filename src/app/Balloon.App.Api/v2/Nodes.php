@@ -29,8 +29,8 @@ use Closure;
 use Generator;
 use Micro\Http\Response;
 use MongoDB\BSON\UTCDateTime;
-use PHPZip\Zip\Stream\ZipStream;
 use Psr\Log\LoggerInterface;
+use ZipStream\ZipStream;
 
 class Nodes extends Controller
 {
@@ -281,9 +281,7 @@ class Nodes extends Controller
 
         $node = $this->_getNode($id, $p);
         if ($node instanceof Collection) {
-            return (new Response())->setBody(function () use ($node) {
-                $node->getZip();
-            });
+            return $node->getZip();
         }
 
         $response = new Response();
@@ -306,6 +304,8 @@ class Nodes extends Controller
               $name = $node->getName();
 
               if (null === $stream) {
+                  echo '';
+
                   return;
               }
 
@@ -1246,13 +1246,7 @@ class Nodes extends Controller
      */
     protected function combine($id = null, $path = null, string $name = 'selected')
     {
-        $temp = $this->server->getTempDir().DIRECTORY_SEPARATOR.'zip';
-        if (!file_exists($temp)) {
-            mkdir($temp, 0700, true);
-        }
-
-        ZipStream::$temp = $temp;
-        $archive = new ZipStream($name.'.zip', 'application/zip', $name.'.zip');
+        $archive = new ZipStream($name.'.zip');
 
         foreach ($this->_getNodes($id, $path) as $node) {
             try {

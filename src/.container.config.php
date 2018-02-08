@@ -35,7 +35,7 @@ use Balloon\Migration\Delta\v1AclTov2Acl;
 use Balloon\Migration\Delta\ShareName;
 use Balloon\Migration\Delta\HexColorToGenericName;
 use Zend\Mail\Transport\TransportInterface;
-use Zend\Mail\Transport\Sendmail;
+use Zend\Mail\Transport\Smtp;
 use Balloon\Hook\Delta;
 use Balloon\Hook\AutoDestroy;
 use Balloon\Hook\CleanTrash;
@@ -168,6 +168,17 @@ return [
             ],
         ]
     ],
+    Storage::class => [
+        'calls' => [
+            'gridfs' => [
+                'method' => 'injectAdapter',
+                'arguments' => [
+                    'adapter' => '{'.Gridfs::class.'}',
+                    'name' => 'gridfs'
+                ]
+            ]
+        ]
+    ],
     Migration::class => [
         'calls' => [
             LdapGroupsToLocalGroups::class => [
@@ -241,6 +252,6 @@ return [
         ],
     ],
     TransportInterface::class => [
-        'use' => Sendmail::class
+        'use' => Smtp::class
     ],
 ];

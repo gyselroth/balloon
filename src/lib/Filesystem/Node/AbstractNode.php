@@ -24,8 +24,8 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Normalizer;
-use PHPZip\Zip\Stream\ZipStream;
 use Psr\Log\LoggerInterface;
+use ZipStream\ZipStream;
 
 abstract class AbstractNode implements NodeInterface
 {
@@ -731,15 +731,9 @@ abstract class AbstractNode implements NodeInterface
      */
     public function getZip(): void
     {
-        $temp = $this->_server->getTempDir().DIRECTORY_SEPARATOR.'zip';
-        if (!file_exists($temp)) {
-            mkdir($temp, 0700, true);
-        }
-
-        ZipStream::$temp = $temp;
-        $archive = new ZipStream($this->name.'.zip', 'application/zip', $this->name.'.zip');
+        $archive = new ZipStream($this->name.'.zip');
         $this->zip($archive, false);
-        $archive->finalize();
+        $archive->finish();
     }
 
     /**
@@ -763,9 +757,7 @@ abstract class AbstractNode implements NodeInterface
             $children = $parent->getChildNodes();
 
             if (true === $self && 0 === $depth) {
-                $path = $parent->getName();
-                $archive->addDirectory($path);
-                $path .= DIRECTORY_SEPARATOR;
+                $path = $parent->getName().DIRECTORY_SEPARATOR;
             } elseif (0 === $depth) {
                 $path = '';
             } elseif (0 !== $depth) {
@@ -776,11 +768,13 @@ abstract class AbstractNode implements NodeInterface
                 $name = $path.$child->getName();
 
                 if ($child instanceof Collection) {
-                    $archive->addDirectory($name);
                     $this->zip($archive, $self, $child, $name, ++$depth);
                 } elseif ($child instanceof File) {
                     try {
-                        $archive->addFile($child->get(), $name);
+                        $resource = $child->get();
+                        if ($resource !== null) {
+                            $archive->addFileFromStream($name, $resource);
+                        }
                     } catch (\Exception $e) {
                         $this->_logger->error('failed add file ['.$child->getId().'] to zip stream', [
                             'category' => get_class($this),
@@ -790,7 +784,10 @@ abstract class AbstractNode implements NodeInterface
                 }
             }
         } elseif ($parent instanceof File) {
-            $archive->addFile($parent->get(), $parent->getName());
+            $resource = $parent->get();
+            if ($resource !== null) {
+                $archive->addFileFromStream($parent->getName(), $resource);
+            }
         }
 
         return true;
@@ -1130,11 +1127,11 @@ abstract class AbstractNode implements NodeInterface
                 throw new Exception('meta attribute '.$attribute.' is not valid');
             }
 
-            if ($attribute === NodeInterface::META_TAGS && (!is_array($value) || array_filter($value, 'is_string') != $value)) {
-                throw new Exception('tag meta attribute must be an array of strings');
+            if ($attribute === NodeInterface::META_TAGS && !empty($value) && (!is_array($value) || array_filter($value, 'is_string') != $value)) {
+                throw new Exception('tags meta attribute must be an array of strings');
             }
 
-            if (!is_string($value)) {
+            if ($attribute !== NodeInterface::META_TAGS && !is_string($value)) {
                 throw new Exception($attribute.' meta attribute must be a string');
             }
         }

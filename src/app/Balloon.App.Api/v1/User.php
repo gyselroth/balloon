@@ -335,6 +335,42 @@ class User
     }
 
     /**
+     * @api {get} /api/v1/user/whoami Who am I?
+     * @apiVersion 1.0.0
+     * @apiName getWhoami
+     * @apiUse _getUser
+     * @apiGroup User
+     * @apiPermission none
+     * @apiDescription Get the username of the authenticated user
+     * If you want to receive your own username you have to leave the parameters uid and uname empty.
+     * Requesting this api with parameter uid or uname requires admin privileges.
+     *
+     * @apiExample Example usage:
+     * curl -XGET "https://SERVER/api/v2/user/whoami?pretty"
+     *
+     * @apiSuccess {number} code HTTP status code
+     * @apiSuccess {string} data Username
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *     "code": 200,
+     *     "data": "user"
+     * }
+     *
+     * @param string $uid
+     * @param string $uname
+     *
+     * @return Response
+     */
+    public function getWhoami(array $attributes = []): Response
+    {
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $this->_getUser()->getUsername(),
+        ]);
+    }
+
+    /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
      * @apiVersion 1.0.0
      * @apiName postQuota
