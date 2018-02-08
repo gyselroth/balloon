@@ -12,18 +12,19 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v1;
 
 use Balloon\App\Api\Controller;
+use Balloon\App\Api\v1\AttributeDecorator\EventDecorator;
+use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator;
+use Balloon\App\Api\v1\AttributeDecorator\RoleDecorator;
 use Balloon\App\Api\v1\Collection as ApiCollection;
+//use Balloon\Filesystem\EventAttributeDecorator;
 use Balloon\App\Api\v1\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
-use Balloon\Filesystem\EventAttributeDecorator;
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server;
-use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Closure;
 use Generator;
@@ -90,7 +91,7 @@ class Node extends Controller
      * @param AttributeDecorator $decorator
      * @param LoggerInterface    $logger
      */
-    public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, EventAttributeDecorator $event_decorator, LoggerInterface $logger)
+    public function __construct(Server $server, NodeDecorator $decorator, RoleDecorator $role_decorator, EventDecorator $event_decorator, LoggerInterface $logger)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
@@ -99,7 +100,6 @@ class Node extends Controller
         $this->logger = $logger;
         $this->role_decorator = $role_decorator;
         $this->event_decorator = $event_decorator;
-        $this->registerv1Attributes();
     }
 
     /**
@@ -1307,119 +1307,6 @@ class Node extends Controller
         }
 
         return $response;
-    }
-
-    /**
-     * Downgrade latest api attributes to v1 attributes.
-     */
-    protected function registerv1Attributes(): void
-    {
-        $server = $this->server;
-        $fs = $this->fs;
-
-        $this->decorator->addDecorator('parent', function ($node) {
-            $id = $node->getAttributes()['parent'];
-
-            if (null === $id) {
-                return null;
-            }
-
-            return (string) $id;
-        });
-
-        $this->decorator->addDecorator('shareowner', function ($node) use ($server, $fs) {
-            if (!$node->isSpecial()) {
-                return null;
-            }
-
-            try {
-                return $server->getUserById($fs->findRawNode($node->getShareId())['owner'])->getUsername();
-            } catch (\Exception $e) {
-                return null;
-            }
-        });
-
-        $this->decorator->addDecorator('history', function ($node) {
-            if ($node instanceof File) {
-                return $node->getHistory();
-            }
-
-            return null;
-        });
-
-        $this->decorator->addDecorator('filter', function ($node) {
-            return null;
-        });
-
-        $this->decorator->addDecorator('owner', function ($node) {
-            return null;
-        });
-
-        $this->decorator->addDecorator('shared', function ($node) {
-            return null;
-        });
-
-        $this->decorator->addDecorator('sharename', function ($node) {
-            return null;
-        });
-
-        $this->decorator->addDecorator('malware_quarantine', function ($node) {
-            return null;
-        });
-
-        $this->decorator->addDecorator('subscription', function ($node) {
-            return null;
-        });
-
-        $this->decorator->addDecorator('subscription_exclude_me', function ($node) {
-            return null;
-        });
-
-        $this->decorator->addDecorator('subscription_recursive', function ($node) {
-            return null;
-        });
-
-        $this->decorator->addDecorator('share', function ($node) {
-            return $node->isShare();
-        });
-
-        $this->decorator->addDecorator('created', function ($node) {
-            return Helper::DateTimeToUnix($node->getAttributes()['created']);
-        });
-
-        $this->decorator->addDecorator('changed', function ($node) {
-            return Helper::DateTimeToUnix($node->getAttributes()['changed']);
-        });
-
-        $this->decorator->addDecorator('deleted', function ($node) {
-            $ts = $node->getAttributes()['deleted'];
-            if ($ts === false) {
-                return false;
-            }
-
-            return Helper::DateTimeToUnix($ts);
-        });
-
-        $this->decorator->addDecorator('destroy', function ($node) {
-            $ts = $node->getAttributes()['destroy'];
-            if ($ts === false) {
-                return false;
-            }
-
-            return Helper::DateTimeToUnix($ts);
-        });
-
-        $this->decorator->addDecorator('filtered', function ($node) {
-            if (!($node instanceof Collection)) {
-                return null;
-            }
-
-            return $node->getAttributes()['filter'];
-        });
-
-        $this->role_decorator->addDecorator('username', function ($user) {
-            return $user->getAttributes()['username'];
-        });
     }
 
     /**
