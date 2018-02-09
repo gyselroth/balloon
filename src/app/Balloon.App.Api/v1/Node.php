@@ -66,21 +66,21 @@ class Node extends Controller
     /**
      * Decorator.
      *
-     * @var AttributeDecorator
+     * @var NodeDecorator
      */
     protected $decorator;
 
     /**
      * Role decorator.
      *
-     * @var RoleAttributeDecorator
+     * @var RoleDecorator
      */
     protected $role_decorator;
 
     /**
      * Event decorator.
      *
-     * @var EventAttributeDecorator
+     * @var EventDecorator
      */
     protected $event_decorator;
 

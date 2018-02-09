@@ -37,14 +37,14 @@ class EventDecorator
     /**
      * Node decorator.
      *
-     * @var NodeAttributeDecorator
+     * @var NodeDecorator
      */
     protected $node_decorator;
 
     /**
      * Role decorator.
      *
-     * @var RoleAttributeDecorator
+     * @var RoleDecorator
      */
     protected $role_decorator;
 
@@ -58,9 +58,9 @@ class EventDecorator
     /**
      * Init.
      *
-     * @param Server                 $server
-     * @param NodeAttributeDecorator $node_decorator
-     * @param RoleAttributeDecorator $role_decorator;
+     * @param Server        $server
+     * @param NodeDecorator $node_decorator
+     * @param RoleDecorator $role_decorator;
      */
     public function __construct(Server $server, NodeDecorator $node_decorator, RoleDecorator $role_decorator)
     {

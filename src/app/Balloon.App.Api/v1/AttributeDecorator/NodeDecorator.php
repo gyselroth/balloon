@@ -45,13 +45,6 @@ class NodeDecorator
     protected $acl;
 
     /**
-     * Role decorator.
-     *
-     * @var RoleAttributeDecorator
-     */
-    protected $role_decorator;
-
-    /**
      * Custom attributes.
      *
      * @var array
@@ -61,15 +54,13 @@ class NodeDecorator
     /**
      * Init.
      *
-     * @param Server        $server
-     * @param Acl           $acl
-     * @param RoleDecorator $role_decorator
+     * @param Server $server
+     * @param Acl    $acl
      */
-    public function __construct(Server $server, Acl $acl, RoleDecorator $role_decorator)
+    public function __construct(Server $server, Acl $acl)
     {
         $this->server = $server;
         $this->acl = $acl;
-        $this->role_decorator = $role_decorator;
     }
 
     /**
@@ -136,7 +127,6 @@ class NodeDecorator
         $acl = $this->acl;
         $server = $this->server;
         $fs = $this->server->getFilesystem();
-        $decorator = $this->role_decorator;
 
         return [
             'id' => (string) $attributes['id'],
@@ -180,7 +170,7 @@ class NodeDecorator
                     return null;
                 }
             },
-            'shareowner' => function ($node) use ($server, $fs, $decorator) {
+            'shareowner' => function ($node) use ($server, $fs) {
                 if (!$node->isSpecial()) {
                     return null;
                 }
