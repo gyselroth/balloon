@@ -124,7 +124,7 @@ class Mail implements AdapterInterface
         }
 
         $this->async->addJob(MailJob::class, $mail->toString(), [
-            Async::OPTION_RETRY => 2,
+            Async::OPTION_RETRY => 1,
         ]);
 
         return true;
