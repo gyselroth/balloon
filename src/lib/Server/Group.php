@@ -148,7 +148,7 @@ class Group implements RoleInterface
     public function getAttributes(): array
     {
         return [
-            'id' => $this->_id,
+            '_id' => $this->_id,
             'name' => $this->name,
             'namespace' => $this->namespace,
             'created' => $this->created,

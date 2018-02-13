@@ -12,15 +12,12 @@ declare(strict_types=1);
 namespace Balloon\App\Convert\Api\v2;
 
 use Balloon\App\Api\Controller;
-use Balloon\App\Convert\Exception;
-use Balloon\App\Convert\Job;
-use Balloon\Converter;
+use Balloon\App\Convert\Converter;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
-use TaskScheduler\Async;
 
 class Convert extends Controller
 {
@@ -30,13 +27,6 @@ class Convert extends Controller
      * @var Converter
      */
     protected $converter;
-
-    /**
-     * Async.
-     *
-     * @var Async
-     */
-    protected $async;
 
     /**
      * Filesystem.
@@ -50,13 +40,11 @@ class Convert extends Controller
      *
      * @param Converter $converter
      * @param Server    $server
-     * @param Async     $async
      */
-    public function __construct(Converter $converter, Server $server, Async $async)
+    public function __construct(Converter $converter, Server $server)
     {
         $this->fs = $server->getFilesystem();
         $this->converter = $converter;
-        $this->async = $async;
     }
 
     /**
@@ -114,9 +102,23 @@ class Convert extends Controller
     public function getSlaves(?string $id = null, ?string $p = null): Response
     {
         $file = $this->fs->getNode($id, $p, File::class);
-        $slaves = $file->getAppAttribute('Balloon\\App\\Convert', 'slaves');
+        $body = [];
 
-        return (new Response())->setCode(200)->setBody((array) $slaves);
+        foreach ($this->converter->getSlaves($file) as $slave) {
+            $element = [
+                'id' => (string) $slave['_id'],
+                'master' => (string) $slave['master'],
+                'format' => $slave['format'],
+            ];
+
+            if (isset($slave['slave'])) {
+                $element['slave'] = (string) $slave['slave'];
+            }
+
+            $body[] = $element;
+        }
+
+        return (new Response())->setCode(200)->setBody($body);
     }
 
     /**
@@ -132,9 +134,10 @@ class Convert extends Controller
      * curl -XPOST "https://SERVER/api/v2/files/convert/slave?id=544627ed3c58891f058b4686"
      *
      * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 201 Created
+     * HTTP/1.1 200 OK
      * {
-     *      "id": "944627ed3c58891f058b4686",
+     *      "id": "944627ed3c58891f058b468e",
+     *      "master": "944627ed3c58891f058b4686",
      *      "format": "png",
      * }
      *
@@ -145,32 +148,13 @@ class Convert extends Controller
     public function postSlaves(string $format, ?string $id = null, ?string $p = null): Response
     {
         $file = $this->fs->getNode($id, $p, File::class);
-        $supported = $this->converter->getSupportedFormats($file);
+        $id = $this->converter->addSlave($file, $format);
 
-        $slaves = $file->getAppAttribute('Balloon\\App\\Convert', 'slaves');
-        if (null === $slaves) {
-            $slaves = [];
-        }
-
-        if (!in_array($format, $supported, true)) {
-            throw new Exception('format '.$format.' is not available for file');
-        }
-
-        $id = new ObjectId();
-
-        $this->async->addJob(Job::class, [
-            'node' => $file->getId(),
-            'slave' => $id,
-        ]);
-
-        $slaves[(string) $id] = [
-            '_id' => $id,
+        return (new Response())->setCode(200)->setBody([
+            'id' => (string) $id,
+            'master' => (string) $file->getId(),
             'format' => $format,
-        ];
-
-        $file->setAppAttribute('Balloon\\App\\Convert', 'slaves', $slaves);
-
-        return (new Response())->setCode(201)->setBody((string) $id);
+        ]);
     }
 
     /**
@@ -193,22 +177,10 @@ class Convert extends Controller
      * @param string $slave
      * @param bool   $node
      */
-    public function deleteSlaves(string $slave, ?string $id = null, ?string $p = null, bool $node = false): Response
+    public function deleteSlaves(ObjectId $id, bool $node = false): Response
     {
-        $file = $this->fs->getNode($id, $p, File::class);
+        $this->converter->deleteSlave($id, $node);
 
-        $slaves = $file->getAppAttribute('Balloon\\App\\Convert', 'slaves');
-        if (isset($slaves[$slave])) {
-            if (true === $node && isset($slaves[$slave]['node'])) {
-                $this->fs->getNodeById($slaves[$slave]['node'], File::class)->delete();
-            }
-
-            unset($slaves[$slave]);
-            $file->setAppAttribute('Balloon\\App\\Convert', 'slaves', $slaves);
-
-            return (new Response())->setCode(204);
-        }
-
-        throw new Exception('slave not found', Exception::SLAVE_NOT_FOUND);
+        return (new Response())->setCode(204);
     }
 }

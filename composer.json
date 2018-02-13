@@ -28,7 +28,7 @@
         "gyselroth/micro-auth": "*",
         "gyselroth/micro-container": "*",
         "gyselroth/micro-http": "^0.0.4",
-        "elasticsearch/elasticsearch": "6.*",
+        "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",
         "grandt/binstring": "0.2.0",

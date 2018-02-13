@@ -264,7 +264,7 @@ class User implements RoleInterface
     public function getAttributes(): array
     {
         return [
-            'id' => $this->_id,
+            '_id' => $this->_id,
             'username' => $this->username,
             'locale' => $this->locale,
             'namespace' => $this->namespace,

@@ -824,7 +824,7 @@ abstract class AbstractNode implements NodeInterface
     public function setAppAttributes(string $namespace, array $attributes): NodeInterface
     {
         $this->app[$namespace] = $attributes;
-        $this->save('app');
+        $this->save('app.'.$namespace);
 
         return $this;
     }
@@ -845,7 +845,7 @@ abstract class AbstractNode implements NodeInterface
         }
 
         $this->app[$namespace][$attribute] = $value;
-        $this->save('app');
+        $this->save('app.'.$namespace);
 
         return $this;
     }
@@ -861,7 +861,7 @@ abstract class AbstractNode implements NodeInterface
     {
         if (isset($this->app[$namespace])) {
             unset($this->app[$namespace]);
-            $this->save('app');
+            $this->save('app.'.$namespace);
         }
 
         return $this;
@@ -879,7 +879,7 @@ abstract class AbstractNode implements NodeInterface
     {
         if (isset($this->app[$namespace][$attribute])) {
             unset($this->app[$namespace][$attribute]);
-            $this->save('app');
+            $this->save('app'.$namespace);
         }
 
         return $this;
@@ -1069,9 +1069,9 @@ abstract class AbstractNode implements NodeInterface
 
         try {
             $set = [];
-
+            $values = $this->getAttributes();
             foreach ($attributes as $attr) {
-                $set[$attr] = $this->{$attr};
+                $set[$attr] = $this->getArrayValue($values, $attr);
             }
 
             $update = [];
@@ -1110,6 +1110,33 @@ abstract class AbstractNode implements NodeInterface
 
             throw $e;
         }
+    }
+
+    /**
+     * Get array value via string path.
+     *
+     * @param iterable $arr
+     * @param string   $path
+     * @param string   $seperator
+     *
+     * @return mixed
+     */
+    protected function getArrayValue(Iterable $array, string $path, string $separator = '.')
+    {
+        if (isset($array[$path])) {
+            return $array[$path];
+        }
+        $keys = explode($separator, $path);
+
+        foreach ($keys as $key) {
+            if (!isset($array[$key])) {
+                throw new Exception('array path not found');
+            }
+
+            $array = $array[$key];
+        }
+
+        return $array;
     }
 
     /**

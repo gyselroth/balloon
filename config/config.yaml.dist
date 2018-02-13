@@ -112,10 +112,6 @@ Balloon\Hook:
       method: injectHook
       arguments:
         hook: '{Balloon\Hook\AutoDestroy}'
-    Balloon\App\Elasticsearch\Hook:
-      method: injectHook
-      arguments:
-        hook: '{Balloon\App\Elasticsearch\Hook}'
   services:
     Balloon\Hook\Delta:
     Balloon\Hook\AutoCreateUser:

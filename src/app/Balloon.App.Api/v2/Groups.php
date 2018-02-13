@@ -135,7 +135,7 @@ class Groups
     }
 
     /**
-     * @api {get} /api/v2/group/:id/member Get group member
+     * @api {get} /api/v2/groups/:id/member Get group member
      * @apiVersion 2.0.0
      * @apiName getMember
      * @apiUse _getGroup
@@ -144,9 +144,9 @@ class Groups
      * @apiDescription Request all member of a group
      *
      * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/group/member?pretty"
-     * curl -XGET "https://SERVER/api/v2/group/544627ed3c58891f058b4611/member?pretty"
-     * curl -XGET "https://SERVER/api/v2/group/member?name=logingroup&pretty"
+     * curl -XGET "https://SERVER/api/v2/groups/member?pretty"
+     * curl -XGET "https://SERVER/api/v2/groups/544627ed3c58891f058b4611/member?pretty"
+     * curl -XGET "https://SERVER/api/v2/groups/member?name=logingroup&pretty"
      *
      * @apiSuccess {object[]} - List of user
      * @apiSuccess {string} -.id User ID
@@ -179,7 +179,7 @@ class Groups
     }
 
     /**
-     * @api {get} /api/v2/group/:id Get group attributes
+     * @api {get} /api/v2/groups/:id Get group attributes
      * @apiVersion 2.0.0
      * @apiName get
      * @apiUse _getGroup
@@ -188,9 +188,9 @@ class Groups
      * @apiDescription Get group attributes
      *
      * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/group/attributes?pretty"
-     * curl -XGET "https://SERVER/api/v2/group/544627ed3c58891f058b4611/attributes?pretty"
-     * curl -XGET "https://SERVER/api/v2/group/attributes?name=loginser&pretty"
+     * curl -XGET "https://SERVER/api/v2/groups/attributes?pretty"
+     * curl -XGET "https://SERVER/api/v2/groups/544627ed3c58891f058b4611/attributes?pretty"
+     * curl -XGET "https://SERVER/api/v2/groups/attributes?name=loginser&pretty"
      *
      * @apiSuccess (200 OK) {string} id group ID
      * @apiSuccess (200 OK) {string} name group name
@@ -208,15 +208,22 @@ class Groups
      *
      * @return Response
      */
-    public function get(?string $id = null, ?string $name = null, array $attributes = []): Response
+    public function get(?string $id = null, ?string $name = null, array $filter = [], array $attributes = []): Response
     {
-        $result = $this->decorator->decorate($this->_getGroup($id, $name), $attributes);
+        if ($id === null && $name === null) {
+            $result = [];
+            foreach ($this->server->getGroups($filter) as $group) {
+                $result[] = $this->decorator->decorate($group, $attributes);
+            }
+        } else {
+            $result = $this->decorator->decorate($this->_getGroup($id, $name), $attributes);
+        }
 
         return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
-     * @api {head} /api/v2/group/:id Group exists
+     * @api {head} /api/v2/groups/:id Group exists
      * @apiVersion 2.0.0
      * @apiName postQuota
      * @apiUse _getGroup
@@ -226,7 +233,7 @@ class Groups
      *
      * @apiExample Example usage:
      * curl -XHEAD "https://SERVER/api/v2/group"
-     * curl -XHEAD "https://SERVER/api/v2/group/544627ed3c58891f058b4611"
+     * curl -XHEAD "https://SERVER/api/v2/groups/544627ed3c58891f058b4611"
      * curl -XHEAD "https://SERVER/api/v2/group?name=logingroup"
      *
      * @apiSuccessExample {json} Success-Response:
@@ -284,7 +291,7 @@ class Groups
     }
 
     /**
-     * @api {patch} /api/v2/group/:id Change group attributes
+     * @api {patch} /api/v2/groups/:id Change group attributes
      * @apiVersion 2.0.0
      * @apiName patch
      * @apiUse _getGroup
@@ -293,13 +300,13 @@ class Groups
      * @apiDescription Set attributes for group
      *
      * @apiExample Example usage:
-     * curl -XPOST "https://SERVER/api/v2/group/attributes" -d '{"attributes": ["mail": "group@example.com"]}'
-     * curl -XPOST "https://SERVER/api/v2/group/attributes?{%22attributes%22:[%22mail%22:%22group@example.com%22]}""
-     * curl -XPOST "https://SERVER/api/v2/group/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
-     * curl -XPOST "https://SERVER/api/v2/group/quota?name=logingroup"  -d '{"attributes": ["admin": "false"]}'
+     * curl -XPOST "https://SERVER/api/v2/groups/attributes" -d '{"attributes": ["mail": "group@example.com"]}'
+     * curl -XPOST "https://SERVER/api/v2/groups/attributes?{%22attributes%22:[%22mail%22:%22group@example.com%22]}""
+     * curl -XPOST "https://SERVER/api/v2/groups/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
+     * curl -XPOST "https://SERVER/api/v2/groups/quota?name=logingroup"  -d '{"attributes": ["admin": "false"]}'
      *
      * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 200 OK
      *
      * @param string $name
      * @param string $id
@@ -309,13 +316,14 @@ class Groups
      */
     public function patch(array $attributes = [], ?string $id = null, ?string $name = null): Response
     {
-        $this->_getGroup($id, $name, true)->setAttributes($attributes);
+        $group = $this->_getGroup($id, $name, true)->setAttributes($attributes);
+        $result = $this->decorator->decorate($group);
 
-        return (new Response())->setCode(204);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
-     * @api {delete} /api/v2/group/:id Delete group
+     * @api {delete} /api/v2/groups/:id Delete group
      * @apiVersion 2.0.0
      * @apiName delete
      * @apiUse _getGroup
@@ -324,7 +332,7 @@ class Groups
      * @apiDescription Delete group
      *
      * @apiExample Example usage:
-     * curl -XDELETE "https://SERVER/api/v2/group/544627ed3c58891f058b4611?force=1"
+     * curl -XDELETE "https://SERVER/api/v2/groups/544627ed3c58891f058b4611?force=1"
      * curl -XDELETE "https://SERVER/api/v2/group?name=logingroup"
      *
      * @apiParam (GET Parameter) {bool} [force=false] Per default the group gets disabled, if force is set
@@ -358,7 +366,7 @@ class Groups
     }
 
     /**
-     * @api {post} /api/v2/group/:id/undelete Restore group
+     * @api {post} /api/v2/groups/:id/undelete Restore group
      * @apiVersion 2.0.0
      * @apiName postUndelete
      * @apiUse _getGroup
@@ -367,8 +375,8 @@ class Groups
      * @apiDescription Restore deleted group
      *
      * @apiExample Example usage:
-     * curl -XPOST "https://SERVER/api/v2/group/544627ed3c58891f058b4611/undelete"
-     * curl -XPOST "https://SERVER/api/v2/group/undelete?group=logingroup"
+     * curl -XPOST "https://SERVER/api/v2/groups/544627ed3c58891f058b4611/undelete"
+     * curl -XPOST "https://SERVER/api/v2/groups/undelete?group=logingroup"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content

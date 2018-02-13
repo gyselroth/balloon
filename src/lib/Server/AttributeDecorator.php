@@ -13,7 +13,6 @@ namespace Balloon\Server;
 
 use Balloon\Server;
 use Closure;
-use MongoDB\BSON\Binary;
 
 class AttributeDecorator
 {
@@ -97,7 +96,7 @@ class AttributeDecorator
     protected function getAttributes(RoleInterface $role, array $attributes): array
     {
         $user = $this->server->getIdentity();
-        if ($user === null || $attributes['id'] != $user->getId() && !$user->isAdmin()) {
+        if ($user === null || $attributes['_id'] != $user->getId() && !$user->isAdmin()) {
             return [];
         }
 
@@ -133,7 +132,7 @@ class AttributeDecorator
         }
 
         return [
-            'id' => (string) $attributes['id'],
+            'id' => (string) $attributes['_id'],
             'name' => $attributes['name'],
             'namespace' => $attributes['namespace'],
         ];
@@ -156,23 +155,16 @@ class AttributeDecorator
         $user = $this->server->getIdentity();
 
         return [
-            'id' => (string) $attributes['id'],
+            'id' => (string) $attributes['_id'],
             'name' => (string) $attributes['username'],
             'namespace' => (string) $attributes['namespace'],
             'mail' => (string) $attributes['mail'],
-            'avatar' => function ($role, $requested) use ($attributes) {
-                if ($attributes['avatar'] instanceof Binary) {
-                    return base64_encode($attributes['avatar']->getData());
-                }
-
-                return null;
-            },
             'soft_quota' => function ($role, $requested) use ($attributes, $user) {
                 if ($user === null) {
                     return null;
                 }
 
-                if ($attributes['id'] == $user->getId() || $user->isAdmin()) {
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
                     return $attributes['soft_quota'];
                 }
 
@@ -183,7 +175,7 @@ class AttributeDecorator
                     return null;
                 }
 
-                if ($attributes['id'] == $user->getId() || $user->isAdmin()) {
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
                     return $attributes['hard_quota'];
                 }
 

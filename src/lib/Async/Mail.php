@@ -49,6 +49,7 @@ class Mail extends AbstractJob
      */
     public function start(): bool
     {
+        $this->transport->disconnect();
         $mail = Message::fromString($this->data);
 
         $this->logger->debug('send mail ['.$mail->getSubject().']', [

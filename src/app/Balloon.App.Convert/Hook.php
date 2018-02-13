@@ -57,16 +57,8 @@ class Hook extends AbstractHook
      */
     protected function addJob(File $node): void
     {
-        $slaves = $node->getAppAttribute(__NAMESPACE__, 'slaves');
-        if (null === $slaves) {
-            return;
-        }
-
-        foreach ($slaves as $id => $slave) {
-            $this->async->addJob(Job::class, [
-                'node' => $node->getId(),
-                'slave' => $id,
-            ]);
-        }
+        $this->async->addJob(Job::class, [
+            'master' => $node->getId(),
+        ]);
     }
 }

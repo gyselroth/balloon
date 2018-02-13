@@ -136,7 +136,7 @@ class RoleDecorator
         }
 
         return [
-            'id' => (string) $attributes['id'],
+            'id' => (string) $attributes['_id'],
             'name' => $attributes['name'],
             'namespace' => $attributes['namespace'],
         ];
@@ -159,7 +159,7 @@ class RoleDecorator
         $user = $this->server->getIdentity();
 
         return [
-            'id' => (string) $attributes['id'],
+            'id' => (string) $attributes['_id'],
             'name' => (string) $attributes['username'],
             'namespace' => (string) $attributes['namespace'],
             'mail' => (string) $attributes['mail'],
@@ -175,7 +175,7 @@ class RoleDecorator
                     return null;
                 }
 
-                if ($attributes['id'] == $user->getId() || $user->isAdmin()) {
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
                     return $attributes['soft_quota'];
                 }
 
@@ -186,7 +186,7 @@ class RoleDecorator
                     return null;
                 }
 
-                if ($attributes['id'] == $user->getId() || $user->isAdmin()) {
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
                     return $attributes['hard_quota'];
                 }
 

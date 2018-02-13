@@ -129,7 +129,7 @@ class NodeDecorator
         $fs = $this->server->getFilesystem();
 
         return [
-            'id' => (string) $attributes['id'],
+            'id' => (string) $attributes['_id'],
             'name' => (string) $attributes['name'],
             'mime' => (string) $attributes['mime'],
             'readonly' => (bool) $attributes['readonly'],

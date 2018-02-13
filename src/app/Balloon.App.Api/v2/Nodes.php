@@ -608,7 +608,7 @@ class Nodes extends Controller
      * curl -XPOST "https://SERVER/api/v2/node/name?p=/absolute/path/to/my/node&name=newname.txt"
      *
      * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 200 OK
      *
      * @param string $id
      * @param string $p
@@ -618,9 +618,11 @@ class Nodes extends Controller
      */
     public function postName(string $name, ?string $id = null, ?string $p = null): Response
     {
-        $this->_getNode($id, $p)->setName($name);
+        $node = $this->_getNode($id, $p);
+        $node->setName($name);
+        $result = $this->decorator->decorate($node);
 
-        return (new Response())->setCode(204);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**

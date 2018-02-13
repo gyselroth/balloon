@@ -432,16 +432,19 @@ class File extends AbstractNode
     public function getAttributes(): array
     {
         return [
-            'id' => $this->_id,
+            '_id' => $this->_id,
             'name' => $this->name,
             'hash' => $this->hash,
+            'directory' => false,
             'size' => $this->size,
             'version' => $this->version,
             'parent' => $this->parent,
             'acl' => $this->acl,
+            'app' => $this->app,
             'meta' => $this->meta,
             'mime' => $this->mime,
             'owner' => $this->owner,
+            'history' => $this->history,
             'shared' => $this->shared,
             'deleted' => $this->deleted,
             'changed' => $this->changed,

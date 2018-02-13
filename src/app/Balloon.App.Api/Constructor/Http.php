@@ -47,6 +47,9 @@ class Http
         $router
             ->appendRoute(new Route('/api/v2/users', v2\Users::class))
             ->appendRoute(new Route('/api/v2/users/{uid:#([0-9a-z]{24})#}', v2\Users::class))
+            ->appendRoute(new Route('/api/v2/groups', v2\Groups::class))
+            ->appendRoute(new Route('/api/v2/groups/{uid:#([0-9a-z]{24})#}', v2\Groups::class))
+            ->appendRoute(new Route('/api/v2/resource', v2\Resource::class))
             ->appendRoute(new Route('/api/v2/resource', v2\Resource::class))
             ->appendRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}', v2\Files::class))
             ->appendRoute(new Route('/api/v2/files', v2\Files::class))
