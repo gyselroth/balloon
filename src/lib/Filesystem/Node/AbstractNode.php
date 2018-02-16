@@ -1129,8 +1129,8 @@ abstract class AbstractNode implements NodeInterface
         $keys = explode($separator, $path);
 
         foreach ($keys as $key) {
-            if (!isset($array[$key])) {
-                throw new Exception('array path not found');
+            if (!array_key_exists($key, $array)) {
+                return;
             }
 
             $array = $array[$key];

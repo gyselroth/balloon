@@ -233,7 +233,7 @@ class EventAttributeDecorator
      *
      * @return array
      */
-    protected function getShare(array $event)// : ?array
+    protected function getShare(array $event): ?array
     {
         try {
             if (isset($event['share']) && false === $event['share'] || !isset($event['share'])) {

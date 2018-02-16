@@ -16,14 +16,14 @@ use Balloon\App\Api\v2\Collections as ApiCollection;
 use Balloon\App\Api\v2\Files as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\DeltaAttributeDecorator;
 use Balloon\Filesystem\EventAttributeDecorator;
-use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server;
-use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Closure;
 use Generator;
@@ -63,44 +63,26 @@ class Nodes extends Controller
     protected $user;
 
     /**
-     * Decorator.
+     * Node attribute decorator.
      *
-     * @var AttributeDecorator
+     * @var NodeAttributeDecorator
      */
-    protected $decorator;
-
-    /**
-     * Role decorator.
-     *
-     * @var RoleAttributeDecorator
-     */
-    protected $role_decorator;
-
-    /**
-     * Event decorator.
-     *
-     * @var EventAttributeDecorator
-     */
-    protected $event_decorator;
+    protected $node_decorator;
 
     /**
      * Initialize.
      *
-     * @param Server                  $server
-     * @param AttributeDecorator      $decorator
-     * @param RoleAttributeDecorator  $role_decorator
-     * @param EventAttributeDecorator $event_decorator
-     * @param LoggerInterface         $logger
+     * @param Server                 $server
+     * @param NodeAttributeDecorator $decorator
+     * @param LoggerInterface        $logger
      */
-    public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator, EventAttributeDecorator $event_decorator, LoggerInterface $logger)
+    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
-        $this->decorator = $decorator;
+        $this->node_decorator = $decorator;
         $this->logger = $logger;
-        $this->role_decorator = $role_decorator;
-        $this->event_decorator = $event_decorator;
     }
 
     /**
@@ -217,7 +199,7 @@ class Nodes extends Controller
 
             return [
                 'code' => 200,
-                'data' => $this->decorator->decorate($node),
+                'data' => $this->node_decorator->decorate($node),
             ];
         });
     }
@@ -468,13 +450,13 @@ class Nodes extends Controller
         if (is_array($id) || is_array($p)) {
             $nodes = [];
             foreach ($this->_getNodes($id, $p) as $node) {
-                $nodes[] = $this->decorator->decorate($node, $attributes);
+                $nodes[] = $this->node_decorator->decorate($node, $attributes);
             }
 
             return (new Response())->setCode(200)->setBody($nodes);
         }
 
-        $result = $this->decorator->decorate($this->_getNode($id, $p), $attributes);
+        $result = $this->node_decorator->decorate($this->_getNode($id, $p), $attributes);
 
         return (new Response())->setCode(200)->setBody($result);
     }
@@ -539,11 +521,11 @@ class Nodes extends Controller
         $result = [];
 
         if (true === $self && $request instanceof Collection) {
-            $result[] = $this->decorator->decorate($request, $attributes);
+            $result[] = $this->node_decorator->decorate($request, $attributes);
         }
 
         foreach ($parents as $node) {
-            $result[] = $this->decorator->decorate($node, $attributes);
+            $result[] = $this->node_decorator->decorate($node, $attributes);
         }
 
         return (new Response())->setCode(200)->setBody($result);
@@ -620,7 +602,7 @@ class Nodes extends Controller
     {
         $node = $this->_getNode($id, $p);
         $node->setName($name);
-        $result = $this->decorator->decorate($node);
+        $result = $this->node_decorator->decorate($node);
 
         return (new Response())->setCode(200)->setBody($result);
     }
@@ -682,7 +664,7 @@ class Nodes extends Controller
 
             return [
                 'code' => $parent == $result ? 200 : 201,
-                'data' => $this->decorator->decorate($result),
+                'data' => $this->node_decorator->decorate($result),
             ];
         });
     }
@@ -746,7 +728,7 @@ class Nodes extends Controller
 
             return [
                 'code' => 200,
-                'data' => $this->decorator->decorate($node),
+                'data' => $this->node_decorator->decorate($node),
             ];
         });
     }
@@ -854,7 +836,7 @@ class Nodes extends Controller
         $nodes = $this->fs->findNodesByFilterUser($deleted, $filter);
 
         foreach ($nodes as $node) {
-            $child = $this->decorator->decorate($node, $attributes);
+            $child = $this->node_decorator->decorate($node, $attributes);
             $children[] = $child;
         }
 
@@ -902,7 +884,7 @@ class Nodes extends Controller
             } catch (\Exception $e) {
             }
 
-            $child = $this->decorator->decorate($node, $attributes);
+            $child = $this->node_decorator->decorate($node, $attributes);
             $children[] = $child;
         }
 
@@ -964,15 +946,17 @@ class Nodes extends Controller
      *      ]
      * }
      *
-     * @param string $id
-     * @param string $p
-     * @param string $cursor
-     * @param int    $limit
-     * @param array  $attributes
+     * @param DeltaAttributeDecorator $delta_decorator
+     * @param string                  $id
+     * @param string                  $p
+     * @param string                  $cursor
+     * @param int                     $limit
+     * @param array                   $attributes
      *
      * @return Response
      */
     public function getDelta(
+        DeltaAttributeDecorator $delta_decorator,
         ?string $id = null,
         ?string $p = null,
         ?string $cursor = null,
@@ -985,7 +969,14 @@ class Nodes extends Controller
             $node = null;
         }
 
-        $result = $this->fs->getDelta()->getDeltaFeed($cursor, $limit, $attributes, $node);
+        $result = $this->fs->getDelta()->getDeltaFeed($cursor, $limit, $node);
+        foreach ($result['nodes'] as &$node) {
+            if ($node instanceof NodeInterface) {
+                $node = $this->node_decorator->decorate($node, $attributes);
+            } else {
+                $node = $delta_decorator->decorate($node, $attributes);
+            }
+        }
 
         return (new Response())->setCode(200)->setBody($result);
     }
@@ -1071,14 +1062,15 @@ class Nodes extends Controller
      *  }
      * ]
      *
-     * @param string $id
-     * @param string $p
-     * @param int    $skip
-     * @param int    $limit
+     * @param EventAttributeDecorator $event_decorator
+     * @param string                  $id
+     * @param string                  $p
+     * @param int                     $skip
+     * @param int                     $limit
      *
      * @return Response
      */
-    public function getEventLog(?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100): Response
+    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100): Response
     {
         if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
@@ -1089,7 +1081,7 @@ class Nodes extends Controller
         $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);
         $body = [];
         foreach ($result as $event) {
-            $body[] = $this->event_decorator->decorate($event);
+            $body[] = $event_decorator->decorate($event);
         }
 
         return (new Response())->setCode(200)->setBody($body);

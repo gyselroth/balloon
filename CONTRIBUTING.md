@@ -72,22 +72,5 @@ Add the following script to your git pre-commit hook file, otherwise your build 
 ./vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v
 ```
 
-This automatically converts your code into the code style guidelines of this project.
+This automatically converts your code into the code style guidelines of this project otherwise your build will fail!
 
-
-Please make sure that you're following:
-* [PSR-1](http://www.php-fig.org/psr/psr-1/)
-* [PSR-2](http://www.php-fig.org/psr/psr-2/)
-
-Please also follow the following policy in addition to PSR-1 and PSR-2:
-
-* Abstract classes named with an Abstract prefix: AbstractExample.php
-* Interfaces named with an Interface suffix: ExampleInterface.php
-* Traits named with a Trait prefix: TraitExample.php
-* Variables named with underscore (_) and not camelCase
-* All methods must declare return types whenever possible (except testsuite)
-* All method parameters must be declared with strict types (string, int, bool, array) (except testsuite)
-* Every API controller must be documented with apidoc compatible doctags
-* Designed with Dependency Injection pattern, no registries, no singletons, to static clases, no static methods
-* yield whenever possible, do not use return where it makes sense to yield values
-* log as many things as possible, clear understandable messsages (everything in lowercase), wrap variables in []

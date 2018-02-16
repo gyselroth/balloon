@@ -14,12 +14,10 @@ namespace Balloon;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta;
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage;
-use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectId;
@@ -176,11 +174,7 @@ class Filesystem
             return $this->delta;
         }
 
-        return $this->delta = new Delta($this, $this->db, new AttributeDecorator(
-            $this->server,
-            $this->acl,
-            new RoleAttributeDecorator($this->server)
-        ));
+        return $this->delta = new Delta($this, $this->db);
     }
 
     /**
@@ -581,6 +575,10 @@ class Filesystem
         }
 
         if (!$this->acl->isAllowed($instance, 'r')) {
+            if ($instance->isReference()) {
+                $instance->delete(true);
+            }
+
             throw new ForbiddenException(
                 'not allowed to access node',
                 ForbiddenException::NOT_ALLOWED_TO_ACCESS

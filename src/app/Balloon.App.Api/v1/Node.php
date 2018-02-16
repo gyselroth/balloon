@@ -12,11 +12,10 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v1;
 
 use Balloon\App\Api\Controller;
+use Balloon\App\Api\v1\AttributeDecorator\DeltaDecorator;
 use Balloon\App\Api\v1\AttributeDecorator\EventDecorator;
 use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator;
-use Balloon\App\Api\v1\AttributeDecorator\RoleDecorator;
 use Balloon\App\Api\v1\Collection as ApiCollection;
-//use Balloon\Filesystem\EventAttributeDecorator;
 use Balloon\App\Api\v1\File as ApiFile;
 use Balloon\Exception;
 use Balloon\Filesystem;
@@ -68,38 +67,22 @@ class Node extends Controller
      *
      * @var NodeDecorator
      */
-    protected $decorator;
-
-    /**
-     * Role decorator.
-     *
-     * @var RoleDecorator
-     */
-    protected $role_decorator;
-
-    /**
-     * Event decorator.
-     *
-     * @var EventDecorator
-     */
-    protected $event_decorator;
+    protected $node_decorator;
 
     /**
      * Initialize.
      *
-     * @param Server             $server
-     * @param AttributeDecorator $decorator
-     * @param LoggerInterface    $logger
+     * @param Server          $server
+     * @param NodeDecorator   $decorator
+     * @param LoggerInterface $logger
      */
-    public function __construct(Server $server, NodeDecorator $decorator, RoleDecorator $role_decorator, EventDecorator $event_decorator, LoggerInterface $logger)
+    public function __construct(Server $server, NodeDecorator $decorator, LoggerInterface $logger)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
-        $this->decorator = $decorator;
+        $this->node_decorator = $decorator;
         $this->logger = $logger;
-        $this->role_decorator = $role_decorator;
-        $this->event_decorator = $event_decorator;
     }
 
     /**
@@ -494,7 +477,7 @@ class Node extends Controller
         if (is_array($id) || is_array($p)) {
             $nodes = [];
             foreach ($this->_getNodes($id, $p) as $node) {
-                $nodes[] = $this->decorator->decorate($node, $attributes);
+                $nodes[] = $this->node_decorator->decorate($node, $attributes);
             }
 
             return (new Response())->setCode(200)->setBody([
@@ -503,7 +486,7 @@ class Node extends Controller
             ]);
         }
 
-        $result = $this->decorator->decorate($this->_getNode($id, $p), $attributes);
+        $result = $this->node_decorator->decorate($this->_getNode($id, $p), $attributes);
 
         return (new Response())->setCode(200)->setBody([
             'code' => 200,
@@ -589,11 +572,11 @@ class Node extends Controller
         $result = [];
 
         if (true === $self && $request instanceof Collection) {
-            $result[] = $this->decorator->decorate($request, $attributes);
+            $result[] = $this->node_decorator->decorate($request, $attributes);
         }
 
         foreach ($parents as $node) {
-            $result[] = $this->decorator->decorate($node, $attributes);
+            $result[] = $this->node_decorator->decorate($node, $attributes);
         }
 
         return (new Response())->setCode(200)->setBody([
@@ -906,7 +889,7 @@ class Node extends Controller
         $nodes = $this->fs->findNodesByFilterUser($deleted, $filter);
 
         foreach ($nodes as $node) {
-            $child = $this->decorator->decorate($node, $attributes);
+            $child = $this->node_decorator->decorate($node, $attributes);
             $children[] = $child;
         }
 
@@ -958,7 +941,7 @@ class Node extends Controller
             } catch (\Exception $e) {
             }
 
-            $child = $this->decorator->decorate($node, $attributes);
+            $child = $this->node_decorator->decorate($node, $attributes);
             $children[] = $child;
         }
 
@@ -1049,15 +1032,17 @@ class Node extends Controller
      *      }
      * }
      *
-     * @param string $id
-     * @param string $p
-     * @param string $cursor
-     * @param int    $limit
-     * @param array  $attributes
+     * @param DeltaDecorator $delta_decorator
+     * @param string         $id
+     * @param string         $p
+     * @param string         $cursor
+     * @param int            $limit
+     * @param array          $attributes
      *
      * @return Response
      */
     public function getDelta(
+        DeltaDecorator $delta_decorator,
         ?string $id = null,
         ?string $p = null,
         ?string $cursor = null,
@@ -1070,7 +1055,15 @@ class Node extends Controller
             $node = null;
         }
 
-        $result = $this->fs->getDelta()->getDeltaFeed($cursor, $limit, $attributes, $node);
+        $result = $this->fs->getDelta()->getDeltaFeed($cursor, $limit, $node);
+
+        foreach ($result['nodes'] as &$node) {
+            if ($node instanceof NodeInterface) {
+                $node = $this->node_decorator->decorate($node, $attributes);
+            } else {
+                $node = $delta_decorator->decorate($node, $attributes);
+            }
+        }
 
         return (new Response())->setCode(200)->setBody([
             'code' => 200,
@@ -1174,14 +1167,15 @@ class Node extends Controller
      *      ]
      * }
      *
-     * @param string $id
-     * @param string $p
-     * @param int    $skip
-     * @param int    $limit
+     * @param EventDecorator $event_decorator
+     * @param string         $id
+     * @param string         $p
+     * @param int            $skip
+     * @param int            $limit
      *
      * @return Response
      */
-    public function getEventLog(?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100): Response
+    public function getEventLog(EventDecorator $event_decorator, ?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100): Response
     {
         if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
@@ -1189,14 +1183,10 @@ class Node extends Controller
             $node = null;
         }
 
-        $this->event_decorator->addDecorator('timestamp', function (array $event) {
-            return Helper::DateTimeToUnix($event['timestamp']);
-        });
-
         $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);
         $body = [];
         foreach ($result as $event) {
-            $body[] = $this->event_decorator->decorate($event);
+            $body[] = $event_decorator->decorate($event);
         }
 
         return (new Response())->setCode(200)->setBody([

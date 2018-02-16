@@ -13,14 +13,11 @@ namespace Balloon\Filesystem;
 
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Helper;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
-use MongoDB\Driver\Cursor;
 
 class Delta
 {
@@ -46,13 +43,6 @@ class Delta
     protected $user;
 
     /**
-     * Decorator.
-     *
-     * @var AttributeDecorator
-     */
-    protected $decorator;
-
-    /**
      * Client.
      *
      * @var array
@@ -69,12 +59,11 @@ class Delta
      *
      * @param Filesystem $fs
      */
-    public function __construct(Filesystem $fs, Database $db, AttributeDecorator $decorator)
+    public function __construct(Filesystem $fs, Database $db)
     {
         $this->fs = $fs;
         $this->db = $db;
         $this->user = $fs->getUser();
-        $this->decorator = $decorator;
         $this->parseClient();
     }
 
@@ -111,12 +100,11 @@ class Delta
      *
      * @param array         $cursor
      * @param int           $limit
-     * @param array         $attributes
      * @param NodeInterface $node
      *
      * @return array
      */
-    public function buildFeedFromCurrentState(?array $cursor = null, int $limit = 100, array $attributes = [], ?NodeInterface $node = null): array
+    public function buildFeedFromCurrentState(?array $cursor = null, int $limit = 100, ?NodeInterface $node = null): array
     {
         $current_cursor = 0;
         $filter = ['$and' => [
@@ -138,7 +126,6 @@ class Delta
 
         $children = $this->findNodeAttributesWithCustomFilter(
             $filter,
-            $attributes,
             $limit,
             $current_cursor,
             $has_more,
@@ -161,13 +148,13 @@ class Delta
             if (false === $has_more) {
                 $cursor = base64_encode('delta|0|0|'.$delta_id.'|'.$ts);
             } else {
-                $cursor = base64_encode('initial|'.$current_cursor.'|'.end($children)['id'].'|'.$delta_id.'|'.$ts);
+                $cursor = base64_encode('initial|'.$current_cursor.'|'.end($children)->getId().'|'.$delta_id.'|'.$ts);
             }
         } else {
             if (false === $has_more) {
                 $cursor = base64_encode('delta|0|0|'.$cursor[3].'|'.$cursor[4]);
             } else {
-                $cursor = base64_encode('initial|'.$current_cursor.'|'.end($children)['id'].'|'.$cursor[3].'|'.$cursor[4]);
+                $cursor = base64_encode('initial|'.$current_cursor.'|'.end($children)->getId().'|'.$cursor[3].'|'.$cursor[4]);
             }
         }
 
@@ -244,73 +231,23 @@ class Delta
      *
      * @param string        $cursor
      * @param int           $limit
-     * @param array         $attributes
      * @param NodeInterface $node
      *
      * @return array
      */
-    public function getDeltaFeed(?string $cursor = null, int $limit = 250, array $attributes = [], ?NodeInterface $node = null): array
+    public function getDeltaFeed(?string $cursor = null, int $limit = 250, ?NodeInterface $node = null): array
     {
-        /*$attributes = array_merge(
-            ['id', 'directory', 'deleted',  'path', 'changed', 'created', 'owner'],
-            $attributes
-        );*/
-
-        $cursor = $this->decodeCursor($cursor);
-
-        if (null === $cursor || 'initial' === $cursor[0]) {
-            return $this->buildFeedFromCurrentState($cursor, $limit, $attributes, $node);
+        $query = $this->getDeltaQuery($cursor, $limit, $node);
+        if (array_key_exists('nodes', $query)) {
+            return $query;
         }
 
-        try {
-            if (0 === $cursor[3]) {
-                $filter = $this->getDeltaFilter();
-            } else {
-                //check if delta entry actually exists
-                if (0 === $this->db->delta->count(['_id' => new ObjectId($cursor[3])])) {
-                    return $this->buildFeedFromCurrentState(null, $limit, $attributes, $node);
-                }
+        $delta = [];
 
-                $filter = $this->getDeltaFilter();
-                $filter = [
-                    '$and' => [
-                        ['timestamp' => ['$gte' => new UTCDateTime($cursor[4])]],
-                        ['_id' => ['$gt' => new ObjectId($cursor[3])]],
-                        $filter,
-                    ],
-                ];
-            }
-
-            $result = $this->db->delta->find($filter, [
-                'skip' => (int) $cursor[1],
-                'limit' => (int) $limit,
-                'sort' => ['timestamp' => 1],
-            ]);
-
-            $left = $this->db->delta->count($filter, [
-                'skip' => (int) $cursor[1],
-                'sort' => ['timestamp' => 1],
-            ]);
-
-            $result = $result->toArray();
-            $count = count($result);
-            $list = [];
-            $last_id = $cursor[3];
-            $last_ts = $cursor[4];
-        } catch (\Exception $e) {
-            return $this->buildFeedFromCurrentState(null, $limit, $attributes, $node);
-        }
-
-        $cursor = $cursor[1] += $limit;
-        $has_more = ($left - $count) > 0;
-        if (false === $has_more) {
-            $cursor = 0;
-        }
-
-        foreach ($result as $log) {
-            if (false === $has_more) {
-                $last_id = (string) $log['_id'];
-                $last_ts = (string) $log['timestamp'];
+        foreach ($query['result'] as $log) {
+            if (false === $query['has_more']) {
+                $query['last_id'] = (string) $log['_id'];
+                $query['last_ts'] = (string) $log['timestamp'];
             }
 
             try {
@@ -329,11 +266,9 @@ class Delta
 
                     foreach ($members as $share_member) {
                         $member_attrs = $this->decorator->decorate($share_member, $attributes);
-                        $list[$member_attrs['path']] = $member_attrs;
+                        $delta[$share_member->getPath()] = $share_member;
                     }
                 }
-
-                $fields = $this->decorator->decorate($log_node, $attributes);
 
                 if (array_key_exists('previous', $log)) {
                     if (array_key_exists('parent', $log['previous'])) {
@@ -351,7 +286,7 @@ class Delta
                             $previous_path = $parent->getPath().DIRECTORY_SEPARATOR.$log['previous']['name'];
                         }
                     } else {
-                        $list[$fields['path']] = $fields;
+                        $delta[$log_node->getPath()] = $log_node;
 
                         continue;
                     }
@@ -360,54 +295,34 @@ class Delta
                         'id' => (string) $log['node'],
                         'deleted' => true,
                         'created' => null,
-                        'changed' => Helper::DateTimeToUnix($log['timestamp']),
+                        'changed' => $log['timestamp'],
                         'path' => $previous_path,
                         'directory' => $fields['directory'],
                     ];
 
-                    $list[$previous_path] = $deleted_node;
-                    $list[$fields['path']] = $fields;
+                    $delta[$previous_path] = $deleted_node;
+                    $delta[$log_node->getPath()] = $log_node;
                 } else {
-                    $list[$fields['path']] = $fields;
+                    $delta[$log_node->getPath()] = $log_node;
                 }
             } catch (ForbiddenException $e) {
                 //no delta entriy for a node where we do not have access to
             } catch (\Exception $e) {
-                try {
-                    if (null === $log['parent']) {
-                        $path = DIRECTORY_SEPARATOR.$log['name'];
-                    } else {
-                        $parent = $this->fs->findNodeById($log['parent']);
-                        $path = $parent->getPath().DIRECTORY_SEPARATOR.$log['name'];
-                    }
+                $deleted = $this->getDeletedNodeDelta();
 
-                    $entry = [
-                        'id' => (string) $log['node'],
-                        'deleted' => true,
-                        'created' => null,
-                        'changed' => Helper::DateTimeToUnix($log['timestamp']),
-                        'path' => $path,
-                    ];
-
-                    if ('deleteCollection' === substr($log['operation'], 0, 16)) {
-                        $entry['directory'] = true;
-                    } elseif ('deleteFile' === substr($log['operation'], 0, 10)) {
-                        $entry['directory'] = false;
-                    }
-
-                    $list[$path] = $entry;
-                } catch (\Exception $e) {
+                if ($deleted !== null) {
+                    $delta[$deleted['path']] = $deleted;
                 }
             }
         }
 
-        $cursor = base64_encode('delta|'.$cursor.'|0|'.$last_id.'|'.$last_ts);
+        $cursor = base64_encode('delta|'.$query['cursor'].'|0|'.$query['last_id'].'|'.$query['last_ts']);
 
         return [
             'reset' => false,
             'cursor' => $cursor,
-            'has_more' => $has_more,
-            'nodes' => array_values($list),
+            'has_more' => $query['has_more'],
+            'nodes' => array_values($delta),
         ];
     }
 
@@ -418,9 +333,9 @@ class Delta
      * @param int           $skip
      * @param NodeInterface $node
      *
-     * @return Cursor
+     * @return iterable
      */
-    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null): Cursor
+    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null): Iterable
     {
         $filter = $this->getDeltaFilter();
 
@@ -439,6 +354,123 @@ class Delta
         ]);
 
         return $result;
+    }
+
+    /**
+     * Get delta feed filter.
+     *
+     * @param array $cursor
+     *
+     * @return array
+     */
+    protected function buildDeltaFeedFilter(array $cursor, int $limit, ?NodeInterface $node): array
+    {
+        if (0 === $cursor[3]) {
+            return $this->getDeltaFilter();
+        }
+
+        if (0 === $this->db->delta->count(['_id' => new ObjectId($cursor[3])])) {
+            return $this->buildFeedFromCurrentState(null, $limit, $node);
+        }
+
+        $filter = $this->getDeltaFilter();
+
+        return [
+            '$and' => [
+                ['timestamp' => ['$gte' => new UTCDateTime($cursor[4])]],
+                ['_id' => ['$gt' => new ObjectId($cursor[3])]],
+                $filter,
+            ],
+        ];
+    }
+
+    /**
+     * Get delta feed with changes and cursor.
+     *
+     * @param string        $cursor
+     * @param int           $limit
+     * @param NodeInterface $node
+     *
+     * @return array
+     */
+    protected function getDeltaQuery(?string $cursor = null, int $limit = 250, ?NodeInterface $node = null): array
+    {
+        $cursor = $this->decodeCursor($cursor);
+
+        if (null === $cursor || 'initial' === $cursor[0]) {
+            return $this->buildFeedFromCurrentState($cursor, $limit, $node);
+        }
+
+        try {
+            $filter = $this->buildDeltaFeedFilter($cursor, $limit, $node);
+
+            $result = $this->db->delta->find($filter, [
+                'skip' => (int) $cursor[1],
+                'limit' => (int) $limit,
+                'sort' => ['timestamp' => 1],
+            ]);
+
+            $left = $this->db->delta->count($filter, [
+                'skip' => (int) $cursor[1],
+                'sort' => ['timestamp' => 1],
+            ]);
+
+            $result = $result->toArray();
+            $count = count($result);
+        } catch (\Exception $e) {
+            return $this->buildFeedFromCurrentState(null, $limit, $node);
+        }
+
+        $cursor = $cursor[1] += $limit;
+        $has_more = ($left - $count) > 0;
+        if (false === $has_more) {
+            $cursor = 0;
+        }
+
+        return [
+            'result' => $result,
+            'has_more' => true,
+            'cursor' => $cursor,
+            'last_id' => $cursor[3],
+            'last_ts' => $cursor[4],
+        ];
+    }
+
+    /**
+     * Get delta event for a (forced) deleted node.
+     *
+     * @param array $event
+     *
+     * @return array
+     */
+    protected function getDeletedNodeDelta(array $event): ?array
+    {
+        try {
+            if (null === $event['parent']) {
+                $path = DIRECTORY_SEPARATOR.$event['name'];
+            } else {
+                $parent = $this->fs->findNodeById($event['parent']);
+                $path = $parent->getPath().DIRECTORY_SEPARATOR.$event['name'];
+            }
+
+            $entry = [
+                'id' => (string) $event['node'],
+                'deleted' => true,
+                'created' => null,
+                'changed' => $event['timestamp'],
+                'path' => $path,
+            ];
+
+            if ('deleteCollection' === substr($event['operation'], 0, 16)) {
+                $entry['directory'] = true;
+            } elseif ('deleteFile' === substr($event['operation'], 0, 10)) {
+                $entry['directory'] = false;
+            }
+
+            return $entry;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
@@ -499,22 +531,6 @@ class Delta
     }
 
     /**
-     * Verify delta structure.
-     *
-     * @param array $options
-     *
-     * @return bool
-     */
-    protected function isValidDeltaEvent(array $options): bool
-    {
-        if (!array_key_exists('operation', $options)) {
-            return false;
-        }
-
-        return array_key_exists('owner', $options) || array_key_exists('share', $options);
-    }
-
-    /**
      * Decode cursor.
      *
      * @param string $cursor
@@ -563,7 +579,6 @@ class Delta
      * Get children with custom filter.
      *
      * @param array         $filter
-     * @param array         $attributes
      * @param int           $limit
      * @param string        $cursor
      * @param bool          $has_more
@@ -573,13 +588,12 @@ class Delta
      */
     protected function findNodeAttributesWithCustomFilter(
         ?array $filter = null,
-        array $attributes = ['id'],
         ?int $limit = null,
         ?int &$cursor = null,
         ?bool &$has_more = null,
         ?NodeInterface $parent = null
     ) {
-        $list = [];
+        $delta = [];
 
         $result = $this->db->storage->find($filter, [
             'skip' => $cursor,
@@ -607,11 +621,9 @@ class Delta
                 continue;
             }
 
-            $list[] = $this->decorator->decorate($node/*, $attributes*/);
+            $delta[] = $node;
         }
 
-        $has_more = ($left - $count) > 0;
-
-        return $list;
+        return $delta;
     }
 }

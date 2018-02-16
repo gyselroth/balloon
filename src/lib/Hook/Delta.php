@@ -108,8 +108,6 @@ class Delta extends AbstractHook
             return;
         }
 
-        $event = $node->getAttributes(['parent']);
-
         if ($node->isReference()) {
             if (true === $force) {
                 $operation = 'forceDeleteCollectionReference';
@@ -125,6 +123,7 @@ class Delta extends AbstractHook
         }
 
         $event['force'] = $force;
+        $event['parent'] = $node->getAttributes()['parent'];
         $node->getFilesystem()->getDelta()->add($operation, $node, $event);
     }
 
@@ -137,14 +136,13 @@ class Delta extends AbstractHook
             return;
         }
 
-        $event = $node->getAttributes(['parent']);
-
         if (true === $force) {
             $operation = 'forceDeleteFile';
         } else {
             $operation = 'deleteFile';
         }
 
+        $event['parent'] = $node->getAttributes()['parent'];
         $event['force'] = $force;
         $node->getFilesystem()->getDelta()->add($operation, $node, $event);
     }

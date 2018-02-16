@@ -13,6 +13,7 @@ namespace Balloon\App\Api\v2;
 
 use Balloon\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
 
 class Collections extends Nodes
@@ -107,7 +108,7 @@ class Collections extends Nodes
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
 
         foreach ($nodes as $node) {
-            $children[] = $this->decorator->decorate($node, $attributes);
+            $children[] = $this->node_decorator->decorate($node, $attributes);
         }
 
         return (new Response())->setCode(200)->setBody($children);
@@ -148,13 +149,14 @@ class Collections extends Nodes
      *      ]
      *}
      *
-     * @param string $id
-     * @param string $p
-     * @param array  $attributes
+     * @param RoleAttributeDecorator $role_decorator
+     * @param string                 $id
+     * @param string                 $p
+     * @param array                  $attributes
      *
      * @return Response
      */
-    public function getShare(?string $id = null, ?string $p = null, array $attributes = []): Response
+    public function getShare(RoleAttributeDecorator $role_decorator, ?string $id = null, ?string $p = null, array $attributes = []): Response
     {
         $node = $this->fs->getNode($id, $p);
 
@@ -165,7 +167,7 @@ class Collections extends Nodes
         $acl = $node->getAcl();
 
         foreach ($acl as &$rule) {
-            $rule['role'] = $this->role_decorator->decorate($rule['role'], $attributes);
+            $rule['role'] = $role_decorator->decorate($rule['role'], $attributes);
         }
 
         return (new Response())->setCode(200)->setBody([
@@ -214,7 +216,7 @@ class Collections extends Nodes
     {
         $node = $this->fs->getNode($id, $p);
         $node->share($acl, $name);
-        $result = $this->decorator->decorate($node);
+        $result = $this->node_decorator->decorate($node);
 
         return (new Response())->setCode(200)->setBody($result);
     }
@@ -317,7 +319,7 @@ class Collections extends Nodes
             $name = basename($p);
             $parent = $this->fs->findNodeByPath($parent_path, NodeCollection::class);
             $result = $parent->addDirectory($name, $attributes, $conflict);
-            $result = $this->decorator->decorate($result);
+            $result = $this->node_decorator->decorate($result);
 
             return (new Response())->setCode(201)->setBody($result);
         }
@@ -331,7 +333,7 @@ class Collections extends Nodes
         }
 
         $result = $parent->addDirectory($name, $attributes, $conflict);
-        $result = $this->decorator->decorate($result);
+        $result = $this->node_decorator->decorate($result);
 
         return (new Response())->setCode(201)->setBody($result);
     }

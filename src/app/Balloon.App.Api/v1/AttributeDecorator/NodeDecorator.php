@@ -105,6 +105,13 @@ class NodeDecorator
         return $this;
     }
 
+    /**
+     * Parse v1 attribute filter requests.
+     *
+     * @param array
+     *
+     * @return array
+     */
     protected function parseAttributes(array $attributes): array
     {
         foreach ($attributes as &$attribute) {
@@ -256,13 +263,6 @@ class NodeDecorator
             return [
                 'version' => $attributes['version'],
                 'hash' => $attributes['hash'],
-                'history' => function ($node) {
-                    if ($node instanceof File) {
-                        return $node->getHistory();
-                    }
-
-                    return null;
-                },
             ];
         }
 

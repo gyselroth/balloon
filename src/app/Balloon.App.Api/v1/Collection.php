@@ -109,7 +109,7 @@ class Collection extends Node
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
 
         foreach ($nodes as $node) {
-            $children[] = $this->decorator->decorate($node, $attributes);
+            $children[] = $this->node_decorator->decorate($node, $attributes);
         }
 
         return (new Response())->setCode(200)->setBody([
@@ -156,13 +156,14 @@ class Collection extends Node
      *      }
      *}
      *
-     * @param string $id
-     * @param string $p
-     * @param array  $attributes
+     * @param RoleDecorator $role_decorator
+     * @param string        $id
+     * @param string        $p
+     * @param array         $attributes
      *
      * @return Response
      */
-    public function getShare(?string $id = null, ?string $p = null, array $attributes = []): Response
+    public function getShare(RoleDecorator $role_decorator, ?string $id = null, ?string $p = null, array $attributes = []): Response
     {
         $node = $this->fs->getNode($id, $p);
 
@@ -173,7 +174,7 @@ class Collection extends Node
         $acl = $node->getAcl();
 
         foreach ($acl as &$rule) {
-            $rule['role'] = $this->role_decorator->decorate($rule['role'], $attributes);
+            $rule['role'] = $role_decorator->decorate($rule['role'], $attributes);
         }
 
         return (new Response())->setCode(200)->setBody([

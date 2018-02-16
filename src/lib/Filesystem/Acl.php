@@ -126,7 +126,7 @@ class Acl
             }
 
             if ((string) $share['owner'] === (string) $user->getId()) {
-                return 'rw';
+                return 'm';
             }
 
             $acl = $share['acl'];
@@ -139,8 +139,6 @@ class Acl
                     'exception' => $e,
                 ]);
 
-                $node->delete(true);
-
                 return 'd';
             }
 
@@ -148,8 +146,6 @@ class Acl
                 $this->logger->error('share node ['.$share['_id'].'] has been deleted, dead reference?', [
                     'category' => get_class($this),
                 ]);
-
-                $node->delete(true);
 
                 return 'd';
             }

@@ -87,20 +87,21 @@ class Gridfs implements AdapterInterface
             return true;
         }
 
-        $ref = $exists['metadata']['ref'];
+        $references = $exists['metadata']['ref'];
+        $key = array_search($file->getId(), array_column($references, 'id'));
 
-        $key = array_search($file->getId(), array_column($ref, 'id'));
-        if ($key !== false) {
-            unset($ref[$key]);
+        if (!isset($references[$key]) && count($references) > 1) {
+            return true;
         }
-
-        if (count($ref) >= 1) {
+        if (count($references) > 1) {
             $this->logger->debug('gridfs content node ['.$exists['_id'].'] still has references left, just remove the reference ['.$file->getId().']', [
                 'category' => get_class($this),
             ]);
 
             $this->db->{'fs.files'}->updateOne(['_id' => $exists['_id']], [
-                '$set' => ['metadata.ref' => $ref],
+                '$pull' => [
+                    'metadata.ref' => $references[$key],
+                ],
             ]);
         } else {
             $this->logger->debug('gridfs content node ['.$exists['_id'].'] has no references left, delete node completely', [

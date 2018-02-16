@@ -49,7 +49,6 @@ class Mail extends AbstractJob
      */
     public function start(): bool
     {
-        $this->transport->disconnect();
         $mail = Message::fromString($this->data);
 
         $this->logger->debug('send mail ['.$mail->getSubject().']', [
@@ -57,6 +56,10 @@ class Mail extends AbstractJob
         ]);
 
         $this->transport->send($mail);
+        $connection = $this->transport->getConnection();
+        $connection->rset();
+        $connection->quit();
+        $connection->disconnect();
 
         return true;
     }

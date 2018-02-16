@@ -44,7 +44,7 @@ class Migration
      *
      * @var string
      */
-    protected $meta_collection = 'delta';
+    protected $meta_collection = 'migration';
 
     /**
      * Construct.
@@ -53,7 +53,7 @@ class Migration
      * @param LoggerInterface $logger
      * @param string          $meta_collection
      */
-    public function __construct(Database $db, LoggerInterface $logger, string $meta_collection = 'delta')
+    public function __construct(Database $db, LoggerInterface $logger, string $meta_collection = 'migration')
     {
         $this->db = $db;
         $this->logger = $logger;

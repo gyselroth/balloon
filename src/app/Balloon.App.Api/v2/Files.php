@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v2;
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
@@ -59,12 +60,13 @@ class Files extends Nodes
      *  }
      * ]
      *
-     * @param string $id
-     * @param string $p
+     * @param RoleAttributeDecorator $role_decorator
+     * @param string                 $id
+     * @param string                 $p
      *
      * @return Response
      */
-    public function getHistory(?string $id = null, ?string $p = null): Response
+    public function getHistory(RoleAttributeDecorator $role_decorator, ?string $id = null, ?string $p = null): Response
     {
         $result = $this->_getNode($id, $p)->getHistory();
         $body = [];
@@ -73,7 +75,7 @@ class Files extends Nodes
                 $user = null;
             } else {
                 $user = $this->server->getUserById($version['user']);
-                $user = $this->role_decorator->decorate($user, ['id', 'name', '_links']);
+                $user = $role_decorator->decorate($user, ['id', 'name', '_links']);
             }
 
             $body[] = [
@@ -120,7 +122,7 @@ class Files extends Nodes
     {
         $node = $this->_getNode($id, $p);
         $node->restore($version);
-        $result = $this->decorator->decorate($node);
+        $result = $this->node_decorator->decorate($node);
 
         return (new Response())->setCode(200)->setBody($result);
     }
@@ -483,14 +485,14 @@ class Files extends Nodes
             if (null !== $p) {
                 $node = $this->_getNode(null, $p);
                 $result = $node->put($content, false, $attributes);
-                $result = $this->decorator->decorate($node);
+                $result = $this->node_decorator->decorate($node);
 
                 return (new Response())->setCode(200)->setBody($result);
             }
             if (null !== $id && null === $collection) {
                 $node = $this->_getNode($id);
                 $result = $node->put($content, false, $attributes);
-                $result = $this->decorator->decorate($node);
+                $result = $this->node_decorator->decorate($node);
 
                 return (new Response())->setCode(200)->setBody($result);
             }
@@ -500,7 +502,7 @@ class Files extends Nodes
                 if ($collection->childExists($name)) {
                     $child = $collection->getChild($name);
                     $result = $child->put($content, false, $attributes);
-                    $result = $this->decorator->decorate($child);
+                    $result = $this->node_decorator->decorate($child);
 
                     return (new Response())->setCode(200)->setBody($result);
                 }
@@ -509,7 +511,7 @@ class Files extends Nodes
                 }
 
                 $result = $collection->addFile($name, $content, $attributes);
-                $result = $this->decorator->decorate($result);
+                $result = $this->node_decorator->decorate($result);
 
                 return (new Response())->setCode(201)->setBody($result);
             }
@@ -535,7 +537,7 @@ class Files extends Nodes
                     }
 
                     $result = $parent->addFile($name, $content, $attributes);
-                    $result = $this->decorator->decorate($result);
+                    $result = $this->node_decorator->decorate($result);
 
                     return (new Response())->setCode(201)->setBody($result);
                 } catch (Exception\NotFound $e) {
