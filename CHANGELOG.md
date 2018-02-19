@@ -77,6 +77,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [CHANGE] The default file size limit is now 16G (Is configureable)
 * CORE: [!BREAKER] At least MongoDB 3.4 is required since aggregation $lookup calls are used (See upgrade guide)
 * CORE: [CHANGE] Migrated to ZipStream fork https://github.com/maennchen/ZipStream-PHP
+* CORE: [CHANGE] Drastically increased performance for reading children (Since nodes are counted on db instead programatically), also added aggregation #104
 * API: [CHANGE] New API version v2 available, v1 is still fully functional, but new features are only available in v2. See upgrade guide.
 * API: [FEATURE] Implemented new endpoint GET /api/v2/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v2/about
@@ -111,6 +112,8 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] Renamed most api v2 endpoints to the plural form
 * API: [CHANGE] Most POST/PUT/PATCH requests do now respond with 200 OK and return the entire object instead just 204 or 200 with an ID
 * API: [CHANGE] Removed GET /api/v2/nodes/share-link, those attributes are now attached to the node output object
+* API: [CHANGE] Removed GET /api/v2/nodes/query, query can be placed via GET /api/v2/nodes|files|collections
+* API: [CHANGE] Removed GET /api/v2/resources, query can be placed via GET /api/v2/users/groups
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 * PACKAGING: [FEATURE] Full packaging support for deb/tar packages #53
 * PACKAGING: [FEATURE] Full suport for docker container, also provides docker-compose.yml and docker-compose-dev.yml as sample deployment

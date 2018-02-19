@@ -1057,6 +1057,9 @@ class Node extends Controller
 
         $result = $this->fs->getDelta()->getDeltaFeed($cursor, $limit, $node);
 
+        $default = ['id', 'deleted', 'created', 'changed', 'path', 'directory'];
+        $attributes = array_merge($default, $attributes);
+
         foreach ($result['nodes'] as &$node) {
             if ($node instanceof NodeInterface) {
                 $node = $this->node_decorator->decorate($node, $attributes);

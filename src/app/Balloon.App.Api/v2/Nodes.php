@@ -445,7 +445,7 @@ class Nodes extends Controller
      *
      * @return Response
      */
-    public function get($id = null, $p = null, array $attributes = []): Response
+    public function get($id = null, $p = null, int $deleted = 0, ?array $filter = null, array $attributes = []): Response
     {
         if (is_array($id) || is_array($p)) {
             $nodes = [];
@@ -454,6 +454,23 @@ class Nodes extends Controller
             }
 
             return (new Response())->setCode(200)->setBody($nodes);
+        }
+        if ($filter !== null) {
+            if ($this instanceof ApiFile) {
+                $filter['directory'] = false;
+            } elseif ($this instanceof ApiCollection) {
+                $filter['directory'] = true;
+            }
+
+            $nodes = $this->fs->findNodesByFilterUser($deleted, $filter);
+            $children = [];
+
+            foreach ($nodes as $node) {
+                $child = $this->node_decorator->decorate($node, $attributes);
+                $children[] = $child;
+            }
+
+            return (new Response())->setCode(200)->setBody($children);
         }
 
         $result = $this->node_decorator->decorate($this->_getNode($id, $p), $attributes);
@@ -791,56 +808,6 @@ class Nodes extends Controller
                 'code' => 204,
             ];
         });
-    }
-
-    /**
-     * @api {get} /api/v2/node/query Custom query
-     * @apiVersion 2.0.0
-     * @apiName getQuery
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription A custom query is similar requet to children. You do not have to provide any parent node (id or p)
-     * but you have to provide a filter therefore you can collect any nodes which do match the provided filter. It is a form of a search
-     * (search) but does not use the search engine like GET /node/search does. You can also create a persistent query collection, just look at
-     * POST /collection, there you can attach a filter option to the attributes paramater which would be the same as a custom query but just persistent.
-     * Since query parameters can only be strings and you perhaps would like to filter other data types, you have to send json as parameter to the server.
-     * @apiUse _nodeAttributes
-     *
-     * @apiExample (cURL) example:
-     * curl -XGET https://SERVER/api/v2/node/query?{%22filter%22:{%22shared%22:true,%22reference%22:{%22$exists%22:0}}}
-     *
-     * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
-     * @apiParam (GET Parameter) {string[]} [filter] Filter nodes
-     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
-     * - 0 Exclude deleted</br>
-     * - 1 Only deleted</br>
-     * - 2 Include deleted</br>
-     *
-     * @apiSuccess (200 OK) {object[]} - List of nodes
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "status":200,
-     *      "data": [{..}, {...}] //Shorted
-     * }
-     *
-     * @param int   $deleted
-     * @param array $filter
-     * @param array $attributes
-     *
-     * @return Response
-     */
-    public function getQuery(int $deleted = 0, array $filter = [], array $attributes = []): Response
-    {
-        $children = [];
-        $nodes = $this->fs->findNodesByFilterUser($deleted, $filter);
-
-        foreach ($nodes as $node) {
-            $child = $this->node_decorator->decorate($node, $attributes);
-            $children[] = $child;
-        }
-
-        return (new Response())->setCode(200)->setBody($children);
     }
 
     /**
