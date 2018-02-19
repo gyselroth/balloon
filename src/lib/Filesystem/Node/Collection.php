@@ -32,13 +32,6 @@ class Collection extends AbstractNode implements DAV\IQuota
     const ROOT_FOLDER = '/';
 
     /**
-     * Children.
-     *
-     * @var array
-     */
-    protected $children;
-
-    /**
      * Share acl.
      *
      * @var array
@@ -214,6 +207,52 @@ class Collection extends AbstractNode implements DAV\IQuota
     }
 
     /**
+     * Get children query filter
+     *
+     * Deleted:
+     *  0 - Exclude deleted
+     *  1 - Only deleted
+     *  2 - Include deleted
+     *
+     * @param int   $deleted
+     * @param array $filter
+     * @return array
+     */
+    protected function getChildrenFilter(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter=[]): array
+    {
+        $search = [
+            'parent' => $this->getRealId(),
+        ];
+
+        if (NodeInterface::DELETED_EXCLUDE === $deleted) {
+            $search['deleted'] = false;
+        } elseif (NodeInterface::DELETED_ONLY === $deleted) {
+            $search['deleted'] = ['$type' => 9];
+        }
+
+        $search = array_merge($filter, $search);
+
+        if ($this->shared) {
+            $search = [
+                '$and' => [
+                    $search,
+                    [
+                        '$or' => [
+                            ['shared' => $this->reference],
+                            ['shared' => $this->shared],
+                            ['shared' => $this->_id],
+                        ],
+                    ],
+                ],
+            ];
+        } elseif (null !== $this->_user) {
+            $search['owner'] = $this->_user->getId();
+        }
+
+        return $search;
+    }
+
+    /**
      * Fetch children items of this collection.
      *
      * Deleted:
@@ -229,51 +268,9 @@ class Collection extends AbstractNode implements DAV\IQuota
      */
     public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], bool $skip_exception = true): Generator
     {
-        if ($this->children === null) {
-            $search = [
-                'parent' => $this->getRealId(),
-            ];
+        $filter = $this->getChildrenFilter($deleted, $filter);
+        $children = $this->_db->storage->find($filter);
 
-            if (NodeInterface::DELETED_EXCLUDE === $deleted) {
-                $search['deleted'] = false;
-            } elseif (NodeInterface::DELETED_ONLY === $deleted) {
-                $search['deleted'] = ['$type' => 9];
-            }
-
-            $search = array_merge($filter, $search);
-
-            if ($this->shared) {
-                $search = [
-                    '$and' => [
-                        $search,
-                        [
-                            '$or' => [
-                                ['shared' => $this->reference],
-                                ['shared' => $this->shared],
-                                ['shared' => $this->_id],
-                            ],
-                        ],
-                    ],
-                ];
-            } elseif (null !== $this->_user) {
-                $search['owner'] = $this->_user->getId();
-            }
-
-            //$node = $this->_db->storage->find($search);
-            $children = $this->_db->storage->aggregate([
-                ['$match' => $search],
-                ['$lookup' => [
-                    'from' => 'storage',
-                    'localField' => '_id',
-                    'foreignField' => 'parent',
-                    'as' => 'children',
-                ]],
-            ]);
-        } else {
-            $children = $this->children;
-        }
-
-        $list = [];
         foreach ($children as $child) {
             try {
                 yield $this->_fs->initNode($child);
@@ -331,12 +328,7 @@ class Collection extends AbstractNode implements DAV\IQuota
      */
     public function getSize(): int
     {
-        if ($this->isDeleted()) {
-            return count(iterator_to_array($this->getChildNodes(NodeInterface::DELETED_INCLUDE)));
-        }
-
-        return count(iterator_to_array($this->getChildNodes()));
-        return 0;
+        return $this->_db->storage->count($this->getChildrenFilter());
     }
 
     /**
@@ -380,41 +372,9 @@ class Collection extends AbstractNode implements DAV\IQuota
      */
     public function getChild($name, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
     {
-        $search = [
-            'name' => new Regex('^'.preg_quote($name).'$', 'i'),
-            'parent' => $this->getRealId(),
-        ];
-
-        switch ($deleted) {
-            case NodeInterface::DELETED_EXCLUDE:
-                $search['deleted'] = false;
-
-                break;
-            case NodeInterface::DELETED_ONLY:
-                $search['deleted'] = ['$type' => '9'];
-
-                break;
-        }
-
-        $search = array_merge($filter, $search);
-
-        if ($this->shared) {
-            $node = $this->_db->storage->findOne([
-                '$and' => [
-                    $search,
-                    [
-                        '$or' => [
-                            ['shared' => $this->reference],
-                            ['shared' => $this->shared],
-                            ['shared' => $this->_id],
-                        ],
-                    ],
-                ],
-            ]);
-        } else {
-            $search['owner'] = $this->_user->getId();
-            $node = $this->_db->storage->findOne($search);
-        }
+        $filter = $this->getChildrenFilter();
+        $filter['name'] = new Regex('^'.preg_quote($name).'$', 'i');
+        $node = $this->_db->storage->findOne($deleted, $filter);
 
         if (null === $node) {
             throw new Exception\NotFound(
