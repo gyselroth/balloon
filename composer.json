@@ -27,7 +27,7 @@
         "cboden/ratchet": "^0.4",
         "gyselroth/micro-auth": "*",
         "gyselroth/micro-container": "*",
-        "gyselroth/micro-http": "^0.0.4",
+        "gyselroth/micro-http": "^0.0.5",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",
