@@ -47,7 +47,7 @@ class LdapGroupsToLocalGroups implements DeltaInterface
                     '$push' => '$_id',
                 ],
             ]],
-    ]);
+        ]);
 
         foreach ($cursor as $group) {
             $dn = explode(',', $group['_id']);

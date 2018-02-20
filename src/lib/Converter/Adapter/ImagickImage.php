@@ -139,7 +139,6 @@ class ImagickImage implements AdapterInterface
         stream_copy_to_stream($file->get(), $sourceh);
         $desth = tmpfile();
         $dest = stream_get_meta_data($desth)['uri'];
-
         $image = new Imagick($source.'[0]');
 
         $width = $image->getImageWidth();
@@ -177,10 +176,6 @@ class ImagickImage implements AdapterInterface
         $dest = stream_get_meta_data($desth)['uri'];
 
         $image = new Imagick($source);
-        //$image->setImageCompression(SystemImagick::COMPRESSION_JPEG);
-        //$image->setImageCompressionQuality(100);
-        //$image->stripImage();
-        //$image->setColorSpace(SystemImagick::COLORSPACE_SRGB);
         $image->setImageFormat($format);
         $image->writeImage($dest);
 

@@ -13,7 +13,6 @@ namespace Balloon\Testsuite\Unit\App\Api\Latest;
 
 use Balloon\App\Api\v2\Collections;
 use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\EventAttributeDecorator;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
@@ -84,13 +83,10 @@ abstract class Test extends UnitTest
         $server = $this->getMockServer();
         $role_decorator = new RoleAttributeDecorator($server);
         $node_decorator = new AttributeDecorator($server, $this->createMock(Acl::class), $role_decorator);
-        $event_decorator = new EventAttributeDecorator($server, $node_decorator, $role_decorator);
 
         return new Collections(
             $server,
             $node_decorator,
-            $role_decorator,
-            $event_decorator,
             $this->createMock(LoggerInterface::class)
         );
     }

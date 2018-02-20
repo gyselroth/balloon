@@ -380,6 +380,7 @@ class Server
 
         $defaults = [
             'created' => new UTCDateTime(),
+            'changed' => new UTCDateTime(),
             'deleted' => false,
         ];
 
@@ -537,18 +538,50 @@ class Server
     }
 
     /**
+     * Count users.
+     *
+     * @param array $filter
+     *
+     * @return int
+     */
+    public function countUsers(array $filter): int
+    {
+        return $this->db->user->count($filter);
+    }
+
+    /**
+     * Count groups.
+     *
+     * @param array $filter
+     *
+     * @return int
+     */
+    public function countGroups(array $filter): int
+    {
+        return $this->db->group->count($filter);
+    }
+
+    /**
      * Get users.
      *
      * @param array $filter
      *
      * @return Generator
      */
-    public function getUsers(array $filter): Generator
+    public function getUsers(array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
         $aggregation = $this->getUserAggregationPipes();
 
         if (count($filter) > 0) {
             array_unshift($aggregation, ['$match' => $filter]);
+        }
+
+        if ($offset !== null) {
+            array_unshift($aggregation, ['$skip' => $offset]);
+        }
+
+        if ($limit !== null) {
+            $aggregation[] = ['$limit' => $limit];
         }
 
         $users = $this->db->user->aggregate($aggregation);
@@ -565,9 +598,12 @@ class Server
      *
      * @return Generator
      */
-    public function getGroups(array $filter): Generator
+    public function getGroups(array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
-        $groups = $this->db->group->find($filter);
+        $groups = $this->db->group->find($filter, [
+            'skip' => $offset,
+            'limit' => $limit,
+        ]);
 
         foreach ($groups as $attributes) {
             yield new Group($attributes, $this, $this->db, $this->logger);
@@ -631,6 +667,7 @@ class Server
 
         $defaults = [
             'created' => new UTCDateTime(),
+            'changed' => new UTCDateTime(),
             'deleted' => false,
         ];
 

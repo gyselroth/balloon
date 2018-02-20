@@ -595,7 +595,9 @@ class Filesystem
             throw new Exception\Conflict('node is not available anymore');
         }
 
-        $this->cache[(string) $node['_id']] = $instance;
+        if ($this->user !== null) {
+            $this->cache[(string) $node['_id']] = $instance;
+        }
 
         return $instance;
     }

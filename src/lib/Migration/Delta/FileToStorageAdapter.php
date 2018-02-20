@@ -39,7 +39,13 @@ class FileToStorageAdapter implements DeltaInterface
      */
     public function start(): bool
     {
-        foreach ($this->db->storage->find(['directory' => false]) as $object) {
+        $cursor = $this->db->storage->find([
+            'directory' => false,
+            'file' => ['$exists' => true],
+            'storage' => ['$exists' => false],
+        ]);
+
+        foreach ($cursor as $object) {
             if (isset($object['file'])) {
                 $file = $object['file'];
             } else {

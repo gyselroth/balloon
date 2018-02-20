@@ -43,6 +43,7 @@ class ShareName implements DeltaInterface
             'directory' => true,
             'shared' => true,
             'reference' => ['$exists' => false],
+            'share_name' => ['$exists' => false],
         ]);
 
         foreach ($cursor as $object) {

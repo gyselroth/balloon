@@ -11,10 +11,11 @@ declare(strict_types=1);
 
 namespace Balloon\Server;
 
+use Balloon\AttributeDecorator\AttributeDecoratorInterface;
 use Balloon\Server;
 use Closure;
 
-class AttributeDecorator
+class AttributeDecorator implements AttributeDecoratorInterface
 {
     /**
      * Server.
@@ -64,10 +65,10 @@ class AttributeDecorator
         );
 
         if (0 === count($attributes)) {
-            return $this->translateAttributes($role, $attrs, $attributes);
+            return $this->translateAttributes($role, $attrs);
         }
 
-        return $this->translateAttributes($role, array_intersect_key($attrs, array_flip($attributes)), $attributes);
+        return $this->translateAttributes($role, array_intersect_key($attrs, array_flip($attributes)));
     }
 
     /**
@@ -101,13 +102,13 @@ class AttributeDecorator
         }
 
         return [
-            'created' => function ($role, $requested) use ($attributes) {
+            'created' => function ($role) use ($attributes) {
                 return $attributes['created']->toDateTime()->format('c');
             },
-            'changed' => function ($role, $requested) use ($attributes) {
+            'changed' => function ($role) use ($attributes) {
                 return $attributes['changed']->toDateTime()->format('c');
             },
-            'deleted' => function ($role, $requested) use ($attributes) {
+            'deleted' => function ($role) use ($attributes) {
                 if (false === $attributes['deleted']) {
                     return null;
                 }
@@ -159,24 +160,9 @@ class AttributeDecorator
             'name' => (string) $attributes['username'],
             'namespace' => (string) $attributes['namespace'],
             'mail' => (string) $attributes['mail'],
-            'soft_quota' => function ($role, $requested) use ($attributes, $user) {
-                if ($user === null) {
-                    return null;
-                }
-
+            'quota' => function ($role) use ($attributes, $user) {
                 if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
-                    return $attributes['soft_quota'];
-                }
-
-                return null;
-            },
-            'hard_quota' => function ($role, $requested) use ($attributes, $user) {
-                if ($user === null) {
-                    return null;
-                }
-
-                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
-                    return $attributes['hard_quota'];
+                    return $role->getQuotaUsage();
                 }
 
                 return null;
@@ -189,15 +175,14 @@ class AttributeDecorator
      *
      * @param RoleInterface
      * @param array $attributes
-     * @param array $requested
      *
      * @return array
      */
-    protected function translateAttributes(RoleInterface $role, array $attributes, array $requested): array
+    protected function translateAttributes(RoleInterface $role, array $attributes): array
     {
         foreach ($attributes as $key => &$value) {
             if ($value instanceof Closure) {
-                $result = $value($role, $requested);
+                $result = $value($role);
 
                 if (null === $result) {
                     unset($attributes[$key]);

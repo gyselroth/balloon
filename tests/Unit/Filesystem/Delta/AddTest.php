@@ -13,7 +13,6 @@ namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Delta\Exception;
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\UTCDateTime;
 
@@ -29,7 +28,7 @@ class AddTest extends Test
     {
         $server = $this->getMockServer();
         $this->fs = $server->getFilesystem();
-        $this->delta = new Delta($this->fs, parent::getMockDatabase(), $this->createMock(AttributeDecorator::class));
+        $this->delta = new Delta($this->fs, parent::getMockDatabase());
     }
 
     public function testValidArrayWithTimestamp()

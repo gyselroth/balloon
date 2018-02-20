@@ -257,7 +257,7 @@ class Group implements RoleInterface
      *
      * @return array
      */
-    public function getMember(): array
+    public function getMembers(): array
     {
         return $this->member;
     }
@@ -267,12 +267,10 @@ class Group implements RoleInterface
      *
      * @return Generator
      */
-    public function getResolvedMember(): ?Generator
+    public function getResolvedMembers(?int $offset = null, ?int $limit = null): ?Generator
     {
-        foreach ($this->member as $member) {
-            yield $this->server->getUserById($member);
-        }
-
-        return null;
+        return $this->server->getUsers([
+            '_id' => ['$in' => $this->member],
+        ], $offset, $limit);
     }
 }

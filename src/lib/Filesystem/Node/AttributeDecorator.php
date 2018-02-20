@@ -11,13 +11,14 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Node;
 
+use Balloon\AttributeDecorator\AttributeDecoratorInterface;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Closure;
 
-class AttributeDecorator
+class AttributeDecorator implements AttributeDecoratorInterface
 {
     /**
      * Server.

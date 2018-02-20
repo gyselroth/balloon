@@ -722,13 +722,11 @@ class User implements RoleInterface
      *
      * @return Generator
      */
-    public function getResolvedGroups(): ?Generator
+    public function getResolvedGroups(?int $offset = null, ?int $limit = null): ?Generator
     {
-        foreach ($this->groups as $group) {
-            yield $this->server->getGroupById($group);
-        }
-
-        return null;
+        return $this->server->getGroups([
+            '_id' => ['$in' => $this->groups],
+        ], $offset, $limit);
     }
 
     /**

@@ -114,6 +114,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] Removed GET /api/v2/nodes/share-link, those attributes are now attached to the node output object
 * API: [CHANGE] Removed GET /api/v2/nodes/query, query can be placed via GET /api/v2/nodes|files|collections
 * API: [CHANGE] Removed GET /api/v2/resources, query can be placed via GET /api/v2/users/groups
+* API: [CHANGE] Removed GE /api/v2/users/quota-usage, query can be placed via GET /api/v2/users
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 * PACKAGING: [FEATURE] Full packaging support for deb/tar packages #53
 * PACKAGING: [FEATURE] Full suport for docker container, also provides docker-compose.yml and docker-compose-dev.yml as sample deployment

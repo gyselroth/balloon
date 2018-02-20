@@ -82,7 +82,7 @@ class Collections extends Nodes
      * - 1 Only deleted</br>
      * - 2 Include deleted</br>
      *
-     * @apiSuccess (200 OK) {object[]} Children
+     * @apiSuccess (200 OK) {object[]} data Children
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * [
@@ -111,7 +111,7 @@ class Collections extends Nodes
             $children[] = $this->node_decorator->decorate($node, $attributes);
         }
 
-        return (new Response())->setCode(200)->setBody($children);
+        return (new Response())->setCode(200)->setBody(['data' => $children]);
     }
 
     /**

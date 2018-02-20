@@ -11,7 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem;
 
-class DeltaAttributeDecorator
+use Balloon\AttributeDecorator\AttributeDecoratorInterface;
+use Closure;
+
+class DeltaAttributeDecorator implements AttributeDecoratorInterface
 {
     /**
      * Custom attributes.
@@ -43,7 +46,7 @@ class DeltaAttributeDecorator
      * @param string  $attribute
      * @param Closure $decorator
      *
-     * @return AttributeDecorator
+     * @return DeltaAttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self
     {

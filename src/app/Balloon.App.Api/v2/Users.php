@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v2;
 
+use Balloon\AttributeDecorator\Pager;
 use Balloon\Exception\InvalidArgument as InvalidArgumentException;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
@@ -232,54 +233,14 @@ class Users
      * @param string $id
      * @param string $uname
      */
-    public function getGroups(?string $id = null, ?string $uname = null, array $attributes = []): Response
+    public function getGroups(?string $id = null, ?string $uname = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        $body = [];
-
-        foreach ($this->_getUser($id, $uname)->getGroups() as $group) {
-            $body[] = $this->decorator->decorate($group, $attributes);
-        }
-
-        return (new Response())->setCode(200)->setBody($body);
-    }
-
-    /**
-     * @api {get} /api/v2/users/:id/quota-usage Quota usage
-     * @apiVersion 2.0.0
-     * @apiName getQuotaUsage
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission none
-     * @apiDescription Get user quota usage (including hard,soft,used and available space).
-     * If you want to receive your own quota you have to leave the parameters uid and uname empty.
-     * Requesting this api with parameter uid or uname requires admin privileges.
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/users/quota-usage?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/544627ed3c58891f058b4611/quota-usage?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/quota-usage?uname=loginuser&pretty"
-     *
-     * @apiSuccess {number} used Used quota in bytes
-     * @apiSuccess {number} available Quota left in bytes
-     * @apiSuccess {number} hard_quota Hard quota in bytes
-     * @apiSuccess {number} soft_quota Soft quota (Warning) in bytes
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "used": 15543092,
-     *      "available": 5353166028,
-     *      "hard_quota": 5368709120,
-     *      "soft_quota": 5368709120
-     * }
-     *
-     * @param string $id
-     * @param string $uname
-     *
-     * @return Response
-     */
-    public function getQuotaUsage(?string $id = null, ?string $uname = null): Response
-    {
-        $result = $this->_getUser($id, $uname)->getQuotaUsage();
+        $user = $this->_getUser($id, $uname);
+        $result = $user->getResolvedGroups($offset, $limit);
+        $total = count($user->getGroups());
+        $uri = '/api/v2/users/'.$user->getId().'/groups';
+        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, $uri);
+        $result = $pager->paging();
 
         return (new Response())->setCode(200)->setBody($result);
     }
@@ -315,13 +276,13 @@ class Users
      *
      * @return Response
      */
-    public function get(?string $id = null, ?string $uname = null, array $filter = [], array $attributes = []): Response
+    public function get(?string $id = null, ?string $uname = null, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if ($id === null && $uname === null) {
-            $result = [];
-            foreach ($this->server->getUsers($filter) as $user) {
-                $result[] = $this->decorator->decorate($user, $attributes);
-            }
+            $result = $this->server->getUsers($query, $offset, $limit);
+            $total = $this->server->countUsers($query);
+            $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, '/api/v2/users');
+            $result = $pager->paging();
         } else {
             $result = $this->decorator->decorate($this->_getUser($id, $uname), $attributes);
         }

@@ -13,6 +13,7 @@ namespace Balloon\Filesystem;
 
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
@@ -265,7 +266,6 @@ class Delta
                     ]);
 
                     foreach ($members as $share_member) {
-                        $member_attrs = $this->decorator->decorate($share_member, $attributes);
                         $delta[$share_member->getPath()] = $share_member;
                     }
                 }
@@ -297,7 +297,7 @@ class Delta
                         'created' => null,
                         'changed' => $log['timestamp'],
                         'path' => $previous_path,
-                        'directory' => $fields['directory'],
+                        'directory' => $log_node instanceof Collection,
                     ];
 
                     $delta[$previous_path] = $deleted_node;
@@ -308,7 +308,7 @@ class Delta
             } catch (ForbiddenException $e) {
                 //no delta entriy for a node where we do not have access to
             } catch (\Exception $e) {
-                $deleted = $this->getDeletedNodeDelta();
+                $deleted = $this->getDeletedNodeDelta($log);
 
                 if ($deleted !== null) {
                     $delta[$deleted['path']] = $deleted;
@@ -335,7 +335,7 @@ class Delta
      *
      * @return iterable
      */
-    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null): Iterable
+    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): Iterable
     {
         $filter = $this->getDeltaFilter();
 
@@ -347,6 +347,7 @@ class Delta
             $old, ]];
         }
 
+        $total = $this->db->delta->count($filter);
         $result = $this->db->delta->find($filter, [
             'sort' => ['_id' => -1],
             'skip' => $skip,

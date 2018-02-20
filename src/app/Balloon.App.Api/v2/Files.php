@@ -87,7 +87,7 @@ class Files extends Nodes
             ];
         }
 
-        return (new Response())->setCode(200)->setBody($body);
+        return (new Response())->setCode(200)->setBody(['data' => $body]);
     }
 
     /**

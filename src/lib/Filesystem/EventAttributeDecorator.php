@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem;
 
+use Balloon\AttributeDecorator\AttributeDecoratorInterface;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -18,7 +19,7 @@ use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Closure;
 
-class EventAttributeDecorator
+class EventAttributeDecorator implements AttributeDecoratorInterface
 {
     /**
      * Server.

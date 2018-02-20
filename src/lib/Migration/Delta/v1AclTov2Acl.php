@@ -39,11 +39,14 @@ class v1AclTov2Acl implements DeltaInterface
      */
     public function start(): bool
     {
-        $cursor = $this->db->storage->find(
-            [
+        $cursor = $this->db->storage->find([
             'directory' => true,
-            'acl' => ['$exists' => 1], ]
-        );
+            'acl' => ['$exists' => 1],
+            '$or' => [
+                ['acl.user' => ['$exists' => 1]],
+                ['acl.group' => ['$exists' => 1]],
+            ],
+        ]);
 
         foreach ($cursor as $object) {
             $acl = [];

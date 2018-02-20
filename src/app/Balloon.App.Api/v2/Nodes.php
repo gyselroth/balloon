@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v2;
 use Balloon\App\Api\Controller;
 use Balloon\App\Api\v2\Collections as ApiCollection;
 use Balloon\App\Api\v2\Files as ApiFile;
+use Balloon\AttributeDecorator\Pager;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\DeltaAttributeDecorator;
@@ -214,7 +215,7 @@ class Nodes extends Controller
      * @apiUse _getNode
      *
      * @apiParam (GET Parameter) {number} [offset=0] Read stream from a specific offset in bytes
-     * @apiParam (GET Parameter) {number} [length=0] Read stream until a specific limit in bytes
+     * @apiParam (GET Parameter) {number} [limit=0] Read stream until a specific limit in bytes
      * @apiParam (GET Parameter) {string} [encode] Can be set to base64 to encode content as base64.
      * @apiParam (GET Parameter) {boolean} [download=false] Force download file (Content-Disposition: attachment HTTP header)
      *
@@ -243,7 +244,7 @@ class Nodes extends Controller
      * @param array|string $id
      * @param array|string $p
      * @param int          $offset
-     * @param int          $legnth
+     * @param int          $limit
      * @param string       $encode
      * @param bool         $download
      * @param string       $name
@@ -252,7 +253,7 @@ class Nodes extends Controller
         $id = null,
         $p = null,
         int $offset = 0,
-        int $length = 0,
+        int $limit = 0,
         ?string $encode = null,
         bool $download = false,
         string $name = 'selected'
@@ -281,7 +282,7 @@ class Nodes extends Controller
 
         return $response
           ->setOutputFormat(null)
-          ->setBody(function () use ($node, $encode, $offset, $length) {
+          ->setBody(function () use ($node, $encode, $offset, $limit) {
               $stream = $node->get();
               $name = $node->getName();
 
@@ -304,8 +305,8 @@ class Nodes extends Controller
               if ('base64' === $encode) {
                   header('Content-Encoding: base64');
                   while (!feof($stream)) {
-                      if (0 !== $length && $read + 8192 > $length) {
-                          echo base64_encode(fread($stream, $length - $read));
+                      if (0 !== $limit && $read + 8192 > $limit) {
+                          echo base64_encode(fread($stream, $limit - $read));
                           exit();
                       }
 
@@ -314,8 +315,8 @@ class Nodes extends Controller
                   }
               } else {
                   while (!feof($stream)) {
-                      if (0 !== $length && $read + 8192 > $length) {
-                          echo fread($stream, $length - $read);
+                      if (0 !== $limit && $read + 8192 > $limit) {
+                          echo fread($stream, $limit - $read);
                           exit();
                       }
 
@@ -445,7 +446,7 @@ class Nodes extends Controller
      *
      * @return Response
      */
-    public function get($id = null, $p = null, int $deleted = 0, ?array $filter = null, array $attributes = []): Response
+    public function get($id = null, $p = null, int $deleted = 0, ?array $query = null, array $attributes = []): Response
     {
         if (is_array($id) || is_array($p)) {
             $nodes = [];
@@ -455,14 +456,14 @@ class Nodes extends Controller
 
             return (new Response())->setCode(200)->setBody($nodes);
         }
-        if ($filter !== null) {
+        if ($query !== null) {
             if ($this instanceof ApiFile) {
-                $filter['directory'] = false;
+                $query['directory'] = false;
             } elseif ($this instanceof ApiCollection) {
-                $filter['directory'] = true;
+                $query['directory'] = true;
             }
 
-            $nodes = $this->fs->findNodesByFilterUser($deleted, $filter);
+            $nodes = $this->fs->findNodesByFilterUser($deleted, $query);
             $children = [];
 
             foreach ($nodes as $node) {
@@ -470,7 +471,7 @@ class Nodes extends Controller
                 $children[] = $child;
             }
 
-            return (new Response())->setCode(200)->setBody($children);
+            return (new Response())->setCode(200)->setBody(['data' => $children]);
         }
 
         $result = $this->node_decorator->decorate($this->_getNode($id, $p), $attributes);
@@ -545,7 +546,7 @@ class Nodes extends Controller
             $result[] = $this->node_decorator->decorate($node, $attributes);
         }
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(200)->setBody(['data' => $result]);
     }
 
     /**
@@ -572,7 +573,7 @@ class Nodes extends Controller
      * curl -XPOST "https://SERVER/api/v2/node/meta-attributes?p=/absolute/path/to/my/node?license=GPL-3.0"
      *
      * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 200
      *
      * @param array|string $id
      * @param array|string $p
@@ -584,7 +585,10 @@ class Nodes extends Controller
         return $this->bulk($id, $p, function ($node) use ($attributes) {
             $node->setMetaAttributes($attributes);
 
-            return ['code' => 204];
+            return [
+                'code' => 200,
+                'data' => $this->node_decorator->decorate($node),
+            ];
         });
     }
 
@@ -855,7 +859,7 @@ class Nodes extends Controller
             $children[] = $child;
         }
 
-        return (new Response())->setCode(200)->setBody(array_values($children));
+        return (new Response())->setCode(200)->setBody(['data' => array_values($children)]);
     }
 
     /**
@@ -1032,26 +1036,25 @@ class Nodes extends Controller
      * @param EventAttributeDecorator $event_decorator
      * @param string                  $id
      * @param string                  $p
-     * @param int                     $skip
+     * @param int                     $offset
      * @param int                     $limit
      *
      * @return Response
      */
-    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100): Response
+    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, ?string $p = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if (null !== $id || null !== $p) {
             $node = $this->_getNode($id, $p);
+            $uri = '/api/v2/nodes/'.$node->getId().'/event-log';
         } else {
             $node = null;
+            $uri = '/api/v2/nodes/event-log';
         }
 
-        $result = $this->fs->getDelta()->getEventLog($limit, $skip, $node);
-        $body = [];
-        foreach ($result as $event) {
-            $body[] = $event_decorator->decorate($event);
-        }
+        $result = $this->fs->getDelta()->getEventLog($limit, $offset, $node, $total);
+        $pager = new Pager($event_decorator, $result, $attributes, $offset, $limit, $total, $uri);
 
-        return (new Response())->setCode(200)->setBody($body);
+        return (new Response())->setCode(200)->setBody($pager->paging());
     }
 
     /**

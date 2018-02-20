@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v2;
 
+use Balloon\AttributeDecorator\Pager;
 use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
@@ -135,7 +136,7 @@ class Groups
     }
 
     /**
-     * @api {get} /api/v2/groups/:id/member Get group member
+     * @api {get} /api/v2/groups/:id/members Get group member
      * @apiVersion 2.0.0
      * @apiName getMember
      * @apiUse _getGroup
@@ -166,16 +167,16 @@ class Groups
      * @param string $name
      * @param array  $attributes
      */
-    public function getMember(?string $id = null, ?string $name = null, array $attributes = []): Response
+    public function getMembers(?string $id = null, ?string $name = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        $result = $this->_getGroup($id, $name)->getResolvedMember();
-        $body = [];
+        $group = $this->_getGroup($id, $name);
+        $result = $group->getResolvedMembers($offset, $limit);
+        $total = count($group->getMembers());
+        $uri = '/api/v2/groups/'.$group->getId().'/members';
+        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, $uri);
+        $result = $pager->paging();
 
-        foreach ($result as $member) {
-            $body[] = $this->decorator->decorate($member, $attributes);
-        }
-
-        return (new Response())->setCode(200)->setBody($body);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
@@ -208,13 +209,13 @@ class Groups
      *
      * @return Response
      */
-    public function get(?string $id = null, ?string $name = null, array $filter = [], array $attributes = []): Response
+    public function get(?string $id = null, ?string $name = null, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if ($id === null && $name === null) {
-            $result = [];
-            foreach ($this->server->getGroups($filter) as $group) {
-                $result[] = $this->decorator->decorate($group, $attributes);
-            }
+            $result = $this->server->getGroups($query, $offset, $limit);
+            $total = $this->server->countGroups($query);
+            $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, '/api/v2/groups');
+            $result = $pager->paging();
         } else {
             $result = $this->decorator->decorate($this->_getGroup($id, $name), $attributes);
         }
@@ -252,7 +253,7 @@ class Groups
     }
 
     /**
-     * @api {post} /api/v2/group Create group
+     * @api {post} /api/v2/groups Create group
      * @apiVersion 2.0.0
      * @apiName postGroup
      * @apiGroup Group

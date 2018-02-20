@@ -339,7 +339,7 @@ class Job extends AbstractJob
         }
 
         $meta = $this->storage->getFileMeta($node);
-        $content = json_encode(base64_encode(stream_get_contents($node->get())));
+        $content = base64_encode(stream_get_contents($node->get()));
 
         $metadata = $meta['metadata'];
         array_walk_recursive($metadata, function (&$value) { $value = (string) $value; });

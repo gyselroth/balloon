@@ -45,10 +45,10 @@ class Http
     public function __construct(Router $router, Hook $hook)
     {
         $router
+            ->appendRoute(new Route('/api/v2/users/{id:#([0-9a-z]{24})#}', v2\Users::class))
             ->appendRoute(new Route('/api/v2/users', v2\Users::class))
-            ->appendRoute(new Route('/api/v2/users/{uid:#([0-9a-z]{24})#}', v2\Users::class))
+            ->appendRoute(new Route('/api/v2/groups/{id:#([0-9a-z]{24})#}', v2\Groups::class))
             ->appendRoute(new Route('/api/v2/groups', v2\Groups::class))
-            ->appendRoute(new Route('/api/v2/groups/{uid:#([0-9a-z]{24})#}', v2\Groups::class))
             ->appendRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}', v2\Files::class))
             ->appendRoute(new Route('/api/v2/files', v2\Files::class))
             ->appendRoute(new Route('/api/v2/collections/{id:#([0-9a-z]{24})#}', v2\Collections::class))
@@ -58,8 +58,8 @@ class Http
             ->appendRoute(new Route('/api/v2$', v2\Api::class))
             ->appendRoute(new Route('/api/v2', v2\Api::class))
             ->appendRoute(new Route('/api$', v2\Api::class))
-            ->appendRoute(new Route('/api/v1/user', v1\User::class))
             ->appendRoute(new Route('/api/v1/user/{uid:#([0-9a-z]{24})#}', v1\User::class))
+            ->appendRoute(new Route('/api/v1/user', v1\User::class))
             ->appendRoute(new Route('/api/v1/resource', v1\Resource::class))
             ->appendRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}', v1\File::class))
             ->appendRoute(new Route('/api/v1/file', v1\File::class))

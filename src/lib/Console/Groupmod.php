@@ -87,7 +87,7 @@ class Groupmod extends Groupadd
             $remove = array_map('trim', $remove);
         }
 
-        foreach ($group->getResolvedMember() as $user) {
+        foreach ($group->getResolvedMembers() as $user) {
             if (!in_array($user->getUsername(), $remove)) {
                 $member[] = $user;
             }

@@ -42,7 +42,7 @@ class JsonEncodeFilteredCollection implements DeltaInterface
         $cursor = $this->db->storage->find(
             [
             'directory' => true,
-            'filter' => ['$exists' => 1], ]
+            'filter' => ['$type' => 3], ]
         );
 
         foreach ($cursor as $object) {
