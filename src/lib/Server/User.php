@@ -84,7 +84,7 @@ class User implements RoleInterface
     /**
      * Is user deleted?
      *
-     * @var bool
+     * @var bool|UTCDateTime
      */
     protected $deleted = false;
 
@@ -657,22 +657,24 @@ class User implements RoleInterface
      *
      * @return bool
      */
-    public function delete(bool $force = false): bool
+    public function delete(bool $force = false, bool $data = false, bool $force_data = false): bool
     {
         if (false === $force) {
-            $result_data = $this->getFilesystem()->getRoot()->delete();
-            $this->deleted = true;
-            $result_user = $this->save(['deleted']);
+            $this->deleted = new UTCDateTime();
+            $result = $this->save(['deleted']);
         } else {
-            $result_data = $this->getFilesystem()->getRoot()->delete(true);
-
             $result = $this->db->user->deleteOne([
                 '_id' => $this->_id,
             ]);
-            $result_user = $result->isAcknowledged();
+
+            $result = $result->isAcknowledged();
         }
 
-        return $result_data && $result_user;
+        if ($data === true) {
+            $this->getFilesystem()->getRoot()->delete($force_data);
+        }
+
+        return $result;
     }
 
     /**
@@ -694,7 +696,7 @@ class User implements RoleInterface
      */
     public function isDeleted(): bool
     {
-        return $this->deleted;
+        return $this->deleted instanceof UTCDateTime;
     }
 
     /**

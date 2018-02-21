@@ -17,6 +17,7 @@ use Balloon\Server;
 use Balloon\Server\User;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
+use Generator;
 use Micro\Http\Router;
 use Psr\Log\LoggerInterface;
 
@@ -111,22 +112,16 @@ class Elasticsearch
     /**
      * Search.
      *
-     *  0 - Exclude deleted
-     *  1 - Only deleted
-     *  2 - Include deleted
-     *
      * @param array $query
-     * @param int   $deleted
+     * @param int   $skip
+     * @param int   $limit
+     * @param int   $total
      *
-     * @return array
+     * @return Generator
      */
-    public function search(array $query, int $deleted = NodeInterface::DELETED_INCLUDE): array
+    public function search(array $query, int $deleted = NodeInterface::DELETED_INCLUDE, ?int $skip = null, ?int $limit = null, ?int &$total = null): Generator
     {
-        $list = [];
-        $id = false;
-
-        $shares = $this->user->getShares(true);
-        $result = $this->executeQuery($query, $shares);
+        $result = $this->executeQuery($query, $skip, $limit);
 
         if (isset($result['error'])) {
             throw new Exception('failed search index, query failed');
@@ -143,57 +138,28 @@ class Elasticsearch
             ],
         ]);
 
-        $user = (string) $this->user->getId();
+        $total = $result['hits']['total'];
+
+        $nodes = [];
         foreach ($result['hits']['hits'] as $node) {
-            $id = false;
-
             if ('storage' === $node['_type']) {
-                $id = $node['_id'];
-
-                try {
-                    $_node = $this->fs->findNodeById($id);
-                    if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
-                     || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
-                        if (!($_node->isShared() && !$_node->isOwnerRequest()) && !isset($list[(string) $_node->getId()])) {
-                            $list[(string) $_node->getId()] = $_node;
-                        }
-                    }
-                } catch (\Exception $e) {
-                }
+                $nodes[] = $node['_id'];
             } elseif ('fs' === $node['_type']) {
-                foreach ($node['_source']['metadata']['ref'] as $n) {
-                    if ($n['owner'] === $user) {
-                        if (!array_key_exists($n['id'], $list)) {
-                            try {
-                                $_node = $this->fs->findNodeById($n['id']);
-                                if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
-                                 || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
-                                    $list[$n['id']] = $_node;
-                                }
-                            } catch (\Exception $e) {
-                            }
-                        }
+                if (isset($node['_source']['metadata']['ref'])) {
+                    foreach ($node['_source']['metadata']['ref'] as $blob) {
+                        $nodes[] = $blob['id'];
                     }
                 }
 
-                foreach ($node['_source']['metadata']['share_ref'] as $n) {
-                    if (in_array($n['share'], $shares, true)) {
-                        if (!array_key_exists($n['id'], $list)) {
-                            try {
-                                $_node = $this->fs->findNodeById($n['id']);
-                                if ($_node->isDeleted() && (1 === $deleted || 2 === $deleted)
-                                || !$_node->isDeleted() && (0 === $deleted || 2 === $deleted)) {
-                                    $list[$n['id']] = $_node;
-                                }
-                            } catch (\Exception $e) {
-                            }
-                        }
+                if (isset($node['_source']['metadata']['share_ref'])) {
+                    foreach ($node['_source']['metadata']['share_ref'] as $blob) {
+                        $nodes[] = $blob['id'];
                     }
                 }
             }
         }
 
-        return $list;
+        return $this->fs->findNodesById($nodes, null, $deleted);
     }
 
     /**
@@ -226,12 +192,14 @@ class Elasticsearch
      * Search.
      *
      * @param array $query
-     * @param array $share
+     * @param int   $skip
+     * @param int   $limit
      *
      * @return array
      */
-    protected function executeQuery(array $query, array $shares): array
+    protected function executeQuery(array $query, ?int $skip = null, ?int $limit = null): array
     {
+        $shares = $this->user->getShares(true);
         $bool = $query['body']['query'];
 
         $filter1 = [];
@@ -269,6 +237,8 @@ class Elasticsearch
 
         $query['_source'] = ['metadata.*', '_id', 'owner'];
         $query['index'] = $this->es_index;
+        $query['from'] = $skip;
+        $query['size'] = $limit;
 
         $this->logger->debug('prepared elasticsearch query', [
             'category' => get_class($this),

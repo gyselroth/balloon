@@ -13,7 +13,7 @@ namespace Balloon\App\Elasticsearch\Api\v2;
 
 use Balloon\App\Api\Controller;
 use Balloon\App\Elasticsearch\Elasticsearch;
-use Balloon\Exception;
+use Balloon\AttributeDecorator\Pager;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Micro\Http\Response;
 use Psr\Log\LoggerInterface;
@@ -107,26 +107,18 @@ class Search extends Controller
      * @param array $query
      * @param array $attributes
      * @param int   $deleted
+     * @param mixed $limit
      *
      * @return Response
      */
-    public function get(array $query, array $attributes = [], int $deleted = 0): Response
+    public function get(array $query, array $attributes = [], int $deleted = 0, int $offset = 0, $limit = 20): Response
     {
         $children = [];
-        $nodes = $this->es->search($query, $deleted);
+        $result = $this->es->search($query, $deleted, $offset, $limit, $total);
+        $uri = '/api/v2/ndoes/search';
+        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, $uri);
+        $result = $pager->paging();
 
-        foreach ($nodes as $node) {
-            try {
-                $child = $this->decorator->decorate($node, $attributes);
-                $children[] = $child;
-            } catch (\Exception $e) {
-                $this->logger->info('error occured during loading attributes, skip search result node', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-            }
-        }
-
-        return (new Response())->setCode(200)->setBody($children);
+        return (new Response())->setCode(200)->setBody($result);
     }
 }
