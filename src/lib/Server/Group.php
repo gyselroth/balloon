@@ -51,7 +51,7 @@ class Group implements RoleInterface
     /**
      * Is group deleted?
      *
-     * @var bool
+     * @var bool|UTCDateTime
      */
     protected $deleted = false;
 
@@ -239,7 +239,7 @@ class Group implements RoleInterface
      */
     public function isDeleted(): bool
     {
-        return $this->deleted;
+        return $this->deleted instanceof UTCDateTime;
     }
 
     /**
