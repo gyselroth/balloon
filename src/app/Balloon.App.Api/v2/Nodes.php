@@ -451,7 +451,7 @@ class Nodes extends Controller
      *
      * @return Response
      */
-    public function get($id = null, $p = null, int $deleted = 0, ?array $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function get($id = null, $p = null, int $deleted = 0, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if (is_array($id) || is_array($p)) {
             $nodes = [];
@@ -461,7 +461,7 @@ class Nodes extends Controller
 
             return (new Response())->setCode(200)->setBody($nodes);
         }
-        if ($query !== null) {
+        if ($id === null && $p === null) {
             if ($this instanceof ApiFile) {
                 $query['directory'] = false;
                 $uri = '/api/v2/files';
@@ -473,7 +473,7 @@ class Nodes extends Controller
             }
 
             $nodes = $this->fs->findNodesByFilterUser($deleted, $query, $offset, $limit);
-            $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $nodes->getReturn(), $uri);
+            $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
             $result = $pager->paging();
 
             return (new Response())->setCode(200)->setBody($result);

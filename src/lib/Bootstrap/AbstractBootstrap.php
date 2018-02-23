@@ -48,7 +48,6 @@ abstract class AbstractBootstrap
         $this->config = $this->loadAppConfigs($apps, $config);
         $this->container = new Container($this->config);
 
-        $this->setErrorHandler();
         $this->container->get(LoggerInterface::class)->info('--------------------------------------------------> PROCESS', [
             'category' => get_class($this),
         ]);

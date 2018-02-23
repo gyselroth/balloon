@@ -115,8 +115,8 @@ class Search extends Controller
     {
         $children = [];
         $result = $this->es->search($query, $deleted, $offset, $limit, $total);
-        $uri = '/api/v2/ndoes/search';
-        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, $uri);
+        $uri = '/api/v2/nodes/search';
+        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $uri, $total);
         $result = $pager->paging();
 
         return (new Response())->setCode(200)->setBody($result);

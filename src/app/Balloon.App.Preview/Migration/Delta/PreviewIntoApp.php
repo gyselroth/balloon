@@ -40,16 +40,15 @@ class PreviewIntoApp implements DeltaInterface
      */
     public function start(): bool
     {
-        $cursor = $this->db->storage->find(
-            [
-            'sharelink' => ['$exists' => 1], ]
-        );
+        $cursor = $this->db->storage->find([
+            'thumbnail' => ['$exists' => 1],
+        ]);
 
         foreach ($cursor as $object) {
             $this->db->storage->updateOne(
                 ['_id' => $object['_id']],
                 [
-                    '$unset' => 'thumbnail',
+                    '$unset' => ['thumbnail' => 1],
                     '$set' => ['app.Balloon\App\Preview.preview' => $object['thumbnail']],
                 ]
             );

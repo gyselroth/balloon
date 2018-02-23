@@ -49,7 +49,7 @@ class SharelinkIntoApp implements DeltaInterface
             $this->db->storage->updateOne(
                 ['_id' => $object['_id']],
                 [
-                  '$unset' => 'sharelink',
+                  '$unset' => ['sharelink' => 1],
                   '$set' => ['app.Balloon\App\Sharelink' => $object['sharelink']],
                 ]
             );
