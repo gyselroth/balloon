@@ -24,9 +24,8 @@
     ],
     "require": {
         "php": ">=7.1",
-        "cboden/ratchet": "^0.4",
         "gyselroth/micro-auth": "*",
-        "gyselroth/micro-container": "*",
+        "gyselroth/micro-container": "^0.1.4",
         "gyselroth/micro-http": "^0.0.5",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",

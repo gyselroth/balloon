@@ -237,9 +237,8 @@ class Users
     {
         $user = $this->_getUser($id, $uname);
         $result = $user->getResolvedGroups($offset, $limit);
-        $total = count($user->getGroups());
         $uri = '/api/v2/users/'.$user->getId().'/groups';
-        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, $uri);
+        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $uri);
         $result = $pager->paging();
 
         return (new Response())->setCode(200)->setBody($result);
@@ -280,8 +279,7 @@ class Users
     {
         if ($id === null && $uname === null) {
             $result = $this->server->getUsers($query, $offset, $limit);
-            $total = $this->server->countUsers($query);
-            $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, '/api/v2/users');
+            $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, '/api/v2/users');
             $result = $pager->paging();
         } else {
             $result = $this->decorator->decorate($this->_getUser($id, $uname), $attributes);
@@ -365,12 +363,13 @@ class Users
      * curl -XPOST "https://SERVER/api/v2/user"
      *
      * @apiParam (POST Parameter) {string} username Name of the new user
-     * @apiParam (POST Parameter) {string} [attributes.password] Password
-     * @apiParam (POST Parameter) {string} [attributes.mail] Mail address
-     * @apiParam (POST Parameter) {string} [attributes.avatar] Avatar image base64 encoded
-     * @apiParam (POST Parameter) {string} [attributes.namespace] User namespace
-     * @apiParam (POST Parameter) {number} [attributes.hard_quota] The new hard quota in bytes (Unlimited by default)
-     * @apiParam (POST Parameter) {number} [attributes.soft_quota] The new soft quota in bytes (Unlimited by default)
+     * @apiParam (POST Parameter) {string} [password] Password
+     * @apiParam (POST Parameter) {boolean} [admin] Admin
+     * @apiParam (POST Parameter) {string} [mail] Mail address
+     * @apiParam (POST Parameter) {string} [avatar] Avatar image base64 encoded
+     * @apiParam (POST Parameter) {string} [namespace] User namespace
+     * @apiParam (POST Parameter) {number} [hard_quota] The new hard quota in bytes (Unlimited by default)
+     * @apiParam (POST Parameter) {number} [soft_quota] The new soft quota in bytes (Unlimited by default)
      *
      * @apiSuccess (200 OK) {string} id User ID
      *
@@ -381,12 +380,14 @@ class Users
      * }
      *
      * @param string $username
-     * @param array  $attributes
      *
      * @return Response
      */
-    public function post(string $username, array $attributes = []): Response
+    public function post(string $username, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?array $optional = null): Response
     {
+        $attributes = compact('password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'optional');
+        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+
         if (isset($attributes['avatar'])) {
             $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);
         }
@@ -412,9 +413,14 @@ class Users
      * curl -XPOST "https://SERVER/api/v2/users/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
      * curl -XPOST "https://SERVER/api/v2/users/quota?uname=loginuser"  -d '{"attributes": ["admin": "false"]}'
      *
-     * @apiParam (POST Parameter) {[]} attributes
-     * @apiParam (POST Parameter) {number} attributes.hard_quota The new hard quota in bytes
-     * @apiParam (POST Parameter) {number} attributes.soft_quota The new soft quota in bytes
+     * @apiParam (POST Parameter) {string} username Name of the new user
+     * @apiParam (POST Parameter) {string} [password] Password
+     * @apiParam (POST Parameter) {boolean} [admin] Admin
+     * @apiParam (POST Parameter) {string} [mail] Mail address
+     * @apiParam (POST Parameter) {string} [avatar] Avatar image base64 encoded
+     * @apiParam (POST Parameter) {string} [namespace] User namespace
+     * @apiParam (POST Parameter) {number} [hard_quota] The new hard quota in bytes (Unlimited by default)
+     * @apiParam (POST Parameter) {number} [soft_quota] The new soft quota in bytes (Unlimited by default)
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
@@ -425,8 +431,11 @@ class Users
      *
      * @return Response
      */
-    public function patch(array $attributes = [], ?string $id = null, ?string $uname = null): Response
+    public function patch(?string $id = null, ?string $uname = null, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?array $optional = null): Response
     {
+        $attributes = compact('username', 'password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'optional');
+        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+
         if (isset($attributes['avatar'])) {
             $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);
         }

@@ -348,7 +348,7 @@ class Nodes extends Controller
      * @apiParam (GET Parameter) {bool} [readonly=true] Set readonly to false to make node writeable again
      *
      * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 200 OK
      *
      * @param array|string $id
      * @param array|string $p
@@ -360,7 +360,10 @@ class Nodes extends Controller
         return $this->bulk($id, $p, function ($node) use ($readonly) {
             $node->setReadonly($readonly);
 
-            return ['code' => 204];
+            return [
+                'code' => 200,
+                'data' => $this->node_decorator->decorate($node),
+            ];
         });
     }
 
@@ -443,10 +446,12 @@ class Nodes extends Controller
      * @param array|string $id
      * @param array|string $p
      * @param array        $attributes
+     * @param int          $offset
+     * @param int          $limit
      *
      * @return Response
      */
-    public function get($id = null, $p = null, int $deleted = 0, ?array $query = null, array $attributes = []): Response
+    public function get($id = null, $p = null, int $deleted = 0, ?array $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if (is_array($id) || is_array($p)) {
             $nodes = [];
@@ -459,19 +464,19 @@ class Nodes extends Controller
         if ($query !== null) {
             if ($this instanceof ApiFile) {
                 $query['directory'] = false;
+                $uri = '/api/v2/files';
             } elseif ($this instanceof ApiCollection) {
                 $query['directory'] = true;
+                $uri = '/api/v2/collections';
+            } else {
+                $uri = '/api/v2/nodes';
             }
 
-            $nodes = $this->fs->findNodesByFilterUser($deleted, $query);
-            $children = [];
+            $nodes = $this->fs->findNodesByFilterUser($deleted, $query, $offset, $limit);
+            $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $nodes->getReturn(), $uri);
+            $result = $pager->paging();
 
-            foreach ($nodes as $node) {
-                $child = $this->node_decorator->decorate($node, $attributes);
-                $children[] = $child;
-            }
-
-            return (new Response())->setCode(200)->setBody(['data' => $children]);
+            return (new Response())->setCode(200)->setBody($result);
         }
 
         $result = $this->node_decorator->decorate($this->_getNode($id, $p), $attributes);
@@ -529,14 +534,15 @@ class Nodes extends Controller
      * @param string $id
      * @param string $p
      * @param array  $attributes
+     * @param bool   $self
      *
      * @return Response
      */
     public function getParents(?string $id = null, ?string $p = null, array $attributes = [], bool $self = false): Response
     {
+        $result = [];
         $request = $this->_getNode($id, $p);
         $parents = $request->getParents();
-        $result = [];
 
         if (true === $self && $request instanceof Collection) {
             $result[] = $this->node_decorator->decorate($request, $attributes);
@@ -546,7 +552,7 @@ class Nodes extends Controller
             $result[] = $this->node_decorator->decorate($node, $attributes);
         }
 
-        return (new Response())->setCode(200)->setBody(['data' => $result]);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
@@ -838,13 +844,15 @@ class Nodes extends Controller
      * ]
      *
      * @param array $attributes
+     * @param int   $offset
+     * @param int   $limit
      *
      * @return Response
      */
-    public function getTrash(array $attributes = []): Response
+    public function getTrash(array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         $children = [];
-        $nodes = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_ONLY, ['deleted' => ['$type' => 9]]);
+        $nodes = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_ONLY, ['deleted' => ['$type' => 9]], $offset, $limit);
 
         foreach ($nodes as $node) {
             try {
@@ -853,13 +861,26 @@ class Nodes extends Controller
                     continue;
                 }
             } catch (\Exception $e) {
+                //skip exception
             }
 
-            $child = $this->node_decorator->decorate($node, $attributes);
-            $children[] = $child;
+            $children[] = $node;
         }
 
-        return (new Response())->setCode(200)->setBody(['data' => array_values($children)]);
+        if ($this instanceof ApiFile) {
+            $query['directory'] = false;
+            $uri = '/api/v2/files';
+        } elseif ($this instanceof ApiCollection) {
+            $query['directory'] = true;
+            $uri = '/api/v2/collections';
+        } else {
+            $uri = '/api/v2/nodes';
+        }
+
+        $pager = new Pager($this->node_decorator, $children, $attributes, $offset, $limit, $uri, $nodes->getReturn());
+        $result = $pager->paging();
+
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
@@ -1052,7 +1073,7 @@ class Nodes extends Controller
         }
 
         $result = $this->fs->getDelta()->getEventLog($limit, $offset, $node, $total);
-        $pager = new Pager($event_decorator, $result, $attributes, $offset, $limit, $total, $uri);
+        $pager = new Pager($event_decorator, $result, $attributes, $offset, $limit, $uri, $total);
 
         return (new Response())->setCode(200)->setBody($pager->paging());
     }

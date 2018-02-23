@@ -237,7 +237,6 @@ class Server
         foreach ($attributes as $attribute => &$value) {
             switch ($attribute) {
                 case 'namespace':
-                case 'description':
                     if (!is_string($value)) {
                         throw new GroupException($attribute.' must be a valid string');
                     }
@@ -254,7 +253,7 @@ class Server
 
                 break;
                 case 'optional':
-                    if (is_array($value)) {
+                    if (!is_array($value)) {
                         throw new GroupException('optional group attributes must be an array');
                     }
 
@@ -350,9 +349,9 @@ class Server
                         throw new UserException('namespace must be a valid string');
                     }
 
-                    // no break
+                break;
                 case 'optional':
-                    if (is_array($value)) {
+                    if (!is_array($value)) {
                         throw new UserException('optional user attributes must be an array');
                     }
 
@@ -565,6 +564,8 @@ class Server
      * Get users.
      *
      * @param array $filter
+     * @param int   $offset
+     * @param int   $limit
      *
      * @return Generator
      */
@@ -589,12 +590,16 @@ class Server
         foreach ($users as $attributes) {
             yield new User($attributes, $this, $this->db, $this->logger);
         }
+
+        return $this->db->user->count($filter);
     }
 
     /**
      * Get groups.
      *
      * @param array $filter
+     * @param int   $offset
+     * @param int   $limit
      *
      * @return Generator
      */
@@ -608,6 +613,8 @@ class Server
         foreach ($groups as $attributes) {
             yield new Group($attributes, $this, $this->db, $this->logger);
         }
+
+        return $this->db->group->count($filter);
     }
 
     /**

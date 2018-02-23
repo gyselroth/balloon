@@ -171,9 +171,8 @@ class Groups
     {
         $group = $this->_getGroup($id, $name);
         $result = $group->getResolvedMembers($offset, $limit);
-        $total = count($group->getMembers());
         $uri = '/api/v2/groups/'.$group->getId().'/members';
-        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, $uri);
+        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $uri);
         $result = $pager->paging();
 
         return (new Response())->setCode(200)->setBody($result);
@@ -213,8 +212,7 @@ class Groups
     {
         if ($id === null && $name === null) {
             $result = $this->server->getGroups($query, $offset, $limit);
-            $total = $this->server->countGroups($query);
-            $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $total, '/api/v2/groups');
+            $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, '/api/v2/groups');
             $result = $pager->paging();
         } else {
             $result = $this->decorator->decorate($this->_getGroup($id, $name), $attributes);
@@ -263,9 +261,10 @@ class Groups
      * @apiExample Example usage:
      * curl -XPOST "https://SERVER/api/v2/group"
      *
-     * @apiParam (POST Parameter) {string} name of the new group
-     * @apiParam (POST Parameter) {string[]} ID of group member
-     * @apiParam (POST Parameter) {string[]} Attributes
+     * @apiParam (POST Parameter) {string} name group name
+     * @apiParam (POST Parameter) {string[]} member Array of member id
+     * @apiParam (POST Parameter) {string} namespace Namespace
+     * @apiParam (POST Parameter) {string[]} optional Optional attributes
      *
      * @apiSuccess (200 OK) {string} id group ID
      * @apiSuccess (200 OK) {string} name group name
@@ -279,12 +278,14 @@ class Groups
      *
      * @param string $name
      * @param array  $member
-     * @param array  $attributes
      *
      * @return Response
      */
-    public function post(string $name, array $member, array $attributes = []): Response
+    public function post(string $name, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
     {
+        $attributes = compact('namespace', 'optional');
+        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+
         $id = $this->server->addGroup($name, $member, $attributes);
         $result = $this->decorator->decorate($this->server->getGroupById($id));
 
@@ -299,6 +300,11 @@ class Groups
      * @apiGroup Group
      * @apiPermission admin
      * @apiDescription Set attributes for group
+     *
+     * @apiParam (POST Parameter) {string} name group name
+     * @apiParam (POST Parameter) {string[]} member Array of member id
+     * @apiParam (POST Parameter) {string} namespace Namespace
+     * @apiParam (POST Parameter) {string[]} optional Optional attributes
      *
      * @apiExample Example usage:
      * curl -XPOST "https://SERVER/api/v2/groups/attributes" -d '{"attributes": ["mail": "group@example.com"]}'
@@ -315,8 +321,11 @@ class Groups
      *
      * @return Response
      */
-    public function patch(array $attributes = [], ?string $id = null, ?string $name = null): Response
+    public function patch(?string $id = null, ?string $name = null, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
     {
+        $attributes = compact('namespace', 'optional', 'name', 'member');
+        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+
         $group = $this->_getGroup($id, $name, true)->setAttributes($attributes);
         $result = $this->decorator->decorate($group);
 

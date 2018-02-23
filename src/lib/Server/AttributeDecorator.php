@@ -157,6 +157,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
         return [
             'id' => (string) $attributes['_id'],
+            'username' => (string) $attributes['username'],
             'name' => (string) $attributes['username'],
             'namespace' => (string) $attributes['namespace'],
             'mail' => (string) $attributes['mail'],

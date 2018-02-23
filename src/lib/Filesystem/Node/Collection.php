@@ -216,35 +216,16 @@ class Collection extends AbstractNode implements DAV\IQuota
      *
      * @param int   $deleted
      * @param array $filter
-     * @param bool  $skip_exception
+     * @param int   $offset
+     * @param int   $limit
      *
      * @return Generator
      */
-    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], bool $skip_exception = true): Generator
+    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
         $filter = $this->getChildrenFilter($deleted, $filter);
-        $children = $this->_db->storage->find($filter);
 
-        foreach ($children as $child) {
-            try {
-                yield $this->_fs->initNode($child);
-            } catch (\Exception $e) {
-                if (false === $skip_exception) {
-                    throw $e;
-                }
-
-                $this->_logger->info('remove node from children list, failed load node', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-            }
-        }
-
-        if (null !== $this->filter) {
-            foreach ($this->_fs->findNodesByFilterUser($deleted, json_decode($this->filter)) as $node) {
-                yield $node;
-            }
-        }
+        return $this->_fs->findNodesByFilter($filter, $offset, $limit);
     }
 
     /**
@@ -258,7 +239,7 @@ class Collection extends AbstractNode implements DAV\IQuota
      * @param int   $deleted
      * @param array $filter
      *
-     * @return Generator
+     * @return array
      */
     public function getChildren(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
     {
@@ -961,6 +942,25 @@ class Collection extends AbstractNode implements DAV\IQuota
             ];
         } elseif (null !== $this->_user) {
             $search['owner'] = $this->_user->getId();
+        }
+
+        if ($this->filter !== null) {
+            $stored_filter = ['$and' => [
+                array_merge(
+                    ['deleted' => $search['deleted']],
+                    json_decode($this->filter),
+                    $filter
+                ),
+                ['$or' => [
+                    ['owner' => $this->_user->getId()],
+                    ['shared' => ['$in' => $this->_user->getShares()]],
+                ]],
+            ]];
+
+            $search = ['$or' => [
+                $search,
+                $stored_filter,
+            ]];
         }
 
         return $search;

@@ -481,13 +481,18 @@ class Filesystem
      * Find nodes with custom filters.
      *
      * @param array $filter
+     * @param int   $offset
+     * @param int   $limit
+     * @param int   $total
      *
      * @return Generator
      */
-    public function findNodesByFilter(array $filter): Generator
+    public function findNodesByFilter(array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
-        $result = $this->db->storage->find($filter);
-        $list = [];
+        $result = $this->db->storage->find($filter, [
+            'skip' => $offset,
+            'limit' => $limit,
+        ]);
 
         foreach ($result as $node) {
             try {
@@ -499,6 +504,8 @@ class Filesystem
                 ]);
             }
         }
+
+        return $this->db->storage->count($filter);
     }
 
     /**
@@ -506,10 +513,12 @@ class Filesystem
      *
      * @param int   $deleted
      * @param array $filter
+     * @param int   $offset
+     * @param int   $limit
      *
      * @return Generator
      */
-    public function findNodesByFilterUser(int $deleted, array $filter): Generator
+    public function findNodesByFilterUser(int $deleted, array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
         $shares = $this->user->getShares();
         $stored_filter = ['$and' => [
@@ -527,7 +536,11 @@ class Filesystem
         }
 
         $stored_filter['$and'][0] = array_merge($filter, $stored_filter['$and'][0]);
-        $result = $this->db->storage->find($stored_filter);
+
+        $result = $this->db->storage->find($stored_filter, [
+            'skip' => $offset,
+            'limit' => $limit,
+        ]);
 
         foreach ($result as $node) {
             try {
@@ -539,6 +552,8 @@ class Filesystem
                 ]);
             }
         }
+
+        return $this->db->storage->count($stored_filter);
     }
 
     /**

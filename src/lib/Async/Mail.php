@@ -40,6 +40,7 @@ class Mail extends AbstractJob
      */
     public function __construct(TransportInterface $transport, LoggerInterface $logger)
     {
+        var_dump('INSTANCE');
         $this->transport = $transport;
         $this->logger = $logger;
     }

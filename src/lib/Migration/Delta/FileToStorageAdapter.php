@@ -47,7 +47,7 @@ class FileToStorageAdapter implements DeltaInterface
 
         foreach ($cursor as $object) {
             if (isset($object['file'])) {
-                $file = $object['file'];
+                $file = ['_id' => $object['file']];
             } else {
                 $file = null;
             }

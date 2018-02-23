@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v2;
 
+use Balloon\AttributeDecorator\Pager;
 use Balloon\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
@@ -94,6 +95,8 @@ class Collections extends Nodes
      * @param int    $deleted
      * @param array  $filter
      * @param array  $attributes
+     * @param int    $offset
+     * @param int    $limit
      *
      * @return Response
      */
@@ -102,16 +105,24 @@ class Collections extends Nodes
         ?string $p = null,
         int $deleted = 0,
         array $filter = [],
-        array $attributes = []
+        array $attributes = [],
+        ?int $offset = 0,
+        ?int $limit = 20
     ): Response {
         $children = [];
-        $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
 
-        foreach ($nodes as $node) {
-            $children[] = $this->node_decorator->decorate($node, $attributes);
+        $node = $this->fs->getNode($id, $p, null, false, true);
+        if ($node->isRoot()) {
+            $uri = '/api/v2/collections/children';
+        } else {
+            $uri = '/api/v2/collections/'.$node->getId().'/children';
         }
 
-        return (new Response())->setCode(200)->setBody(['data' => $children]);
+        $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter, $offset, $limit);
+        $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
+        $result = $pager->paging();
+
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**

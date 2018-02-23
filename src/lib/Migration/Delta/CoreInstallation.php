@@ -47,7 +47,7 @@ class CoreInstallation implements DeltaInterface
         $this->db->user->createIndex(['username' => 1], ['unique' => true]);
         $this->db->selectCollection('fs.files')->createIndex(['md5' => 1], ['unique' => true]);
         $this->db->storage->createIndexes([
-            ['key' => ['acl' => 1]],
+            ['key' => ['acl.id' => 1]],
             ['key' => ['hash' => 1]],
             ['key' => ['parent' => 1, 'owner' => 1]],
             ['key' => ['reference' => 1]],

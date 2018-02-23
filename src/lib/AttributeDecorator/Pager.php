@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\AttributeDecorator;
 
+use Generator;
+
 class Pager
 {
     /**
@@ -70,10 +72,10 @@ class Pager
      * @param array                       $attributes
      * @param int                         $offset
      * @param int                         $limit
-     * @param int                         $total
      * @param string                      $uri
+     * @param int                         $total
      */
-    public function __construct(AttributeDecoratorInterface $decorator, Iterable $data, array $attributes, int $offset, int $limit, int $total, string $uri)
+    public function __construct(AttributeDecoratorInterface $decorator, Iterable $data, array $attributes, int $offset, int $limit, string $uri, ?int $total = null)
     {
         $this->decorator = $decorator;
         $this->data = $data;
@@ -97,6 +99,10 @@ class Pager
         foreach ($this->data as $node) {
             ++$count;
             $nodes[] = $this->decorator->decorate($node, $this->attributes);
+        }
+
+        if ($this->total === null && $this->data instanceof Generator) {
+            $this->total = $this->data->getReturn();
         }
 
         $data = [

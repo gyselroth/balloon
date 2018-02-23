@@ -58,7 +58,7 @@ class v1AclTov2Acl implements DeltaInterface
                         $acl[] = [
                             'type' => 'group',
                             'privilege' => $rule['priv'] === 'w' ? 'w+' : $rule['priv'],
-                            'role' => (string) $group['_id'],
+                            'id' => (string) $group['_id'],
                         ];
                     }
                 }
@@ -77,7 +77,7 @@ class v1AclTov2Acl implements DeltaInterface
                         $acl[] = [
                             'type' => 'user',
                             'privilege' => $rule['priv'] === 'w' ? 'w+' : $rule['priv'],
-                            'role' => (string) $user['_id'],
+                            'id' => (string) $user['_id'],
                         ];
                     }
                 }
