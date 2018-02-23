@@ -25,7 +25,7 @@
     "require": {
         "php": ">=7.1",
         "gyselroth/micro-auth": "*",
-        "gyselroth/micro-container": "^0.1.4",
+        "gyselroth/micro-container": "^0.1.5",
         "gyselroth/micro-http": "^0.0.5",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
