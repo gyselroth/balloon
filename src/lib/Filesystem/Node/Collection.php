@@ -374,7 +374,7 @@ class Collection extends AbstractNode implements IQuota
         if (!$this->isReference()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(false, $recursion, false);
-            }, NodeInterface::DELETED_EXCLUDE, false);
+            }, NodeInterface::DELETED_EXCLUDE);
         }
 
         if (null !== $this->_id) {
@@ -889,9 +889,9 @@ class Collection extends AbstractNode implements IQuota
      *
      * @return bool
      */
-    public function doRecursiveAction(callable $callable, int $deleted = NodeInterface::DELETED_EXCLUDE/*, bool $ignore_exception = true*/): bool
+    public function doRecursiveAction(callable $callable, int $deleted = NodeInterface::DELETED_EXCLUDE): bool
     {
-        $children = $this->getChildNodes($deleted, []/*, $ignore_exception*/);
+        $children = $this->getChildNodes($deleted, []);
 
         foreach ($children as $child) {
             $callable($child);
@@ -979,7 +979,7 @@ class Collection extends AbstractNode implements IQuota
         if (!$this->isReference()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(true, $recursion, false);
-            }, NodeInterface::DELETED_INCLUDE, false);
+            }, NodeInterface::DELETED_INCLUDE);
         }
 
         try {
