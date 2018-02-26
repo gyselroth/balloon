@@ -173,17 +173,21 @@ class Collection extends Node
         }
 
         $acl = $node->getAcl();
+        $rules = [];
 
         foreach ($acl as &$rule) {
-            $rule['role'] = $role_decorator->decorate($rule['role'], $attributes);
+            $role = $role_decorator->decorate($rule['role'], $attributes);
+            $rules[] = [
+                'type' => $rule['role'] instanceof User ? 'user' : 'group',
+                'priv' => $rule['privilege'],
+                'name' => $role['name'],
+                'id' => (string) $rule['id'],
+            ];
         }
 
         return (new Response())->setCode(200)->setBody([
             'code' => 200,
-            'data' => [
-                'name' => $node->getShareName(),
-                'acl' => $acl,
-            ],
+            'data' => $rules,
         ]);
     }
 

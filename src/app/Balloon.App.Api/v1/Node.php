@@ -616,10 +616,10 @@ class Node extends Controller
      *
      * @return Response
      */
-    public function postMetaAttributes(array $attributes, ?string $id = null, ?string $p = null): Response
+    public function postMetaAttributes(?string $id = null, ?string $p = null): Response
     {
-        return $this->bulk($id, $p, function ($node) use ($attributes) {
-            $node->setMetaAttributes($attributes);
+        return $this->bulk($id, $p, function ($node) {
+            $node->setMetaAttributes($_POST);
 
             return ['code' => 204];
         });

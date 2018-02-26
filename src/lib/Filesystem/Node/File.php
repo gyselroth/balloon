@@ -21,8 +21,9 @@ use Balloon\Mime;
 use Balloon\Server\User;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
+use Sabre\DAV\IFile;
 
-class File extends AbstractNode
+class File extends AbstractNode implements IFile
 {
     /**
      * History types.

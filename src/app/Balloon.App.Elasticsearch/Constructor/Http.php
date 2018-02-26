@@ -26,6 +26,6 @@ class Http
     public function __construct(Router $router)
     {
         $router->prependRoute(new Route('/api/v1/(node|file|collection)/search', v1\Search::class));
-        $router->prependRoute(new Route('/api/v2/(nodes|files|collections)/search', v2\Search::class));
+        $router->prependRoute(new Route('/api/v2/(nodes|files|collections)/search(/|\z)', v2\Search::class));
     }
 }

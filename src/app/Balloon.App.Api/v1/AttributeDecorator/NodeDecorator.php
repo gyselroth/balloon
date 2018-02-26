@@ -238,7 +238,7 @@ class NodeDecorator
             },
             'destroy' => function ($node) use ($attributes) {
                 if (null === $attributes['destroy']) {
-                    return false;
+                    return null;
                 }
 
                 return $this->dateTimeToUnix($attributes['destroy']);
@@ -267,7 +267,9 @@ class NodeDecorator
         }
 
         return [
+            'shared' => $node->isShared(),
             'reference' => $node->isReference(),
+            'filtered' => $node->isCustomFilter(),
         ];
     }
 
@@ -284,14 +286,11 @@ class NodeDecorator
         foreach ($attributes as $key => &$value) {
             if ($value instanceof Closure) {
                 $result = $value->call($this, $node);
-
-                if (null === $result) {
+                if ($result === null && $key !== 'destroy') {
                     unset($attributes[$key]);
                 } else {
                     $value = $result;
                 }
-            } elseif ($value === null) {
-                unset($attributes[$key]);
             }
         }
 

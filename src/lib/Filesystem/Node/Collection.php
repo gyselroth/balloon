@@ -22,9 +22,9 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
-use Sabre\DAV;
+use Sabre\DAV\IQuota;
 
-class Collection extends AbstractNode implements DAV\IQuota
+class Collection extends AbstractNode implements IQuota
 {
     /**
      * Root folder.

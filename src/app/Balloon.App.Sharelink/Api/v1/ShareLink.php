@@ -153,6 +153,9 @@ class ShareLink extends Controller
         $node = $this->fs->getNode($id, $p);
         $result = $this->sharelink->getShareLink($node);
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $result,
+        ]);
     }
 }

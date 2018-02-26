@@ -11,11 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink\Constructor;
 
+use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator as NodeAttributeDecoratorv1;
 use Balloon\App\Sharelink\Api\v1;
 use Balloon\App\Sharelink\Api\v2;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Exception;
-use Balloon\Filesystem\Node\AttributeDecorator;
+use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
@@ -52,14 +53,14 @@ class Http
      * @param AttributeDecorator $decorator
      * @param LoggerInterface    $logger
      */
-    public function __construct(Router $router, Hook $hook, Share $sharelink, AttributeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(Router $router, Hook $hook, Share $sharelink, NodeAttributeDecorator $node_decorator_v2, NodeAttributeDecoratorv1 $node_decorator_v1, LoggerInterface $logger)
     {
         $router
             ->appendRoute(new Route('/share', $this, 'start'))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/share-link', v1\ShareLink::class))
             ->prependRoute(new Route('/api/v1/(node|file|collection)/{id:#([0-9a-z]{24})#}/share-link', v1\ShareLink::class))
-            ->prependRoute(new Route('/api/v2/(nodes|files|collections)/share-link', v2\ShareLink::class))
-            ->prependRoute(new Route('/api/v2/(nodes|files|collections)/{id:#([0-9a-z]{24})#}/share-link', v2\ShareLink::class));
+            ->prependRoute(new Route('/api/v2/(nodes|files|collections)/share-link(/|\z)', v2\ShareLink::class))
+            ->prependRoute(new Route('/api/v2/(nodes|files|collections)/{id:#([0-9a-z]{24})#}/share-link(/|\z)', v2\ShareLink::class));
 
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void
@@ -70,7 +71,7 @@ class Http
             }
         });
 
-        $decorator->addDecorator('sharelink_token', function ($node) use ($sharelink) {
+        $node_decorator_v2->addDecorator('sharelink_token', function ($node) use ($sharelink) {
             $attributes = $sharelink->getSharelink($node);
 
             if (isset($attributes['token'])) {
@@ -78,7 +79,7 @@ class Http
             }
         });
 
-        $decorator->addDecorator('sharelink_expire', function ($node) use ($sharelink) {
+        $node_decorator_v2->addDecorator('sharelink_expire', function ($node) use ($sharelink) {
             $attributes = $sharelink->getSharelink($node);
 
             if (isset($attributes['expiration'])) {
@@ -86,6 +87,10 @@ class Http
 
                 return $ts->format('c');
             }
+        });
+
+        $node_decorator_v1->addDecorator('sharelink', function ($node) use ($sharelink) {
+            return isset($sharelink->getSharelink($node)['token']);
         });
 
         $this->logger = $logger;

@@ -300,9 +300,12 @@ class User
      */
     public function getAttributes(?string $uid = null, ?string $uname = null, array $attributes = []): Response
     {
-        $result = $this->_getUser($uid, $uname)->getAttribute($attributes);
+        $result = $this->decorator->decorate($this->_getUser($uid, $uname), $attributes);
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $result,
+        ]);
     }
 
     /**

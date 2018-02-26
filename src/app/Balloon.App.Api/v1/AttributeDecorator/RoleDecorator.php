@@ -100,7 +100,7 @@ class RoleDecorator
     protected function getAttributes(RoleInterface $role, array $attributes): array
     {
         $user = $this->server->getIdentity();
-        if ($user === null || $attributes['id'] != $user->getId() && !$user->isAdmin()) {
+        if ($user === null || $attributes['_id'] != $user->getId() && !$user->isAdmin()) {
             return [];
         }
 
@@ -160,6 +160,7 @@ class RoleDecorator
 
         return [
             'id' => (string) $attributes['_id'],
+            'username' => (string) $attributes['username'],
             'name' => (string) $attributes['username'],
             'namespace' => (string) $attributes['namespace'],
             'mail' => (string) $attributes['mail'],

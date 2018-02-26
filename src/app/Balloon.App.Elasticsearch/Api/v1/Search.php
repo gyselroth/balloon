@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace Balloon\App\Elasticsearch\Api\v1;
 
 use Balloon\App\Api\Controller;
+use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator as NodeAttributeDecorator;
 use Balloon\App\Elasticsearch\Elasticsearch;
 use Balloon\Exception;
-use Balloon\Filesystem\Node\AttributeDecorator;
 use Micro\Http\Response;
 use Psr\Log\LoggerInterface;
 
@@ -30,9 +30,9 @@ class Search extends Controller
     /**
      * Attribut decorator.
      *
-     * @var AttributeDecorator
+     * @var NodeAttributeDecorator
      */
-    protected $decorator;
+    protected $node_decorator;
 
     /**
      * Logger.
@@ -44,14 +44,14 @@ class Search extends Controller
     /**
      * Constructor.
      *
-     * @param Elasticsearch      $es
-     * @param AttributeDecorator $decorator
-     * @param LoggerInterface    $logger
+     * @param Elasticsearch          $es
+     * @param NodeAttributeDecorator $node_decorator
+     * @param LoggerInterface        $logger
      */
-    public function __construct(Elasticsearch $es, AttributeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(Elasticsearch $es, NodeAttributeDecorator $node_decorator, LoggerInterface $logger)
     {
         $this->es = $es;
-        $this->decorator = $decorator;
+        $this->node_decorator = $node_decorator;
         $this->logger = $logger;
     }
 
@@ -116,7 +116,7 @@ class Search extends Controller
 
         foreach ($nodes as $node) {
             try {
-                $child = $this->decorator->decorate($node, $attributes);
+                $child = $this->node_decorator->decorate($node, $attributes);
                 $children[] = $child;
             } catch (\Exception $e) {
                 $this->logger->info('error occured during loading attributes, skip search result node', [
@@ -126,6 +126,9 @@ class Search extends Controller
             }
         }
 
-        return (new Response())->setCode(200)->setBody($children);
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $children,
+        ]);
     }
 }
