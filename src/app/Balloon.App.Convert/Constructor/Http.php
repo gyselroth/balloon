@@ -12,8 +12,9 @@ declare(strict_types=1);
 namespace Balloon\App\Convert\Constructor;
 
 use Balloon\App\Convert\Api\v2\Convert;
-use Balloon\Filesystem\Node\AttributeDecorator;
-use Balloon\Server;
+use Balloon\App\Convert\AttributeDecorator as ConvertAttributeDecorator;
+use Balloon\App\Convert\Converter;
+use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
@@ -22,26 +23,27 @@ class Http
     /**
      * Constructor.
      *
-     * @param Router             $router
-     * @param AttributeDecorator $decorator
-     * @param Server             $server
+     * @param Router                    $router
+     * @param NodeAttributeDecorator    $node_decorator
+     * @param ConvertAttributeDecorator $convert_decorator
+     * @param Converter                 $converter
      */
-    public function __construct(Router $router, AttributeDecorator $decorator, Server $server)
+    public function __construct(Router $router, NodeAttributeDecorator $node_decorator, ConvertAttributeDecorator $convert_decorator, Converter $converter)
     {
-        $fs = $server->getFilesystem();
-
         $router
-            ->prependRoute(new Route('/api/v2/files/convert', Convert::class))
-            ->prependRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}/convert', Convert::class));
+            ->prependRoute(new Route('/api/v2/files/convert(/|\z)', Convert::class))
+            ->prependRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}/convert(/|\z)', Convert::class));
 
-        $decorator->addDecorator('master', function ($node) use ($fs, $decorator) {
+        $node_decorator->addDecorator('master', function ($node) use ($convert_decorator, $converter) {
             $master = $node->getAppAttribute('Balloon\\App\\Convert', 'master');
             if (null === $master) {
                 return null;
             }
 
             try {
-                return $decorator->decorate($fs->findNodeById($master), ['id', 'name', '_links']);
+                $slave = $converter->getSlave($master);
+
+                return $convert_decorator->decorate($slave, ['id', 'format', '_links', 'master']);
             } catch (\Exception $e) {
                 return null;
             }

@@ -99,13 +99,23 @@ class Converter
      * Get slaves.
      *
      * @param File $node
+     * @param int  $offset
+     * @param int  $limit
+     * @param int  $total
      *
      * @return iterable
      */
-    public function getSlaves(File $node): Iterable
+    public function getSlaves(File $node, ?int $offset = null, ?int $limit = null, ?int &$total = null): Iterable
     {
+        $total = $this->db->{$this->collection_name}->count([
+            'master' => $node->getId(),
+        ]);
+
         return $this->db->{$this->collection_name}->find([
             'master' => $node->getId(),
+        ], [
+            'skip' => $offset,
+            'limit' => $limit,
         ]);
     }
 
@@ -163,9 +173,8 @@ class Converter
     public function deleteSlave(ObjectId $slave, bool $node = false): bool
     {
         $slave = $this->getSlave($slave);
-
         $result = $this->db->{$this->collection_name}->deleteOne([
-            '_id' => $slave,
+            '_id' => $slave['_id'],
         ]);
 
         if (true === $node && isset($slave['slave'])) {
@@ -225,7 +234,7 @@ class Converter
             'owner' => $master->getOwner(),
             'app' => [
                 __NAMESPACE__ => [
-                    'master' => $master->getId(),
+                    'master' => $slave['_id'],
                 ],
             ],
         ], NodeInterface::CONFLICT_RENAME);

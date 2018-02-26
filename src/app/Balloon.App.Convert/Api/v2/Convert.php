@@ -12,7 +12,9 @@ declare(strict_types=1);
 namespace Balloon\App\Convert\Api\v2;
 
 use Balloon\App\Api\Controller;
+use Balloon\App\Convert\AttributeDecorator as ConvertAttributeDecorator;
 use Balloon\App\Convert\Converter;
+use Balloon\AttributeDecorator\Pager;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
@@ -36,15 +38,24 @@ class Convert extends Controller
     protected $fs;
 
     /**
+     * Convert decorator.
+     *
+     * @var ConvertAttributeDecorator
+     */
+    protected $convert_decorator;
+
+    /**
      * Constructor.
      *
-     * @param Converter $converter
-     * @param Server    $server
+     * @param Converter                 $converter
+     * @param Server                    $server
+     * @param ConvertAttributeDecorator $convert_decorator
      */
-    public function __construct(Converter $converter, Server $server)
+    public function __construct(Converter $converter, Server $server, ConvertAttributeDecorator $convert_decorator)
     {
         $this->fs = $server->getFilesystem();
         $this->converter = $converter;
+        $this->convert_decorator = $convert_decorator;
     }
 
     /**
@@ -99,26 +110,15 @@ class Convert extends Controller
      * @param string $id
      * @param string $p
      */
-    public function getSlaves(?string $id = null, ?string $p = null): Response
+    public function getSlaves(?string $id = null, ?string $p = null, array $attributes = [], ?int $offset = 0, ?int $limit = 20): Response
     {
         $file = $this->fs->getNode($id, $p, File::class);
-        $body = [];
+        $result = $this->converter->getSlaves($file, $offset, $limit, $total);
+        $uri = '/api/v2/files/'.$file->getId().'/convert/slaves';
+        $pager = new Pager($this->convert_decorator, $result, $attributes, $offset, $limit, $uri, $total);
+        $result = $pager->paging();
 
-        foreach ($this->converter->getSlaves($file) as $slave) {
-            $element = [
-                'id' => (string) $slave['_id'],
-                'master' => (string) $slave['master'],
-                'format' => $slave['format'],
-            ];
-
-            if (isset($slave['slave'])) {
-                $element['slave'] = (string) $slave['slave'];
-            }
-
-            $body[] = $element;
-        }
-
-        return (new Response())->setCode(200)->setBody($body);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
@@ -149,12 +149,9 @@ class Convert extends Controller
     {
         $file = $this->fs->getNode($id, $p, File::class);
         $id = $this->converter->addSlave($file, $format);
+        $result = $this->convert_decorator->decorate($this->converter->getSlave($id));
 
-        return (new Response())->setCode(200)->setBody([
-            'id' => (string) $id,
-            'master' => (string) $file->getId(),
-            'format' => $format,
-        ]);
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
@@ -177,9 +174,9 @@ class Convert extends Controller
      * @param string $slave
      * @param bool   $node
      */
-    public function deleteSlaves(ObjectId $id, bool $node = false): Response
+    public function deleteSlaves(ObjectId $slave, ?string $id = null, ?string $p = null, bool $node = false): Response
     {
-        $this->converter->deleteSlave($id, $node);
+        $this->converter->deleteSlave($slave, $node);
 
         return (new Response())->setCode(204);
     }
