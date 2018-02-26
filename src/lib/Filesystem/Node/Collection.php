@@ -889,9 +889,9 @@ class Collection extends AbstractNode implements IQuota
      *
      * @return bool
      */
-    public function doRecursiveAction(callable $callable, int $deleted = NodeInterface::DELETED_EXCLUDE, bool $ignore_exception = true): bool
+    public function doRecursiveAction(callable $callable, int $deleted = NodeInterface::DELETED_EXCLUDE/*, bool $ignore_exception = true*/): bool
     {
-        $children = $this->getChildNodes($deleted, [], $ignore_exception);
+        $children = $this->getChildNodes($deleted, []/*, $ignore_exception*/);
 
         foreach ($children as $child) {
             $callable($child);
