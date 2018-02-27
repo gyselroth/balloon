@@ -333,7 +333,20 @@ class Filesystem
 
         $nodes = [];
         foreach ($result as $node) {
-            $return = $this->initNode($node);
+            try {
+                $return = $this->initNode($node);
+            } catch (\Exception $e) {
+                $this->logger->error('remove node from result list, failed load node', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+
+                continue;
+            }
+
+            if ($node['name'] === 'dede.txt') {
+                throw new Exception('de');
+            }
 
             if (null !== $class && !($return instanceof $class)) {
                 throw new Exception('node is not an instance of '.$class);
@@ -498,7 +511,7 @@ class Filesystem
             try {
                 yield $this->initNode($node);
             } catch (\Exception $e) {
-                $this->logger->info('remove node from result list, failed load node', [
+                $this->logger->error('remove node from result list, failed load node', [
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);
@@ -546,7 +559,7 @@ class Filesystem
             try {
                 yield $this->initNode($node);
             } catch (\Exception $e) {
-                $this->logger->info('remove node from result list, failed load node', [
+                $this->logger->error('remove node from result list, failed load node', [
                     'category' => get_class($this),
                     'exception' => $e,
                 ]);
@@ -631,13 +644,13 @@ class Filesystem
                 'category' => get_class($this),
             ]);
 
-            $node = $this->db->storage->findOne([
+            $result = $this->db->storage->findOne([
                 'owner' => $this->user->getId(),
                 'shared' => true,
                 '_id' => $node['reference'],
             ]);
 
-            if (null === $node) {
+            if (null === $result) {
                 throw new Exception\NotFound(
                     'no share node for reference node '.$node['reference'].' found',
                     Exception\NotFound::SHARE_NOT_FOUND
@@ -648,13 +661,13 @@ class Filesystem
                 'category' => get_class($this),
             ]);
 
-            $node = $this->db->storage->findOne([
+            $result = $this->db->storage->findOne([
                 'owner' => $this->user->getId(),
                 'shared' => true,
                 'reference' => $node['_id'],
             ]);
 
-            if (null === $node) {
+            if (null === $result) {
                 throw new Exception\NotFound(
                     'no share reference for node '.$node['_id'].' found',
                     Exception\NotFound::REFERENCE_NOT_FOUND
@@ -662,6 +675,6 @@ class Filesystem
             }
         }
 
-        return $node;
+        return $result;
     }
 }

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Constructor;
 
-use Balloon\App\Notification\Api\v2\Notification as Api;
+use Balloon\App\Notification\Api\v2;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Server;
@@ -30,8 +30,10 @@ class Http
     public function __construct(Router $router, AttributeDecorator $decorator, Server $server)
     {
         $router
-            ->prependRoute(new Route('/api/v2/notifications', Api::class))
-            ->prependRoute(new Route('/api/v2/notifications/{id:#([0-9a-z]{24})#}', Api::class));
+            ->prependRoute(new Route('/api/v2/notifications(/|\z)', v2\Notifications::class))
+            ->prependRoute(new Route('/api/v2/notifications/{id:#([0-9a-z]{24})#}(/|\z)', v2\Notifications::class))
+            ->prependRoute(new Route('/api/v2/nodes|files|collections/subscription(/|\z)', v2\Subscription::class))
+            ->prependRoute(new Route('/api/v2/nodes|files|collections/{id:#([0-9a-z]{24})#}/subscription(/|\z)', v2\Subscription::class));
 
         $decorator->addDecorator('subscription', function ($node) use ($server) {
             $subscription = $node->getAppAttribute('Balloon\\App\\Notification', 'subscription');

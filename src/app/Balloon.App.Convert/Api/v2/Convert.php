@@ -155,7 +155,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/files/:id/convert/slaves Delete slave
+     * @api {delete} /api/v2/files/:id/convert/slaves/:slave Delete slave
      * @apiVersion 2.0.0
      * @apiName deleteSlaves
      * @apiGroup App\Convert

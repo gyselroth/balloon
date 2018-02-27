@@ -32,6 +32,7 @@ use Balloon\Migration\Delta\LdapGroupsToLocalGroups;
 use Balloon\Migration\Delta\QueueToCappedCollection;
 use Balloon\Migration\Delta\JsonEncodeFilteredCollection;
 use Balloon\Migration\Delta\v1AclTov2Acl;
+use Balloon\Migration\Delta\UserCreateDate;
 use Balloon\Migration\Delta\ShareName;
 use Balloon\Migration\Delta\HexColorToGenericName;
 use Zend\Mail\Transport\TransportInterface;
@@ -208,6 +209,10 @@ return [
             HexColorToGenericName::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.HexColorToGenericName::class.'}']
+            ],
+            UserCreatedDate::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.UserCreatedDate::class.'}']
             ],
             CoreInstallation::class => [
                 'method' => 'injectDelta',

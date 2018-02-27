@@ -19,7 +19,6 @@ use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
-use MongoDB\Driver\Cursor;
 use Psr\Log\LoggerInterface;
 
 class Notifier
@@ -254,11 +253,41 @@ class Notifier
     /**
      * Get notifications.
      *
-     * @return Cursor
+     * @param User $user
+     * @param int  $offset
+     * @param int  $limit
+     * @param int  $total
+     *
+     * @return iterable
      */
-    public function getNotifications(): Cursor
+    public function getNotifications(User $user, ?int $offset = null, ?int $limit = null, ?int &$total = null): Iterable
     {
-        $result = $this->db->{$this->collection_name}->find(['receiver' => $this->server->getIdentity()->getId()]);
+        $total = $this->db->{$this->collection_name}->count(['receiver' => $user->getId()]);
+        $result = $this->db->{$this->collection_name}->find(['receiver' => $this->server->getIdentity()->getId()], [
+            'skip' => $offset,
+            'limit' => $limit,
+        ]);
+
+        return $result;
+    }
+
+    /**
+     * Get notification.
+     *
+     * @param ObjectId $id
+     *
+     * @return array
+     */
+    public function getNotification(ObjectId $id): array
+    {
+        $result = $this->db->{$this->collection_name}->findOne([
+            '_id' => $id,
+            'receiver' => $this->server->getIdentity()->getId(),
+        ]);
+
+        if ($result === null) {
+            throw new Exception('notification not found');
+        }
 
         return $result;
     }

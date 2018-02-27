@@ -11,10 +11,25 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api;
 
+use Balloon\App\Api\v2\Collections as ApiCollection;
+use Balloon\App\Api\v2\Files as ApiFile;
+use Balloon\Filesystem;
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\NodeInterface;
+use Closure;
+use Generator;
+use Micro\Http\Response;
 
-class Controller
+abstract class Controller
 {
+    /**
+     * Filesystem.
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
     /**
      * @apiDefine _getNode
      *
@@ -58,6 +73,9 @@ class Controller
      *          "code": 49
      *      }
      * }
+     *
+     * @param mixed $id
+     * @param mixed $p
      */
 
     /**
@@ -147,4 +165,111 @@ class Controller
      *      }
      * }
      */
+
+    /**
+     * Do bulk operations.
+     *
+     * @param array|string $id
+     * @param array|string $p
+     * @param Closure      $action
+     */
+    protected function bulk($id, $p, Closure $action): Response
+    {
+        if (is_array($id) || is_array($p)) {
+            $body = [];
+            foreach ($this->_getNodes($id, $p) as $node) {
+                try {
+                    $body[(string) $node->getId()] = $action->call($this, $node);
+                } catch (\Exception $e) {
+                    $body[(string) $node->getId()] = [
+                        'code' => 400,
+                        'data' => [
+                            'error' => get_class($e),
+                            'message' => $e->getMessage(),
+                            'code' => $e->getCode(),
+                        ],
+                    ];
+                }
+            }
+
+            return (new Response())->setCode(207)->setBody($body);
+        }
+
+        $body = $action->call($this, $this->_getNode($id, $p));
+        $response = (new Response())->setCode($body['code']);
+
+        if (isset($body['data'])) {
+            $response->setBody($body['data']);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Get node.
+     *
+     * @param string $id
+     * @param string $path
+     * @param string $class      Force set node type
+     * @param bool   $multiple   Allow $id to be an array
+     * @param bool   $allow_root Allow instance of root collection
+     * @param bool   $deleted    How to handle deleted node
+     *
+     * @return NodeInterface
+     */
+    protected function _getNode(
+        ?string $id = null,
+        ?string $path = null,
+        ?string $class = null,
+        bool $multiple = false,
+        bool $allow_root = false,
+        int $deleted = 2
+    ): NodeInterface {
+        if (null === $class) {
+            switch (get_class($this)) {
+                case ApiFile::class:
+                    $class = File::class;
+
+                break;
+                case ApiCollection::class:
+                    $class = Collection::class;
+
+                break;
+            }
+        }
+
+        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
+    }
+
+    /**
+     * Get nodes.
+     *
+     * @param string $id
+     * @param string $path
+     * @param string $class   Force set node type
+     * @param bool   $deleted How to handle deleted node
+     *
+     * @return Generator
+     */
+    protected function _getNodes(
+        $id = null,
+        $path = null,
+        ?string $class = null,
+        int $deleted = 2
+    ): Generator {
+        if (null === $class) {
+            switch (get_class($this)) {
+                case ApiFile::class:
+                    $class = File::class;
+
+                break;
+                case ApiCollection::class:
+                    $class = Collection::class;
+
+                break;
+            }
+        }
+
+        return $this->fs->getNodes($id, $path, $class, $deleted);
+    }
 }

@@ -15,9 +15,7 @@ use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
 use Balloon\Server\Exception;
 use Balloon\Server\Group;
-use Balloon\Server\Group\Exception as GroupException;
 use Balloon\Server\User;
-use Balloon\Server\User\Exception as UserException;
 use Generator;
 use Micro\Auth\Identity;
 use MongoDB\BSON\Binary;
@@ -25,6 +23,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
+use InvalidArgument;
 
 class Server
 {
@@ -161,7 +160,7 @@ class Server
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$name.' given');
+                    throw new InvalidArgument('invalid option '.$name.' given');
             }
         }
 
@@ -238,29 +237,33 @@ class Server
             switch ($attribute) {
                 case 'namespace':
                     if (!is_string($value)) {
-                        throw new GroupException($attribute.' must be a valid string');
+                        throw new Group\Exception\InvalidArgument($attribute.' must be a valid string',
+                            Group\Exception\InvalidArgument::INVALID_NAMESPACE);
                     }
 
                 break;
                 case 'name':
                     if (!is_string($value)) {
-                        throw new GroupException($attribute.' must be a valid string');
+                        throw new Group\Exception\InvalidArgument($attribute.' must be a valid string',
+                            Group\Exception\InvalidArgument::INVALID_NAME);
                     }
 
                     if ($this->groupExists($value)) {
-                        throw new GroupException('group does already exists', GroupException::ALREADY_EXISTS);
+                        throw new Group\Exception\NotUnique('group does already exists');
                     }
 
                 break;
                 case 'optional':
                     if (!is_array($value)) {
-                        throw new GroupException('optional group attributes must be an array');
+                        throw new Group\Exception\InvalidArgument('optional group attributes must be an array',
+                            Group\Exception\InvalidArgument::INVALID_OPTIONAL);
                     }
 
                 break;
                 case 'member':
                     if (!is_array($value)) {
-                        throw new GroupException('member must be an array of user');
+                        throw new Group\Exception\InvalidArgument('member must be an array of user',
+                            Group\Exception\InvalidArgument::INVALID_MEMBER);
                     }
 
                     $valid = [];
@@ -270,22 +273,21 @@ class Server
                         } else {
                             $id = new ObjectId($id);
                             if (!$this->userExists($id)) {
-                                throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
+                                throw new User\Exception\NotFound('user does not exists');
                             }
                         }
 
-                        if (in_array($id, $valid)) {
-                            throw new GroupException('group can only hold a user once', GroupException::UNIQUE_MEMBER);
+                        if (!in_array($id, $valid)) {
+                            $valid[] = $id;
                         }
-
-                        $valid[] = $id;
                     }
 
                     $value = $valid;
 
                 break;
                 default:
-                    throw new GroupException('invalid attribute '.$attribute.' given');
+                    throw new Group\Exception\InvalidArgument('invalid attribute '.$attribute.' given',
+                        Group\Exception\InvalidArgument::INVALID_ATTRIBUTE);
             }
         }
 
@@ -305,17 +307,19 @@ class Server
             switch ($attribute) {
                 case 'username':
                     if (!preg_match('/^[A-Za-z0-9\.-_\@]+$/', $value)) {
-                        throw new UserException('username does not match required regex /^[A-Za-z0-9\.-_\@]+$/');
+                        throw new User\Exception\InvalidArgument('username does not match required regex /^[A-Za-z0-9\.-_\@]+$/',
+                            User\Exception\InvalidArgument::INVALID_USERNAME);
                     }
 
                     if ($this->userExists($value)) {
-                        throw new UserException('user does already exists', UserException::ALREADY_EXISTS);
+                        throw new User\Exception\NotUnique('user does already exists');
                     }
 
                 break;
                 case 'password':
                     if (!preg_match($this->password_policy, $value)) {
-                        throw new UserException('password does not follow password policy '.$this->password_policy);
+                        throw new User\Exception\InvalidArgument('password does not follow password policy '.$this->password_policy,
+                            User\Exception\InvalidArgument::INVALID_PASSWORD);
                     }
 
                     $value = password_hash($value, $this->password_hash);
@@ -324,19 +328,22 @@ class Server
                 case 'soft_quota':
                 case 'hard_quota':
                     if (!is_numeric($value)) {
-                        throw new UserException($attribute.' must be numeric');
+                        throw new User\Exception\InvalidArgument($attribute.' must be numeric',
+                            User\Exception\InvalidArgument::INVALID_QUOTA);
                     }
 
                 break;
                 case 'avatar':
                     if (!$value instanceof Binary) {
-                        throw new UserException('avatar must be an instance of Binary');
+                        throw new User\Exception\InvalidArgument('avatar must be an instance of Binary',
+                            User\Exception\InvalidArgument::INVALID_AVATAR);
                     }
 
                 break;
                 case 'mail':
                     if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                        throw new UserException('mail address given is invalid');
+                        throw new User\Exception\InvalidArgument('mail address given is invalid',
+                            User\Exception\InvalidArgument::INVALID_MAIL);
                     }
 
                 break;
@@ -346,18 +353,21 @@ class Server
                 break;
                 case 'namespace':
                     if (!is_string($value)) {
-                        throw new UserException('namespace must be a valid string');
+                        throw new User\Exception\InvalidArgument('namespace must be a valid string',
+                            User\Exception\InvalidArgument::INVALID_NAMESPACE);
                     }
 
                 break;
                 case 'optional':
                     if (!is_array($value)) {
-                        throw new UserException('optional user attributes must be an array');
+                        throw new User\Exception\InvalidArgument('optional user attributes must be an array',
+                            User\Exception\InvalidArgument::INVALID_OPTIONAL);
                     }
 
                 break;
                 default:
-                    throw new UserException('invalid attribute '.$attribute.' given');
+                    throw new User\Exception\InvalidArgument('invalid attribute '.$attribute.' given',
+                        User\Exception\InvalidArgument::INVALID_ATTRIBUTE);
             }
         }
 
@@ -423,11 +433,11 @@ class Server
         $users = $this->db->user->aggregate($aggregation)->toArray();
 
         if (count($users) > 1) {
-            throw new UserException('multiple user found', UserException::MULTIPLE_USER_FOUND);
+            throw new User\Exception\NotUnique('multiple user found');
         }
 
         if (count($users) === 0) {
-            throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
+            throw new User\Exception\NotFound('user does not exists');
         }
 
         return new User(array_shift($users), $this, $this->db, $this->logger);
@@ -475,7 +485,7 @@ class Server
 
         try {
             $user = $this->getUserByName($identity->getIdentifier());
-        } catch (UserException $e) {
+        } catch (User\Exception\NotFound $e) {
             $this->logger->warning('failed connect authenticated user, user account does not exists', [
                 'category' => get_class($this),
             ]);
@@ -484,13 +494,13 @@ class Server
         $this->hook->run('preServerIdentity', [$identity, &$user]);
 
         if (!($user instanceof User)) {
-            throw new Exception\NotAuthenticated('user does not exists', Exception\NotAuthenticated::USER_DOES_NOT_EXISTS);
+            throw new User\Exception\NotAuthenticated('user does not exists', User\Exception\NotAuthenticated::USER_NOT_FOUND);
         }
 
         if ($user->isDeleted()) {
-            throw new Exception\NotAuthenticated(
+            throw new User\Exception\NotAuthenticated(
                 'user is disabled and can not be used',
-                Exception\NotAuthenticated::USER_DELETED
+                User\Exception\NotAuthenticated::USER_DELETED
             );
         }
 
@@ -526,11 +536,11 @@ class Server
         $users = $this->db->user->aggregate($aggregation)->toArray();
 
         if (count($users) > 1) {
-            throw new UserException('multiple user found', UserException::MULTIPLE_USER_FOUND);
+            throw new User\Exception\NotUnique('multiple user found');
         }
 
         if (count($users) === 0) {
-            throw new UserException('user does not exists', UserException::DOES_NOT_EXISTS);
+            throw new User\Exception\NotFound('user does not exists');
         }
 
         return new User(array_shift($users), $this, $this->db, $this->logger);
@@ -626,15 +636,15 @@ class Server
      */
     public function getGroupByName(string $name): Group
     {
-        $attributes = $this->db->group->findOne([
+        $group = $this->db->group->findOne([
            'name' => $name,
         ]);
 
-        if (null === $attributes) {
-            throw new GroupException('group does not exists', GroupException::DOES_NOT_EXISTS);
+        if (null === $group) {
+            throw new Group\Exception\NotFound('group does not exists');
         }
 
-        return new Group($attributes, $this, $this->db, $this->logger);
+        return new Group($group, $this, $this->db, $this->logger);
     }
 
     /**
@@ -642,19 +652,19 @@ class Server
      *
      * @param string $id
      *
-     * @return User
+     * @return Group
      */
     public function getGroupById(ObjectId $id): Group
     {
-        $attributes = $this->db->group->findOne([
+        $group = $this->db->group->findOne([
            '_id' => $id,
         ]);
 
-        if (null === $attributes) {
-            throw new GroupException('group does not exists', GroupException::DOES_NOT_EXISTS);
+        if (null === $group) {
+            throw new Group\Exception\NotFound('group does not exists');
         }
 
-        return new Group($attributes, $this, $this->db, $this->logger);
+        return new Group($group, $this, $this->db, $this->logger);
     }
 
     /**

@@ -12,8 +12,10 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Api\v2;
 
 use Balloon\App\Api\Controller;
+use Balloon\App\Notification\AttributeDecorator as NotificationAttributeDecorator;
 use Balloon\App\Notification\Notifier;
 use Balloon\Async\Mail;
+use Balloon\AttributeDecorator\Pager;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
@@ -26,7 +28,7 @@ use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
 
-class Notification extends Controller
+class Notifications extends Controller
 {
     /**
      * Notifier.
@@ -85,16 +87,24 @@ class Notification extends Controller
     protected $node_decorator;
 
     /**
+     * Notification attribute decorator.
+     *
+     * @var NotificationAttributeDecorator
+     */
+    protected $notification_decorator;
+
+    /**
      * Constructor.
      *
-     * @param Notifier               $notifier
-     * @param Server                 $server
-     * @param Async                  $async
-     * @param LoggerInterface        $logger
-     * @param RoleAttributeDecorator $role_decorator
-     * @param NodeAttributeDecorator $node_decorator
+     * @param Notifier                       $notifier
+     * @param Server                         $server
+     * @param Async                          $async
+     * @param LoggerInterface                $logger
+     * @param RoleAttributeDecorator         $role_decorator
+     * @param NodeAttributeDecorator         $node_decorator
+     * @param NotificationAttributeDecorator $notification_decorator
      */
-    public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, RoleAttributeDecorator $role_decorator, NodeAttributeDecorator $node_decorator)
+    public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, RoleAttributeDecorator $role_decorator, NodeAttributeDecorator $node_decorator, NotificationAttributeDecorator $notification_decorator)
     {
         $this->notifier = $notifier;
         $this->user = $server->getIdentity();
@@ -104,6 +114,7 @@ class Notification extends Controller
         $this->logger = $logger;
         $this->role_decorator = $role_decorator;
         $this->node_decorator = $node_decorator;
+        $this->notification_decorator = $notification_decorator;
     }
 
     /**
@@ -128,20 +139,27 @@ class Notification extends Controller
      *      "name": ""
      *  }
      * ]
+     *
+     * @param ObjectId $id
+     * @param array    $attributes
+     * @param int      $offset
+     * @param int      $limit
      */
-    public function get(): Response
+    public function get(?ObjectId $id = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        $body = [];
-        foreach ($this->notifier->getNotifications($this->user) as $message) {
-            $note = $message;
-            $note['id'] = (string) $note['_id'];
-            unset($note['_id'], $note['receiver']);
+        if ($id !== null) {
+            $message = $this->notifier->getNotification($id);
+            $result = $this->notification_decorator->decorate($message, $attributes);
 
-            $note['sender'] = $this->role_decorator->decorate($this->server->getUserById($note['sender']), ['id', 'username']);
-            $body[] = $note;
+            return (new Response())->setCode(200)->setBody($result);
         }
 
-        return (new Response())->setCode(200)->setBody($body);
+        $result = $this->notifier->getNotifications($this->user, $offset, $limit, $total);
+        $uri = '/api/v2/notifications';
+        $pager = new Pager($this->notification_decorator, $result, $attributes, $offset, $limit, $uri, $total);
+        $result = $pager->paging();
+
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
@@ -158,9 +176,9 @@ class Notification extends Controller
      * @apiSuccessExample {string} Success-Response:
      * HTTP/1.1 204 No Content
      */
-    public function delete(string $id): Response
+    public function delete(ObjectId $id): Response
     {
-        $this->notifier->deleteNotification($this->user, new ObjectId($id));
+        $this->notifier->deleteNotification($id);
 
         return (new Response())->setCode(204);
     }
@@ -177,14 +195,14 @@ class Notification extends Controller
      * curl -XPOST "https://SERVER/api/v2/notification"
      *
      * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 204 No Content
+     * HTTP/1.1 202 Accepted
      */
     public function post(array $receiver, string $subject, string $body): Response
     {
         $users = $this->server->getUsersById($receiver);
         $this->notifier->notify($receiver, $this->user, $subject, $body);
 
-        return (new Response())->setCode(204);
+        return (new Response())->setCode(202);
     }
 
     /**
@@ -265,7 +283,7 @@ class Notification extends Controller
      * @param null|mixed $id
      * @param null|mixed $p
      */
-    public function postSubscribe($id = null, $p = null, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false)
+    public function postSubscribtions($id = null, $p = null, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false)
     {
         if (is_array($id) || is_array($p)) {
             foreach ($this->fs->findNodesById($id) as $node) {

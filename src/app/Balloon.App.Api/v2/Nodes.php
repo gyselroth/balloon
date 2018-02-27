@@ -87,7 +87,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {head} /api/v2/node/:id Node exists?
+     * @api {head} /api/v2/nodes/:id Node exists?
      * @apiVersion 2.0.0
      * @apiName head
      * @apiGroup Node
@@ -98,7 +98,7 @@ class Nodes extends Controller
      *
      * @apiExample (cURL) example:
      * curl -XHEAD "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686"
-     * curl -XHEAD "https://SERVER/api/v2/node/544627ed3c58891f058b4686"
+     * curl -XHEAD "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686"
      * curl -XHEAD "https://SERVER/api/v2/node?p=/absolute/path/to/my/node"
      *
      * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted node or not, possible values:</br>
@@ -135,7 +135,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/:id/undelete Restore node
+     * @api {post} /api/v2/nodes/:id/undelete Restore node
      * @apiVersion 2.0.0
      * @apiName postUndelete
      * @apiGroup Node
@@ -147,10 +147,10 @@ class Nodes extends Controller
      * @apiUse _writeAction
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/node/undelete?id[]=544627ed3c58891f058b4686&id[]=544627ed3c58891f058b46865&pretty"
-     * curl -XPOST "https://SERVER/api/v2/node/undelete?id=544627ed3c58891f058b4686?pretty"
-     * curl -XPOST "https://SERVER/api/v2/node/544627ed3c58891f058b4686/undelete?conflict=2"
-     * curl -XPOST "https://SERVER/api/v2/node/undelete?p=/absolute/path/to/my/node&conflict=0&move=1&destid=544627ed3c58891f058b46889"
+     * curl -XPOST "https://SERVER/api/v2/nodes/undelete?id[]=544627ed3c58891f058b4686&id[]=544627ed3c58891f058b46865&pretty"
+     * curl -XPOST "https://SERVER/api/v2/nodes/undelete?id=544627ed3c58891f058b4686?pretty"
+     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/undelete?conflict=2"
+     * curl -XPOST "https://SERVER/api/v2/nodes/undelete?p=/absolute/path/to/my/node&conflict=0&move=1&destid=544627ed3c58891f058b46889"
      *
      * @apiParam (GET Parameter) {string} [destid] Either destid or destp (path) of the new parent collection node must be given.
      * @apiParam (GET Parameter) {string} [destp] Either destid or destp (path) of the new parent collection node must be given.
@@ -206,7 +206,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/:id/content Download stream
+     * @api {get} /api/v2/nodes/:id/content Download stream
      * @apiVersion 2.0.0
      * @apiName getContent
      * @apiGroup Node
@@ -221,7 +221,7 @@ class Nodes extends Controller
      *
      * @apiExample (cURL) example:
      * curl -XGET "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686" > myfile.txt
-     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686" > myfile.txt
+     * curl -XGET "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686" > myfile.txt
      * curl -XGET "https://SERVER/api/v2/node?p=/absolute/path/to/my/collection" > folder.zip
      *
      * @apiSuccessExample {string} Success-Response (encode=base64):
@@ -330,7 +330,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/:id/readonly Set readonly
+     * @api {post} /api/v2/nodes/:id/readonly Set readonly
      * @apiVersion 2.0.0
      * @apiName postReadonly
      * @apiGroup Node
@@ -341,9 +341,9 @@ class Nodes extends Controller
      * @apiUse _writeAction
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/node/readonly?id[]=544627ed3c58891f058b4686&id[]=544627ed3c58891f058b46865&readonly=1"
-     * curl -XPOST "https://SERVER/api/v2/node/544627ed3c58891f058b4686/readonly?readonly=0"
-     * curl -XPOST "https://SERVER/api/v2/node/readonly?p=/absolute/path/to/my/node"
+     * curl -XPOST "https://SERVER/api/v2/nodes/readonly?id[]=544627ed3c58891f058b4686&id[]=544627ed3c58891f058b46865&readonly=1"
+     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/readonly?readonly=0"
+     * curl -XPOST "https://SERVER/api/v2/nodes/readonly?p=/absolute/path/to/my/node"
      *
      * @apiParam (GET Parameter) {bool} [readonly=true] Set readonly to false to make node writeable again
      *
@@ -406,7 +406,7 @@ class Nodes extends Controller
      */
 
     /**
-     * @api {get} /api/v2/node/:id Get attributes
+     * @api {get} /api/v2/nodes/:id Get attributes
      * @apiVersion 2.0.0
      * @apiName get
      * @apiGroup Node
@@ -421,7 +421,7 @@ class Nodes extends Controller
      * @apiExample (cURL) example:
      * curl -XGET "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686&pretty"
      * curl -XGET "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686&attributes[0]=name&attributes[1]=deleted&pretty"
-     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686?pretty"
+     * curl -XGET "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686?pretty"
      * curl -XGET "https://SERVER/api/v2/node?p=/absolute/path/to/my/node&pretty"
      *
      * @apiSuccessExample {json} Success-Response:
@@ -485,7 +485,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/:id/parents Get parent nodes
+     * @api {get} /api/v2/nodes/:id/parents Get parent nodes
      * @apiVersion 2.0.0
      * @apiName getParents
      * @apiGroup Node
@@ -498,10 +498,10 @@ class Nodes extends Controller
      * @apiParam (GET Parameter) {boolean} [self=true] Include requested collection itself at the end of the list (Will be ignored if the requested node is a file)
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/node/parents?id=544627ed3c58891f058b4686&pretty"
-     * curl -XGET "https://SERVER/api/v2/node/parents?id=544627ed3c58891f058b4686&attributes[0]=name&attributes[1]=deleted&pretty"
-     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686/parents?pretty&self=1"
-     * curl -XGET "https://SERVER/api/v2/node/parents?p=/absolute/path/to/my/node&self=1"
+     * curl -XGET "https://SERVER/api/v2/nodes/parents?id=544627ed3c58891f058b4686&pretty"
+     * curl -XGET "https://SERVER/api/v2/nodes/parents?id=544627ed3c58891f058b4686&attributes[0]=name&attributes[1]=deleted&pretty"
+     * curl -XGET "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/parents?pretty&self=1"
+     * curl -XGET "https://SERVER/api/v2/nodes/parents?p=/absolute/path/to/my/node&self=1"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
@@ -556,7 +556,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {patch} /api/v2/node/:id/meta Change meta attributes
+     * @api {patch} /api/v2/nodes/:id/meta Change meta attributes
      * @apiVersion 2.0.0
      * @apiName patchMeta
      * @apiGroup Node
@@ -574,9 +574,9 @@ class Nodes extends Controller
      * @apiParam (GET Parameter) {string[]} [attributes.tags] Tags - Must be an array full of strings
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/node/meta-attributes?id=544627ed3c58891f058b4686&author=peter.meier"
-     * curl -XPOST "https://SERVER/api/v2/node/544627ed3c58891f058b4686/meta-attributes?author=example"
-     * curl -XPOST "https://SERVER/api/v2/node/meta-attributes?p=/absolute/path/to/my/node?license=GPL-3.0"
+     * curl -XPOST "https://SERVER/api/v2/nodes/meta-attributes?id=544627ed3c58891f058b4686&author=peter.meier"
+     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/meta-attributes?author=example"
+     * curl -XPOST "https://SERVER/api/v2/nodes/meta-attributes?p=/absolute/path/to/my/node?license=GPL-3.0"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200
@@ -599,7 +599,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/:id/name Rename node
+     * @api {post} /api/v2/nodes/:id/name Rename node
      * @apiVersion 2.0.0
      * @apiName postName
      * @apiGroup Node
@@ -612,9 +612,9 @@ class Nodes extends Controller
      * @apiError (Error 400) Exception name contains invalid characters
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/node/name?id=544627ed3c58891f058b4686&name=newname.txt"
-     * curl -XPOST "https://SERVER/api/v2/node/544627ed3c58891f058b4677/name?name=newdir"
-     * curl -XPOST "https://SERVER/api/v2/node/name?p=/absolute/path/to/my/node&name=newname.txt"
+     * curl -XPOST "https://SERVER/api/v2/nodes/name?id=544627ed3c58891f058b4686&name=newname.txt"
+     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4677/name?name=newdir"
+     * curl -XPOST "https://SERVER/api/v2/nodes/name?p=/absolute/path/to/my/node&name=newname.txt"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
@@ -635,7 +635,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/:id/clone Clone node
+     * @api {post} /api/v2/nodes/:id/clone Clone node
      * @apiVersion 2.0.0
      * @apiName postClone
      * @apiGroup Node
@@ -650,9 +650,9 @@ class Nodes extends Controller
      * @apiParam (GET Parameter) {string} [destp] Either destid or destp (path) of the new parent collection node must be given.
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/node/clone?id=544627ed3c58891f058b4686&dest=544627ed3c58891f058b4676"
-     * curl -XPOST "https://SERVER/api/v2/node/544627ed3c58891f058b4686/clone?dest=544627ed3c58891f058b4676&conflict=2"
-     * curl -XPOST "https://SERVER/api/v2/node/clone?p=/absolute/path/to/my/node&conflict=0&destp=/new/parent"
+     * curl -XPOST "https://SERVER/api/v2/nodes/clone?id=544627ed3c58891f058b4686&dest=544627ed3c58891f058b4676"
+     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/clone?dest=544627ed3c58891f058b4676&conflict=2"
+     * curl -XPOST "https://SERVER/api/v2/nodes/clone?p=/absolute/path/to/my/node&conflict=0&destp=/new/parent"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 201 Created
@@ -697,7 +697,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {post} /api/v2/node/:id/move Move node
+     * @api {post} /api/v2/nodes/:id/move Move node
      * @apiVersion 2.0.0
      * @apiName postMove
      * @apiGroup Node
@@ -712,9 +712,9 @@ class Nodes extends Controller
      * @apiParam (GET Parameter) {string} [destp] Either destid or destp (path) of the new parent collection node must be given.
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/node/move?id=544627ed3c58891f058b4686?destid=544627ed3c58891f058b4655"
-     * curl -XPOST "https://SERVER/api/v2/node/544627ed3c58891f058b4686/move?destid=544627ed3c58891f058b4655"
-     * curl -XPOST "https://SERVER/api/v2/node/move?p=/absolute/path/to/my/node&destp=/new/parent&conflict=1
+     * curl -XPOST "https://SERVER/api/v2/nodes/move?id=544627ed3c58891f058b4686?destid=544627ed3c58891f058b4655"
+     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/move?destid=544627ed3c58891f058b4655"
+     * curl -XPOST "https://SERVER/api/v2/nodes/move?p=/absolute/path/to/my/node&destp=/new/parent&conflict=1
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
@@ -761,7 +761,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/node?id=:id Delete node
+     * @api {delete} /api/v2/nodes/:id Delete node
      * @apiVersion 2.0.0
      * @apiName delete
      * @apiGroup Node
@@ -777,7 +777,7 @@ class Nodes extends Controller
      *
      * @apiExample (cURL) example:
      * curl -XDELETE "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686"
-     * curl -XDELETE "https://SERVER/api/v2/node/544627ed3c58891f058b4686?force=1&ignore_flag=1"
+     * curl -XDELETE "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686?force=1&ignore_flag=1"
      * curl -XDELETE "https://SERVER/api/v2/node?p=/absolute/path/to/my/node"
      *
      * @apiSuccessExample {json} Success-Response:
@@ -821,17 +821,17 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/trash Get trash
+     * @api {get} /api/v2/nodes/trash Get trash
      * @apiName getTrash
      * @apiVersion 2.0.0
      * @apiGroup Node
      * @apiPermission none
-     * @apiDescription A similar endpoint to /api/v2/node/query filer={'deleted': {$type: 9}] but instead returning all deleted
+     * @apiDescription A similar endpoint to /api/v2/nodes/query filer={'deleted': {$type: 9}] but instead returning all deleted
      * nodes (including children which are deleted as well) this enpoint only returns the first deleted node from every subtree)
      * @apiUse _nodeAttributes
      *
      * @apiExample (cURL) example:
-     * curl -XGET https://SERVER/api/v2/node/trash?pretty
+     * curl -XGET https://SERVER/api/v2/nodes/trash?pretty
      *
      * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
      *
@@ -884,7 +884,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/delta Get delta
+     * @api {get} /api/v2/nodes/delta Get delta
      * @apiVersion 2.0.0
      * @apiName getDelta
      * @apiGroup Node
@@ -906,7 +906,7 @@ class Nodes extends Controller
      * @apiParam (GET Parameter) {string} [cursor=null] Set a cursor to rquest next nodes within delta processing
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/node/delta?pretty"
+     * curl -XGET "https://SERVER/api/v2/nodes/delta?pretty"
      *
      * @apiSuccess (200 OK) {boolean} reset If true the local state needs to be reseted, is alway TRUE during
      * the first request to /delta without a cursor or in special cases like server or account maintenance
@@ -974,7 +974,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/:id/event-log Event log
+     * @api {get} /api/v2/nodes/:id/event-log Event log
      * @apiVersion 2.0.0
      * @apiName getEventLog
      * @apiGroup Node
@@ -1008,10 +1008,10 @@ class Nodes extends Controller
      * - moveCollectionShare
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/node/event-log?pretty"
-     * curl -XGET "https://SERVER/api/v2/node/event-log?id=544627ed3c58891f058b4686&pretty"
-     * curl -XGET "https://SERVER/api/v2/node/544627ed3c58891f058b4686/event-log?pretty&limit=10"
-     * curl -XGET "https://SERVER/api/v2/node/event-log?p=/absolute/path/to/my/node&pretty"
+     * curl -XGET "https://SERVER/api/v2/nodes/event-log?pretty"
+     * curl -XGET "https://SERVER/api/v2/nodes/event-log?id=544627ed3c58891f058b4686&pretty"
+     * curl -XGET "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/event-log?pretty&limit=10"
+     * curl -XGET "https://SERVER/api/v2/nodes/event-log?p=/absolute/path/to/my/node&pretty"
      *
      * @apiParam (GET Parameter) {number} [limit=100] Sets limit of events to be returned
      * @apiParam (GET Parameter) {number} [skip=0] How many events are skiped (useful for paging)
@@ -1079,7 +1079,7 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {get} /api/v2/node/last-cursor Get last Cursor
+     * @api {get} /api/v2/nodes/last-cursor Get last Cursor
      * @apiVersion 2.0.0
      * @apiName geLastCursor
      * @apiGroup Node
@@ -1090,7 +1090,7 @@ class Nodes extends Controller
      * newest cursor. To request a feed with all deltas request /delta.
      *
      * @apiExample (cURL) example:
-     * curl -XGET "https://SERVER/api/v2/node/last-cursor?pretty"
+     * curl -XGET "https://SERVER/api/v2/nodes/last-cursor?pretty"
      *
      * @apiSuccess (200 OK) {string} cursor v2 cursor
      * @apiSuccessExample {json} Success-Response:
@@ -1115,112 +1115,6 @@ class Nodes extends Controller
         return (new Response())->setCode(200)->setBody($result);
     }
 
-    /**
-     * Do bulk operations.
-     *
-     * @param array|string $id
-     * @param array|string $p
-     * @param Closure      $action
-     */
-    protected function bulk($id, $p, Closure $action): Response
-    {
-        if (is_array($id) || is_array($p)) {
-            $body = [];
-            foreach ($this->_getNodes($id, $p) as $node) {
-                try {
-                    $body[(string) $node->getId()] = $action->call($this, $node);
-                } catch (\Exception $e) {
-                    $body[(string) $node->getId()] = [
-                        'code' => 400,
-                        'data' => [
-                            'error' => get_class($e),
-                            'message' => $e->getMessage(),
-                            'code' => $e->getCode(),
-                        ],
-                    ];
-                }
-            }
-
-            return (new Response())->setCode(207)->setBody($body);
-        }
-
-        $body = $action->call($this, $this->_getNode($id, $p));
-        $response = (new Response())->setCode($body['code']);
-
-        if (isset($body['data'])) {
-            $response->setBody($body['data']);
-        }
-
-        return $response;
-    }
-
-    /**
-     * Get node.
-     *
-     * @param string $id
-     * @param string $path
-     * @param string $class      Force set node type
-     * @param bool   $multiple   Allow $id to be an array
-     * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
-     */
-    protected function _getNode(
-        ?string $id = null,
-        ?string $path = null,
-        ?string $class = null,
-        bool $multiple = false,
-        bool $allow_root = false,
-        int $deleted = 2
-    ): NodeInterface {
-        if (null === $class) {
-            switch (get_class($this)) {
-                case ApiFile::class:
-                    $class = File::class;
-
-                break;
-                case ApiCollection::class:
-                    $class = Collection::class;
-
-                break;
-            }
-        }
-
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
-    }
-
-    /**
-     * Get nodes.
-     *
-     * @param string $id
-     * @param string $path
-     * @param string $class   Force set node type
-     * @param bool   $deleted How to handle deleted node
-     *
-     * @return Generator
-     */
-    protected function _getNodes(
-        $id = null,
-        $path = null,
-        ?string $class = null,
-        int $deleted = 2
-    ): Generator {
-        if (null === $class) {
-            switch (get_class($this)) {
-                case ApiFile::class:
-                    $class = File::class;
-
-                break;
-                case ApiCollection::class:
-                    $class = Collection::class;
-
-                break;
-            }
-        }
-
-        return $this->fs->getNodes($id, $path, $class, $deleted);
-    }
 
     /**
      * Merge multiple nodes into one zip archive.

@@ -59,6 +59,7 @@ class CoreInstallation implements DeltaInterface
             ['key' => ['owner' => 1]],
             ['key' => ['timestamp' => 1]],
             ['key' => ['node' => 1]],
+            ['key' => ['share' => 1]],
         ]);
 
         if (!in_array('queue', $collections, true)) {

@@ -26,9 +26,9 @@ class Http
     public function __construct(Router $router)
     {
         $router
-            ->prependRoute(new Route('/api/v1/file/preview', v1\Preview::class))
-            ->prependRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}/preview', v1\Preview::class))
-            ->prependRoute(new Route('/api/v2/files/preview', v2\Preview::class))
-            ->prependRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}/preview', v2\Preview::class));
+            ->prependRoute(new Route('/api/v1/file/preview(/|\z)', v1\Preview::class))
+            ->prependRoute(new Route('/api/v1/file/{id:#([0-9a-z]{24})#}/preview(/|\z)', v1\Preview::class))
+            ->prependRoute(new Route('/api/v2/files/preview(/|\z)', v2\Preview::class))
+            ->prependRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}/preview(/|\z)', v2\Preview::class));
     }
 }
