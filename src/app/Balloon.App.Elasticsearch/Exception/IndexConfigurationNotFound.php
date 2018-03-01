@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\DesktopClient;
+namespace Balloon\App\Elasticsearch\Exception;
 
-class Exception extends \Balloon\Exception
+class IndexConfigurationNotFound extends \Balloon\Exception
 {
 }

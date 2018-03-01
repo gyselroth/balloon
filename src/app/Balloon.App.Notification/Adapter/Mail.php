@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Adapter;
 
-use Balloon\App\Notification\Exception;
 use Balloon\App\Notification\MessageInterface;
 use Balloon\Async\Mail as MailJob;
 use Balloon\Server\User;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
@@ -86,7 +86,7 @@ class Mail implements AdapterInterface
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 

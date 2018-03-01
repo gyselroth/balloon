@@ -16,6 +16,7 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
+use InvalidArgumentException;
 
 class TemplateHandler
 {
@@ -124,7 +125,7 @@ class TemplateHandler
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 
@@ -163,7 +164,7 @@ class TemplateHandler
         }
         $path = $this->asset_dir.DIRECTORY_SEPARATOR.$notification.'.json';
         if (!is_readable($path)) {
-            throw new Exception($path.' is not readable or does not exists');
+            throw new Exception\TemplateNotFound($path.' is not readable or does not exists');
         }
 
         return $this->templates[$notification] = json_decode(file_get_contents($path), true);
@@ -176,7 +177,7 @@ class TemplateHandler
         }
         $path = $this->asset_dir.DIRECTORY_SEPARATOR.'mail'.DIRECTORY_SEPARATOR.$notification.DIRECTORY_SEPARATOR.$locale.'.tpl';
         if (!is_readable($path)) {
-            throw new Exception($path.' is not readable or does not exists');
+            throw new Exception\TemplateNotFound($path.' is not readable or does not exists');
         }
 
         return $this->mail_templates[$notification.$locale] = file_get_contents($path);
@@ -205,11 +206,11 @@ class TemplateHandler
         }
 
         if (!isset($template[$locale])) {
-            throw new Exception('locale '.$locale.' does not exists in template');
+            throw new Exception\TemplateInvalidLocale('locale '.$locale.' does not exists in template');
         }
 
         if (!isset($template[$locale][$type])) {
-            throw new Exception('type '.$type.' does not exists in template');
+            throw new Exception\TemplateInvalidType('type '.$type.' does not exists in template');
         }
 
         return $this->decorate($this->decorateUser($this->decorateNode($template[$locale][$type], $node), $user));

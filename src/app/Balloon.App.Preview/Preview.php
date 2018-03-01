@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Preview;
 
-use Balloon\Exception;
 use Balloon\Filesystem\Node\File;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
@@ -69,10 +68,7 @@ class Preview
             }
         }
 
-        throw new Exception\NotFound(
-            'preview does not exists',
-            Exception\NotFound::PREVIEW_NOT_FOUND
-        );
+        throw new Exception\PreviewNotFound('preview does not exists');
     }
 
     /**

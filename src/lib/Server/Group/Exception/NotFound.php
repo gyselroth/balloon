@@ -13,10 +13,10 @@ namespace Balloon\Server\Group\Exception;
 
 use Micro\Http\ExceptionInterface;
 
-class NotFound extends Balloon\Exception implements ExceptionInterface
+class NotFound extends \Balloon\Exception implements ExceptionInterface
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getStatusCode(): int
     {

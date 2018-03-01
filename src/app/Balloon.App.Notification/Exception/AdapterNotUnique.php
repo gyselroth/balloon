@@ -9,23 +9,17 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Server\Group\Exception;
+namespace Balloon\App\Notification\Exception;
 
 use Micro\Http\ExceptionInterface;
 
-class InvalidArgument extends \InvalidArgumentException implements ExceptionInterface
+class AdapterNotUnique extends \Balloon\Exception implements ExceptionInterface
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getStatusCode(): int
     {
         return 400;
     }
-
-    const INVALID_NAME = 1;
-    const INVALID_NAMESPACE = 2;
-    const INVALID_MEMBER = 3;
-    const INVALID_OPTIONAL = 4;
-    const INVALID_ATTRIBUTE = 5;
 }

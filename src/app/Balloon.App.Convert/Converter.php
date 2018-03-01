@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Convert;
 
 use Balloon\Converter as FileConverter;
-use Balloon\Exception\NotFound;
+use Balloon\Filesystem\Exception\NotFound as NotFoundException;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
@@ -133,7 +133,7 @@ class Converter
         ]);
 
         if ($result === null) {
-            throw new Exception('slave not found', Exception::SLAVE_NOT_FOUND);
+            throw new Exception\SlaveNotFound('slave not found');
         }
 
         return $result;
@@ -150,8 +150,9 @@ class Converter
     public function addSlave(File $node, string $format): ObjectId
     {
         $supported = $this->converter->getSupportedFormats($node);
+
         if (!in_array($format, $supported)) {
-            throw new Exception('format '.$format.' is not available for file');
+            throw new Exception\InvalidFormat('format '.$format.' is not available for file');
         }
 
         $result = $this->db->{$this->collection_name}->insertOne([
@@ -212,7 +213,7 @@ class Converter
 
                 return true;
             }
-        } catch (NotFound $e) {
+        } catch (NotFoundException $e) {
             $this->logger->debug('referenced slave node ['.$slave['slave'].'] does not exists or is not accessible', [
                 'category' => get_class($this),
                 'exception' => $e,

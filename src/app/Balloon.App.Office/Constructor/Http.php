@@ -13,9 +13,9 @@ namespace Balloon\App\Office\Constructor;
 
 use Balloon\App\Office\Api\v1;
 use Balloon\App\Office\Api\v2;
-use Balloon\App\Office\Exception;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
+use InvalidArgumentException;
 use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Auth\Auth;
 use Micro\Http\Router;
@@ -111,7 +111,7 @@ class Http
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 

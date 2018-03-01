@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Node;
 
-use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
+use Balloon\Filesystem\Exception;
 use Balloon\Hook;
 use Balloon\Server\User;
 use Generator;

@@ -16,7 +16,6 @@ use Balloon\App\Office\Constructor\Http as App;
 use Balloon\App\Office\Document;
 use Balloon\App\Office\Session as WopiSession;
 use Balloon\App\Office\Session\Member;
-use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
@@ -125,13 +124,13 @@ class Sessions extends Controller
      *      "access_token_ttl": "1486989000"
      * }
      *
-     * @param string $id
+     * @param ObjectId $id
      *
      * @return Response
      */
-    public function postJoin(string $id): Response
+    public function postJoin(ObjectId $id): Response
     {
-        $session = WopiSession::getSessionById($this->fs, $this->parseId($id));
+        $session = WopiSession::getSessionById($this->fs, $id);
         $ttl = $this->app->getTokenTtl();
         $member = new Member($this->fs->getUser(), $ttl);
         $session->join($member)
@@ -162,33 +161,17 @@ class Sessions extends Controller
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 OK
      *
-     * @param string $id
-     * @param string $access_token
+     * @param ObjectId $id
+     * @param string   $access_token
      *
      * @return Response
      */
-    public function delete(string $id, string $access_token): Response
+    public function delete(ObjectId $id, string $access_token): Response
     {
-        $session = WopiSession::getByAccessToken($this->server, $this->parseId($id), $access_token);
+        $session = WopiSession::getByAccessToken($this->server, $id, $access_token);
         $session->leave($this->fs->getUser())
                 ->store();
 
         return (new Response())->setCode(204);
-    }
-
-    /**
-     * Parse id.
-     *
-     * @param string $id
-     *
-     * @return ObjectId
-     */
-    protected function parseId(string $id): ObjectId
-    {
-        try {
-            return new ObjectId($id);
-        } catch (\Exception $e) {
-            throw new Exception\InvalidArgument('bad session id given');
-        }
     }
 }

@@ -15,14 +15,6 @@ use Micro\Http\ExceptionInterface;
 
 class InvalidArgument extends \InvalidArgumentException implements ExceptionInterface
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function getStatusCode(): int
-    {
-        return 400;
-    }
-
     const INVALID_USERNAME = 1;
     const INVALID_PASSWORD = 2;
     const INVALID_QUOTA = 3;
@@ -31,4 +23,14 @@ class InvalidArgument extends \InvalidArgumentException implements ExceptionInte
     const INVALID_NAMESPACE = 6;
     const INVALID_OPTIONAL = 7;
     const INVALID_ATTRIBUTE = 8;
+    const IDENTIFIER_NOT_UNIQUE = 9;
+    const CAN_NOT_DELETE_OWN_ACCOUNT = 10;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getStatusCode(): int
+    {
+        return 422;
+    }
 }

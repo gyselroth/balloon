@@ -12,12 +12,11 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v2;
 
 use Balloon\AttributeDecorator\Pager;
-use Balloon\Exception;
-use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
 use Balloon\Server\Group;
 use Balloon\Server\User;
+use Balloon\Server\User\Exception;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
@@ -108,31 +107,17 @@ class Groups
      * Get group instance.
      *
      * @param string $id
-     * @param string $name
      * @param bool   $require_admin
      *
      * @return Group
      */
-    public function _getGroup(?string $id = null, ?string $name = null, bool $require_admin = false): Group
+    public function _getGroup(string $id, bool $require_admin = false): Group
     {
-        if (null !== $id || null !== $name || true === $require_admin) {
-            if ($this->user->isAdmin()) {
-                if (null !== $id && null !== $name) {
-                    throw new Exception\InvalidArgument('provide either id (group id) or name (groupname)');
-                }
-
-                if (null !== $id) {
-                    return $this->server->getGroupById(new ObjectId($id));
-                }
-
-                return $this->server->getGroupByName($name);
-            }
-
-            throw new ForbiddenException(
-                    'submitted parameters require to have admin privileges',
-                    ForbiddenException::ADMIN_PRIV_REQUIRED
-                );
+        if (true === $require_admin && !$this->user->isAdmin()) {
+            throw new Exception\NotAdmin('submitted parameters require admin privileges');
         }
+
+        return $this->server->getGroupById(new ObjectId($id));
     }
 
     /**
@@ -164,12 +149,11 @@ class Groups
      * ]
      *
      * @param string $id
-     * @param string $name
      * @param array  $attributes
      */
-    public function getMembers(?string $id = null, ?string $name = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function getMembers(string $id, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        $group = $this->_getGroup($id, $name);
+        $group = $this->_getGroup($id);
         $result = $group->getResolvedMembers($offset, $limit);
         $uri = '/api/v2/groups/'.$group->getId().'/members';
         $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $uri);
@@ -203,19 +187,18 @@ class Groups
      * }
      *
      * @param string $id
-     * @param string $name
      * @param string $attributes
      *
      * @return Response
      */
-    public function get(?string $id = null, ?string $name = null, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function get(?string $id = null, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        if ($id === null && $name === null) {
+        if ($id === null) {
             $result = $this->server->getGroups($query, $offset, $limit);
             $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, '/api/v2/groups');
             $result = $pager->paging();
         } else {
-            $result = $this->decorator->decorate($this->_getGroup($id, $name), $attributes);
+            $result = $this->decorator->decorate($this->_getGroup($id), $attributes);
         }
 
         return (new Response())->setCode(200)->setBody($result);
@@ -238,14 +221,13 @@ class Groups
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param string $name
      * @param string $id
      *
      * @return Response
      */
-    public function head(?string $id = null, ?string $name = null): Response
+    public function head(string $id): Response
     {
-        $result = $this->_getGroup($id, $name, true);
+        $result = $this->_getGroup($id, true);
 
         return (new Response())->setCode(204);
     }
@@ -283,6 +265,10 @@ class Groups
      */
     public function post(string $name, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
     {
+        if (!$this->user->isAdmin()) {
+            throw new Exception\NotAdmin('submitted parameters require admin privileges');
+        }
+
         $attributes = compact('namespace', 'optional');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
@@ -315,18 +301,17 @@ class Groups
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      *
-     * @param string $name
      * @param string $id
      * @param array  $attributes
      *
      * @return Response
      */
-    public function patch(?string $id = null, ?string $name = null, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
+    public function patch(string $id, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
     {
         $attributes = compact('namespace', 'optional', 'name', 'member');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
-        $group = $this->_getGroup($id, $name, true)->setAttributes($attributes);
+        $group = $this->_getGroup($id, true)->setAttributes($attributes);
         $result = $this->decorator->decorate($group);
 
         return (new Response())->setCode(200)->setBody($result);
@@ -361,15 +346,14 @@ class Groups
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param string $name
      * @param string $id
      * @param bool   $force
      *
      * @return Response
      */
-    public function delete(?string $id = null, ?string $name = null, bool $force = false): Response
+    public function delete(string $id, bool $force = false): Response
     {
-        $group = $this->_getGroup($id, $name, true);
+        $group = $this->_getGroup($id, true);
         $group->delete($force);
 
         return (new Response())->setCode(204);
@@ -391,14 +375,13 @@ class Groups
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
      *
-     * @param string $name
      * @param string $id
      *
      * @return Response
      */
-    public function postUndelete(?string $id = null, ?string $name = null): Response
+    public function postUndelete(string $id): Response
     {
-        $this->_getGroup($id, $name, true)->undelete();
+        $this->_getGroup($id, true)->undelete();
 
         return (new Response())->setCode(204);
     }

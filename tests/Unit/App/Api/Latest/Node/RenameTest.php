@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\Api\Latest\Node;
 
-use Balloon\Exception;
+use Balloon\Filesystem\Exception;
 use Balloon\Testsuite\Unit\App\Api\Latest\Test;
 use Micro\Http\Response;
 

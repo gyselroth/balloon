@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
-use Balloon\App\Notification\Exception;
 use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
 use Balloon\App\Notification\TemplateHandler;
@@ -21,6 +20,7 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
 use Balloon\Server;
 use Balloon\Server\User;
+use InvalidArgumentException;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 
@@ -96,7 +96,7 @@ class Subscription extends AbstractHook
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 

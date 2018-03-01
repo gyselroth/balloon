@@ -12,8 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v2;
 
 use Balloon\AttributeDecorator\Pager;
-use Balloon\Exception\InvalidArgument as InvalidArgumentException;
-use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
 use Balloon\Server\User;
@@ -118,7 +116,10 @@ class Users
         if (null !== $id || null !== $uname || true === $require_admin) {
             if ($this->user->isAdmin()) {
                 if (null !== $id && null !== $uname) {
-                    throw new InvalidArgumentException('provide either uid (user id) or uname (username)');
+                    throw new Exception\InvalidArgument(
+                        'provide either id (user id) or uname (username)',
+                        Exception\InvalidArgument::IDENTIFIER_NOT_UNIQUE
+                    );
                 }
 
                 if (null !== $id) {
@@ -128,10 +129,7 @@ class Users
                 return $this->server->getUserByName($uname);
             }
 
-            throw new ForbiddenException(
-                    'submitted parameters require to have admin privileges',
-                    ForbiddenException::ADMIN_PRIV_REQUIRED
-                );
+            throw new Exception\NotAdmin('submitted parameters require admin privileges');
         }
 
         return $this->user;
@@ -385,6 +383,10 @@ class Users
      */
     public function post(string $username, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?array $optional = null): Response
     {
+        if (!$this->user->isAdmin()) {
+            throw new Exception\NotAdmin('submitted parameters require admin privileges');
+        }
+
         $attributes = compact('password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'optional');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
@@ -487,9 +489,9 @@ class Users
         $user = $this->_getUser($id, $uname, true);
 
         if ($user->getId() === $this->user->getId()) {
-            throw new Exception(
+            throw new Exception\InvalidArgument(
                 'can not delete yourself',
-                Exception::CAN_NOT_DELETE_OWN_ACCOUNT
+                Exception\InvalidArgument::CAN_NOT_DELETE_OWN_ACCOUNT
             );
         }
 

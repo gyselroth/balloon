@@ -16,6 +16,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
+use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
@@ -103,7 +104,7 @@ class Notifier
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 
@@ -175,7 +176,7 @@ class Notifier
         ]);
 
         if ($this->hasAdapter($name)) {
-            throw new Exception('adapter '.$name.' is already registered');
+            throw new Exception\AdapterNotUnique('adapter '.$name.' is already registered');
         }
 
         $this->adapter[$name] = $adapter;
@@ -193,7 +194,7 @@ class Notifier
     public function getAdapter(string $name): AdapterInterface
     {
         if (!$this->hasAdapter($name)) {
-            throw new Exception('adapter '.$name.' is not registered');
+            throw new Exception\AdapterNotFound('adapter '.$name.' is not registered');
         }
 
         return $this->adapter[$name];
@@ -214,7 +215,7 @@ class Notifier
         $list = [];
         foreach ($adapter as $name) {
             if (!$this->hasAdapter($name)) {
-                throw new Exception('adapter '.$name.' is not registered');
+                throw new Exception\AdapterNotFound('adapter '.$name.' is not registered');
             }
             $list[$name] = $this->adapter[$name];
         }
@@ -286,7 +287,7 @@ class Notifier
         ]);
 
         if ($result === null) {
-            throw new Exception('notification not found');
+            throw new Exception\NotificationNotFound('notification not found');
         }
 
         return $result;
@@ -307,7 +308,7 @@ class Notifier
         ]);
 
         if (null === $result) {
-            throw new Exception('notification not found');
+            throw new Exception\NotificationNotFound('notification not found');
         }
 
         $this->logger->debug('notification ['.$id.'] removed from user ['.$this->server->getIdentity()->getId().']', [

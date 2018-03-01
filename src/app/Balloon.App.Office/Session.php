@@ -167,7 +167,7 @@ class Session
         ]);
 
         if (null === $result) {
-            throw new Exception('access_token is invalid or expired');
+            throw new Exception\AccessTokenInvalid('access_token is invalid or expired');
         }
 
         foreach ($result['member'] as $member) {
@@ -200,7 +200,7 @@ class Session
         ]);
 
         if (null === $result) {
-            throw new Exception('session does not exists');
+            throw new Exception\SessionNotFound('session does not exists');
         }
 
         $node = $fs->findNodeById($result['node'], File::class);

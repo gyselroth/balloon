@@ -14,6 +14,7 @@ namespace Balloon;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta;
+use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -342,10 +343,6 @@ class Filesystem
                 ]);
 
                 continue;
-            }
-
-            if ($node['name'] === 'dede.txt') {
-                throw new Exception('de');
             }
 
             if (null !== $class && !($return instanceof $class)) {

@@ -19,6 +19,7 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Closure;
 use Generator;
+use Micro\Http\ExceptionInterface;
 use Micro\Http\Response;
 
 abstract class Controller
@@ -182,7 +183,7 @@ abstract class Controller
                     $body[(string) $node->getId()] = $action->call($this, $node);
                 } catch (\Exception $e) {
                     $body[(string) $node->getId()] = [
-                        'code' => 400,
+                        'code' => $e instanceof ExceptionInterface ? $e->getStatusCode() : 400,
                         'data' => [
                             'error' => get_class($e),
                             'message' => $e->getMessage(),

@@ -15,14 +15,14 @@ use Micro\Http\ExceptionInterface;
 
 class NotAuthenticated extends \Sabre\DAV\Exception\NotAuthenticated implements ExceptionInterface
 {
+    const USER_DELETED = 1;
+    const USER_NOT_FOUND = 2;
+
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getStatusCode(): int
     {
         return 403;
     }
-
-    const USER_DELETED = 1;
-    const USER_NOT_FOUND = 2;
 }

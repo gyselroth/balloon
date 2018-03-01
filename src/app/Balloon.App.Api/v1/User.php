@@ -11,10 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v1;
 
-use Balloon\Exception\InvalidArgument as InvalidArgumentException;
-use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
+use Balloon\Server\User\Exception;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
@@ -103,31 +102,31 @@ class User
     /**
      * Get user instance.
      *
-     * @param string $uid
+     * @param string $id
      * @param string $uname
      * @param bool   $require_admin
      *
      * @return User
      */
-    public function _getUser(?string $uid = null, ?string $uname = null, bool $require_admin = false)
+    public function _getUser(?string $id = null, ?string $uname = null, bool $require_admin = false)
     {
-        if (null !== $uid || null !== $uname || true === $require_admin) {
+        if (null !== $id || null !== $uname || true === $require_admin) {
             if ($this->user->isAdmin()) {
-                if (null !== $uid && null !== $uname) {
-                    throw new InvalidArgumentException('provide either uid (user id) or uname (username)');
+                if (null !== $id && null !== $uname) {
+                    throw new Exception\InvalidArgument(
+                        'provide either id (user id) or uname (username)',
+                        Exception\InvalidArgument::IDENTIFIER_NOT_UNIQUE
+                    );
                 }
 
-                if (null !== $uid) {
-                    return $this->server->getUserById(new ObjectId($uid));
+                if (null !== $id) {
+                    return $this->server->getUserById(new ObjectId($id));
                 }
 
                 return $this->server->getUserByName($uname);
             }
 
-            throw new ForbiddenException(
-                    'submitted parameters require to have admin privileges',
-                    ForbiddenException::ADMIN_PRIV_REQUIRED
-                );
+            throw new Exception\NotAdmin('submitted parameters require admin privileges');
         }
 
         return $this->user;
@@ -402,7 +401,7 @@ class User
      */
     public function postQuota(int $hard, int $soft, ?string $uid = null, ?string $uname = null): Response
     {
-        $result = $this->_getUser($uid, $uname)
+        $result = $this->_getUser($uid, $uname, true)
             ->setHardQuota($hard)
             ->setSoftQuota($soft);
 

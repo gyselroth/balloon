@@ -50,7 +50,7 @@ class Template
     public function __construct(string $type)
     {
         if (!array_key_exists($type, self::TEMPLATES)) {
-            throw new Exception('unsupported file type');
+            throw new Exception\UnsupportedType('unsupported file type');
         }
 
         $this->type = $type;

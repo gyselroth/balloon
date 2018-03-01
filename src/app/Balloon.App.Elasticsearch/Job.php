@@ -16,6 +16,7 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage;
 use Balloon\Server;
+use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
@@ -113,7 +114,7 @@ class Job extends AbstractJob
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 
@@ -147,7 +148,7 @@ class Job extends AbstractJob
 
             break;
             default:
-                throw new Exception('invalid document action given');
+                throw new InvalidArgumentException('invalid document action given');
         }
 
         return true;

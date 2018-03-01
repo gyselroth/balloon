@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Server;
 
-use Balloon\Exception;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Server;
 use Generator;

@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v1;
 
-use Balloon\Exception;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
+use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Helper;
 use Micro\Http\Response;

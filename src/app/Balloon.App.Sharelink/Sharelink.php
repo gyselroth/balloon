@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink;
 
-use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
+use InvalidArgumentException;
 
 class Sharelink
 {
@@ -55,7 +55,7 @@ class Sharelink
         $set = [];
         foreach ($options as $option => $v) {
             if (!in_array($option, $valid, true)) {
-                throw new Exception\InvalidArgument('share option '.$option.' is not valid');
+                throw new InvalidArgumentException('share option '.$option.' is not valid');
             }
             $set[$option] = $v;
         }
@@ -156,13 +156,13 @@ class Sharelink
         $attributes = $node->getAppAttributes(__NAMESPACE__);
 
         if ($attributes['token'] !== $token) {
-            throw new Exception('token do not match');
+            throw new Exception\TokenInvalid('token given is invalid');
         }
 
         if (isset($attributes['expiration']) && !empty($attributes['expiration'])) {
             $time = (int) $attributes['expiration'];
             if ($time < time()) {
-                throw new Exception('share link for this node is expired');
+                throw new Exception\LinkExpired('link is expired');
             }
         }
 

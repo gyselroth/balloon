@@ -14,6 +14,7 @@ namespace Balloon\App\Elasticsearch\Migration\Delta;
 use Balloon\App\Elasticsearch\Elasticsearch;
 use Balloon\App\Elasticsearch\Exception;
 use Balloon\Migration\Delta\DeltaInterface;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 class Installation implements DeltaInterface
@@ -73,7 +74,7 @@ class Installation implements DeltaInterface
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$key.' given');
+                    throw new InvalidArgumentException('invalid option '.$key.' given');
             }
         }
 
@@ -94,12 +95,12 @@ class Installation implements DeltaInterface
         ]);
 
         if (!is_readable($this->index_configuration)) {
-            throw new Exception('index configuration not found');
+            throw new Exception\IndexConfigurationNotFound('index configuration '.$this->index_configuration.' not found');
         }
 
         $index = json_decode(file_get_contents($this->index_configuration));
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('invalid elasticsearch index configuration json given');
+            throw new Exception\InvalidIndexConfiguration('invalid elasticsearch index configuration json given');
         }
 
         $index = [

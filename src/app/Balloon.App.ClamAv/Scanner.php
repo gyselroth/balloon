@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\ClamAv;
 
 use Balloon\Filesystem\Node\File;
+use InvalidArgumentException;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Socket\Raw\Factory as SocketFactory;
@@ -107,7 +108,7 @@ class Scanner
                     break;
                 case 'aggressiveness':
                     if ((int) $value > 3 || (int) $value < 0) {
-                        throw new Exception('invalid config value ['.(int) $value.'] for aggressiveness');
+                        throw new InvalidArgumentException('invalid config value ['.(int) $value.'] for aggressiveness');
                     }
                     $this->aggressiveness = (int) $value;
 
@@ -118,7 +119,7 @@ class Scanner
                     break;
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 
@@ -139,7 +140,7 @@ class Scanner
         ]);
 
         if ($file->getSize() > $this->max_stream_size) {
-            throw new Exception('file size of '.$file->getSize().' exceeds stream size ('.$this->max_stream_size.')');
+            throw new Exception\StreamTooBig('file size of '.$file->getSize().' exceeds stream size ('.$this->max_stream_size.')');
         }
 
         try {
@@ -150,7 +151,7 @@ class Scanner
             $socket = $this->socket_factory->createClient($this->socket);
             $clamav = new ClamAv($socket, $this->timeout, PHP_NORMAL_READ);
         } catch (\Exception $e) {
-            throw new Exception('scan of file ['.$file->getId().'] failed: '.$e->getMessage());
+            throw new Exception\ScanFailed('scan of file ['.$file->getId().'] failed: '.$e->getMessage());
         }
 
         try {
@@ -171,10 +172,10 @@ class Scanner
                 return $result;
             }
         } catch (ClamAvConnectionException $e) {
-            throw new Exception('scan of file ['.$file->getId().'] failed: '.$e->getMessage());
+            throw new Exception\ScanFailed('scan of file ['.$file->getId().'] failed: '.$e->getMessage());
         }
 
-        throw new Exception('scan of file ['.$file->getId().'] failed: status='.$result['status'].', reason='.$result['reason']);
+        throw new Exception\ScanFailed('scan of file ['.$file->getId().'] failed: status='.$result['status'].', reason='.$result['reason']);
     }
 
     /**

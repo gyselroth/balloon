@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v1;
 
 use Balloon\App\Api\v1\AttributeDecorator\RoleDecorator;
-use Balloon\Exception;
+use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
 use Micro\Http\Response;
 

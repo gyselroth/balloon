@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v2;
 
 use Balloon\AttributeDecorator\Pager;
-use Balloon\Exception;
+use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;

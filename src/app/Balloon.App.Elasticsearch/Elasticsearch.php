@@ -18,6 +18,7 @@ use Balloon\Server\User;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Generator;
+use InvalidArgumentException;
 use Micro\Http\Router;
 use Psr\Log\LoggerInterface;
 
@@ -102,7 +103,7 @@ class Elasticsearch
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 
@@ -124,7 +125,7 @@ class Elasticsearch
         $result = $this->executeQuery($query, $skip, $limit);
 
         if (isset($result['error'])) {
-            throw new Exception('failed search index, query failed');
+            throw new Exception\InvalidQuery('failed search index, query failed');
         }
 
         $this->logger->debug('elasticsearch query executed with ['.$result['hits']['total'].'] hits', [
@@ -252,7 +253,7 @@ class Elasticsearch
                 'category' => get_class($this),
             ]);
 
-            throw new Exception('general search error occured');
+            throw new Exception\InvalidQuery('general search error occured');
         }
 
         return $result;

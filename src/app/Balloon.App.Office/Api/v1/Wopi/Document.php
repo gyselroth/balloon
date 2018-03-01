@@ -14,7 +14,6 @@ namespace Balloon\App\Office\Api\v1\Wopi;
 use Balloon\App\Api\Controller;
 use Balloon\App\Office\Session;
 use Balloon\App\Office\Session\Member;
-use Balloon\Exception;
 use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -68,14 +67,14 @@ class Document extends Controller
      *      [***]
      * }
      *
-     * @param string $id
-     * @param string $access_token
+     * @param ObjectId $id
+     * @param string   $access_token
      *
      * @return Response
      */
-    public function get(string $id, string $access_token): Response
+    public function get(ObjectId $id, string $access_token): Response
     {
-        $session = Member::getByAccessToken($this->server, $this->logger, $this->parseId($id), $access_token);
+        $session = Member::getByAccessToken($this->server, $this->logger, $id, $access_token);
 
         return (new Response())->setCode(200)->setBody($session->getAttributes(), true);
     }
@@ -101,14 +100,14 @@ class Document extends Controller
      *      "data": true
      * }
      *
-     * @param string $id
-     * @param string $access_token
+     * @param ObjectId $id
+     * @param string   $access_token
      *
      * @return Response
      */
-    public function postContents(string $id, string $access_token): Response
+    public function postContents(ObjectId $id, string $access_token): Response
     {
-        $session = Session::getByAccessToken($this->server, $this->parseId($id), $access_token);
+        $session = Session::getByAccessToken($this->server, $id, $access_token);
         $node = $session->getDocument()->getNode();
         ini_set('auto_detect_line_endings', '1');
         $content = fopen('php://input', 'rb');
@@ -134,12 +133,12 @@ class Document extends Controller
      * @apiSuccessExample {binary} Success-Response:
      * HTTP/1.1 200 OK
      *
-     * @param string $id
-     * @param string $access_token
+     * @param ObjectId $id
+     * @param string   $access_token
      */
-    public function getContents(string $id, string $access_token): void
+    public function getContents(ObjectId $id, string $access_token): void
     {
-        $session = Session::getByAccessToken($this->server, $this->parseId($id), $access_token);
+        $session = Session::getByAccessToken($this->server, $id, $access_token);
         $stream = $session->getDocument()->get();
 
         while (!feof($stream)) {
@@ -147,22 +146,5 @@ class Document extends Controller
         }
 
         exit();
-    }
-
-    /**
-     * Get by access token.
-     *
-     * @param string $id
-     * @param string $access_token
-     *
-     * @return Session
-     */
-    protected function parseId(string $id): ObjectId
-    {
-        try {
-            return new ObjectId($id);
-        } catch (\Exception $e) {
-            throw new Exception\InvalidArgument('bad session id given');
-        }
     }
 }

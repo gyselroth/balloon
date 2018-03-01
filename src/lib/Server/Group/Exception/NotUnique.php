@@ -13,13 +13,13 @@ namespace Balloon\Server\Group\Exception;
 
 use Micro\Http\ExceptionInterface;
 
-class NotUnique extends Balloon\Exception implements ExceptionInterface
+class NotUnique extends \Balloon\Exception implements ExceptionInterface
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getStatusCode(): int
     {
-        return 400;
+        return 422;
     }
 }

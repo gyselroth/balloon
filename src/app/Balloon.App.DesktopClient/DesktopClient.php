@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\DesktopClient;
 
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 class DesktopClient
@@ -106,7 +107,7 @@ class DesktopClient
 
                 break;
                 default:
-                    throw new Exception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 
@@ -139,7 +140,7 @@ class DesktopClient
     protected function getGithubUrl(string $format): string
     {
         if (!isset($this->github_asset_mapping[$format])) {
-            throw new Exception('unknown format '.$format.' requested');
+            throw new Exception\FormatNotFound('unknown format '.$format.' requested');
         }
 
         $ch = curl_init();
@@ -155,13 +156,14 @@ class DesktopClient
         ]);
 
         if (200 !== $code) {
-            throw new Exception('failed query github releases api');
+            throw (new Exception\GithubRequestFailed('failed query github releases api'))
+                ->setStatusCode($code);
         }
 
         $data = json_decode($data, true);
 
         if (!is_array($data) || !isset($data['assets']) || 0 === count($data['assets'])) {
-            throw new Exception('no github release assets found');
+            throw new Exception\GithubAssetNotFound('no github release assets found');
         }
 
         foreach ($data['assets'] as $asset) {
@@ -178,6 +180,6 @@ class DesktopClient
             }
         }
 
-        throw new Exception('no github release asset matches request format');
+        throw new Exception\GithubAssetNoMatch('no github release asset matches request format');
     }
 }
