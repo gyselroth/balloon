@@ -156,7 +156,7 @@ class Http
                 echo fread($stream, 8192);
             }
         } catch (\Exception $e) {
-            $this->logger->error("failed load node with given access token", [
+            $this->logger->error('failed load node with given access token', [
                 'category' => get_class($this),
                 'exception' => $e,
             ]);
