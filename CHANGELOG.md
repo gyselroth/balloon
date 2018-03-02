@@ -26,7 +26,7 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [CHANGE] Elasticsearch is now an app and not part of the core anymore #10
 * CORE: [CHANGE] changed exception codes from hex to integer
 * CORE: [CHANGE] Converted integration tests to unit tests and implemented mock classes for the whole server #36
-* CORE: [FEATURE] console can now be executed with command parameters
+* CORE: [FEATURE] console is now modular and can be executed with command parameters
 * CORE: [FEATURE] console can now be executed as a daemon, meaning queue jobs can be asynchronosuly executed non-stop #56
 * CORE: [CHANGE] Converted all core plugins from v1.0.x into hooks #20
 * CORE: [CHANGE] Moved converter classes from preview into global \Balloon\Converter space, \Balloon\Converter is now useable to convert anything to anything
@@ -78,6 +78,8 @@ This major relase contains various fixes, changes and new features including:
 * CORE: [!BREAKER] At least MongoDB 3.4 is required since aggregation $lookup calls are used (See upgrade guide)
 * CORE: [CHANGE] Migrated to ZipStream fork https://github.com/maennchen/ZipStream-PHP
 * CORE: [CHANGE] Drastically increased performance for reading children (Since nodes are counted on db instead programatically), also added aggregation #104
+* CORE: [FIX] fixed invalid elasticsearch metadata #57
+* CORE: [CHANGE] Deployed various new exceptions which also include \Micro\Http\ExceptionInterface
 * API: [CHANGE] New API version v2 available, v1 is still fully functional, but new features are only available in v2. See upgrade guide.
 * API: [FEATURE] Implemented new endpoint GET /api/v2/desktop-client?format=format to fetch desktop client
 * API: [CHANGE] removed GET /api/v2/about
@@ -85,8 +87,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] removed GET /api/v2/help (My be reintroduced later with #86)
 * API: [CHANGE] added 'name' to output of GET /api and GET /api/v2 #46
 * API: [FEATURE] All endopints which accept an array of id s do now accept an array of paths as well #49
-* API: [FEATURE] PATCH /api/v2/nodes/meta does now accept a multi node request
-* API: [CHANGE] meta attributes must now be sent via $attributes to PATCH /api/v2/nodes/meta and can be implemented within the query string or a json body instead Content-Type application/x-www-form-urlencoded #95
+* API: [CHANGE] meta attributes must now be set via PATCH /api/v2/nodes/:id and can be implemented within the query string or a json body instead Content-Type application/x-www-form-urlencoded #95
 * API: [FIX] fixed GET /node/last-cursor cursor now returns a cursor which point to the beginning of the delta feed even if there are no delta entries (for the account requested)
 * API: [FIX] GET /node/delta now includes entries which are triggered in the exact same microsecond
 * API: [CHANGE] Removed server_timestamp and server_timezone from GET /api/v2 since all timestamps are in UTC anyway #61
@@ -99,7 +100,7 @@ This major relase contains various fixes, changes and new features including:
 * API: [FEATURE] Various new v2 API endpoints for user and group management #14, #85
 * API: [CHANGE] Per default api endpoints which return attributes do now return all attributes, this affects both v1 and v2 api. If you want to filter you can by providing the filter parameter.
 * API: [CHANGE] Removed GET /api/v2/node/parent, parent is included as parent node attribute
-* API: [CHANGE] APIv2 bulk operations do now return a HTTP status code 207 and contain a specific HTTP status code for each operation (node action)
+* API: [CHANGE] API v2 bulk operations do now return a HTTP status code 207 and contain a specific HTTP status code for each operation (node action)
 * API: [CHANGE] API output is not escaped anymore (This is also the case for the API v1)
 * API: [CHANGE] API v2 all timestamps are now ISO8601
 * API: [CHANGE] API v2 body is not wrapped in "data" and status in not set anymore
@@ -115,6 +116,9 @@ This major relase contains various fixes, changes and new features including:
 * API: [CHANGE] Removed GET /api/v2/nodes/query, query can be placed via GET /api/v2/nodes|files|collections
 * API: [CHANGE] Removed GET /api/v2/resources, query can be placed via GET /api/v2/users/groups
 * API: [CHANGE] Removed GE /api/v2/users/quota-usage, query can be placed via GET /api/v2/users
+* API: [FEATURE] All v2 api endpoints which do return multiple objects are now paged #125
+* API: [CHANGE] Removed POST /api/v2/nodes/:id/name, node can be renamed via PATCH /api/v2/nodes/:id
+* API: [CHANGE] Removed POST /api/v2/nodes/:id/readonly, node can be set readonly via PATCH /api/v2/nodes/:id
 * UI: [CHANGE] Moved web ui from the main server repo into https://github.com/gyselroth/balloon-client-web
 * PACKAGING: [FEATURE] Full packaging support for deb/tar packages #53
 * PACKAGING: [FEATURE] Full suport for docker container, also provides docker-compose.yml and docker-compose-dev.yml as sample deployment

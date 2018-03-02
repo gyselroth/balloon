@@ -199,6 +199,20 @@ class Collection extends AbstractNode implements IQuota
     }
 
     /**
+     * Set collection filter.
+     *
+     * @param string $filter
+     *
+     * @return bool
+     */
+    public function setFilter(?array $filter = null): bool
+    {
+        $this->filter = json_encode($filter);
+
+        return $this->save('filter');
+    }
+
+    /**
      * Get collection.
      */
     public function get(): void

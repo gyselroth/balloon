@@ -134,7 +134,7 @@ class Convert extends Controller
      * curl -XPOST "https://SERVER/api/v2/files/convert/slave?id=544627ed3c58891f058b4686"
      *
      * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
+     * HTTP/1.1 202 Accepted
      * {
      *      "id": "944627ed3c58891f058b468e",
      *      "master": "944627ed3c58891f058b4686",
@@ -151,7 +151,7 @@ class Convert extends Controller
         $id = $this->converter->addSlave($file, $format);
         $result = $this->convert_decorator->decorate($this->converter->getSlave($id));
 
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(202)->setBody($result);
     }
 
     /**

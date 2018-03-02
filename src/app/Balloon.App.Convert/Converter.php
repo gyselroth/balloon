@@ -160,6 +160,10 @@ class Converter
             'format' => $format,
         ]);
 
+        $this->async->addJob(Job::class, [
+            'master' => $node->getId(),
+        ]);
+
         return $result->getInsertedId();
     }
 

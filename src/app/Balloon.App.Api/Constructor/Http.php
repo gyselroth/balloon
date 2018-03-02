@@ -68,7 +68,8 @@ class Http
             ->appendRoute(new Route('/api/v1/node/{id:#([0-9a-z]{24})#}', v1\Node::class))
             ->appendRoute(new Route('/api/v1/node', v1\Node::class))
             ->appendRoute(new Route('/api/v1$', v1\Api::class))
-            ->appendRoute(new Route('/api/v1', v1\Api::class));
+            ->appendRoute(new Route('/api/v1', v1\Api::class))
+            ->appendRoute(new Route('^$', v2\Api::class));
 
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void

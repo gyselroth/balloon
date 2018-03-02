@@ -285,8 +285,6 @@ class Nodes extends Controller
               $name = $node->getName();
 
               if (null === $stream) {
-                  echo '';
-
                   return;
               }
 
@@ -325,44 +323,6 @@ class Nodes extends Controller
                   exit();
               }
           });
-    }
-
-    /**
-     * @api {post} /api/v2/nodes/:id/readonly Set readonly
-     * @apiVersion 2.0.0
-     * @apiName postReadonly
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Set (or unset) node as readonly
-     * @apiUse _getNodes
-     * @apiUse _multiError
-     * @apiUse _writeAction
-     *
-     * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/nodes/readonly?id[]=544627ed3c58891f058b4686&id[]=544627ed3c58891f058b46865&readonly=1"
-     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/readonly?readonly=0"
-     * curl -XPOST "https://SERVER/api/v2/nodes/readonly?p=/absolute/path/to/my/node"
-     *
-     * @apiParam (GET Parameter) {bool} [readonly=true] Set readonly to false to make node writeable again
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     *
-     * @param array|string $id
-     * @param array|string $p
-     *
-     * @return Response
-     */
-    public function postReadonly($id = null, $p = null, bool $readonly = true): Response
-    {
-        return $this->bulk($id, $p, function ($node) use ($readonly) {
-            $node->setReadonly($readonly);
-
-            return [
-                'code' => 200,
-                'data' => $this->node_decorator->decorate($node),
-            ];
-        });
     }
 
     /**
@@ -451,14 +411,6 @@ class Nodes extends Controller
      */
     public function get($id = null, $p = null, int $deleted = 0, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        if (is_array($id) || is_array($p)) {
-            $nodes = [];
-            foreach ($this->_getNodes($id, $p) as $node) {
-                $nodes[] = $this->node_decorator->decorate($node, $attributes);
-            }
-
-            return (new Response())->setCode(200)->setBody($nodes);
-        }
         if ($id === null && $p === null) {
             if ($this instanceof ApiFile) {
                 $query['directory'] = false;
@@ -477,9 +429,12 @@ class Nodes extends Controller
             return (new Response())->setCode(200)->setBody($result);
         }
 
-        $result = $this->node_decorator->decorate($this->_getNode($id, $p), $attributes);
-
-        return (new Response())->setCode(200)->setBody($result);
+        return $this->bulk($id, $p, function ($node) use ($attributes) {
+            return [
+                'code' => 200,
+                'data' => $this->node_decorator->decorate($node, $attributes),
+            ];
+        });
     }
 
     /**
@@ -554,27 +509,28 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {patch} /api/v2/nodes/:id/meta Change meta attributes
+     * @api {patch} /api/v2/nodes/:id Change attributes
      * @apiVersion 2.0.0
-     * @apiName patchMeta
+     * @apiName patch
      * @apiGroup Node
      * @apiPermission none
-     * @apiDescription Change meta attributes of a node
+     * @apiDescription Change attributes
      * @apiUse _getNodes
      * @apiUse _multiError
      *
-     * @apiParam (GET Parameter) {string} [attributes.description] UTF-8 Text Description - Can contain anything as long as it is a string
-     * @apiParam (GET Parameter) {string} [attributes.color] Color Tag - Can contain anything as long as it is a string
-     * @apiParam (GET Parameter) {string} [attributes.author] Author - Can contain anything as long as it is a string
-     * @apiParam (GET Parameter) {string} [attributes.mail] Mail contact address - Can contain anything as long as it is a string
-     * @apiParam (GET Parameter) {string} [attributes.license] License - Can contain anything as long as it is a string
-     * @apiParam (GET Parameter) {string} [attributes.copyright] Copyright string - Can contain anything as long as it is a string
-     * @apiParam (GET Parameter) {string[]} [attributes.tags] Tags - Must be an array full of strings
+     * @apiParam (GET Parameter) {string} [name] Rename node, the characters (\ < > : " / * ? |) (without the "()") are not allowed to use within a node name.
+     * @apiParam (GET Parameter) {boolean} [readonly] Mark node as readonly
+     * @apiParam (GET Parameter) {object} [filter] Custom collection filter (Collection only)
+     * @apiParam (GET Parameter) {string} [meta.description] UTF-8 Text Description - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [meta.color] Color Tag - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [meta.author] Author - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [meta.mail] Mail contact address - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [meta.license] License - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string} [meta.copyright] Copyright string - Can contain anything as long as it is a string
+     * @apiParam (GET Parameter) {string[]} [meta.tags] Tags - Must be an array full of strings
      *
      * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/nodes/meta-attributes?id=544627ed3c58891f058b4686&author=peter.meier"
-     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686/meta-attributes?author=example"
-     * curl -XPOST "https://SERVER/api/v2/nodes/meta-attributes?p=/absolute/path/to/my/node?license=GPL-3.0"
+     * curl -XPATCH "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686?name=example"
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200
@@ -584,52 +540,40 @@ class Nodes extends Controller
      *
      * @return Response
      */
-    public function patchMeta(array $attributes, ?string $id = null, ?string $p = null): Response
+    public function patch(?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?string $id = null, ?string $p = null): Response
     {
+        $attributes = compact('name', 'meta', 'readonly', 'filter');
+        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+
         return $this->bulk($id, $p, function ($node) use ($attributes) {
-            $node->setMetaAttributes($attributes);
+            foreach ($attributes as $attribute => $value) {
+                switch ($attribute) {
+                    case 'name':
+                        $node->setName($value);
+
+                    break;
+                    case 'meta':
+                        $node->setMetaAttributes($value);
+
+                    break;
+                    case 'readonly':
+                        $node->setReadonly($value);
+
+                    break;
+                    case 'filter':
+                        if ($node instanceof Collection) {
+                            $node->setFilter($value);
+                        }
+
+                    break;
+                }
+            }
 
             return [
                 'code' => 200,
                 'data' => $this->node_decorator->decorate($node),
             ];
         });
-    }
-
-    /**
-     * @api {post} /api/v2/nodes/:id/name Rename node
-     * @apiVersion 2.0.0
-     * @apiName postName
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Rename a node. The characters (\ < > : " / * ? |) (without the "()") are not allowed to use within a node name.
-     * @apiUse _getNode
-     * @apiUse _writeAction
-     *
-     * @apiParam (GET Parameter) {string} [name] The new name of the node
-     * @apiError (Error 400) Exception name contains invalid characters
-     *
-     * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/nodes/name?id=544627ed3c58891f058b4686&name=newname.txt"
-     * curl -XPOST "https://SERVER/api/v2/nodes/544627ed3c58891f058b4677/name?name=newdir"
-     * curl -XPOST "https://SERVER/api/v2/nodes/name?p=/absolute/path/to/my/node&name=newname.txt"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     *
-     * @param string $id
-     * @param string $p
-     * @param string $name
-     *
-     * @return Response
-     */
-    public function postName(string $name, ?string $id = null, ?string $p = null): Response
-    {
-        $node = $this->_getNode($id, $p);
-        $node->setName($name);
-        $result = $this->node_decorator->decorate($node);
-
-        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**

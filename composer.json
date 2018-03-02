@@ -26,7 +26,7 @@
         "php": ">=7.1",
         "gyselroth/micro-auth": "*",
         "gyselroth/micro-container": "^0.1.5",
-        "gyselroth/micro-http": "^0.0.5",
+        "gyselroth/micro-http": "^0.0.6",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",

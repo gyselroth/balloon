@@ -9,12 +9,12 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Migration\Delta;
+namespace Balloon\App\Convert\Migration\Delta;
 
-use MongoDB\BSON\UTCDateTime;
+use Balloon\Migration\Delta\DeltaInterface;
 use MongoDB\Database;
 
-class UserCreateDate implements DeltaInterface
+class Installation implements DeltaInterface
 {
     /**
      * Database.
@@ -40,12 +40,7 @@ class UserCreateDate implements DeltaInterface
      */
     public function start(): bool
     {
-        $cursor = $this->db->user->updateMany([
-            'created' => ['$exists' => false],
-        ], [
-            'created' => new UTCDateTime(),
-            'changed' => new UTCDateTime(),
-        ]);
+        $this->db->selectCollection('convert')->createIndex(['master' => 1]);
 
         return true;
     }
