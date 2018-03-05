@@ -1,12 +1,20 @@
 ## 1.x -> 2.x
-### Package
+### Deployment
+balloon 2.0.0 can be easily deployed using debian packages or docker images. Consider to rethink they way you deploy new balloon versions.
 
 ### Configration
-* If you have been using any additional log adapters, make sure to replace them with \Micro\Log\Adapter\* 
-* If you have been using \Balloon\Auth\Adapter\Ldap, make sure to replace it with \Micro\Auth\Adapter\Ldap and replace ldap configuration <host> with <uri>, and remove <port>
-* Plugins have been migrated to apps, if you have any special plugin configuration or third-party plugins enabled make sure you will move any existing configuration to <app> and delete <plugin>
+There is a completely new and rewritten configuration implemented in balloon 2.0.0! The best you can do to migrate is to actually reconfigure all your previous settings
+from v1.0.x. There is now way to automatically migrate your configuration.
 
-### Database
+### Upgrade
+balloon 2.0.0 features an in-built upgrade mechanism. All you need to do after migrating the configuration is run the upgrade:
+```sh
+ballooncli upgrade -vvvv
+```
+
+### API
+balloon 2.0.0 also brings the REST API v2. v1 is still fully supported but only receives bug fixes and no new features!
+It is recommended that you upgrade your client to the new API v2.
 
 
 ## 0.x -> 1.x
