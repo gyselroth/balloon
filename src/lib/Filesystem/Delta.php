@@ -422,16 +422,16 @@ class Delta
             return $this->buildFeedFromCurrentState(null, $limit, $node);
         }
 
-        $cursor = $cursor[1] += $limit;
+        $position = $cursor[1] += $limit;
         $has_more = ($left - $count) > 0;
         if (false === $has_more) {
-            $cursor = 0;
+            $position = 0;
         }
 
         return [
             'result' => $result,
-            'has_more' => true,
-            'cursor' => $cursor,
+            'has_more' => $has_more,
+            'cursor' => $position,
             'last_id' => $cursor[3],
             'last_ts' => $cursor[4],
         ];

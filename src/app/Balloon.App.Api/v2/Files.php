@@ -159,13 +159,14 @@ class Files extends Nodes
      * @apiParam (GET Parameter) {string} [collection] Either id, p (path) of a file node or a parent collection id must be given
      * (If none of them are given, the file will be placed to the root)
      * @apiParam (GET Parameter) {string} [name] Needs to be set if the chunk belongs to a new file
-     * @apiParam (GET Parameter) {number} index Chunk ID (consider chunk order!)
+     * @apiParam (GET Parameter) {number} index Chunk ID
      * @apiParam (GET Parameter) {number} chunks Total number of chunks
-     * @apiParam (GET Parameter) {string} session A unique name which identifes a group of chunks (One file)
+     * @apiParam (GET Parameter) {string} session Session ID you have received during uploading the first chunk
      * @apiParam (GET Parameter) {number} size The total file size in bytes
-     * @apiParam (GET Parameter) {object} [attributes] Overwrite some attributes which are usually generated on the server
-     * @apiParam (GET Parameter) {number} [attributes.created] Set specific created timestamp (UNIX timestamp format)
-     * @apiParam (GET Parameter) {number} [attributes.changed] Set specific changed timestamp (UNIX timestamp format)
+     * @apiParam (GET Parameter) {string} [created] Set specific created ISO806 timestamp
+     * @apiParam (GET Parameter) {string} [changed] Set specific changed ISO806 timestamp
+     * @apiParam (GET Parameter) {bool} [readonly] Mark node readonly
+     * @apiParam (GET Parameter) {object} [meta] Meta attributes
      *
      *
      * @apiSuccess (200 OK) {number} status Status Code
@@ -251,8 +252,11 @@ class Files extends Nodes
      * @param int    $chunks
      * @param string $session
      * @param int    $size
-     * @param array  $attributes
      * @param int    $conflict
+     * @param string $changed
+     * @param string $created
+     * @param bool   $readonly
+     * @param array  $meta
      *
      * @return Response
      */
@@ -265,8 +269,11 @@ class Files extends Nodes
         int $index = 1,
         int $chunks = 0,
         int $size = 0,
-        array $attributes = [],
-        int $conflict = 0
+        int $conflict = 0,
+        ?string $changed = null,
+        ?string $created = null,
+        ?bool $readonly = null,
+        ?array $meta = null
     ) {
         ini_set('auto_detect_line_endings', '1');
         $input_handler = fopen('php://input', 'rb');
@@ -334,6 +341,8 @@ class Files extends Nodes
             }
 
             try {
+                $attributes = compact('changed', 'created', 'readonly', 'meta');
+                $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
                 $attributes = $this->_verifyAttributes($attributes);
 
                 return $this->_put($file, $id, $p, $collection, $name, $attributes, $conflict);
@@ -380,9 +389,10 @@ class Files extends Nodes
      * (If none of them are given, the file will be placed to the root)
      * @apiParam (GET Parameter) {string} [name] Needs to be set if the chunk belongs to a new file
      * or to identify an existing child file if a collection id was set
-     * @apiParam (GET Parameter) {object} attributes Overwrite some attributes which are usually generated on the server
-     * @apiParam (GET Parameter) {number} attributes.created Set specific created timestamp (UNIX timestamp format)
-     * @apiParam (GET Parameter) {number} attributes.changed Set specific changed timestamp (UNIX timestamp format)
+     * @apiParam (GET Parameter) {string} [created] Set specific created ISO806 timestamp
+     * @apiParam (GET Parameter) {string} [changed] Set specific changed ISO806 timestamp
+     * @apiParam (GET Parameter) {bool} [readonly] Mark node readonly
+     * @apiParam (GET Parameter) {object} [meta] Meta attributes
      *
      * @apiSuccess (200 OK) {number} status Status Code
      * @apiSuccess (200 OK) {number} data Increased version number if an existing file was updated. It will return
@@ -430,8 +440,11 @@ class Files extends Nodes
      * @param string $p
      * @param string $collection
      * @param string $name
-     * @param array  $attributes
      * @param int    $conflict
+     * @param string $changed
+     * @param string $created
+     * @param bool   $readonly
+     * @param array  $meta
      *
      * @return Response
      */
@@ -440,13 +453,18 @@ class Files extends Nodes
         ?string $p = null,
         ?string $collection = null,
         ?string $name = null,
-        array $attributes = [],
-        int $conflict = 0
+        int $conflict = 0,
+        ?string $changed = null,
+        ?string $created = null,
+        ?bool $readonly = null,
+        ?array $meta = null
     ): Response {
-        $attributes = $this->_verifyAttributes($attributes);
-
         ini_set('auto_detect_line_endings', '1');
         $content = fopen('php://input', 'rb');
+
+        $attributes = compact('changed', 'created', 'readonly', 'meta');
+        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+        $attributes = $this->_verifyAttributes($attributes);
 
         return $this->_put($content, $id, $p, $collection, $name, $attributes, $conflict);
     }

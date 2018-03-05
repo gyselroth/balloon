@@ -120,7 +120,7 @@ class Documents extends Controller
 
     /**
      * @api {put} /api/v2/office/documents Create new empty document
-     * @apiName put
+     * @apiName post
      * @apiVersion 2.0.0
      * @apiGroup App\Office
      * @apiPermission none
@@ -146,7 +146,8 @@ class Documents extends Controller
      * @apiParam (GET Parameter) {string} name The name of the new document
      * @apiParam (GET Parameter) {string} [collection] Parent collection id (If none  given, the document will be placed under root)
      * @apiParam (GET Parameter) {string} type Office document file type
-     * @apiParam (GET Parameter) {string[]} attributes Node attributes
+     * @apiParam (GET Parameter) {bool} [readonly] Mark node readonly
+     * @apiParam (GET Parameter) {object} [meta] Meta attributes
      *
      * @apiExample (cURL) example:
      * curl -XPUT "https://SERVER/api/v2/office/documents?type=xlsx"
@@ -160,15 +161,20 @@ class Documents extends Controller
      * @param string $name
      * @param string $type
      * @param string $collection
-     * @param array  $attributes
      * @param int    $conflict
+     * @param bool   $readonly
+     * @param array  $meta
      *
      * @return Response
      */
-    public function put(string $name, string $type, ?string $collection = null, array $attributes = [], int $conflict = 0): Response
+    public function post(string $name, string $type, ?string $collection = null, int $conflict = 0, ?bool $readonly = null, ?array $meta = null): Response
     {
         $parent = $this->fs->getNode($collection, null, Collection::class, false, true);
         $tpl = new Template($type);
+
+        $attributes = compact('readonly', 'meta');
+        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+
         $result = $parent->addFile($name, $tpl->get(), $attributes);
         $result = $this->decorator->decorate($result);
 
