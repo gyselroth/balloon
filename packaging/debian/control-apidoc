@@ -1,0 +1,6 @@
+Package: balloon-apidoc
+Version: {version}
+Architecture: all
+Maintainer: Raffael Sahli <sahli@gyselroth.com>
+Homepage: https://github.com/gyselroth/balloon
+Description: API refernece for the balloon cloud server

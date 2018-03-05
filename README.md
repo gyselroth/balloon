@@ -1,58 +1,74 @@
 # balloon
-[![GitHub release](https://img.shields.io/github/release/gyselroth/balloon.svg)](https://github.com/gyselroth/balloon/releases)
-[![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
 
-balloon is both a cloud server and a document management system
+[![Build Status](https://travis-ci.org/gyselroth/balloon.svg?branch=dev)](https://travis-ci.org/gyselroth/balloon)
+[![GitHub release](https://img.shields.io/github/release/gyselroth/balloon.svg)](https://github.com/gyselroth/balloon/releases)
+[ ![Download](https://api.bintray.com/packages/gyselroth/balloon/balloon/images/download.svg) ](https://bintray.com/gyselroth/balloon/balloon/_latestVersion) 
+ [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/gyselroth/balloon/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/gyselroth/balloon/?branch=dev)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon?ref=badge_shield)
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/app/img/balloon-startup.png"/>
+</p>
 
 ## Features
 
-* Virtual Filesystem based on MongoDB and therefore highly scalable
-* Higly configurable via XML configuration
-* Multiple types of authentication possible: local (MongoDB), LDAP or OAUTH2. 
-* HTTP REST API
-* WebDAV
-* Multilingual webinterface
-* High performance webinterface seamlessly written in javascript
-* Various DMS features like tagging, meta data, sharing, file history and many more
+* Virtual Filesystem based on MongoDB which is highly scalable
+* Multiple types of authentication, local (MongoDB), LDAP, OpenID-Connect
+* HTTP API
+* WebDAV Support (Support for network drives on Windows)
+* Various DMS features like tagging, meta data, sharing, file history and more
+* Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
 * Event logging and possibiliy of undoing an event
-* Integrated app system
-* File previews
-* Multiple log adapter and detailed log files
-* Webinterface with keyboard navigation, drag&drop, upload files via drag&drop, video&audio player and more
-* LDAP integration for authentication, user sync, automatically deployed shares and more
-* Fully responsive webinterface
-* Notifications
-* Possibility to automatically destroy files/folders at a certain time
-* Globally accessible share links
-* ...
+* Integrated app system to support 3rd party apps
+* The core is shipped with various core apps pre-installed
+* Full LDAP integration for authentication and user/group sync
+* Integrated deduplication system to save your storage
+* User quotas
+* File previews (core app)
+* Notifications (core app)
+* Automatically let your files convert to other file formats (Keep an auotmatic updated pdf file for a word file for example)
+* Automatically destroy files/folders at a certain time
+* Globally accessible share links 
+* Task scheduler
+* Cluster/Distributed system support
+* Support for cloud native deployment
+* Packaged for debian and as docker image
+* ... and much more
 
 ## What else?
 
-There are very useful apps available (fully supported by the core but not distributed with it):
+Here are some other core apps which are also shipped by default.
 
-### LibreOffice
+### LibreOffice - Collaborative webinterface integration
 
-The office app introduces libreoffice (collabora) for balloon: i.e. a real integration of a full office suite within your personal or business cloud, supporting read and write all types of office formats and also featuring collaborative editing sessions.
+The office app introduces libreoffice (collabora) for balloon. Meaning this is real integration of a full office suite within your personal or business cloud. It does support read and write all types of office formats and also features collaborative editing sessions.
 
-See the [balloon-app-office](https://github.com/gyselroth/balloon-app-office) repository for further information.
+### Elasticsearch - Fulltext search
 
-### Elasticsearch
+Elasticsearch provides full text search over all stored documents. The elasticsearch balloon app makes use of that and transperantly replaces the core search mechanism of meta data only.
 
-Elastic search provides full text search over all stored documents. The elastic search balloon app makes use of that and transparently replaces the core search mechanism of meta data only.
+### ClamAV - Antivirus engine
 
-See the [balloon-app-elasticsearch](https://github.com/gyselroth/balloon-app-elasticsearch) repository for further information.
+Automatically scan your uploaded files in the background for viruses and other malware.
 
 ## Requirements
 
 * GNU/Linux Server
-* Webserve
+* Webserver
 * PHP 7.1.x
 * MongoDB
 
 ## Installation
+### From source
+For installation from source, see the [wiki page](https://github.com/gyselroth/balloon/wiki/Install-balloon-from-source-(v2))
 
-For installation from source, see the [wiki page](https://github.com/gyselroth/balloon/wiki/Install-balloon-from-source-(v1))
+## Changelog
+A changelog is available [here](https://github.com/gyselroth/balloon/CHANGELOG.md).
 
-## Docker image
+## Upgrade
+Upgrading from an older version of balloon? Please note the [changelog](https://github.com/gyselroth/balloon/CHANGELOG.md) and follow the instructions given 
+in the [upgrade guide](https://github.com/gyselroth/balloon/UPGRADE.md).
 
-There is a ready-to-go docker image on [Docker Hub](https://hub.docker.com/r/gyselroth/balloon/).
+## Contribute
+We are glad that you would like to contribute to this project. Please follow the given [terms](https://github.com/gyselroth/balloon/CONTRIBUTE.md).

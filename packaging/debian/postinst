@@ -1,0 +1,39 @@
+#!/bin/bash
+
+echo "create sysmlinks and log folder"
+if [ ! -d /var/log/balloon ]; then
+  mkdir /var/log/balloon
+fi
+
+if [ ! -h /usr/share/balloon/config ]; then
+    ln -s /etc/balloon /usr/share/balloon/config
+fi
+
+if [ ! -h /usr/share/balloon/log ]; then
+    ln -s /var/log/balloon /usr/share/balloon/log
+fi
+
+if [ ! -h /usr/bin/ballooncli ]; then
+    ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
+fi
+
+if [[ ! -f /etc/systemd/system/balloon-jobs.service && -d /etc/systemd/system ]]; then
+    cp /usr/share/balloon/scripts/balloon-jobs.service.systemd /etc/systemd/system/balloon-jobs.service
+fi
+
+if [[ ! -f /etc/init/balloon-jobs.conf && -d /etc/init ]]; then
+    cp /usr/share/balloon/scripts/balloon-jobs.service.upstart /etc/init/balloon-jobs.conf
+fi
+
+echo "create admin user"
+/usr/bin/ballooncli upgrade -vvv -i
+/usr/bin/ballooncli useradd -u admin -p admin -m root@localhost.local -a
+chown -R www-data. /var/log/balloon
+
+echo "create systemctl service"
+systemctl enable balloon-jobs.service 2> /dev/null
+
+echo "restart balloon-jobs service"
+if service --status-all | grep -Fq 'balloon-jobs'; then
+  service balloon-jobs restart
+fi

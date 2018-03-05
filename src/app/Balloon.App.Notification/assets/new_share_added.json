@@ -1,0 +1,6 @@
+{
+  "en_US": {
+    "subject": "You have received a new balloon share",
+    "body": "Hi {user.username},\n{node.shareowner.name} has shared a balloon collection [{node.sharename}] with you."
+  }
+}

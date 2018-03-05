@@ -1,0 +1,256 @@
+MongoDB\Client:
+  arguments:
+    uri: "{ENV(BALLOON_MONGODB_URI,mongodb://localhost:27017)}"
+MongoDB\Database:
+  use: '{MongoDB\Client}'
+  selects:
+    - method: selectDatabase
+      arguments:
+        databaseName: 'balloon'
+Balloon\Server:
+  arguments:
+    config:
+      temp_dir: "/tmp/balloon"
+      max_file_version: 8
+      max_file_size: 17179869184
+      server_url: "{ENV(BALLOON_URL,https://localhost)}"
+      password_policy: '#^.*$#'
+      password_hash: 1
+Balloon\App\ClamAv\Scanner:
+  arguments:
+    config:
+      socket: "{ENV(BALLOON_CLAMAV_URI,unix:///var/run/clamav/clamd.ctl)}"
+      max_stream_size: 26214400
+      aggressiveness: 2
+      timeout: 30
+Balloon\App\Notification\Notifier:
+  calls:
+    Balloon\App\Notification\Adapter\Db:
+      method: injectAdapter
+      arguments:
+        adapter: '{Balloon\App\Notification\Adapter\Db}'
+    Balloon\App\Notification\Adapter\Mail:
+      method: injectAdapter
+      arguments:
+        adapter: '{Balloon\App\Notification\Adapter\Mail}'
+  services:
+    Balloon\App\Notification\Adapter\Mail:
+      arguments:
+        config:
+          sender_address: "no-reply@localhost"
+          sender_name: "balloon"
+Balloon\App\Elasticsearch\Elasticsearch:
+  arguments:
+    config:
+      server: "{ENV(BALLOON_ELASTICSEARCH_URI,http://localhost:9200)}"
+      index: "balloon"
+Balloon\App\Elasticsearch\Job:
+  arguments:
+    config:
+      size_limit: 52428800
+Balloon\App\Notification\Async\Subscription:
+    arguments:
+        config:
+            notification_throttle: 120
+Balloon\App\Elasticsearch\Migration\Delta\Installation:
+  arguments:
+    config:
+      #index_configuration: "/path/to/index.json"
+apps:
+  Balloon.App.Api: true
+  Balloon.App.Webdav: true
+  Balloon.App.Sharelink: true
+  Balloon.App.Convert: true
+  Balloon.App.DesktopClient: true
+  Balloon.App.Preview: true
+  Balloon.App.ClamAv: true
+  Balloon.App.Elasticsearch: true
+  Balloon.App.Notification: true
+  Balloon.App.Office: true
+Balloon\App\Office\App:
+  enabled: true
+  arguments:
+    config:
+      loleaflet: "{ENV(BALLOON_OFFICE_URI,https://localhost:9980/loleaflet)}/dist/loleaflet.html"
+      wopi_url: "{ENV(BALLOON_WOPI_URL,https://localhost)}"
+      token_ttl: 3600
+Balloon\App\DesktopClient\DesktopClient:
+  arguments:
+    config:
+      github_request_url: "https://api.github.com/repos/gyselroth/balloon-client-desktop/releases/latest"
+      github_request_timeout: 10
+      github_request_useragent: "balloon server"
+      #formats: ""
+      #github_asset_mapping: ""
+Zend\Mail\Transport\SmtpOptions:
+  arguments:
+    options:
+      host: '{ENV(BALLOON_SMTP_HOST,127.0.0.1)}'
+      port: 25
+Zend\Mail\Transport\TransportInterface:
+  use: "Zend\\Mail\\Transport\\Smtp"
+Balloon\Filesystem:
+  expose: true
+Balloon\Filesystem\Storage:
+  calls:
+    gridfs:
+      method: injectAdapter
+      arguments:
+        adapter: '{Balloon\Filesystem\Storage\Adapter\Gridfs}'
+        name: 'gridfs'
+Balloon\Hook:
+  calls:
+    Balloon\Hook\Delta:
+      method: injectHook
+      arguments:
+        hook: '{Balloon\Hook\Delta}'
+    Balloon\Hook\CleanTrash:
+      method: injectHook
+      arguments:
+        hook: '{Balloon\Hook\CleanTrash}'
+    Balloon\Hook\AutoDestroy:
+      method: injectHook
+      arguments:
+        hook: '{Balloon\Hook\AutoDestroy}'
+  services:
+    Balloon\Hook\Delta:
+    Balloon\Hook\AutoCreateUser:
+      arguments:
+        config:
+          attributes:
+            soft_quota: 1000000
+            hard_quota: 1000000
+    Balloon\Hook\CleanTrash:
+      arguments:
+        config:
+          interval: 28800
+    Balloon\Hook\AutoDestroy:
+      arguments:
+        config:
+          interval: 28800
+Balloon\Convert:
+  calls:
+    Balloon\Convert\Adapter\Imagick:
+      method: injectAdapter
+      arguments:
+        adapter: '{Balloon\Convert\Adapter\Imagick}'
+    Balloon\Convert\Adapter\Office:
+      method: injectAdapter
+      arguments:
+        adapter: '{Balloon\Convert\Adapter\Office}'
+  services:
+    Balloon\Convert\Adapter\Imagick:
+      arguments:
+        config:
+          preview_max_size: 300
+    Balloon\Convert\Adapte\Office:
+      arguments:
+        config:
+          preview_max_size: 500
+          timeout: 10
+          tmp: "/tmp/balloon"
+          soffice: "/usr/bin/soffice"
+Psr\Log\LoggerInterface:
+  use: "Monolog\\Logger"
+  arguments:
+    name: default
+  calls:
+    file:
+      method: pushHandler
+      arguments:
+        handler: '{file}'
+    stderr:
+      method: pushHandler
+      arguments:
+        handler: '{stderr}'
+    stdout:
+      method: pushHandler
+      arguments:
+        handler: '{stdout}'
+  services:
+    Monolog\Formatter\FormatterInterface:
+      use: Monolog\Formatter\LineFormatter
+      arguments:
+        dateFormat: "Y-d-m H:i:s"
+        format: "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
+      calls:
+        - method: includeStacktraces
+    file:
+      use: Monolog\Handler\StreamHandler
+      arguments:
+        stream: '{ENV(BALLOON_LOG_DIR,/tmp)}/out.log'
+        level: 100
+      calls:
+        formatter:
+          method: setFormatter
+    stderr:
+      use: Monolog\Handler\StreamHandler
+      arguments:
+        stream: 'php://stderr'
+        level: 600
+      calls:
+        formatter:
+          method: setFormatter
+    stdout:
+      use: Monolog\Handler\FilterHandler
+      arguments:
+        handler: '{output}'
+        minLevelOrList: 100
+        maxLevel: 550
+      services:
+        output:
+          use: Monolog\Handler\StreamHandler
+          arguments:
+            stream: 'php://stdout'
+            level: 100
+          calls:
+            formatter:
+              method: setFormatter
+Micro\Auth\Auth:
+  calls:
+    basic_db:
+      method: injectAdapter
+      arguments:
+        adapter: '{basic_db}'
+
+  services:
+    basic_db:
+      use: "Balloon\\Auth\\Adapter\\Basic\\Db"
+    oidc:
+      use: "Micro\\Auth\\Adapter\\Oidc"
+      arguments:
+        config:
+          provider_url: "https://openidconnect.example.net"
+    ldap:
+      use: "Micro\\Auth\\Adapter\\Basic\\Ldap"
+      services:
+        Micro\Auth\Ldap:
+          arguments:
+            config:
+              uri: "ldap://localhost:389"
+              basedn: "dc=example,dc=org"
+              binddn: "cn=admin,dc=example,dc=org"
+              bindpw: 1234
+              tls: true
+              options:
+                LDAP_OPT_PROTOCOL_VERSION: 3
+      arguments:
+        config:
+          account_filter: "(uid=%s)"
+          attr_sync_cache: 3600
+          map:
+            namespace:
+              type: "string"
+              attr: "o"
+            avatar:
+              type: "binary"
+              attr: "jpegphoto"
+            hard_quota:
+              type: "int"
+              attr: "customhardquota"
+            soft_quota:
+              type: "int"
+              attr: "customsoftquota"
+            mail:
+              type: "string"
+              attr: "mail"

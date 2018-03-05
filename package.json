@@ -1,16 +1,18 @@
 {
   "name": "Balloon",
-  "version": "1.0.18",
   "description": "",
   "title": "balloon",
   "apidoc": {
-      "sampleUrl": " ",
-      "template": {
-        "withCompare": false
-      },
-      "header": {
-        "title": "Getting Started",
-        "filename": "doc/header.md"
+    "sampleUrl": " ",
+    "template": {
+      "withCompare": true
+    },
+    "header": {
+      "title": "Getting Started",
+      "filename": "src/doc_header.html"
     }
+  },
+  "dependencies": {
+    "apidoc": "*"
   }
 }
