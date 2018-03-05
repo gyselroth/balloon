@@ -32,5 +32,3 @@ balloon-dev:
         - BALLOON_WOPI_URL=https://balloon-dev
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
-        - BALLOON_LDAP_GR_BINDDN=uid=bind,ou=system,ou=users,dc=gyselroth,dc=net
-        - BALLOON_LDAP_GR_BINDPW=WgN75XKah4x9dj-Ey6CXyjmWC
