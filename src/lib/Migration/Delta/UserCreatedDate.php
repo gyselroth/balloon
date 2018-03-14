@@ -41,7 +41,10 @@ class UserCreatedDate implements DeltaInterface
     public function start(): bool
     {
         $cursor = $this->db->user->updateMany([
-            'created' => ['$exists' => false],
+            '$or' => [
+                'created' => ['$exists' => false],
+                'changed' => null,
+            ],
         ], [
             '$set' => [
                 'created' => new UTCDateTime(),

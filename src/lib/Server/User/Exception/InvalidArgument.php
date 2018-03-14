@@ -25,6 +25,7 @@ class InvalidArgument extends \InvalidArgumentException implements ExceptionInte
     const INVALID_ATTRIBUTE = 8;
     const IDENTIFIER_NOT_UNIQUE = 9;
     const CAN_NOT_DELETE_OWN_ACCOUNT = 10;
+    const INVALID_LOCALE = 11;
 
     /**
      * {@inheritdoc}

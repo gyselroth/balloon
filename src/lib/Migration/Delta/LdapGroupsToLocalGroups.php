@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Migration\Delta;
 
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 
 class LdapGroupsToLocalGroups implements DeltaInterface
@@ -63,6 +64,8 @@ class LdapGroupsToLocalGroups implements DeltaInterface
 
             $attrs['ldapdn'] = $group['_id'];
             $attrs['member'] = $group['member'];
+            $attrs['created'] = new UTCDateTime();
+            $attrs['changed'] = new UTCDateTime();
 
             $this->db->group->insertOne($attrs);
         }

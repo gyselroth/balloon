@@ -251,10 +251,6 @@ class Server
                         );
                     }
 
-                    if ($this->groupExists($value)) {
-                        throw new Group\Exception\NotUnique('group does already exists');
-                    }
-
                 break;
                 case 'optional':
                     if (!is_array($value)) {
@@ -370,6 +366,15 @@ class Server
                     $value = (bool) $value;
 
                 break;
+                case 'locale':
+                    if (!preg_match('#^[a-z]{2}_[A-Z]{2}$#', $value)) {
+                        throw new User\Exception\InvalidArgument(
+                            'invalid locale given, must be according to format a-z_A-Z',
+                            User\Exception\InvalidArgument::INVALID_LOCALE
+                        );
+                    }
+
+                break;
                 case 'namespace':
                     if (!is_string($value)) {
                         throw new User\Exception\InvalidArgument(
@@ -429,19 +434,29 @@ class Server
      *
      * @return bool
      */
-    public function userExists(string $username): bool
+    public function usernameExists(string $username): bool
     {
         return  1 === $this->db->user->count(['username' => $username]);
     }
 
     /**
-     * Check if group exists.
+     * Check if user exists.
      *
      * @return bool
      */
-    public function groupExists(string $name): bool
+    public function userExists(ObjectId $id): bool
     {
-        return  1 === $this->db->group->count(['name' => $name]);
+        return  1 === $this->db->user->count(['_id' => $id]);
+    }
+
+    /**
+     * Check if user exists.
+     *
+     * @return bool
+     */
+    public function groupExists(ObjectId $id): bool
+    {
+        return  1 === $this->db->group->count(['_id' => $id]);
     }
 
     /**

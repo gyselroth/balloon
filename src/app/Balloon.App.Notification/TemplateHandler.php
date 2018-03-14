@@ -147,16 +147,6 @@ class TemplateHandler
         return $this->parseTemplate($notification, 'subject', $user, $node);
     }
 
-    /*public function parseMessage(string $message, User $user): string
-    {
-        $template = $this->load($notification);
-        if (!isset($template[$type])) {
-            throw new Exception('type '.$type.' does not exists in template');
-        }
-
-        return $this->decorate($this->decorateUser($template[$type], $user));
-    }*/
-
     protected function load(string $notification)
     {
         if (isset($this->templates[$notification])) {

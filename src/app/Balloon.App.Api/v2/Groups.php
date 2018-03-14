@@ -311,7 +311,8 @@ class Groups
         $attributes = compact('namespace', 'optional', 'name', 'member');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
-        $group = $this->_getGroup($id, true)->setAttributes($attributes);
+        $group = $this->_getGroup($id, true);
+        $group->setAttributes($attributes);
         $result = $this->decorator->decorate($group);
 
         return (new Response())->setCode(200)->setBody($result);

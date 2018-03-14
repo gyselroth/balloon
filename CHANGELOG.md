@@ -1,6 +1,15 @@
-## 2.0.0-dev
+## 2.0.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**:
+
+* FIX: [CORE] group gets now correctly added and there is no more unique check for group names
+* FIX: [CORE] migration delta LdapGroupsToLocalGroups sets created and changed timestamps for groups
+* FIX: [API] fixed response PATCH /api/v2/users and PATCH /api/v2/groups
+
+
+## 2.0.0-beta1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**:  Mon Mar 05 14:33:00 CET 2017
 
 This major relase contains various fixes, changes and new features including:
 * Possibility to load the desktop client artifacts via server

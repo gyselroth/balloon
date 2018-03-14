@@ -442,7 +442,8 @@ class Users
             $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);
         }
 
-        $user = $this->_getUser($id, $uname, true)->setAttributes($attributes);
+        $user = $this->_getUser($id, $uname, true);
+        $user->setAttributes($attributes);
         $result = $this->decorator->decorate($user);
 
         return (new Response())->setCode(200)->setBody($result);

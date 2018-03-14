@@ -93,6 +93,8 @@ class Useradd implements ConsoleInterface
                 ->setDescription('Hardquota in bytes'),
             \GetOpt\Option::create('n', 'namespace', GetOpt::REQUIRED_ARGUMENT)
                 ->setDescription('A namespace'),
+            \GetOpt\Option::create('L', 'locale', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('A Locale (Example: en_US)'),
         ]);
 
         return $this;
@@ -153,6 +155,10 @@ class Useradd implements ConsoleInterface
 
         if ($this->getopt->getOption('password') !== null) {
             $options['password'] = $this->getopt->getOption('password');
+        }
+
+        if ($this->getopt->getOption('locale') !== null) {
+            $options['locale'] = $this->getopt->getOption('locale');
         }
 
         if ($this->getopt->getOption('avatar') !== null) {
