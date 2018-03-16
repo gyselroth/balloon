@@ -50,7 +50,7 @@ class Job extends AbstractJob
     {
         $file = $this->fs->findNodeById($this->data['id']);
         $result = $this->scanner->scan($file);
-        $this->scanner->handleFile($file, $result);
+        $this->scanner->handleFile($file, $result['status'], isset($result['reason']) ? $result['reason'] : null);
 
         return true;
     }

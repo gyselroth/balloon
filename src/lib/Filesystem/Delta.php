@@ -77,7 +77,7 @@ class Delta
      *
      * @return ObjectId
      */
-    public function add(string $event, NodeInterface $node, array $context): ObjectId
+    public function add(string $event, NodeInterface $node, array $context = []): ObjectId
     {
         $context['operation'] = $event;
         $context['owner'] = $this->getEventOwner($node);

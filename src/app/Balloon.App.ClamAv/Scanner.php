@@ -181,14 +181,15 @@ class Scanner
     /**
      * Execute appropriate action on given file.
      *
-     * @param File  $file
-     * @param array $result
+     * @param File   $file
+     * @param string $status
+     * @param string $reason
      *
      * @return bool
      */
-    public function handleFile(File $file, array $result): bool
+    public function handleFile(File $file, string $status, ?string $reason = null): bool
     {
-        if ($result['status'] === self::FILE_INFECTED) {
+        if ($status === self::FILE_INFECTED) {
             switch ($this->aggressiveness) {
                 case 0:
                     break;
@@ -196,7 +197,7 @@ class Scanner
                     $file->setAppAttributes(__NAMESPACE__, [
                         'quarantine' => true,
                         'scantime' => new UTCDateTime(),
-                        'reason' => $result['reason'],
+                        'reason' => $reason,
                     ]);
 
                     break;
@@ -205,7 +206,7 @@ class Scanner
                     $file->setAppAttributes(__NAMESPACE__, [
                         'quarantine' => true,
                         'scantime' => new UTCDateTime(),
-                        'reason' => $result['reason'],
+                        'reason' => $reason,
                     ]);
 
                     $file->delete();

@@ -24,7 +24,7 @@ use Psr\Log\LoggerInterface;
 /**
  * @coversNothing
  */
-class GetLastRecordTest extends Test
+class DeltaTest extends Test
 {
     protected $fs;
     protected $delta;
@@ -37,23 +37,25 @@ class GetLastRecordTest extends Test
         $this->delta = new Delta($this->fs, self::getMockDatabase());
     }
 
-    public function testGetOneRecord()
+    public function testAddRecord()
     {
-        // fixture
-        $data = [
-            'owner' => $this->fs->getUser()->getId(),
-            'timestamp' => new UTCDateTime(),
-            'operation' => 'test',
-            'name' => uniqid(),
-        ];
-
-        // create record
-        $this->delta->add($data);
-
-        // get record
-        $from_delta = $this->delta->getLastRecord();
-        $this->assertSame($data['name'], $from_delta['name']);
+        $file = $this->createMock(File::class);
+        $file->method('getId')->willReturn(new ObjectId());
+        $file->method('getOwner')->willReturn(new ObjectId());
+        $id = $this->delta->add('test', $file);
+        $this->assertInstanceOf(ObjectId::class, $id);
     }
+
+    /*public function testGetOneRecord()
+    {
+        $id = new ObjectId();
+        $file = $this->createMock(File::class);
+        $file->method('getId')->willReturn($id);
+        $file->method('getOwner')->willReturn(new ObjectId());
+        $id = $this->delta->add('test', $file);
+        $last = $this->delta->getLastRecord();
+        $this->assertEquals($id, $last['node']);
+    }*/
 
     public function testGetLastRecord()
     {
@@ -72,7 +74,7 @@ class GetLastRecordTest extends Test
         ];
 
         foreach ($data as $record) {
-            $this->delta->add($record);
+            self::getMockDatabase()->delta->insertOne($record);
         }
 
         $from_delta = $this->delta->getLastRecord();
@@ -123,10 +125,7 @@ class GetLastRecordTest extends Test
             $this->delta->add($record['operation'], $files[$key], $record);
         }
 
-        // get record
         $from_delta = $this->delta->getLastRecord($files[0]);
-        // unset _id property to be able to compare
-        unset($from_delta['_id']);
-        $this->assertSame($data[0], $from_delta);
+        $this->assertSame((string) $files[0]->getId(), (string) $from_delta['node']);
     }
 }

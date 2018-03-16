@@ -34,7 +34,72 @@ class ScannerTest extends Test
         $this->scanner = new Scanner($this->createMock(Factory::class), $this->createMock(LoggerInterface::class));
     }
 
-    public function getFile()
+    public function testHandleCleanFile()
+    {
+        $file = $this->getFile();
+        $this->scanner->handleFile($file, Scanner::FILE_OK);
+        $this->assertFalse($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
+    }
+
+    public function testHandleInfectedFileLevel1()
+    {
+        $file = $this->getFile();
+
+        $this->scanner->setOptions([
+            'aggressiveness' => 1,
+        ]);
+
+        $this->scanner->handleFile($file, Scanner::FILE_INFECTED);
+
+        $this->assertTrue($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
+        $this->assertFalse($file->isDeleted());
+    }
+
+    public function testHandleInfectedFileLevel2()
+    {
+        $file = $this->getFile();
+
+        $this->scanner->setOptions([
+            'aggressiveness' => 2,
+        ]);
+
+        $this->scanner->handleFile($file, Scanner::FILE_INFECTED);
+
+        $this->assertTrue($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
+        $this->assertTrue($file->isDeleted());
+    }
+
+    public function testHandleInfectedFileLevel3()
+    {
+        $acl = $this->createMock(Acl::class);
+        $acl->expects($this->any())
+             ->method('isAllowed')
+             ->will($this->returnValue(true));
+
+        $mockFile = $this->getMockBuilder(File::class)
+            ->setMethods(['delete'])
+            ->setConstructorArgs([
+                ['owner' => $this->server->getIdentity()->getId()],
+                $this->server->getFilesystem(),
+                $this->createMock(LoggerInterface::class),
+                $this->createMock(Hook::class),
+                $acl,
+                $this->createMock(Storage::class),
+            ])
+            ->getMock();
+
+        $this->scanner->setOptions([
+            'aggressiveness' => 3,
+        ]);
+
+        $mockFile->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo(true));
+
+        $this->scanner->handleFile($mockFile, Scanner::FILE_INFECTED);
+    }
+
+    protected function getFile()
     {
         $acl = $this->createMock(Acl::class);
         $acl->expects($this->any())
@@ -49,86 +114,5 @@ class ScannerTest extends Test
             $acl,
             $this->createMock(Storage::class)
         );
-    }
-
-    public function testHandleCleanFile()
-    {
-        $file = $this->getFile();
-
-        // execute SUT
-        $this->scanner->handleFile($file, ['status' => false]);
-
-        // assertion
-        $this->assertFalse($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
-    }
-
-    public function testHandleInfectedFileLevel1()
-    {
-        $file = $this->getFile();
-
-        // setup SUT
-        $this->scanner->setOptions([
-            'aggressiveness' => 1,
-        ]);
-
-        // execute SUT
-        $this->scanner->handleFile($file, [
-            'status' => true,
-        ]);
-
-        // assertion
-        $this->assertTrue($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
-        $this->assertFalse($file->isDeleted());
-    }
-
-    public function testHandleInfectedFileLevel2()
-    {
-        $file = $this->getFile();
-
-        // setup SUT
-        $this->scanner->setOptions([
-            'aggressiveness' => 2,
-        ]);
-
-        // execute SUT
-        $this->scanner->handleFile($file, ['status' => true]);
-
-        // assertion
-        $this->assertTrue($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
-        $this->assertTrue($file->isDeleted());
-    }
-
-    public function testHandleInfectedFileLevel3()
-    {
-        $acl = $this->createMock(Acl::class);
-        $acl->expects($this->any())
-             ->method('isAllowed')
-             ->will($this->returnValue(true));
-
-        // setup mock
-        $mockFile = $this->getMockBuilder(File::class)
-            ->setMethods(['delete'])
-            ->setConstructorArgs([
-                ['owner' => $this->server->getIdentity()->getId()],
-                $this->server->getFilesystem(),
-                $this->createMock(LoggerInterface::class),
-                $this->createMock(Hook::class),
-                $acl,
-                $this->createMock(Storage::class),
-            ])
-            ->getMock();
-
-        // setup SUT
-        $this->scanner->setOptions([
-            'aggressiveness' => 3,
-        ]);
-
-        // setup expectation
-        $mockFile->expects($this->once())
-            ->method('delete')
-            ->with($this->equalTo(true));
-
-        // execute SUT
-        $this->scanner->handleFile($mockFile, ['status' => true]);
     }
 }

@@ -267,7 +267,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
 
-                return json_decode($attributes['filter']);
+                return json_decode($attributes['filter'], true);
             },
         ];
     }
