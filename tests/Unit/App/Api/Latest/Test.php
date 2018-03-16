@@ -13,6 +13,7 @@ namespace Balloon\Testsuite\Unit\App\Api\Latest;
 
 use Balloon\App\Api\v2\Collections;
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\DeltaAttributeDecorator;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
@@ -51,7 +52,7 @@ abstract class Test extends UnitTest
 
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
 
-        if (!$server->userExists('testuser')) {
+        if (!$server->usernameExists('testuser')) {
             $server->addUser('testuser');
         }
 
@@ -62,7 +63,8 @@ abstract class Test extends UnitTest
 
     public function getDelta($cursor = null)
     {
-        $res = $this->controller->getDelta(null, null, $cursor);
+        $decorator = new DeltaAttributeDecorator();
+        $res = $this->controller->getDelta($decorator, null, null, $cursor);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(200, $res->getCode());
 

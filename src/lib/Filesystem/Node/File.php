@@ -134,7 +134,7 @@ class File extends AbstractNode implements IFile
                 return null;
             }
 
-            return $this->_storage->getFile($this);
+            return $this->_storage->getFile($this->storage);
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'content not found',
@@ -235,7 +235,7 @@ class File extends AbstractNode implements IFile
 
         if (null !== $file) {
             try {
-                $exists = $this->_storage->getFileMeta($this, $this->history[$v]['storage']);
+                $exists = $this->_storage->getFileMeta($this->history[$v]['storage']);
             } catch (\Exception $e) {
                 throw new Exception('could not restore to version '.$version.', version content does not exists');
             }

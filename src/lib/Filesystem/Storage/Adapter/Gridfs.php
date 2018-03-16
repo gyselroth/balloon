@@ -57,7 +57,7 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasFile(File $file, array $attributes): bool
+    public function hasFile(array $attributes): bool
     {
         return null !== $this->getFileById($attributes);
     }
@@ -117,7 +117,7 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getFile(File $file, array $attributes)
+    public function getFile(array $attributes)
     {
         if (!isset($attributes['_id'])) {
             throw new Exception('attributes do not contain a gridfs id');
@@ -129,7 +129,7 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getFileMeta(File $file, array $attributes): array
+    public function getFileMeta(array $attributes): array
     {
         if (!isset($attributes['_id'])) {
             throw new Exception('attributes do not contain a gridfs id');

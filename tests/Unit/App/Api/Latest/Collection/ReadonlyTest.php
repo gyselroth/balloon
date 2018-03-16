@@ -31,7 +31,7 @@ class ReadonlyTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
 
         return (string) $id;
@@ -44,9 +44,10 @@ class ReadonlyTest extends Test
      */
     public function testSetReadonly($id)
     {
-        $res = $this->controller->postReadonly($id);
+        $res = $this->controller->patch($id, null, null, true);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertSame(204, $res->getCode());
+        $this->assertSame(200, $res->getCode());
+        $this->assertTrue($res->getBody()['readonly']);
 
         return $id;
     }
@@ -70,9 +71,10 @@ class ReadonlyTest extends Test
      */
     public function testSetWriteable($id)
     {
-        $res = $this->controller->postReadonly($id, null, false);
+        $res = $this->controller->patch($id, null, null, false);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertSame(204, $res->getCode());
+        $this->assertSame(200, $res->getCode());
+        $this->assertFalse($res->getBody()['readonly']);
     }
 
     /**
@@ -86,7 +88,7 @@ class ReadonlyTest extends Test
         $res = $this->controller->post($id, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
     }
 }

@@ -56,7 +56,7 @@ class ScannerTest extends Test
         $file = $this->getFile();
 
         // execute SUT
-        $this->scanner->handleFile($file);
+        $this->scanner->handleFile($file, ['status' => false]);
 
         // assertion
         $this->assertFalse($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
@@ -72,7 +72,9 @@ class ScannerTest extends Test
         ]);
 
         // execute SUT
-        $this->scanner->handleFile($file, true);
+        $this->scanner->handleFile($file, [
+            'status' => true,
+        ]);
 
         // assertion
         $this->assertTrue($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
@@ -89,7 +91,7 @@ class ScannerTest extends Test
         ]);
 
         // execute SUT
-        $this->scanner->handleFile($file, true);
+        $this->scanner->handleFile($file, ['status' => true]);
 
         // assertion
         $this->assertTrue($file->getAppAttribute('Balloon\\App\\ClamAv', 'quarantine'));
@@ -127,6 +129,6 @@ class ScannerTest extends Test
             ->with($this->equalTo(true));
 
         // execute SUT
-        $this->scanner->handleFile($mockFile, true);
+        $this->scanner->handleFile($mockFile, ['status' => true]);
     }
 }

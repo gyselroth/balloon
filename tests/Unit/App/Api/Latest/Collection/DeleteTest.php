@@ -37,7 +37,7 @@ class DeleteTest extends Node\DeleteTest
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);

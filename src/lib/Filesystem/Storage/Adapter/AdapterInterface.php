@@ -18,12 +18,11 @@ interface AdapterInterface
     /**
      * Check if file exists.
      *
-     * @param File  $file
      * @param array $attributes
      *
      * @return bool
      */
-    public function hasFile(File $file, array $attributes): bool;
+    public function hasFile(array $attributes): bool;
 
     /**
      * Delete file.
@@ -38,12 +37,11 @@ interface AdapterInterface
     /**
      * Get stored file.
      *
-     * @param File  $file
      * @param array $attributes
      *
      * @return resource
      */
-    public function getFile(File $file, array $attributes);
+    public function getFile(array $attributes);
 
     /**
      * Store file.
@@ -58,10 +56,9 @@ interface AdapterInterface
     /**
      * Get metadata for a file.
      *
-     * @param File  $file
      * @param array $attributes
      *
      * @return array
      */
-    public function getFileMeta(File $file, array $attributes): array;
+    public function getFileMeta(array $attributes): array;
 }

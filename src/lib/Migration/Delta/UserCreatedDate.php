@@ -42,8 +42,8 @@ class UserCreatedDate implements DeltaInterface
     {
         $cursor = $this->db->user->updateMany([
             '$or' => [
-                'created' => ['$exists' => false],
-                'changed' => null,
+                ['created' => ['$exists' => false]],
+                ['changed' => null],
             ],
         ], [
             '$set' => [

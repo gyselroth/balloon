@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Testsuite\Unit\App\Api\Latest\Collection;
 
+use Balloon\Filesystem\Exception;
 use Balloon\Testsuite\Unit\App\Api\Latest\Test;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -39,7 +40,7 @@ class MoveTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);
@@ -78,13 +79,13 @@ class MoveTest extends Test
 
     /**
      * @depends testCreate
-     * @expectedException \Balloon\Exception\Conflict
-     * @expectedExceptionCode 17
      *
      * @param mixed $node
      */
     public function testMoveCollectionIntoSameParent($node)
     {
+        $this->assertExpectException(Exception\Conflict);
+        $this->assertExpectExceptionCode(Exception\Conflict::PARENT);
         $this->controller->postMove($node['id'], null, null);
     }
 
@@ -99,7 +100,7 @@ class MoveTest extends Test
     {
         $res = $this->controller->postMove($source['id'], null, $dest['id']);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertSame(204, $res->getCode());
+        $this->assertSame(200, $res->getCode());
 
         $delta = $this->getDelta(self::$current_cursor);
         $this->assertCount(2, $delta['nodes']);
@@ -122,13 +123,13 @@ class MoveTest extends Test
 
     /**
      * @depends testMoveCollectionIntoOtherCollection
-     * @expectedException \Balloon\Exception\Conflict
-     * @expectedExceptionCode 18
      *
      * @param mixed $nodes
      */
     public function testMoveParentIntoChild($nodes)
     {
+        $this->assertExpectException(Exception\Conflict);
+        $this->assertExpectExceptionCode(Exception\Conflict::PARENT);
         $this->controller->postMove($nodes['parent']['id'], null, $nodes['child']['id']);
     }
 
@@ -138,7 +139,7 @@ class MoveTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);
@@ -169,7 +170,7 @@ class MoveTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);
@@ -202,7 +203,7 @@ class MoveTest extends Test
         $res = $this->controller->post($nodes['b']['id'], null, $nodes['a']['name']);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
 
         $delta = $this->getDelta(self::$current_cursor);
@@ -226,13 +227,13 @@ class MoveTest extends Test
 
     /**
      * @depends testCreateAUnderB
-     * @expectedException \Balloon\Exception\Conflict
-     * @expectedExceptionCode 19
      *
      * @param mixed $nodes
      */
     public function testMoveAToBConflict($nodes)
     {
+        $this->assertExpectException(Exception\Conflict);
+        $this->assertExpectExceptionCode(Exception\Conflict::PARENT);
         $this->controller->postMove($nodes['a']['id'], null, $nodes['b']['id']);
     }
 
@@ -245,7 +246,7 @@ class MoveTest extends Test
     {
         $res = $this->controller->postMove($nodes['a']['id'], null, $nodes['b']['id'], null, 2);
         $this->assertInstanceOf(Response::class, $res);
-        $this->assertSame(204, $res->getCode());
+        $this->assertSame(200, $res->getCode());
         $delta = $this->getDelta(self::$current_cursor);
 
         $this->assertCount(2, $delta['nodes']);

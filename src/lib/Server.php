@@ -318,7 +318,7 @@ class Server
                         );
                     }
 
-                    if ($this->userExists($value)) {
+                    if ($this->usernameExists($value)) {
                         throw new User\Exception\NotUnique('user does already exists');
                     }
 

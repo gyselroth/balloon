@@ -39,7 +39,7 @@ class CloneTest extends Test
         $res = $this->controller->post(null, null, $name);
         $this->assertInstanceOf(Response::class, $res);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
         self::$delta[] = (string) $id;
 
@@ -86,7 +86,7 @@ class CloneTest extends Test
     {
         $res = $this->controller->postClone($source, null, $dest);
         $this->assertSame(201, $res->getCode());
-        $id = new ObjectId($res->getBody());
+        $id = new ObjectId($res->getBody()['id']);
         $this->assertInstanceOf(ObjectId::class, $id);
         self::$delta[] = (string) $id;
     }

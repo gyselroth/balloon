@@ -55,13 +55,6 @@ class GetLastRecordTest extends Test
         $this->assertSame($data['name'], $from_delta['name']);
     }
 
-    /*public function testGetEmpty()
-    {
-        // get record
-        $from_delta = $this->delta->getLastRecord();
-        $this->assertNull($from_delta);
-    }*/
-
     public function testGetLastRecord()
     {
         $data = [
@@ -116,22 +109,18 @@ class GetLastRecordTest extends Test
         $data = [
             [
                 'owner' => $this->fs->getUser()->getId(),
-                'timestamp' => new UTCDateTime(0),
                 'operation' => 'test1',
-                'node' => $files[0]->getId(),
                 'name' => uniqid(),
             ], [
                 'owner' => $this->fs->getUser()->getId(),
-                'timestamp' => new UTCDateTime(),
                 'operation' => 'test2',
-                'node' => $files[1]->getId(),
                 'name' => uniqid(),
             ],
         ];
 
         // create records
-        foreach ($data as $record) {
-            $this->delta->add($record);
+        foreach ($data as $key => $record) {
+            $this->delta->add($record['operation'], $files[$key], $record);
         }
 
         // get record

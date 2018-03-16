@@ -56,7 +56,7 @@ abstract class Test extends TestCase
 
         $identity = new Mock\Identity('testuser', [], $this->createMock(LoggerInterface::class));
 
-        if (!$server->userExists('testuser')) {
+        if (!$server->usernameExists('testuser')) {
             $server->addUser('testuser');
         }
 

@@ -123,29 +123,27 @@ class Storage
     /**
      * Check if file exists.
      *
-     * @param File   $file
      * @param array  $attributes
      * @param string $adapter
      *
      * @return bool
      */
-    public function hasFile(File $file, ?array $attributes = null, ?string $adapter = null): bool
+    public function hasFile(array $attributes = null, ?string $adapter = null): bool
     {
-        return $this->execAdapter('hasFile', $file, $attributes, $adapter);
+        return $this->execAdapter('hasFile', $attributes, $adapter);
     }
 
     /**
      * Get metadata for a file.
      *
-     * @param File   $file
      * @param array  $attributes
      * @param string $adapter
      *
      * @return array
      */
-    public function getFileMeta(File $file, ?array $attributes = null, ?string $adapter = null): array
+    public function getFileMeta(array $attributes = null, ?string $adapter = null): array
     {
-        return $this->execAdapter('getFileMeta', $file, $attributes, $adapter);
+        return $this->execAdapter('getFileMeta', $attributes, $adapter);
     }
 
     /**
@@ -165,15 +163,14 @@ class Storage
     /**
      * Get stored file.
      *
-     * @param File   $file
      * @param array  $attributes
      * @param string $adapter
      *
      * @return resource
      */
-    public function getFile(File $file, ?array $attributes = null, ?string $adapter = null)
+    public function getFile(array $attributes = null, ?string $adapter = null)
     {
-        return $this->execAdapter('getFile', $file, $attributes, $adapter);
+        return $this->execAdapter('getFile', $attributes, $adapter);
     }
 
     /**
@@ -208,7 +205,7 @@ class Storage
      *
      * @return mixed
      */
-    protected function execAdapter(string $method, File $file, ?array $attributes = null, ?string $adapter = null)
+    protected function execAdapter(string $method, ?File $file, ?array $attributes = null, ?string $adapter = null)
     {
         $attrs = $file->getAttributes();
 

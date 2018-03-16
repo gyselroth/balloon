@@ -204,10 +204,9 @@ class Job extends AbstractJob
     }
 
     /**
-     * Create document.
+     * Delete collection document.
      *
      * @param ObjectId $node
-     * @param array storage_reference
      *
      * @return bool
      */
@@ -299,10 +298,20 @@ class Job extends AbstractJob
      */
     protected function deleteBlob(ObjectId $node, array $storage_reference): bool
     {
+        $meta = $this->storage->getFileMeta($storage_reference);
+        if (count($meta['ref']) > 1) {
+            return $this->updateBlob($storage_reference, $meta);
+        }
+
         $params = [
             'index' => $this->es->getIndex(),
-            'id' => (string) $storage_reference['_id'],
+            //'id' => (string) $storage_reference['_id'],
             'type' => 'fs',
+            'body' => [
+                'metadata' => [
+                    'ref.id' => $node,
+                ],
+            ],
         ];
 
         $this->es->getEsClient()->delete($params);
@@ -339,7 +348,8 @@ class Job extends AbstractJob
             return false;
         }
 
-        $meta = $this->storage->getFileMeta($node);
+        $storage = $node->getAttributes()['storage'];
+        $meta = $this->storage->getFileMeta($storage);
         $content = base64_encode(stream_get_contents($node->get()));
 
         $metadata = $meta['metadata'];
@@ -347,7 +357,7 @@ class Job extends AbstractJob
 
         $params = [
             'index' => $this->es->getIndex(),
-            'id' => (string) $meta['_id'],
+            'id' => (string) new ObjectId(),
             'type' => 'fs',
             'body' => [
                 'metadata' => $metadata,
