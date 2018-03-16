@@ -20,7 +20,7 @@ use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use StdClass;
+use stdClass;
 
 class AttributeDecoratorTest extends Test
 {
@@ -39,7 +39,6 @@ class AttributeDecoratorTest extends Test
             'name' => 'foo',
             'size' => 1,
             'mime' => 'text/plain',
-            'readonly' => false,
             'path' => '/foo',
             'directory' => false,
             'created' => '1970-01-01T00:00:00+00:00',
@@ -75,7 +74,6 @@ class AttributeDecoratorTest extends Test
             'name' => 'foo',
             'size' => 1,
             'mime' => 'inode/directory',
-            'readonly' => false,
             'path' => '/foo',
             'directory' => true,
             'created' => '1970-01-01T00:00:00+00:00',

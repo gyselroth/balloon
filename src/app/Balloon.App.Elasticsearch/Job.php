@@ -299,9 +299,9 @@ class Job extends AbstractJob
     protected function deleteBlob(ObjectId $node, array $storage_reference): bool
     {
         $meta = $this->storage->getFileMeta($storage_reference);
-        if (count($meta['ref']) > 1) {
+        /*if (count($meta['ref']) > 1) {
             return $this->updateBlob($storage_reference, $meta);
-        }
+        }*/
 
         $params = [
             'index' => $this->es->getIndex(),
