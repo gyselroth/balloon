@@ -29,7 +29,7 @@
     "require": {
         "php": ">=7.1",
         "gyselroth/micro-auth": "*",
-        "gyselroth/micro-container": "dev-master",
+        "gyselroth/micro-container": "^1.0.0",
         "gyselroth/micro-http": "^0.0.6",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
@@ -40,7 +40,6 @@
         "mongodb/mongodb": "1.2.0",
         "ext-xml": "*",
         "ext-mongodb": "*",
-        "ext-Zend-OPcache": "*",
         "ext-curl": "*",
         "ext-mbstring": "*",
         "ext-zip": "*",

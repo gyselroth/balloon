@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f8a72992e4830805cbcb5e972c362511",
+    "content-hash": "a0ba1c5f4e6e124d840ed7fc54381222",
     "packages": [
         {
             "name": "bramus/ansi-php",
@@ -426,7 +426,7 @@
         },
         {
             "name": "gyselroth/micro-container",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gyselroth/micro-container.git",
@@ -5267,7 +5267,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "gyselroth/micro-container": 20,
         "hassankhan/config": 20,
         "helmich/mongomock": 20
     },
@@ -5277,7 +5276,6 @@
         "php": ">=7.1",
         "ext-xml": "*",
         "ext-mongodb": "*",
-        "ext-zend-opcache": "*",
         "ext-curl": "*",
         "ext-mbstring": "*",
         "ext-zip": "*",
