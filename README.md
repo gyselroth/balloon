@@ -15,60 +15,43 @@
 
 * Virtual Filesystem based on MongoDB which is highly scalable
 * Multiple types of authentication, local (MongoDB), LDAP, OpenID-Connect
-* HTTP API
+* REST API
 * WebDAV Support (Support for network drives on Windows)
 * Various DMS features like tagging, meta data, sharing, file history and more
 * Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
 * Event logging and possibiliy of undoing an event
 * Integrated app system to support 3rd party apps
 * The core is shipped with various core apps pre-installed
-* Full LDAP integration for authentication and user/group sync
 * Integrated deduplication system to save your storage
 * User quotas
 * File previews (core app)
 * Notifications (core app)
-* Automatically let your files convert to other file formats (Keep an auotmatic updated pdf file for a word file for example)
+* Full text search via Elasticsearch (core app)
+* Malware scanning via ClamAV (core app)
+* WOPI support for libre office online and Office 365 (ongoing) (core app)
+* Automatically let your files convert to other file formats (Keep an auotmatic updated pdf file for a word file for example) (core app)
 * Automatically destroy files/folders at a certain time
-* Globally accessible share links 
+* Globally accessible share links (core app)
 * Task scheduler
 * Cluster/Distributed system support
 * Support for cloud native deployment
 * Packaged for debian and as docker image
 * ... and much more
 
-## What else?
+## Web UI
+There is a modern web based user interface for balloon! It does support all features and integrates smoothly with the balloon server.
+Check out the balloon web ui on [gyselroth/balloon-client-web](https://github.com/gyselroth/balloon-client-web).
 
-Here are some other core apps which are also shipped by default.
-
-### LibreOffice - Collaborative webinterface integration
-
-The office app introduces libreoffice (collabora) for balloon. Meaning this is real integration of a full office suite within your personal or business cloud. It does support read and write all types of office formats and also features collaborative editing sessions.
-
-### Elasticsearch - Fulltext search
-
-Elasticsearch provides full text search over all stored documents. The elasticsearch balloon app makes use of that and transperantly replaces the core search mechanism of meta data only.
-
-### ClamAV - Antivirus engine
-
-Automatically scan your uploaded files in the background for viruses and other malware.
-
-## Requirements
-
-* GNU/Linux Server
-* Webserver
-* PHP 7.1.x
-* MongoDB
-
-## Installation
-### From source
-For installation from source, see the [wiki page](https://github.com/gyselroth/balloon/wiki/Install-balloon-from-source-(v2))
+## Desktop Client
+Of course there is also a complete desktop solution for balloon. The desktop clients brings your cloud onto your desktop.
+It can sync your entire cloud and more, checkout the balloon desktop client on [gyselroth/balloon-client-desktop](https://github.com/gyselroth/balloon-client-desktop).
 
 ## Changelog
 A changelog is available [here](https://github.com/gyselroth/balloon/CHANGELOG.md).
 
 ## Upgrade
-Upgrading from an older version of balloon? Please note the [changelog](https://github.com/gyselroth/balloon/CHANGELOG.md) and follow the instructions given 
-in the [upgrade guide](https://github.com/gyselroth/balloon/UPGRADE.md).
+Upgrading from an older version of balloon? Please note the [changelog](https://github.com/gyselroth/balloon/blob/master/CHANGELOG.md) and follow the instructions given 
+in the [upgrade guide](https://github.com/gyselroth/balloon/blob/master/UPGRADE.md).
 
 ## Contribute
-We are glad that you would like to contribute to this project. Please follow the given [terms](https://github.com/gyselroth/balloon/CONTRIBUTE.md).
+We are glad that you would like to contribute to this project. Please follow the given [terms](https://github.com/gyselroth/balloon/blob/master/CONTRIBUTE.md).
