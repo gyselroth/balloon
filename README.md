@@ -43,7 +43,7 @@ There is a modern web based user interface for balloon! It does support all feat
 Check out the balloon web ui on [gyselroth/balloon-client-web](https://github.com/gyselroth/balloon-client-web).
 
 ## Desktop Client
-Of course there is also a complete desktop solution for balloon. The desktop clients brings your cloud onto your desktop.
+Of course there is also a complete desktop solution for balloon. The desktop clients brings your cloud onto your desktop for Windows, Mac OS X and Linux.
 It can sync your entire cloud and more, checkout the balloon desktop client on [gyselroth/balloon-client-desktop](https://github.com/gyselroth/balloon-client-desktop).
 
 ## Changelog
@@ -54,4 +54,4 @@ Upgrading from an older version of balloon? Please note the [changelog](https://
 in the [upgrade guide](https://github.com/gyselroth/balloon/blob/master/UPGRADE.md).
 
 ## Contribute
-We are glad that you would like to contribute to this project. Please follow the given [terms](https://github.com/gyselroth/balloon/blob/master/CONTRIBUTE.md).
+We are glad that you would like to contribute to this project. Please follow the given [terms](https://github.com/gyselroth/balloon/blob/master/CONTRIBUTING.md).

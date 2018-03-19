@@ -39,7 +39,7 @@ class FileTest extends Test
 
     public function testGetId()
     {
-        $this->assertSame(new ObjectId('5aac274870a5a63ca827ceab'), $this->file->getId());
+        $this->assertEquals(new ObjectId('5aac274870a5a63ca827ceab'), $this->file->getId());
     }
 
     public function testGetETag()

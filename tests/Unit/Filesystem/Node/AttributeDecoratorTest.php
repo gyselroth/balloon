@@ -52,7 +52,7 @@ class AttributeDecoratorTest extends Test
             'meta' => new stdClass(),
         ];
 
-        $this->assertSame($expect, $attributes);
+        $this->assertEquals($expect, $attributes);
     }
 
     public function testDecorateFileSpecificAttributes()
@@ -88,7 +88,7 @@ class AttributeDecoratorTest extends Test
             'filter' => ['name' => 'foo'],
         ];
 
-        $this->assertSame($expect, $attributes);
+        $this->assertEquals($expect, $attributes);
     }
 
     public function testDecorateCollectionSpecificAttributes()
