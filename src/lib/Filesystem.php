@@ -579,16 +579,9 @@ class Filesystem
             $node = $this->findReferenceNode($node);
         }
 
-        //this would result in a recursiv call until the top level node
-        /*if (isset($node['parent'])) {
-            try {
-                $this->findNodeById($node['parent']);
-            } catch (Exception\InvalidArgument $e) {
-                throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
-            } catch (Exception\NotFound $e) {
-                throw new Exception\InvalidArgument('invalid parent node specified: '.$e->getMessage());
-            }
-        }*/
+        if (isset($node['parent'])) {
+            $this->findNodeById($node['parent']);
+        }
 
         if (!array_key_exists('directory', $node)) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');

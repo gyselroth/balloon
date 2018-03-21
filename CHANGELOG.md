@@ -5,6 +5,7 @@
 * FIX: [CORE] group gets now correctly added and there is no more unique check for group names
 * FIX: [CORE] migration delta LdapGroupsToLocalGroups sets created and changed timestamps for groups
 * FIX: [API] fixed response PATCH /api/v2/users and PATCH /api/v2/groups
+* FIX: [CORE] node tree is now scanned upwards to check if parents exists and permission is given #65
 
 
 ## 2.0.0-beta1
