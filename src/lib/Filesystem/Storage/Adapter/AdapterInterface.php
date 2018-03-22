@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Storage\Adapter;
 
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\NodeInterface;
 
 interface AdapterInterface
 {

@@ -430,7 +430,7 @@ class Job extends AbstractJob
             return null;
         }
         if (count($result['hits']['hits']) > 1) {
-            throw new Exception('multiple elasticsearch documents found by the same hash');
+            throw new Exception\MultipleDocumentsFound('multiple elasticsearch documents found by the same hash');
         }
 
         return $result['hits']['hits'][0];

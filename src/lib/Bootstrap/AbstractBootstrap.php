@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Bootstrap;
 
+use ErrorException;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractBootstrap
@@ -47,20 +48,20 @@ abstract class AbstractBootstrap
             switch ($severity) {
                 case E_ERROR:
                 case E_USER_ERROR:
-                    $this->container->get(LoggerInterface::class)->error($log, [
+                    $this->logger->error($log, [
                         'category' => get_class($this),
                     ]);
 
                 break;
                 case E_WARNING:
                 case E_USER_WARNING:
-                    $this->container->get(LoggerInterface::class)->warning($log, [
+                    $this->logger->warning($log, [
                         'category' => get_class($this),
                     ]);
 
                 break;
                 default:
-                    $this->container->get(LoggerInterface::class)->debug($log, [
+                    $this->logger->debug($log, [
                         'category' => get_class($this),
                     ]);
 

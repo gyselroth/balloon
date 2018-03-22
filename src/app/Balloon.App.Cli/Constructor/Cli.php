@@ -26,7 +26,7 @@ class Cli
     /**
      * Constructor.
      *
-     * @param Getopt $getopt
+     * @param GetOpt $getopt
      */
     public function __construct(GetOpt $getopt)
     {
@@ -74,7 +74,7 @@ class Cli
         return [
             \GetOpt\Option::create('f', 'force')->setDescription('Force apply deltas even if a delta has already been applied before'),
             \GetOpt\Option::create('i', 'ignore')->setDescription('Do not abort if any error is encountered'),
-            \GetOpt\Option::create('d', 'delta', \GetOpt\Getopt::REQUIRED_ARGUMENT)->setDescription('Specify specific deltas (comma separated)'),
+            \GetOpt\Option::create('d', 'delta', \GetOpt\GetOpt::REQUIRED_ARGUMENT)->setDescription('Specify specific deltas (comma separated)'),
         ];
     }
 

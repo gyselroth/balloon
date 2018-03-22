@@ -23,7 +23,41 @@ use Psr\Log\LoggerInterface;
 class Http extends AbstractBootstrap
 {
     /**
-     * {@inheritdoc}
+     * Auth.
+     *
+     * @var Auth
+     */
+    protected $auth;
+
+    /**
+     * Hook.
+     *
+     * @var Hook
+     */
+    protected $hook;
+
+    /**
+     * Router.
+     *
+     * @var Router
+     */
+    protected $router;
+
+    /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * Http.
+     *
+     * @param LoggerInterface $logger
+     * @param Auth            $auth
+     * @param Hook            $hook
+     * @param Router          $router
+     * @param Server          $server
      */
     public function __construct(LoggerInterface $logger, Auth $auth, Hook $hook, Router $router, Server $server)
     {

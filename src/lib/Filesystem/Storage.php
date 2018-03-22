@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Filesystem;
 
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Psr\Log\LoggerInterface;
@@ -129,7 +130,7 @@ class Storage
      *
      * @return bool
      */
-    public function hasNode(NodeInterfac $node, ?array $attributes = null, ?string $adapter = null): bool
+    public function hasNode(NodeInterface $node, ?array $attributes = null, ?string $adapter = null): bool
     {
         return $this->execAdapter('hasNode', $node, $attributes, $adapter);
     }

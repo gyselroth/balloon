@@ -90,7 +90,7 @@ class Group
         $id = new ObjectId($this->getopt->getOperand('id'));
 
         $options = $this->parseParams();
-        $options['member'] = $this->parseMember();
+        $options['member'] = $this->parseMemberUpdate();
 
         if ($this->getopt->getOption('name') !== null) {
             $options['name'] = $this->getopt->getOption('name');
@@ -112,7 +112,7 @@ class Group
      *
      * @return arrray
      */
-    protected function parseMember(): array
+    protected function parseMemberUpdate(): array
     {
         $group = $this->server->getGroupByName($this->getopt->getOption('name'));
         $member = [];
