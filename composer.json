@@ -19,16 +19,12 @@
     "repositories": [
          {
              "type": "git",
-             "url": "https://github.com/raffis/config"
-         },
-         {
-             "type": "git",
              "url": "https://github.com/raffis/php-mongomock"
          },
          {
              "type": "git",
              "url": "https://github.com/raffis/getopt-php"
-         },
+         }
     ],
     "require": {
         "php": ">=7.1",
@@ -49,7 +45,7 @@
         "ulrichsg/getopt-php": "dev-master",
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "^1.0.1",
-        "hassankhan/config": "dev-master",
+        "hassankhan/config": "*",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",
         "bramus/monolog-colored-line-formatter": "~2.0",

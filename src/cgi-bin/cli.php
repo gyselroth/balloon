@@ -22,4 +22,5 @@ set_include_path(implode(PATH_SEPARATOR, [
 ]));
 
 $composer = require 'vendor/autoload.php';
-new Balloon\Bootstrap\Cli($composer);
+$dic = Balloon\Bootstrap\ContainerBuilder::get($composer);
+$dic->get(Balloon\Bootstrap\Cli::class)->process();

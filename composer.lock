@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f7ca83cad74f87207d9420861eda5cb6",
+    "content-hash": "e9086b9baac46f18d708464f1cf5f96a",
     "packages": [
         {
             "name": "bramus/ansi-php",
@@ -329,16 +329,16 @@
         },
         {
             "name": "gyselroth/micro-auth",
-            "version": "v0.0.4",
+            "version": "v0.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gyselroth/micro-auth.git",
-                "reference": "2b9ac4a05a5b8a11f2ff34b6154c22221e566568"
+                "reference": "4c14719d8d1cc70d317401bc21d1a2ce77ad0878"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gyselroth/micro-auth/zipball/2b9ac4a05a5b8a11f2ff34b6154c22221e566568",
-                "reference": "2b9ac4a05a5b8a11f2ff34b6154c22221e566568",
+                "url": "https://api.github.com/repos/gyselroth/micro-auth/zipball/4c14719d8d1cc70d317401bc21d1a2ce77ad0878",
+                "reference": "4c14719d8d1cc70d317401bc21d1a2ce77ad0878",
                 "shasum": ""
             },
             "require": {
@@ -379,7 +379,7 @@
                 "micro",
                 "openid-connect"
             ],
-            "time": "2018-02-02T23:39:32+00:00"
+            "time": "2018-03-21T15:46:39+00:00"
         },
         {
             "name": "gyselroth/micro-container",
@@ -539,19 +539,26 @@
         },
         {
             "name": "hassankhan/config",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/raffis/config",
-                "reference": "5e2e59435e08906c1919e139599825eb5322770d"
+                "url": "https://github.com/hassankhan/config.git",
+                "reference": "982bbdca649ea447e2fdcde1f59e722b97e7e0f1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hassankhan/config/zipball/982bbdca649ea447e2fdcde1f59e722b97e7e0f1",
+                "reference": "982bbdca649ea447e2fdcde1f59e722b97e7e0f1",
+                "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.5.9"
             },
             "require-dev": {
                 "phpunit/phpunit": "~4.0",
                 "scrutinizer/ocular": "~1.1",
-                "squizlabs/php_codesniffer": "~2.2"
+                "squizlabs/php_codesniffer": "~2.2",
+                "symfony/yaml": "~2.5"
             },
             "suggest": {
                 "symfony/yaml": "~2.5"
@@ -562,19 +569,15 @@
                     "Noodlehaus\\": "src"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Noodlehaus\\Test\\": "tests"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "authors": [
                 {
                     "name": "Hassan Khan",
-                    "role": "Developer",
-                    "homepage": "http://hassankhan.me/"
+                    "homepage": "http://hassankhan.me/",
+                    "role": "Developer"
                 }
             ],
             "description": "Lightweight configuration file loader that supports PHP, INI, XML, JSON, and YAML files",
@@ -590,7 +593,7 @@
                 "yaml",
                 "yml"
             ],
-            "time": "2018-01-31T15:47:57+00:00"
+            "time": "2018-03-03T16:44:27+00:00"
         },
         {
             "name": "icewind/smb",
@@ -1591,17 +1594,11 @@
         },
         {
             "name": "ulrichsg/getopt-php",
-            "version": "3.1.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/getopt-php/getopt-php.git",
-                "reference": "f34326e0aa8b7ac5ac27bb914cba035425134664"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/getopt-php/getopt-php/zipball/f34326e0aa8b7ac5ac27bb914cba035425134664",
-                "reference": "f34326e0aa8b7ac5ac27bb914cba035425134664",
-                "shasum": ""
+                "url": "https://github.com/raffis/getopt-php",
+                "reference": "234bb40229cee39860448b19792e34e3ea6437a4"
             },
             "require": {
                 "php": ">=5.4.0"
@@ -1616,7 +1613,16 @@
                     "GetOpt\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "GetOpt\\Test\\": "test"
+                }
+            },
+            "scripts": {
+                "code-style": [
+                    "phpcs --standard=PSR2 src && phpcs --standard=PSR2 test"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -1632,7 +1638,7 @@
             ],
             "description": "Command line arguments parser for PHP 5.4 - 7.1",
             "homepage": "http://getopt-php.github.io/getopt-php",
-            "time": "2017-11-25T08:35:09+00:00"
+            "time": "2018-03-21T16:06:57+00:00"
         },
         {
             "name": "xenolope/quahog",
@@ -2363,16 +2369,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v2.11.0",
+            "version": "v2.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "2ac8defbe07599b79005cca764bfffe7aeac0bf2"
+                "reference": "ad94441c17b8ef096e517acccdbf3238af8a2da8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/2ac8defbe07599b79005cca764bfffe7aeac0bf2",
-                "reference": "2ac8defbe07599b79005cca764bfffe7aeac0bf2",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/ad94441c17b8ef096e517acccdbf3238af8a2da8",
+                "reference": "ad94441c17b8ef096e517acccdbf3238af8a2da8",
                 "shasum": ""
             },
             "require": {
@@ -2453,7 +2459,7 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
-            "time": "2018-03-20T18:11:36+00:00"
+            "time": "2018-03-21T17:41:26+00:00"
         },
         {
             "name": "helmich/mongomock",
@@ -5231,7 +5237,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "hassankhan/config": 20,
+        "ulrichsg/getopt-php": 20,
         "helmich/mongomock": 20
     },
     "prefer-stable": false,

@@ -13,7 +13,6 @@ namespace Balloon\Bootstrap;
 
 use Balloon\Hook;
 use Balloon\Server;
-use Composer\Autoload\ClassLoader as Composer;
 use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Auth\Auth;
 use Micro\Http\Response;
@@ -26,32 +25,44 @@ class Http extends AbstractBootstrap
     /**
      * {@inheritdoc}
      */
-    public function __construct(Composer $composer)
+    public function __construct(LoggerInterface $logger, Auth $auth, Hook $hook, Router $router, Server $server)
     {
-        parent::__construct($composer);
         $this->setExceptionHandler();
+        $this->logger = $logger;
+        $this->auth = $auth;
+        $this->hook = $hook;
+        $this->router = $router;
+        $this->server = $server;
+    }
 
-        $this->container->get(LoggerInterface::class)->info('processing incoming http ['.$_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [
+    /**
+     * Process.
+     *
+     * @return Http
+     */
+    public function process()
+    {
+        $this->logger->info('processing incoming http ['.$_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [
             'category' => get_class($this),
         ]);
 
-        $auth = $this->container->get(Auth::class);
+        $this->hook->run('preAuthentication', [$this->auth]);
 
-        $this->container->get(Hook::class)->run('preAuthentication', [$auth]);
-
-        if ($auth->requireOne()) {
-            if (!($auth->getIdentity()->getAdapter() instanceof AuthNone)) {
-                $auth->getIdentity()->getAttributeMap()->addMapper('binary', function ($value) {
+        if ($this->auth->requireOne()) {
+            if (!($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
+                $this->auth->getIdentity()->getAttributeMap()->addMapper('binary', function ($value) {
                     return new Binary($value, Binary::TYPE_GENERIC);
                 });
 
-                $this->container->get(Server::class)->setIdentity($auth->getIdentity());
+                $this->server->setIdentity($this->auth->getIdentity());
             }
 
-            $this->container->get(Router::class)->run();
+            $this->router->run();
         } else {
             $this->invalidAuthentication();
         }
+
+        return $this;
     }
 
     /**
@@ -87,7 +98,7 @@ class Http extends AbstractBootstrap
     protected function setExceptionHandler(): self
     {
         set_exception_handler(function ($e) {
-            $this->container->get(LoggerInterface::class)->emergency('uncaught exception: '.$e->getMessage(), [
+            $this->logger->emergency('uncaught exception: '.$e->getMessage(), [
                 'category' => get_class($this),
                 'exception' => $e,
             ]);

@@ -7,6 +7,20 @@ MongoDB\Database:
     - method: selectDatabase
       arguments:
         databaseName: 'balloon'
+Balloon\Bootstrap\Cli:
+  calls:
+    Balloon.App.Cli: {method: inject, arguments:{object: '{Balloon\App\Cli\Constructor\Cli}'}}
+Balloon\Bootstrap\AbstractBootstrap:
+  calls:
+    Balloon.App.Api: {method: inject, arguments:{object: '{Balloon\App\Api\Constructor\Http}'}}
+    Balloon.App.Webdav: {method: inject, arguments:{object: '{Balloon\App\Webdav\Constructor\Http}'}}
+    Balloon.App.Sharelink: {method: inject, arguments:{object: '{Balloon\App\Sharelink\Constructor\Http}'}}
+    Balloon.App.Convert: {method: inject, arguments:{object: '{Balloon\App\Convert\Constructor\Http}'}}
+    Balloon.App.DesktopClient: {method: inject, arguments:{object: '{Balloon\App\DesktopClient\Constructor\Http}'}}
+    Balloon.App.Preview: {method: inject, arguments:{object: '{Balloon\App\Preview\Constructor\Http}'}}
+    Balloon.App.ClamAv: {method: inject, arguments:{object: '{Balloon\App\ClamAv\Constructor\Http}'}}
+    Balloon.App.Elasticsearch: {method: inject, arguments:{object: '{Balloon\App\Elasticsearch\Constructor\Http}'}}
+    Balloon.App.Notification: {method: inject, arguments:{object: '{Balloon\App\Notification\Constructor\Http}'}}
 Balloon\Server:
   arguments:
     config:
@@ -56,19 +70,7 @@ Balloon\App\Elasticsearch\Migration\Delta\Installation:
   arguments:
     config:
       #index_configuration: "/path/to/index.json"
-apps:
-  Balloon.App.Api: true
-  Balloon.App.Webdav: true
-  Balloon.App.Sharelink: true
-  Balloon.App.Convert: true
-  Balloon.App.DesktopClient: true
-  Balloon.App.Preview: true
-  Balloon.App.ClamAv: true
-  Balloon.App.Elasticsearch: true
-  Balloon.App.Notification: true
-  Balloon.App.Office: true
 Balloon\App\Office\App:
-  enabled: true
   arguments:
     config:
       loleaflet: "{ENV(BALLOON_OFFICE_URI,https://localhost:9980/loleaflet)}/dist/loleaflet.html"

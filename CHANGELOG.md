@@ -10,6 +10,8 @@
 * CORE: [CHANGE] elasticsearch implementation is now slightly changed, the elasticsearch job acts now similar to a implementation of Balloon\Filesystem\Storage\Adapter\AdapterInteface and may be converted to one in a future release
 * CORE: [FIX] fixed elasticsearch drop blob if more than one reference exists
 * CORE: [CHANGE] Balloon\Filesystem\Storage\Adapter\Gridfs does only store references as a flat array instead meta data for search (see change elasticsearch implementation)
+* CORE: [CHANGE] changed bootstrap initialization, added container builder, apps get injected via dic
+* CLI: [FIX] output is now only generated if verbose is active (or an emergency exception occured), no more debug output before cli processing
 * API: [FIX] fixed response PATCH /api/v2/users and PATCH /api/v2/groups
 
 
