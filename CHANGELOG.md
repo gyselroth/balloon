@@ -2,10 +2,15 @@
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**:
 
-* FIX: [CORE] group gets now correctly added and there is no more unique check for group names
-* FIX: [CORE] migration delta LdapGroupsToLocalGroups sets created and changed timestamps for groups
-* FIX: [API] fixed response PATCH /api/v2/users and PATCH /api/v2/groups
-* FIX: [CORE] node tree is now scanned upwards to check if parents exists and permission is given #65
+* CORE: [FIX] group gets now correctly added and there is no more unique check for group names
+* CORE: [FIX] migration delta LdapGroupsToLocalGroups sets created and changed timestamps for groups
+* CORE: [FIX] node tree is now scanned upwards to check if parents exists and permission is given #65
+* CORE: [FIX] fixed ldap auth case insensitive login via upgrading \Micro\Auth
+* CORE: [CHANGE] changed console implementation, implemented console routing
+* CORE: [CHANGE] elasticsearch implementation is now slightly changed, the elasticsearch job acts now similar to a implementation of Balloon\Filesystem\Storage\Adapter\AdapterInteface and may be converted to one in a future release
+* CORE: [FIX] fixed elasticsearch drop blob if more than one reference exists
+* CORE: [CHANGE] Balloon\Filesystem\Storage\Adapter\Gridfs does only store references as a flat array instead meta data for search (see change elasticsearch implementation)
+* API: [FIX] fixed response PATCH /api/v2/users and PATCH /api/v2/groups
 
 
 ## 2.0.0-beta1

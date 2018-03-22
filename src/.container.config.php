@@ -18,13 +18,6 @@ use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use Monolog\Logger;
 use Balloon\App\Notification\Notification;
-use Balloon\Console;
-use Balloon\Console\Upgrade;
-use Balloon\Console\Jobs;
-use Balloon\Console\Useradd;
-use Balloon\Console\Usermod;
-use Balloon\Console\Groupadd;
-use Balloon\Console\Groupmod;
 use Balloon\Migration;
 use Balloon\Migration\Delta\CoreInstallation;
 use Balloon\Migration\Delta\FileToStorageAdapter;
@@ -35,6 +28,8 @@ use Balloon\Migration\Delta\v1AclTov2Acl;
 use Balloon\Migration\Delta\UserCreatedDate;
 use Balloon\Migration\Delta\ShareName;
 use Balloon\Migration\Delta\HexColorToGenericName;
+use Balloon\Migration\Delta\AddHashToHistory;
+use Balloon\Migration\Delta\GridfsFlatReferences;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Smtp;
 use Balloon\Hook\Delta;
@@ -214,39 +209,19 @@ return [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.UserCreatedDate::class.'}']
             ],
+            AddHashToHistory::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.AddHashToHistory::class.'}']
+            ],
+            GridfsFlatReferences::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.GridfsFlatReferences::class.'}']
+            ],
             CoreInstallation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.CoreInstallation::class.'}']
             ],
         ],
-    ],
-    Console::class => [
-        'calls' => [
-            Jobs::class => [
-                'method' => 'injectModule',
-                'arguments' => ['module' => '{'.Jobs::class.'}', 'name' => 'jobs']
-            ],
-            Upgrade::class => [
-                'method' => 'injectModule',
-                'arguments' => ['module' => '{'.Upgrade::class.'}', 'name' => 'upgrade']
-            ],
-            Useradd::class => [
-                'method' => 'injectModule',
-                'arguments' => ['module' => '{'.Useradd::class.'}', 'name' => 'useradd']
-            ],
-            Usermod::class => [
-                'method' => 'injectModule',
-                'arguments' => ['module' => '{'.Usermod::class.'}', 'name' => 'usermod']
-            ],
-            Groupadd::class => [
-                'method' => 'injectModule',
-                'arguments' => ['module' => '{'.Groupadd::class.'}', 'name' => 'groupadd']
-            ],
-            Groupmod::class => [
-                'method' => 'injectModule',
-                'arguments' => ['module' => '{'.Groupmod::class.'}', 'name' => 'groupmod']
-            ],
-        ]
     ],
     Auth::class => [
         'calls' => [

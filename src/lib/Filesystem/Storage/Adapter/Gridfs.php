@@ -57,7 +57,7 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasFile(array $attributes): bool
+    public function hasNode(NodeInterface $node, array $attributes): bool
     {
         return null !== $this->getFileById($attributes);
     }
@@ -81,27 +81,25 @@ class Gridfs implements AdapterInterface
             return false;
         }
 
-        if (!isset($exists['metadata'])) {
+        if (!isset($exists['metadata']['references'])) {
             $this->gridfs->delete($exists['_id']);
 
             return true;
         }
 
-        $references = $exists['metadata']['ref'];
-        $key = array_search($file->getId(), array_column($references, 'id'));
-
-        if (!isset($references[$key]) && count($references) > 1) {
-            return true;
+        $refs = $exists['metadata']['references'];
+        if (($key = array_search($file->getId(), $refs)) !== false) {
+            unset($refs[$key]);
+            $refs = array_values($refs);
         }
-        if (count($references) > 1) {
+
+        if (count($refs) >= 1) {
             $this->logger->debug('gridfs content node ['.$exists['_id'].'] still has references left, just remove the reference ['.$file->getId().']', [
                 'category' => get_class($this),
             ]);
 
             $this->db->{'fs.files'}->updateOne(['_id' => $exists['_id']], [
-                '$pull' => [
-                    'metadata.ref' => $references[$key],
-                ],
+                '$set' => ['metadata.references' => $refs],
             ]);
         } else {
             $this->logger->debug('gridfs content node ['.$exists['_id'].'] has no references left, delete node completely', [
@@ -117,30 +115,13 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getFile(array $attributes)
+    public function getFile(File $file, array $attributes)
     {
         if (!isset($attributes['_id'])) {
             throw new Exception('attributes do not contain a gridfs id');
         }
 
         return $this->gridfs->openDownloadStream($attributes['_id']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFileMeta(array $attributes): array
-    {
-        if (!isset($attributes['_id'])) {
-            throw new Exception('attributes do not contain a gridfs id');
-        }
-
-        $file = $this->getFileById($attributes['_id']);
-        if (null === $file) {
-            throw new Exception('file was not found');
-        }
-
-        return $file;
     }
 
     /**
@@ -160,22 +141,22 @@ class Gridfs implements AdapterInterface
         ]);
 
         $action['$addToSet'] = [
-            'metadata.ref' => [
-                'id' => $file->getId(),
-                'owner' => $file->getOwner(),
-            ],
+            'metadata.references' => $file->getId(),
         ];
-
-        if ($file->isShareMember()) {
-            $action['$addToSet']['metadata.share_ref'] = [
-                'id' => $file->getId(),
-                'share' => $file->getShareId(),
-            ];
-        }
 
         $this->db->{'fs.files'}->updateOne(['md5' => $file->getHash()], $action);
 
         return ['_id' => $exists['_id']];
+    }
+
+    /**
+     * Create collection.
+     *
+     * @return array
+     */
+    public function createCollection(Collection $collection): array
+    {
+        return [];
     }
 
     /**
@@ -212,30 +193,15 @@ class Gridfs implements AdapterInterface
      */
     protected function storeNew(File $file, $contents): array
     {
-        $meta = [
-            'ref' => [[
-                'id' => $file->getId(),
-                'owner' => $file->getOwner(),
-            ]],
-        ];
-
-        if ($file->isShareMember()) {
-            $meta['share_ref'] = [[
-                'id' => $file->getId(),
-                'share' => $file->getShareId(),
-            ]];
-        } else {
-            $meta['share_ref'] = [];
-        }
-
         set_time_limit((int) ($file->getSize() / 15339168));
         $id = new ObjectId();
 
         //somehow mongo-connector does not catch metadata when set during uploadFromStream()
-        $stream = $this->gridfs->uploadFromStream($id, $contents, ['_id' => $id/*, 'metadata' => $file*/]);
-        $this->db->{'fs.files'}->updateOne(['_id' => $id], [
-            '$set' => ['metadata' => $meta],
-        ]);
+        $stream = $this->gridfs->uploadFromStream($id, $contents, ['_id' => $id, 'metadata' => [
+            'references' => [
+                $file->getId(),
+            ],
+        ]]);
 
         $this->logger->info('added new gridfs content node ['.$id.'] for file ['.$file->getId().']', [
             'category' => get_class($this),

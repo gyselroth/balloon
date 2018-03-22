@@ -34,7 +34,7 @@ class Db extends AbstractBasic
      */
     public function __construct(LoggerInterface $logger, Database $db, ?Iterable $config = null)
     {
-        $this->logger = $logger;
+        parent::__construct($logger);
         $this->db = $db;
         $this->setOptions($config);
     }

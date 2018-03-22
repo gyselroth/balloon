@@ -87,12 +87,6 @@ class NewShareAdded extends AbstractHook
         $raw = $node->getRawAttributes();
 
         if ($node->isReference()) {
-            /*$node = $node->getShareNode();
-            $raw = $node->getRawAttributes();
-            if(isset($raw['acl']) && $raw['acl'] === $node->getAttributes()['acl']) {
-                return;
-            }*/
-
             return;
         }
         if ($node->isShared() && isset($raw['acl']) && $raw['acl'] === $node->getAttributes()['acl']) {

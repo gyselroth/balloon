@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Bootstrap;
 
-use Balloon\Console;
 use Composer\Autoload\ClassLoader as Composer;
+use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
 
 class Cli extends AbstractBootstrap
@@ -31,8 +31,49 @@ class Cli extends AbstractBootstrap
     {
         parent::__construct($composer);
         $this->setExceptionHandler();
-        $this->container->get(Console::class)->parseCmd();
+        $this->container->get(GetOpt::class)
+            ->process()
+            ->routeCommand($this->container);
     }
+
+    /**
+     * Configure cli logger.
+     *
+     * @return Cli
+     */
+    /*$this->getopt->addOption(['v', 'verbose', GetOpt::NO_ARGUMENT, 'Verbose']);
+    protected function configureLogger(?int $level = null): self
+    {
+        if (null === $level) {
+            $level = 400;
+        } else {
+            $level = (4 - $level) * 100;
+        }
+
+        //disable any existing stdout/sterr log handlers
+        foreach ($this->logger->getHandlers() as $handler) {
+            if ($handler instanceof StreamHandler) {
+                if ($handler->getUrl() === 'php://stderr' || $handler->getUrl() === 'php://stdout') {
+                    $handler->setLevel(1000);
+                }
+            } elseif ($handler instanceof FilterHandler) {
+                $handler->setAcceptedLevels(1000, 1000);
+            }
+        }
+
+        $formatter = new ColoredLineFormatter();
+        $handler = new StreamHandler('php://stderr', Logger::EMERGENCY);
+        $handler->setFormatter($formatter);
+        $this->logger->pushHandler($handler);
+
+        $handler = new StreamHandler('php://stdout', $level);
+        $filter = new FilterHandler($handler, $level, Logger::ERROR);
+        $handler->setFormatter($formatter);
+
+        $this->logger->pushHandler($filter);
+
+        return $this;
+    }*/
 
     /**
      * Set exception handler.

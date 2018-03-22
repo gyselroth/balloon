@@ -13,7 +13,7 @@ namespace Balloon\Migration\Delta;
 
 use MongoDB\Database;
 
-class JsonEncodeFilteredCollection implements DeltaInterface
+class GridfsFlatReferences implements DeltaInterface
 {
     /**
      * Database.
@@ -39,24 +39,26 @@ class JsonEncodeFilteredCollection implements DeltaInterface
      */
     public function start(): bool
     {
-        $this->db->storage->updateMany(['directory' => true, 'filter' => []], [
-            '$unset' => [
-                'filter' => 1,
-            ],
+        $cursor = $this->db->{'fs.files'}->find([
+            'metadata.ref' => ['$exists' => 1],
         ]);
 
-        $cursor = $this->db->storage->find(
-            [
-            'directory' => true,
-            'filter' => ['$type' => 3], ]
-        );
-
         foreach ($cursor as $object) {
-            $filter = json_encode($object['filter']);
+            $references = [];
+            foreach ($object['metadata']['ref'] as $reference) {
+                $references[] = $reference['id'];
+            }
+
             $this->db->storage->updateOne(
                 ['_id' => $object['_id']],
                 [
-                   '$set' => ['filter' => $filter],
+                    '$unset' => [
+                        'metadata.ref' => 1,
+                        'metadata.share_ref' => 1,
+                    ],
+                    '$set' => [
+                        'metadata.references' => $references,
+                    ],
                 ]
             );
         }

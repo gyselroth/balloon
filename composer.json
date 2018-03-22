@@ -24,7 +24,11 @@
          {
              "type": "git",
              "url": "https://github.com/raffis/php-mongomock"
-         }
+         },
+         {
+             "type": "git",
+             "url": "https://github.com/raffis/getopt-php"
+         },
     ],
     "require": {
         "php": ">=7.1",
@@ -34,17 +38,15 @@
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",
-        "grandt/binstring": "0.2.0",
         "psr/log": "1.*",
         "psr/container": "*",
         "mongodb/mongodb": "1.2.0",
-        "ext-xml": "*",
         "ext-mongodb": "*",
         "ext-curl": "*",
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
-        "ulrichsg/getopt-php": "^3.0",
+        "ulrichsg/getopt-php": "dev-master",
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "^1.0.1",
         "hassankhan/config": "dev-master",

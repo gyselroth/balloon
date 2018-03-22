@@ -134,7 +134,7 @@ class File extends AbstractNode implements IFile
                 return null;
             }
 
-            return $this->_storage->getFile($this->storage);
+            return $this->_storage->getFile($this, $this->storage);
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'content not found',
@@ -231,15 +231,15 @@ class File extends AbstractNode implements IFile
         }
 
         $file = $this->history[$v]['storage'];
-        $exists = [];
+        /*$exists = [];
 
         if (null !== $file) {
             try {
-                $exists = $this->_storage->getFileMeta($this->history[$v]['storage']);
+                $exists = $this->_storage->getFileMeta($this, $this->history[$v]['storage']);
             } catch (\Exception $e) {
                 throw new Exception('could not restore to version '.$version.', version content does not exists');
             }
-        }
+        }*/
 
         $current = $this->version;
         $new = $this->increaseVersion();
@@ -249,6 +249,7 @@ class File extends AbstractNode implements IFile
             'changed' => $this->changed,
             'user' => $this->owner,
             'type' => self::HISTORY_RESTORE,
+            'hash' => $this->history[$v]['hash'],
             'origin' => $this->history[$v]['version'],
             'storage' => $this->history[$v]['storage'],
             'storage_adapter' => $this->history[$v]['storage_adapter'],
@@ -262,7 +263,7 @@ class File extends AbstractNode implements IFile
             $this->storage = $this->history[$v]['storage'];
             $this->storage_adapter = $this->history[$v]['storage_adapter'];
 
-            $this->hash = null === $file ? self::EMPTY_CONTENT : $exists['md5'];
+            $this->hash = null === $file ? self::EMPTY_CONTENT : $this->history[$v]['hash'];
             $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
             $this->size = $this->history[$v]['size'];
             $this->changed = $this->history[$v]['changed'];
@@ -345,6 +346,7 @@ class File extends AbstractNode implements IFile
             'storage' => $this->storage,
             'storage_adapter' => $this->storage_adapter,
             'size' => $this->size,
+            'hash' => $this->hash,
         ];
 
         $result = $this->save([
@@ -498,7 +500,7 @@ class File extends AbstractNode implements IFile
      *
      * @return string
      */
-    public function getHash(): string
+    public function getHash(): ?string
     {
         return $this->hash;
     }
@@ -799,6 +801,7 @@ class File extends AbstractNode implements IFile
                 'storage_adapter' => $this->storage_adapter,
                 'size' => $this->size,
                 'mime' => $this->mime,
+                'hash' => $this->hash,
             ];
         } else {
             $this->_logger->debug('added first file version [1] for file ['.$this->_id.']', [
@@ -814,6 +817,7 @@ class File extends AbstractNode implements IFile
                 'storage_adapter' => $this->storage_adapter,
                 'size' => $this->size,
                 'mime' => $this->mime,
+                'hash' => $this->hash,
             ];
         }
 

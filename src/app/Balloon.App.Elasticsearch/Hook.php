@@ -85,7 +85,7 @@ class Hook extends AbstractHook
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_DELETE_FILE,
-            'storage' => $node->getAttributes()['storage'],
+            'hash' => $node->getHash(),
         ]);
     }
 
@@ -94,9 +94,25 @@ class Hook extends AbstractHook
      */
     public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
     {
+        if ($node instanceof Collection) {
+            $raw = $node->getRawAttributes();
+            if ($node->isShared() && !isset($raw['acl'])) {
+                $this->async->addJob(Job::class, [
+                    'id' => $node->getId(),
+                    'action' => Job::ACTION_ADD_SHARE,
+                ]);
+            } elseif (!$node->isShared() && isset($raw['acl']) && $raw['acl'] !== []) {
+                $this->async->addJob(Job::class, [
+                    'id' => $node->getId(),
+                    'action' => Job::ACTION_DELETE_SHARE,
+                ]);
+            }
+        }
+
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_UPDATE,
+            'hash' => ($node instanceof File) ? $node->getRawAttributes()['hash'] : null,
         ]);
     }
 }

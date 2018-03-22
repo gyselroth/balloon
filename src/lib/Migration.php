@@ -75,12 +75,13 @@ class Migration
     /**
      * Execute migration deltas.
      *
-     * @param bool $force
-     * @param bool $ignore
+     * @param bool  $force
+     * @param bool  $ignore
+     * @param array $deltas
      *
      * @return bool
      */
-    public function start(bool $force = false, bool $ignore = false): bool
+    public function start(bool $force = false, bool $ignore = false, array $deltas = []): bool
     {
         $this->logger->info('execute migration deltas', [
             'category' => get_class($this),
@@ -96,7 +97,7 @@ class Migration
             return false;
         }
 
-        foreach ($this->delta as $name => $delta) {
+        foreach ($this->getDeltas($deltas) as $name => $delta) {
             if (false === $force && $this->isDeltaApplied($name)) {
                 $this->logger->debug('skip existing delta ['.$name.']', [
                     'category' => get_class($this),
@@ -210,11 +211,11 @@ class Migration
      */
     public function getDeltas(array $deltas = []): array
     {
-        if (empty($delta)) {
+        if (empty($deltas)) {
             return $this->delta;
         }
         $list = [];
-        foreach ($delta as $name) {
+        foreach ($deltas as $name) {
             if (!$this->hasDelta($name)) {
                 throw new Exception('delta '.$name.' is not registered');
             }

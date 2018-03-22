@@ -484,7 +484,7 @@ class Collection extends AbstractNode implements IQuota
             ],
         ];
 
-        $toset = $this->getChildrenRecursive($this->getRealId(), $shares, $files);
+        $toset = $this->getChildrenRecursive($this->getRealId(), $shares);
 
         if (!empty($shares)) {
             throw new Exception('child folder contains a shared folder');
@@ -516,30 +516,6 @@ class Collection extends AbstractNode implements IQuota
                     'acl' => $acl,
                 ],
             ]);
-        }
-
-        if (!is_array($files)) {
-            return true;
-        }
-
-        foreach ($files as $node) {
-            if (null === $node['storage']) {
-                continue;
-            }
-
-            $share_ref = [
-                'id' => $node['id'],
-                'share' => $this->_id,
-            ];
-
-            $this->_db->{'fs.files'}->updateOne(
-                $node['storage'],
-                [
-                    '$addToSet' => [
-                        'metadata.share_ref' => $share_ref,
-                    ],
-                ]
-            );
         }
 
         return true;
@@ -578,7 +554,7 @@ class Collection extends AbstractNode implements IQuota
             ],
         ];
 
-        $toset = $this->getChildrenRecursive($this->getRealId(), $shares, $files);
+        $toset = $this->getChildrenRecursive($this->getRealId(), $shares);
 
         $this->_db->storage->updateMany([
             '_id' => [
@@ -588,30 +564,6 @@ class Collection extends AbstractNode implements IQuota
 
         $result = $this->save(['shared'], ['acl', 'share_name']);
 
-        if (!is_array($files)) {
-            return true;
-        }
-
-        foreach ($files as $node) {
-            if (null === $node['storage']) {
-                continue;
-            }
-
-            $share_ref = [
-                'id' => $node['id'],
-                'share' => $this->_id,
-            ];
-
-            $this->_db->{'fs.files'}->updateOne(
-                $node['storage']['attributes'],
-                [
-                '$pull' => [
-                    'metadata.share_ref' => $share_ref,
-                    ],
-                ]
-            );
-        }
-
         return true;
     }
 
@@ -620,11 +572,10 @@ class Collection extends AbstractNode implements IQuota
      *
      * @param ObjectId $id
      * @param array    $shares
-     * @param arary    $files
      *
      * @return array
      */
-    public function getChildrenRecursive(?ObjectId $id = null, ?array &$shares = [], ?array &$files = []): array
+    public function getChildrenRecursive(?ObjectId $id = null, ?array &$shares = []): array
     {
         $list = [];
         $result = $this->_db->storage->find([
@@ -634,24 +585,18 @@ class Collection extends AbstractNode implements IQuota
             'directory' => 1,
             'reference' => 1,
             'shared' => 1,
-            'storage' => 1,
         ]);
 
         foreach ($result as $node) {
             $list[] = $node['_id'];
 
-            if (false === $node['directory']) {
-                $files[] = [
-                    'id' => $node['_id'],
-                    'storage' => isset($node['storage']) ? $node['storage'] : null,
-                ];
-            } else {
+            if ($node['directory'] === true) {
                 if (isset($node['reference']) || isset($node['shared']) && true === $node['shared']) {
                     $shares[] = $node['_id'];
                 }
 
                 if (true === $node['directory'] && !isset($node['reference'])) {
-                    $list = array_merge($list, $this->getChildrenRecursive($node['_id'], $shares, $files));
+                    $list = array_merge($list, $this->getChildrenRecursive($node['_id'], $shares));
                 }
             }
         }
