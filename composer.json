@@ -42,7 +42,7 @@
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
-        "ulrichsg/getopt-php": "dev-master",
+        "ulrichsg/getopt-php": "dev-develop",
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "^1.0.1",
         "hassankhan/config": "*",
@@ -61,7 +61,7 @@
     "require-dev": {
         "phpunit/phpunit": "^6.0.0",
         "friendsofphp/php-cs-fixer": "*",
-        "helmich/mongomock": "dev-master",
+        "helmich/mongomock": "dev-develop",
         "phpstan/phpstan": "*"
     }
 }
