@@ -50,8 +50,7 @@
         "monolog/monolog": "^1.23",
         "bramus/monolog-colored-line-formatter": "~2.0",
         "zendframework/zend-servicemanager": "^3.3",
-        "maennchen/zipstream-php": "^0.5.1",
-        "icewind/smb": "^2.0"
+        "maennchen/zipstream-php": "^0.5.1"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
