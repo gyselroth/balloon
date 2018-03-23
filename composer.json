@@ -42,7 +42,7 @@
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
-        "ulrichsg/getopt-php": "dev-master",
+        "ulrichsg/getopt-php": "dev-master#e0c5835",
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "^1.0.1",
         "hassankhan/config": "*",

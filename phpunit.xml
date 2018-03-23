@@ -8,7 +8,11 @@
              target="./build/coverage.xml"/>
     </logging>
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+        <blacklist>
+              <file>./src/cgi-bin/cli.php</file>
+              <file>./src/httpdocs/index.php</file>
+        </blacklist>
+        <whitelist processUncoveredFilesFromWhitelist="false">
             <directory suffix=".php">./src/</directory>
         </whitelist>
     </filter>
