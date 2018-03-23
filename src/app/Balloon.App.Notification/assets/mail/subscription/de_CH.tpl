@@ -292,7 +292,7 @@
                     <tr>
                       <td>
                         <p>Hallo {user.name}</p>
-                        <p>Es sind Änderungen in deinem Ordner {node.name} vorgenommen worden.</p>
+                        <p>Es sind Änderungen in deinem balloon vorhanden {node.name}.</p>
                         <p>Du bekommst diese Meldung weil du Änderungen an {node.name} abonniert hast.</p>
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>

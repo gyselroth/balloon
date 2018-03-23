@@ -1,10 +1,10 @@
 {
   "en_US": {
     "subject": "Changes made in your balloon",
-    "body": "Hi {user.username},\n{user.username} made changes in your folder {node.name}.\n You get this message because you have subscribed {node.name} for updates."
+    "body": "Hi {user.username},\nThere are new changes in your balloon {node.name}.\n You get this message because you have subscribed {node.name} for updates."
   },
   "de_CH": {
     "subject": "Es sind Änderungen in deinem balloon vorhanden",
-    "body": "Hallo {user.username},\nEs sind Änderungen in deinem Ordner {node.name} vorgenommen worden.\n Du bekommst diese Meldung weil du Änderungen an {node.name} abonniert hast."
+    "body": "Hallo {user.username},\nEs sind Änderungen in deinem balloon vorhanden {node.name}.\n Du bekommst diese Meldung weil du Änderungen an {node.name} abonniert hast."
   }
 }
