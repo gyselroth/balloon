@@ -18,11 +18,11 @@
     },
     "repositories": [
          {
-             "type": "git",
+             "type": "vcs",
              "url": "https://github.com/raffis/php-mongomock"
          },
          {
-             "type": "git",
+             "type": "vcs",
              "url": "https://github.com/raffis/getopt-php"
          }
     ],
@@ -42,7 +42,7 @@
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
-        "ulrichsg/getopt-php": "dev-master#e0c5835",
+        "ulrichsg/getopt-php": "dev-master",
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "^1.0.1",
         "hassankhan/config": "*",
@@ -61,7 +61,7 @@
     "require-dev": {
         "phpunit/phpunit": "^6.0.0",
         "friendsofphp/php-cs-fixer": "*",
-        "helmich/mongomock": "dev-master#1ee4147",
+        "helmich/mongomock": "dev-master",
         "phpstan/phpstan": "*"
     }
 }
