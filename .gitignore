@@ -1,6 +1,5 @@
 vendor
-config/*
-docker-compose.yml
+config/config.yml
 build
 build_apidoc
 doc
@@ -8,3 +7,5 @@ dist
 log/*
 lib_dev
 node_modules
+package-lock.json
+composer.lock
