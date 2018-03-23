@@ -373,6 +373,39 @@ class User
     }
 
     /**
+     * @api {get} /api/v1/user/node-attribute-summary Node attribute summary
+     * @apiVersion 1.0.0
+     * @apiName getNodeAttributeSummary
+     * @apiUse _getUser
+     * @apiGroup User
+     * @apiPermission none
+     * @apiDescription Get summary and usage of specific node attributes
+     * If you want to receive your own node summary you have to leave the parameters uid and uname empty.
+     * Requesting this api with parameter uid or uname requires admin privileges.
+     *
+     * @apiExample Example usage:
+     * curl -XGET "https://SERVER/api/v1/user/node-attribute-summary?pretty"
+     * curl -XGET "https://SERVER/api/v1/user/544627ed3c58891f058b4611/node-attribute-summary?pretty"
+     * curl -XGET "https://SERVER/api/v1/user/node-attribute-summary?uname=loginuser&pretty"
+     *
+     * @param string $id
+     * @param string $uname
+     * @param string $attributes
+     * @param int    $limit
+     *
+     * @return Response
+     */
+    public function getNodeAttributeSummary(?string $id = null, ?string $uname = null, array $attributes = [], int $limit = 25): Response
+    {
+        $result = $this->_getUser($id, $uname)->getNodeAttributeSummary($attributes, $limit);
+
+        return (new Response())->setCode(200)->setBody([
+            'code' => 200,
+            'data' => $result,
+        ]);
+    }
+
+    /**
      * @api {post} /api/v1/user/quota?uid=:uid Set quota
      * @apiVersion 1.0.0
      * @apiName postQuota

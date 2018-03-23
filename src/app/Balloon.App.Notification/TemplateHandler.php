@@ -132,21 +132,33 @@ class TemplateHandler
         return $this;
     }
 
+    /**
+     * Parse body.
+     */
     public function parseBodyTemplate(string $notification, User $user, NodeInterface $node): string
     {
         return $this->parseTemplate($notification, 'body', $user, $node);
     }
 
+    /**
+     * Parse mail body.
+     */
     public function parseMailBodyTemplate(string $notification, User $user, NodeInterface $node): string
     {
         return $this->parseMailTemplate($notification, $user, $node);
     }
 
+    /**
+     * Parse subject.
+     */
     public function parseSubjectTemplate(string $notification, User $user, NodeInterface $node): string
     {
         return $this->parseTemplate($notification, 'subject', $user, $node);
     }
 
+    /**
+     * Load notification.
+     */
     protected function load(string $notification)
     {
         if (isset($this->templates[$notification])) {
@@ -160,6 +172,9 @@ class TemplateHandler
         return $this->templates[$notification] = json_decode(file_get_contents($path), true);
     }
 
+    /**
+     * Load mail template.
+     */
     protected function loadMailTemplate(string $notification, string $locale)
     {
         if (isset($this->mail_templates[$notification.$locale])) {
@@ -173,6 +188,9 @@ class TemplateHandler
         return $this->mail_templates[$notification.$locale] = file_get_contents($path);
     }
 
+    /**
+     * Parse mail template.
+     */
     protected function parseMailTemplate(string $notification, User $user, NodeInterface $node): string
     {
         $locale = $user->getAttributes()['locale'];
@@ -186,6 +204,9 @@ class TemplateHandler
         return $this->decorate($this->decorateUser($this->decorateNode($template, $node), $user));
     }
 
+    /**
+     * Parse template.
+     */
     protected function parseTemplate(string $notification, string $type, User $user, NodeInterface $node): string
     {
         $template = $this->load($notification);

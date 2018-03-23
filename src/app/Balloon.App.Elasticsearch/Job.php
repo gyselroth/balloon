@@ -524,6 +524,7 @@ class Job extends AbstractJob
                 'id' => (string) $file->getId(),
                 'owner' => (string) $file->getOwner(),
             ]],
+            'share_ref' => [],
         ];
 
         if ($file->isShareMember()) {

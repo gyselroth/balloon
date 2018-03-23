@@ -50,6 +50,7 @@ class Mail extends AbstractJob
     public function start(): bool
     {
         $mail = Message::fromString($this->data);
+        $mail->setEncoding('UTF-8');
 
         $this->logger->debug('send mail ['.$mail->getSubject().']', [
             'category' => get_class($this),

@@ -11,8 +11,13 @@
 * CORE: [FIX] fixed elasticsearch drop blob if more than one reference exists
 * CORE: [CHANGE] Balloon\Filesystem\Storage\Adapter\Gridfs does only store references as a flat array instead meta data for search (see change elasticsearch implementation)
 * CORE: [CHANGE] changed bootstrap initialization, added container builder, apps get injected via dic
+* CORE: [CHANGE] added de_CH locales for Balloon.App.Notification
+* CORE: [FIX] fixed UTF-8 mail header encoding
 * CLI: [FIX] output is now only generated if verbose is active (or an emergency exception occured), no more debug output before cli processing
 * API: [FIX] fixed response PATCH /api/v2/users and PATCH /api/v2/groups
+* API: [FIX] fixed POST /api/v2/nodes/clone
+* API: [FIX] Exceptions of type Balloon\Filesystem\Exception\Conflict respond now with a 422 instead 400
+* API: [FIX] Readded api endpoint GET /api/v1/user/node-attribute-summary
 
 
 ## 2.0.0-beta1

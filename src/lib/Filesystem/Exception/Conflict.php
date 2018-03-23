@@ -36,6 +36,6 @@ class Conflict extends \Sabre\DAV\Exception\Conflict implements ExceptionInterfa
      */
     public function getStatusCode(): int
     {
-        return 400;
+        return 422;
     }
 }

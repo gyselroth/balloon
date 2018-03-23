@@ -628,7 +628,6 @@ class Nodes extends Controller
         }
 
         return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {
-            $parent = $node->getParent();
             $result = $node->copyTo($parent, $conflict);
 
             return [

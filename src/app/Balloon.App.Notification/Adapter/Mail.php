@@ -115,7 +115,8 @@ class Mail implements AdapterInterface
         $mail = (new Message())
           ->setSubject($message->getSubject($receiver))
           ->setBody($body)
-          ->setTo($address);
+          ->setTo($address)
+          ->setEncoding('UTF-8');
 
         if (null === $sender) {
             $mail->setFrom($this->sender_address, $this->sender_name);
