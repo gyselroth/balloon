@@ -26,4 +26,3 @@ $composer = require 'vendor/autoload.php';
 $dic = Balloon\Bootstrap\ContainerBuilder::get($composer);
 $dic->get(Balloon\Bootstrap\Cli::class)->process();
 // @codeCoverageIgnoreEnd
-

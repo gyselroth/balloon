@@ -55,8 +55,12 @@ class Cli extends AbstractBootstrap
     public function process()
     {
         $this->getopt->addOption(['v', 'verbose', GetOpt::NO_ARGUMENT, 'Verbose']);
+
+        // @codeCoverageIgnoreStart
         $this->getopt->process();
         $this->configureLogger($this->getopt->getOption('verbose'));
+        // @codeCoverageIgnoreEnd
+
         $this->getopt->routeCommand($this->container);
 
         return $this;
