@@ -26,8 +26,8 @@ if [[ ! -f /etc/init/balloon-jobs.conf && -d /etc/init ]]; then
 fi
 
 echo "create admin user"
-/usr/bin/ballooncli upgrade -vvv -i
-/usr/bin/ballooncli useradd -u admin -p admin -m root@localhost.local -a
+/usr/bin/ballooncli upgrade:start -vvv -i
+/usr/bin/ballooncli user:add -u admin -p admin -m root@localhost.local -a
 chown -R www-data. /var/log/balloon
 
 echo "create systemctl service"
