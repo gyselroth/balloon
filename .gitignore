@@ -1,5 +1,5 @@
 vendor
-config/config.yml
+config/config.yaml
 build
 build_apidoc
 doc

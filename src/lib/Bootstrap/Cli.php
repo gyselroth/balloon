@@ -36,7 +36,11 @@ class Cli extends AbstractBootstrap
     protected $container;
 
     /**
-     * {@inheritdoc}
+     * Cli.
+     *
+     * @param LoggerInterface    $logger
+     * @param Getopt             $getopt
+     * @param ContainerInterface $container
      */
     public function __construct(LoggerInterface $logger, GetOpt $getopt, ContainerInterface $container)
     {
@@ -55,8 +59,15 @@ class Cli extends AbstractBootstrap
     public function process()
     {
         $this->getopt->addOption(['v', 'verbose', GetOpt::NO_ARGUMENT, 'Verbose']);
+        $this->getopt->addOption(['h', 'help', GetOpt::NO_ARGUMENT, 'Help']);
 
         $this->getopt->process();
+        if ($this->getopt->getOption('help')) {
+            echo $this->getopt->getHelpText();
+
+            return $this;
+        }
+
         $this->configureLogger($this->getopt->getOption('verbose'));
         $this->getopt->routeCommand($this->container);
 

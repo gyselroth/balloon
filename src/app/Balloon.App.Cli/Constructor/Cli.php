@@ -33,8 +33,6 @@ class Cli
         $this->getopt = $getopt;
 
         $getopt->addCommands([
-            \GetOpt\Command::create('help', [&$this, 'help'])
-                ->addOperand(\GetOpt\Operand::create('command')),
             \GetOpt\Command::create('user add', [Console\User::class, 'add'])
                 ->addOptions($this->getUserOptions()),
             \GetOpt\Command::create('user edit', [Console\User::class, 'edit'])
@@ -52,16 +50,6 @@ class Cli
             \GetOpt\Command::create('upgrade start', [Console\Upgrade::class, 'start'])
                 ->addOptions($this->getUpgradeOptions()),
         ]);
-    }
-
-    /**
-     * Display help.
-     */
-    public function help()
-    {
-        foreach ($this->getopt->getCommands() as $cmd) {
-            echo $cmd->getName()."\n";
-        }
     }
 
     /**
@@ -123,7 +111,7 @@ class Cli
                 ->setDescription('Lastname'),
             \GetOpt\Option::create('s', 'softquota', GetOpt::REQUIRED_ARGUMENT)
                 ->setDescription('Softquota in bytes'),
-            \GetOpt\Option::create('h', 'hardquota', GetOpt::REQUIRED_ARGUMENT)
+            \GetOpt\Option::create('H', 'hardquota', GetOpt::REQUIRED_ARGUMENT)
                 ->setDescription('Hardquota in bytes'),
             \GetOpt\Option::create('n', 'namespace', GetOpt::REQUIRED_ARGUMENT)
                 ->setDescription('A namespace'),

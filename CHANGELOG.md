@@ -18,6 +18,7 @@
 * API: [FIX] fixed POST /api/v2/nodes/clone
 * API: [FIX] Exceptions of type Balloon\Filesystem\Exception\Conflict respond now with a 422 instead 400
 * API: [FIX] Readded api endpoint GET /api/v1/user/node-attribute-summary
+* API: [FIX] Only /api/v2 is public readable, /api/v1 requires authentication due backward compatibility
 
 
 ## 2.0.0-beta1
