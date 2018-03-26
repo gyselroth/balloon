@@ -7,5 +7,5 @@ dist
 log/*
 lib_dev
 node_modules
-package-lock.json
 composer.lock
+package-lock.json
