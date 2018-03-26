@@ -56,7 +56,7 @@
     "require-dev": {
         "phpunit/phpunit": "^6.0.0",
         "friendsofphp/php-cs-fixer": "*",
-        "helmich/mongomock": "dev-master",
+        "helmich/mongomock": "dev-master#1ee4147",
         "phpstan/phpstan": "*"
     }
 }
