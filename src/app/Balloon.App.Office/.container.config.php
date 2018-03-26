@@ -1,11 +1,16 @@
 <?php
 use Balloon\App\Office\Constructor\Http;
-use Balloon\App\Notification\Hook\NewShareAdded;
-use Balloon\App\Notification\Hook\Subscription;
-use Balloon\App\Notification\Adapter\Db;
-use Balloon\App\Notification\Adapter\Mail;
+use Balloon\Bootstrap\AbstractBootstrap;
 
 return [
+    AbstractBootstrap::class => [
+        'calls' => [
+            'Balloon.App.Office' => [
+                'method' => 'inject',
+                'arguments' => ['object' => '{'.Http::class.'}']
+            ],
+        ]
+    ],
     Http::class => [
         'arguments' => [
             'config' => [
@@ -14,5 +19,5 @@ return [
                 'token_ttl' => 3600
             ]
         ]
-    ]
+    ],
 ];

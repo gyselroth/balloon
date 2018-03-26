@@ -4,6 +4,8 @@ use Balloon\App\Notification\Hook\NewShareAdded;
 use Balloon\App\Notification\Hook\Subscription;
 use Balloon\App\Notification\Adapter\Db;
 use Balloon\App\Notification\Adapter\Mail;
+use Balloon\Bootstrap\AbstractBootstrap;
+use Balloon\App\Notification\Constructor\Http;
 
 return [
     Notifier::class => [
@@ -29,5 +31,13 @@ return [
                 'arguments' => ['hook' => '{'.Subscription::class.'}']
             ]
         ],
-    ]
+    ],
+    AbstractBootstrap::class => [
+        'calls' => [
+            'Balloon.App.Notification' => [
+                'method' => 'inject',
+                'arguments' => ['object' => '{'.Http::class.'}']
+            ],
+        ]
+    ],
 ];

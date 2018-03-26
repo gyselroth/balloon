@@ -21,6 +21,7 @@ Balloon\Bootstrap\AbstractBootstrap:
     Balloon.App.ClamAv: {method: inject, arguments:{object: '{Balloon\App\ClamAv\Constructor\Http}'}}
     Balloon.App.Elasticsearch: {method: inject, arguments:{object: '{Balloon\App\Elasticsearch\Constructor\Http}'}}
     Balloon.App.Notification: {method: inject, arguments:{object: '{Balloon\App\Notification\Constructor\Http}'}}
+    Balloon.App.Office: {method: inject, arguments:{object: '{Balloon\App\Office\Constructor\Http}'}}
 Balloon\Server:
   arguments:
     config:
