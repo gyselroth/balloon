@@ -28,7 +28,6 @@ before_deploy:
 - sed -i s/'{deb_distribution}'/$deb_distribution/g bintray.json
 - cat bintray.json
 deploy:
-  skip_cleanup: true
 - provider: releases
   api_key:
     secure: gcN1ajquIROH2NFCYqF8mksjjCJiczH8PxqALsQQEiZDqq3aCIXJZ3ZE6LjeaBQcmpqE3++EveHC5wmbv2GN3pk8gJ9rPyKc+pjrVbQlwbJv2ioKcQ9JvK7YRn5DCoXBhIh2UN9CK8/ttrQ8Tbc0oArDXvd+KFI7SAoionNqzzc5B/7X/GgN2H3K5KVXtlAsiVlGWgBEZTPKpbnp5KRpGGuERB+FRQg4mru+LT/8PEk/JEZUY5SQYrjwJCB9YFhGh7+vr2Pe6JUyohZBiBGgHDumd5b6jWVb8QmtkxRTm+3WhopZVk8p5TFg50uuhQr7+RNb1xA4ozM5/hEJwmt8nHdh45mkvmrIzeahwnQFQOQl09tzjPPr+zEvqZj5SyIelTnoR9xNzr7r69U40VWyk727NgqXcMHeF5IaskM3fZ3WJbmU4SdALUAPUx9T3tG1nS864mZc41cSNgBkSy8IfYqsXrgUKOyG8BV/usKy9cd+q7Y2x6PsVD5sysT0R7Jfx/dbXUsd1cdMf50Zms8AZ/6tMtI5KxR2n9wAFJNG2E5PSwg8YiG6TXYPkx09TT+H2PGlXqMiSF/uaHYKaUPN1VEa6fR1p+lMTXI2uqutj95P8gSSBJChg6sAqzA/bjrLh7Qjh+URheGJuGhBiksw7ixwAFmFW4ZW+VsKRG0T5Jo=
@@ -38,6 +37,7 @@ deploy:
   on:
     tags: true
 - provider: bintray
+  skip_cleanup: true
   file: bintray.json
   user: raffis
   on:
@@ -45,6 +45,7 @@ deploy:
   key:
     secure: rGB84zJKDudTJYUsWSMQAgzSbgIvAmDaQBPtRDmuGeG89XX8wG1v1WZfqcnIaA5gPNJIDAIRixJY8RnBXeNWw2fx6vOCa6gUJzVYv5aPLuE98ei4eXHxlZKATIB3Kg1JGJ3SzqlZEeJvuJhLUYkWfZ673fQeGsY/Rdzk7NjkpM/+6WQUP7f5eop0o5TOUZ7iquNful/2gMWDuNCvAwmn2VwSvyzHRe8MpNxYmPVTWa4Nstze3ijw2zf7ddVqlL4zaqXdX5wWc0/ncmQ2phBPLik6QC+be7t6uuThKf2BPFrwM9lTboCTOcQRviR0sP0VGoy8cYyMgi27McZ38Qfk3jY/uXmgJPeUlkU7qDRjJDWgM/fCk2taLgKxnwemQKBTeyQgHl0A7EIvlrt2tKuHlf/ikZnHiMwDO4fAWfyN8kZtG2d9bk2+9nCmijS595XJfYGv/zMIGAP0cjeKeLwIF4OVnPWo7ZJWbawzsjt50xxxxI/UcE6dWbiBVbNbcv7P0cLMkkwBAPzHXNEw5I2occgYvzZkb4ERKtL4k2Ky227jWnr1HiV7OQnrSIiaup46x5MEcRhqTatHvVlzbb9Da5/aI8W0DnpzV83I2lhaLkV45lTjiI46h+d8+Zb5Wo7fxlJdIOT/CYtCHvXV8HOVK0GMfR/i9ujVKqJNdwkgfpc=
 - provider: bintray
+  skip_cleanup: true
   file: bintray.json
   user: raffis
   on:
