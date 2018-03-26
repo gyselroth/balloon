@@ -18,7 +18,7 @@
     },
     "repositories": [
          {
-             "type": "vcs",
+             "type": "git",
              "url": "https://github.com/raffis/php-mongomock"
          }
     ],
@@ -56,7 +56,7 @@
     "require-dev": {
         "phpunit/phpunit": "^6.0.0",
         "friendsofphp/php-cs-fixer": "*",
-        "helmich/mongomock": "dev-develop",
+        "helmich/mongomock": "dev-master",
         "phpstan/phpstan": "*"
     }
 }
