@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Cli\Console;
 
-use Balloon\Migration as Migrator;
+use Balloon\Migration;
 use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
 
@@ -34,32 +34,22 @@ class Upgrade
     /**
      * Migration.
      *
-     * @var Migrator
+     * @var Migration
      */
     protected $migration;
 
     /**
      * Constructor.
      *
-     * @param Migrator        $migration
+     * @param Migration       $migration
      * @param LoggerInterface $logger
      * @param GetOpt          $getopt
      */
-    public function __construct(Migrator $migration, LoggerInterface $logger, GetOpt $getopt)
+    public function __construct(Migration $migration, LoggerInterface $logger, GetOpt $getopt)
     {
         $this->migration = $migration;
         $this->logger = $logger;
         $this->getopt = $getopt;
-    }
-
-    /**
-     * Get description.
-     *
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return 'Execute migration scripts between upgrades';
     }
 
     /**

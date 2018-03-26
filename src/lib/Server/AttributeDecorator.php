@@ -161,6 +161,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
             'name' => (string) $attributes['username'],
             'namespace' => (string) $attributes['namespace'],
             'mail' => (string) $attributes['mail'],
+            'locale' => (string) $attributes['locale'],
             'quota' => function ($role) use ($attributes, $user) {
                 if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
                     return $role->getQuotaUsage();

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Bootstrap;
 
 use Bramus\Monolog\Formatter\ColoredLineFormatter;
+use Closure;
 use GetOpt\GetOpt;
 use Monolog\Handler\FilterHandler;
 use Monolog\Handler\StreamHandler;
@@ -69,9 +70,37 @@ class Cli extends AbstractBootstrap
         }
 
         $this->configureLogger($this->getopt->getOption('verbose'));
-        $this->getopt->routeCommand($this->container);
+        $this->routeCommand();
 
         return $this;
+    }
+
+    /**
+     * Route command.
+     */
+    protected function routeCommand()
+    {
+        $cmd = $this->getopt->getCommand();
+        if ($cmd === null) {
+            echo $this->getopt->getHelpText();
+
+            return null;
+        }
+
+        $handler = $cmd->getHandler();
+
+        if (is_string($handler)) {
+            $handler();
+        } elseif ($handler instanceof Closure) {
+            $handler->call();
+        } elseif (is_array($handler) && count($handler) === 2 && is_string($handler[0])) {
+            $class = $this->container->get($handler[0]);
+            $class->{$handler[1]}();
+        } elseif (is_callable($handler)) {
+            call_user_func_array($handler, []);
+        }
+
+        return null;
     }
 
     /**

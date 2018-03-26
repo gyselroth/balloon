@@ -64,16 +64,6 @@ class Jobs
     }
 
     /**
-     * Get description.
-     *
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return 'Handles asynchronous job queue';
-    }
-
-    /**
      * Start.
      *
      * @return bool

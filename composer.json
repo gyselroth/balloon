@@ -20,10 +20,6 @@
          {
              "type": "vcs",
              "url": "https://github.com/raffis/php-mongomock"
-         },
-         {
-             "type": "vcs",
-             "url": "https://github.com/raffis/getopt-php"
          }
     ],
     "require": {
@@ -42,7 +38,7 @@
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
-        "ulrichsg/getopt-php": "dev-develop",
+        "ulrichsg/getopt-php": "*",
         "zendframework/zend-mail": "2.7.*",
         "gyselroth/mongodb-php-task-scheduler": "^1.0.1",
         "hassankhan/config": "*",

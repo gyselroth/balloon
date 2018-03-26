@@ -33,21 +33,21 @@ class Cli
         $this->getopt = $getopt;
 
         $getopt->addCommands([
-            \GetOpt\Command::create('user add', [Console\User::class, 'add'])
+            \GetOpt\Command::create('user:add', [Console\User::class, 'add'])
                 ->addOptions($this->getUserOptions()),
-            \GetOpt\Command::create('user edit', [Console\User::class, 'edit'])
+            \GetOpt\Command::create('user:edit', [Console\User::class, 'edit'])
                 ->addOperand(\GetOpt\Operand::create('id'))
                 ->addOptions($this->getUserOptions()),
-            \GetOpt\Command::create('group add', [Console\Group::class, 'add'])
-                ->addOptions($this->getUserOptions()),
-            \GetOpt\Command::create('group edit', [Console\Group::class, 'edit'])
+            \GetOpt\Command::create('group:add', [Console\Group::class, 'add'])
+                ->addOptions($this->getGroupOptions()),
+            \GetOpt\Command::create('group:edit', [Console\Group::class, 'edit'])
                 ->addOperand(\GetOpt\Operand::create('id'))
+                ->addOptions($this->getGroupOptions()),
+            \GetOpt\Command::create('jobs:listen', [Console\Jobs::class, 'listen'])
                 ->addOptions($this->getUserOptions()),
-            \GetOpt\Command::create('jobs listen', [Console\Jobs::class, 'listen'])
+            \GetOpt\Command::create('jobs:once', [Console\Jobs::class, 'once'])
                 ->addOptions($this->getUserOptions()),
-            \GetOpt\Command::create('jobs once', [Console\Jobs::class, 'once'])
-                ->addOptions($this->getUserOptions()),
-            \GetOpt\Command::create('upgrade start', [Console\Upgrade::class, 'start'])
+            \GetOpt\Command::create('upgrade:start', [Console\Upgrade::class, 'start'])
                 ->addOptions($this->getUpgradeOptions()),
         ]);
     }
@@ -80,8 +80,6 @@ class Cli
                 ->setDescription('A list of usernames to add to the group (comma separated)'),
             \GetOpt\Option::create('n', 'namespace', GetOpt::REQUIRED_ARGUMENT)
                 ->setDescription('A namespace'),
-            \GetOpt\Option::create('d', 'description', GetOpt::REQUIRED_ARGUMENT)
-                ->setDescription('A description'),
         ];
     }
 
@@ -103,12 +101,6 @@ class Cli
                 ->setDescription('Set an avatar image (Path/URL to JPEG image)'),
             \GetOpt\Option::create('m', 'mail', GetOpt::REQUIRED_ARGUMENT)
                 ->setDescription('Mail address'),
-            \GetOpt\Option::create('d', 'description', GetOpt::REQUIRED_ARGUMENT)
-                ->setDescription('User description'),
-            \GetOpt\Option::create('f', 'firstname', GetOpt::REQUIRED_ARGUMENT)
-                ->setDescription('Firstname'),
-            \GetOpt\Option::create('l', 'lastname', GetOpt::REQUIRED_ARGUMENT)
-                ->setDescription('Lastname'),
             \GetOpt\Option::create('s', 'softquota', GetOpt::REQUIRED_ARGUMENT)
                 ->setDescription('Softquota in bytes'),
             \GetOpt\Option::create('H', 'hardquota', GetOpt::REQUIRED_ARGUMENT)

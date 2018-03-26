@@ -54,16 +54,6 @@ class Group
     }
 
     /**
-     * Get description.
-     *
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return 'Add a new group';
-    }
-
-    /**
      * Start.
      *
      * @return bool
@@ -85,12 +75,13 @@ class Group
      *
      * @return bool
      */
-    public function update(): bool
+    public function edit(): bool
     {
         $id = new ObjectId($this->getopt->getOperand('id'));
+        $group = $this->server->getGroupById($id);
 
         $options = $this->parseParams();
-        $options['member'] = $this->parseMemberUpdate();
+        $options['member'] = $this->parseMemberUpdate($group);
 
         if ($this->getopt->getOption('name') !== null) {
             $options['name'] = $this->getopt->getOption('name');
@@ -110,11 +101,12 @@ class Group
     /**
      * Parse member.
      *
+     * @param Group $group
+     *
      * @return arrray
      */
-    protected function parseMemberUpdate(): array
+    protected function parseMemberUpdate(Group $group): array
     {
-        $group = $this->server->getGroupByName($this->getopt->getOption('name'));
         $member = [];
 
         $remove = [];
@@ -124,7 +116,7 @@ class Group
         }
 
         foreach ($group->getResolvedMembers() as $user) {
-            if (!in_array($user->getUsername(), $remove)) {
+            if (!in_array((string) $user->getId(), $remove)) {
                 $member[] = $user;
             }
         }
@@ -134,7 +126,7 @@ class Group
             $append = array_map('trim', $append);
 
             foreach ($append as $user) {
-                $member[] = $this->server->getUserByName($user);
+                $member[] = $this->server->getUserById(new ObjectId($user));
             }
         }
 
@@ -153,10 +145,6 @@ class Group
             $options['namespace'] = $this->getopt->getOption('namespace');
         }
 
-        if ($this->getopt->getOption('description') !== null) {
-            $options['description'] = $this->getopt->getOption('description');
-        }
-
         return $options;
     }
 
@@ -173,7 +161,7 @@ class Group
             $list = array_map('trim', $list);
 
             foreach ($list as $name) {
-                $member[] = $this->server->getUserByName($name);
+                $member[] = $this->server->getUserById(new ObjectId($name));
             }
         }
 

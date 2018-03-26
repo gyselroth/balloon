@@ -55,16 +55,6 @@ class User
     }
 
     /**
-     * Get description.
-     *
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return 'Add a new user';
-    }
-
-    /**
      * Start.
      *
      * @return bool
@@ -113,49 +103,25 @@ class User
      */
     protected function parseParams(): array
     {
-        $options = [];
-        if ($this->getopt->getOption('firstname') !== null) {
-            $options['first_name'] = $this->getopt->getOption('firstname');
-        }
+        $map = [
+            'mail' => 'mail',
+            'softquota' => 'soft_quota',
+            'hardquota' => 'hard_quota',
+            'namespace' => 'namespace',
+            'password' => 'password',
+            'locale' => 'locale',
+            'avatar' => 'avatar',
+            'admin' => 'admin',
+        ];
 
-        if ($this->getopt->getOption('lastname') !== null) {
-            $options['last_name'] = $this->getopt->getOption('lastname');
-        }
+        $options = array_intersect_key($this->getopt->getOptions(), $map);
+        ksort($options);
+        $map = array_intersect_key($map, $options);
+        ksort($map);
+        $options = array_combine(array_values($map), $options);
 
-        if ($this->getopt->getOption('mail') !== null) {
-            $options['mail'] = $this->getopt->getOption('mail');
-        }
-
-        if ($this->getopt->getOption('softquota') !== null) {
-            $options['soft_quota'] = $this->getopt->getOption('softquota');
-        }
-
-        if ($this->getopt->getOption('hardquota') !== null) {
-            $options['hard_quota'] = $this->getopt->getOption('hardquota');
-        }
-
-        if ($this->getopt->getOption('namespace') !== null) {
-            $options['namespace'] = $this->getopt->getOption('namespace');
-        }
-
-        if ($this->getopt->getOption('description') !== null) {
-            $options['description'] = $this->getopt->getOption('description');
-        }
-
-        if ($this->getopt->getOption('password') !== null) {
-            $options['password'] = $this->getopt->getOption('password');
-        }
-
-        if ($this->getopt->getOption('locale') !== null) {
-            $options['locale'] = $this->getopt->getOption('locale');
-        }
-
-        if ($this->getopt->getOption('avatar') !== null) {
-            $options['avatar'] = new Binary(file_get_contents($this->getopt->getOption('avatar')), Binary::TYPE_GENERIC);
-        }
-
-        if ($this->getopt->getOption('admin') !== null) {
-            $options['admin'] = true;
+        if (isset($options['avatar'])) {
+            $options['avatar'] = new Binary(file_get_contents($options['avatar']), Binary::TYPE_GENERIC);
         }
 
         return $options;
