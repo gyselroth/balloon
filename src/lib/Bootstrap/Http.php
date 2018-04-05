@@ -62,6 +62,7 @@ class Http extends AbstractBootstrap
     public function __construct(LoggerInterface $logger, Auth $auth, Hook $hook, Router $router, Server $server)
     {
         $this->setExceptionHandler();
+        $this->setErrorHandler();
         $this->logger = $logger;
         $this->auth = $auth;
         $this->hook = $hook;
@@ -107,7 +108,10 @@ class Http extends AbstractBootstrap
         if (isset($_SERVER['PHP_AUTH_USER']) && '_logout' === $_SERVER['PHP_AUTH_USER']) {
             (new Response())
                 ->setCode(401)
-                ->setBody('Unauthorized')
+                ->setBody([
+                    'error' => 'Unauthorized',
+                    'message' => 'authentication failed',
+                ])
                 ->send();
         } else {
             if ('/api/auth' === $_SERVER['PATH_INFO']) {
@@ -119,7 +123,10 @@ class Http extends AbstractBootstrap
             (new Response())
                 ->setHeader('WWW-Authenticate', 'Basic realm="balloon"')
                 ->setCode($code)
-                ->setBody('Unauthorized')
+                ->setBody([
+                    'error' => 'Unauthorized',
+                    'message' => 'authentication failed',
+                ])
                 ->send();
         }
     }

@@ -1,6 +1,17 @@
-## 2.0.0-beta2
+## 2.0.0-beta Unauthorization is now a propper json encoded array instead just a string error message3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**:
+
+* CORE: [FIX] exceptions occured during ContainerBuilder are now probably handled during http processing
+* CORE: [FIX] User::getShares() now calls shares via Filesystem (propper acl verification)
+* CORE: [FIX] fixed missing error handler
+* API: [CHANGE] param filter is now called query of GET /api/v2/collections/children
+* API: [FIX] Unauthorization is now a propper json encoded array instead just a string error message
+
+
+## 2.0.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Mar 26 12:45:32 CEST 2018
 
 * CORE: [FIX] group gets now correctly added and there is no more unique check for group names
 * CORE: [FIX] migration delta LdapGroupsToLocalGroups sets created and changed timestamps for groups
@@ -24,7 +35,7 @@
 
 ## 2.0.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**:  Mon Mar 05 14:33:00 CET 2017
+**Date**:  Mon Mar 05 14:33:00 CET 2018
 
 This major relase contains various fixes, changes and new features including:
 * Possibility to load the desktop client artifacts via server

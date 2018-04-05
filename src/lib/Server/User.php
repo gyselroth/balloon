@@ -282,38 +282,26 @@ class User implements RoleInterface
     /**
      * Find all shares with membership.
      *
-     * @param bool $string
-     *
      * @return array
      */
-    public function getShares(bool $string = false): array
+    public function getShares(): array
     {
-        $item = $this->db->storage->find([
+        $result = $this->getFilesystem()->findNodesByFilter([
             'deleted' => false,
             'shared' => true,
             'owner' => $this->_id,
-        ], [
-            '_id' => 1,
-            'reference' => 1,
         ]);
 
-        $found = [];
-
-        foreach ($item as $child) {
-            if (isset($child['reference']) && $child['reference'] instanceof ObjectId) {
-                $share = $child['reference'];
+        $list = [];
+        foreach ($result as $node) {
+            if ($node->isReference()) {
+                $list[] = $node->getShareId(true);
             } else {
-                $share = $child['_id'];
-            }
-
-            if (true === $string) {
-                $found[] = (string) $share;
-            } else {
-                $found[] = $share;
+                $list[] = $node->getId();
             }
         }
 
-        return $found;
+        return $list;
     }
 
     /**

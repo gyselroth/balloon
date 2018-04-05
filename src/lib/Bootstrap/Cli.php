@@ -49,7 +49,9 @@ class Cli extends AbstractBootstrap
         $this->getopt = $getopt;
         $this->container = $container;
         $this->reduceLogLevel();
+
         $this->setExceptionHandler();
+        $this->setErrorHandler();
     }
 
     /**

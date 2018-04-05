@@ -8,6 +8,10 @@ declare(strict_types=1);
  * @copyright   Copryright (c) 2012-2018 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
+use Balloon\Bootstrap\ContainerBuilder;
+use Balloon\Bootstrap\Http;
+use Micro\Http\Response;
+
 define('BALLOON_PATH', (getenv('BALLOON_PATH') ? getenv('BALLOON_PATH') : realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..')));
 
 define('BALLOON_CONFIG_DIR', (getenv('BALLOON_CONFIG_DIR') ? getenv('BALLOON_CONFIG_DIR') : constant('BALLOON_PATH').DIRECTORY_SEPARATOR.'config'));
@@ -23,5 +27,19 @@ set_include_path(implode(PATH_SEPARATOR, [
 ]));
 
 $composer = require 'vendor/autoload.php';
-$dic = Balloon\Bootstrap\ContainerBuilder::get($composer);
-$dic->get(Balloon\Bootstrap\Http::class)->process();
+
+try {
+    $dic = ContainerBuilder::get($composer);
+    $http = $dic->get(Http::class);
+} catch (\Exception $e) {
+    error_log((string) $e);
+
+    (new Response())
+        ->setCode(500)
+        ->setBody([
+            'error' => get_class($e),
+            'message' => $e->getMessage(),
+        ])->send();
+}
+
+$http->process();

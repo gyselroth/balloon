@@ -77,7 +77,7 @@ class Collections extends Nodes
      * curl -XGET "https://SERVER/api/v2/collections/children?p=/absolute/path/to/my/collection&deleted=1"
      *
      * @apiParam (GET Parameter) {string[]} [attributes] Filter node attributes
-     * @apiParam (GET Parameter) {string[]} [filter] Filter nodes
+     * @apiParam (GET Parameter) {string[]} [query] Custom query children
      * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted nodes or not, possible values:</br>
      * - 0 Exclude deleted</br>
      * - 1 Only deleted</br>
@@ -93,7 +93,7 @@ class Collections extends Nodes
      * @param string $id
      * @param string $p
      * @param int    $deleted
-     * @param array  $filter
+     * @param array  $query
      * @param array  $attributes
      * @param int    $offset
      * @param int    $limit
@@ -104,7 +104,7 @@ class Collections extends Nodes
         ?string $id = null,
         ?string $p = null,
         int $deleted = 0,
-        array $filter = [],
+        array $query = [],
         array $attributes = [],
         ?int $offset = 0,
         ?int $limit = 20
@@ -118,7 +118,7 @@ class Collections extends Nodes
             $uri = '/api/v2/collections/'.$node->getId().'/children';
         }
 
-        $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter, $offset, $limit);
+        $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $query, $offset, $limit);
         $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
         $result = $pager->paging();
 

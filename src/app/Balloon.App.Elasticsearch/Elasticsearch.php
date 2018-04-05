@@ -200,7 +200,7 @@ class Elasticsearch
      */
     protected function executeQuery(array $query, ?int $skip = null, ?int $limit = null): array
     {
-        $shares = $this->user->getShares(true);
+        $shares = $this->user->getShares();
         $bool = $query['body']['query'];
 
         $filter1 = [];
@@ -214,6 +214,7 @@ class Elasticsearch
         ];
 
         foreach ($shares as $share) {
+            $share = (string) $share;
             $share_filter['bool']['should'][]['term']['metadata.share_ref.share'] = $share;
             $share_filter['bool']['should'][]['term']['reference'] = $share;
             $share_filter['bool']['should'][]['term']['shared'] = $share;
