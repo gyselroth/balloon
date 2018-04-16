@@ -42,7 +42,7 @@ balloon-jobs:
         - mongodb
         - elasticsearch
         - postfix
-    entrypoint: ballooncli jobs -d
+    entrypoint: ballooncli jobs listen
     environment:
         - BALLOON_MONGODB_URI=mongodb://mongodb:27017
         - BALLOON_CLAMAV_URI=tcp://clamav:3310

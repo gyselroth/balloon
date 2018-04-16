@@ -54,6 +54,51 @@ class Group
     }
 
     /**
+     * Get help.
+     */
+    public function help(): Group
+    {
+        echo "add\n";
+        echo "Add a new group\n\n";
+
+        echo "edit\n";
+        echo "Edit a group\n\n";
+        echo $this->getopt->getHelpText();
+
+        return $this;
+    }
+
+    /*
+     * Get operands
+     *
+     * @return array
+     */
+    public static function getOperands(): array
+    {
+        return [
+            \GetOpt\Operand::create('action', \GetOpt\Operand::REQUIRED),
+            \GetOpt\Operand::create('id', \GetOpt\Operand::OPTIONAL),
+        ];
+    }
+
+    /**
+     * Get group options.
+     *
+     * @return array
+     */
+    public static function getOptions(): array
+    {
+        return [
+            \GetOpt\Option::create('g', 'name', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Specify the groupname [REQUIRED]'),
+            \GetOpt\Option::create('m', 'member', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('A list of usernames to add to the group (comma separated)'),
+            \GetOpt\Option::create('n', 'namespace', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('A namespace'),
+        ];
+    }
+
+    /**
      * Start.
      *
      * @return bool

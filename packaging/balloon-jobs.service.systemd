@@ -3,7 +3,7 @@ Description=Ballooon
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/ballooncli jobs:listen
+ExecStart=/usr/bin/ballooncli jobs listen
 ExecReload=/bin/kill -HUP $MAINPID
 User=balloon
 KillMode=process

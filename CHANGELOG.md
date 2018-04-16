@@ -1,13 +1,15 @@
-## 2.0.0-beta Unauthorization is now a propper json encoded array instead just a string error message3
+## 2.0.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**:
 
 * CORE: [FIX] exceptions occured during ContainerBuilder are now probably handled during http processing
 * CORE: [FIX] User::getShares() now calls shares via Filesystem (propper acl verification)
 * CORE: [FIX] fixed missing error handler
+* CORE: [FIX] fixed Balloon.App.Elasticsearch set default server uri to BALLLOON_ELASTICSEARCH_URI
+* CLI: [CHANGE] command actions are now separated by whitespace instead ":"
 * API: [CHANGE] param filter is now called query of GET /api/v2/collections/children
 * API: [FIX] Unauthorization is now a propper json encoded array instead just a string error message
-
+* API : [FIX] GET /api/v2/notifications "TypeError Argument 1 passed to Balloon\\Server::getUserById() must be an instance of MongoDB\\BSON\\ObjectId, null given" 
 
 ## 2.0.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\

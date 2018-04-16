@@ -5,8 +5,16 @@ use Balloon\App\Elasticsearch\Hook as ElasticsearchHook;
 use Balloon\Hook;
 use Balloon\Bootstrap\AbstractBootstrap;
 use Balloon\App\Elasticsearch\Constructor\Http;
+use Balloon\App\Elasticsearch\Elasticsearch;
 
 return [
+    Elasticsearch::class => [
+        'arguments' => [
+            'config' => [
+                'server' => "{ENV(BALLOON_ELASTICSEARCH_URI,http://localhost:9200)}"
+            ]
+        ]
+    ],
     Migration::class => [
         'calls' => [
             Installation::class => [

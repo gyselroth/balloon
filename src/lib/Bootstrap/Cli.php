@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\Bootstrap;
 
 use Bramus\Monolog\Formatter\ColoredLineFormatter;
-use Closure;
 use GetOpt\GetOpt;
 use Monolog\Handler\FilterHandler;
 use Monolog\Handler\StreamHandler;
@@ -59,12 +58,20 @@ class Cli extends AbstractBootstrap
      *
      * @return Cli
      */
-    public function process()
+    public function process(): Cli
     {
         $this->getopt->addOption(['v', 'verbose', GetOpt::NO_ARGUMENT, 'Verbose']);
         $this->getopt->addOption(['h', 'help', GetOpt::NO_ARGUMENT, 'Help']);
 
-        $this->getopt->process();
+        try {
+            $this->getopt->process();
+        } catch (\Exception $e) {
+            $this->logger->debug('Some cli input failed', [
+                'category' => get_class($this),
+                'exception' => $e,
+            ]);
+        }
+
         if ($this->getopt->getOption('help')) {
             echo $this->getopt->getHelpText();
 
@@ -75,6 +82,21 @@ class Cli extends AbstractBootstrap
         $this->routeCommand();
 
         return $this;
+    }
+
+    /**
+     * Execute class action.
+     *
+     * @param object $command
+     */
+    protected function executeCommand($command)
+    {
+        $action = $this->getopt->getOperand('action');
+        if (is_callable([&$command, $action])) {
+            return call_user_func_array([&$command, $action], []);
+        }
+
+        return call_user_func_array([&$command, 'help'], []);
     }
 
     /**
@@ -90,19 +112,9 @@ class Cli extends AbstractBootstrap
         }
 
         $handler = $cmd->getHandler();
+        $class = $this->container->get($handler);
 
-        if (is_string($handler)) {
-            $handler();
-        } elseif ($handler instanceof Closure) {
-            $handler->call();
-        } elseif (is_array($handler) && count($handler) === 2 && is_string($handler[0])) {
-            $class = $this->container->get($handler[0]);
-            $class->{$handler[1]}();
-        } elseif (is_callable($handler)) {
-            call_user_func_array($handler, []);
-        }
-
-        return null;
+        return $this->executeCommand($class);
     }
 
     /**

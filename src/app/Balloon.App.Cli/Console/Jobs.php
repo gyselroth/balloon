@@ -63,6 +63,44 @@ class Jobs
         $this->async = $async;
     }
 
+    /*
+     * Get operands
+     *
+     * @return array
+     */
+    public static function getOperands(): array
+    {
+        return [
+            \GetOpt\Operand::create('action', \GetOpt\Operand::REQUIRED),
+            \GetOpt\Operand::create('id', \GetOpt\Operand::OPTIONAL),
+        ];
+    }
+
+    /**
+     * Get help.
+     */
+    public function help(): Jobs
+    {
+        echo "listen\n";
+        echo "Start job listener (blocking process)\n\n";
+
+        echo "once\n";
+        echo "Execute all leftover jobs\n\n";
+        echo $this->getopt->getHelpText();
+
+        return $this;
+    }
+
+    /**
+     * Get options.
+     *
+     * @return array
+     */
+    public static function getOptions(): array
+    {
+        return [];
+    }
+
     /**
      * Start.
      *

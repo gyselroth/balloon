@@ -40,6 +40,8 @@ try {
             'error' => get_class($e),
             'message' => $e->getMessage(),
         ])->send();
+
+    exit();
 }
 
 $http->process();

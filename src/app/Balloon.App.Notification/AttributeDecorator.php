@@ -103,6 +103,10 @@ class AttributeDecorator implements AttributeDecoratorInterface
             'message' => (string) $message['body'],
             'subject' => (string) $message['subject'],
             'sender' => function ($message) use ($server, $role_decorator) {
+                if (!isset($message['sender'])) {
+                    return null;
+                }
+
                 try {
                     return $role_decorator->decorate($server->getUserById($message['sender']), ['_links', 'id', 'username']);
                 } catch (\Exception $e) {

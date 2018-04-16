@@ -55,6 +55,63 @@ class User
     }
 
     /**
+     * Get help.
+     */
+    public function help(): User
+    {
+        echo "add\n";
+        echo "Add a new user\n\n";
+
+        echo "edit\n";
+        echo "Edit a user\n\n";
+        echo $this->getopt->getHelpText();
+
+        return $this;
+    }
+
+    /*
+     * Get operands
+     *
+     * @return array
+     */
+    public static function getOperands(): array
+    {
+        return [
+            \GetOpt\Operand::create('action', \GetOpt\Operand::REQUIRED),
+            \GetOpt\Operand::create('id', \GetOpt\Operand::OPTIONAL),
+        ];
+    }
+
+    /**
+     * Get user options.
+     *
+     * @return array
+     */
+    public static function getOptions(): array
+    {
+        return [
+            \GetOpt\Option::create('u', 'username', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Specify the username [REQUIRED]'),
+            \GetOpt\Option::create('p', 'password', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Specify a password'),
+            \GetOpt\Option::create('a', 'admin', GetOpt::NO_ARGUMENT)
+                ->setDescription('Admin account flag'),
+            \GetOpt\Option::create('A', 'avatar', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Set an avatar image (Path/URL to JPEG image)'),
+            \GetOpt\Option::create('m', 'mail', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Mail address'),
+            \GetOpt\Option::create('s', 'softquota', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Softquota in bytes'),
+            \GetOpt\Option::create('H', 'hardquota', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('Hardquota in bytes'),
+            \GetOpt\Option::create('n', 'namespace', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('A namespace'),
+            \GetOpt\Option::create('L', 'locale', GetOpt::REQUIRED_ARGUMENT)
+                ->setDescription('A Locale (Example: en_US)'),
+        ];
+    }
+
+    /**
      * Start.
      *
      * @return bool

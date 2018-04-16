@@ -53,6 +53,44 @@ class Upgrade
     }
 
     /**
+     * Get help.
+     */
+    public function help(): Upgrade
+    {
+        echo "start\n";
+        echo "Execute upgrade\n\n";
+        echo $this->getopt->getHelpText();
+
+        return $this;
+    }
+
+    /*
+     * Get operands
+     *
+     * @return array
+     */
+    public static function getOperands(): array
+    {
+        return [
+            \GetOpt\Operand::create('action', \GetOpt\Operand::REQUIRED),
+        ];
+    }
+
+    /**
+     * Get upgrade options.
+     *
+     * @return array
+     */
+    public static function getOptions(): array
+    {
+        return [
+            \GetOpt\Option::create('f', 'force')->setDescription('Force apply deltas even if a delta has already been applied before'),
+            \GetOpt\Option::create('i', 'ignore')->setDescription('Do not abort if any error is encountered'),
+            \GetOpt\Option::create('d', 'delta', \GetOpt\GetOpt::REQUIRED_ARGUMENT)->setDescription('Specify specific deltas (comma separated)'),
+        ];
+    }
+
+    /**
      * Start.
      *
      * @return bool
