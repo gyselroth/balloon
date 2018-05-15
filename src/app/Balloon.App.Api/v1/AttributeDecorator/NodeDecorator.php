@@ -234,7 +234,7 @@ class NodeDecorator
                     return false;
                 }
 
-                return $this->dateTimeToUnix($attributes['destroy']);
+                return $this->dateTimeToUnix($attributes['deleted']);
             },
             'destroy' => function ($node) use ($attributes) {
                 if (null === $attributes['destroy']) {

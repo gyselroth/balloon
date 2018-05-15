@@ -132,8 +132,13 @@ class Delta
             $has_more,
             $node
         );
-
         $reset = false;
+
+        if (count($children) === 0) {
+            $id = 0;
+        } else {
+            $id = end($children)->getId();
+        }
 
         if (null === $cursor) {
             $last = $this->getLastRecord();
@@ -149,13 +154,13 @@ class Delta
             if (false === $has_more) {
                 $cursor = base64_encode('delta|0|0|'.$delta_id.'|'.$ts);
             } else {
-                $cursor = base64_encode('initial|'.$current_cursor.'|'.end($children)->getId().'|'.$delta_id.'|'.$ts);
+                $cursor = base64_encode('initial|'.$current_cursor.'|'.$id.'|'.$delta_id.'|'.$ts);
             }
         } else {
             if (false === $has_more) {
                 $cursor = base64_encode('delta|0|0|'.$cursor[3].'|'.$cursor[4]);
             } else {
-                $cursor = base64_encode('initial|'.$current_cursor.'|'.end($children)->getId().'|'.$cursor[3].'|'.$cursor[4]);
+                $cursor = base64_encode('initial|'.$current_cursor.'|'.$id.'|'.$cursor[3].'|'.$cursor[4]);
             }
         }
 

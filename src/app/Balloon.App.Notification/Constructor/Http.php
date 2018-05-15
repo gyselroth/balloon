@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Constructor;
 
 use Balloon\App\Notification\Api\v2;
+use Balloon\App\Notification\Notifier;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Server;
@@ -22,12 +23,8 @@ class Http
 {
     /**
      * Constructor.
-     *
-     * @param Router             $router
-     * @param AttributeDecorator $decorator
-     * @param Server             $server
      */
-    public function __construct(Router $router, AttributeDecorator $decorator, Server $server)
+    public function __construct(Router $router, AttributeDecorator $decorator, Server $server, Notifier $notifier)
     {
         $router
             ->prependRoute(new Route('/api/v2/notifications(/|\z)', v2\Notifications::class))
@@ -35,38 +32,35 @@ class Http
             ->prependRoute(new Route('/api/v2/nodes|files|collections/subscription(/|\z)', v2\Subscription::class))
             ->prependRoute(new Route('/api/v2/nodes|files|collections/{id:#([0-9a-z]{24})#}/subscription(/|\z)', v2\Subscription::class));
 
-        $decorator->addDecorator('subscription', function ($node) use ($server) {
-            $subscription = $node->getAppAttribute('Balloon\\App\\Notification', 'subscription');
-
-            if (is_array($subscription)) {
-                return isset($subscription[(string) $server->getIdentity()->getId()]);
+        $decorator->addDecorator('subscription', function ($node) use ($notifier, $server) {
+            $subscription = $notifier->getSubscription($node, $server->getIdentity());
+            if ($subscription === null) {
+                return false;
             }
 
-            return false;
+            return true;
         });
 
-        $decorator->addDecorator('subscription_exclude_me', function ($node) use ($server) {
-            $subscription = $node->getAppAttribute('Balloon\\App\\Notification', 'subscription');
-
-            if (is_array($subscription) && isset($subscription[(string) $server->getIdentity()->getId()]['exclude_me'])) {
-                return $subscription[(string) $server->getIdentity()->getId()]['exclude_me'];
+        $decorator->addDecorator('subscription_exclude_me', function ($node) use ($notifier, $server) {
+            $subscription = $notifier->getSubscription($node, $server->getIdentity());
+            if ($subscription === null) {
+                return false;
             }
 
-            return false;
+            return $subscription['exclude_me'];
         });
 
-        $decorator->addDecorator('subscription_recursive', function ($node) use ($server) {
+        $decorator->addDecorator('subscription_recursive', function ($node) use ($notifier, $server) {
             if (!($node instanceof Collection)) {
                 return null;
             }
 
-            $subscription = $node->getAppAttribute('Balloon\\App\\Notification', 'subscription');
-
-            if (is_array($subscription) && isset($subscription[(string) $server->getIdentity()->getId()]['recursive'])) {
-                return $subscription[(string) $server->getIdentity()->getId()]['recursive'];
+            $subscription = $notifier->getSubscription($node, $server->getIdentity());
+            if ($subscription === null) {
+                return false;
             }
 
-            return false;
+            return $subscription['recursive'];
         });
     }
 }

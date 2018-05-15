@@ -21,7 +21,6 @@ use Balloon\Hook\AbstractHook;
 use Balloon\Server;
 use Balloon\Server\User;
 use InvalidArgumentException;
-use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 
 class Subscription extends AbstractHook
@@ -109,12 +108,9 @@ class Subscription extends AbstractHook
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
         $this->notify($node);
-        $user_id = (string) $this->server->getIdentity()->getId();
-        $subs = $parent->getAppAttribute('Balloon\\App\\Notification', 'subscription');
-
-        if (isset($subs[$user_id]) && $subs[$user_id]['recursive'] === true) {
-            $new_subs[$user_id] = $subs[$user_id];
-            $node->setAppAttribute('Balloon\\App\\Notification', 'subscription', $subs);
+        $subscription = $this->notifier->getSubscription($parent, $this->server->getIdentity());
+        if ($subscription !== null && $subscription['recursive'] === true) {
+            $this->notifier->subscribeNode($node);
         }
     }
 
@@ -169,13 +165,9 @@ class Subscription extends AbstractHook
     {
         $receiver = $this->getReceiver($node);
         $parent = $node->getParent();
-
         if ($parent !== null) {
-            $subs = array_keys((array) $parent->getAppAttribute('Balloon\\App\\Notification', 'subscription'));
             $parents = $this->getReceiver($parent);
-
-            $blacklist = array_diff($subs, $parents);
-            $receiver = array_diff(array_unique(array_merge($receiver, $parents)), $blacklist);
+            $receiver = array_merge($parents, $receiver);
         }
 
         if (empty($receiver)) {
@@ -186,7 +178,8 @@ class Subscription extends AbstractHook
             return false;
         }
 
-        $receiver = $this->server->getUsersById($receiver);
+        $this->notifier->throttleSubscriptions($node, $receiver);
+        $receiver = $this->server->getUsers(['_id' => ['$in' => $receiver]]);
         $message = new NodeMessage('subscription', $this->template, $node);
 
         return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
@@ -201,38 +194,30 @@ class Subscription extends AbstractHook
      */
     protected function getReceiver(NodeInterface $node): array
     {
-        $subs = $node->getAppAttribute('Balloon\\App\\Notification', 'subscription');
-        if (!is_array($subs)) {
-            return [];
-        }
+        $subs = $this->notifier->getSubscriptions($node);
 
-        $update = $subs;
+        $receiver = [];
+        $user_id = null;
+        if ($this->server->getIdentity() instanceof User) {
+            $user_id = $this->server->getIdentity()->getId();
+        }
 
         foreach ($subs as $key => $subscription) {
             if (isset($subscription['last_notification']) && ($subscription['last_notification']->toDateTime()->format('U') + $this->notification_throttle) > time()) {
-                $this->logger->debug('skip message for user ['.$key.'], message within throttle time range of ['.$this->notification_throttle.'s]', [
+                $this->logger->debug('skip message for user ['.$subscription['user'].'], message within throttle time range of ['.$this->notification_throttle.'s]', [
                     'category' => get_class($this),
                 ]);
-
-                unset($subs[$key]);
-            } else {
-                $update[$key]['last_notification'] = new UTCDateTime();
-            }
-        }
-
-        $node->setAppAttribute('Balloon\\App\\Notification', 'subscription', $update);
-
-        if ($this->server->getIdentity() !== null) {
-            $user_id = (string) $this->server->getIdentity()->getId();
-            if (isset($subs[$user_id]) && $subs[$user_id]['exclude_me'] === true) {
+            } elseif ($subscription['user'] == $user_id && $subscription['exclude_me'] === true) {
                 $this->logger->debug('skip message for user ['.$user_id.'], user excludes own actions in node ['.$node->getId().']', [
                     'category' => get_class($this),
                 ]);
-
-                unset($subs[$user_id]);
+            } else {
+                $receiver[] = $subscription['user'];
             }
         }
 
-        return array_keys($subs);
+        $this->notifier->throttleSubscriptions($node, $receiver);
+
+        return $receiver;
     }
 }

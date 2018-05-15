@@ -39,7 +39,7 @@
         "ext-zip": "*",
         "ext-intl": "*",
         "ulrichsg/getopt-php": "*",
-        "zendframework/zend-mail": "2.7.*",
+        "zendframework/zend-mail": "2.9.*",
         "gyselroth/mongodb-php-task-scheduler": "^1.0.1",
         "hassankhan/config": "*",
         "symfony/yaml": "^4.0",

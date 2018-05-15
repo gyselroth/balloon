@@ -1,15 +1,20 @@
 ## 2.0.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**:
+**Date**: Tue May 15 14:52:11 CEST 2018
 
 * CORE: [FIX] exceptions occured during ContainerBuilder are now probably handled during http processing
 * CORE: [FIX] User::getShares() now calls shares via Filesystem (propper acl verification)
 * CORE: [FIX] fixed missing error handler
 * CORE: [FIX] fixed Balloon.App.Elasticsearch set default server uri to BALLLOON_ELASTICSEARCH_URI
+* CORE: [CHANGE] support for PHP7.2
+* CORE: [FIX] Fixed subscription on share references
+* CORE: [CHANGE] Balloon.App.Notifications stores subscription in dedicated mongodb collection
 * CLI: [CHANGE] command actions are now separated by whitespace instead ":"
 * API: [CHANGE] param filter is now called query of GET /api/v2/collections/children
 * API: [FIX] Unauthorization is now a propper json encoded array instead just a string error message
 * API : [FIX] GET /api/v2/notifications "TypeError Argument 1 passed to Balloon\\Server::getUserById() must be an instance of MongoDB\\BSON\\ObjectId, null given" 
+* API: [FIX] fixed missing deleted flag in API v1
+* API: [FIX] fixed empty delta for delta request with node id
 
 ## 2.0.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\

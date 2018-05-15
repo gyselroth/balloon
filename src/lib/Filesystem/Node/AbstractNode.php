@@ -256,12 +256,12 @@ abstract class AbstractNode implements NodeInterface
      */
     public function isSubNode(NodeInterface $node): bool
     {
-        if ($node->getId() === $this->_id) {
+        if ($node->getId() == $this->_id) {
             return true;
         }
 
         foreach ($node->getParents() as $node) {
-            if ($node->getId() === $this->_id) {
+            if ($node->getId() == $this->_id) {
                 return true;
             }
         }

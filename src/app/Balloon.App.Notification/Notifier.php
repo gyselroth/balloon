@@ -319,6 +319,51 @@ class Notifier
     }
 
     /**
+     * Throttle subscriptions.
+     */
+    public function throttleSubscriptions(NodeInterface $node, array $user): Notifier
+    {
+        $node_id = $node->isReference() ? $node->getShareId() : $node->getId();
+        $this->db->subscription->updateMany([
+            'node' => $node_id,
+            'user' => [
+                '$in' => $user,
+            ],
+        ], [
+            '$set' => [
+                'last_notification' => new UTCDateTime(),
+            ],
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Get subscription.
+     */
+    public function getSubscription(NodeInterface $node, User $user): ?array
+    {
+        $node_id = $node->isReference() ? $node->getShareId() : $node->getId();
+
+        return $this->db->subscription->findOne([
+            'node' => $node_id,
+            'user' => $user->getId(),
+        ]);
+    }
+
+    /**
+     * Get subscriptions.
+     */
+    public function getSubscriptions(NodeInterface $node): Iterable
+    {
+        $node_id = $node->isReference() ? $node->getShareId() : $node->getId();
+
+        return $this->db->subscription->find([
+            'node' => $node_id,
+        ]);
+    }
+
+    /**
      * Subscribe to node updates.
      *
      * @param NodeInterface $node
@@ -330,11 +375,11 @@ class Notifier
      */
     public function subscribeNode(NodeInterface $node, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false): bool
     {
-        $subs = $node->getAppAttribute(__NAMESPACE__, 'subscription');
-        $user_id = (string) $this->server->getIdentity()->getId();
+        $node_id = $node->isReference() ? $node->getShareId() : $node->getId();
+        $user_id = $this->server->getIdentity()->getId();
 
         if (true === $subscribe) {
-            $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] subribes node ['.$node->getId().']', [
+            $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] subscribes node ['.$node->getId().']', [
                 'category' => get_class($this),
             ]);
 
@@ -342,36 +387,54 @@ class Notifier
                 'timestamp' => new UTCDateTime(),
                 'exclude_me' => $exclude_me,
                 'recursive' => $recursive,
+                'user' => $user_id,
+                'node' => $node_id,
             ];
 
-            $subs[$user_id] = $subscription;
-            $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+            $this->db->subscription->replaceOne(
+                [
+                'user' => $subscription['user'],
+                'node' => $subscription['node'],
+            ],
+            $subscription,
+                [
+                'upsert' => true,
+            ]
+            );
+
             if ($node instanceof Collection && $recursive === true) {
-                $node->doRecursiveAction(function ($child) use ($subscription, $user_id) {
-                    $subs = $child->getAppAttribute(__NAMESPACE__, 'subscription');
-                    $subs[$user_id] = $subscription;
-                    $child->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+                $db = $this->db;
+                $node->doRecursiveAction(function ($child) use ($db, $subscription) {
+                    $subscription['node_id'] = $child->getId();
+                    $db->subscription->replaceOne(
+                        [
+                        'user' => $subscription['user'],
+                        'node' => $subscription['node'],
+                    ],
+                    $subscription,
+                        [
+                        'upsert' => true,
+                    ]
+                    );
                 });
             }
         } else {
-            $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] unsubribes node ['.$node->getId().']', [
+            $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] unsubscribes node ['.$node->getId().']', [
                 'category' => get_class($this),
             ]);
 
-            if (isset($subs[$user_id])) {
-                unset($subs[$user_id]);
-            }
-
-            $node->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+            $this->db->subscription->deleteOne([
+                'user' => $user_id,
+                'node' => $node_id,
+            ]);
 
             if ($node instanceof Collection && $recursive === true) {
-                $node->doRecursiveAction(function ($child) use ($user_id) {
-                    $subs = $child->getAppAttribute(__NAMESPACE__, 'subscription');
-
-                    if (isset($subs[$user_id])) {
-                        unset($subs[$user_id]);
-                    }
-                    $child->setAppAttribute(__NAMESPACE__, 'subscription', $subs);
+                $db = $this->db;
+                $node->doRecursiveAction(function ($child) use ($db, $node_id, $user_id) {
+                    $db->subscription->deleteOne([
+                        'user' => $user_id,
+                        'node' => $node_id,
+                    ]);
                 });
             }
         }
