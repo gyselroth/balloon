@@ -736,7 +736,7 @@ class Collection extends AbstractNode implements IQuota
                 );
             }
             if (NodeInterface::CONFLICT_RENAME === $conflict) {
-                $name = $this->getDuplicateName($name);
+                $name = $this->getDuplicateName($name, File::class);
             }
         }
 

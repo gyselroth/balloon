@@ -1168,25 +1168,26 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Duplicate name with a uniqid within name.
-     *
-     * @param string $name
-     *
-     * @return string
      */
-    protected function getDuplicateName(?string $name = null): string
+    protected function getDuplicateName(?string $name = null, ?string $class = null): string
     {
         if (null === $name) {
             $name = $this->name;
         }
 
-        if ($this instanceof Collection) {
+        if (null === $class) {
+            $class = get_class($this);
+        }
+
+        if ($class === Collection::class) {
             return $name.' ('.substr(uniqid('', true), -4).')';
         }
-        $ext = substr(strrchr($name, '.'), 1);
 
+        $ext = substr(strrchr($name, '.'), 1);
         if (false === $ext) {
             return $name.' ('.substr(uniqid('', true), -4).')';
         }
+
         $name = substr($name, 0, -(strlen($ext) + 1));
 
         return $name.' ('.substr(uniqid('', true), -4).')'.'.'.$ext;

@@ -9,6 +9,7 @@
 * CORE: [CHANGE] support for PHP7.2
 * CORE: [FIX] Fixed subscription on share references
 * CORE: [CHANGE] Balloon.App.Notifications stores subscription in dedicated mongodb collection
+* CORE: [FIX] fixes CONFLICT_RENAME for files with extensions
 * CLI: [CHANGE] command actions are now separated by whitespace instead ":"
 * API: [CHANGE] param filter is now called query of GET /api/v2/collections/children
 * API: [FIX] Unauthorization is now a propper json encoded array instead just a string error message
