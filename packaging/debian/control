@@ -1,0 +1,9 @@
+Package: balloon
+Version: {version}
+Architecture: all
+Maintainer: Raffael Sahli <sahli@gyselroth.com>
+Depends: php7.2, php7.2-ldap, php7.2-mbstring, php7.2-xml, php-mongodb, php7.2-opcache, php7.2-curl, php-imagick, php7.2-cli, php7.2-zip, php7.2-intl, php7.2-fpm, libreoffice
+Recommends: php7.2-apc
+Suggests: nginx, mongodb, elasticsearch, clamav
+Homepage: https://github.com/gyselroth/balloon
+Description: balloon cloud server
