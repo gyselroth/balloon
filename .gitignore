@@ -2,7 +2,7 @@ vendor
 config/config.yaml
 build
 build_apidoc
-doc
+apidoc
 dist
 log/*
 lib_dev
@@ -12,4 +12,3 @@ package-lock.json
 .php_cs.cache
 .phpstan.lock
 .phpunit.lock
-docs/

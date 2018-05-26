@@ -47,7 +47,7 @@ Of course there is also a complete desktop solution for balloon. The desktop cli
 It can sync your entire cloud and more, checkout the balloon desktop client on [gyselroth/balloon-client-desktop](https://github.com/gyselroth/balloon-client-desktop).
 
 ## Changelog
-A changelog is available [here](https://github.com/gyselroth/balloon/CHANGELOG.md).
+A changelog is available [here](https://github.com/gyselroth/balloon/blob/master/CHANGELOG.md).
 
 ## Upgrade
 Upgrading from an older version of balloon? Please note the [changelog](https://github.com/gyselroth/balloon/blob/master/CHANGELOG.md) and follow the instructions given 

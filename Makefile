@@ -5,7 +5,7 @@ BASE_DIR = .
 SRC_DIR = $(BASE_DIR)/src
 CORE_DIR = $(SRC_DIR)/lib
 CORE_API_DIR = $(SRC_DIR)/app
-DOC_DIR = $(BASE_DIR)/docs
+DOC_DIR = $(BASE_DIR)/apidoc
 CONFIG_DIR = $(BASE_DIR)/config
 VENDOR_DIR = $(BASE_DIR)/vendor
 NODE_MODULES_DIR = $(BASE_DIR)/node_modules
@@ -22,8 +22,7 @@ VERSION := "0.0.1"
 endif
 
 # PACKAGES
-DEB_LIGHT = $(DIST_DIR)/balloon-light-$(VERSION).deb
-DEB_FULL = $(DIST_DIR)/balloon-full-$(VERSION).deb
+DEB = $(DIST_DIR)/balloon-$(VERSION).deb
 TAR = $(DIST_DIR)/balloon-$(VERSION).tar.gz
 
 # PHP BINARY
@@ -101,12 +100,12 @@ dist: tar deb
 
 
 .PHONY: deb
-deb: $(DIST_DIR)/balloon-light-$(VERSION).deb $(DIST_DIR)/balloon-full-$(VERSION).deb $(DIST_DIR)/balloon-apidoc-$(VERSION).deb
+deb: $(DIST_DIR)/balloon-$(VERSION).deb $(DIST_DIR)/balloon-apidoc-$(VERSION).deb
 
-$(DIST_DIR)/balloon-%-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
+$(DIST_DIR)/balloon-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	$(COMPOSER_BIN) update --no-dev
 	@mkdir -p $(BUILD_DIR)/DEBIAN
-	@cp $(BASE_DIR)/packaging/debian/control-$* $(BUILD_DIR)/DEBIAN/control
+	@cp $(BASE_DIR)/packaging/debian/control $(BUILD_DIR)/DEBIAN/control
 	@cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst
 	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
