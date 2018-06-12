@@ -58,8 +58,8 @@ class Users
     /**
      * @apiDefine _getUser
      *
-     * @apiParam (GET Parameter) {string[]} uid Either a single uid (user id) or a uname (username) must be given (admin privilege required).
-     * @apiParam (GET Parameter) {string[]} uname Either a single uid (user id) or a uname (username) must be given (admin privilege required).
+     * @apiParam (GET Parameter) {string[]} uid Either a single uid (user id) or a uname (username) must be given.
+     * @apiParam (GET Parameter) {string[]} uname Either a single uid (user id) or a uname (username) must be given.
      *
      * @apiErrorExample {json} Error-Response (No admin privileges):
      * HTTP/1.1 403 Forbidden
@@ -113,8 +113,8 @@ class Users
      */
     public function _getUser(?string $id = null, ?string $uname = null, bool $require_admin = false)
     {
-        if (null !== $id || null !== $uname || true === $require_admin) {
-            if ($this->user->isAdmin()) {
+        if (null !== $id || null !== $uname) {
+            if ($this->user->isAdmin() || $require_admin === false) {
                 if (null !== $id && null !== $uname) {
                     throw new Exception\InvalidArgument(
                         'provide either id (user id) or uname (username)',
@@ -314,7 +314,10 @@ class Users
     {
         $avatar = $this->_getUser($id, $uname)->getAttributes()['avatar'];
         if ($avatar instanceof Binary) {
-            return (new Response())->setCode(200)->setBody(base64_encode($avatar->getData()));
+            return (new Response())
+                ->setOutputFormat('text')
+                ->setBody($avatar->getData())
+                ->setHeader('Content-Type', 'image/png');
         }
 
         return (new Response())->setCode(404);

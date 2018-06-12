@@ -87,14 +87,9 @@ class Preview extends Controller
         $node = $this->fs->getNode($id, $p, File::class);
         $data = $this->preview->getPreview($node);
         $response = (new Response())
-            ->setHeader('Content-Type', 'image/png')
-            ->setOutputFormat('text');
-
-        if ('base64' === $encode) {
-            $response->setBody(base64_encode($data), true);
-        } else {
-            $response->setBody($data, true);
-        }
+            ->setOutputFormat('text')
+            ->setBody($data, true)
+            ->setHeader('Content-Type', 'image/png');
 
         return $response;
     }

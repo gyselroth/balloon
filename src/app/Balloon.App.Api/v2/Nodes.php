@@ -214,16 +214,12 @@ class Nodes extends Controller
      *
      * @apiParam (GET Parameter) {number} [offset=0] Read stream from a specific offset in bytes
      * @apiParam (GET Parameter) {number} [limit=0] Read stream until a specific limit in bytes
-     * @apiParam (GET Parameter) {string} [encode] Can be set to base64 to encode content as base64.
      * @apiParam (GET Parameter) {boolean} [download=false] Force download file (Content-Disposition: attachment HTTP header)
      *
      * @apiExample (cURL) example:
      * curl -XGET "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686" > myfile.txt
      * curl -XGET "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686" > myfile.txt
      * curl -XGET "https://SERVER/api/v2/node?p=/absolute/path/to/my/collection" > folder.zip
-     *
-     * @apiSuccessExample {string} Success-Response (encode=base64):
-     * HTTP/1.1 200 OK
      *
      * @apiSuccessExample {binary} Success-Response:
      * HTTP/1.1 200 OK
@@ -243,7 +239,6 @@ class Nodes extends Controller
      * @param array|string $p
      * @param int          $offset
      * @param int          $limit
-     * @param string       $encode
      * @param bool         $download
      * @param string       $name
      */
@@ -252,7 +247,6 @@ class Nodes extends Controller
         $p = null,
         int $offset = 0,
         int $limit = 0,
-        ?string $encode = null,
         bool $download = false,
         string $name = 'selected'
     ): ?Response {
@@ -280,7 +274,7 @@ class Nodes extends Controller
 
         return $response
           ->setOutputFormat(null)
-          ->setBody(function () use ($node, $encode, $offset, $limit) {
+          ->setBody(function () use ($node, $offset, $limit) {
               $stream = $node->get();
               $name = $node->getName();
 
@@ -298,31 +292,18 @@ class Nodes extends Controller
               }
 
               $read = 0;
-              if ('base64' === $encode) {
-                  header('Content-Encoding: base64');
-                  while (!feof($stream)) {
-                      if (0 !== $limit && $read + 8192 > $limit) {
-                          echo base64_encode(fread($stream, $limit - $read));
-                          exit();
-                      }
-
-                      echo base64_encode(fread($stream, 8192));
-                      $read += 8192;
-                  }
-              } else {
-                  while (!feof($stream)) {
-                      if (0 !== $limit && $read + 8192 > $limit) {
-                          echo fread($stream, $limit - $read);
-                          exit();
-                      }
-
-                      echo fread($stream, 8192);
-                      $read += 8192;
+              while (!feof($stream)) {
+                  if (0 !== $limit && $read + 8192 > $limit) {
+                      echo fread($stream, $limit - $read);
+                      exit();
                   }
 
-                  exit();
+                  echo fread($stream, 8192);
+                  $read += 8192;
               }
-          });
+
+              exit();
+        });
     }
 
     /**
@@ -1078,7 +1059,7 @@ class Nodes extends Controller
             }
         }
 
-        $archive->finalize();
+        $archive->finish();
     }
 
     /**

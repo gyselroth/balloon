@@ -1,3 +1,14 @@
+## 2.0.0-rc1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: 
+
+* API: [FIX] fixed admin credentials (not requried) for GET /api/v2/users/{id} and GET /api/v2/users/{id}/avatar
+* API: [CHANGE] GET /api/v2/users/{id}/avatar now returns a binary response only (no base64 encoded content)
+* API: [CHANGE] GET /api/v2/files/{id}/preview now returns a binary response only (Removed encode argument)
+* API: [CHANGE] GET /api/v2/files/{id}/content now returns a binary response only (Removed encode argument)
+* API: [FIX] GET /api/v2/files/{id}/content multi node zip response
+
+
 ## 2.0.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue May 15 14:52:11 CEST 2018
@@ -16,6 +27,7 @@
 * API : [FIX] GET /api/v2/notifications "TypeError Argument 1 passed to Balloon\\Server::getUserById() must be an instance of MongoDB\\BSON\\ObjectId, null given" 
 * API: [FIX] fixed missing deleted flag in API v1
 * API: [FIX] fixed empty delta for delta request with node id
+
 
 ## 2.0.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
