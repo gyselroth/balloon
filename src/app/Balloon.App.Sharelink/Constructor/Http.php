@@ -15,7 +15,6 @@ use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator as NodeAttributeDecorato
 use Balloon\App\Sharelink\Api\v1;
 use Balloon\App\Sharelink\Api\v2;
 use Balloon\App\Sharelink\Sharelink as Share;
-use Balloon\Exception;
 use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Hook;

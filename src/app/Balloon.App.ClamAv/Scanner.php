@@ -117,6 +117,7 @@ class Scanner
                     $this->timeout = (int) $value;
 
                     break;
+
                 break;
                 default:
                     throw new InvalidArgumentException('invalid option '.$option.' given');

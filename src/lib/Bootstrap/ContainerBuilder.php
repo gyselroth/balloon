@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\Bootstrap;
 
-use Balloon\App;
 use Composer\Autoload\ClassLoader as Composer;
 use Micro\Container\Container;
 use Noodlehaus\Config;

@@ -17,7 +17,6 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
-use Balloon\Mime;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;

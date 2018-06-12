@@ -14,7 +14,6 @@ namespace Balloon\App\Elasticsearch\Api\v1;
 use Balloon\App\Api\Controller;
 use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator as NodeAttributeDecorator;
 use Balloon\App\Elasticsearch\Elasticsearch;
-use Balloon\Exception;
 use Micro\Http\Response;
 use Psr\Log\LoggerInterface;
 

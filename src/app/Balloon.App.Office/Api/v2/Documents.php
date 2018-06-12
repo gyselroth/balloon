@@ -20,7 +20,6 @@ use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
-use Balloon\Server\User;
 use Micro\Http\Response;
 
 class Documents extends Controller

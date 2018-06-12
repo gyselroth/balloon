@@ -14,7 +14,6 @@ namespace Balloon\Filesystem;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface;
-use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Psr\Log\LoggerInterface;
 
 class Storage

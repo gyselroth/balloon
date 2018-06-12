@@ -19,7 +19,6 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
-use Balloon\Server\User;
 use Micro\Http\Response;
 
 class Document extends Controller

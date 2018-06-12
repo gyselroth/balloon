@@ -303,7 +303,7 @@ class Nodes extends Controller
               }
 
               exit();
-        });
+          });
     }
 
     /**

@@ -18,7 +18,6 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Mime;
-use Balloon\Server\User;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IFile;

@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Preview;
 
-use Balloon\Exception;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
 use MongoDB\GridFS\Exception\FileNotFoundException;

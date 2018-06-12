@@ -123,6 +123,7 @@ class AutoCreateUser extends AbstractHook
                 break;
                 default:
                     throw new Exception('unknown attribute type '.$value['type'].' for attribute '.$attr.'; use one of [string,int,bool,binary]');
+
                 break;
             }
         }
