@@ -15,6 +15,7 @@
 * API: [FEATURE] POST /api/v2/nodes/sharelink with password=0 and/or expiration=0 will remove those attributes
 * CORE: [FEATURE] Balloon.App.Notification mail adapter now sends messages as multipart/alternative with text/html and text/plain parts
 * PACKAGING: [FEATURE] Added install make target
+* CORE: [FIX] fixed http response code 403 for Balloon\Filesystem\Acl\Exception\Forbidden
 
 
 ## 2.0.0-beta3

@@ -189,13 +189,14 @@ class Notifications extends Controller
     public function post(array $receiver, string $subject, string $body): Response
     {
         $users = $this->server->getUsersById($receiver);
-        $this->notifier->notify($receiver, $this->user, $subject, $body);
+        $message = $this->notifier->customMessage($subject, $body);
+        $this->notifier->notify($users, $this->user, $message);
 
         return (new Response())->setCode(202);
     }
 
     /**
-     * @api {post} /api/v2/notifications/broadcast Post a notification to all users (or to a bunch of users)
+     * @api {post} /api/v2/notifications/broadcast Post a notification to all users
      * @apiVersion 2.0.0
      * @apiName postBroadcast
      * @apiGroup App\Notification
