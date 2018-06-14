@@ -39,10 +39,6 @@ class NodeMessage implements MessageInterface
 
     /**
      * Constructor.
-     *
-     * @param string          $type
-     * @param TemplateHandler $template
-     * @param NodeInterface   $node
      */
     public function __construct(string $type, TemplateHandler $template, NodeInterface $node)
     {

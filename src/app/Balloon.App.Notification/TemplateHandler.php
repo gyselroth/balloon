@@ -198,7 +198,7 @@ class TemplateHandler
         $i18n = $this->getLocale($context);
 
         if (!isset($i18n['type'][$notification][$type])) {
-            throw new Exception\TemplateInvalidLocale('locale '.$locale.' does not exists or has invalid data');
+            throw new Exception\TemplateInvalidLocale('locale does not have a type '.$type);
         }
 
         $string = $i18n['type'][$notification][$type];
@@ -216,9 +216,6 @@ class TemplateHandler
 
     /**
      * Replace variables.
-     *
-     * @param string $type
-     * @param User   $user
      */
     protected function decorate(string $template, array $context): string
     {
@@ -233,9 +230,6 @@ class TemplateHandler
 
     /**
      * Replace variables.
-     *
-     * @param string $type
-     * @param User   $user
      */
     protected function decorateNode(string $template, NodeInterface $node): string
     {
@@ -252,9 +246,6 @@ class TemplateHandler
 
     /**
      * Replace variables.
-     *
-     * @param string $type
-     * @param User   $user
      */
     protected function decorateUser(string $template, User $user): string
     {
@@ -271,12 +262,6 @@ class TemplateHandler
 
     /**
      * Get array value via string path.
-     *
-     * @param iterable $arr
-     * @param string   $path
-     * @param string   $seperator
-     *
-     * @return mixed
      */
     protected function getArrayValue(Iterable $array, string $path, string $separator = '.')
     {

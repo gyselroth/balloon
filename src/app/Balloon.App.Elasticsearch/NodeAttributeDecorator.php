@@ -21,10 +21,7 @@ class NodeAttributeDecorator
     /**
      * Decorate attributes.
      *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     *
-     * @return array
+     * @param array $attributes
      */
     public function decorate(NodeInterface $node, ?array $attributes = null): array
     {
@@ -49,9 +46,6 @@ class NodeAttributeDecorator
      * Get Attributes.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getAttributes(NodeInterface $node, array $attributes): array
     {
@@ -96,9 +90,6 @@ class NodeAttributeDecorator
      * Get Attributes.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getTypeAttributes(NodeInterface $node, array $attributes): array
     {
@@ -119,10 +110,6 @@ class NodeAttributeDecorator
      * Execute closures.
      *
      * @param NodeInterface
-     * @param array $attributes
-     * @param array $requested
-     *
-     * @return array
      */
     protected function translateAttributes(NodeInterface $node, array $attributes, array $requested): array
     {

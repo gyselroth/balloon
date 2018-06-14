@@ -47,7 +47,6 @@ class Gridfs implements AdapterInterface
      * GridFS storage.
      *
      * @param Database
-     * @param LoggerInterface $logger
      */
     public function __construct(Database $db, LoggerInterface $logger)
     {
@@ -153,8 +152,6 @@ class Gridfs implements AdapterInterface
 
     /**
      * Create collection.
-     *
-     * @return array
      */
     public function createCollection(Collection $collection): array
     {
@@ -164,7 +161,6 @@ class Gridfs implements AdapterInterface
     /**
      * Get stored file.
      *
-     * @param ObjectId $id
      *
      * @return array
      */
@@ -176,7 +172,6 @@ class Gridfs implements AdapterInterface
     /**
      * Get stored file.
      *
-     * @param string $hash
      *
      * @return array
      */
@@ -188,10 +183,7 @@ class Gridfs implements AdapterInterface
     /**
      * Store new file.
      *
-     * @param File     $file
      * @param resource $contents
-     *
-     * @return array
      */
     protected function storeNew(File $file, $contents): array
     {

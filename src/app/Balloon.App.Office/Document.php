@@ -33,9 +33,6 @@ class Document
 
     /**
      * Get WOPI token.
-     *
-     * @param Database $db
-     * @param File     $node
      */
     public function __construct(Database $db, File $node)
     {
@@ -45,8 +42,6 @@ class Document
 
     /**
      * Get running sessions for document.
-     *
-     * @return iterable
      */
     public function getSessions(): Iterable
     {
@@ -62,8 +57,6 @@ class Document
 
     /**
      * Get node.
-     *
-     * @return File
      */
     public function getNode(): File
     {
@@ -72,8 +65,6 @@ class Document
 
     /**
      * Get size.
-     *
-     * @return int
      */
     public function getSize(): int
     {

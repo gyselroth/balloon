@@ -26,7 +26,6 @@ abstract class AbstractBootstrap
     /**
      * Inject object.
      *
-     * @param mixed $object
      *
      * @return AbstractBootstrap
      */

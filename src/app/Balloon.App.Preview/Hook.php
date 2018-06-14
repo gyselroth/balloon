@@ -42,10 +42,6 @@ class Hook extends AbstractHook
 
     /**
      * Constructor.
-     *
-     * @param Preview         $preview
-     * @param Async           $async
-     * @param LoggerInterface $logger
      */
     public function __construct(Preview $preview, Async $async, LoggerInterface $logger)
     {
@@ -59,10 +55,7 @@ class Hook extends AbstractHook
      *
      * Executed pre a file gets deleted
      *
-     * @param File   $node
-     * @param bool   $force
      * @param string $recursion
-     * @param bool   $recursion_first
      */
     public function preDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
@@ -83,10 +76,7 @@ class Hook extends AbstractHook
      *
      * Executed post a put file request
      *
-     * @param File            $node
      * @param resource|string $content
-     * @param bool            $force
-     * @param array           $attributes
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
@@ -99,9 +89,6 @@ class Hook extends AbstractHook
      * Run: postRestoreFile.
      *
      * Executed post version rollback
-     *
-     * @param File $node
-     * @param int  $version
      */
     public function postRestoreFile(File $node, int $version): void
     {

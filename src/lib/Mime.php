@@ -61,11 +61,6 @@ class Mime
 
     /**
      * et mime.
-     *
-     * @param string $path
-     * @param string $name
-     *
-     * @return string
      */
     public function getMime(string $path, string $name): string
     {
@@ -78,8 +73,6 @@ class Mime
 
     /**
      * Determine mime from contents.
-     *
-     * @return string
      */
     public function getMimeFromContents(string $path): string
     {
@@ -91,10 +84,6 @@ class Mime
 
     /**
      * Get mimetype with string (file has not to be exists).
-     *
-     * @param string $name
-     *
-     * @return string
      */
     public function getMimeTypeFromExtension(string $name): string
     {

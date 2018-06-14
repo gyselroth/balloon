@@ -58,8 +58,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Init.
      *
-     * @param Server    $server
-     * @param Acl       $acl
      * @param Decorator $role_decorator
      */
     public function __construct(Server $server, Acl $acl, RoleAttributeDecorator $role_decorator)
@@ -71,11 +69,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Decorate attributes.
-     *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     *
-     * @return array
      */
     public function decorate(NodeInterface $node, array $attributes = []): array
     {
@@ -99,8 +92,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Add decorator.
      *
-     * @param string  $attribute
-     * @param Closure $decorator
      *
      * @return AttributeDecorator
      */
@@ -115,8 +106,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
      * Get Attributes.
      *
      * @param NodeInterface
-     *
-     * @return array
      */
     protected function getAttributes(NodeInterface $node, array $attributes): array
     {
@@ -209,9 +198,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
      * Get Attributes.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getTimeAttributes(NodeInterface $node, array $attributes): array
     {
@@ -243,9 +229,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
      * Get Attributes.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getTypeAttributes(NodeInterface $node, array $attributes): array
     {
@@ -276,9 +259,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
      * Execute closures.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function translateAttributes(NodeInterface $node, array $attributes): array
     {

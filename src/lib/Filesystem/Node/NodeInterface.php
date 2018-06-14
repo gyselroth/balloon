@@ -48,11 +48,7 @@ interface NodeInterface extends DAV\INode
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
      *
-     * @param bool   $force
      * @param string $recursion
-     * @param bool   $recursion_first
-     *
-     * @return bool
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool;
 
@@ -65,8 +61,6 @@ interface NodeInterface extends DAV\INode
 
     /**
      * Get filesystem.
-     *
-     * @return Filesystem
      */
     public function getFilesystem(): Filesystem;
 
@@ -74,16 +68,12 @@ interface NodeInterface extends DAV\INode
      * Check if $node is a sub node of any parent nodes of this node.
      *
      * @param NodeInterface $node
-     *
-     * @return bool
      */
     public function isSubNode(self $node): bool;
 
     /**
      * Move node.
      *
-     * @param Collection $parent
-     * @param int        $conflict
      *
      * @return NodeInterface
      */
@@ -92,10 +82,7 @@ interface NodeInterface extends DAV\INode
     /**
      * Copy node.
      *
-     * @param Collection $parent
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * @param string $recursion
      *
      * @return NodeInterface
      */
@@ -104,7 +91,6 @@ interface NodeInterface extends DAV\INode
     /**
      * Get share id.
      *
-     * @param bool $reference
      *
      * @return ObjectId
      */
@@ -113,7 +99,6 @@ interface NodeInterface extends DAV\INode
     /**
      * Get share node.
      *
-     * @param bool $reference
      *
      * @return Collection
      */
@@ -121,43 +106,31 @@ interface NodeInterface extends DAV\INode
 
     /**
      * Is node marked as readonly?
-     *
-     * @return bool
      */
     public function isReadonly(): bool;
 
     /**
      * Request is from node owner?
-     *
-     * @return bool
      */
     public function isOwnerRequest(): bool;
 
     /**
      * Check if node is kind of special.
-     *
-     * @return bool
      */
     public function isSpecial(): bool;
 
     /**
      * Check if node is a sub node of a share.
-     *
-     * @return bool
      */
     public function isShareMember(): bool;
 
     /**
      * Is share.
-     *
-     * @return bool
      */
     public function isShare(): bool;
 
     /**
      * Is share (Reference or master share).
-     *
-     * @return bool
      */
     public function isShared(): bool;
 
@@ -165,49 +138,33 @@ interface NodeInterface extends DAV\INode
      * Set the name.
      *
      * @param string $name
-     *
-     * @return bool
      */
     public function setName($name): bool;
 
     /**
      * Check name.
-     *
-     * @param string $name
-     *
-     * @return string
      */
     public function checkName(string $name): string;
 
     /**
      * Get the name.
-     *
-     * @return string
      */
     public function getName(): string;
 
     /**
      * Get attribute.
-     *
-     * @return array
      */
     public function getAttributes(): array;
 
     /**
      * Undelete.
      *
-     * @param int    $conflict
      * @param string $recursion
-     * @param bool   $recursion_first
-     *
-     * @return bool
      */
     public function undelete(int $conflict = self::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool;
 
     /**
      * Is node deleted?
-     *
-     * @return bool
      */
     public function isDeleted(): bool;
 
@@ -227,10 +184,6 @@ interface NodeInterface extends DAV\INode
 
     /**
      * Get parents.
-     *
-     * @param array $parents
-     *
-     * @return array
      */
     public function getParents(?self $node = null, array $parents = []): array;
 

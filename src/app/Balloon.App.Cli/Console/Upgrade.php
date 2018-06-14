@@ -40,10 +40,6 @@ class Upgrade
 
     /**
      * Constructor.
-     *
-     * @param Migration       $migration
-     * @param LoggerInterface $logger
-     * @param GetOpt          $getopt
      */
     public function __construct(Migration $migration, LoggerInterface $logger, GetOpt $getopt)
     {
@@ -78,8 +74,6 @@ class Upgrade
 
     /**
      * Get upgrade options.
-     *
-     * @return array
      */
     public static function getOptions(): array
     {
@@ -92,8 +86,6 @@ class Upgrade
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function start(): bool
     {

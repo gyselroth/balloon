@@ -43,9 +43,6 @@ class CleanTrash extends AbstractJob
 
     /**
      * Constructor.
-     *
-     * @param Server          $server
-     * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)
     {
@@ -55,8 +52,6 @@ class CleanTrash extends AbstractJob
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function start(): bool
     {

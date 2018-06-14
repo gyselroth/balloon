@@ -26,8 +26,6 @@ class QueueToCappedCollection implements DeltaInterface
 
     /**
      * Construct.
-     *
-     * @param Database $db
      */
     public function __construct(Database $db)
     {
@@ -36,8 +34,6 @@ class QueueToCappedCollection implements DeltaInterface
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function start(): bool
     {

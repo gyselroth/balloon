@@ -30,18 +30,14 @@ class UserMessage implements MessageInterface
     protected $body;
 
     /**
-     * Role Attribute decorator.
+     * Template handler.
      *
-     * @var RoleAttributeDecorator
+     * @var TemplateHandler
      */
     protected $template;
 
     /**
      * Constructor.
-     *
-     * @param string                 $subject
-     * @param string                 $message
-     * @param RoleAttributeDecorator $role_decorator
      */
     public function __construct(string $subject, string $body, TemplateHandler $template)
     {

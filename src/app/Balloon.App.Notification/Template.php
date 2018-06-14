@@ -14,6 +14,12 @@ namespace Balloon\App\Notification;
 class Template
 {
     /**
+     * Template path.
+     *
+     * @var string
+     */
+    protected $template;
+    /**
      * Variables.
      *
      * @var array

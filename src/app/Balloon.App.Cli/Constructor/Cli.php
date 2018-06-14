@@ -25,8 +25,6 @@ class Cli
 
     /**
      * Constructor.
-     *
-     * @param GetOpt $getopt
      */
     public function __construct(GetOpt $getopt)
     {

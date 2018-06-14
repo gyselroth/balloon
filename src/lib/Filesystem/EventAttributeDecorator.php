@@ -58,10 +58,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Init.
-     *
-     * @param Server                 $server
-     * @param NodeAttributeDecorator $node_decorator
-     * @param RoleAttributeDecorator $role_decorator;
      */
     public function __construct(Server $server, NodeAttributeDecorator $node_decorator, RoleAttributeDecorator $role_decorator)
     {
@@ -73,11 +69,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Decorate attributes.
-     *
-     * @param array $event
-     * @param array $attributes
-     *
-     * @return array
      */
     public function decorate(array $event, array $attributes = []): array
     {
@@ -98,8 +89,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
     /**
      * Add decorator.
      *
-     * @param string  $attribute
-     * @param Closure $decorator
      *
      * @return AttributeDecorator
      */
@@ -112,10 +101,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     * @param array $event
-     *
-     * @return array
      */
     protected function getAttributes(array $event): array
     {
@@ -136,7 +121,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -170,7 +154,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -188,7 +171,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -212,7 +194,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -230,7 +211,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -252,9 +232,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
      * Execute closures.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function translateAttributes(array $event, array $attributes): array
     {

@@ -43,9 +43,6 @@ class ShareLink extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Share  $sharelink
-     * @param Server $server
      */
     public function __construct(Share $sharelink, Server $server, NodeAttributeDecorator $node_decorator)
     {
@@ -81,9 +78,6 @@ class ShareLink extends Controller
      *
      * @param string $id
      * @param string $p
-     * @param array  $options
-     *
-     * @return Response
      */
     public function post(?string $id = null, ?string $p = null, ?string $password = null, ?string $expiration = null): Response
     {
@@ -112,8 +106,6 @@ class ShareLink extends Controller
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function delete(?string $id = null, ?string $p = null): Response
     {

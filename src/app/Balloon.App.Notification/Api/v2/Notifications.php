@@ -95,14 +95,6 @@ class Notifications extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Notifier                       $notifier
-     * @param Server                         $server
-     * @param Async                          $async
-     * @param LoggerInterface                $logger
-     * @param RoleAttributeDecorator         $role_decorator
-     * @param NodeAttributeDecorator         $node_decorator
-     * @param NotificationAttributeDecorator $notification_decorator
      */
     public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, RoleAttributeDecorator $role_decorator, NodeAttributeDecorator $node_decorator, NotificationAttributeDecorator $notification_decorator)
     {
@@ -141,9 +133,6 @@ class Notifications extends Controller
      * ]
      *
      * @param ObjectId $id
-     * @param array    $attributes
-     * @param int      $offset
-     * @param int      $limit
      */
     public function get(?ObjectId $id = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {

@@ -45,8 +45,6 @@ class Users
 
     /**
      * Initialize.
-     *
-     * @param Server $server
      */
     public function __construct(Server $server, AttributeDecorator $decorator)
     {
@@ -107,7 +105,6 @@ class Users
      *
      * @param string $id
      * @param string $uname
-     * @param bool   $require_admin
      *
      * @return User
      */
@@ -157,11 +154,6 @@ class Users
      *     "id": "544627ed3c58891f058b4611",
      *     "name": "peter.meier"
      * }
-     *
-     * @param string $id
-     * @param string $uname
-     *
-     * @return Response
      */
     public function getWhoami(array $attributes = []): Response
     {
@@ -189,9 +181,6 @@ class Users
      * @param string $id
      * @param string $uname
      * @param string $attributes
-     * @param int    $limit
-     *
-     * @return Response
      */
     public function getNodeAttributeSummary(?string $id = null, ?string $uname = null, array $attributes = [], int $limit = 25): Response
     {
@@ -270,8 +259,6 @@ class Users
      * @param string $id
      * @param string $uname
      * @param string $attributes
-     *
-     * @return Response
      */
     public function get(?string $id = null, ?string $uname = null, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -307,8 +294,6 @@ class Users
      *
      * @param string $id
      * @param string $uname
-     *
-     * @return Response
      */
     public function getAvatar(?string $id = null, ?string $uname = null): Response
     {
@@ -342,8 +327,6 @@ class Users
      *
      * @param string $uname
      * @param string $id
-     *
-     * @return Response
      */
     public function head(?string $id = null, ?string $uname = null): Response
     {
@@ -379,10 +362,6 @@ class Users
      * {
      *      "id": "544627ed3c58891f058b4633"
      * }
-     *
-     * @param string $username
-     *
-     * @return Response
      */
     public function post(string $username, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?string $locale = null, ?array $optional = null): Response
     {
@@ -432,9 +411,6 @@ class Users
      *
      * @param string $uname
      * @param string $id
-     * @param array  $attributes
-     *
-     * @return Response
      */
     public function patch(?string $id = null, ?string $uname = null, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?string $locale = null, ?array $optional = null): Response
     {
@@ -484,9 +460,6 @@ class Users
      *
      * @param string $uname
      * @param string $id
-     * @param bool   $force
-     *
-     * @return Response
      */
     public function delete(?string $id = null, ?string $uname = null, bool $force = false): Response
     {
@@ -522,8 +495,6 @@ class Users
      *
      * @param string $uname
      * @param string $id
-     *
-     * @return Response
      */
     public function postUndelete(?string $id = null, ?string $uname = null): Response
     {

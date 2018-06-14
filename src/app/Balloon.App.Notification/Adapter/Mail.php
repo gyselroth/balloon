@@ -54,9 +54,7 @@ class Mail implements AdapterInterface
     /**
      * Constructor.
      *
-     * @param Async           $async
-     * @param LoggerInterface $logger
-     * @param iterable        $config
+     * @param iterable $config
      */
     public function __construct(Async $async, LoggerInterface $logger, ?Iterable $config = [])
     {
@@ -69,8 +67,6 @@ class Mail implements AdapterInterface
      * Set options.
      *
      * @param iterable $config
-     *
-     * @return AdapterInterface
      */
     public function setOptions(?Iterable $config = []): AdapterInterface
     {

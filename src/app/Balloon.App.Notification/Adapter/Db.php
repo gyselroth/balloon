@@ -26,8 +26,6 @@ class Db implements AdapterInterface
 
     /**
      * Constructor.
-     *
-     * @param Notifier $notifier
      */
     public function __construct(Notifier $notifier)
     {

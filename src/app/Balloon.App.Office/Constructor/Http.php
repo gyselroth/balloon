@@ -47,8 +47,6 @@ class Http
     /**
      * Constructor.
      *
-     * @param Hook     $hook
-     * @param Router   $router
      * @param iterable $config
      */
     public function __construct(Hook $hook, Router $router, ?Iterable $config = null)
@@ -120,8 +118,6 @@ class Http
 
     /**
      * Get WOPI url.
-     *
-     * @return string
      */
     public function getWopiUrl(): string
     {
@@ -130,8 +126,6 @@ class Http
 
     /**
      * Get loleaflet.
-     *
-     * @return string
      */
     public function getLoleaflet(): string
     {
@@ -140,8 +134,6 @@ class Http
 
     /**
      * Get token ttl.
-     *
-     * @return int
      */
     public function getTokenTtl(): int
     {

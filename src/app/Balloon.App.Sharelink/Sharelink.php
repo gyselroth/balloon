@@ -26,8 +26,6 @@ class Sharelink
 
     /**
      * Constructor.
-     *
-     * @param Server $server
      */
     public function __construct(Server $server)
     {
@@ -36,11 +34,6 @@ class Sharelink
 
     /**
      * Share link.
-     *
-     * @param NodeInterface $node
-     * @param array         $options
-     *
-     * @return bool
      */
     public function shareLink(NodeInterface $node, ?string $expiration = null, ?string $password = null): bool
     {
@@ -83,10 +76,6 @@ class Sharelink
 
     /**
      * Get share options.
-     *
-     * @param NodeInterface $node
-     *
-     * @return array
      */
     public function getShareLink(NodeInterface $node): array
     {
@@ -95,11 +84,6 @@ class Sharelink
 
     /**
      * Get attributes.
-     *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     *
-     * @return array
      */
     public function getAttributes(NodeInterface $node, array $attributes = []): array
     {
@@ -108,10 +92,6 @@ class Sharelink
 
     /**
      * Check if the node is a shared link.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
      */
     public function isShareLink(NodeInterface $node): bool
     {
@@ -120,10 +100,6 @@ class Sharelink
 
     /**
      * Get node by access token.
-     *
-     * @param string $token
-     *
-     * @return NodeInterface
      */
     public function findNodeWithShareToken(string $token): NodeInterface
     {

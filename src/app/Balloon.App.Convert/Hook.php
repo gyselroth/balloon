@@ -26,8 +26,6 @@ class Hook extends AbstractHook
 
     /**
      * Constructor.
-     *
-     * @param Async $async
      */
     public function __construct(Async $async)
     {
@@ -52,8 +50,6 @@ class Hook extends AbstractHook
 
     /**
      * Add job.
-     *
-     * @param File $node
      */
     protected function addJob(File $node): void
     {

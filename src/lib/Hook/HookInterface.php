@@ -35,8 +35,6 @@ interface HookInterface
      * Run: preAuthentication.
      *
      * Executed before authentication
-     *
-     * @param Auth $auth
      */
     public function preAuthentication(Auth $auth): void;
 
@@ -45,8 +43,7 @@ interface HookInterface
      *
      * Executed after authentication but before the identity gets authenticated with the server
      *
-     * @param Identity $identity
-     * @param User     $user
+     * @param User $user
      */
     public function preServerIdentity(Identity $identity, ?User &$user): void;
 
@@ -54,8 +51,6 @@ interface HookInterface
      * Run: postCreateCollection.
      *
      * Executed authenticated with the server
-     *
-     * @param User $user
      */
     public function postServerIdentity(User $user): void;
 
@@ -63,9 +58,6 @@ interface HookInterface
      * Run: preRestoreFile.
      *
      * Executed pre version rollback
-     *
-     * @param File $node
-     * @param int  $version
      */
     public function preRestoreFile(File $node, int $version): void;
 
@@ -73,9 +65,6 @@ interface HookInterface
      * Run: postRestoreFile.
      *
      * Executed post version rollback
-     *
-     * @param File $node
-     * @param int  $version
      */
     public function postRestoreFile(File $node, int $version): void;
 
@@ -84,10 +73,7 @@ interface HookInterface
      *
      * Executed pre a put file request
      *
-     * @param File            $node
      * @param resource|string $content
-     * @param bool            $force
-     * @param array           $attributes
      */
     public function prePutFile(File $node, $content, bool $force, array $attributes): void;
 
@@ -96,10 +82,7 @@ interface HookInterface
      *
      * Executed post a put file request
      *
-     * @param File            $node
      * @param resource|string $content
-     * @param bool            $force
-     * @param array           $attributes
      */
     public function postPutFile(File $node, $content, bool $force, array $attributes): void;
 
@@ -107,11 +90,6 @@ interface HookInterface
      * Run: preCreateCollection.
      *
      * Executed pre a directory will be created
-     *
-     * @param Collection $parent
-     * @param string     $name
-     * @param array      $attributes
-     * @param bool       $clone
      */
     public function preCreateCollection(Collection $parent, string &$name, array &$attributes, bool $clone): void;
 
@@ -119,10 +97,6 @@ interface HookInterface
      * Run: postCreateCollection.
      *
      * Executed post a directory was created
-     *
-     * @param Collection $parent
-     * @param Collection $node
-     * @param bool       $clone
      */
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void;
 
@@ -130,11 +104,6 @@ interface HookInterface
      * Run: preCreateFile.
      *
      * Executed pre a create will be created
-     *
-     * @param Collection $parent
-     * @param string     $name
-     * @param array      $attributes
-     * @param bool       $clone
      */
     public function preCreateFile(Collection $parent, string &$name, array &$attributes, bool $clone): void;
 
@@ -142,10 +111,6 @@ interface HookInterface
      * Run: postCreateFile.
      *
      * Executed post a file was created
-     *
-     * @param Collection $parent
-     * @param File       $node
-     * @param bool       $clone
      */
     public function postCreateFile(Collection $parent, File $node, bool $clone): void;
 
@@ -154,11 +119,7 @@ interface HookInterface
      *
      * Executed pre a directory will be cloned
      *
-     * @param Collection $node
-     * @param Collection $parent
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * @param string $recursion
      */
     public function preCopyCollection(
         Collection $node,
@@ -173,12 +134,7 @@ interface HookInterface
      *
      * Executed post a directory will be cloned
      *
-     * @param Collection $node
-     * @param Collection $parent
-     * @param Collection $new_node
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * @param string $recursion
      */
     public function postCopyCollection(
         Collection $node,
@@ -194,11 +150,7 @@ interface HookInterface
      *
      * Executed pre a file will be cloned
      *
-     * @param File       $node
-     * @param Collection $parent
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * @param string $recursion
      */
     public function preCopyFile(
         File $node,
@@ -213,12 +165,7 @@ interface HookInterface
      *
      * Executed post a file will be cloned
      *
-     * @param File       $node
-     * @param Collection $parent
-     * @param File       $new_node
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * @param string $recursion
      */
     public function postCopyFile(
         File $node,
@@ -234,10 +181,7 @@ interface HookInterface
      *
      * Executed pre a directory will be deleted
      *
-     * @param Collection $node
-     * @param bool       $force
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * @param string $recursion
      */
     public function preDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void;
 
@@ -246,10 +190,7 @@ interface HookInterface
      *
      * Executed post a directory was deleted
      *
-     * @param Collection $node
-     * @param bool       $force
-     * @param string     $recursion
-     * @param bool       $recursion_first
+     * @param string $recursion
      */
     public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void;
 
@@ -258,10 +199,7 @@ interface HookInterface
      *
      * Executed pre a file will be deleted
      *
-     * @param File   $node
-     * @param bool   $force
      * @param string $recursion
-     * @param bool   $recursion_first
      */
     public function preDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void;
 
@@ -270,10 +208,7 @@ interface HookInterface
      *
      * Executed post a file was deleted
      *
-     * @param File   $node
-     * @param bool   $force
      * @param string $recursion
-     * @param bool   $recursion_first
      */
     public function postDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void;
 
@@ -282,11 +217,7 @@ interface HookInterface
      *
      * Executed pre node attributes will be saved to mongodb
      *
-     * @param NodeInterface $node
-     * @param array         $save_attributes
-     * @param array         $remove_attributes
-     * @param string        $recursion
-     * @param bool          $recursion_first
+     * @param string $recursion
      */
     public function preSaveNodeAttributes(
         NodeInterface $node,
@@ -301,11 +232,7 @@ interface HookInterface
      *
      * Executed post node attributes were saved to mongodb
      *
-     * @param NodeInterface $node
-     * @param array         $save_attributes
-     * @param array         $remove_attributes
-     * @param string        $recursion
-     * @param bool          $recursion_first
+     * @param string $recursion
      */
     public function postSaveNodeAttributes(
         NodeInterface $node,

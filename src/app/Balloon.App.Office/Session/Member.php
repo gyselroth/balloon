@@ -52,7 +52,6 @@ class Member implements BSONSerializable
     /**
      * New session.
      *
-     * @param User    $user
      * @param int     $ttl
      * @param Session $session
      */
@@ -71,8 +70,6 @@ class Member implements BSONSerializable
 
     /**
      * Serialize session member.
-     *
-     * @return array
      */
     public function bsonSerialize(): array
     {
@@ -86,7 +83,6 @@ class Member implements BSONSerializable
     /**
      * Set session.
      *
-     * @param Session $session
      *
      * @return Member
      */
@@ -99,8 +95,6 @@ class Member implements BSONSerializable
 
     /**
      * Get session.
-     *
-     * @return Session
      */
     public function getSession(): Session
     {
@@ -119,8 +113,6 @@ class Member implements BSONSerializable
 
     /**
      * Get valid until.
-     *
-     * @return UTCDateTime
      */
     public function getTTL(): UTCDateTime
     {
@@ -129,8 +121,6 @@ class Member implements BSONSerializable
 
     /**
      * Get session attributes.
-     *
-     * @return array
      */
     public function getAttributes(): array
     {
@@ -153,10 +143,6 @@ class Member implements BSONSerializable
     /**
      * Get Session.
      *
-     * @param Server          $server
-     * @param LoggerInterface $logger
-     * @param ObjectId        $session_id
-     * @param string          $access_token
      *
      * @return Member
      */
@@ -172,8 +158,6 @@ class Member implements BSONSerializable
 
     /**
      * Get WOPI token.
-     *
-     * @return string
      */
     public function getAccessToken(): string
     {
@@ -182,8 +166,6 @@ class Member implements BSONSerializable
 
     /**
      * Create access token.
-     *
-     * @return string
      */
     protected function createToken(): string
     {

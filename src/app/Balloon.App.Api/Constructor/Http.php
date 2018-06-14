@@ -38,9 +38,6 @@ class Http
 
     /**
      * Constructor.
-     *
-     * @param Router $router
-     * @param Hook   $hook
      */
     public function __construct(Router $router, Hook $hook)
     {

@@ -43,9 +43,7 @@ class Installation implements DeltaInterface
     /**
      * Construct.
      *
-     * @param Elasticsearch   $es
-     * @param LoggerInterface $logger
-     * @param iterable        $config
+     * @param iterable $config
      */
     public function __construct(Elasticsearch $es, LoggerInterface $logger, Iterable $config = null)
     {

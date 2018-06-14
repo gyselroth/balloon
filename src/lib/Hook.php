@@ -33,8 +33,6 @@ class Hook
 
     /**
      * Init hook manager.
-     *
-     * @param LoggerInterface $logger
      */
     public function __construct(LoggerInterface $logger)
     {
@@ -44,7 +42,6 @@ class Hook
     /**
      * Inject hook.
      *
-     * @param HookInterface $adapter
      *
      * @return Hook
      */
@@ -65,10 +62,6 @@ class Hook
 
     /**
      * Has hook.
-     *
-     * @param string $class
-     *
-     * @return bool
      */
     public function hasHook(string $class): bool
     {
@@ -77,10 +70,6 @@ class Hook
 
     /**
      * Get hook.
-     *
-     * @param string $class
-     *
-     * @return HookInterface
      */
     public function getHook(string $class): HookInterface
     {
@@ -94,7 +83,6 @@ class Hook
     /**
      * Get hooks.
      *
-     * @param array $hooks
      *
      * @return HookInterface[]
      */
@@ -116,11 +104,6 @@ class Hook
 
     /**
      * Run hook method.
-     *
-     * @param string $method
-     * @param array  $context
-     *
-     * @return bool
      */
     public function run(string $method, array $context = []): bool
     {

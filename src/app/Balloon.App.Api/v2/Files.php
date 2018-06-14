@@ -60,11 +60,8 @@ class Files extends Nodes
      *  }
      * ]
      *
-     * @param RoleAttributeDecorator $role_decorator
-     * @param string                 $id
-     * @param string                 $p
-     *
-     * @return Response
+     * @param string $id
+     * @param string $p
      */
     public function getHistory(RoleAttributeDecorator $role_decorator, ?string $id = null, ?string $p = null): Response
     {
@@ -115,8 +112,6 @@ class Files extends Nodes
      * @param string $id
      * @param string $p
      * @param string $version
-     *
-     * @return Response
      */
     public function postRestore(int $version, ?string $id = null, ?string $p = null): Response
     {
@@ -248,11 +243,7 @@ class Files extends Nodes
      * @param string $p
      * @param string $collection
      * @param string $name
-     * @param int    $index
-     * @param int    $chunks
      * @param string $session
-     * @param int    $size
-     * @param int    $conflict
      * @param string $changed
      * @param string $created
      * @param bool   $readonly
@@ -440,13 +431,10 @@ class Files extends Nodes
      * @param string $p
      * @param string $collection
      * @param string $name
-     * @param int    $conflict
      * @param string $changed
      * @param string $created
      * @param bool   $readonly
      * @param array  $meta
-     *
-     * @return Response
      */
     public function put(
         ?string $id = null,
@@ -477,10 +465,6 @@ class Files extends Nodes
      * @param string          $p
      * @param string          $collection
      * @param string          $name
-     * @param array           $attributes
-     * @param int             $conflict
-     *
-     * @return Response
      */
     protected function _put(
         $content,

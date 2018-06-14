@@ -113,11 +113,6 @@ class Group implements RoleInterface
 
     /**
      * Init.
-     *
-     * @param array           $attributes
-     * @param Server          $server
-     * @param Database        $db
-     * @param LoggerInterface $logger
      */
     public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger)
     {
@@ -132,8 +127,6 @@ class Group implements RoleInterface
 
     /**
      * Return name as string.
-     *
-     * @return string
      */
     public function __toString(): string
     {
@@ -142,8 +135,6 @@ class Group implements RoleInterface
 
     /**
      * Get Attributes.
-     *
-     * @return array
      */
     public function getAttributes(): array
     {
@@ -160,8 +151,6 @@ class Group implements RoleInterface
 
     /**
      * Get unique id.
-     *
-     * @return ObjectId
      */
     public function getId(): ObjectId
     {
@@ -170,10 +159,6 @@ class Group implements RoleInterface
 
     /**
      * Set group attributes.
-     *
-     * @param array $attributes
-     *
-     * @return bool
      */
     public function setAttributes(array $attributes = []): bool
     {
@@ -188,10 +173,6 @@ class Group implements RoleInterface
 
     /**
      * Save.
-     *
-     * @param array $attributes
-     *
-     * @return bool
      */
     public function save(array $attributes = []): bool
     {
@@ -211,10 +192,6 @@ class Group implements RoleInterface
 
     /**
      * Delete user.
-     *
-     * @param bool $force
-     *
-     * @return bool
      */
     public function delete(bool $force = false): bool
     {
@@ -222,8 +199,6 @@ class Group implements RoleInterface
 
     /**
      * Undelete user.
-     *
-     * @return bool
      */
     public function undelete(): bool
     {
@@ -234,8 +209,6 @@ class Group implements RoleInterface
 
     /**
      * Check if user is deleted.
-     *
-     * @return bool
      */
     public function isDeleted(): bool
     {
@@ -244,8 +217,6 @@ class Group implements RoleInterface
 
     /**
      * Get Username.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -254,8 +225,6 @@ class Group implements RoleInterface
 
     /**
      * Get member.
-     *
-     * @return array
      */
     public function getMembers(): array
     {

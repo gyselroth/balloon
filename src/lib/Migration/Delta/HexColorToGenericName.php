@@ -37,8 +37,6 @@ class HexColorToGenericName implements DeltaInterface
 
     /**
      * Construct.
-     *
-     * @param Database $db
      */
     public function __construct(Database $db)
     {
@@ -47,8 +45,6 @@ class HexColorToGenericName implements DeltaInterface
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function start(): bool
     {

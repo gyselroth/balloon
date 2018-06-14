@@ -27,9 +27,6 @@ class Http
 
     /**
      * Constructor.
-     *
-     * @param Router $router
-     * @param Server $server
      */
     public function __construct(Router $router, Server $server)
     {
@@ -39,8 +36,6 @@ class Http
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function start(): bool
     {

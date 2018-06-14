@@ -55,7 +55,6 @@ class Subscription extends AbstractHook
      * Constructor.
      *
      * @param Notification $notifier
-     * @param Server       $server
      */
     public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, ?Iterable $config = null)
     {
@@ -146,10 +145,6 @@ class Subscription extends AbstractHook
 
     /**
      * Check if we need to notify.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
      */
     protected function notify(NodeInterface $node): bool
     {
@@ -177,10 +172,6 @@ class Subscription extends AbstractHook
 
     /**
      * Get receiver list.
-     *
-     * @param NodeInterface $node
-     *
-     * @return array
      */
     protected function getReceiver(NodeInterface $node): array
     {

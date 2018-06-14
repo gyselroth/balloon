@@ -46,9 +46,6 @@ class Document extends Controller
 
     /**
      * Constructor.
-     *
-     * @param App    $app
-     * @param Server $server
      */
     public function __construct(App $app, Server $server)
     {
@@ -82,8 +79,6 @@ class Document extends Controller
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function get(?string $id = null, ?string $p = null): Response
     {
@@ -153,13 +148,7 @@ class Document extends Controller
      *      "data": "544627ed3c58891f058b4611"
      * }
      *
-     * @param string $name
-     * @param string $type
      * @param string $collection
-     * @param array  $attributes
-     * @param int    $conflict
-     *
-     * @return Response
      */
     public function put(string $name, string $type, ?string $collection = null, array $attributes = [], int $conflict = 0): Response
     {

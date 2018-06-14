@@ -52,12 +52,6 @@ class Http extends AbstractBootstrap
 
     /**
      * Http.
-     *
-     * @param LoggerInterface $logger
-     * @param Auth            $auth
-     * @param Hook            $hook
-     * @param Router          $router
-     * @param Server          $server
      */
     public function __construct(LoggerInterface $logger, Auth $auth, Hook $hook, Router $router, Server $server)
     {

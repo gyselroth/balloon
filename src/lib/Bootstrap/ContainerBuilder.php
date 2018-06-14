@@ -20,10 +20,6 @@ class ContainerBuilder
 {
     /**
      * Init bootstrap.
-     *
-     * @param Composer $composer
-     *
-     * @return ContainerInterface
      */
     public static function get(Composer $composer): ContainerInterface
     {
@@ -37,10 +33,6 @@ class ContainerBuilder
 
     /**
      * Load config.
-     *
-     * @param array $configs
-     *
-     * @return Config
      */
     protected static function loadConfig(array $configs): Config
     {
@@ -56,10 +48,6 @@ class ContainerBuilder
 
     /**
      * Find apps.
-     *
-     * @param Composer $composer
-     *
-     * @return array
      */
     protected static function detectApps(Composer $composer): array
     {

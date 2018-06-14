@@ -66,10 +66,15 @@ class Notifier
     protected $collection_name = 'notification';
 
     /**
+     * Message handler.
+     *
+     * @var TemplateHandler
+     */
+    protected $template;
+
+    /**
      * Constructor.
      *
-     * @param Database       $db
-     * @param Server         $server
      * @param LoggerInterace $logger
      */
     public function __construct(Database $db, Server $server, LoggerInterface $logger, TemplateHandler $template)
@@ -99,13 +104,7 @@ class Notifier
     /**
      * Send notification.
      *
-     * @param iterable $receiver
-     * @param User     $sender
-     * @param string   $subject
-     * @param string   $body
-     * @param array    $context
-     *
-     * @return bool
+     * @param User $sender
      */
     public function notify(Iterable $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {
@@ -132,10 +131,6 @@ class Notifier
 
     /**
      * Has adapter.
-     *
-     * @param string $name
-     *
-     * @return bool
      */
     public function hasAdapter(string $name): bool
     {
@@ -145,8 +140,7 @@ class Notifier
     /**
      * Inject adapter.
      *
-     * @param AdapterInterface $adapter
-     * @param string           $name
+     * @param string $name
      *
      * @return Notifier
      */
@@ -171,10 +165,6 @@ class Notifier
 
     /**
      * Get adapter.
-     *
-     * @param string $name
-     *
-     * @return AdapterInterface
      */
     public function getAdapter(string $name): AdapterInterface
     {
@@ -188,7 +178,6 @@ class Notifier
     /**
      * Get adapters.
      *
-     * @param array $adapters
      *
      * @return AdapterInterface[]
      */
@@ -211,12 +200,7 @@ class Notifier
     /**
      * Add notification.
      *
-     * @param array            $receiver
-     * @param User             $user
-     * @param MessageInterface $message
-     * @param array            $context
-     *
-     * @return ObjectId
+     * @param array $receiver
      */
     public function postNotification(User $receiver, ?User $sender, MessageInterface $message, array $context = []): ObjectId
     {
@@ -239,12 +223,9 @@ class Notifier
     /**
      * Get notifications.
      *
-     * @param User $user
-     * @param int  $offset
-     * @param int  $limit
-     * @param int  $total
-     *
-     * @return iterable
+     * @param int $offset
+     * @param int $limit
+     * @param int $total
      */
     public function getNotifications(User $user, ?int $offset = null, ?int $limit = null, ?int &$total = null): Iterable
     {
@@ -259,10 +240,6 @@ class Notifier
 
     /**
      * Get notification.
-     *
-     * @param ObjectId $id
-     *
-     * @return array
      */
     public function getNotification(ObjectId $id): array
     {
@@ -280,10 +257,6 @@ class Notifier
 
     /**
      * Get notifications.
-     *
-     * @param ObjectId $id
-     *
-     * @return bool
      */
     public function deleteNotification(ObjectId $id): bool
     {
@@ -350,13 +323,6 @@ class Notifier
 
     /**
      * Subscribe to node updates.
-     *
-     * @param NodeInterface $node
-     * @param bool          $subscribe
-     * @param bool          $exclude_me
-     * @param bool          $recursive
-     *
-     * @return bool
      */
     public function subscribeNode(NodeInterface $node, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false): bool
     {

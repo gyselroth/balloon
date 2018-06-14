@@ -70,10 +70,6 @@ class Nodes extends Controller
 
     /**
      * Initialize.
-     *
-     * @param Server                 $server
-     * @param NodeAttributeDecorator $decorator
-     * @param LoggerInterface        $logger
      */
     public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger)
     {
@@ -112,9 +108,6 @@ class Nodes extends Controller
      *
      * @param string $id
      * @param string $p
-     * @param int    $deleted
-     *
-     * @return Response
      */
     public function head(?string $id = null, ?string $p = null, int $deleted = 0): Response
     {
@@ -162,10 +155,8 @@ class Nodes extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param bool         $move
      * @param string       $destid
      * @param string       $destp
-     * @param int          $conflict
      */
     public function postUndelete(
         $id = null,
@@ -237,10 +228,6 @@ class Nodes extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param int          $offset
-     * @param int          $limit
-     * @param bool         $download
-     * @param string       $name
      */
     public function getContent(
         $id = null,
@@ -384,11 +371,6 @@ class Nodes extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param array        $attributes
-     * @param int          $offset
-     * @param int          $limit
-     *
-     * @return Response
      */
     public function get($id = null, $p = null, int $deleted = 0, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -467,10 +449,6 @@ class Nodes extends Controller
      *
      * @param string $id
      * @param string $p
-     * @param array  $attributes
-     * @param bool   $self
-     *
-     * @return Response
      */
     public function getParents(?string $id = null, ?string $p = null, array $attributes = [], bool $self = false): Response
     {
@@ -518,8 +496,6 @@ class Nodes extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     *
-     * @return Response
      */
     public function patch(?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?string $id = null, ?string $p = null): Response
     {
@@ -588,9 +564,6 @@ class Nodes extends Controller
      * @param array|string $p
      * @param string       $destid
      * @param string       $destp
-     * @param int          $conflict
-     *
-     * @return Response
      */
     public function postClone(
         $id = null,
@@ -652,9 +625,6 @@ class Nodes extends Controller
      * @param array|string $p
      * @param string       $destid
      * @param string       $destp
-     * @param int          $conflict
-     *
-     * @return Response
      */
     public function postMove(
         $id = null,
@@ -707,11 +677,7 @@ class Nodes extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param bool         $force
-     * @param bool         $ignore_flag
      * @param int          $at
-     *
-     * @return Response
      */
     public function delete(
         $id = null,
@@ -764,12 +730,6 @@ class Nodes extends Controller
      *  {
      *  }
      * ]
-     *
-     * @param array $attributes
-     * @param int   $offset
-     * @param int   $limit
-     *
-     * @return Response
      */
     public function getTrash(array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -860,14 +820,9 @@ class Nodes extends Controller
      *      ]
      * }
      *
-     * @param DeltaAttributeDecorator $delta_decorator
-     * @param string                  $id
-     * @param string                  $p
-     * @param string                  $cursor
-     * @param int                     $limit
-     * @param array                   $attributes
-     *
-     * @return Response
+     * @param string $id
+     * @param string $p
+     * @param string $cursor
      */
     public function getDelta(
         DeltaAttributeDecorator $delta_decorator,
@@ -976,13 +931,8 @@ class Nodes extends Controller
      *  }
      * ]
      *
-     * @param EventAttributeDecorator $event_decorator
-     * @param string                  $id
-     * @param string                  $p
-     * @param int                     $offset
-     * @param int                     $limit
-     *
-     * @return Response
+     * @param string $id
+     * @param string $p
      */
     public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, ?string $p = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -1021,8 +971,6 @@ class Nodes extends Controller
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function getLastCursor(?string $id = null, ?string $p = null): Response
     {
@@ -1042,7 +990,6 @@ class Nodes extends Controller
      *
      * @param string $id
      * @param string $path
-     * @param string $name
      */
     protected function combine($id = null, $path = null, string $name = 'selected')
     {
@@ -1064,10 +1011,6 @@ class Nodes extends Controller
 
     /**
      * Check custom node attributes which have to be written.
-     *
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function _verifyAttributes(array $attributes): array
     {

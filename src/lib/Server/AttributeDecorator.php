@@ -33,8 +33,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Init.
-     *
-     * @param Server $server
      */
     public function __construct(Server $server)
     {
@@ -44,10 +42,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Decorate attributes.
      *
-     * @param RoleInterface $role
-     * @param array         $attributes
-     *
-     * @return array
+     * @param array $attributes
      */
     public function decorate(RoleInterface $role, ?array $attributes = null): array
     {
@@ -74,8 +69,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Add decorator.
      *
-     * @param string  $attribute
-     * @param Closure $decorator
      *
      * @return AttributeDecorator
      */
@@ -90,9 +83,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
      * Get Attributes.
      *
      * @param RoleInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getAttributes(RoleInterface $role, array $attributes): array
     {
@@ -122,9 +112,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
      * Get group Attributes.
      *
      * @param RoleInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getGroupAttributes(RoleInterface $role, array $attributes): array
     {
@@ -143,9 +130,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
      * Get user Attributes.
      *
      * @param RoleInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getUserAttributes(RoleInterface $role, array $attributes): array
     {
@@ -176,9 +160,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
      * Execute closures.
      *
      * @param RoleInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function translateAttributes(RoleInterface $role, array $attributes): array
     {

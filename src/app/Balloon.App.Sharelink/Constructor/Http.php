@@ -45,12 +45,6 @@ class Http
 
     /**
      * Init.
-     *
-     * @param Router             $router
-     * @param Hook               $hook
-     * @param Share              $sharelink
-     * @param AttributeDecorator $decorator
-     * @param LoggerInterface    $logger
      */
     public function __construct(Router $router, Hook $hook, Share $sharelink, NodeAttributeDecorator $node_decorator_v2, NodeAttributeDecoratorv1 $node_decorator_v1, LoggerInterface $logger)
     {
@@ -106,8 +100,6 @@ class Http
     /**
      * Start.
      *
-     * @param string $t
-     * @param bool   $download
      * @param string $password
      */
     public function start(string $t, bool $download = false, ?string $password = null)

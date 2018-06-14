@@ -15,15 +15,11 @@ interface RoleInterface
 {
     /**
      * Return role name as string.
-     *
-     * @return string
      */
     public function __toString(): string;
 
     /**
      * Get attributes.
-     *
-     * @return array
      */
     public function getAttributes(): array;
 }

@@ -34,9 +34,6 @@ class Mail extends AbstractJob
 
     /**
      * Constructor.
-     *
-     * @param TransportInterface $transport
-     * @param LoggerInterface    $logger
      */
     public function __construct(TransportInterface $transport, LoggerInterface $logger)
     {

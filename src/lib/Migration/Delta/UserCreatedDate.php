@@ -25,8 +25,6 @@ class UserCreatedDate implements DeltaInterface
 
     /**
      * Construct.
-     *
-     * @param Database $db
      */
     public function __construct(Database $db)
     {
@@ -35,8 +33,6 @@ class UserCreatedDate implements DeltaInterface
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function start(): bool
     {

@@ -34,9 +34,6 @@ class AutoDestroy extends AbstractJob
 
     /**
      * Constructor.
-     *
-     * @param Server          $server
-     * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)
     {
@@ -46,8 +43,6 @@ class AutoDestroy extends AbstractJob
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function start(): bool
     {

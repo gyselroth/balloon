@@ -126,8 +126,7 @@ class Office implements AdapterInterface
     /**
      * Initialize.
      *
-     * @param LoggerInterface $logger
-     * @param iterable        $config
+     * @param iterable $config
      */
     public function __construct(LoggerInterface $logger, ?Iterable $config = null)
     {
@@ -139,8 +138,6 @@ class Office implements AdapterInterface
      * Set options.
      *
      * @param iterable $config
-     *
-     * @return AdapterInterface
      */
     public function setOptions(Iterable $config = null): AdapterInterface
     {
