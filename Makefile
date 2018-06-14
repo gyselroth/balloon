@@ -286,4 +286,5 @@ $(INSTALL_TARGET): $(BUILD_TARGET)
 	@cp -Rp $(SRC_DIR)/.container.config.php $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
+	@cp -Rp $(BUILD_DIR)/* $(INSTALL_PREFIX)
 	$(COMPOSER_BIN) update

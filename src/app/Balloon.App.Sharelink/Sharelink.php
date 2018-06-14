@@ -44,17 +44,17 @@ class Sharelink
         }
 
         if ($expiration !== null) {
-            if (empty($set['expiration'])) {
+            if (empty($expiration) && isset($set['expiration'])) {
                 unset($set['expiration']);
-            } else {
+            } elseif (!empty($expiration)) {
                 $set['expiration'] = (int) $expiration;
             }
         }
 
         if ($password !== null) {
-            if (empty($set['password'])) {
+            if (empty($password) && isset($set['password'])) {
                 unset($set['password']);
-            } else {
+            } elseif (!empty($password)) {
                 $set['password'] = hash('sha256', $password);
             }
         }

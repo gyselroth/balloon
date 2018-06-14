@@ -74,8 +74,6 @@ class Notifier
 
     /**
      * Constructor.
-     *
-     * @param LoggerInterace $logger
      */
     public function __construct(Database $db, Server $server, LoggerInterface $logger, TemplateHandler $template)
     {
@@ -177,9 +175,6 @@ class Notifier
 
     /**
      * Get adapters.
-     *
-     *
-     * @return AdapterInterface[]
      */
     public function getAdapters(array $adapters = []): array
     {
@@ -199,8 +194,6 @@ class Notifier
 
     /**
      * Add notification.
-     *
-     * @param array $receiver
      */
     public function postNotification(User $receiver, ?User $sender, MessageInterface $message, array $context = []): ObjectId
     {

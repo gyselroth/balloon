@@ -12,7 +12,7 @@
 * API: [CHANGE] Fixed various errors in Balloon.App.Notification and implemented a template system
 * API: [FEATURE] Added sharelink_has_password to node attributes
 * API: [CHANGE] POST /api/v2/nodes/sharelink accepts now password and expiration arguments directly (instead wrapped in options)
-* API: [FEATURE] POST /api/v2/nodes/sharelink with and empty password string and empty expiration will remove those attributes
+* API: [FEATURE] POST /api/v2/nodes/sharelink with password=0 and/or expiration=0 will remove those attributes
 * CORE: [FEATURE] Balloon.App.Notification mail adapter now sends messages as multipart/alternative with text/html and text/plain parts
 * PACKAGING: [FEATURE] Added install make target
 
