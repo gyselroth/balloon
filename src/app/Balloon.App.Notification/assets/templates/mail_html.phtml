@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>You have received a new balloon share</title>
+    <title><?php echo $this->subject;?></title>
     <style>
       /* -------------------------------------
           GLOBAL RESETS
@@ -40,7 +40,7 @@
 
       .body {
         background-color: #f6f6f6;
-        width: 100%; }
+        width: 100%; }html
 
       /* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */
       .container {
@@ -291,23 +291,31 @@
                   <table border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <p>Hi {user.name}</p>
-                        <p>{node.shareowner.name} has shared a balloon collection [{node.sharename}] with you.</p>
-                        <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
-                          <tbody>
-                            <tr>
-                              <td align="center">
-                                <table border="0" cellpadding="0" cellspacing="0">
-                                  <tbody>
-                                    <tr>
-                                      <td> <a href="{server_url}?menu=shared_for_me&selected[]={node.id}&view=preview" target="_blank">Open in browser</a> </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                        <?php if ($this->user):
+                            echo "<p>".sprintf($this->translate('hi'), $this->user->getUsername())."</p>";
+                        else:
+                            echo "<p>".sprintf($this->translate('hi'), '')."</p>";
+                        endif;?>
+
+                        <div><?=nl2br($this->body)?></div>
+                        <br/>
+                        <?php if ($this->node): ?>
+                            <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+                              <tbody>
+                                <tr>
+                                  <td align="center">
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                      <tbody>
+                                        <tr>
+                                          <td> <a href="<?php echo $this->server_url.'?menu=cloud&collection='.$this->node->getParent()->getId().'&selected[]='.$this->node->getId().'&view=preview'; ?>" target="_blank"><?php echo $this->translate('open_in_browser'); ?></a></td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                        <?php endif; ?>
                       </td>
                     </tr>
                   </table>
@@ -322,7 +330,12 @@
               <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <span class="apple-link">balloon cloud</span>
+                    <span class="apple-link"><?php echo $this->translate('no_reply'); ?></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="content-block">
+                    <span class="apple-link"><?php echo $this->translate('cheers'); ?></span>
                   </td>
                 </tr>
               </table>

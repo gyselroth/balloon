@@ -319,13 +319,6 @@ class File extends AbstractNode implements IFile
 
         $this->_hook->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
 
-        if ($this->readonly && null !== $this->_user) {
-            throw new Exception\Conflict(
-                'node is marked as readonly, it is not possible to delete it',
-                Exception\Conflict::READONLY
-            );
-        }
-
         if (true === $force || $this->isTemporaryFile()) {
             $result = $this->_forceDelete();
             $this->_hook->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);

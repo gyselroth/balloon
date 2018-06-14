@@ -229,7 +229,8 @@ class Notifications extends Controller
         }
 
         $users = $this->server->getUsers();
-        $this->notifier->notify($users, $this->user, $subject, $body);
+        $message = $this->notifier->customMessage($subject, $body);
+        $this->notifier->notify($users, $this->user, $message);
 
         return (new Response())->setCode(202);
     }
@@ -259,63 +260,5 @@ class Notifications extends Controller
         $this->async->addJob(Mail::class, $mail->toString());
 
         return (new Response())->setCode(202);
-    }
-
-    /**
-     * @api {post} /api/v2/notifications/subscribe Subscribe for node update
-     * @apiVersion 2.0.0
-     * @apiName postSubscribe
-     * @apiGroup App\Notification
-     * @apiPermission none
-     * @apiDescription Receive node updates
-     * @apiUse _getNodes
-     * @apiUse _multiError
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/notifications/subscribe"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "id": ""
-     * }
-     *
-     * @param null|mixed $id
-     * @param null|mixed $p
-     */
-    public function postSubscribtions($id = null, $p = null, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false)
-    {
-        if (is_array($id) || is_array($p)) {
-            foreach ($this->fs->findNodesById($id) as $node) {
-                try {
-                    $this->notifier->subscribeNode($this->fs->getNode($id, $p), $subscribe);
-                } catch (\Exception $e) {
-                    $failures[] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
-
-                    $this->logger->debug('failed subscribe node in multi node request ['.$node->getId().']', [
-                        'category' => get_class($this),
-                        'exception' => $e,
-                    ]);
-                }
-            }
-
-            if (empty($failures)) {
-                return (new Response())->setCode(204);
-            }
-
-            return (new Response())->setcode(400)->setBody($failures);
-        }
-
-        $node = $this->fs->getNode($id, $p);
-        $this->notifier->subscribeNode($node, $subscribe, $exclude_me, $recursive);
-        $result = $this->node_decorator->decorate($node);
-
-        return (new Response())->setCode(200)->setBody($result);
     }
 }

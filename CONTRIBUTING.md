@@ -21,16 +21,21 @@ The recomended way to get started in development is to use the available docker 
 You need (docker)[https://docs.docker.com/engine/installation/linux/docker-ce/debian/] and (docker-compose)[https://docs.docker.com/compose/install/] installed on your local machine.
 
 For starters you cann use the full stack development composing configuration `docker-compose-dev.yml`.
-Start the development stack `docker-compose -f docker-compose-dev.yml up`
+Start the development stack `docker-compose -f docker-compose-dev.yml up`.
+
+Your balloon dev environment should now be running: 
+```
+curl -k -u admin:admin https://localhost:8081/api/v2/users/whoami?pretty
+```
 
 #### Make
-Always execute make via `docker exec` if your are developing with the balloon docker image.
+Always execute make via `docker exec` if you are developing with the balloon docker image.
 
 Update depenencies:
 ```
 docker exec INSTANCE make -C /srv/www/balloon deps
 ```
-(You do not need to install dependencies manually, the dev container automatically installs all depencies during start)
+>**Note**: You do not need to install dependencies manually, the dev container automatically installs all depencies during bootstrap)
 
 See Building bellow for other make targets.
 
@@ -46,6 +51,7 @@ Besides npm scripts like build and start you can use make to build this software
 * `test` Execute testsuite
 * `phpcs` Execute phpcs check
 * `phpstan` Execute phpstan
+* `install` Install the balloon server
 
 ## Git commit 
 Please make sure that you always specify the number of your issue starting with a hastag (#) within any git commits.
@@ -56,10 +62,10 @@ and be sure all your modifications pass the build.
 [![Build Status](https://travis-ci.org/gyselroth/balloon.svg?branch=dev)](https://travis-ci.org/gyselroth/balloon)
 
 ## Code of Conduct
-Please note that this project is released with a [Contributor Code of Conduct](https://github.com/gyselroth/balloon/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+Please note that this project is released with a [Contributor Code of Conduct](https://github.com/gyselroth/balloon/blob/master/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
 ## License
-This software is freely available under the terms of [GPL-3.0](https://github.com/gyselroth/balloon/LICENSE), please respect this license
+This software is freely available under the terms of [GPL-3.0](https://github.com/gyselroth/balloon/blob/master/LICENSE), please respect this license
 and do not contribute software parts which are not compatible with GPL-3.0.
 
 ## Editor config

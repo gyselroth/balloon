@@ -16,7 +16,6 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
-use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
@@ -72,43 +71,29 @@ class Notifier
      * @param Database       $db
      * @param Server         $server
      * @param LoggerInterace $logger
-     * @param iterable       $config
      */
-    public function __construct(Database $db, Server $server, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(Database $db, Server $server, LoggerInterface $logger, TemplateHandler $template)
     {
         $this->logger = $logger;
         $this->db = $db;
         $this->server = $server;
-        $this->setOptions($config);
+        $this->template = $template;
     }
 
     /**
-     * Set options.
-     *
-     * @param iterable $config
-     *
-     * @return Notifier
+     * Create custom message.
      */
-    public function setOptions(?Iterable $config = null): self
+    public function customMessage(string $subject, string $body): MessageInterface
     {
-        if (null === $config) {
-            return $this;
-        }
+        return new UserMessage($subject, $body, $this->template);
+    }
 
-        foreach ($config as $option => $value) {
-            switch ($option) {
-                case 'adapter':
-                    foreach ($value as $name => $adapter) {
-                        $this->injectAdapter($adapter, $name);
-                    }
-
-                break;
-                default:
-                    throw new InvalidArgumentException('invalid option '.$option.' given');
-            }
-        }
-
-        return $this;
+    /**
+     * Node message factory.
+     */
+    public function nodeMessage(string $type, NodeInterface $node): MessageInterface
+    {
+        return new NodeMessage($type, $this->template, $node);
     }
 
     /**

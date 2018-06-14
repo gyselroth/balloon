@@ -21,27 +21,6 @@ use InvalidArgumentException;
 class TemplateHandler
 {
     /**
-     * Subject.
-     *
-     * @var string
-     */
-    protected $subject;
-
-    /**
-     * Message.
-     *
-     * @var string
-     */
-    protected $message;
-
-    /**
-     * Node.
-     *
-     * @var NodeInterface
-     */
-    protected $node;
-
-    /**
      * Attribute decorator.
      *
      * @var AttributeDecorator
@@ -54,20 +33,6 @@ class TemplateHandler
      * @var RoleAttributeDecorator
      */
     protected $role_decorator;
-
-    /**
-     * Template storage.
-     *
-     * @var array
-     */
-    protected $templates = [];
-
-    /**
-     * Mail template storage.
-     *
-     * @var array
-     */
-    protected $mail_templates = [];
 
     /**
      * Asset directory.
@@ -84,24 +49,34 @@ class TemplateHandler
     protected $fallback_locale = 'en_US';
 
     /**
+     * Loaded locales.
+     *
+     * @var array
+     */
+    protected $locales = [];
+
+    /**
      * Server.
      *
-     * @var Server
+     * @var string
      */
     protected $server;
 
     /**
-     * Constructor.
+     * Server context.
      *
-     * @param Server                 $server
-     * @param AttributeDecorator     $decorator
-     * @param RoleAttributeDecorator $role_decorator
+     * @var array
+     */
+    protected $context = [];
+
+    /**
+     * Constructor.
      */
     public function __construct(Server $server, AttributeDecorator $decorator, RoleAttributeDecorator $role_decorator)
     {
-        $this->server = $server;
         $this->decorator = $decorator;
         $this->role_decorator = $role_decorator;
+        $this->context['server_url'] = $server->getServerUrl();
     }
 
     /**
@@ -126,7 +101,7 @@ class TemplateHandler
                 break;
                 default:
                     throw new InvalidArgumentException('invalid option '.$option.' given');
-            }
+             }
         }
 
         return $this;
@@ -135,96 +110,108 @@ class TemplateHandler
     /**
      * Parse body.
      */
-    public function parseBodyTemplate(string $notification, User $user, NodeInterface $node): string
+    public function getBody(string $notification, array $context = []): string
     {
-        return $this->parseTemplate($notification, 'body', $user, $node);
-    }
-
-    /**
-     * Parse mail body.
-     */
-    public function parseMailBodyTemplate(string $notification, User $user, NodeInterface $node): string
-    {
-        return $this->parseMailTemplate($notification, $user, $node);
+        return $this->parseString($notification, 'body', $context + $this->context);
     }
 
     /**
      * Parse subject.
      */
-    public function parseSubjectTemplate(string $notification, User $user, NodeInterface $node): string
+    public function getSubject(string $notification, array $context = []): string
     {
-        return $this->parseTemplate($notification, 'subject', $user, $node);
+        return $this->parseString($notification, 'subject', $context + $this->context);
     }
 
     /**
-     * Load notification.
+     * Render template.
      */
-    protected function load(string $notification)
+    public function renderTemplate(string $notification, string $template, array $context = []): string
     {
-        if (isset($this->templates[$notification])) {
-            return $this->templates[$notification];
-        }
-        $path = $this->asset_dir.DIRECTORY_SEPARATOR.$notification.'.json';
-        if (!is_readable($path)) {
-            throw new Exception\TemplateNotFound($path.' is not readable or does not exists');
-        }
+        $path = $this->asset_dir.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$template;
 
-        return $this->templates[$notification] = json_decode(file_get_contents($path), true);
+        $context += [
+            'subject' => $this->parseString($notification, 'subject', $context + $this->context),
+            'body' => $this->parseString($notification, 'body', $context + $this->context),
+        ];
+
+        $template = new Template($path, $this->getLocale($context), $context + $this->context);
+
+        return $template->render();
     }
 
     /**
-     * Load mail template.
+     * Load locale.
      */
-    protected function loadMailTemplate(string $notification, string $locale)
+    protected function loadLocale(string $locale): ?array
     {
-        if (isset($this->mail_templates[$notification.$locale])) {
-            return $this->mail_templates[$notification.$locale];
-        }
-        $path = $this->asset_dir.DIRECTORY_SEPARATOR.'mail'.DIRECTORY_SEPARATOR.$notification.DIRECTORY_SEPARATOR.$locale.'.tpl';
-        if (!is_readable($path)) {
-            throw new Exception\TemplateNotFound($path.' is not readable or does not exists');
+        if (isset($this->locales[$locale])) {
+            return $this->locales[$locale];
         }
 
-        return $this->mail_templates[$notification.$locale] = file_get_contents($path);
+        $path = $this->asset_dir.DIRECTORY_SEPARATOR.'locales'.DIRECTORY_SEPARATOR.$locale.'.json';
+        if (is_readable($path)) {
+            $i18n = json_decode(file_get_contents($path));
+
+            if (json_last_error() !== 0) {
+                throw new Exception\TemplateInvalidLocale('locale '.$locale.' is invalid json');
+            }
+
+            return $this->locales[$locale] = json_decode(file_get_contents($path), true);
+        }
+
+        return null;
     }
 
     /**
-     * Parse mail template.
+     * Get correct locale for context.
      */
-    protected function parseMailTemplate(string $notification, User $user, NodeInterface $node): string
+    protected function getLocale(array $context)
     {
-        $locale = $user->getAttributes()['locale'];
+        $locale = null;
 
-        try {
-            $template = $this->loadMailTemplate($notification, $locale);
-        } catch (\Exception $e) {
-            $template = $this->loadMailTemplate($notification, $this->fallback_locale);
+        if (isset($context['user'])) {
+            $locale = $context['user']->getAttributes()['locale'];
+        } elseif (isset($context['sender'])) {
+            $locale = $context['sender']->getAttributes()['locale'];
         }
 
-        return $this->decorate($this->decorateUser($this->decorateNode($template, $node), $user));
-    }
+        $i18n = $this->loadLocale($locale);
 
-    /**
-     * Parse template.
-     */
-    protected function parseTemplate(string $notification, string $type, User $user, NodeInterface $node): string
-    {
-        $template = $this->load($notification);
-        $locale = $user->getAttributes()['locale'];
-
-        if (!isset($template[$locale])) {
+        if ($i18n === null) {
             $locale = $this->fallback_locale;
+            $i18n = $this->loadLocale($locale);
         }
 
-        if (!isset($template[$locale])) {
-            throw new Exception\TemplateInvalidLocale('locale '.$locale.' does not exists in template');
+        if ($i18n === null) {
+            throw new Exception\TemplateInvalidLocale('locale '.$locale.' does not exists');
         }
 
-        if (!isset($template[$locale][$type])) {
-            throw new Exception\TemplateInvalidType('type '.$type.' does not exists in template');
+        return $i18n;
+    }
+
+    /**
+     * Parse locale string.
+     */
+    protected function parseString(string $notification, string $type, array $context): string
+    {
+        $i18n = $this->getLocale($context);
+
+        if (!isset($i18n['type'][$notification][$type])) {
+            throw new Exception\TemplateInvalidLocale('locale '.$locale.' does not exists or has invalid data');
         }
 
-        return $this->decorate($this->decorateUser($this->decorateNode($template[$locale][$type], $node), $user));
+        $string = $i18n['type'][$notification][$type];
+
+        if (isset($context['node'])) {
+            $string = $this->decorateNode($string, $context['node']);
+        }
+
+        if (isset($context['user'])) {
+            $string = $this->decorateUser($string, $context['user']);
+        }
+
+        return $this->decorate($string, $context);
     }
 
     /**
@@ -233,9 +220,15 @@ class TemplateHandler
      * @param string $type
      * @param User   $user
      */
-    protected function decorate(string $template): string
+    protected function decorate(string $template, array $context): string
     {
-        return preg_replace('/(\{server_url})/', $this->server->getServerUrl(), $template);
+        return preg_replace_callback('/\{([^}\.]*)\}/', function ($match) use ($context) {
+            $key = $match[1];
+
+            if (isset($context[$key])) {
+                return $context[$key];
+            }
+        }, $template);
     }
 
     /**

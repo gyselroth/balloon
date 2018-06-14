@@ -619,7 +619,7 @@ class Server
      *
      * @return Generator
      */
-    public function getUsers(array $filter, ?int $offset = null, ?int $limit = null): Generator
+    public function getUsers(array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
         $aggregation = $this->getUserAggregationPipes();
 
@@ -653,7 +653,7 @@ class Server
      *
      * @return Generator
      */
-    public function getGroups(array $filter, ?int $offset = null, ?int $limit = null): Generator
+    public function getGroups(array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
         $groups = $this->db->group->find($filter, [
             'skip' => $offset,

@@ -7,6 +7,14 @@
 * API: [CHANGE] GET /api/v2/files/{id}/preview now returns a binary response only (Removed encode argument)
 * API: [CHANGE] GET /api/v2/files/{id}/content now returns a binary response only (Removed encode argument)
 * API: [FIX] GET /api/v2/files/{id}/content multi node zip response
+* API: [CHANGE] Removed POST /api/v2/notifications/subscriptions
+* CORE: [CHANGE] Its is now possible to delete nodes which are flagged as readonly, however it is still not possible to modify content
+* API: [CHANGE] Fixed various errors in Balloon.App.Notification and implemented a template system
+* API: [FEATURE] Added sharelink_has_password to node attributes
+* API: [CHANGE] POST /api/v2/nodes/sharelink accepts now password and expiration arguments directly (instead wrapped in options)
+* API: [FEATURE] POST /api/v2/nodes/sharelink with and empty password string and empty expiration will remove those attributes
+* CORE: [FEATURE] Balloon.App.Notification mail adapter now sends messages as multipart/alternative with text/html and text/plain parts
+* PACKAGING: [FEATURE] Added install make target
 
 
 ## 2.0.0-beta3

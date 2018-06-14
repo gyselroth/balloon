@@ -1,0 +1,15 @@
+<?php
+if ($this->user):
+    echo sprintf($this->translate('hi'), $this->user->getUsername())."\n\n";
+else:
+    echo sprintf($this->translate('hi'), '')."\n\n";
+endif;
+
+echo $this->body."\n\n";
+
+if ($this->node):
+     echo sprintf($this->translate('link'), $this->server_url.'?menu=cloud&collection='.$this->node->getParent()->getId().'&selected[]='.$this->node->getId().'&view=preview')."\n\n";
+endif;
+
+echo $this->translate('no_reply')."\n";
+echo $this->translate('cheers');

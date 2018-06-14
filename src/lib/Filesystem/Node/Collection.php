@@ -372,13 +372,6 @@ class Collection extends AbstractNode implements IQuota
             [$this, &$force, &$recursion, &$recursion_first]
         );
 
-        if ($this->readonly && null !== $this->_user) {
-            throw new Exception\Conflict(
-                'node is marked as readonly, it is not possible to delete it',
-                Exception\Conflict::READONLY
-            );
-        }
-
         if (true === $force) {
             return $this->_forceDelete($recursion, $recursion_first);
         }

@@ -71,6 +71,12 @@ class Http
             }
         });
 
+        $node_decorator_v2->addDecorator('sharelink_has_password', function ($node) use ($sharelink) {
+            $attributes = $sharelink->getSharelink($node);
+
+            return isset($attributes['password']);
+        });
+
         $node_decorator_v2->addDecorator('sharelink_token', function ($node) use ($sharelink) {
             $attributes = $sharelink->getSharelink($node);
 

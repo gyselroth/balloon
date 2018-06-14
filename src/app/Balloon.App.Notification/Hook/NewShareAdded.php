@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
-use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
-use Balloon\App\Notification\TemplateHandler;
 use Balloon\Async\Mail;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -46,24 +44,16 @@ class NewShareAdded extends AbstractHook
     protected $logger;
 
     /**
-     * Template handler.
-     *
-     * @var TemplateHandler
-     */
-    protected $template;
-
-    /**
      * Constructor.
      *
      * @param Notification $notifier
      * @param Server       $server
      */
-    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, TemplateHandler $template)
+    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger)
     {
         $this->notifier = $notifier;
         $this->server = $server;
         $this->logger = $logger;
-        $this->template = $template;
     }
 
     /**
@@ -112,7 +102,7 @@ class NewShareAdded extends AbstractHook
         }
 
         if (!empty($receiver)) {
-            $message = new NodeMessage('new_share_added', $this->template, $node);
+            $message = $this->notifier->nodMessage('new_share_added', $node);
             $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
         }
     }

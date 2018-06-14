@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
-use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
-use Balloon\App\Notification\TemplateHandler;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -54,22 +52,14 @@ class Subscription extends AbstractHook
     protected $logger;
 
     /**
-     * Template handler.
-     *
-     * @var TemplateHandler
-     */
-    protected $template;
-
-    /**
      * Constructor.
      *
      * @param Notification $notifier
      * @param Server       $server
      */
-    public function __construct(Notifier $notifier, Server $server, TemplateHandler $template, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->notifier = $notifier;
-        $this->template = $template;
         $this->server = $server;
         $this->setOptions($config);
         $this->logger = $logger;
@@ -180,7 +170,7 @@ class Subscription extends AbstractHook
 
         $this->notifier->throttleSubscriptions($node, $receiver);
         $receiver = $this->server->getUsers(['_id' => ['$in' => $receiver]]);
-        $message = new NodeMessage('subscription', $this->template, $node);
+        $message = $this->notifier->nodeMessage('subscription', $node);
 
         return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
     }

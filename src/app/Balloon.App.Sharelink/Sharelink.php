@@ -14,7 +14,6 @@ namespace Balloon\App\Sharelink;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
-use InvalidArgumentException;
 
 class Sharelink
 {
@@ -43,61 +42,41 @@ class Sharelink
      *
      * @return bool
      */
-    public function shareLink(NodeInterface $node, array $options): bool
+    public function shareLink(NodeInterface $node, ?string $expiration = null, ?string $password = null): bool
     {
-        $valid = [
-            'shared',
-            'token',
-            'password',
-            'expiration',
-        ];
+        $set = $node->getAppAttributes(__NAMESPACE__);
 
-        $set = [];
-        foreach ($options as $option => $v) {
-            if (!in_array($option, $valid, true)) {
-                throw new InvalidArgumentException('share option '.$option.' is not valid');
-            }
-            $set[$option] = $v;
-        }
-
-        if (!array_key_exists('token', $set)) {
+        if (!isset($set['token'])) {
             $set['token'] = bin2hex(random_bytes(16));
         }
 
-        if (array_key_exists('expiration', $set)) {
+        if ($expiration !== null) {
             if (empty($set['expiration'])) {
                 unset($set['expiration']);
             } else {
-                $set['expiration'] = (int) $set['expiration'];
+                $set['expiration'] = (int) $expiration;
             }
         }
 
-        if (array_key_exists('password', $set)) {
+        if ($password !== null) {
             if (empty($set['password'])) {
                 unset($set['password']);
             } else {
-                $set['password'] = hash('sha256', $set['password']);
+                $set['password'] = hash('sha256', $password);
             }
         }
 
-        $share = false;
-        if (!array_key_exists('shared', $set)) {
-            if (0 === count($node->getAppAttributes(__NAMESPACE__))) {
-                $share = true;
-            }
-        } else {
-            if ('true' === $set['shared'] || true === $set['shared']) {
-                $share = true;
-            }
+        $node->setAppAttributes(__NAMESPACE__, $set);
 
-            unset($set['shared']);
-        }
+        return true;
+    }
 
-        if (true === $share) {
-            $node->setAppAttributes(__NAMESPACE__, $set);
-        } else {
-            $node->unsetAppAttributes(__NAMESPACE__);
-        }
+    /**
+     * Delete sharelink.
+     */
+    public function deleteShareLink(NodeInterface $node): bool
+    {
+        $node->unsetAppAttributes(__NAMESPACE__);
 
         return true;
     }

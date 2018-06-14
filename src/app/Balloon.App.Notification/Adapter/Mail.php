@@ -107,16 +107,24 @@ class Mail implements AdapterInterface
             return false;
         }
 
-        $html = new MimePart($message->getMailBody($receiver));
+        $html = new MimePart($message->renderTemplate('mail_html.phtml', $receiver));
         $html->type = 'text/html';
+        $html->setCharset('utf-8');
+
+        $plain = new MimePart($message->renderTemplate('mail_plain.phtml', $receiver));
+        $plain->type = 'text/plain';
+        $plain->setCharset('utf-8');
         $body = new MimeMessage();
-        $body->addPart($html);
+        $body->setParts([$html, $plain]);
 
         $mail = (new Message())
           ->setSubject($message->getSubject($receiver))
           ->setBody($body)
           ->setTo($address)
           ->setEncoding('UTF-8');
+
+        $type = $mail->getHeaders()->get('Content-Type');
+        $type->setType('multipart/alternative');
 
         if (null === $sender) {
             $mail->setFrom($this->sender_address, $this->sender_name);

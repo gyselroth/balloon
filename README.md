@@ -19,7 +19,7 @@
 * WebDAV Support (Support for network drives on Windows)
 * Various DMS features like tagging, meta data, sharing, file history and more
 * Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
-* Event logging and possibiliy of undoing an event
+* Events
 * Integrated app system to support 3rd party apps
 * The core is shipped with various core apps pre-installed
 * Integrated deduplication system to save your storage
@@ -37,6 +37,9 @@
 * Support for cloud native deployment
 * Packaged for debian and as docker image
 * ... and much more
+
+## Documentation
+Interested? How to deploy? Well please visit the [documentation](https://github.com/gyselroth/balloon/tree/master/docs).
 
 ## Web UI
 There is a modern web based user interface for balloon! It does support all features and integrates smoothly with the balloon server.

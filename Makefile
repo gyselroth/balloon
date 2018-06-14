@@ -15,6 +15,7 @@ DIST_DIR = $(BASE_DIR)/dist
 LOG_DIR = $(BASE_DIR)/log
 BUILD_DIR = $(BASE_DIR)/build
 APIDOC_BUILD_DIR = $(BASE_DIR)/build_apidoc
+INSTALL_PREFIX = "/"
 
 # VERSION
 ifeq ($(VERSION),)
@@ -46,6 +47,7 @@ PHPSTAN_SCRIPT = $(VENDOR_DIR)/bin/phpstan
 PHPSTAN_LOCK = $(BASE_DIR)/.phpstan.lock
 
 # TARGET ALIASES
+INSTALL_TARGET = "$(INSTALL_PREFIX)usr/share/balloon"
 NPM_TARGET = $(NODE_MODULES_DIR)
 COMPOSER_TARGET = $(COMPOSER_LOCK)
 APIDOC_TARGET = $(DOC_DIR)
@@ -67,7 +69,7 @@ PHP_UNITTEST_FILES = $(call macro_find_phpfiles,$(UNITTESTS_DIR))
 
 # TARGETS
 .PHONY: all
-all: dist
+all: build
 
 
 .PHONY: clean
@@ -107,7 +109,7 @@ $(DIST_DIR)/balloon-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/DEBIAN
 	@cp $(BASE_DIR)/packaging/debian/control $(BUILD_DIR)/DEBIAN/control
 	@cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst
-	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
+	@sed -i s/'{(DIST_DIR)/balloon-apidoc-$(VERSION).debversion}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/scripts
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
@@ -264,3 +266,24 @@ phpstan: $(PHPSTAN_TARGET)
 $(PHPSTAN_TARGET): $(PHPSTAN_SCRIPT) $(PHP_FILES) $(PHP_TEST_FILES)
 	$(PHP_BIN) $(PHPSTAN_SCRIPT) analyse -c phpstan.neon $(SRC_DIR) $(TESTS_DIR)
 	@touch $@
+
+.PHONY: install
+install: $(INSTALL_TARGET)
+
+$(INSTALL_TARGET): $(BUILD_TARGET)
+	$(COMPOSER_BIN) update --no-dev
+	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
+	@mkdir -p $(BUILD_DIR)/usr/share/balloon/scripts
+	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
+	@mkdir -p $(BUILD_DIR)/etc/balloon
+	@rsync -a --exclude='.git' $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
+	@cp -Rp $(DOC_DIR) $(BUILD_DIR)/usr/share/balloon
+	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.systemd $(BUILD_DIR)/usr/share/balloon/scripts
+	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.upstart $(BUILD_DIR)/usr/share/balloon/scripts
+	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/share/balloon/bin/console/ballooncli
+	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon/bin
+	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon/src
+	@cp -Rp $(SRC_DIR)/.container.config.php $(BUILD_DIR)/usr/share/balloon/src
+	@mkdir -p $(BUILD_DIR)/etc/balloon
+	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
+	$(COMPOSER_BIN) update

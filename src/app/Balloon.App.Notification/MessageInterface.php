@@ -32,4 +32,9 @@ interface MessageInterface
      * @return string
      */
     public function getBody(User $user): string;
+
+    /**
+     * Render template.
+     */
+    public function renderTemplate(string $template, User $user): string;
 }
