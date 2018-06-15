@@ -11,11 +11,11 @@ declare(strict_types=1);
 
 namespace Balloon\Async;
 
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
 use Zend\Mail\Message;
 use Zend\Mail\Transport\TransportInterface;
-use InvalidArgumentException;
 
 class Mail extends AbstractJob
 {
