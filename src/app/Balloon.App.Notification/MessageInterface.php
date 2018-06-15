@@ -18,15 +18,15 @@ interface MessageInterface
     /**
      * Get subject.
      */
-    public function getSubject(User $user): string;
+    public function getSubject(?User $user = null): string;
 
     /**
      * Get body.
      */
-    public function getBody(User $user): string;
+    public function getBody(?User $user = null): string;
 
     /**
      * Render template.
      */
-    public function renderTemplate(string $template, User $user): string;
+    public function renderTemplate(string $template, ?User $user = null): string;
 }

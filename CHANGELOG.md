@@ -28,6 +28,8 @@
 * CORE: [FIX] fixed major issue with shared collections. (Nodes with different owners in received shares were not included in search & delta)
 * API: [CHANGE] mail address is now only exposed to admins or the user itself
 * CORE: [FIX] fixed recursive subscription if a new collection gets added
+* API: [FIX] fixed POST /api/v2/notifications/mail
+* CORE: [CHANGE] Balloon\Async\Mail now always sets sender (from header) before sending any mail
 
 
 ## 2.0.0-beta3

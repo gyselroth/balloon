@@ -174,11 +174,13 @@ class TemplateHandler
             $locale = $context['user']->getAttributes()['locale'];
         } elseif (isset($context['sender'])) {
             $locale = $context['sender']->getAttributes()['locale'];
+        } else {
+            $locale = $this->fallback_locale;
         }
 
         $i18n = $this->loadLocale($locale);
 
-        if ($i18n === null) {
+        if ($i18n === null && $locale !== $this->fallback_locale) {
             $locale = $this->fallback_locale;
             $i18n = $this->loadLocale($locale);
         }
