@@ -6,7 +6,7 @@
         },
         "new_share_added": {
             "subject": "Du hast eine neue balloon Freigabe erhalten",
-            "body": "{node.shareowner.name} hat eine neue Freigabe #{node.sharename} mit dir geteilt."
+            "body": "{node.shareowner.name} hat eine neue Freigabe [{node.sharename}] mit dir geteilt."
         },
         "subscription": {
             "subject": "Es sind Änderungen in deinem balloon vorhanden",

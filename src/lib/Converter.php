@@ -35,42 +35,10 @@ class Converter
 
     /**
      * Initialize.
-     *
-     * @param iterable $config
      */
-    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->setOptions($config);
-    }
-
-    /**
-     * Set options.
-     *
-     * @param iterable $config
-     *
-     * @return Converter
-     */
-    public function setOptions(? Iterable $config = null): self
-    {
-        if (null === $config) {
-            return $this;
-        }
-
-        foreach ($config as $option => $value) {
-            switch ($option) {
-                case 'adapter':
-                    foreach ($value as $name => $adapter) {
-                        $this->injectAdapter($adapter, $name);
-                    }
-
-                break;
-                default:
-                    throw new Exception('invalid option '.$option.' given');
-            }
-        }
-
-        return $this;
     }
 
     /**

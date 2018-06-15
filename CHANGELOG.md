@@ -16,6 +16,18 @@
 * CORE: [FEATURE] Balloon.App.Notification mail adapter now sends messages as multipart/alternative with text/html and text/plain parts
 * PACKAGING: [FEATURE] Added install make target
 * CORE: [FIX] fixed http response code 403 for Balloon\Filesystem\Acl\Exception\Forbidden
+* CORE: [FIX] (Exception(code: 0): Cannot traverse an already closed generator at /srv/www/balloon/src/lib/Async/CleanTrash.php:65)
+* CORE: [FIX] fixed trash auto cleaner
+* CORE: [FIX] elasticsearch node id for file contents is now the file hash instead a random id
+* CORE: [CHANGE] Changed default lifetime of deleted nodes to 60d instead 30d, added to example config
+* CORE: [CHANGE] Changed default max file versions from 8 to 16
+* CORE: [FIX] Fixed restore version to a version with not existing content
+* CORE: [FIX] delete and restore file versions will now also remove older versions
+* CORE: [FIX] fixed filtered collections (array_merge element #2 is not an array) if filter is set
+* CORE: [FIX] fixed share filtered collection (array key 'deleted' does not exists)
+* CORE: [FIX] fixed major issue with shared collections. (Nodes with different owners in received shares were not included in search & delta)
+* API: [CHANGE] mail address is now only exposed to admins or the user itself
+* CORE: [FIX] fixed recursive subscription if a new collection gets added
 
 
 ## 2.0.0-beta3

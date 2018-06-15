@@ -97,7 +97,7 @@ class NewShareAdded extends AbstractHook
         }
 
         if (!empty($receiver)) {
-            $message = $this->notifier->nodMessage('new_share_added', $node);
+            $message = $this->notifier->nodeMessage('new_share_added', $node);
             $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
         }
     }

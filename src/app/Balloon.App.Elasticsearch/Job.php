@@ -219,8 +219,6 @@ class Job extends AbstractJob
 
     /**
      * Create document.
-     *
-     * @param string $hash
      */
     public function deleteFileDocument(ObjectId $node, ?string $hash): bool
     {
@@ -316,8 +314,6 @@ class Job extends AbstractJob
 
     /**
      * Set memory limit.
-     *
-     * @return Job
      */
     protected function setMemoryLimit(): self
     {
@@ -360,10 +356,6 @@ class Job extends AbstractJob
 
     /**
      * Get stored file.
-     *
-     * @param string $hash
-     *
-     * @return array
      */
     protected function getFileByHash(?string $hash): ?array
     {
@@ -483,7 +475,7 @@ class Job extends AbstractJob
 
         $params = [
             'index' => $this->es->getIndex(),
-            'id' => (string) new ObjectId(),
+            'id' => $file->getHash(),
             'type' => 'fs',
             'body' => [
                 'md5' => $file->getHash(),

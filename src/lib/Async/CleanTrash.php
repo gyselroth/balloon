@@ -38,7 +38,7 @@ class CleanTrash extends AbstractJob
      * @var array
      */
     protected $data = [
-        'max_age' => 2592000,
+        'max_age' => 5184000,
     ];
 
     /**
@@ -55,16 +55,16 @@ class CleanTrash extends AbstractJob
      */
     public function start(): bool
     {
-        $lt = time() - $this->data['max_age'];
-
+        $lt = (time() - $this->data['max_age']) * 1000;
         $result = $this->server->getFilesystem()->findNodesByFilter(['deleted' => ['$lt' => new UTCDateTime($lt)]]);
-        $this->logger->info('found ['.$result->getReturn().'] nodes for cleanup, force remove them from trash', [
-            'category' => get_class($this),
-        ]);
 
         foreach ($result as $node) {
             $node->delete(true);
         }
+
+        $this->logger->info('found ['.$result->getReturn().'] nodes for cleanup, force removed them from trash', [
+            'category' => get_class($this),
+        ]);
 
         return true;
     }

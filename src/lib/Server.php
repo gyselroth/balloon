@@ -80,7 +80,7 @@ class Server
      *
      * @var int
      */
-    protected $max_file_version = 8;
+    protected $max_file_version = 16;
 
     /**
      * Max file size.

@@ -120,17 +120,6 @@ class Storage
     }
 
     /**
-     * Get metadata for a file.
-     *
-     * @param array  $attributes
-     * @param string $adapter
-     */
-    public function getFileMeta(File $file, ?array $attributes = null, ?string $adapter = null): array
-    {
-        return $this->execAdapter('getFileMeta', $file, $attributes, $adapter);
-    }
-
-    /**
      * Delete file.
      *
      * @param array  $attributes

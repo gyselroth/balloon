@@ -66,7 +66,7 @@ class NodeAttributeDecorator
                 return (string) $attributes['parent'];
             },
             'owner' => (string) $attributes['owner'],
-            'share' => (string) $attributes['shared'],
+            'shared' => (string) $attributes['shared'],
             'created' => $attributes['created']->toDateTime()->format('c'),
             'changed' => $attributes['changed']->toDateTime()->format('c'),
             'deleted' => function ($node, $requested) use ($attributes) {
@@ -101,7 +101,7 @@ class NodeAttributeDecorator
         }
 
         return [
-            'shared' => $node->isShared(),
+            'share' => $node->isShared(),
             'reference' => $node->isReference(),
         ];
     }

@@ -638,7 +638,8 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Create new file as a child from this collection.
      *
-     * @param string $name
+     * @param string     $name
+     * @param null|mixed $data
      */
     public function addFile($name, $data = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
@@ -824,11 +825,12 @@ class Collection extends AbstractNode implements IQuota
             $search['owner'] = $this->_user->getId();
         }
 
-        if ($this->filter !== null) {
+        if ($this->filter !== null && $this->_user !== null) {
+            $include = isset($search['deleted']) ? ['deleted' => $search['deleted']] : [];
             $stored_filter = ['$and' => [
                 array_merge(
-                    ['deleted' => $search['deleted']],
-                    json_decode($this->filter),
+                    $include,
+                    json_decode($this->filter, true),
                     $filter
                 ),
                 ['$or' => [

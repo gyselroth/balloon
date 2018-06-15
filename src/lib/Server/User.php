@@ -278,11 +278,7 @@ class User implements RoleInterface
 
         $list = [];
         foreach ($result as $node) {
-            if ($node->isReference()) {
-                $list[] = $node->getShareId(true);
-            } else {
-                $list[] = $node->getId();
-            }
+            $list[] = $node->getShareId();
         }
 
         return $list;
@@ -674,14 +670,16 @@ class User implements RoleInterface
     protected function _getAttributeSummary(string $attribute, string $type = 'string', int $limit = 25): array
     {
         $mongodb = $this->db->storage;
-
         $ops = [
             [
                 '$match' => [
                     '$and' => [
-                        ['owner' => $this->_id],
                         ['deleted' => false],
                         [$attribute => ['$exists' => true]],
+                        ['$or' => [
+                            ['owner' => $this->getId()],
+                            ['shared' => ['$in' => $this->getShares()]],
+                        ]],
                     ],
                 ],
             ],

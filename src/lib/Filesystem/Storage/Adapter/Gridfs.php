@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Storage\Adapter;
 
-use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Storage\Exception;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use MongoDB\GridFS\Bucket;
@@ -69,7 +69,7 @@ class Gridfs implements AdapterInterface
     public function deleteFile(File $file, array $attributes): bool
     {
         if (!isset($attributes['_id'])) {
-            throw new Exception('attributes do not contain a gridfs id');
+            throw new Exception\NotFound('attributes do not contain a gridfs id');
         }
 
         $exists = $this->getFileById($attributes['_id']);
@@ -119,7 +119,7 @@ class Gridfs implements AdapterInterface
     public function getFile(File $file, array $attributes)
     {
         if (!isset($attributes['_id'])) {
-            throw new Exception('attributes do not contain a gridfs id');
+            throw new Exception\NotFound('attributes do not contain a gridfs id');
         }
 
         return $this->gridfs->openDownloadStream($attributes['_id']);

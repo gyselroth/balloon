@@ -98,8 +98,9 @@ class Subscription extends AbstractHook
     {
         $this->notify($node);
         $subscription = $this->notifier->getSubscription($parent, $this->server->getIdentity());
+
         if ($subscription !== null && $subscription['recursive'] === true) {
-            $this->notifier->subscribeNode($node);
+            $this->notifier->subscribeNode($node, true, $subscription['exclude_me'], $subscription['recursive']);
         }
     }
 
@@ -141,6 +142,17 @@ class Subscription extends AbstractHook
     public function postPutFile(File $node, $content, bool $force, array $attributes): void
     {
         $this->notify($node);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
+    {
+        $raw = $node->getRawAttributes();
+        if (in_array('parent', $attributes, true) && $raw['parent'] !== $node->getAttributes()['parent']) {
+            $this->notify($node);
+        }
     }
 
     /**

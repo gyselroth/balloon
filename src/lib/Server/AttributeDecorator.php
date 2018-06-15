@@ -122,7 +122,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
         return [
             'id' => (string) $attributes['_id'],
             'name' => $attributes['name'],
-            'namespace' => $attributes['namespace'],
+            'namespace' => isset($attributes['namespace']) ? (string) $attributes['namespace'] : null,
         ];
     }
 
@@ -143,9 +143,19 @@ class AttributeDecorator implements AttributeDecoratorInterface
             'id' => (string) $attributes['_id'],
             'username' => (string) $attributes['username'],
             'name' => (string) $attributes['username'],
-            'namespace' => (string) $attributes['namespace'],
-            'mail' => (string) $attributes['mail'],
-            'locale' => (string) $attributes['locale'],
+            'namespace' => isset($attributes['namespace']) ? (string) $attributes['namespace'] : null,
+            'mail' => function ($role) use ($attributes, $user) {
+                if (!isset($attributes['mail'])) {
+                    return null;
+                }
+
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+                    return (string) $attributes['mail'];
+                }
+
+                return null;
+            },
+            'locale' => isset($attributes['locale']) ? (string) $attributes['locale'] : null,
             'quota' => function ($role) use ($attributes, $user) {
                 if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
                     return $role->getQuotaUsage();

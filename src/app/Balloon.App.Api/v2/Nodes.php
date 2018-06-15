@@ -1038,12 +1038,16 @@ class Nodes extends Controller
         foreach ($attributes as $attribute => $value) {
             switch ($attribute) {
                 case 'filter':
-                    $attributes['filter'] = json_encode((array) $attributes['filter']);
+                    if (!is_array($value)) {
+                        throw new Exception\InvalidArgument($attribute.' must be an array');
+                    }
+
+                    $attributes['filter'] = json_encode($value);
 
                 break;
                 case 'destroy':
                     if (!Helper::isValidTimestamp($value)) {
-                        throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
+                        throw new Exception\InvalidArgument($attribute.' timestamp must be valid unix timestamp');
                     }
                     $attributes[$attribute] = new UTCDateTime($value.'000');
 
@@ -1051,7 +1055,7 @@ class Nodes extends Controller
                 case 'changed':
                 case 'created':
                     if (!Helper::isValidTimestamp($value)) {
-                        throw new Exception\InvalidArgument($attribute.' Changed timestamp must be valid unix timestamp');
+                        throw new Exception\InvalidArgument($attribute.' timestamp must be valid unix timestamp');
                     }
                     if ((int) $value > time()) {
                         throw new Exception\InvalidArgument($attribute.' timestamp can not be set greater than the server time');
