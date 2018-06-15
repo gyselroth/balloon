@@ -15,6 +15,7 @@ use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
 use Zend\Mail\Message;
 use Zend\Mail\Transport\TransportInterface;
+use InvalidArgumentException;
 
 class Mail extends AbstractJob
 {
