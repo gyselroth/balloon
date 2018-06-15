@@ -27,6 +27,8 @@ use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
+use Zend\Mime\Message as MimeMessage;
+use Zend\Mime\Part as MimePart;
 
 class Notifications extends Controller
 {
@@ -241,13 +243,30 @@ class Notifications extends Controller
      */
     public function postMail(array $receiver, string $subject, string $body)
     {
-        $mail = new Message();
-        $mail->setBody($body)
-          ->setFrom($this->user->getAttributes()['mail'], $this->user->getAttributes()['username'])
-          ->setSubject($subject)
-          ->setTo($this->user->getAttributes()['mail'], 'Undisclosed Recipients')
-          ->setBcc($receiver);
-        $this->async->addJob(Mail::class, $mail->toString());
+        $message = $this->notifier->customMessage($subject, $body);
+
+        $html = new MimePart($message->renderTemplate('mail_html.phtml'));
+        $html->type = 'text/html';
+        $html->setCharset('utf-8');
+
+        $plain = new MimePart($message->renderTemplate('mail_plain.phtml'));
+        $plain->type = 'text/plain';
+        $plain->setCharset('utf-8');
+        $body = new MimeMessage();
+        $body->setParts([$html, $plain]);
+
+        $mail = (new Message())
+          ->setSubject($message->getSubject())
+          ->setBody($body)
+          ->setEncoding('UTF-8');
+
+        $type = $mail->getHeaders()->get('Content-Type');
+        $type->setType('multipart/alternative');
+
+        foreach ($receiver as $address) {
+            $mail->setTo($address);
+            $this->async->addJob(Mail::class, $mail->toString());
+        }
 
         return (new Response())->setCode(202);
     }

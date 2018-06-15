@@ -33,12 +33,51 @@ class Mail extends AbstractJob
     protected $logger;
 
     /**
+     * Sender address.
+     *
+     * @var string
+     */
+    protected $sender_address = 'balloon@local';
+
+    /**
+     * Sender name.
+     *
+     * @var string
+     */
+    protected $sender_name = 'balloon';
+
+    /**
      * Constructor.
      */
-    public function __construct(TransportInterface $transport, LoggerInterface $logger)
+    public function __construct(TransportInterface $transport, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->transport = $transport;
         $this->logger = $logger;
+        $this->setOptions($config);
+    }
+
+    /**
+     * Set options.
+     */
+    public function setOptions(?Iterable $config = []): self
+    {
+        if (null === $config) {
+            return $this;
+        }
+
+        foreach ($config as $option => $value) {
+            switch ($option) {
+                case 'sender_address':
+                case 'sender_name':
+                    $this->{$option} = $value;
+
+                break;
+                default:
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -48,6 +87,8 @@ class Mail extends AbstractJob
     {
         $mail = Message::fromString($this->data);
         $mail->setEncoding('UTF-8');
+        $mail->setFrom($this->sender_address, $this->sender_name);
+        $mail->getHeaders()->addHeaderLine('X-Mailer', 'balloon');
 
         $this->logger->debug('send mail ['.$mail->getSubject().']', [
             'category' => get_class($this),

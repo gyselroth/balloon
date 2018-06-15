@@ -50,7 +50,7 @@ class NodeMessage implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getSubject(User $user): string
+    public function getSubject(?User $user = null): string
     {
         return $this->template->getSubject($this->type, [
             'user' => $user,
@@ -61,7 +61,7 @@ class NodeMessage implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getBody(User $user): string
+    public function getBody(?User $user = null): string
     {
         return $this->template->getBody($this->type, [
             'user' => $user,
@@ -72,7 +72,7 @@ class NodeMessage implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function renderTemplate(string $template, User $user): string
+    public function renderTemplate(string $template, ?User $user = null): string
     {
         return $this->template->renderTemplate($this->type, $template, [
             'user' => $user,

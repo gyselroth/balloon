@@ -14,7 +14,6 @@ namespace Balloon\App\Notification\Adapter;
 use Balloon\App\Notification\MessageInterface;
 use Balloon\Async\Mail as MailJob;
 use Balloon\Server\User;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
@@ -23,20 +22,6 @@ use Zend\Mime\Part as MimePart;
 
 class Mail implements AdapterInterface
 {
-    /**
-     * Sender address.
-     *
-     * @var string
-     */
-    protected $sender_address = 'balloon@local';
-
-    /**
-     * Sender name.
-     *
-     * @var string
-     */
-    protected $sender_name = 'balloon';
-
     /**
      * Async.
      *
@@ -53,40 +38,11 @@ class Mail implements AdapterInterface
 
     /**
      * Constructor.
-     *
-     * @param iterable $config
      */
-    public function __construct(Async $async, LoggerInterface $logger, ?Iterable $config = [])
+    public function __construct(Async $async, LoggerInterface $logger)
     {
         $this->async = $async;
         $this->logger = $logger;
-        $this->setOptions($config);
-    }
-
-    /**
-     * Set options.
-     *
-     * @param iterable $config
-     */
-    public function setOptions(?Iterable $config = []): AdapterInterface
-    {
-        if (null === $config) {
-            return $this;
-        }
-
-        foreach ($config as $option => $value) {
-            switch ($option) {
-                case 'sender_address':
-                case 'sender_name':
-                    $this->{$option} = $value;
-
-                break;
-                default:
-                    throw new InvalidArgumentException('invalid option '.$option.' given');
-            }
-        }
-
-        return $this;
     }
 
     /**
@@ -121,12 +77,6 @@ class Mail implements AdapterInterface
 
         $type = $mail->getHeaders()->get('Content-Type');
         $type->setType('multipart/alternative');
-
-        if (null === $sender) {
-            $mail->setFrom($this->sender_address, $this->sender_name);
-        } else {
-            $mail->setFrom($this->sender_address, $sender->getAttributes()['username']);
-        }
 
         $this->async->addJob(MailJob::class, $mail->toString(), [
             Async::OPTION_RETRY => 1,

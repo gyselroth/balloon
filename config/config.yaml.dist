@@ -48,12 +48,16 @@ Balloon\App\Notification\Notifier:
       method: injectAdapter
       arguments:
         adapter: '{Balloon\App\Notification\Adapter\Mail}'
-  services:
-    Balloon\App\Notification\Adapter\Mail:
-      arguments:
-        config:
-          sender_address: "no-reply@localhost"
-          sender_name: "balloon"
+Balloon\App\Notification\TemplateHandler:
+  arguments:
+    config:
+      fallback_locale: en_US
+      #asset_dir:
+Balloon\Async\Mail:
+  arguments:
+    config:
+      sender_address: "no-reply@localhost"
+      sender_name: "balloon"
 Balloon\App\Elasticsearch\Elasticsearch:
   arguments:
     config:

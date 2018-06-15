@@ -49,7 +49,7 @@ class UserMessage implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getSubject(User $user): string
+    public function getSubject(?User $user = null): string
     {
         return $this->template->getSubject('user_message', [
             'user' => $user,
@@ -60,7 +60,7 @@ class UserMessage implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getBody(User $user): string
+    public function getBody(?User $user = null): string
     {
         return $this->template->getBody('user_message', [
             'user' => $user,
@@ -71,7 +71,7 @@ class UserMessage implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function renderTemplate(string $template, User $user): string
+    public function renderTemplate(string $template, ?User $user = null): string
     {
         return $this->template->renderTemplate('user_message', $template, [
             'user' => $user,
