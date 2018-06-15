@@ -1,6 +1,6 @@
 ## 2.0.0-rc1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: 
+**Date**: Fri Jun 15 17:36:32 CEST 2018
 
 * API: [FIX] fixed admin credentials (not requried) for GET /api/v2/users/{id} and GET /api/v2/users/{id}/avatar
 * API: [CHANGE] GET /api/v2/users/{id}/avatar now returns a binary response only (no base64 encoded content)
