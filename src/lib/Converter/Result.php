@@ -30,8 +30,6 @@ class Result
     /**
      * Create result.
      *
-     * @param string     $path
-     * @param resource   $stream
      * @param null|mixed $resource
      */
     public function __construct(string $path, $resource = null)
@@ -42,8 +40,6 @@ class Result
 
     /**
      * Get path.
-     *
-     * @return string
      */
     public function getPath(): string
     {
@@ -66,8 +62,6 @@ class Result
 
     /**
      * Get contents.
-     *
-     * @return string
      */
     public function getContents(): string
     {

@@ -54,10 +54,6 @@ class Documents extends Controller
 
     /**
      * Constructor.
-     *
-     * @param App                $app
-     * @param Server             $server
-     * @param AttributeDecorator $decorator
      */
     public function __construct(App $app, Server $server, AttributeDecorator $decorator)
     {
@@ -89,8 +85,6 @@ class Documents extends Controller
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function get(?string $id = null, ?string $p = null): Response
     {
@@ -157,14 +151,9 @@ class Documents extends Controller
      *      "id": "544627ed3c58891f058b4611"
      * }
      *
-     * @param string $name
-     * @param string $type
      * @param string $collection
-     * @param int    $conflict
      * @param bool   $readonly
      * @param array  $meta
-     *
-     * @return Response
      */
     public function post(string $name, string $type, ?string $collection = null, int $conflict = 0, ?bool $readonly = null, ?array $meta = null): Response
     {

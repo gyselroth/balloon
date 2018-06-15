@@ -74,10 +74,7 @@ class Session
     /**
      * Session.
      *
-     * @param Filesystem $fs
-     * @param Document   $document
-     * @param int        $ttl
-     * @param array      $session
+     * @param array $session
      */
     public function __construct(Filesystem $fs, Document $document, int $ttl = 3600, $session = [])
     {
@@ -102,8 +99,6 @@ class Session
 
     /**
      * Get document.
-     *
-     * @return Document
      */
     public function getDocument(): Document
     {
@@ -132,8 +127,6 @@ class Session
 
     /**
      * Get valid until.
-     *
-     * @return UTCDateTime
      */
     public function getTTL(): UTCDateTime
     {
@@ -143,9 +136,6 @@ class Session
     /**
      * Get Session.
      *
-     * @param Server   $server
-     * @param ObjectId $session_id
-     * @param string   $access_token
      *
      * @return Session
      */
@@ -185,8 +175,6 @@ class Session
     /**
      * Get session by id.
      *
-     * @param Filesystem $fs
-     * @param ObjectId   $session_id
      *
      * @return Session
      */
@@ -211,8 +199,6 @@ class Session
 
     /**
      * Destroy entire session.
-     *
-     * @return bool
      */
     public function destroy(): bool
     {
@@ -226,7 +212,6 @@ class Session
     /**
      * Remove member from session.
      *
-     * @param User $user
      *
      * @return Session
      */
@@ -244,7 +229,6 @@ class Session
     /**
      * Join member.
      *
-     * @param Member $member
      *
      * @return Session
      */
@@ -286,8 +270,6 @@ class Session
 
     /**
      * Get session id.
-     *
-     * @return ObjectId
      */
     public function getId(): ObjectId
     {

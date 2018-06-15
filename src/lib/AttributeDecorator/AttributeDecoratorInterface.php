@@ -17,9 +17,6 @@ interface AttributeDecoratorInterface
 {
     /**
      * Add decorator.
-     *
-     * @param string  $attribute
-     * @param Closure $decorator
      */
     public function addDecorator(string $attribute, Closure $decorator);
 }

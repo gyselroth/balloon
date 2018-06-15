@@ -1,0 +1,21 @@
+{
+    "type": {
+        "user_message": {
+            "subject": "{user_subject}",
+            "body": "Du hast eine neue private Nachricht erhalten:\n\n{user_body}"
+        },
+        "new_share_added": {
+            "subject": "Du hast eine neue balloon Freigabe erhalten",
+            "body": "{node.shareowner.name} hat eine neue Freigabe [{node.sharename}] mit dir geteilt."
+        },
+        "subscription": {
+            "subject": "Es sind Änderungen in deinem balloon vorhanden",
+            "body": "Es sind Änderungen in deinem balloon vorhanden {node.name}.\n Du bekommst diese Meldung weil du Änderungen an {node.name} abonniert hast."
+        }
+    },
+    "hi": "Hi %s",
+    "open_in_browser": "Im Browser öffnen",
+    "link": "Link: %s",
+    "cheers": "Deine balloon cloud",
+    "no_reply": "Bitte antworte nicht auf dieses E-Mail, dies ist eine automatische Nachricht und Antworten werden nicht verarbeitet."
+}

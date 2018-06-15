@@ -52,8 +52,6 @@ class CleanTrash extends AbstractHook
      * Set options.
      *
      * @param iterable $config
-     *
-     * @return HookInterface
      */
     public function setOptions(?Iterable $config = null): HookInterface
     {

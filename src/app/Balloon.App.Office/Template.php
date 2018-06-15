@@ -44,8 +44,6 @@ class Template
 
     /**
      * Open template.
-     *
-     * @param string $type
      */
     public function __construct(string $type)
     {
@@ -58,8 +56,6 @@ class Template
 
     /**
      * Get template size.
-     *
-     * @return int
      */
     public function getSize(): int
     {
@@ -78,8 +74,6 @@ class Template
 
     /**
      * Get path to template.
-     *
-     * @return string
      */
     protected function getTemplate(): string
     {

@@ -167,11 +167,6 @@ class User implements RoleInterface
 
     /**
      * Instance user.
-     *
-     * @param array           $attributes
-     * @param Server          $server
-     * @param Database        $db
-     * @param LoggerInterface $logger
      */
     public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger)
     {
@@ -186,8 +181,6 @@ class User implements RoleInterface
 
     /**
      * Return username as string.
-     *
-     * @return string
      */
     public function __toString(): string
     {
@@ -197,7 +190,6 @@ class User implements RoleInterface
     /**
      * Update user with identity attributes.
      *
-     * @param Identity $identity
      *
      * @return User
      */
@@ -240,10 +232,6 @@ class User implements RoleInterface
 
     /**
      * Set user attributes.
-     *
-     * @param array $attributes
-     *
-     * @return bool
      */
     public function setAttributes(array $attributes = []): bool
     {
@@ -258,8 +246,6 @@ class User implements RoleInterface
 
     /**
      * Get Attributes.
-     *
-     * @return array
      */
     public function getAttributes(): array
     {
@@ -281,8 +267,6 @@ class User implements RoleInterface
 
     /**
      * Find all shares with membership.
-     *
-     * @return array
      */
     public function getShares(): array
     {
@@ -294,11 +278,7 @@ class User implements RoleInterface
 
         $list = [];
         foreach ($result as $node) {
-            if ($node->isReference()) {
-                $list[] = $node->getShareId(true);
-            } else {
-                $list[] = $node->getId();
-            }
+            $list[] = $node->getShareId();
         }
 
         return $list;
@@ -308,9 +288,6 @@ class User implements RoleInterface
      * Get node attribute usage.
      *
      * @param array|string $attributes
-     * @param int          $limit
-     *
-     * @return array
      */
     public function getNodeAttributeSummary($attributes = [], int $limit = 25): array
     {
@@ -343,8 +320,6 @@ class User implements RoleInterface
 
     /**
      * Get filesystem.
-     *
-     * @return Filesystem
      */
     public function getFilesystem(): Filesystem
     {
@@ -357,8 +332,6 @@ class User implements RoleInterface
 
     /**
      * Is Admin user?
-     *
-     * @return bool
      */
     public function isAdmin(): bool
     {
@@ -367,10 +340,6 @@ class User implements RoleInterface
 
     /**
      * Check if user has share.
-     *
-     * @param Collection $node
-     *
-     * @return bool
      */
     public function hasShare(Collection $node): bool
     {
@@ -501,8 +470,6 @@ class User implements RoleInterface
 
     /**
      * Get unique id.
-     *
-     * @return ObjectId
      */
     public function getId(): ObjectId
     {
@@ -521,8 +488,6 @@ class User implements RoleInterface
 
     /**
      * Get hard quota.
-     *
-     * @return int
      */
     public function getHardQuota(): int
     {
@@ -561,10 +526,6 @@ class User implements RoleInterface
 
     /**
      * Save.
-     *
-     * @param array $attributes
-     *
-     * @return bool
      */
     public function save(array $attributes = []): bool
     {
@@ -587,8 +548,6 @@ class User implements RoleInterface
 
     /**
      * Get used qota.
-     *
-     * @return array
      */
     public function getQuotaUsage(): array
     {
@@ -620,8 +579,6 @@ class User implements RoleInterface
      * Check quota.
      *
      * @param int $add Size in bytes
-     *
-     * @return bool
      */
     public function checkQuota(int $add): bool
     {
@@ -640,10 +597,6 @@ class User implements RoleInterface
 
     /**
      * Delete user.
-     *
-     * @param bool $force
-     *
-     * @return bool
      */
     public function delete(bool $force = false, bool $data = false, bool $force_data = false): bool
     {
@@ -667,8 +620,6 @@ class User implements RoleInterface
 
     /**
      * Undelete user.
-     *
-     * @return bool
      */
     public function undelete(): bool
     {
@@ -679,8 +630,6 @@ class User implements RoleInterface
 
     /**
      * Check if user is deleted.
-     *
-     * @return bool
      */
     public function isDeleted(): bool
     {
@@ -689,8 +638,6 @@ class User implements RoleInterface
 
     /**
      * Get Username.
-     *
-     * @return string
      */
     public function getUsername(): string
     {
@@ -699,8 +646,6 @@ class User implements RoleInterface
 
     /**
      * Get groups.
-     *
-     * @return array
      */
     public function getGroups(): array
     {
@@ -721,24 +666,20 @@ class User implements RoleInterface
 
     /**
      * Get attribute usage summary.
-     *
-     * @param string $attribute
-     * @param string $type
-     * @param int    $limit
-     *
-     * @return array
      */
     protected function _getAttributeSummary(string $attribute, string $type = 'string', int $limit = 25): array
     {
         $mongodb = $this->db->storage;
-
         $ops = [
             [
                 '$match' => [
                     '$and' => [
-                        ['owner' => $this->_id],
                         ['deleted' => false],
                         [$attribute => ['$exists' => true]],
+                        ['$or' => [
+                            ['owner' => $this->getId()],
+                            ['shared' => ['$in' => $this->getShares()]],
+                        ]],
                     ],
                 ],
             ],

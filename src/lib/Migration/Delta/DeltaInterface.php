@@ -15,8 +15,6 @@ interface DeltaInterface
 {
     /**
      * Start delta.
-     *
-     * @return bool
      */
     public function start(): bool;
 }

@@ -67,8 +67,7 @@ class DesktopClient
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger
-     * @param iterable        $config
+     * @param iterable $config
      */
     public function __construct(LoggerInterface $logger, ?Iterable $config = null)
     {
@@ -116,10 +115,6 @@ class DesktopClient
 
     /**
      * Get url.
-     *
-     * @param string $format
-     *
-     * @return string
      */
     public function getUrl(string $format): string
     {
@@ -132,10 +127,6 @@ class DesktopClient
 
     /**
      * Get github url.
-     *
-     * @param string $format
-     *
-     * @return string
      */
     protected function getGithubUrl(string $format): string
     {

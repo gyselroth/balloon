@@ -28,7 +28,6 @@ class Db extends AbstractBasic
     /**
      * Set options.
      *
-     * @param Database $db
      *
      * @return AdapterInterface
      */
@@ -42,7 +41,6 @@ class Db extends AbstractBasic
     /**
      * Find identity.
      *
-     * @param string $username
      *
      * @return array
      */
@@ -55,8 +53,6 @@ class Db extends AbstractBasic
 
     /**
      * Get attributes.
-     *
-     * @return array
      */
     public function getAttributes(): array
     {
@@ -65,11 +61,6 @@ class Db extends AbstractBasic
 
     /**
      * Auth.
-     *
-     * @param string $username
-     * @param string $password
-     *
-     * @return bool
      */
     public function plainAuth(string $username, string $password): bool
     {

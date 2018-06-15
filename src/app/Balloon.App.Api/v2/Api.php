@@ -35,8 +35,6 @@ class Api extends Controller
      *      "name": "balloon",
      *      "api_version": 2
      * }
-     *
-     * @return Response
      */
     public function get(): Response
     {

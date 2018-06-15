@@ -37,9 +37,6 @@ class Document extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Server          $server
-     * @param LoggerInterface $logger
      */
     public function __construct(Server $server, LoggerInterface $logger)
     {
@@ -66,11 +63,6 @@ class Document extends Controller
      * {
      *      [***]
      * }
-     *
-     * @param ObjectId $id
-     * @param string   $access_token
-     *
-     * @return Response
      */
     public function get(ObjectId $id, string $access_token): Response
     {
@@ -99,11 +91,6 @@ class Document extends Controller
      *      "status": 200,
      *      "data": true
      * }
-     *
-     * @param ObjectId $id
-     * @param string   $access_token
-     *
-     * @return Response
      */
     public function postContents(ObjectId $id, string $access_token): Response
     {
@@ -132,9 +119,6 @@ class Document extends Controller
      *
      * @apiSuccessExample {binary} Success-Response:
      * HTTP/1.1 200 OK
-     *
-     * @param ObjectId $id
-     * @param string   $access_token
      */
     public function getContents(ObjectId $id, string $access_token): void
     {

@@ -71,10 +71,6 @@ class Node extends Controller
 
     /**
      * Initialize.
-     *
-     * @param Server          $server
-     * @param NodeDecorator   $decorator
-     * @param LoggerInterface $logger
      */
     public function __construct(Server $server, NodeDecorator $decorator, LoggerInterface $logger)
     {
@@ -113,9 +109,6 @@ class Node extends Controller
      *
      * @param string $id
      * @param string $p
-     * @param int    $deleted
-     *
-     * @return Response
      */
     public function head(?string $id = null, ?string $p = null, int $deleted = 0): Response
     {
@@ -167,10 +160,8 @@ class Node extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param bool         $move
      * @param string       $destid
      * @param string       $destp
-     * @param int          $conflict
      */
     public function postUndelete(
         $id = null,
@@ -252,11 +243,7 @@ class Node extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param int          $offset
-     * @param int          $legnth
      * @param string       $encode
-     * @param bool         $download
-     * @param string       $name
      */
     public function get(
         $id = null,
@@ -360,8 +347,6 @@ class Node extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     *
-     * @return Response
      */
     public function postReadonly($id = null, $p = null, bool $readonly = true): Response
     {
@@ -468,9 +453,6 @@ class Node extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param array        $attributes
-     *
-     * @return Response
      */
     public function getAttributes($id = null, $p = null, array $attributes = []): Response
     {
@@ -561,9 +543,6 @@ class Node extends Controller
      *
      * @param string $id
      * @param string $p
-     * @param array  $attributes
-     *
-     * @return Response
      */
     public function getParents(?string $id = null, ?string $p = null, array $attributes = [], bool $self = false): Response
     {
@@ -613,8 +592,6 @@ class Node extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     *
-     * @return Response
      */
     public function postMetaAttributes(?string $id = null, ?string $p = null): Response
     {
@@ -648,9 +625,6 @@ class Node extends Controller
      *
      * @param string $id
      * @param string $p
-     * @param string $name
-     *
-     * @return Response
      */
     public function postName(string $name, ?string $id = null, ?string $p = null): Response
     {
@@ -686,9 +660,6 @@ class Node extends Controller
      * @param array|string $p
      * @param string       $destid
      * @param string       $destp
-     * @param int          $conflict
-     *
-     * @return Response
      */
     public function postClone(
         $id = null,
@@ -750,9 +721,6 @@ class Node extends Controller
      * @param array|string $p
      * @param string       $destid
      * @param string       $destp
-     * @param int          $conflict
-     *
-     * @return Response
      */
     public function postMove(
         $id = null,
@@ -810,11 +778,7 @@ class Node extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param bool         $force
-     * @param bool         $ignore_flag
      * @param int          $at
-     *
-     * @return Response
      */
     public function delete(
         $id = null,
@@ -876,12 +840,6 @@ class Node extends Controller
      *      "status":200,
      *      "data": [{..}, {...}] //Shorted
      * }
-     *
-     * @param int   $deleted
-     * @param array $filter
-     * @param array $attributes
-     *
-     * @return Response
      */
     public function getQuery(int $deleted = 0, array $filter = [], array $attributes = []): Response
     {
@@ -922,10 +880,6 @@ class Node extends Controller
      *      "status":200,
      *      "data": [{..}, {...}] //Shorted
      * }
-     *
-     * @param array $attributes
-     *
-     * @return Response
      */
     public function getTrash(array $attributes = []): Response
     {
@@ -1032,14 +986,9 @@ class Node extends Controller
      *      }
      * }
      *
-     * @param DeltaDecorator $delta_decorator
-     * @param string         $id
-     * @param string         $p
-     * @param string         $cursor
-     * @param int            $limit
-     * @param array          $attributes
-     *
-     * @return Response
+     * @param string $id
+     * @param string $p
+     * @param string $cursor
      */
     public function getDelta(
         DeltaDecorator $delta_decorator,
@@ -1170,13 +1119,8 @@ class Node extends Controller
      *      ]
      * }
      *
-     * @param EventDecorator $event_decorator
-     * @param string         $id
-     * @param string         $p
-     * @param int            $skip
-     * @param int            $limit
-     *
-     * @return Response
+     * @param string $id
+     * @param string $p
      */
     public function getEventLog(EventDecorator $event_decorator, ?string $id = null, ?string $p = null, int $skip = 0, int $limit = 100): Response
     {
@@ -1223,8 +1167,6 @@ class Node extends Controller
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function getLastCursor(?string $id = null, ?string $p = null): Response
     {
@@ -1247,7 +1189,6 @@ class Node extends Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param Closure      $action
      */
     protected function bulk($id, $p, Closure $action): Response
     {
@@ -1311,8 +1252,6 @@ class Node extends Controller
      * @param bool   $multiple   Allow $id to be an array
      * @param bool   $allow_root Allow instance of root collection
      * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
      */
     protected function _getNode(
         ?string $id = null,
@@ -1345,8 +1284,6 @@ class Node extends Controller
      * @param string $path
      * @param string $class   Force set node type
      * @param bool   $deleted How to handle deleted node
-     *
-     * @return Generator
      */
     protected function _getNodes(
         $id = null,
@@ -1375,7 +1312,6 @@ class Node extends Controller
      *
      * @param string $id
      * @param string $path
-     * @param string $name
      */
     protected function combine($id = null, $path = null, string $name = 'selected')
     {
@@ -1397,10 +1333,6 @@ class Node extends Controller
 
     /**
      * Check custom node attributes which have to be written.
-     *
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function _verifyAttributes(array $attributes): array
     {

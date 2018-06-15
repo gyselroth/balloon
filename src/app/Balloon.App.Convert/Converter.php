@@ -68,10 +68,6 @@ class Converter
     /**
      * Constructor.
      *
-     * @param Database      $db
-     * @param Server        $server
-     * @param FileConverter $converter
-     * @param Async         $async
      * @param LoggerInterface   logger
      */
     public function __construct(Database $db, Server $server, FileConverter $converter, Async $async, LoggerInterface $logger)
@@ -85,10 +81,6 @@ class Converter
 
     /**
      * Get Supported formats.
-     *
-     * @param File $node
-     *
-     * @return array
      */
     public function getSupportedFormats(File $node): array
     {
@@ -98,12 +90,9 @@ class Converter
     /**
      * Get slaves.
      *
-     * @param File $node
-     * @param int  $offset
-     * @param int  $limit
-     * @param int  $total
-     *
-     * @return iterable
+     * @param int $offset
+     * @param int $limit
+     * @param int $total
      */
     public function getSlaves(File $node, ?int $offset = null, ?int $limit = null, ?int &$total = null): Iterable
     {
@@ -121,10 +110,6 @@ class Converter
 
     /**
      * Get slave.
-     *
-     * @param ObjectId $id
-     *
-     * @return array
      */
     public function getSlave(ObjectId $id): array
     {
@@ -141,11 +126,6 @@ class Converter
 
     /**
      * Add slave.
-     *
-     * @param File   $node
-     * @param string $format
-     *
-     * @return ObjectId
      */
     public function addSlave(File $node, string $format): ObjectId
     {
@@ -169,11 +149,6 @@ class Converter
 
     /**
      * Delete slave.
-     *
-     * @param ObjectId $slave
-     * @param bool     $node
-     *
-     * @return bool
      */
     public function deleteSlave(ObjectId $slave, bool $node = false): bool
     {
@@ -191,11 +166,6 @@ class Converter
 
     /**
      * Convert master to slaves.
-     *
-     * @param ObjectId $slave
-     * @param File     $master
-     *
-     * @return bool
      */
     public function convert(ObjectId $slave, File $master): bool
     {

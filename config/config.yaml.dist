@@ -26,7 +26,7 @@ Balloon\Server:
   arguments:
     config:
       temp_dir: "/tmp/balloon"
-      max_file_version: 8
+      max_file_version: 16
       max_file_size: 17179869184
       server_url: "{ENV(BALLOON_URL,https://localhost)}"
       password_policy: '#^.*$#'
@@ -127,6 +127,7 @@ Balloon\Hook:
       arguments:
         config:
           interval: 28800
+          max_age: 5184000
     Balloon\Hook\AutoDestroy:
       arguments:
         config:

@@ -24,8 +24,6 @@ class FileToStorageAdapter implements DeltaInterface
 
     /**
      * Construct.
-     *
-     * @param Database $db
      */
     public function __construct(Database $db)
     {
@@ -34,8 +32,6 @@ class FileToStorageAdapter implements DeltaInterface
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function start(): bool
     {

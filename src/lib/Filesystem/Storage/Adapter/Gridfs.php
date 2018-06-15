@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Storage\Adapter;
 
-use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Storage\Exception;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use MongoDB\GridFS\Bucket;
@@ -47,7 +47,6 @@ class Gridfs implements AdapterInterface
      * GridFS storage.
      *
      * @param Database
-     * @param LoggerInterface $logger
      */
     public function __construct(Database $db, LoggerInterface $logger)
     {
@@ -70,7 +69,7 @@ class Gridfs implements AdapterInterface
     public function deleteFile(File $file, array $attributes): bool
     {
         if (!isset($attributes['_id'])) {
-            throw new Exception('attributes do not contain a gridfs id');
+            throw new Exception\NotFound('attributes do not contain a gridfs id');
         }
 
         $exists = $this->getFileById($attributes['_id']);
@@ -120,7 +119,7 @@ class Gridfs implements AdapterInterface
     public function getFile(File $file, array $attributes)
     {
         if (!isset($attributes['_id'])) {
-            throw new Exception('attributes do not contain a gridfs id');
+            throw new Exception\NotFound('attributes do not contain a gridfs id');
         }
 
         return $this->gridfs->openDownloadStream($attributes['_id']);
@@ -153,8 +152,6 @@ class Gridfs implements AdapterInterface
 
     /**
      * Create collection.
-     *
-     * @return array
      */
     public function createCollection(Collection $collection): array
     {
@@ -164,7 +161,6 @@ class Gridfs implements AdapterInterface
     /**
      * Get stored file.
      *
-     * @param ObjectId $id
      *
      * @return array
      */
@@ -176,7 +172,6 @@ class Gridfs implements AdapterInterface
     /**
      * Get stored file.
      *
-     * @param string $hash
      *
      * @return array
      */
@@ -188,10 +183,7 @@ class Gridfs implements AdapterInterface
     /**
      * Store new file.
      *
-     * @param File     $file
      * @param resource $contents
-     *
-     * @return array
      */
     protected function storeNew(File $file, $contents): array
     {

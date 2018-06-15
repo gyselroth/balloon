@@ -33,9 +33,6 @@ class Job extends AbstractJob
 
     /**
      * Constructor.
-     *
-     * @param Scanner $scanner
-     * @param Server  $server
      */
     public function __construct(Scanner $scanner, Server $server)
     {

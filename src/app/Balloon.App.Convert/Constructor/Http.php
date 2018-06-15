@@ -22,11 +22,6 @@ class Http
 {
     /**
      * Constructor.
-     *
-     * @param Router                    $router
-     * @param NodeAttributeDecorator    $node_decorator
-     * @param ConvertAttributeDecorator $convert_decorator
-     * @param Converter                 $converter
      */
     public function __construct(Router $router, NodeAttributeDecorator $node_decorator, ConvertAttributeDecorator $convert_decorator, Converter $converter)
     {

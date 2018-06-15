@@ -101,9 +101,7 @@ class Filesystem
     /**
      * Initialize.
      *
-     * @param Server          $server
-     * @param LoggerInterface $logger
-     * @param User            $user
+     * @param User $user
      */
     public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, Acl $acl, ?User $user = null)
     {
@@ -128,8 +126,6 @@ class Filesystem
 
     /**
      * Get server.
-     *
-     * @return Server
      */
     public function getServer(): Server
     {
@@ -138,8 +134,6 @@ class Filesystem
 
     /**
      * Get database.
-     *
-     * @return Database
      */
     public function getDatabase(): Database
     {
@@ -148,8 +142,6 @@ class Filesystem
 
     /**
      * Get root.
-     *
-     * @return Collection
      */
     public function getRoot(): Collection
     {
@@ -166,8 +158,6 @@ class Filesystem
 
     /**
      * Get delta.
-     *
-     * @return Delta
      */
     public function getDelta(): Delta
     {
@@ -180,10 +170,6 @@ class Filesystem
 
     /**
      * Find raw node.
-     *
-     * @param ObjectId $id
-     *
-     * @return array
      */
     public function findRawNode(ObjectId $id): array
     {
@@ -206,10 +192,7 @@ class Filesystem
      * Factory loader.
      *
      * @param ObjectId|string $id
-     * @param string          $class   Fore check node type
-     * @param int             $deleted
-     *
-     * @return NodeInterface
+     * @param string          $class Fore check node type
      */
     public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
     {
@@ -267,10 +250,7 @@ class Filesystem
     /**
      * Load node with path.
      *
-     * @param string $path
      * @param string $class Fore check node type
-     *
-     * @return NodeInterface
      */
     public function findNodeByPath(string $path = '', ?string $class = null): NodeInterface
     {
@@ -300,11 +280,8 @@ class Filesystem
     /**
      * Load nodes by id.
      *
-     * @param array  $id
      * @param string $class   Force check node type
      * @param bool   $deleted
-     *
-     * @return Generator
      */
     public function findNodesById(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): Generator
     {
@@ -356,10 +333,7 @@ class Filesystem
     /**
      * Load nodes by id.
      *
-     * @param array  $path
      * @param string $class Force check node type
-     *
-     * @return Generator
      */
     public function findNodesByPath(array $path = [], ?string $class = null): Generator
     {
@@ -394,10 +368,7 @@ class Filesystem
      *
      * @param array  $id
      * @param array  $path
-     * @param string $class   Force set node type
-     * @param int    $deleted
-     *
-     * @return Generator
+     * @param string $class Force set node type
      */
     public function getNodes(?array $id = null, ?array $path = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
     {
@@ -432,8 +403,6 @@ class Filesystem
      * @param bool   $multiple   Allow $id to be an array
      * @param bool   $allow_root Allow instance of root collection
      * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
      */
     public function getNode($id = null, $path = null, $class = null, bool $multiple = false, bool $allow_root = false, int $deleted = NodeInterface::DELETED_EXCLUDE): NodeInterface
     {
@@ -469,10 +438,6 @@ class Filesystem
 
     /**
      * Find node with custom filter.
-     *
-     * @param array $filter
-     *
-     * @return NodeInterface
      */
     public function findNodeByFilter(array $filter): NodeInterface
     {
@@ -490,12 +455,8 @@ class Filesystem
     /**
      * Find nodes with custom filters.
      *
-     * @param array $filter
-     * @param int   $offset
-     * @param int   $limit
-     * @param int   $total
-     *
-     * @return Generator
+     * @param int $offset
+     * @param int $limit
      */
     public function findNodesByFilter(array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
@@ -521,12 +482,8 @@ class Filesystem
     /**
      * Get custom filtered children.
      *
-     * @param int   $deleted
-     * @param array $filter
-     * @param int   $offset
-     * @param int   $limit
-     *
-     * @return Generator
+     * @param int $offset
+     * @param int $limit
      */
     public function findNodesByFilterUser(int $deleted, array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
@@ -568,10 +525,6 @@ class Filesystem
 
     /**
      * Init node.
-     *
-     * @param array $node
-     *
-     * @return NodeInterface
      */
     public function initNode(array $node): NodeInterface
     {
@@ -622,10 +575,6 @@ class Filesystem
 
     /**
      * Resolve shared node to reference or share depending who requested.
-     *
-     * @param array $node
-     *
-     * @return array
      */
     protected function findReferenceNode(array $node): array
     {

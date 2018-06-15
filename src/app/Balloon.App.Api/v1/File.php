@@ -74,8 +74,6 @@ class File extends Node
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function getHistory(?string $id = null, ?string $p = null): Response
     {
@@ -118,8 +116,6 @@ class File extends Node
      * @param string $id
      * @param string $p
      * @param string $version
-     *
-     * @return Response
      */
     public function postRestore(int $version, ?string $id = null, ?string $p = null): Response
     {
@@ -247,12 +243,6 @@ class File extends Node
      * @param string $p
      * @param string $collection
      * @param string $name
-     * @param int    $index
-     * @param int    $chunks
-     * @param string $chunkgroup
-     * @param int    $size
-     * @param array  $attributes
-     * @param int    $conflict
      *
      * @return Response
      */
@@ -433,10 +423,6 @@ class File extends Node
      * @param string $p
      * @param string $collection
      * @param string $name
-     * @param array  $attributes
-     * @param int    $conflict
-     *
-     * @return Response
      */
     public function put(
         ?string $id = null,
@@ -462,10 +448,6 @@ class File extends Node
      * @param string          $p
      * @param string          $collection
      * @param string          $name
-     * @param array           $attributes
-     * @param int             $conflict
-     *
-     * @return Response
      */
     protected function _put(
         $content,

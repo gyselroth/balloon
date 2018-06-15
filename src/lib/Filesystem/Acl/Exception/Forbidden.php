@@ -11,16 +11,26 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Acl\Exception;
 
-class Forbidden extends \Sabre\DAV\Exception\Forbidden
+use Micro\Http\ExceptionInterface;
+
+class Forbidden extends \Sabre\DAV\Exception\Forbidden implements ExceptionInterface
 {
-    const NOT_ALLOWED_TO_RESTORE = 0x21;
-    const NOT_ALLOWED_TO_DELETE = 0x22;
-    const NOT_ALLOWED_TO_MODIFY = 0x23;
-    const NOT_ALLOWED_TO_OVERWRITE = 0x24;
-    const NOT_ALLOWED_TO_SHARE = 0x25;
-    const NOT_ALLOWED_TO_CREATE = 0x26;
-    const NOT_ALLOWED_TO_MOVE = 0x27;
-    const NOT_ALLOWED_TO_ACCESS = 0x28;
-    const ADMIN_PRIV_REQUIRED = 0x29;
-    const NOT_ALLOWED_TO_UNDELETE = 0x210;
+    const NOT_ALLOWED_TO_RESTORE = 33;
+    const NOT_ALLOWED_TO_DELETE = 34;
+    const NOT_ALLOWED_TO_MODIFY = 35;
+    const NOT_ALLOWED_TO_OVERWRITE = 36;
+    const NOT_ALLOWED_TO_SHARE = 37;
+    const NOT_ALLOWED_TO_CREATE = 38;
+    const NOT_ALLOWED_TO_MOVE = 39;
+    const NOT_ALLOWED_TO_ACCESS = 40;
+    const ADMIN_PRIV_REQUIRED = 41;
+    const NOT_ALLOWED_TO_UNDELETE = 42;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getStatusCode(): int
+    {
+        return 403;
+    }
 }

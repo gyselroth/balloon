@@ -24,8 +24,6 @@ class CoreInstallation implements DeltaInterface
 
     /**
      * Construct.
-     *
-     * @param Database $db
      */
     public function __construct(Database $db)
     {
@@ -34,8 +32,6 @@ class CoreInstallation implements DeltaInterface
 
     /**
      * Initialize database.
-     *
-     * @return bool
      */
     public function start(): bool
     {

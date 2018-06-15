@@ -35,51 +35,14 @@ class Converter
 
     /**
      * Initialize.
-     *
-     * @param LoggerInterface $logger
-     * @param iterable        $config
      */
-    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->setOptions($config);
-    }
-
-    /**
-     * Set options.
-     *
-     * @param iterable $config
-     *
-     * @return Converter
-     */
-    public function setOptions(? Iterable $config = null): self
-    {
-        if (null === $config) {
-            return $this;
-        }
-
-        foreach ($config as $option => $value) {
-            switch ($option) {
-                case 'adapter':
-                    foreach ($value as $name => $adapter) {
-                        $this->injectAdapter($adapter, $name);
-                    }
-
-                break;
-                default:
-                    throw new Exception('invalid option '.$option.' given');
-            }
-        }
-
-        return $this;
     }
 
     /**
      * Has adapter.
-     *
-     * @param string $name
-     *
-     * @return bool
      */
     public function hasAdapter(string $name): bool
     {
@@ -89,7 +52,6 @@ class Converter
     /**
      * Inject adapter.
      *
-     * @param AdapterInterface $adapter
      *
      * @return Converter
      */
@@ -114,10 +76,6 @@ class Converter
 
     /**
      * Get adapter.
-     *
-     * @param string $name
-     *
-     * @return AdapterInterface
      */
     public function getAdapter(string $name): AdapterInterface
     {
@@ -131,7 +89,6 @@ class Converter
     /**
      * Get adapters.
      *
-     * @param array $adapters
      *
      * @return AdapterInterface[]
      */
@@ -153,8 +110,6 @@ class Converter
 
     /**
      * Get supported formats.
-     *
-     * @return array
      */
     public function getSupportedFormats(File $file): array
     {
@@ -169,10 +124,6 @@ class Converter
 
     /**
      * Create preview.
-     *
-     * @param File $file
-     *
-     * @return Result
      */
     public function createPreview(File $file): Result
     {
@@ -205,11 +156,6 @@ class Converter
 
     /**
      * Convert document.
-     *
-     * @param File   $file
-     * @param string $format
-     *
-     * @return Result
      */
     public function convert(File $file, string $format): Result
     {

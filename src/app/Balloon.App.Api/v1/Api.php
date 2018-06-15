@@ -41,8 +41,6 @@ class Api
      *         "server_timezone": "Europe\/Berlin",
      *     }
      * }
-     *
-     * @return Response
      */
     public function get(): Response
     {
@@ -84,8 +82,6 @@ class Api
      *          "license": "GPLv3",
      *     }
      * }
-     *
-     * @return Response
      */
     public function getAbout(): Response
     {
@@ -120,8 +116,6 @@ class Api
      *     "status": 200,
      *     "data": 1
      * }
-     *
-     * @return Response
      */
     public function getVersion(): Response
     {
@@ -144,8 +138,6 @@ class Api
      *
      * @apiSuccess {number} status Status Code
      * @apiSuccess {object} data API Reference
-     *
-     * @return Response
      */
     public function getHelp(): Response
     {

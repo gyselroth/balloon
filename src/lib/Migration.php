@@ -48,10 +48,6 @@ class Migration
 
     /**
      * Construct.
-     *
-     * @param Database        $db
-     * @param LoggerInterface $logger
-     * @param string          $meta_collection
      */
     public function __construct(Database $db, LoggerInterface $logger, string $meta_collection = 'migration')
     {
@@ -62,10 +58,6 @@ class Migration
 
     /**
      * Check if delta was applied.
-     *
-     * @param string $class
-     *
-     * @return bool
      */
     public function isDeltaApplied(string $class): bool
     {
@@ -74,12 +66,6 @@ class Migration
 
     /**
      * Execute migration deltas.
-     *
-     * @param bool  $force
-     * @param bool  $ignore
-     * @param array $deltas
-     *
-     * @return bool
      */
     public function start(bool $force = false, bool $ignore = false, array $deltas = []): bool
     {
@@ -132,8 +118,6 @@ class Migration
 
     /**
      * Get collections.
-     *
-     * @return array
      */
     public function getCollections(): array
     {
@@ -150,10 +134,6 @@ class Migration
 
     /**
      * Has delta.
-     *
-     * @param string $name
-     *
-     * @return bool
      */
     public function hasDelta(string $name): bool
     {
@@ -163,7 +143,6 @@ class Migration
     /**
      * Inject delta.
      *
-     * @param DeltaInterface $delta
      *
      * @return Migration
      */
@@ -188,10 +167,6 @@ class Migration
 
     /**
      * Get delta.
-     *
-     * @param string $name
-     *
-     * @return DeltaInterface
      */
     public function getDelta(string $name): DeltaInterface
     {
@@ -205,7 +180,6 @@ class Migration
     /**
      * Get deltas.
      *
-     * @param array $deltas
      *
      * @return DeltaInterface[]
      */

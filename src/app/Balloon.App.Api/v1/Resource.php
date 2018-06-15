@@ -42,9 +42,6 @@ class Resource
 
     /**
      * Initialize.
-     *
-     * @param Server             $server
-     * @param AttributeDecorator $decorator
      */
     public function __construct(Server $server, AttributeDecorator $decorator)
     {
@@ -88,11 +85,6 @@ class Resource
      *          }
      *      ]
      * }
-     *
-     * @param string $q
-     * @param bool   $single
-     *
-     * @return Response
      */
     public function getAclRoles(string $q, bool $single = false, array $attributes = []): Response
     {

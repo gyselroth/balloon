@@ -113,12 +113,9 @@ class Elasticsearch
     /**
      * Search.
      *
-     * @param array $query
-     * @param int   $skip
-     * @param int   $limit
-     * @param int   $total
-     *
-     * @return Generator
+     * @param int $skip
+     * @param int $limit
+     * @param int $total
      */
     public function search(array $query, int $deleted = NodeInterface::DELETED_INCLUDE, ?int $skip = null, ?int $limit = null, ?int &$total = null): Generator
     {
@@ -165,8 +162,6 @@ class Elasticsearch
 
     /**
      * Get index name.
-     *
-     * @return string
      */
     public function getIndex(): string
     {
@@ -192,11 +187,8 @@ class Elasticsearch
     /**
      * Search.
      *
-     * @param array $query
-     * @param int   $skip
-     * @param int   $limit
-     *
-     * @return array
+     * @param int $skip
+     * @param int $limit
      */
     protected function executeQuery(array $query, ?int $skip = null, ?int $limit = null): array
     {

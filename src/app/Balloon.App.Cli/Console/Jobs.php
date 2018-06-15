@@ -48,11 +48,6 @@ class Jobs
 
     /**
      * Constructor.
-     *
-     * @param App             $app
-     * @param Async           $async
-     * @param LoggerInterface $logger
-     * @param GetOpt          $getopt
      */
     public function __construct(Hook $hook, Async $async, LoggerInterface $logger, GetOpt $getopt)
     {
@@ -93,8 +88,6 @@ class Jobs
 
     /**
      * Get options.
-     *
-     * @return array
      */
     public static function getOptions(): array
     {
@@ -103,8 +96,6 @@ class Jobs
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function listen(): bool
     {

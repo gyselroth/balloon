@@ -54,9 +54,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Initialize.
-     *
-     * @param array      $attributes
-     * @param Filesystem $fs
      */
     public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl)
     {
@@ -80,11 +77,7 @@ class Collection extends AbstractNode implements IQuota
      * Copy node with children.
      *
      * @param Collection $parent
-     * @param int        $conflict
      * @param string     $recursion
-     * @param bool       $recursion_first
-     *
-     * @return NodeInterface
      */
     public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
     {
@@ -139,8 +132,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Get share.
-     *
-     * @return array
      */
     public function getAcl(): array
     {
@@ -157,8 +148,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Get Share name.
-     *
-     * @return string
      */
     public function getShareName(): string
     {
@@ -171,8 +160,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Get Attributes.
-     *
-     * @return array
      */
     public function getAttributes(): array
     {
@@ -202,8 +189,6 @@ class Collection extends AbstractNode implements IQuota
      * Set collection filter.
      *
      * @param string $filter
-     *
-     * @return bool
      */
     public function setFilter(?array $filter = null): bool
     {
@@ -228,12 +213,8 @@ class Collection extends AbstractNode implements IQuota
      *  1 - Only deleted
      *  2 - Include deleted
      *
-     * @param int   $deleted
-     * @param array $filter
-     * @param int   $offset
-     * @param int   $limit
-     *
-     * @return Generator
+     * @param int $offset
+     * @param int $limit
      */
     public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
@@ -249,11 +230,6 @@ class Collection extends AbstractNode implements IQuota
      *  0 - Exclude deleted
      *  1 - Only deleted
      *  2 - Include deleted
-     *
-     * @param int   $deleted
-     * @param array $filter
-     *
-     * @return array
      */
     public function getChildren(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
     {
@@ -262,8 +238,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Is custom filter node.
-     *
-     * @return bool
      */
     public function isCustomFilter(): bool
     {
@@ -272,8 +246,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Get number of children.
-     *
-     * @return int
      */
     public function getSize(): int
     {
@@ -296,8 +268,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Get user quota information.
-     *
-     * @return array
      */
     public function getQuotaInfo(): array
     {
@@ -311,13 +281,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Fetch children items of this collection.
-     *
-     * @param string $node
-     * @param int    $deleted
-     * @param array  $filter
-     * @param mixed  $name
-     *
-     * @return NodeInterface
      */
     public function getChild($name, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
     {
@@ -345,11 +308,7 @@ class Collection extends AbstractNode implements IQuota
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
      *
-     * @param bool   $force
-     * @param string $recursion       Identifier to identify a recursive action
-     * @param bool   $recursion_first
-     *
-     * @return bool
+     * @param string $recursion Identifier to identify a recursive action
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
@@ -371,13 +330,6 @@ class Collection extends AbstractNode implements IQuota
             'preDeleteCollection',
             [$this, &$force, &$recursion, &$recursion_first]
         );
-
-        if ($this->readonly && null !== $this->_user) {
-            throw new Exception\Conflict(
-                'node is marked as readonly, it is not possible to delete it',
-                Exception\Conflict::READONLY
-            );
-        }
 
         if (true === $force) {
             return $this->_forceDelete($recursion, $recursion_first);
@@ -418,9 +370,6 @@ class Collection extends AbstractNode implements IQuota
      *
      * @param string $name
      * @param int    $deleted
-     * @param array  $filter
-     *
-     * @return bool
      */
     public function childExists($name, $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): bool
     {
@@ -457,11 +406,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Share collection.
-     *
-     * @param array  $acl
-     * @param string $name
-     *
-     * @return bool
      */
     public function share(array $acl, string $name): bool
     {
@@ -523,8 +467,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Unshare collection.
-     *
-     * @return bool
      */
     public function unshare(): bool
     {
@@ -572,8 +514,6 @@ class Collection extends AbstractNode implements IQuota
      *
      * @param ObjectId $id
      * @param array    $shares
-     *
-     * @return array
      */
     public function getChildrenRecursive(?ObjectId $id = null, ?array &$shares = []): array
     {
@@ -609,8 +549,6 @@ class Collection extends AbstractNode implements IQuota
      *
      * @param string $name
      * @param arracy $attributes
-     * @param int    $conflict
-     * @param bool   $clone
      *
      * @return Collection
      */
@@ -700,13 +638,8 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Create new file as a child from this collection.
      *
-     * @param string $name
-     * @param mixed  $data
-     * @param array  $attributes
-     * @param int    $conflict
-     * @param bool   $clone
-     *
-     * @return File
+     * @param string     $name
+     * @param null|mixed $data
      */
     public function addFile($name, $data = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
@@ -841,12 +774,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Do recursive Action.
-     *
-     * @param callable $callable
-     * @param int      $deleted
-     * @param bool     $ignore_exception
-     *
-     * @return bool
      */
     public function doRecursiveAction(callable $callable, int $deleted = NodeInterface::DELETED_EXCLUDE): bool
     {
@@ -866,11 +793,6 @@ class Collection extends AbstractNode implements IQuota
      *  0 - Exclude deleted
      *  1 - Only deleted
      *  2 - Include deleted
-     *
-     * @param int   $deleted
-     * @param array $filter
-     *
-     * @return array
      */
     protected function getChildrenFilter(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
     {
@@ -903,11 +825,12 @@ class Collection extends AbstractNode implements IQuota
             $search['owner'] = $this->_user->getId();
         }
 
-        if ($this->filter !== null) {
+        if ($this->filter !== null && $this->_user !== null) {
+            $include = isset($search['deleted']) ? ['deleted' => $search['deleted']] : [];
             $stored_filter = ['$and' => [
                 array_merge(
-                    ['deleted' => $search['deleted']],
-                    json_decode($this->filter),
+                    $include,
+                    json_decode($this->filter, true),
                     $filter
                 ),
                 ['$or' => [
@@ -928,10 +851,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Completely remove node.
      *
-     * @param string $recursion       Identifier to identify a recursive action
-     * @param bool   $recursion_first
-     *
-     * @return bool
+     * @param string $recursion Identifier to identify a recursive action
      */
     protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
     {

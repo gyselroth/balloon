@@ -40,8 +40,6 @@ class Collection extends Node
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function headChildren(?string $id = null, ?string $p = null): Response
     {
@@ -93,11 +91,6 @@ class Collection extends Node
      *
      * @param string $id
      * @param string $p
-     * @param int    $deleted
-     * @param array  $filter
-     * @param array  $attributes
-     *
-     * @return Response
      */
     public function getChildren(
         ?string $id = null,
@@ -157,12 +150,8 @@ class Collection extends Node
      *      }
      *}
      *
-     * @param RoleDecorator $role_decorator
-     * @param string        $id
-     * @param string        $p
-     * @param array         $attributes
-     *
-     * @return Response
+     * @param string $id
+     * @param string $p
      */
     public function getShare(RoleDecorator $role_decorator, ?string $id = null, ?string $p = null, array $attributes = []): Response
     {
@@ -227,10 +216,6 @@ class Collection extends Node
      *
      * @param string $id
      * @param string $p
-     * @param array  $acl
-     * @param string $name
-     *
-     * @return Response
      */
     public function postShare(array $acl, string $name, ?string $id = null, ?string $p = null): Response
     {
@@ -268,8 +253,6 @@ class Collection extends Node
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function deleteShare(?string $id = null, ?string $p = null): Response
     {
@@ -320,10 +303,6 @@ class Collection extends Node
      *
      * @param string $id
      * @param string $p
-     * @param array  $attributes
-     * @param int    $conflict
-     *
-     * @return Response
      */
     public function post(
         ?string $id = null,

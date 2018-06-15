@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification;
 
-use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 
 class UserMessage implements MessageInterface
@@ -28,27 +27,23 @@ class UserMessage implements MessageInterface
      *
      * @var string
      */
-    protected $message;
+    protected $body;
 
     /**
-     * Role Attribute decorator.
+     * Template handler.
      *
-     * @var RoleAttributeDecorator
+     * @var TemplateHandler
      */
-    protected $role_decorator;
+    protected $template;
 
     /**
      * Constructor.
-     *
-     * @param string                 $subject
-     * @param string                 $message
-     * @param RoleAttributeDecorator $role_decorator
      */
-    public function __construct(string $subject, string $message, RoleAttributeDecorator $role_decorator)
+    public function __construct(string $subject, string $body, TemplateHandler $template)
     {
         $this->subject = $subject;
-        $this->message = $message;
-        $this->role_decorator = $role_decorator;
+        $this->body = $body;
+        $this->template = $template;
     }
 
     /**
@@ -56,7 +51,10 @@ class UserMessage implements MessageInterface
      */
     public function getSubject(User $user): string
     {
-        return $this->decorate('subject', $user);
+        return $this->template->getSubject('user_message', [
+            'user' => $user,
+            'user_subject' => $this->subject,
+        ]);
     }
 
     /**
@@ -64,23 +62,20 @@ class UserMessage implements MessageInterface
      */
     public function getBody(User $user): string
     {
-        return $this->decorate('message', $user);
+        return $this->template->getBody('user_message', [
+            'user' => $user,
+            'user_body' => $this->body,
+        ]);
     }
 
     /**
-     * Replace variables.
-     *
-     * @param string $type
-     * @param User   $user
+     * {@inheritdoc}
      */
-    protected function decorate(string $type, User $user): string
+    public function renderTemplate(string $template, User $user): string
     {
-        $role_decorator = $this->role_decorator;
-
-        $string = preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use ($user, $role_decorator) {
-            return $role_decorator->decorate($user, [$match[2]])[$match[2]];
-        }, $this->{$type});
-
-        return $string;
+        return $this->template->renderTemplate('user_message', $template, [
+            'user' => $user,
+            'user_body' => $this->body,
+        ]);
     }
 }

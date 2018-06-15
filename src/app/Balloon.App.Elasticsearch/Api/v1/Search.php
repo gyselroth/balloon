@@ -42,10 +42,6 @@ class Search extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Elasticsearch          $es
-     * @param NodeAttributeDecorator $node_decorator
-     * @param LoggerInterface        $logger
      */
     public function __construct(Elasticsearch $es, NodeAttributeDecorator $node_decorator, LoggerInterface $logger)
     {
@@ -101,12 +97,6 @@ class Search extends Controller
      *      "data": [{...}, {...}]
      *      }
      * }
-     *
-     * @param array $query
-     * @param array $attributes
-     * @param int   $deleted
-     *
-     * @return Response
      */
     public function get(array $query, array $attributes = [], int $deleted = 0): Response
     {
