@@ -72,9 +72,6 @@ class Scanner
 
     /**
      * Constructor.
-     *
-     * @param Database        $db
-     * @param LoggerInterface $logger
      */
     public function __construct(SocketFactory $factory, LoggerInterface $logger, ?Iterable $config = null)
     {
@@ -129,10 +126,6 @@ class Scanner
 
     /**
      * Scan file.
-     *
-     * @param File $file
-     *
-     * @return array
      */
     public function scan(File $file): array
     {
@@ -182,11 +175,7 @@ class Scanner
     /**
      * Execute appropriate action on given file.
      *
-     * @param File   $file
-     * @param string $status
      * @param string $reason
-     *
-     * @return bool
      */
     public function handleFile(File $file, string $status, ?string $reason = null): bool
     {

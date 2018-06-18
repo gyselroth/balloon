@@ -41,10 +41,6 @@ class Group
 
     /**
      * Constructor.
-     *
-     * @param Server          $server
-     * @param LoggerInterface $logger
-     * @param GetOpt          $getopt
      */
     public function __construct(Server $server, LoggerInterface $logger, GetOpt $getopt)
     {
@@ -83,8 +79,6 @@ class Group
 
     /**
      * Get group options.
-     *
-     * @return array
      */
     public static function getOptions(): array
     {
@@ -100,8 +94,6 @@ class Group
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function add(): bool
     {
@@ -117,8 +109,6 @@ class Group
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function edit(): bool
     {
@@ -146,7 +136,6 @@ class Group
     /**
      * Parse member.
      *
-     * @param Group $group
      *
      * @return arrray
      */

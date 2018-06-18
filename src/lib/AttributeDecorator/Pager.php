@@ -67,13 +67,7 @@ class Pager
     /**
      * Init.
      *
-     * @param AttributeDecoratorInterface $decorator
-     * @param iterable                    $data
-     * @param array                       $attributes
-     * @param int                         $offset
-     * @param int                         $limit
-     * @param string                      $uri
-     * @param int                         $total
+     * @param int $total
      */
     public function __construct(AttributeDecoratorInterface $decorator, Iterable $data, array $attributes, int $offset, int $limit, string $uri, ?int $total = null)
     {
@@ -88,8 +82,6 @@ class Pager
 
     /**
      * Pagin.
-     *
-     * @return array
      */
     public function paging(): array
     {
@@ -117,10 +109,6 @@ class Pager
 
     /**
      * Get paging links.
-     *
-     * @param int $count
-     *
-     * @return array
      */
     protected function getLinks(int $count): array
     {

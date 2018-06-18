@@ -36,9 +36,6 @@ class Preview extends Controller
 
     /**
      * Constructor.
-     *
-     * @param PreviewGetter $preview
-     * @param Server        $server
      */
     public function __construct(PreviewGetter $preview, Server $server)
     {

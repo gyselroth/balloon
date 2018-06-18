@@ -53,9 +53,6 @@ class NodeDecorator
 
     /**
      * Init.
-     *
-     * @param Server $server
-     * @param Acl    $acl
      */
     public function __construct(Server $server, Acl $acl)
     {
@@ -65,11 +62,6 @@ class NodeDecorator
 
     /**
      * Decorate attributes.
-     *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     *
-     * @return array
      */
     public function decorate(NodeInterface $node, array $attributes = []): array
     {
@@ -93,8 +85,6 @@ class NodeDecorator
     /**
      * Add decorator.
      *
-     * @param string  $attribute
-     * @param Closure $decorator
      *
      * @return AttributeDecorator
      */
@@ -109,8 +99,6 @@ class NodeDecorator
      * Parse v1 attribute filter requests.
      *
      * @param array
-     *
-     * @return array
      */
     protected function parseAttributes(array $attributes): array
     {
@@ -126,8 +114,6 @@ class NodeDecorator
      * Get Attributes.
      *
      * @param NodeInterface
-     *
-     * @return array
      */
     protected function getAttributes(NodeInterface $node, array $attributes): array
     {
@@ -216,9 +202,6 @@ class NodeDecorator
      * Get Attributes.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getTimeAttributes(NodeInterface $node, array $attributes): array
     {
@@ -250,9 +233,6 @@ class NodeDecorator
      * Get Attributes.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getTypeAttributes(NodeInterface $node, array $attributes): array
     {
@@ -277,9 +257,6 @@ class NodeDecorator
      * Execute closures.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function translateAttributes(NodeInterface $node, array $attributes): array
     {

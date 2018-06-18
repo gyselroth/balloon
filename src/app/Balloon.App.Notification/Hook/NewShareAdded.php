@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
-use Balloon\App\Notification\NodeMessage;
 use Balloon\App\Notification\Notifier;
-use Balloon\App\Notification\TemplateHandler;
 use Balloon\Async\Mail;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
@@ -46,24 +44,15 @@ class NewShareAdded extends AbstractHook
     protected $logger;
 
     /**
-     * Template handler.
-     *
-     * @var TemplateHandler
-     */
-    protected $template;
-
-    /**
      * Constructor.
      *
      * @param Notification $notifier
-     * @param Server       $server
      */
-    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, TemplateHandler $template)
+    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger)
     {
         $this->notifier = $notifier;
         $this->server = $server;
         $this->logger = $logger;
-        $this->template = $template;
     }
 
     /**
@@ -71,11 +60,7 @@ class NewShareAdded extends AbstractHook
      *
      * Executed post node attributes were saved to mongodb
      *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     * @param array         $remove
-     * @param string        $recursion
-     * @param bool          $recursion_first
+     * @param string $recursion
      */
     public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
     {
@@ -112,7 +97,7 @@ class NewShareAdded extends AbstractHook
         }
 
         if (!empty($receiver)) {
-            $message = new NodeMessage('new_share_added', $this->template, $node);
+            $message = $this->notifier->nodeMessage('new_share_added', $node);
             $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
         }
     }
@@ -120,8 +105,6 @@ class NewShareAdded extends AbstractHook
     /**
      * Check if users needs a notification and checks if mail adress is available.
      *
-     * @param NodeInterface $node
-     * @param User          $user
      *
      * @return string
      */

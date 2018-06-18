@@ -1,12 +1,35 @@
 ## 2.0.0-rc1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: 
+**Date**: Fri Jun 15 17:36:32 CEST 2018
 
 * API: [FIX] fixed admin credentials (not requried) for GET /api/v2/users/{id} and GET /api/v2/users/{id}/avatar
 * API: [CHANGE] GET /api/v2/users/{id}/avatar now returns a binary response only (no base64 encoded content)
 * API: [CHANGE] GET /api/v2/files/{id}/preview now returns a binary response only (Removed encode argument)
 * API: [CHANGE] GET /api/v2/files/{id}/content now returns a binary response only (Removed encode argument)
 * API: [FIX] GET /api/v2/files/{id}/content multi node zip response
+* API: [CHANGE] Removed POST /api/v2/notifications/subscriptions
+* CORE: [CHANGE] Its is now possible to delete nodes which are flagged as readonly, however it is still not possible to modify content
+* API: [CHANGE] Fixed various errors in Balloon.App.Notification and implemented a template system
+* API: [FEATURE] Added sharelink_has_password to node attributes
+* API: [CHANGE] POST /api/v2/nodes/sharelink accepts now password and expiration arguments directly (instead wrapped in options)
+* API: [FEATURE] POST /api/v2/nodes/sharelink with password=0 and/or expiration=0 will remove those attributes
+* CORE: [FEATURE] Balloon.App.Notification mail adapter now sends messages as multipart/alternative with text/html and text/plain parts
+* PACKAGING: [FEATURE] Added install make target
+* CORE: [FIX] fixed http response code 403 for Balloon\Filesystem\Acl\Exception\Forbidden
+* CORE: [FIX] (Exception(code: 0): Cannot traverse an already closed generator at /srv/www/balloon/src/lib/Async/CleanTrash.php:65)
+* CORE: [FIX] fixed trash auto cleaner
+* CORE: [FIX] elasticsearch node id for file contents is now the file hash instead a random id
+* CORE: [CHANGE] Changed default lifetime of deleted nodes to 60d instead 30d, added to example config
+* CORE: [CHANGE] Changed default max file versions from 8 to 16
+* CORE: [FIX] Fixed restore version to a version with not existing content
+* CORE: [FIX] delete and restore file versions will now also remove older versions
+* CORE: [FIX] fixed filtered collections (array_merge element #2 is not an array) if filter is set
+* CORE: [FIX] fixed share filtered collection (array key 'deleted' does not exists)
+* CORE: [FIX] fixed major issue with shared collections. (Nodes with different owners in received shares were not included in search & delta)
+* API: [CHANGE] mail address is now only exposed to admins or the user itself
+* CORE: [FIX] fixed recursive subscription if a new collection gets added
+* API: [FIX] fixed POST /api/v2/notifications/mail
+* CORE: [CHANGE] Balloon\Async\Mail now always sets sender (from header) before sending any mail
 
 
 ## 2.0.0-beta3

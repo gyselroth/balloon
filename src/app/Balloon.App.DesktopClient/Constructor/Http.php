@@ -19,8 +19,6 @@ class Http
 {
     /**
      * Constructor.
-     *
-     * @param Router $router
      */
     public function __construct(Router $router)
     {

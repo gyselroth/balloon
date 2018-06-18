@@ -39,10 +39,6 @@ class Helper
 
     /**
      * Check if param is a valid unix timestamp.
-     *
-     * @param string $timestamp
-     *
-     * @return bool
      */
     public static function isValidTimestamp(string $timestamp): bool
     {

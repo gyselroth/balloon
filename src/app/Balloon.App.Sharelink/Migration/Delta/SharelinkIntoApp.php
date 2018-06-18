@@ -25,8 +25,6 @@ class SharelinkIntoApp implements DeltaInterface
 
     /**
      * Construct.
-     *
-     * @param Database $db
      */
     public function __construct(Database $db)
     {

@@ -47,8 +47,6 @@ class Acl
 
     /**
      * Constructor.
-     *
-     * @param LoggerInterface $logger
      */
     public function __construct(LoggerInterface $logger)
     {
@@ -57,11 +55,6 @@ class Acl
 
     /**
      * Check acl.
-     *
-     * @param NodeInterface $node
-     * @param string        $privilege
-     *
-     * @return bool
      */
     public function isAllowed(NodeInterface $node, string $privilege = 'r'): bool
     {
@@ -101,10 +94,6 @@ class Acl
 
     /**
      * Get access privilege.
-     *
-     * @param NodeInterface $node
-     *
-     * @return string
      */
     public function getAclPrivilege(NodeInterface $node): string
     {
@@ -185,11 +174,6 @@ class Acl
 
     /**
      * Validate acl.
-     *
-     * @param Server $server
-     * @param array  $acl
-     *
-     * @return bool
      */
     public function validateAcl(Server $server, array $acl): bool
     {
@@ -206,11 +190,6 @@ class Acl
 
     /**
      * Validate rule.
-     *
-     * @param Server $server
-     * @param array  $rule
-     *
-     * @return bool
      */
     public function validateRule(Server $server, array $rule): bool
     {
@@ -233,11 +212,6 @@ class Acl
 
     /**
      * Get acl with resolved roles.
-     *
-     * @param Server $server
-     * @param array  $acl
-     *
-     * @return array
      */
     public function resolveAclTable(Server $server, array $acl): array
     {
@@ -265,11 +239,7 @@ class Acl
     /**
      * Verify if role exists.
      *
-     * @param Server $server
-     * @param string $type
      * @param string $id
-     *
-     * @return bool
      */
     protected function verifyRole(Server $server, string $type, ObjectId $id): bool
     {

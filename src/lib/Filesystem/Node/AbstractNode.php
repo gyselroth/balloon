@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Node;
 
-use Balloon\App\AppInterface;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
@@ -214,8 +213,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get owner.
-     *
-     * @return ObjectId
      */
     public function getOwner(): ObjectId
     {
@@ -224,10 +221,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Set filesystem.
-     *
-     * @param Filesystem $fs
-     *
-     * @return NodeInterface
      */
     public function setFilesystem(Filesystem $fs): NodeInterface
     {
@@ -239,8 +232,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get filesystem.
-     *
-     * @return Filesystem
      */
     public function getFilesystem(): Filesystem
     {
@@ -249,10 +240,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Check if $node is a sub node of any parent nodes of this node.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
      */
     public function isSubNode(NodeInterface $node): bool
     {
@@ -275,11 +262,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Move node.
-     *
-     * @param Collection $parent
-     * @param int        $conflict
-     *
-     * @return NodeInterface
      */
     public function setParent(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION): NodeInterface
     {
@@ -363,7 +345,6 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Get share id.
      *
-     * @param bool $reference
      *
      * @return ObjectId
      */
@@ -408,8 +389,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Is node marked as readonly?
-     *
-     * @return bool
      */
     public function isReadonly(): bool
     {
@@ -418,8 +397,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Request is from node owner?
-     *
-     * @return bool
      */
     public function isOwnerRequest(): bool
     {
@@ -428,8 +405,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Check if node is kind of special.
-     *
-     * @return bool
      */
     public function isSpecial(): bool
     {
@@ -448,8 +423,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Check if node is a sub node of a share.
-     *
-     * @return bool
      */
     public function isShareMember(): bool
     {
@@ -458,8 +431,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Is share.
-     *
-     * @return bool
      */
     public function isShare(): bool
     {
@@ -468,8 +439,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Is share (Reference or master share).
-     *
-     * @return bool
      */
     public function isShared(): bool
     {
@@ -484,8 +453,6 @@ abstract class AbstractNode implements NodeInterface
      * Set the name.
      *
      * @param string $name
-     *
-     * @return bool
      */
     public function setName($name): bool
     {
@@ -510,10 +477,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Check name.
-     *
-     * @param string $name
-     *
-     * @return string
      */
     public function checkName(string $name): string
     {
@@ -533,8 +496,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get the name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -544,11 +505,7 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Undelete.
      *
-     * @param int    $conflict
      * @param string $recursion
-     * @param bool   $recursion_first
-     *
-     * @return bool
      */
     public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
     {
@@ -636,8 +593,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Is node deleted?
-     *
-     * @return bool
      */
     public function isDeleted(): bool
     {
@@ -646,8 +601,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get last modified timestamp.
-     *
-     * @return int
      */
     public function getLastModified(): int
     {
@@ -706,10 +659,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get parents.
-     *
-     * @param array $parents
-     *
-     * @return array
      */
     public function getParents(?NodeInterface $node = null, array $parents = []): array
     {
@@ -739,13 +688,8 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Create zip.
      *
-     * @param ZipStream     $archive
-     * @param bool          $self    true means that the zip represents the collection itself instead a child of the zip
+     * @param bool          $self   true means that the zip represents the collection itself instead a child of the zip
      * @param NodeInterface $parent
-     * @param string        $path
-     * @param int           $depth
-     *
-     * @return bool
      */
     public function zip(ZipStream $archive, bool $self = true, ?NodeInterface $parent = null, string $path = '', int $depth = 0): bool
     {
@@ -795,8 +739,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get mime type.
-     *
-     * @return string
      */
     public function getContentType(): string
     {
@@ -805,8 +747,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Is reference.
-     *
-     *  @return bool
      */
     public function isReference(): bool
     {
@@ -815,11 +755,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Set app attributes.
-     *
-     * @param AppInterface $app
-     * @param array        $attributes
-     *
-     * @return NodeInterface
      */
     public function setAppAttributes(string $namespace, array $attributes): NodeInterface
     {
@@ -831,12 +766,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Set app attribute.
-     *
-     * @param AppInterface $app
-     * @param string       $attribute
-     * @param mixed        $value
-     *
-     * @return NodeInterface
      */
     public function setAppAttribute(string $namespace, string $attribute, $value): NodeInterface
     {
@@ -852,10 +781,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Remove app attribute.
-     *
-     * @param AppInterface $app
-     *
-     * @return NodeInterface
      */
     public function unsetAppAttributes(string $namespace): NodeInterface
     {
@@ -869,11 +794,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Remove app attribute.
-     *
-     * @param AppInterface $app
-     * @param string       $attribute
-     *
-     * @return NodeInterface
      */
     public function unsetAppAttribute(string $namespace, string $attribute): NodeInterface
     {
@@ -887,11 +807,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get app attribute.
-     *
-     * @param AppInterface $app
-     * @param string       $attribute
-     *
-     * @return mixed
      */
     public function getAppAttribute(string $namespace, string $attribute)
     {
@@ -904,10 +819,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get app attributes.
-     *
-     * @param AppInterface $app
-     *
-     * @return array
      */
     public function getAppAttributes(string $namespace): array
     {
@@ -920,10 +831,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Set meta attributes.
-     *
-     * @param array $attributes
-     *
-     * @return NodeInterface
      */
     public function setMetaAttributes(array $attributes): NodeInterface
     {
@@ -943,10 +850,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get meta attributes as array.
-     *
-     * @param array $attribute Specify attributes to return
-     *
-     * @return array
      */
     public function getMetaAttributes(array $attributes = []): array
     {
@@ -960,10 +863,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Mark node as readonly.
-     *
-     * @param bool $readonly
-     *
-     * @return bool
      */
     public function setReadonly(bool $readonly = true): bool
     {
@@ -976,8 +875,6 @@ abstract class AbstractNode implements NodeInterface
      * Mark node as self-destroyable.
      *
      * @param UTCDateTime $ts
-     *
-     * @return bool
      */
     public function setDestroyable(?UTCDateTime $ts): bool
     {
@@ -992,8 +889,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get original raw attributes before any processing.
-     *
-     * @return array
      */
     public function getRawAttributes(): array
     {
@@ -1002,8 +897,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Check if node is in root.
-     *
-     * @return bool
      */
     public function isInRoot(): bool
     {
@@ -1012,8 +905,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Check if node is an instance of the actual root collection.
-     *
-     * @return bool
      */
     public function isRoot(): bool
     {
@@ -1022,8 +913,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Resolve node path.
-     *
-     * @return string
      */
     public function getPath(): string
     {
@@ -1043,9 +932,6 @@ abstract class AbstractNode implements NodeInterface
      * @param array|string $attributes
      * @param array|string $remove
      * @param string       $recursion
-     * @param bool         $recursion_first
-     *
-     * @return bool
      */
     public function save($attributes = [], $remove = [], ?string $recursion = null, bool $recursion_first = true): bool
     {
@@ -1114,12 +1000,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get array value via string path.
-     *
-     * @param iterable $arr
-     * @param string   $path
-     * @param string   $seperator
-     *
-     * @return mixed
      */
     protected function getArrayValue(Iterable $array, string $path, string $separator = '.')
     {
@@ -1141,10 +1021,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Validate meta attributes.
-     *
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function validateMetaAttributes(array $attributes): array
     {
@@ -1195,8 +1071,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Completly remove node.
-     *
-     * @return bool
      */
     abstract protected function _forceDelete(): bool;
 }

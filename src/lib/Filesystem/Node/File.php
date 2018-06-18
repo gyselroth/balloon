@@ -13,9 +13,10 @@ namespace Balloon\Filesystem\Node;
 
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
+use Balloon\Filesystem\Acl\Exception as AclException;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
 use Balloon\Mime;
 use MongoDB\BSON\UTCDateTime;
@@ -99,9 +100,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Initialize file node.
-     *
-     * @param array      $attributes
-     * @param Filesystem $fs
      */
     public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Storage $storage)
     {
@@ -145,12 +143,7 @@ class File extends AbstractNode implements IFile
     /**
      * Copy node.
      *
-     * @param Collection $parent
-     * @param int        $conflict
-     * @param string     $recursion
-     * @param bool       $recursion_first
-     *
-     * @return NodeInterface
+     * @param string $recursion
      */
     public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
     {
@@ -187,8 +180,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Get history.
-     *
-     * @return array
      */
     public function getHistory(): array
     {
@@ -197,17 +188,13 @@ class File extends AbstractNode implements IFile
 
     /**
      * Restore content to some older version.
-     *
-     * @param int $version
-     *
-     * @return bool
      */
     public function restore(int $version): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new ForbiddenException(
+            throw new AclException\Forbidden(
                 'not allowed to restore node '.$this->name,
-                ForbiddenException::NOT_ALLOWED_TO_RESTORE
+                AclException\Forbidden::NOT_ALLOWED_TO_RESTORE
             );
         }
 
@@ -224,24 +211,15 @@ class File extends AbstractNode implements IFile
             throw new Exception('file is already version '.$version);
         }
 
+        $current = $this->version;
+        $new = $this->increaseVersion();
+
         $v = array_search($version, array_column($this->history, 'version'), true);
-        if (null === $v) {
+        if (false === $v) {
             throw new Exception('failed restore file to version '.$version.', version was not found');
         }
 
         $file = $this->history[$v]['storage'];
-        /*$exists = [];
-
-        if (null !== $file) {
-            try {
-                $exists = $this->_storage->getFileMeta($this, $this->history[$v]['storage']);
-            } catch (\Exception $e) {
-                throw new Exception('could not restore to version '.$version.', version content does not exists');
-            }
-        }*/
-
-        $current = $this->version;
-        $new = $this->increaseVersion();
 
         $this->history[] = [
             'version' => $new,
@@ -302,29 +280,18 @@ class File extends AbstractNode implements IFile
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
      *
-     * @param bool   $force
      * @param string $recursion
-     * @param bool   $recursion_first
-     *
-     * @return bool
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new ForbiddenException(
+            throw new AclException\Forbidden(
                 'not allowed to delete node '.$this->name,
-                ForbiddenException::NOT_ALLOWED_TO_DELETE
+                AclException\Forbidden::NOT_ALLOWED_TO_DELETE
             );
         }
 
         $this->_hook->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
-
-        if ($this->readonly && null !== $this->_user) {
-            throw new Exception\Conflict(
-                'node is marked as readonly, it is not possible to delete it',
-                Exception\Conflict::READONLY
-            );
-        }
 
         if (true === $force || $this->isTemporaryFile()) {
             $result = $this->_forceDelete();
@@ -362,7 +329,6 @@ class File extends AbstractNode implements IFile
     /**
      * Check if file is temporary.
      *
-     * @return bool
      **/
     public function isTemporaryFile(): bool
     {
@@ -377,10 +343,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Delete version.
-     *
-     * @param int $version
-     *
-     * @return bool
      */
     public function deleteVersion(int $version): bool
     {
@@ -390,8 +352,11 @@ class File extends AbstractNode implements IFile
             throw new Exception('version '.$version.' does not exists');
         }
 
+        $blobs = array_column($this->history, 'storage');
+
         try {
-            if ($this->history[$key]['storage'] !== null) {
+            //do not remove blob if there are other versions linked against it
+            if ($this->history[$key]['storage'] !== null && count(array_keys($blobs, $this->history[$key]['storage'])) === 1) {
                 $this->_storage->deleteFile($this, $this->history[$key]['storage']);
             }
 
@@ -402,20 +367,18 @@ class File extends AbstractNode implements IFile
             ]);
 
             return $this->save('history');
-        } catch (\Exception $e) {
+        } catch (StorageException\NotFound $e) {
             $this->_logger->error('failed remove version ['.$version.'] from file ['.$this->_id.']', [
                 'category' => get_class($this),
                 'exception' => $e,
             ]);
 
-            throw $e;
+            return false;
         }
     }
 
     /**
      * Cleanup history.
-     *
-     * @return bool
      */
     public function cleanHistory(): bool
     {
@@ -428,8 +391,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Get Attributes.
-     *
-     * @return array
      */
     public function getAttributes(): array
     {
@@ -460,8 +421,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Get filename extension.
-     *
-     * @return string
      */
     public function getExtension(): string
     {
@@ -475,8 +434,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Get file size.
-     *
-     * @return int
      */
     public function getSize(): int
     {
@@ -486,8 +443,6 @@ class File extends AbstractNode implements IFile
     /**
      * Get md5 sum of the file content,
      * actually the hash value comes from the database.
-     *
-     * @return string
      */
     public function getETag(): string
     {
@@ -506,8 +461,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Get version.
-     *
-     * @return int
      */
     public function getVersion(): int
     {
@@ -518,10 +471,6 @@ class File extends AbstractNode implements IFile
      * Change content.
      *
      * @param resource|string $file
-     * @param bool            $new
-     * @param array           $attributes
-     *
-     * @return int
      */
     public function put($file, bool $new = false, array $attributes = []): int
     {
@@ -548,15 +497,6 @@ class File extends AbstractNode implements IFile
         }
 
         $this->hash = $new_hash;
-        $max = (int) (string) $this->_fs->getServer()->getMaxFileVersion();
-        if (count($this->history) >= $max) {
-            $del = key($this->history);
-            $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
-
-            $this->deleteVersion($this->history[$del]['version']);
-        }
 
         //Write new content
         if ($this->size > 0) {
@@ -593,8 +533,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Completly remove file.
-     *
-     * @return bool
      */
     protected function _forceDelete(): bool
     {
@@ -621,11 +559,19 @@ class File extends AbstractNode implements IFile
 
     /**
      * Increase version.
-     *
-     * @return int
      */
     protected function increaseVersion(): int
     {
+        $max = $this->_fs->getServer()->getMaxFileVersion();
+        if (count($this->history) >= $max) {
+            $del = key($this->history);
+            $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [
+                'category' => get_class($this),
+            ]);
+
+            $this->deleteVersion($this->history[$del]['version']);
+        }
+
         ++$this->version;
 
         return $this->version;
@@ -633,10 +579,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Create uuidv4.
-     *
-     * @param string $data
-     *
-     * @return string
      */
     protected function guidv4(string $data): string
     {
@@ -652,17 +594,13 @@ class File extends AbstractNode implements IFile
      * Change content.
      *
      * @param resource|string $file
-     * @param bool            $new
-     * @param array           $attributes
-     *
-     * @return bool
      */
     protected function validatePutRequest($file, bool $new = false, array $attributes = []): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new ForbiddenException(
+            throw new AclException\Forbidden(
                 'not allowed to modify node',
-                ForbiddenException::NOT_ALLOWED_TO_MODIFY
+                AclException\Forbidden::NOT_ALLOWED_TO_MODIFY
             );
         }
 
@@ -676,9 +614,9 @@ class File extends AbstractNode implements IFile
         }
 
         if ($this->isShareMember() && false === $new && 'w' === $this->_acl->getAclPrivilege($this->getShareNode())) {
-            throw new ForbiddenException(
+            throw new AclException\Forbidden(
                 'not allowed to overwrite node',
-                ForbiddenException::NOT_ALLOWED_TO_OVERWRITE
+                AclException\Forbidden::NOT_ALLOWED_TO_OVERWRITE
             );
         }
 
@@ -689,7 +627,6 @@ class File extends AbstractNode implements IFile
      * Verify content to be added.
      *
      * @param string $path
-     * @param bool   $new
      *
      * @return bool
      */
@@ -770,7 +707,6 @@ class File extends AbstractNode implements IFile
     /**
      * Add new version.
      *
-     * @param array $attributes
      *
      * @return File
      */
@@ -827,8 +763,6 @@ class File extends AbstractNode implements IFile
      * Finalize put request.
      *
      * @param resource|string $file
-     * @param bool            $new
-     * @param array           $attributes
      *
      * @return File
      */

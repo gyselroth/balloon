@@ -39,10 +39,6 @@ class NodeMessage implements MessageInterface
 
     /**
      * Constructor.
-     *
-     * @param string          $type
-     * @param TemplateHandler $template
-     * @param NodeInterface   $node
      */
     public function __construct(string $type, TemplateHandler $template, NodeInterface $node)
     {
@@ -54,21 +50,33 @@ class NodeMessage implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getSubject(User $user): string
+    public function getSubject(?User $user = null): string
     {
-        return $this->template->parseSubjectTemplate($this->type, $user, $this->node);
+        return $this->template->getSubject($this->type, [
+            'user' => $user,
+            'node' => $this->node,
+        ]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBody(User $user): string
+    public function getBody(?User $user = null): string
     {
-        return $this->template->parseBodyTemplate($this->type, $user, $this->node);
+        return $this->template->getBody($this->type, [
+            'user' => $user,
+            'node' => $this->node,
+        ]);
     }
 
-    public function getMailBody(User $user): string
+    /**
+     * {@inheritdoc}
+     */
+    public function renderTemplate(string $template, ?User $user = null): string
     {
-        return $this->template->parseMailBodyTemplate($this->type, $user, $this->node);
+        return $this->template->renderTemplate($this->type, $template, [
+            'user' => $user,
+            'node' => $this->node,
+        ]);
     }
 }

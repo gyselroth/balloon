@@ -80,7 +80,7 @@ class Server
      *
      * @var int
      */
-    protected $max_file_version = 8;
+    protected $max_file_version = 16;
 
     /**
      * Max file size.
@@ -113,12 +113,7 @@ class Server
     /**
      * Initialize.
      *
-     * @param Database        $db
-     * @param Storage         $storage
-     * @param LoggerInterface $logger
-     * @param Hook            $hook
-     * @param Acl             $acl
-     * @param iterable        $config
+     * @param iterable $config
      */
     public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
     {
@@ -168,8 +163,6 @@ class Server
 
     /**
      * Get server url.
-     *
-     * @return string
      */
     public function getServerUrl(): string
     {
@@ -178,8 +171,6 @@ class Server
 
     /**
      * Get temporary directory.
-     *
-     * @return string
      */
     public function getTempDir(): string
     {
@@ -188,8 +179,6 @@ class Server
 
     /**
      * Get max file version.
-     *
-     * @return int
      */
     public function getMaxFileVersion(): int
     {
@@ -198,8 +187,6 @@ class Server
 
     /**
      * Get max file size.
-     *
-     * @return int
      */
     public function getMaxFileSize(): int
     {
@@ -208,8 +195,6 @@ class Server
 
     /**
      * Filesystem factory.
-     *
-     * @return Filesystem
      */
     public function getFilesystem(?User $user = null): Filesystem
     {
@@ -225,10 +210,6 @@ class Server
 
     /**
      * Verify group attributes.
-     *
-     * @param array $attributes
-     *
-     * @return array
      */
     public function validateGroupAttributes(array $attributes): array
     {
@@ -301,10 +282,6 @@ class Server
 
     /**
      * Verify user attributes.
-     *
-     * @param array $attributes
-     *
-     * @return array
      */
     public function validateUserAttributes(array $attributes): array
     {
@@ -406,11 +383,6 @@ class Server
 
     /**
      * Add user.
-     *
-     * @param string $username
-     * @param array  $attributes
-     *
-     * @return ObjectId
      */
     public function addUser(string $username, array $attributes = []): ObjectId
     {
@@ -431,8 +403,6 @@ class Server
 
     /**
      * Check if user exists.
-     *
-     * @return bool
      */
     public function usernameExists(string $username): bool
     {
@@ -441,8 +411,6 @@ class Server
 
     /**
      * Check if user exists.
-     *
-     * @return bool
      */
     public function userExists(ObjectId $id): bool
     {
@@ -451,8 +419,6 @@ class Server
 
     /**
      * Check if user exists.
-     *
-     * @return bool
      */
     public function groupExists(ObjectId $id): bool
     {
@@ -461,10 +427,6 @@ class Server
 
     /**
      * Get user by id.
-     *
-     * @param ObjectId $id
-     *
-     * @return User
      */
     public function getUserById(ObjectId $id): User
     {
@@ -485,10 +447,6 @@ class Server
 
     /**
      * Get users by id.
-     *
-     * @param array $id
-     *
-     * @return Generator
      */
     public function getUsersById(array $id): Generator
     {
@@ -514,10 +472,6 @@ class Server
 
     /**
      * Set Identity.
-     *
-     * @param Identity $identity
-     *
-     * @return bool
      */
     public function setIdentity(Identity $identity): bool
     {
@@ -564,10 +518,6 @@ class Server
 
     /**
      * Get user by name.
-     *
-     * @param string $name
-     *
-     * @return User
      */
     public function getUserByName(string $name): User
     {
@@ -588,10 +538,6 @@ class Server
 
     /**
      * Count users.
-     *
-     * @param array $filter
-     *
-     * @return int
      */
     public function countUsers(array $filter): int
     {
@@ -600,10 +546,6 @@ class Server
 
     /**
      * Count groups.
-     *
-     * @param array $filter
-     *
-     * @return int
      */
     public function countGroups(array $filter): int
     {
@@ -613,13 +555,10 @@ class Server
     /**
      * Get users.
      *
-     * @param array $filter
-     * @param int   $offset
-     * @param int   $limit
-     *
-     * @return Generator
+     * @param int $offset
+     * @param int $limit
      */
-    public function getUsers(array $filter, ?int $offset = null, ?int $limit = null): Generator
+    public function getUsers(array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
         $aggregation = $this->getUserAggregationPipes();
 
@@ -647,13 +586,10 @@ class Server
     /**
      * Get groups.
      *
-     * @param array $filter
-     * @param int   $offset
-     * @param int   $limit
-     *
-     * @return Generator
+     * @param int $offset
+     * @param int $limit
      */
-    public function getGroups(array $filter, ?int $offset = null, ?int $limit = null): Generator
+    public function getGroups(array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
         $groups = $this->db->group->find($filter, [
             'skip' => $offset,
@@ -669,10 +605,6 @@ class Server
 
     /**
      * Get group by name.
-     *
-     * @param string $name
-     *
-     * @return Group
      */
     public function getGroupByName(string $name): Group
     {
@@ -691,8 +623,6 @@ class Server
      * Get group by id.
      *
      * @param string $id
-     *
-     * @return Group
      */
     public function getGroupById(ObjectId $id): Group
     {
@@ -709,12 +639,6 @@ class Server
 
     /**
      * Add group.
-     *
-     * @param string $name
-     * @param array  $member
-     * @param array  $attributes
-     *
-     * @return ObjectId
      */
     public function addGroup(string $name, array $member = [], array $attributes = []): ObjectId
     {
@@ -736,8 +660,6 @@ class Server
 
     /**
      * Get user aggregation pipe.
-     *
-     * @return array
      */
     protected function getUserAggregationPipes(): array
     {

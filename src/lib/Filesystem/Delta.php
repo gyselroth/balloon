@@ -57,8 +57,6 @@ class Delta
 
     /**
      * Initialize delta.
-     *
-     * @param Filesystem $fs
      */
     public function __construct(Filesystem $fs, Database $db)
     {
@@ -70,12 +68,6 @@ class Delta
 
     /**
      * Add delta event.
-     *
-     * @param string        $name
-     * @param NodeInterface $node
-     * @param array         $options
-     *
-     * @return ObjectId
      */
     public function add(string $event, NodeInterface $node, array $context = []): ObjectId
     {
@@ -100,10 +92,7 @@ class Delta
      * Build a single dimension array with all nodes.
      *
      * @param array         $cursor
-     * @param int           $limit
      * @param NodeInterface $node
-     *
-     * @return array
      */
     public function buildFeedFromCurrentState(?array $cursor = null, int $limit = 100, ?NodeInterface $node = null): array
     {
@@ -206,8 +195,6 @@ class Delta
      * Get last cursor.
      *
      * @param NodeInterface $node
-     *
-     * @return string
      */
     public function getLastCursor(?NodeInterface $node = null): string
     {
@@ -236,10 +223,7 @@ class Delta
      * Get delta feed with changes and cursor.
      *
      * @param string        $cursor
-     * @param int           $limit
      * @param NodeInterface $node
-     *
-     * @return array
      */
     public function getDeltaFeed(?string $cursor = null, int $limit = 250, ?NodeInterface $node = null): array
     {
@@ -334,11 +318,7 @@ class Delta
     /**
      * Get event log.
      *
-     * @param int           $limit
-     * @param int           $skip
      * @param NodeInterface $node
-     *
-     * @return iterable
      */
     public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): Iterable
     {
@@ -364,10 +344,6 @@ class Delta
 
     /**
      * Get delta feed filter.
-     *
-     * @param array $cursor
-     *
-     * @return array
      */
     protected function buildDeltaFeedFilter(array $cursor, int $limit, ?NodeInterface $node): array
     {
@@ -394,10 +370,7 @@ class Delta
      * Get delta feed with changes and cursor.
      *
      * @param string        $cursor
-     * @param int           $limit
      * @param NodeInterface $node
-     *
-     * @return array
      */
     protected function getDeltaQuery(?string $cursor = null, int $limit = 250, ?NodeInterface $node = null): array
     {
@@ -445,7 +418,6 @@ class Delta
     /**
      * Get delta event for a (forced) deleted node.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -481,8 +453,6 @@ class Delta
 
     /**
      * Init.
-     *
-     * @return bool
      */
     protected function parseClient(): bool
     {
@@ -521,10 +491,6 @@ class Delta
 
     /**
      * Get Event owner id.
-     *
-     * @param NodeInterface $node
-     *
-     * @return ObjectId
      */
     protected function getEventOwner(NodeInterface $node): ObjectId
     {
@@ -565,8 +531,6 @@ class Delta
 
     /**
      * Get delta filter for db query.
-     *
-     * @return array
      */
     protected function getDeltaFilter(): array
     {

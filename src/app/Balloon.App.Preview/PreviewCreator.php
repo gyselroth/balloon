@@ -29,9 +29,6 @@ class PreviewCreator extends Preview
 
     /**
      * Constructor.
-     *
-     * @param Router $router
-     * @param Hook   $hook
      */
     public function __construct(Database $db, LoggerInterface $logger, Converter $converter)
     {
@@ -41,10 +38,6 @@ class PreviewCreator extends Preview
 
     /**
      * Create preview.
-     *
-     * @param File $file
-     *
-     * @return ObjectId
      */
     public function createPreview(File $file): ObjectId
     {
@@ -80,11 +73,6 @@ class PreviewCreator extends Preview
 
     /**
      * Store new preview.
-     *
-     * @param File   $file
-     * @param Result $content
-     *
-     * @return ObjectId
      */
     protected function storePreview(File $file, Result $content): ObjectId
     {

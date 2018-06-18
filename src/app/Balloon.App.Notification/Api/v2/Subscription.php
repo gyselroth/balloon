@@ -43,10 +43,6 @@ class Subscription extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Notifier               $notifier
-     * @param Server                 $server
-     * @param NodeAttributeDecorator $node_decorator
      */
     public function __construct(Server $server, Notifier $notifier, NodeAttributeDecorator $node_decorator)
     {

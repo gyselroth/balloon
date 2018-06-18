@@ -47,9 +47,6 @@ class Sessions extends Controller
 
     /**
      * Constructor.
-     *
-     * @param App    $app
-     * @param Server $server
      */
     public function __construct(App $app, Server $server)
     {
@@ -81,8 +78,6 @@ class Sessions extends Controller
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function post(?string $id = null, ?string $p = null): Response
     {
@@ -123,10 +118,6 @@ class Sessions extends Controller
      *      "access_token": "544627ed3c58891f058b4622",
      *      "access_token_ttl": "1486989000"
      * }
-     *
-     * @param ObjectId $id
-     *
-     * @return Response
      */
     public function postJoin(ObjectId $id): Response
     {
@@ -160,11 +151,6 @@ class Sessions extends Controller
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 OK
-     *
-     * @param ObjectId $id
-     * @param string   $access_token
-     *
-     * @return Response
      */
     public function delete(ObjectId $id, string $access_token): Response
     {

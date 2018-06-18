@@ -34,9 +34,6 @@ class Preview
 
     /**
      * Constructor.
-     *
-     * @param Database        $db
-     * @param LoggerInterface $logger
      */
     public function __construct(Database $db, LoggerInterface $logger)
     {
@@ -46,8 +43,6 @@ class Preview
 
     /**
      * Get preview.
-     *
-     * @return string
      */
     public function getPreview(File $file): string
     {
@@ -73,10 +68,6 @@ class Preview
 
     /**
      * Delete preview.
-     *
-     * @param File $file
-     *
-     * @return bool
      */
     public function deletePreview(File $file): bool
     {

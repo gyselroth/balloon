@@ -42,10 +42,6 @@ class User
 
     /**
      * Constructor.
-     *
-     * @param Server          $server
-     * @param LoggerInterface $logger
-     * @param GetOpt          $getopt
      */
     public function __construct(Server $server, LoggerInterface $logger, GetOpt $getopt)
     {
@@ -84,8 +80,6 @@ class User
 
     /**
      * Get user options.
-     *
-     * @return array
      */
     public static function getOptions(): array
     {
@@ -113,8 +107,6 @@ class User
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function add(): bool
     {
@@ -130,8 +122,6 @@ class User
 
     /**
      * Start.
-     *
-     * @return bool
      */
     public function edit(): bool
     {

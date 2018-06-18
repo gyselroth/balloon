@@ -57,10 +57,6 @@ class EventDecorator
 
     /**
      * Init.
-     *
-     * @param Server        $server
-     * @param NodeDecorator $node_decorator
-     * @param RoleDecorator $role_decorator;
      */
     public function __construct(Server $server, NodeDecorator $node_decorator, RoleDecorator $role_decorator)
     {
@@ -72,11 +68,6 @@ class EventDecorator
 
     /**
      * Decorate attributes.
-     *
-     * @param array $event
-     * @param array $attributes
-     *
-     * @return array
      */
     public function decorate(array $event, array $attributes = []): array
     {
@@ -97,8 +88,6 @@ class EventDecorator
     /**
      * Add decorator.
      *
-     * @param string  $attribute
-     * @param Closure $decorator
      *
      * @return AttributeDecorator
      */
@@ -132,10 +121,6 @@ class EventDecorator
 
     /**
      * Get Attributes.
-     *
-     * @param array $event
-     *
-     * @return array
      */
     protected function getAttributes(array $event): array
     {
@@ -156,7 +141,6 @@ class EventDecorator
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -190,7 +174,6 @@ class EventDecorator
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -208,7 +191,6 @@ class EventDecorator
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -232,7 +214,6 @@ class EventDecorator
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -250,7 +231,6 @@ class EventDecorator
     /**
      * Get Attributes.
      *
-     * @param array $event
      *
      * @return array
      */
@@ -272,9 +252,6 @@ class EventDecorator
      * Execute closures.
      *
      * @param NodeInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function translateAttributes(array $event, array $attributes): array
     {

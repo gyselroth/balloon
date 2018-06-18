@@ -46,7 +46,6 @@ class Groups
     /**
      * Initialize.
      *
-     * @param Server $server
      * @param AttributeDecorator
      */
     public function __construct(Server $server, AttributeDecorator $decorator)
@@ -105,11 +104,6 @@ class Groups
 
     /**
      * Get group instance.
-     *
-     * @param string $id
-     * @param bool   $require_admin
-     *
-     * @return Group
      */
     public function _getGroup(string $id, bool $require_admin = false): Group
     {
@@ -147,9 +141,6 @@ class Groups
      *      "mail": "test@example.org"
      *  }
      * ]
-     *
-     * @param string $id
-     * @param array  $attributes
      */
     public function getMembers(string $id, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -188,8 +179,6 @@ class Groups
      *
      * @param string $id
      * @param string $attributes
-     *
-     * @return Response
      */
     public function get(?string $id = null, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -220,10 +209,6 @@ class Groups
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
-     *
-     * @param string $id
-     *
-     * @return Response
      */
     public function head(string $id): Response
     {
@@ -258,10 +243,7 @@ class Groups
      *      "name": "test"
      * }
      *
-     * @param string $name
-     * @param array  $member
-     *
-     * @return Response
+     * @param array $member
      */
     public function post(string $name, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
     {
@@ -300,11 +282,6 @@ class Groups
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     *
-     * @param string $id
-     * @param array  $attributes
-     *
-     * @return Response
      */
     public function patch(string $id, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
     {
@@ -346,11 +323,6 @@ class Groups
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
-     *
-     * @param string $id
-     * @param bool   $force
-     *
-     * @return Response
      */
     public function delete(string $id, bool $force = false): Response
     {
@@ -375,10 +347,6 @@ class Groups
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
-     *
-     * @param string $id
-     *
-     * @return Response
      */
     public function postUndelete(string $id): Response
     {

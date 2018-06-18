@@ -36,8 +36,6 @@ class RoleDecorator
 
     /**
      * Init.
-     *
-     * @param Server $server
      */
     public function __construct(Server $server)
     {
@@ -47,10 +45,7 @@ class RoleDecorator
     /**
      * Decorate attributes.
      *
-     * @param RoleInterface $role
-     * @param array         $attributes
-     *
-     * @return array
+     * @param array $attributes
      */
     public function decorate(RoleInterface $role, ?array $attributes = null): array
     {
@@ -77,8 +72,6 @@ class RoleDecorator
     /**
      * Add decorator.
      *
-     * @param string  $attribute
-     * @param Closure $decorator
      *
      * @return AttributeDecorator
      */
@@ -93,9 +86,6 @@ class RoleDecorator
      * Get Attributes.
      *
      * @param RoleInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getAttributes(RoleInterface $role, array $attributes): array
     {
@@ -125,9 +115,6 @@ class RoleDecorator
      * Get group Attributes.
      *
      * @param RoleInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getGroupAttributes(RoleInterface $role, array $attributes): array
     {
@@ -146,9 +133,6 @@ class RoleDecorator
      * Get user Attributes.
      *
      * @param RoleInterface
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function getUserAttributes(RoleInterface $role, array $attributes): array
     {
@@ -200,10 +184,6 @@ class RoleDecorator
      * Execute closures.
      *
      * @param RoleInterface
-     * @param array $attributes
-     * @param array $requested
-     *
-     * @return array
      */
     protected function translateAttributes(RoleInterface $role, array $attributes, array $requested): array
     {

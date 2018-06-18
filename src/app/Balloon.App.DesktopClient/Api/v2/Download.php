@@ -25,9 +25,6 @@ class Download
      */
     protected $client;
 
-    /**
-     * @param DesktopClient $client
-     */
     public function __construct(DesktopClient $client)
     {
         $this->client = $client;
@@ -48,10 +45,6 @@ class Download
      *
      * @apiSuccessExample {binary} Success-Response:
      * HTTP/1.1 200 OK
-     *
-     * @param string $format
-     *
-     * @return Response
      */
     public function getContent(string $format): Response
     {

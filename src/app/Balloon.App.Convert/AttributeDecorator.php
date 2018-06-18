@@ -41,9 +41,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Init.
-     *
-     * @param Server                 $server
-     * @param NodeAttributeDecorator $node_decorator
      */
     public function __construct(Server $server, NodeAttributeDecorator $node_decorator)
     {
@@ -53,11 +50,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Decorate attributes.
-     *
-     * @param array $slave
-     * @param array $attributes
-     *
-     * @return array
      */
     public function decorate(array $slave, array $attributes = []): array
     {
@@ -74,8 +66,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Add decorator.
      *
-     * @param string  $attribute
-     * @param Closure $decorator
      *
      * @return AttributeDecorator
      */
@@ -88,10 +78,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     * @param array $slave
-     *
-     * @return array
      */
     protected function getAttributes(array $slave): array
     {
@@ -124,11 +110,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Execute closures.
-     *
-     * @param array $slave
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function translateAttributes(array $slave, array $attributes): array
     {

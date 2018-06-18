@@ -227,10 +227,6 @@ class Delta extends AbstractHook
 
     /**
      * Update share delta entries.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
      */
     protected function updateExistingDeltaShareMember(NodeInterface $node): bool
     {

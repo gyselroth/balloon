@@ -15,7 +15,6 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Storage;
 use Balloon\Server;
 use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
@@ -72,12 +71,8 @@ class Job extends AbstractJob
     /**
      * Constructor.
      *
-     * @param Elasticsarch           $es
-     * @param Storage                $storage
-     * @param Server                 $server
-     * @param NodeAttributeDecorator $decorator
-     * @param LoggerInterface        $logger
-     * @param iterable               $config
+     * @param Elasticsarch $es
+     * @param iterable     $config
      */
     public function __construct(Elasticsearch $es, Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, Iterable $config = null)
     {
@@ -159,10 +154,6 @@ class Job extends AbstractJob
 
     /**
      * Create document.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
      */
     public function createDocument(NodeInterface $node): bool
     {
@@ -184,10 +175,6 @@ class Job extends AbstractJob
 
     /**
      * Update document.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
      */
     public function updateDocument(NodeInterface $node, ?string $hash): bool
     {
@@ -212,10 +199,6 @@ class Job extends AbstractJob
 
     /**
      * Delete collection document.
-     *
-     * @param ObjectId $node
-     *
-     * @return bool
      */
     public function deleteCollectionDocument(ObjectId $node): bool
     {
@@ -236,11 +219,6 @@ class Job extends AbstractJob
 
     /**
      * Create document.
-     *
-     * @param ObjectId $node
-     * @param string   $hash
-     *
-     * @return bool
      */
     public function deleteFileDocument(ObjectId $node, ?string $hash): bool
     {
@@ -263,10 +241,6 @@ class Job extends AbstractJob
 
     /**
      * Add share.
-     *
-     * @param Collection $collection
-     *
-     * @return bool
      */
     protected function addShare(Collection $collection): bool
     {
@@ -284,10 +258,6 @@ class Job extends AbstractJob
 
     /**
      * Delete share.
-     *
-     * @param Collection $collection
-     *
-     * @return bool
      */
     protected function deleteShare(Collection $collection): bool
     {
@@ -309,11 +279,6 @@ class Job extends AbstractJob
 
     /**
      * Delete blob reference.
-     *
-     * @param string $id
-     * @param string $hash
-     *
-     * @return bool
      */
     protected function deleteBlobReference(string $id, string $hash): bool
     {
@@ -349,8 +314,6 @@ class Job extends AbstractJob
 
     /**
      * Set memory limit.
-     *
-     * @return Job
      */
     protected function setMemoryLimit(): self
     {
@@ -365,10 +328,6 @@ class Job extends AbstractJob
 
     /**
      * Get params.
-     *
-     * @param NodeInterface $node
-     *
-     * @return array
      */
     protected function getParams(NodeInterface $node): array
     {
@@ -381,10 +340,6 @@ class Job extends AbstractJob
 
     /**
      * Delete blob.
-     *
-     * @param string $id
-     *
-     * @return bool
      */
     protected function deleteBlob(string $id): bool
     {
@@ -401,10 +356,6 @@ class Job extends AbstractJob
 
     /**
      * Get stored file.
-     *
-     * @param string $hash
-     *
-     * @return array
      */
     protected function getFileByHash(?string $hash): ?array
     {
@@ -438,10 +389,6 @@ class Job extends AbstractJob
 
     /**
      * Add or update blob.
-     *
-     * @param File $node
-     *
-     * @return bool
      */
     protected function storeBlob(File $file): bool
     {
@@ -478,12 +425,6 @@ class Job extends AbstractJob
 
     /**
      * Prepare references update.
-     *
-     * @param array $references
-     * @param array $new_references
-     * @param array $new_share_references
-     *
-     * @return array
      */
     protected function prepareUpdate(File $file, array $references): array
     {
@@ -512,10 +453,6 @@ class Job extends AbstractJob
 
     /**
      * Add new blob.
-     *
-     * @param File $file
-     *
-     * @return bool
      */
     protected function createNewBlob(File $file): bool
     {
@@ -538,7 +475,7 @@ class Job extends AbstractJob
 
         $params = [
             'index' => $this->es->getIndex(),
-            'id' => (string) new ObjectId(),
+            'id' => $file->getHash(),
             'type' => 'fs',
             'body' => [
                 'md5' => $file->getHash(),
@@ -554,11 +491,6 @@ class Job extends AbstractJob
 
     /**
      * Update blob.
-     *
-     * @param File  $file
-     * @param array $meta
-     *
-     * @return bool
      */
     protected function updateBlob(string $id, array $meta): bool
     {

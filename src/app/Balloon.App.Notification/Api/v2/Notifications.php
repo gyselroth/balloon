@@ -27,6 +27,8 @@ use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Async;
 use Zend\Mail\Message;
+use Zend\Mime\Message as MimeMessage;
+use Zend\Mime\Part as MimePart;
 
 class Notifications extends Controller
 {
@@ -95,14 +97,6 @@ class Notifications extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Notifier                       $notifier
-     * @param Server                         $server
-     * @param Async                          $async
-     * @param LoggerInterface                $logger
-     * @param RoleAttributeDecorator         $role_decorator
-     * @param NodeAttributeDecorator         $node_decorator
-     * @param NotificationAttributeDecorator $notification_decorator
      */
     public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, RoleAttributeDecorator $role_decorator, NodeAttributeDecorator $node_decorator, NotificationAttributeDecorator $notification_decorator)
     {
@@ -141,9 +135,6 @@ class Notifications extends Controller
      * ]
      *
      * @param ObjectId $id
-     * @param array    $attributes
-     * @param int      $offset
-     * @param int      $limit
      */
     public function get(?ObjectId $id = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -200,13 +191,14 @@ class Notifications extends Controller
     public function post(array $receiver, string $subject, string $body): Response
     {
         $users = $this->server->getUsersById($receiver);
-        $this->notifier->notify($receiver, $this->user, $subject, $body);
+        $message = $this->notifier->customMessage($subject, $body);
+        $this->notifier->notify($users, $this->user, $message);
 
         return (new Response())->setCode(202);
     }
 
     /**
-     * @api {post} /api/v2/notifications/broadcast Post a notification to all users (or to a bunch of users)
+     * @api {post} /api/v2/notifications/broadcast Post a notification to all users
      * @apiVersion 2.0.0
      * @apiName postBroadcast
      * @apiGroup App\Notification
@@ -229,7 +221,8 @@ class Notifications extends Controller
         }
 
         $users = $this->server->getUsers();
-        $this->notifier->notify($users, $this->user, $subject, $body);
+        $message = $this->notifier->customMessage($subject, $body);
+        $this->notifier->notify($users, $this->user, $message);
 
         return (new Response())->setCode(202);
     }
@@ -250,72 +243,31 @@ class Notifications extends Controller
      */
     public function postMail(array $receiver, string $subject, string $body)
     {
-        $mail = new Message();
-        $mail->setBody($body)
-          ->setFrom($this->user->getAttributes()['mail'], $this->user->getAttributes()['username'])
-          ->setSubject($subject)
-          ->setTo($this->user->getAttributes()['mail'], 'Undisclosed Recipients')
-          ->setBcc($receiver);
-        $this->async->addJob(Mail::class, $mail->toString());
+        $message = $this->notifier->customMessage($subject, $body);
 
-        return (new Response())->setCode(202);
-    }
+        $html = new MimePart($message->renderTemplate('mail_html.phtml'));
+        $html->type = 'text/html';
+        $html->setCharset('utf-8');
 
-    /**
-     * @api {post} /api/v2/notifications/subscribe Subscribe for node update
-     * @apiVersion 2.0.0
-     * @apiName postSubscribe
-     * @apiGroup App\Notification
-     * @apiPermission none
-     * @apiDescription Receive node updates
-     * @apiUse _getNodes
-     * @apiUse _multiError
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/notifications/subscribe"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "id": ""
-     * }
-     *
-     * @param null|mixed $id
-     * @param null|mixed $p
-     */
-    public function postSubscribtions($id = null, $p = null, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false)
-    {
-        if (is_array($id) || is_array($p)) {
-            foreach ($this->fs->findNodesById($id) as $node) {
-                try {
-                    $this->notifier->subscribeNode($this->fs->getNode($id, $p), $subscribe);
-                } catch (\Exception $e) {
-                    $failures[] = [
-                        'id' => (string) $node->getId(),
-                        'name' => $node->getName(),
-                        'error' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
-                    ];
+        $plain = new MimePart($message->renderTemplate('mail_plain.phtml'));
+        $plain->type = 'text/plain';
+        $plain->setCharset('utf-8');
+        $body = new MimeMessage();
+        $body->setParts([$html, $plain]);
 
-                    $this->logger->debug('failed subscribe node in multi node request ['.$node->getId().']', [
-                        'category' => get_class($this),
-                        'exception' => $e,
-                    ]);
-                }
-            }
+        $mail = (new Message())
+          ->setSubject($message->getSubject())
+          ->setBody($body)
+          ->setEncoding('UTF-8');
 
-            if (empty($failures)) {
-                return (new Response())->setCode(204);
-            }
+        $type = $mail->getHeaders()->get('Content-Type');
+        $type->setType('multipart/alternative');
 
-            return (new Response())->setcode(400)->setBody($failures);
+        foreach ($receiver as $address) {
+            $mail->setTo($address);
+            $this->async->addJob(Mail::class, $mail->toString());
         }
 
-        $node = $this->fs->getNode($id, $p);
-        $this->notifier->subscribeNode($node, $subscribe, $exclude_me, $recursive);
-        $result = $this->node_decorator->decorate($node);
-
-        return (new Response())->setCode(200)->setBody($result);
+        return (new Response())->setCode(202);
     }
 }

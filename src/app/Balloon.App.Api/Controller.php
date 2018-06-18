@@ -74,9 +74,6 @@ abstract class Controller
      *          "code": 49
      *      }
      * }
-     *
-     * @param mixed $id
-     * @param mixed $p
      */
 
     /**
@@ -172,7 +169,6 @@ abstract class Controller
      *
      * @param array|string $id
      * @param array|string $p
-     * @param Closure      $action
      */
     protected function bulk($id, $p, Closure $action): Response
     {
@@ -215,8 +211,6 @@ abstract class Controller
      * @param bool   $multiple   Allow $id to be an array
      * @param bool   $allow_root Allow instance of root collection
      * @param bool   $deleted    How to handle deleted node
-     *
-     * @return NodeInterface
      */
     protected function _getNode(
         ?string $id = null,
@@ -249,8 +243,6 @@ abstract class Controller
      * @param string $path
      * @param string $class   Force set node type
      * @param bool   $deleted How to handle deleted node
-     *
-     * @return Generator
      */
     protected function _getNodes(
         $id = null,

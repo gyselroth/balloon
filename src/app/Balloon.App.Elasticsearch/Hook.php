@@ -28,8 +28,6 @@ class Hook extends AbstractHook
 
     /**
      * Constructor.
-     *
-     * @param Async $async
      */
     public function __construct(Async $async)
     {

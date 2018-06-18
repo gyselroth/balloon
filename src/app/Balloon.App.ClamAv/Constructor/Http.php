@@ -19,8 +19,6 @@ class Http
 {
     /**
      * Constructor.
-     *
-     * @param AttributeDecorator $decorator
      */
     public function __construct(AttributeDecorator $decorator)
     {

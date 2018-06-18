@@ -42,8 +42,6 @@ class User
 
     /**
      * Initialize.
-     *
-     * @param Server $server
      */
     public function __construct(Server $server, AttributeDecorator $decorator)
     {
@@ -104,7 +102,6 @@ class User
      *
      * @param string $id
      * @param string $uname
-     * @param bool   $require_admin
      *
      * @return User
      */
@@ -203,8 +200,6 @@ class User
      *
      * @param string $uid
      * @param string $uname
-     *
-     * @return Response
      */
     public function getShares(?string $uid = null, ?string $uname = null): Response
     {
@@ -252,8 +247,6 @@ class User
      *
      * @param string $uid
      * @param string $uname
-     *
-     * @return Response
      */
     public function getQuotaUsage(?string $uid = null, ?string $uname = null): Response
     {
@@ -294,8 +287,6 @@ class User
      * @param string $uid
      * @param string $uname
      * @param string $attributes
-     *
-     * @return Response
      */
     public function getAttributes(?string $uid = null, ?string $uname = null, array $attributes = []): Response
     {
@@ -326,8 +317,6 @@ class User
      *
      * @param string $uname
      * @param string $uid
-     *
-     * @return Response
      */
     public function head(?string $uid = null, ?string $uname = null): Response
     {
@@ -358,11 +347,6 @@ class User
      *     "code": 200,
      *     "data": "user"
      * }
-     *
-     * @param string $uid
-     * @param string $uname
-     *
-     * @return Response
      */
     public function getWhoami(array $attributes = []): Response
     {
@@ -391,9 +375,6 @@ class User
      * @param string $id
      * @param string $uname
      * @param string $attributes
-     * @param int    $limit
-     *
-     * @return Response
      */
     public function getNodeAttributeSummary(?string $id = null, ?string $uname = null, array $attributes = [], int $limit = 25): Response
     {
@@ -427,10 +408,6 @@ class User
      *
      * @param string $uname
      * @param string $uid
-     * @param int    $hard
-     * @param int    $soft
-     *
-     * @return Response
      */
     public function postQuota(int $hard, int $soft, ?string $uid = null, ?string $uname = null): Response
     {

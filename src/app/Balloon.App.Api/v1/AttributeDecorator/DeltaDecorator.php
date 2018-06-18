@@ -29,9 +29,6 @@ class DeltaDecorator
      * Decorate attributes.
      *
      * @param array $node
-     * @param array $attributes
-     *
-     * @return array
      */
     public function decorate($node, array $attributes = []): array
     {
@@ -45,8 +42,6 @@ class DeltaDecorator
     /**
      * Add decorator.
      *
-     * @param string  $attribute
-     * @param Closure $decorator
      *
      * @return AttributeDecorator
      */
@@ -61,8 +56,6 @@ class DeltaDecorator
      * Get Attributes.
      *
      * @param NodeInterface
-     *
-     * @return array
      */
     protected function getAttributes(array $node): array
     {
@@ -98,11 +91,6 @@ class DeltaDecorator
 
     /**
      * Execute closures.
-     *
-     * @param array $node
-     * @param array $attributes
-     *
-     * @return array
      */
     protected function translateAttributes(array $node, array $attributes): array
     {

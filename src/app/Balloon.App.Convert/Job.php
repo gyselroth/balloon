@@ -40,8 +40,6 @@ class Job extends AbstractJob
 
     /**
      * Constructor.
-     *
-     * @param Async $async
      */
     public function __construct(Server $server, Async $async, Converter $converter)
     {
@@ -52,11 +50,6 @@ class Job extends AbstractJob
 
     /**
      * Start job.
-     *
-     * @param Server          $server
-     * @param LoggerInterface $logger
-     *
-     * @return bool
      */
     public function start(): bool
     {

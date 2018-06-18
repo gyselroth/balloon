@@ -14,7 +14,6 @@ namespace Balloon\App\Sharelink;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
-use InvalidArgumentException;
 
 class Sharelink
 {
@@ -27,8 +26,6 @@ class Sharelink
 
     /**
      * Constructor.
-     *
-     * @param Server $server
      */
     public function __construct(Server $server)
     {
@@ -37,77 +34,48 @@ class Sharelink
 
     /**
      * Share link.
-     *
-     * @param NodeInterface $node
-     * @param array         $options
-     *
-     * @return bool
      */
-    public function shareLink(NodeInterface $node, array $options): bool
+    public function shareLink(NodeInterface $node, ?string $expiration = null, ?string $password = null): bool
     {
-        $valid = [
-            'shared',
-            'token',
-            'password',
-            'expiration',
-        ];
+        $set = $node->getAppAttributes(__NAMESPACE__);
 
-        $set = [];
-        foreach ($options as $option => $v) {
-            if (!in_array($option, $valid, true)) {
-                throw new InvalidArgumentException('share option '.$option.' is not valid');
-            }
-            $set[$option] = $v;
-        }
-
-        if (!array_key_exists('token', $set)) {
+        if (!isset($set['token'])) {
             $set['token'] = bin2hex(random_bytes(16));
         }
 
-        if (array_key_exists('expiration', $set)) {
-            if (empty($set['expiration'])) {
+        if ($expiration !== null) {
+            if (empty($expiration) && isset($set['expiration'])) {
                 unset($set['expiration']);
-            } else {
-                $set['expiration'] = (int) $set['expiration'];
+            } elseif (!empty($expiration)) {
+                $set['expiration'] = (int) $expiration;
             }
         }
 
-        if (array_key_exists('password', $set)) {
-            if (empty($set['password'])) {
+        if ($password !== null) {
+            if (empty($password) && isset($set['password'])) {
                 unset($set['password']);
-            } else {
-                $set['password'] = hash('sha256', $set['password']);
+            } elseif (!empty($password)) {
+                $set['password'] = hash('sha256', $password);
             }
         }
 
-        $share = false;
-        if (!array_key_exists('shared', $set)) {
-            if (0 === count($node->getAppAttributes(__NAMESPACE__))) {
-                $share = true;
-            }
-        } else {
-            if ('true' === $set['shared'] || true === $set['shared']) {
-                $share = true;
-            }
+        $node->setAppAttributes(__NAMESPACE__, $set);
 
-            unset($set['shared']);
-        }
+        return true;
+    }
 
-        if (true === $share) {
-            $node->setAppAttributes(__NAMESPACE__, $set);
-        } else {
-            $node->unsetAppAttributes(__NAMESPACE__);
-        }
+    /**
+     * Delete sharelink.
+     */
+    public function deleteShareLink(NodeInterface $node): bool
+    {
+        $node->unsetAppAttributes(__NAMESPACE__);
 
         return true;
     }
 
     /**
      * Get share options.
-     *
-     * @param NodeInterface $node
-     *
-     * @return array
      */
     public function getShareLink(NodeInterface $node): array
     {
@@ -116,11 +84,6 @@ class Sharelink
 
     /**
      * Get attributes.
-     *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     *
-     * @return array
      */
     public function getAttributes(NodeInterface $node, array $attributes = []): array
     {
@@ -129,10 +92,6 @@ class Sharelink
 
     /**
      * Check if the node is a shared link.
-     *
-     * @param NodeInterface $node
-     *
-     * @return bool
      */
     public function isShareLink(NodeInterface $node): bool
     {
@@ -141,10 +100,6 @@ class Sharelink
 
     /**
      * Get node by access token.
-     *
-     * @param string $token
-     *
-     * @return NodeInterface
      */
     public function findNodeWithShareToken(string $token): NodeInterface
     {

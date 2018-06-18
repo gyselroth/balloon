@@ -32,8 +32,6 @@ class GithubRequestFailed extends \Balloon\Exception implements ExceptionInterfa
 
     /**
      * Set status code.
-     *
-     * @param int $code
      */
     public function setStatusCode(int $code): int
     {

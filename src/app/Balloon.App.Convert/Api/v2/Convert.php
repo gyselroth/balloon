@@ -46,10 +46,6 @@ class Convert extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Converter                 $converter
-     * @param Server                    $server
-     * @param ConvertAttributeDecorator $convert_decorator
      */
     public function __construct(Converter $converter, Server $server, ConvertAttributeDecorator $convert_decorator)
     {
@@ -143,7 +139,6 @@ class Convert extends Controller
      *
      * @param string $id
      * @param string $p
-     * @param string $format
      */
     public function postSlaves(string $format, ?string $id = null, ?string $p = null): Response
     {
@@ -172,7 +167,6 @@ class Convert extends Controller
      * @param string $id
      * @param string $p
      * @param string $slave
-     * @param bool   $node
      */
     public function deleteSlaves(ObjectId $slave, ?string $id = null, ?string $p = null, bool $node = false): Response
     {

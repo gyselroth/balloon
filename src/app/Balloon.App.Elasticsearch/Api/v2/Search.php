@@ -43,10 +43,6 @@ class Search extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Elasticsearch      $es
-     * @param AttributeDecorator $decorator
-     * @param LoggerInterface    $logger
      */
     public function __construct(Elasticsearch $es, AttributeDecorator $decorator, LoggerInterface $logger)
     {
@@ -103,13 +99,6 @@ class Search extends Controller
      *      "id": "5a745e57dbbb21002668a702"
      *  }
      * ]
-     *
-     * @param array $query
-     * @param array $attributes
-     * @param int   $deleted
-     * @param mixed $limit
-     *
-     * @return Response
      */
     public function get(array $query, array $attributes = [], int $deleted = 0, int $offset = 0, $limit = 20): Response
     {

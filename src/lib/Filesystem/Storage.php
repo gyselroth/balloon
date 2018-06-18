@@ -34,8 +34,6 @@ class Storage
 
     /**
      * Storage handler.
-     *
-     * @param LoggerInterface $logger
      */
     public function __construct(LoggerInterface $logger)
     {
@@ -44,10 +42,6 @@ class Storage
 
     /**
      * Has adapter.
-     *
-     * @param string $name
-     *
-     * @return bool
      */
     public function hasAdapter(string $name): bool
     {
@@ -57,8 +51,7 @@ class Storage
     /**
      * Inject adapter.
      *
-     * @param AdapterInterface $adapter
-     * @param string           $name
+     * @param string $name
      *
      * @return Storage
      */
@@ -83,10 +76,6 @@ class Storage
 
     /**
      * Get adapter.
-     *
-     * @param string $name
-     *
-     * @return AdapterInterface
      */
     public function getAdapter(string $name): AdapterInterface
     {
@@ -100,7 +89,6 @@ class Storage
     /**
      * Get adapters.
      *
-     * @param array $adapters
      *
      * @return AdapterInterface[]
      */
@@ -123,11 +111,8 @@ class Storage
     /**
      * Check if node exists.
      *
-     * @param NodeInterface $node
-     * @param array         $attributes
-     * @param string        $adapter
-     *
-     * @return bool
+     * @param array  $attributes
+     * @param string $adapter
      */
     public function hasNode(NodeInterface $node, ?array $attributes = null, ?string $adapter = null): bool
     {
@@ -135,27 +120,10 @@ class Storage
     }
 
     /**
-     * Get metadata for a file.
-     *
-     * @param File   $file
-     * @param array  $attributes
-     * @param string $adapter
-     *
-     * @return array
-     */
-    public function getFileMeta(File $file, ?array $attributes = null, ?string $adapter = null): array
-    {
-        return $this->execAdapter('getFileMeta', $file, $attributes, $adapter);
-    }
-
-    /**
      * Delete file.
      *
-     * @param File   $file
      * @param array  $attributes
      * @param string $adapter
-     *
-     * @return bool
      */
     public function deleteFile(File $file, ?array $attributes = null, ?string $adapter = null): bool
     {
@@ -165,7 +133,6 @@ class Storage
     /**
      * Get stored file.
      *
-     * @param File   $file
      * @param array  $attributes
      * @param string $adapter
      *
@@ -179,11 +146,8 @@ class Storage
     /**
      * Store file.
      *
-     * @param File     $file
      * @param resource $contents
      * @param string   $adapter
-     *
-     * @return mixed
      */
     public function storeFile(File $file, $contents, ?string &$adapter = null)
     {
@@ -201,12 +165,8 @@ class Storage
     /**
      * Execute command on adapter.
      *
-     * @param string $method
-     * @param File   $file
      * @param array  $attributes
      * @param string $adapter
-     *
-     * @return mixed
      */
     protected function execAdapter(string $method, File $file, ?array $attributes = null, ?string $adapter = null)
     {

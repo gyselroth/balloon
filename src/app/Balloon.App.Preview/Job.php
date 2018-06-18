@@ -33,9 +33,6 @@ class Job extends AbstractJob
 
     /**
      * Constructor.
-     *
-     * @param App    $app
-     * @param Server $server
      */
     public function __construct(PreviewCreator $preview, Server $server)
     {
@@ -45,8 +42,6 @@ class Job extends AbstractJob
 
     /**
      * Start job.
-     *
-     * @return bool
      */
     public function start(): bool
     {

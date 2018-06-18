@@ -43,9 +43,6 @@ class ShareLink extends Controller
 
     /**
      * Constructor.
-     *
-     * @param Share  $sharelink
-     * @param Server $server
      */
     public function __construct(Share $sharelink, Server $server, NodeAttributeDecorator $node_decorator)
     {
@@ -65,9 +62,8 @@ class ShareLink extends Controller
      * @apiUse _getNode
      * @apiUse _writeAction
      *
-     * @apiParam (POST Parameter) {object} [options] Sharing options
-     * @apiParam (POST Parameter) {number} [options.expiration] Expiration unix timestamp of the sharing link
-     * @apiParam (POST Parameter) {string} [options.password] Protected shared link with password
+     * @apiParam (POST Parameter) {number} [expiration] Expiration unix timestamp of the sharing link
+     * @apiParam (POST Parameter) {string} [password] Protected shared link with password
      *
      * @apiExample (cURL) example:
      * curl -XPOST "https://SERVER/api/v2/node/share-link?id=544627ed3c58891f058b4686&pretty"
@@ -82,16 +78,11 @@ class ShareLink extends Controller
      *
      * @param string $id
      * @param string $p
-     * @param array  $options
-     *
-     * @return Response
      */
-    public function post(?string $id = null, ?string $p = null, array $options = []): Response
+    public function post(?string $id = null, ?string $p = null, ?string $password = null, ?string $expiration = null): Response
     {
         $node = $this->fs->getNode($id, $p);
-        $options['shared'] = true;
-
-        $this->sharelink->shareLink($node, $options);
+        $this->sharelink->shareLink($node, $expiration, $password);
         $result = $this->node_decorator->decorate($node);
 
         return (new Response())->setCode(200)->setBody($result);
@@ -115,15 +106,11 @@ class ShareLink extends Controller
      *
      * @param string $id
      * @param string $p
-     *
-     * @return Response
      */
     public function delete(?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
-        $options = ['shared' => false];
-
-        $this->sharelink->shareLink($node, $options);
+        $this->sharelink->deleteShareLink($node);
 
         return (new Response())->setCode(204);
     }

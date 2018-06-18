@@ -26,7 +26,7 @@ Balloon\Server:
   arguments:
     config:
       temp_dir: "/tmp/balloon"
-      max_file_version: 8
+      max_file_version: 16
       max_file_size: 17179869184
       server_url: "{ENV(BALLOON_URL,https://localhost)}"
       password_policy: '#^.*$#'
@@ -48,12 +48,16 @@ Balloon\App\Notification\Notifier:
       method: injectAdapter
       arguments:
         adapter: '{Balloon\App\Notification\Adapter\Mail}'
-  services:
-    Balloon\App\Notification\Adapter\Mail:
-      arguments:
-        config:
-          sender_address: "no-reply@localhost"
-          sender_name: "balloon"
+Balloon\App\Notification\TemplateHandler:
+  arguments:
+    config:
+      fallback_locale: en_US
+      #asset_dir:
+Balloon\Async\Mail:
+  arguments:
+    config:
+      sender_address: "no-reply@localhost"
+      sender_name: "balloon"
 Balloon\App\Elasticsearch\Elasticsearch:
   arguments:
     config:
@@ -127,6 +131,7 @@ Balloon\Hook:
       arguments:
         config:
           interval: 28800
+          max_age: 5184000
     Balloon\Hook\AutoDestroy:
       arguments:
         config:

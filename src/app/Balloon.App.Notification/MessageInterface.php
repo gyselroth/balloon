@@ -17,19 +17,16 @@ interface MessageInterface
 {
     /**
      * Get subject.
-     *
-     * @param User $user
-     *
-     * @return string
      */
-    public function getSubject(User $user): string;
+    public function getSubject(?User $user = null): string;
 
     /**
      * Get body.
-     *
-     * @param User $user
-     *
-     * @return string
      */
-    public function getBody(User $user): string;
+    public function getBody(?User $user = null): string;
+
+    /**
+     * Render template.
+     */
+    public function renderTemplate(string $template, ?User $user = null): string;
 }
