@@ -109,7 +109,7 @@ $(DIST_DIR)/balloon-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/DEBIAN
 	@cp $(BASE_DIR)/packaging/debian/control $(BUILD_DIR)/DEBIAN/control
 	@cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst
-	@sed -i s/'{(DIST_DIR)/balloon-apidoc-$(VERSION).debversion}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
+	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/scripts
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console

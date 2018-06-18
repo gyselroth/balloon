@@ -12,7 +12,7 @@ before_install:
 - export version=$TRAVIS_TAG
 - if [[ "${version:0:1}" == "v" ]]; then version=${version:1}; fi;
 - if [ "$version" == "" ]; then version=$TRAVIS_BUILD_NUMBER; fi;
-script: make VERSION=$version
+script: make VERSION=$version deb
 notifications:
   email: false
 before_deploy:
