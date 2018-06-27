@@ -153,14 +153,14 @@ class NodeDecorator
                 return $acl->getAclPrivilege($node);
             },
             'share' => function ($node) {
-                if ($node->isShared() || !$node->isSpecial()) {
-                    return null;
+                if (!$node->isShared() && !$node->isSpecial()) {
+                    return false;
                 }
 
                 try {
-                    return $this->decorate($node->getShareNode(), ['id', 'name', '_links']);
+                    return $node->getShareNode()->getShareName();
                 } catch (\Exception $e) {
-                    return null;
+                    return false;
                 }
             },
             'shareowner' => function ($node) use ($server, $fs) {

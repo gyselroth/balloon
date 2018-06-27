@@ -1,7 +1,7 @@
 web:
-    image: gyselroth/balloon-web:latest-unstable
+    image: gyselroth/balloon-web:2.0.0-rc1
     ports:
-        - "443:443"
+        - "8082:443"
     links:
         - balloon
 mongodb:
@@ -21,7 +21,7 @@ elasticsearch:
 postfix:
     image: webuni/postfix
 balloon:
-    image: gyselroth/balloon:latest-unstable
+    image: gyselroth/balloon:2.0.0-rc1
     links:
         - clamav
         - mongodb

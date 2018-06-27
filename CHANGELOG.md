@@ -1,3 +1,16 @@
+## 2.0.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**:
+
+* API: [FIX] fixed set admin flag to false if admin flag was not send via PATCH /api/v2/users 
+* API: [CHANGE] added admin flag to /api/v2/users resource output
+* CORE: [CHANGE] a group name must be unique
+* API: [FIX] fixed GET /api/v1/resource/ac-roles single=true returns now an object not wrapped in an array
+* API: [FIX] fixed GET /api/v1/node/attributes and GET /api/v1/collection/children do now return the attribute "share"
+* API: [FIX] fixed GET /api/v1/collection/share now returns false if collection is not shared instead 422 - Balloon\Filesystem\Exception\Conflict
+* API: [FIX] fixed POST /api/v1/collection/share, acl is now correctly converted into v2 core
+
+
 ## 2.0.0-rc1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Jun 15 17:36:32 CEST 2018

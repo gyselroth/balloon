@@ -126,6 +126,10 @@ class Resource
             ];
         }
 
+        if ($single === true) {
+            $body = array_shift($body);
+        }
+
         return (new Response())->setCode(200)->setBody([
             'code' => 200,
             'data' => $body,

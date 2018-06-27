@@ -143,6 +143,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
             'id' => (string) $attributes['_id'],
             'username' => (string) $attributes['username'],
             'name' => (string) $attributes['username'],
+            'admin' => (bool) $attributes['admin'],
             'namespace' => isset($attributes['namespace']) ? (string) $attributes['namespace'] : null,
             'mail' => function ($role) use ($attributes, $user) {
                 if (!isset($attributes['mail'])) {

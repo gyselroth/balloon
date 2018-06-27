@@ -58,6 +58,10 @@ class LdapGroupsToLocalGroups implements DeltaInterface
                 }
             }
 
+            if (isset($attrs['namespace'])) {
+                $attrs['name'] .= '.'.$attrs['namespace'];
+            }
+
             $attrs['ldapdn'] = $group['_id'];
             $attrs['member'] = $group['member'];
             $attrs['created'] = new UTCDateTime();

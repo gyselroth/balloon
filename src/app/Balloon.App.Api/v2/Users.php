@@ -412,7 +412,7 @@ class Users
      * @param string $uname
      * @param string $id
      */
-    public function patch(?string $id = null, ?string $uname = null, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?string $locale = null, ?array $optional = null): Response
+    public function patch(?string $id = null, ?string $uname = null, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null, ?array $optional = null): Response
     {
         $attributes = compact('username', 'password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale', 'optional');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });

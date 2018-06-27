@@ -232,6 +232,10 @@ class Server
                         );
                     }
 
+                    if ($this->groupNameExists($value)) {
+                        throw new Group\Exception\NotUnique('group does already exists');
+                    }
+
                 break;
                 case 'optional':
                     if (!is_array($value)) {
@@ -423,6 +427,14 @@ class Server
     public function groupExists(ObjectId $id): bool
     {
         return  1 === $this->db->group->count(['_id' => $id]);
+    }
+
+    /**
+     * Check if group name exists.
+     */
+    public function groupNameExists(string $name): bool
+    {
+        return  1 === $this->db->group->count(['name' => $string]);
     }
 
     /**

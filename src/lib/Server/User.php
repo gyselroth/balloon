@@ -260,6 +260,7 @@ class User implements RoleInterface
             'soft_quota' => $this->soft_quota,
             'hard_quota' => $this->hard_quota,
             'mail' => $this->mail,
+            'admin' => $this->admin,
             'optional' => $this->optional,
             'avatar' => $this->avatar,
         ];

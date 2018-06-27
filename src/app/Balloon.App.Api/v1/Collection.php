@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v1;
 use Balloon\App\Api\v1\AttributeDecorator\RoleDecorator;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
+use Balloon\Server\User;
 use Micro\Http\Response;
 
 class Collection extends Node
@@ -156,22 +157,21 @@ class Collection extends Node
     public function getShare(RoleDecorator $role_decorator, ?string $id = null, ?string $p = null, array $attributes = []): Response
     {
         $node = $this->fs->getNode($id, $p);
+        $rules = false;
 
-        if (!$node->isShared()) {
-            throw new Exception\Conflict('node is not a share', Exception\Conflict::NOT_SHARED);
-        }
+        if ($node->isShare()) {
+            $rules = [];
+            $acl = $node->getAcl();
 
-        $acl = $node->getAcl();
-        $rules = [];
-
-        foreach ($acl as &$rule) {
-            $role = $role_decorator->decorate($rule['role'], $attributes);
-            $rules[] = [
-                'type' => $rule['role'] instanceof User ? 'user' : 'group',
-                'priv' => $rule['privilege'],
-                'name' => $role['name'],
-                'id' => (string) $rule['id'],
-            ];
+            foreach ($acl as &$rule) {
+                $role = $role_decorator->decorate($rule['role'], $attributes);
+                $rules[] = [
+                    'type' => $rule['role'] instanceof User ? 'user' : 'group',
+                    'priv' => $rule['privilege'],
+                    'name' => $role['name'],
+                    'id' => (string) $rule['id'],
+                ];
+            }
         }
 
         return (new Response())->setCode(200)->setBody([
@@ -217,10 +217,21 @@ class Collection extends Node
      * @param string $id
      * @param string $p
      */
-    public function postShare(array $acl, string $name, ?string $id = null, ?string $p = null): Response
+    public function postShare(array $acl, ?string $id = null, ?string $p = null): Response
     {
+        $rules = [];
+        foreach ($acl as $type => $ruleset) {
+            foreach ($ruleset as $rule) {
+                $rules[] = [
+                    'type' => $type,
+                    'id' => $rule[$type],
+                    'privilege' => $rule['priv'],
+                ];
+            }
+        }
+
         $node = $this->fs->getNode($id, $p);
-        $result = $node->share($acl, $name);
+        $result = $node->share($rules, $node->getName());
 
         if (null === $result) {
             return (new Response())->setCode(204);
