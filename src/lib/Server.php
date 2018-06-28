@@ -434,7 +434,7 @@ class Server
      */
     public function groupNameExists(string $name): bool
     {
-        return  1 === $this->db->group->count(['name' => $string]);
+        return  1 === $this->db->group->count(['name' => $name]);
     }
 
     /**

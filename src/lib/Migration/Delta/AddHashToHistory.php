@@ -60,7 +60,7 @@ class AddHashToHistory implements DeltaInterface
                 ],
                 [
                     '$set' => [
-                        'history.$.hash' => $object['blob']['md5'],
+                        'history.$.hash' => $object['blob'][0]['md5'],
                     ],
                 ]
             );

@@ -13,7 +13,7 @@
             "body": "Es sind Änderungen in deinem balloon vorhanden {node.name}.\n Du bekommst diese Meldung weil du Änderungen an {node.name} abonniert hast."
         }
     },
-    "hi": "Hi %s",
+    "hi": "Hallo %s",
     "open_in_browser": "Im Browser öffnen",
     "link": "Link: %s",
     "cheers": "Deine balloon cloud",
