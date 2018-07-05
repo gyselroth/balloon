@@ -89,7 +89,7 @@ class File extends Node
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $body,
         ]);
     }
@@ -338,7 +338,7 @@ class File extends Node
             }
         } else {
             return (new Response())->setCode(206)->setBody([
-                'code' => 206,
+                'status' => 206,
                 'data' => $index,
             ]);
         }
@@ -472,7 +472,7 @@ class File extends Node
                 $result = $node->put($content, false, $attributes);
 
                 return (new Response())->setCode(200)->setBody([
-                    'code' => 200,
+                    'status' => 200,
                     'data' => $result,
                 ]);
             }
@@ -481,7 +481,7 @@ class File extends Node
                 $result = $node->put($content, false, $attributes);
 
                 return (new Response())->setCode(200)->setBody([
-                    'code' => 200,
+                    'status' => 200,
                     'data' => $result,
                 ]);
             }
@@ -493,7 +493,7 @@ class File extends Node
                     $result = $child->put($content, false, $attributes);
 
                     return (new Response())->setCode(200)->setBody([
-                        'code' => 200,
+                        'status' => 200,
                         'data' => $result,
                     ]);
                 }
@@ -504,7 +504,7 @@ class File extends Node
                 $result = $collection->addFile($name, $content, $attributes)->getId();
 
                 return (new Response())->setCode(201)->setBody([
-                    'code' => 201,
+                    'status' => 201,
                     'data' => (string) $result,
                 ]);
             }
@@ -532,7 +532,7 @@ class File extends Node
                     $result = $parent->addFile($name, $content, $attributes)->getId();
 
                     return (new Response())->setCode(201)->setBody([
-                        'code' => 201,
+                        'status' => 201,
                         'data' => (string) $result,
                     ]);
                 } catch (Exception\NotFound $e) {

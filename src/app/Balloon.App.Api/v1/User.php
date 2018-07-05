@@ -165,7 +165,7 @@ class User
         $result = $this->_getUser($uid, $uname)->getGroups();
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
@@ -206,7 +206,7 @@ class User
         $result = $this->_getUser($uid, $uname)->getShares();
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
@@ -253,7 +253,7 @@ class User
         $result = $this->_getUser($uid, $uname)->getQuotaUsage();
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
@@ -293,7 +293,7 @@ class User
         $result = $this->decorator->decorate($this->_getUser($uid, $uname), $attributes);
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
@@ -351,7 +351,7 @@ class User
     public function getWhoami(array $attributes = []): Response
     {
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $this->_getUser()->getUsername(),
         ]);
     }
@@ -381,7 +381,7 @@ class User
         $result = $this->_getUser($id, $uname)->getNodeAttributeSummary($attributes, $limit);
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
