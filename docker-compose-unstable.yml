@@ -21,7 +21,7 @@ elasticsearch:
 postfix:
     image: webuni/postfix
 balloon:
-    image: gyselroth/balloon:2.0.0-rc1
+    image: gyselroth/balloon:2.0.1
     links:
         - clamav
         - mongodb
@@ -36,7 +36,7 @@ balloon:
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
 balloon-jobs:
-    image: gyselroth/balloon:latest-unstable
+    image: gyselroth/balloon:2.0.1
     links:
         - clamav
         - mongodb

@@ -185,6 +185,12 @@ class Filesystem
             );
         }
 
+        if (true === $node['directory']) {
+            $this->cache[(string) $id] = new Collection($node, $this, $this->logger, $this->hook, $this->acl);
+        } else {
+            $this->cache[(string) $id] = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
+        }
+
         return $node;
     }
 

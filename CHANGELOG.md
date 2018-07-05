@@ -1,3 +1,13 @@
+## 2.0.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jul 05 11:08:13 CEST 2018
+
+* CORE: [CHANGE] Cache loaded users and groups which will result in better performance
+* CORE: [CHANGE] Cache loaded raw nodes which will result in better performance
+* API: [FIX] fixed GET /api/v1/file with query download=true
+* CORE: [FIX] fixed default config Balloon\Convert => Balloon\Converter
+
+
 ## 2.0.1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Jul 05 09:19:14 CEST 2018

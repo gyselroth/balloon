@@ -136,22 +136,22 @@ Balloon\Hook:
       arguments:
         config:
           interval: 28800
-Balloon\Convert:
+Balloon\Converter:
   calls:
-    Balloon\Convert\Adapter\Imagick:
+    Balloon\Converter\Adapter\ImagickImage:
       method: injectAdapter
       arguments:
-        adapter: '{Balloon\Convert\Adapter\Imagick}'
-    Balloon\Convert\Adapter\Office:
+        adapter: '{Balloon\Converter\Adapter\ImagickImage}'
+    Balloon\Converter\Adapter\Office:
       method: injectAdapter
       arguments:
-        adapter: '{Balloon\Convert\Adapter\Office}'
+        adapter: '{Balloon\Converter\Adapter\Office}'
   services:
-    Balloon\Convert\Adapter\Imagick:
+    Balloon\Converter\Adapter\ImagickImage:
       arguments:
         config:
           preview_max_size: 300
-    Balloon\Convert\Adapte\Office:
+    Balloon\Converter\Adapte\Office:
       arguments:
         config:
           preview_max_size: 500

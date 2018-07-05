@@ -277,8 +277,7 @@ class Node extends Controller
             $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\''.rawurlencode($name));
         }
 
-        return (new Response())
-          ->setOutputFormat(null)
+        return $response->setOutputFormat(null)
           ->setBody(function () use ($node, $encode, $offset, $length) {
               $mime = $node->getContentType();
               $stream = $node->get();
