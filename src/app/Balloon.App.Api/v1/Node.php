@@ -194,13 +194,13 @@ class Node extends Controller
 
             if (true === $move && NodeInterface::CONFLICT_RENAME === $conflict) {
                 return [
-                    'code' => 200,
+                    'status' => 200,
                     'data' => [
                     ],
                 ];
             }
 
-            return ['code' => 204];
+            return ['status' => 204];
         });
     }
 
@@ -353,7 +353,7 @@ class Node extends Controller
         return $this->bulk($id, $p, function ($node) use ($readonly) {
             $node->setReadonly($readonly);
 
-            return ['code' => 204];
+            return ['status' => 204];
         });
     }
 
@@ -463,7 +463,7 @@ class Node extends Controller
             }
 
             return (new Response())->setCode(200)->setBody([
-                'code' => 200,
+                'status' => 200,
                 'data' => $nodes,
             ]);
         }
@@ -471,7 +471,7 @@ class Node extends Controller
         $result = $this->node_decorator->decorate($this->_getNode($id, $p), $attributes);
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
@@ -559,7 +559,7 @@ class Node extends Controller
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
@@ -598,7 +598,7 @@ class Node extends Controller
         return $this->bulk($id, $p, function ($node) {
             $node->setMetaAttributes($_POST);
 
-            return ['code' => 204];
+            return ['status' => 204];
         });
     }
 
@@ -681,7 +681,7 @@ class Node extends Controller
             $result = $node->copyTo($parent, $conflict);
 
             return [
-                'code' => 201,
+                'status' => 201,
                 'data' => $result,
             ];
         });
@@ -742,13 +742,13 @@ class Node extends Controller
             $result = $node->setParent($parent, $conflict);
             if (NodeInterface::CONFLICT_RENAME === $conflict) {
                 return [
-                    'code' => 200,
+                    'status' => 200,
                     'data' => $node->getName(),
                 ];
             }
 
             return [
-                'code' => 204,
+                'status' => 204,
             ];
         });
     }
@@ -804,7 +804,7 @@ class Node extends Controller
             }
 
             return [
-                'code' => 204,
+                'status' => 204,
             ];
         });
     }
@@ -852,7 +852,7 @@ class Node extends Controller
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $children,
         ]);
     }
@@ -900,7 +900,7 @@ class Node extends Controller
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => array_values($children),
         ]);
     }
@@ -1018,7 +1018,7 @@ class Node extends Controller
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
@@ -1137,7 +1137,7 @@ class Node extends Controller
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $body,
         ]);
     }
@@ -1179,7 +1179,7 @@ class Node extends Controller
         $result = $this->fs->getDelta()->getLastCursor();
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $result,
         ]);
     }
@@ -1203,14 +1203,14 @@ class Node extends Controller
                     $errors[] = [
                         'error' => get_class($e),
                         'message' => $e->getMessage(),
-                        'code' => $e->getCode(),
+                        'status' => $e->getCode(),
                     ];
                 }
             }
 
             if (!empty($errors)) {
                 return (new Response())->setCode(400)->setBody([
-                    'code' => 400,
+                    'status' => 400,
                     'data' => $errors,
                 ]);
             }
@@ -1218,11 +1218,11 @@ class Node extends Controller
                 return (new Response())->setCode(204);
             }
             $body = array_shift($body);
-            $response = (new Response())->setCode($body['code']);
+            $response = (new Response())->setCode($body['status']);
 
             if (isset($body['data'])) {
                 $response->setBody([
-                    'code' => $body['code'],
+                    'status' => $body['status'],
                     'data' => $body['data'],
                 ]);
             }
@@ -1231,11 +1231,11 @@ class Node extends Controller
         }
 
         $body = $action->call($this, $this->_getNode($id, $p));
-        $response = (new Response())->setCode($body['code']);
+        $response = (new Response())->setCode($body['status']);
 
         if (isset($body['data'])) {
             $response->setBody([
-                'code' => $body['code'],
+                'status' => $body['status'],
                 'data' => $body['data'],
             ]);
         }

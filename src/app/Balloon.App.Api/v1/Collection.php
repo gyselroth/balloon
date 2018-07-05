@@ -108,7 +108,7 @@ class Collection extends Node
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $children,
         ]);
     }
@@ -175,7 +175,7 @@ class Collection extends Node
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $rules,
         ]);
     }
@@ -238,7 +238,7 @@ class Collection extends Node
         }
 
         return (new Response())->setCode(201)->setBody([
-            'code' => 201,
+            'status' => 201,
             'data' => $result,
         ]);
     }
@@ -339,7 +339,7 @@ class Collection extends Node
             $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
 
             return (new Response())->setCode(201)->setBody([
-                'code' => 201,
+                'status' => 201,
                 'data' => (string) $result,
             ]);
         }
@@ -355,7 +355,7 @@ class Collection extends Node
         $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
 
         return (new Response())->setCode(201)->setBody([
-            'code' => 201,
+            'status' => 201,
             'data' => (string) $result,
         ]);
     }

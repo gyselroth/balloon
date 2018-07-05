@@ -131,7 +131,7 @@ class Resource
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $body,
         ]);
     }

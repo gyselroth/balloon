@@ -1,3 +1,10 @@
+## 2.0.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jul 05 09:19:14 CEST 2018
+
+* API: [FIX] fixed api v1 body http status code is now in the field `status` instead `code`
+
+
 ## 2.0.0
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Jun 28 10:37:34 CEST 2018

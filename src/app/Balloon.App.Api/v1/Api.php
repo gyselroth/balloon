@@ -51,7 +51,7 @@ class Api
         ];
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $data,
         ]);
     }
@@ -92,7 +92,7 @@ class Api
         ];
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $data,
         ]);
     }
@@ -120,7 +120,7 @@ class Api
     public function getVersion(): Response
     {
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => 1,
         ]);
     }
@@ -174,7 +174,7 @@ class Api
         }
 
         return (new Response())->setCode(200)->setBody([
-            'code' => 200,
+            'status' => 200,
             'data' => $api,
         ]);
     }
