@@ -14,6 +14,8 @@ namespace Balloon\Filesystem;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface;
+use Balloon\Server\User;
+use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
 class Storage
@@ -145,11 +147,8 @@ class Storage
 
     /**
      * Store file.
-     *
-     * @param resource $contents
-     * @param string   $adapter
      */
-    public function storeFile(File $file, $contents, ?string &$adapter = null)
+    public function storeFile(File $file, ObjectId $session, ?string &$adapter = null)
     {
         $attrs = $file->getAttributes();
 
@@ -159,7 +158,17 @@ class Storage
             $adapter = 'gridfs';
         }
 
-        return $this->getAdapter($adapter)->storeFile($file, $contents);
+        return $this->getAdapter($adapter)->storeFile($file, $session);
+    }
+
+    /**
+     * Store temporary.
+     */
+    public function storeTemporaryFile($stream, User $user, ?ObjectId $session = null)
+    {
+        $adapter = 'gridfs';
+
+        return $this->getAdapter($adapter)->storeTemporaryFile($stream, $user, $session);
     }
 
     /**

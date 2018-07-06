@@ -273,82 +273,23 @@ class Files extends Nodes
         }
 
         if ($session === null) {
-            $session = new ObjectId();
-        }
-
-        $folder = $this->server->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
-
-        if (!file_exists($folder)) {
-            mkdir($folder, 0700, true);
-        }
-
-        $file = $folder.DIRECTORY_SEPARATOR.$session;
-
-        $tmp_size = 0;
-        if (file_exists($file)) {
-            $tmp_size = filesize($file);
-        } elseif ($index > 1) {
-            throw new Exception\Conflict(
-                'chunks lost, reupload all chunks',
-                Exception\Conflict::CHUNKS_LOST
-            );
-        }
-
-        $session_handler = fopen($file, 'a+');
-        while (!feof($input_handler)) {
-            $data = fread($input_handler, 1024);
-            $wrote = fwrite($session_handler, $data);
-            $tmp_size += $wrote;
-
-            if ($tmp_size > (int) $this->server->getMaxFileSize()) {
-                fclose($input_handler);
-                fclose($session_handler);
-                unlink($file);
-
-                throw new Exception\InsufficientStorage(
-                    'file size exceeded limit',
-                    Exception\InsufficientStorage::FILE_SIZE_LIMIT
-                );
-            }
+            $session = $this->storage->storeTemporaryFile($input_handler, $this->server->getIdentity());
+        } else {
+            $this->storage->storeTemporaryFile($input_handler, $this->server->getIdentity(), $session);
         }
 
         if ($index === $chunks) {
-            clearstatcache();
-            if (!is_readable($file)) {
-                throw new Exception\Conflict(
-                    'chunks lost, reupload all chunks',
-                    Exception\Conflict::CHUNKS_LOST
-                );
-            }
+            $attributes = compact('changed', 'created', 'readonly', 'meta');
+            $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+            $attributes = $this->_verifyAttributes($attributes);
 
-            if ($tmp_size !== $size) {
-                fclose($session_handler);
-                unlink($file);
+            return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
+        }
 
-                throw new Exception\Conflict(
-                    'merged chunks temp file size is not as expected',
-                    Exception\Conflict::CHUNKS_INVALID_SIZE
-                );
-            }
-
-            try {
-                $attributes = compact('changed', 'created', 'readonly', 'meta');
-                $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
-                $attributes = $this->_verifyAttributes($attributes);
-
-                return $this->_put($file, $id, $p, $collection, $name, $attributes, $conflict);
-            } catch (\Exception $e) {
-                unlink($file);
-
-                throw $e;
-            }
-        } else {
-            return (new Response())->setCode(206)->setBody([
+        return (new Response())->setCode(206)->setBody([
                 'session' => (string) $session,
-                'size' => $tmp_size,
                 'chunks_left' => $chunks - $index,
             ]);
-        }
     }
 
     /**

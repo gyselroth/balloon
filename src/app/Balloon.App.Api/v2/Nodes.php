@@ -23,6 +23,7 @@ use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Storage;
 use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -71,10 +72,11 @@ class Nodes extends Controller
     /**
      * Initialize.
      */
-    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, Storage $storage)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
+        $this->storage = $storage;
         $this->server = $server;
         $this->node_decorator = $decorator;
         $this->logger = $logger;
