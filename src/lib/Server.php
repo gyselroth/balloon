@@ -111,6 +111,20 @@ class Server
     protected $server_url = 'https://localhost';
 
     /**
+     * Users cache.
+     *
+     * @var array
+     */
+    protected $cache_users = [];
+
+    /**
+     * Group cache.
+     *
+     * @var array
+     */
+    protected $cache_groups = [];
+
+    /**
      * Initialize.
      *
      * @param iterable $config
@@ -442,6 +456,10 @@ class Server
      */
     public function getUserById(ObjectId $id): User
     {
+        if (isset($this->cache_users[(string) $id])) {
+            return $this->cache_users[(string) $id];
+        }
+
         $aggregation = $this->getUserAggregationPipes();
         array_unshift($aggregation, ['$match' => ['_id' => $id]]);
         $users = $this->db->user->aggregate($aggregation)->toArray();
@@ -454,7 +472,10 @@ class Server
             throw new User\Exception\NotFound('user does not exists');
         }
 
-        return new User(array_shift($users), $this, $this->db, $this->logger);
+        $user = new User(array_shift($users), $this, $this->db, $this->logger);
+        $this->cache_users[(string) $id] = $user;
+
+        return $user;
     }
 
     /**
@@ -638,6 +659,10 @@ class Server
      */
     public function getGroupById(ObjectId $id): Group
     {
+        if (isset($this->cache_groups[(string) $id])) {
+            return $this->cache_groups[(string) $id];
+        }
+
         $group = $this->db->group->findOne([
            '_id' => $id,
         ]);
@@ -646,7 +671,10 @@ class Server
             throw new Group\Exception\NotFound('group does not exists');
         }
 
-        return new Group($group, $this, $this->db, $this->logger);
+        $group = new Group($group, $this, $this->db, $this->logger);
+        $this->cache_groups[(string) $id] = $group;
+
+        return $group;
     }
 
     /**

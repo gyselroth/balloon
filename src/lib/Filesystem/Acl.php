@@ -75,7 +75,6 @@ class Acl
         }
 
         $priv = $this->getAclPrivilege($node);
-
         $result = false;
 
         if ('w+' === $priv && $node->isOwnerRequest()) {
