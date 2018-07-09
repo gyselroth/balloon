@@ -14,6 +14,7 @@ namespace Balloon\Filesystem\Storage\Adapter;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 
 interface AdapterInterface
@@ -43,7 +44,7 @@ interface AdapterInterface
     /**
      * Store temporary file.
      */
-    public function storeTemporaryFile(File $file, ObjectId $session);
+    public function storeTemporaryFile(File $file, User $user, ?ObjectId $session): ObjectId;
 
     /**
      * Create collection.

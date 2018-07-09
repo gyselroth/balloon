@@ -11,6 +11,15 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Storage\Exception;
 
-class NotFound extends \Balloon\Exception
+use Micro\Http\ExceptionInterface;
+
+class SessionNotFound extends \Balloon\Exception implements ExceptionInterface
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getStatusCode(): int
+    {
+        return 404;
+    }
 }

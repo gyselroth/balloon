@@ -15,6 +15,7 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
+use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Server\User;
 use Generator;
@@ -55,7 +56,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Initialize.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Storage $storage)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -64,6 +65,7 @@ class Collection extends AbstractNode implements IQuota
         $this->_logger = $logger;
         $this->_hook = $hook;
         $this->_acl = $acl;
+        $this->_storage = $storage;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -637,11 +639,8 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Create new file as a child from this collection.
-     *
-     * @param string     $name
-     * @param null|mixed $data
      */
-    public function addFile($name, $data = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
+    public function addFile($name, ?ObjectId $session = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
             throw new ForbiddenException(
@@ -714,22 +713,7 @@ class Collection extends AbstractNode implements IQuota
             $this->save('changed');
 
             $file = $this->_fs->initNode($save);
-
-            try {
-                $file->put($data, true, $attributes);
-            } catch (Exception\InsufficientStorage $e) {
-                $this->_logger->warning('failed add new file under parent ['.$this->_id.'], cause user quota is full', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-
-                $this->_db->storage->deleteOne([
-                    '_id' => $save['_id'],
-                ]);
-
-                throw $e;
-            }
-
+            $file->setContent($session, $attributes);
             $this->_hook->run('postCreateFile', [$this, $file, $clone]);
 
             return $file;
@@ -751,12 +735,13 @@ class Collection extends AbstractNode implements IQuota
      *
      * @param string $name
      * @param string $data
-     *
-     * @return File
      */
-    public function createFile($name, $data = null): String
+    public function createFile($name, $data = null, array $attributes = []): string
     {
-        return $this->addFile($name, $data)->getETag();
+        $session = $this->_storage->storeTemporaryFile($data, $this->_user);
+        $file = $this->addFile($name, $session, $attributes);
+
+        return $file->getETag();
     }
 
     /**

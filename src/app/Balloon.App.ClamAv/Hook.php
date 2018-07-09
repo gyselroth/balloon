@@ -35,7 +35,7 @@ class Hook extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function postPutFile(File $node, $content, bool $force, array $attributes): void
+    public function postPutFile(File $node): void
     {
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),

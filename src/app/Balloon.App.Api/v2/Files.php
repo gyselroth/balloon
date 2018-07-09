@@ -267,15 +267,15 @@ class Files extends Nodes
         ?array $meta = null
     ) {
         ini_set('auto_detect_line_endings', '1');
-        $input_handler = fopen('php://input', 'rb');
+        $input = fopen('php://input', 'rb');
         if ($index > $chunks) {
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
         if ($session === null) {
-            $session = $this->storage->storeTemporaryFile($input_handler, $this->server->getIdentity());
+            $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
         } else {
-            $this->storage->storeTemporaryFile($input_handler, $this->server->getIdentity(), $session);
+            $this->storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
         }
 
         if ($index === $chunks) {
@@ -389,26 +389,26 @@ class Files extends Nodes
         ?array $meta = null
     ): Response {
         ini_set('auto_detect_line_endings', '1');
-        $content = fopen('php://input', 'rb');
+        $input = fopen('php://input', 'rb');
+        $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
 
         $attributes = compact('changed', 'created', 'readonly', 'meta');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);
 
-        return $this->_put($content, $id, $p, $collection, $name, $attributes, $conflict);
+        return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
     }
 
     /**
      * Add or update file.
      *
-     * @param resource|string $content
-     * @param string          $id
-     * @param string          $p
-     * @param string          $collection
-     * @param string          $name
+     * @param string $id
+     * @param string $p
+     * @param string $collection
+     * @param string $name
      */
     protected function _put(
-        $content,
+        ObjectId $session,
         ?string $id = null,
         ?string $p = null,
         ?string $collection = null,
@@ -427,14 +427,14 @@ class Files extends Nodes
         try {
             if (null !== $p) {
                 $node = $this->_getNode(null, $p);
-                $result = $node->put($content, false, $attributes);
+                $node->setContent($session, $attributes);
                 $result = $this->node_decorator->decorate($node);
 
                 return (new Response())->setCode(200)->setBody($result);
             }
             if (null !== $id && null === $collection) {
                 $node = $this->_getNode($id);
-                $result = $node->put($content, false, $attributes);
+                $node->setContent($session, $attributes);
                 $result = $this->node_decorator->decorate($node);
 
                 return (new Response())->setCode(200)->setBody($result);
@@ -444,7 +444,7 @@ class Files extends Nodes
 
                 if ($collection->childExists($name)) {
                     $child = $collection->getChild($name);
-                    $result = $child->put($content, false, $attributes);
+                    $child->setContent($session, $attributes);
                     $result = $this->node_decorator->decorate($child);
 
                     return (new Response())->setCode(200)->setBody($result);
@@ -453,7 +453,7 @@ class Files extends Nodes
                     throw new Exception\InvalidArgument('name must be a valid string');
                 }
 
-                $result = $collection->addFile($name, $content, $attributes);
+                $result = $collection->addFile($name, $session, $attributes);
                 $result = $this->node_decorator->decorate($result);
 
                 return (new Response())->setCode(201)->setBody($result);
@@ -479,7 +479,7 @@ class Files extends Nodes
                         throw new Exception\InvalidArgument('name must be a valid string');
                     }
 
-                    $result = $parent->addFile($name, $content, $attributes);
+                    $result = $parent->addFile($name, $session, $attributes);
                     $result = $this->node_decorator->decorate($result);
 
                     return (new Response())->setCode(201)->setBody($result);

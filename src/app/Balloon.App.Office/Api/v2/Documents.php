@@ -163,7 +163,8 @@ class Documents extends Controller
         $attributes = compact('readonly', 'meta');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
-        $result = $parent->addFile($name, $tpl->get(), $attributes);
+        $session = $parent->temporarySession($tpl->get());
+        $result = $parent->addFile($name, $session, $attributes);
         $result = $this->decorator->decorate($result);
 
         return (new Response())->setCode(201)->setBody($result);

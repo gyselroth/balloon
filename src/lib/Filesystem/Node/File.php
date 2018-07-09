@@ -19,6 +19,7 @@ use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
 use MimeType\MimeType;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IFile;
@@ -85,13 +86,6 @@ class File extends AbstractNode implements IFile
     protected $history = [];
 
     /**
-     * Storage.
-     *
-     * @var Storage
-     */
-    protected $_storage;
-
-    /**
      * Storage attributes.
      *
      * @var mixed
@@ -126,18 +120,11 @@ class File extends AbstractNode implements IFile
      */
     public function get()
     {
-        try {
-            if (null === $this->storage) {
-                return null;
-            }
-
-            return $this->_storage->getFile($this, $this->storage);
-        } catch (\Exception $e) {
-            throw new Exception\NotFound(
-                'content not found',
-                Exception\NotFound::CONTENTS_NOT_FOUND
-            );
+        if (null === $this->storage) {
+            return null;
         }
+
+        return $this->_storage->getFile($this, $this->storage);
     }
 
     /**
@@ -468,29 +455,29 @@ class File extends AbstractNode implements IFile
     }
 
     /**
-     * Change content.
+     * Change content (Sabe dav compatible method).
      */
-    public function put($content, bool $new = false, array $attributes = []): int
+    public function put($content): int
     {
         $this->_logger->debug('write new file content into temporary storage for file ['.$this->_id.']', [
             'category' => get_class($this),
         ]);
 
-        $session = $this->_storage->storeTemporaryFile($content);
+        $session = $this->_storage->storeTemporaryFile($content, $this->_user);
 
         return $this->setContent($session);
-        $this->validatePutRequest($file, $new, $attributes);
     }
 
     /**
      * Set content (temporary file).
      */
-    public function setContent(ObjectId $session): int
+    public function setContent(ObjectId $session, array $attributes = []): int
     {
         $this->_logger->debug('set temporary file ['.$session.'] as file content for ['.$this->_id.']', [
             'category' => get_class($this),
         ]);
 
+        $this->prePutFile($session);
         $result = $this->_storage->storeFile($this, $session, $this->storage_adapter);
         $this->storage = $result['reference'];
         $this->hash = $result['hash'];
@@ -506,7 +493,7 @@ class File extends AbstractNode implements IFile
         $this->increaseVersion();
 
         $this->addVersion($attributes)
-             ->postPutFile($new, $attributes);
+             ->postPutFile();
 
         return $this->version;
     }
@@ -558,11 +545,9 @@ class File extends AbstractNode implements IFile
     }
 
     /**
-     * Change content.
-     *
-     * @param resource|string $file
+     * Pre content change checks.
      */
-    protected function validatePutRequest($file, bool $new = false, array $attributes = []): bool
+    protected function prePutFile(ObjectId $session): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
             throw new AclException\Forbidden(
@@ -571,7 +556,7 @@ class File extends AbstractNode implements IFile
             );
         }
 
-        $this->_hook->run('prePutFile', [$this, &$file, &$new, &$attributes]);
+        $this->_hook->run('prePutFile', [$this, &$session]);
 
         if ($this->readonly) {
             throw new Exception\Conflict(
@@ -588,31 +573,6 @@ class File extends AbstractNode implements IFile
         }
 
         return true;
-    }
-
-    /**
-     * Verify content to be added.
-     *
-     * @param string $path
-     *
-     * @return bool
-     */
-    protected function verifyFile(?string $path, bool $new = false): string
-    {
-        if (!$this->_user->checkQuota($size)) {
-            $this->_logger->warning('could not execute PUT, user quota is full', [
-                'category' => get_class($this),
-            ]);
-
-            if (true === $new) {
-                $this->_forceDelete();
-            }
-
-            throw new Exception\InsufficientStorage(
-                'user quota is full',
-                Exception\InsufficientStorage::USER_QUOTA_FULL
-            );
-        }
     }
 
     /**
@@ -672,7 +632,7 @@ class File extends AbstractNode implements IFile
     /**
      * Finalize put request.
      */
-    protected function postPutFile(bool $new, array $attributes): self
+    protected function postPutFile(): self
     {
         try {
             $this->save([
@@ -690,7 +650,7 @@ class File extends AbstractNode implements IFile
                 'category' => get_class($this),
             ]);
 
-            $this->_hook->run('postPutFile', [$this, $new, $attributes]);
+            $this->_hook->run('postPutFile', [$this]);
 
             return $this;
         } catch (\Exception $e) {
