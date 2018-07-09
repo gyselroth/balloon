@@ -154,7 +154,8 @@ class Document extends Controller
     {
         $parent = $this->fs->getNode($collection, null, Collection::class, false, true);
         $tpl = new Template($type);
-        $result = $parent->addFile($name, $tpl->get(), $attributes);
+        $session = $parent->temporarySession($tpl->get());
+        $result = $parent->addFile($name, $session, $attributes);
 
         return (new Response())->setCode(201)->setBody([
             'code' => 201,

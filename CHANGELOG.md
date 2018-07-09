@@ -1,3 +1,13 @@
+## 2.0.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Jul 09 14:54:33 CEST 2018
+
+* API: [CHANGE] quota attributes are now part of the root document GET /api/v2/users/{id}
+* CORE: [CHANGE] Implemented #92, Store chunks in gridfs temporary storage instead filesystem, increases stability and performance. Also fixes issues in load balanced environements.
+* CORE: [CHANGE] Quota is now checked after each uploaded chunk (implemented in #92)
+* CORE: [CHANGE] Added hook script to clean temporary blobs from gridfs #92
+
+
 ## 2.0.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Jul 05 11:08:13 CEST 2018

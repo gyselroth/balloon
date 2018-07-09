@@ -22,6 +22,7 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Storage;
 use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -29,6 +30,7 @@ use Closure;
 use Generator;
 use Micro\Http\Response;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use ZipStream\ZipStream;
 
@@ -70,15 +72,31 @@ class Node extends Controller
     protected $node_decorator;
 
     /**
+     * Database.
+     *
+     * @var Database
+     */
+    protected $db;
+
+    /**
+     * Storage.
+     *
+     * @var Storage
+     */
+    protected $storage;
+
+    /**
      * Initialize.
      */
-    public function __construct(Server $server, NodeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(Server $server, NodeDecorator $decorator, LoggerInterface $logger, Storage $storage, Database $db)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
         $this->node_decorator = $decorator;
         $this->logger = $logger;
+        $this->storage = $storage;
+        $this->db = $db;
     }
 
     /**

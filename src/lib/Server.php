@@ -69,13 +69,6 @@ class Server
     protected $acl;
 
     /**
-     * Temporary store.
-     *
-     * @var string
-     */
-    protected $temp_dir = '/tmp/balloon';
-
-    /**
      * Max file version.
      *
      * @var int
@@ -155,7 +148,6 @@ class Server
 
         foreach ($config as $name => $value) {
             switch ($name) {
-                case 'temp_dir':
                 case 'password_policy':
                 case 'server_url':
                     $this->{$name} = (string) $value;
@@ -181,14 +173,6 @@ class Server
     public function getServerUrl(): string
     {
         return $this->server_url;
-    }
-
-    /**
-     * Get temporary directory.
-     */
-    public function getTempDir(): string
-    {
-        return $this->temp_dir;
     }
 
     /**

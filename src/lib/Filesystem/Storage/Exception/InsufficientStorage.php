@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Filesystem\Exception;
+namespace Balloon\Filesystem\Storage\Exception;
 
 use Micro\Http\ExceptionInterface;
 

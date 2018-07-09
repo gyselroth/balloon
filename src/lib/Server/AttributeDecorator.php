@@ -139,7 +139,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
         $user = $this->server->getIdentity();
 
-        return [
+        $result = [
             'id' => (string) $attributes['_id'],
             'username' => (string) $attributes['username'],
             'name' => (string) $attributes['username'],
@@ -157,14 +157,13 @@ class AttributeDecorator implements AttributeDecoratorInterface
                 return null;
             },
             'locale' => isset($attributes['locale']) ? (string) $attributes['locale'] : null,
-            'quota' => function ($role) use ($attributes, $user) {
-                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
-                    return $role->getQuotaUsage();
-                }
-
-                return null;
-            },
         ];
+
+        if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+            return array_merge($result, $role->getQuotaUsage());
+        }
+
+        return $result;
     }
 
     /**
