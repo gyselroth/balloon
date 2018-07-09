@@ -44,7 +44,7 @@ interface AdapterInterface
     /**
      * Store temporary file.
      */
-    public function storeTemporaryFile(File $file, User $user, ?ObjectId $session): ObjectId;
+    public function storeTemporaryFile($stream, User $user, ?ObjectId $session): ObjectId;
 
     /**
      * Create collection.

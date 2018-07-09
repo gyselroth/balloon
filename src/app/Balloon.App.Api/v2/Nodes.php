@@ -70,6 +70,13 @@ class Nodes extends Controller
     protected $node_decorator;
 
     /**
+     * Storage.
+     *
+     * @var Storage
+     */
+    protected $storage;
+
+    /**
      * Initialize.
      */
     public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, Storage $storage)

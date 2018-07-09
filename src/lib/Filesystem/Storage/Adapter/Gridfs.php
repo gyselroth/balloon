@@ -264,9 +264,9 @@ class Gridfs implements AdapterInterface
         $data = null;
         $length = $temp['length'];
         $chunks = 0;
+        $left = 0;
 
         if ($exists !== null) {
-            //$chunks = $this->db->selectCollection('fs.chunks')->count(['files_id' => $temp['_id']]);
             $chunks = (int) ceil($temp['length'] / $temp['chunkSize']);
             $left = (int) ($chunks * $temp['chunkSize'] - $temp['length']);
 
@@ -385,11 +385,11 @@ class Gridfs implements AdapterInterface
             if ($length + 8192 > $bytes) {
                 $max = $bytes - $length;
 
-                $length += $max;
+                if ($max === 0) {
+                    return $data;
+                }
 
-                $this->logger->warning('read:'.$bytes.'&/'.$length.' / '.$max, [
-                'category' => get_class($this),
-            ]);
+                $length += $max;
 
                 return $data .= fread($stream, $max);
             }

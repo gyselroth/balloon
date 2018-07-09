@@ -149,6 +149,10 @@ return [
                 'method' => 'injectHook',
                 'arguments' => ['hook' => '{'.Hook\CleanTrash::class.'}']
             ],
+            Hook\CleanTempStorage::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.Hook\CleanTempStorage::class.'}']
+            ],
         ]
     ],
     Storage::class => [

@@ -461,7 +461,8 @@ class Files extends Nodes
         } catch (ForbiddenException $e) {
             throw new Exception\Conflict(
                 'a node called '.$name.' does already exists in this collection',
-                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
+                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS,
+                $e
             );
         } catch (Exception\NotFound $e) {
             if (null !== $p && null === $id) {

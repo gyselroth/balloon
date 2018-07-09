@@ -118,6 +118,10 @@ Balloon\Hook:
       method: injectHook
       arguments:
         hook: '{Balloon\Hook\AutoDestroy}'
+    Balloon\Hook\CleanTempStorage:
+      method: injectHook
+      arguments:
+        hook: '{Balloon\Hook\CleanTempStorage}'
   services:
     Balloon\Hook\Delta:
     Balloon\Hook\AutoCreateUser:
@@ -135,6 +139,11 @@ Balloon\Hook:
       arguments:
         config:
           interval: 28800
+    Balloon\Hook\CleanTempStorage:
+      arguments:
+        config:
+          interval: 172800
+          max_age: 172800
 Balloon\Converter:
   calls:
     Balloon\Converter\Adapter\ImagickImage:

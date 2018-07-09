@@ -21,6 +21,7 @@ use Balloon\Hook;
 use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\GridFS\Exception as GridFSException;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IFile;
 
@@ -124,7 +125,15 @@ class File extends AbstractNode implements IFile
             return null;
         }
 
-        return $this->_storage->getFile($this, $this->storage);
+        try {
+            return $this->_storage->getFile($this, $this->storage);
+        } catch (GridFSException\FileNotFoundException $e) {
+            throw new Exception\NotFound(
+                'storage blob is gone',
+                Exception\NotFound::CONTENTS_NOT_FOUND,
+                $e
+            );
+        }
     }
 
     /**
@@ -354,7 +363,7 @@ class File extends AbstractNode implements IFile
             ]);
 
             return $this->save('history');
-        } catch (StorageException\NotFound $e) {
+        } catch (StorageException\BlobNotFound $e) {
             $this->_logger->error('failed remove version ['.$version.'] from file ['.$this->_id.']', [
                 'category' => get_class($this),
                 'exception' => $e,
@@ -562,13 +571,6 @@ class File extends AbstractNode implements IFile
             throw new Exception\Conflict(
                 'node is marked as readonly, it is not possible to change any content',
                 Exception\Conflict::READONLY
-            );
-        }
-
-        if ($this->isShareMember() && false === $new && 'w' === $this->_acl->getAclPrivilege($this->getShareNode())) {
-            throw new AclException\Forbidden(
-                'not allowed to overwrite node',
-                AclException\Forbidden::NOT_ALLOWED_TO_OVERWRITE
             );
         }
 

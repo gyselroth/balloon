@@ -450,7 +450,7 @@ class File extends Node
 
                 if ($collection->childExists($name)) {
                     $child = $collection->getChild($name);
-                    $result = $node->setContent($session, $attributes);
+                    $result = $child->setContent($session, $attributes);
 
                     return (new Response())->setCode(200)->setBody([
                         'status' => 200,

@@ -237,6 +237,8 @@ class Job extends AbstractJob
         if ($hash !== null) {
             return $this->deleteBlobReference((string) $node, $hash);
         }
+
+        return true;
     }
 
     /**
@@ -267,10 +269,6 @@ class Job extends AbstractJob
                 $that->deleteShare($node);
             } else {
                 $that->storeBlob($node);
-                //$result = $that->getFileByHash($node->getHash());
-                //if ($result !== null) {
-                //     $this->updateBlob($result['_id'], ['share_ref' => []]);
-                //}
             }
         }, NodeInterface::DELETED_INCLUDE);
 
