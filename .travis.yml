@@ -7,7 +7,6 @@ addons:
     packages:
     - imagemagick
 before_install:
-#- echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 - echo "\n" | pecl install mongodb
 - echo "\n" | pecl install imagick
 - export version=$TRAVIS_TAG
