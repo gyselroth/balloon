@@ -17,6 +17,7 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server\User;
 use Micro\Auth\Auth;
 use Micro\Auth\Identity;
+use MongoDB\BSON\ObjectId;
 
 abstract class AbstractHook implements HookInterface
 {
@@ -164,14 +165,14 @@ abstract class AbstractHook implements HookInterface
     /**
      * {@inheritdoc}
      */
-    public function prePutFile(File $node, $content, bool $force, array $attributes): void
+    public function prePutFile(File $node, ObjectId $session): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postPutFile(File $node, $content, bool $force, array $attributes): void
+    public function postPutFile(File $node): void
     {
     }
 

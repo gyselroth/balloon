@@ -267,88 +267,29 @@ class Files extends Nodes
         ?array $meta = null
     ) {
         ini_set('auto_detect_line_endings', '1');
-        $input_handler = fopen('php://input', 'rb');
+        $input = fopen('php://input', 'rb');
         if ($index > $chunks) {
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
         if ($session === null) {
-            $session = new ObjectId();
-        }
-
-        $folder = $this->server->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
-
-        if (!file_exists($folder)) {
-            mkdir($folder, 0700, true);
-        }
-
-        $file = $folder.DIRECTORY_SEPARATOR.$session;
-
-        $tmp_size = 0;
-        if (file_exists($file)) {
-            $tmp_size = filesize($file);
-        } elseif ($index > 1) {
-            throw new Exception\Conflict(
-                'chunks lost, reupload all chunks',
-                Exception\Conflict::CHUNKS_LOST
-            );
-        }
-
-        $session_handler = fopen($file, 'a+');
-        while (!feof($input_handler)) {
-            $data = fread($input_handler, 1024);
-            $wrote = fwrite($session_handler, $data);
-            $tmp_size += $wrote;
-
-            if ($tmp_size > (int) $this->server->getMaxFileSize()) {
-                fclose($input_handler);
-                fclose($session_handler);
-                unlink($file);
-
-                throw new Exception\InsufficientStorage(
-                    'file size exceeded limit',
-                    Exception\InsufficientStorage::FILE_SIZE_LIMIT
-                );
-            }
+            $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
+        } else {
+            $this->storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
         }
 
         if ($index === $chunks) {
-            clearstatcache();
-            if (!is_readable($file)) {
-                throw new Exception\Conflict(
-                    'chunks lost, reupload all chunks',
-                    Exception\Conflict::CHUNKS_LOST
-                );
-            }
+            $attributes = compact('changed', 'created', 'readonly', 'meta');
+            $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
+            $attributes = $this->_verifyAttributes($attributes);
 
-            if ($tmp_size !== $size) {
-                fclose($session_handler);
-                unlink($file);
+            return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
+        }
 
-                throw new Exception\Conflict(
-                    'merged chunks temp file size is not as expected',
-                    Exception\Conflict::CHUNKS_INVALID_SIZE
-                );
-            }
-
-            try {
-                $attributes = compact('changed', 'created', 'readonly', 'meta');
-                $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
-                $attributes = $this->_verifyAttributes($attributes);
-
-                return $this->_put($file, $id, $p, $collection, $name, $attributes, $conflict);
-            } catch (\Exception $e) {
-                unlink($file);
-
-                throw $e;
-            }
-        } else {
-            return (new Response())->setCode(206)->setBody([
+        return (new Response())->setCode(206)->setBody([
                 'session' => (string) $session,
-                'size' => $tmp_size,
                 'chunks_left' => $chunks - $index,
             ]);
-        }
     }
 
     /**
@@ -448,26 +389,26 @@ class Files extends Nodes
         ?array $meta = null
     ): Response {
         ini_set('auto_detect_line_endings', '1');
-        $content = fopen('php://input', 'rb');
+        $input = fopen('php://input', 'rb');
+        $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
 
         $attributes = compact('changed', 'created', 'readonly', 'meta');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);
 
-        return $this->_put($content, $id, $p, $collection, $name, $attributes, $conflict);
+        return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
     }
 
     /**
      * Add or update file.
      *
-     * @param resource|string $content
-     * @param string          $id
-     * @param string          $p
-     * @param string          $collection
-     * @param string          $name
+     * @param string $id
+     * @param string $p
+     * @param string $collection
+     * @param string $name
      */
     protected function _put(
-        $content,
+        ObjectId $session,
         ?string $id = null,
         ?string $p = null,
         ?string $collection = null,
@@ -486,14 +427,14 @@ class Files extends Nodes
         try {
             if (null !== $p) {
                 $node = $this->_getNode(null, $p);
-                $result = $node->put($content, false, $attributes);
+                $node->setContent($session, $attributes);
                 $result = $this->node_decorator->decorate($node);
 
                 return (new Response())->setCode(200)->setBody($result);
             }
             if (null !== $id && null === $collection) {
                 $node = $this->_getNode($id);
-                $result = $node->put($content, false, $attributes);
+                $node->setContent($session, $attributes);
                 $result = $this->node_decorator->decorate($node);
 
                 return (new Response())->setCode(200)->setBody($result);
@@ -503,7 +444,7 @@ class Files extends Nodes
 
                 if ($collection->childExists($name)) {
                     $child = $collection->getChild($name);
-                    $result = $child->put($content, false, $attributes);
+                    $child->setContent($session, $attributes);
                     $result = $this->node_decorator->decorate($child);
 
                     return (new Response())->setCode(200)->setBody($result);
@@ -512,7 +453,7 @@ class Files extends Nodes
                     throw new Exception\InvalidArgument('name must be a valid string');
                 }
 
-                $result = $collection->addFile($name, $content, $attributes);
+                $result = $collection->addFile($name, $session, $attributes);
                 $result = $this->node_decorator->decorate($result);
 
                 return (new Response())->setCode(201)->setBody($result);
@@ -520,7 +461,8 @@ class Files extends Nodes
         } catch (ForbiddenException $e) {
             throw new Exception\Conflict(
                 'a node called '.$name.' does already exists in this collection',
-                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
+                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS,
+                $e
             );
         } catch (Exception\NotFound $e) {
             if (null !== $p && null === $id) {
@@ -538,7 +480,7 @@ class Files extends Nodes
                         throw new Exception\InvalidArgument('name must be a valid string');
                     }
 
-                    $result = $parent->addFile($name, $content, $attributes);
+                    $result = $parent->addFile($name, $session, $attributes);
                     $result = $this->node_decorator->decorate($result);
 
                     return (new Response())->setCode(201)->setBody($result);

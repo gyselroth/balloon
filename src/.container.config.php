@@ -7,7 +7,6 @@ use Balloon\Converter\Adapter\Office;
 use Balloon\Exception;
 use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
-use Balloon\Hook;
 use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
 use Micro\Auth\Auth;
@@ -19,22 +18,10 @@ use Psr\Log\LoggerInterface;
 use Monolog\Logger;
 use Balloon\App\Notification\Notification;
 use Balloon\Migration;
-use Balloon\Migration\Delta\CoreInstallation;
-use Balloon\Migration\Delta\FileToStorageAdapter;
-use Balloon\Migration\Delta\LdapGroupsToLocalGroups;
-use Balloon\Migration\Delta\QueueToCappedCollection;
-use Balloon\Migration\Delta\JsonEncodeFilteredCollection;
-use Balloon\Migration\Delta\v1AclTov2Acl;
-use Balloon\Migration\Delta\UserCreatedDate;
-use Balloon\Migration\Delta\ShareName;
-use Balloon\Migration\Delta\HexColorToGenericName;
-use Balloon\Migration\Delta\AddHashToHistory;
-use Balloon\Migration\Delta\GridfsFlatReferences;
+use Balloon\Migration\Delta;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Smtp;
-use Balloon\Hook\Delta;
-use Balloon\Hook\AutoDestroy;
-use Balloon\Hook\CleanTrash;
+use Balloon\Hook;
 
 return [
     Client::class => [
@@ -150,17 +137,21 @@ return [
     ],
     Hook::class => [
         'calls' => [
-            Delta::class => [
+            Hook\Delta::class => [
                 'method' => 'injectHook',
-                'arguments' => ['hook' => '{'.Delta::class.'}']
+                'arguments' => ['hook' => '{'.Hook\Delta::class.'}']
             ],
-            AutoDestroy::class => [
+            Hook\AutoDestroy::class => [
                 'method' => 'injectHook',
-                'arguments' => ['hook' => '{'.AutoDestroy::class.'}']
+                'arguments' => ['hook' => '{'.Hook\AutoDestroy::class.'}']
             ],
-            CleanTrash::class => [
+            Hook\CleanTrash::class => [
                 'method' => 'injectHook',
-                'arguments' => ['hook' => '{'.CleanTrash::class.'}']
+                'arguments' => ['hook' => '{'.Hook\CleanTrash::class.'}']
+            ],
+            Hook\CleanTempStorage::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.Hook\CleanTempStorage::class.'}']
             ],
         ]
     ],
@@ -177,49 +168,53 @@ return [
     ],
     Migration::class => [
         'calls' => [
-            LdapGroupsToLocalGroups::class => [
+            Delta\LdapGroupsToLocalGroups::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.LdapGroupsToLocalGroups::class.'}']
+                'arguments' => ['delta' => '{'.Delta\LdapGroupsToLocalGroups::class.'}']
             ],
-            FileToStorageAdapter::class => [
+            Delta\Md5BlobIgnoreNull::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.FileToStorageAdapter::class.'}']
+                'arguments' => ['delta' => '{'.Delta\Md5BlobIgnoreNull::class.'}']
             ],
-            QueueToCappedCollection::class => [
+            Delta\FileToStorageAdapter::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.QueueToCappedCollection::class.'}']
+                'arguments' => ['delta' => '{'.Delta\FileToStorageAdapter::class.'}']
             ],
-            JsonEncodeFilteredCollection::class => [
+            Delta\QueueToCappedCollection::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.JsonEncodeFilteredCollection::class.'}']
+                'arguments' => ['delta' => '{'.Delta\QueueToCappedCollection::class.'}']
             ],
-            v1AclTov2Acl::class => [
+            Delta\JsonEncodeFilteredCollection::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.v1AclTov2Acl::class.'}']
+                'arguments' => ['delta' => '{'.Delta\JsonEncodeFilteredCollection::class.'}']
             ],
-            ShareName::class => [
+            Delta\v1AclTov2Acl::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.ShareName::class.'}']
+                'arguments' => ['delta' => '{'.Delta\v1AclTov2Acl::class.'}']
             ],
-            HexColorToGenericName::class => [
+            Delta\ShareName::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.HexColorToGenericName::class.'}']
+                'arguments' => ['delta' => '{'.Delta\ShareName::class.'}']
             ],
-            UserCreatedDate::class => [
+            Delta\HexColorToGenericName::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.UserCreatedDate::class.'}']
+                'arguments' => ['delta' => '{'.Delta\HexColorToGenericName::class.'}']
             ],
-            AddHashToHistory::class => [
+            Delta\UserCreatedDate::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.AddHashToHistory::class.'}']
+                'arguments' => ['delta' => '{'.Delta\UserCreatedDate::class.'}']
             ],
-            GridfsFlatReferences::class => [
+            Delta\AddHashToHistory::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.GridfsFlatReferences::class.'}']
+                'arguments' => ['delta' => '{'.Delta\AddHashToHistory::class.'}']
             ],
-            CoreInstallation::class => [
+            Delta\GridfsFlatReferences::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.CoreInstallation::class.'}']
+                'arguments' => ['delta' => '{'.Delta\GridfsFlatReferences::class.'}']
+            ],
+            Delta\CoreInstallation::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}']
             ],
         ],
     ],

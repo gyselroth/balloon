@@ -51,11 +51,7 @@ class Hook extends AbstractHook
     }
 
     /**
-     * Run: preDeleteFile.
-     *
-     * Executed pre a file gets deleted
-     *
-     * @param string $recursion
+     * {@inheritdoc}
      */
     public function preDeleteFile(File $node, bool $force, ?string $recursion, bool $recursion_first): void
     {
@@ -72,13 +68,9 @@ class Hook extends AbstractHook
     }
 
     /**
-     * Run: postPutFile.
-     *
-     * Executed post a put file request
-     *
-     * @param resource|string $content
+     * {@inheritdoc}
      */
-    public function postPutFile(File $node, $content, bool $force, array $attributes): void
+    public function postPutFile(File $node): void
     {
         $this->async->addJob(Job::class, [
             'id' => $node->getId(),
@@ -86,9 +78,7 @@ class Hook extends AbstractHook
     }
 
     /**
-     * Run: postRestoreFile.
-     *
-     * Executed post version rollback
+     * {@inheritdoc}
      */
     public function postRestoreFile(File $node, int $version): void
     {

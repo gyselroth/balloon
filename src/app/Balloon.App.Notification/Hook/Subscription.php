@@ -139,7 +139,7 @@ class Subscription extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function postPutFile(File $node, $content, bool $force, array $attributes): void
+    public function postPutFile(File $node): void
     {
         $this->notify($node);
     }

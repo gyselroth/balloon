@@ -16,6 +16,7 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Helper;
 use Micro\Http\Response;
+use MongoDB\BSON\ObjectId;
 
 class File extends Node
 {
@@ -259,7 +260,7 @@ class File extends Node
         int $conflict = 0
     ) {
         ini_set('auto_detect_line_endings', '1');
-        $input_handler = fopen('php://input', 'rb');
+        $input = fopen('php://input', 'rb');
         if (!is_string($chunkgroup) || empty($chunkgroup)) {
             throw new Exception\InvalidArgument('chunkgroup must be valid unique string');
         }
@@ -272,76 +273,33 @@ class File extends Node
             throw new Exception\InvalidArgument('chunkgroup may only contain #^[(A-Za-z0-9\.\-_])+$#');
         }
 
-        $folder = $this->server->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->user->getId();
+        $session = $this->db->selectCollection('fs.files')->findOne([
+            'metadata.chunkgroup' => $this->server->getIdentity()->getId().'_'.$chunkgroup,
+        ]);
 
-        if (!file_exists($folder)) {
-            mkdir($folder, 0700, true);
-        }
-
-        $file = $folder.DIRECTORY_SEPARATOR.$chunkgroup;
-
-        $tmp_size = 0;
-        if (file_exists($file)) {
-            $tmp_size = filesize($file);
-        } elseif ($index > 1) {
-            throw new Exception\Conflict(
-                'chunks lost, reupload all chunks',
-                Exception\Conflict::CHUNKS_LOST
+        if ($session === null) {
+            $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
+            $this->db->selectCollection('fs.files')->updateOne(
+                ['_id' => $session],
+                ['$set' => [
+                    'metadata.chunkgroup' => $this->server->getIdentity()->getId().'_'.$chunkgroup,
+                ]]
             );
-        }
-
-        $chunkgroup_handler = fopen($file, 'a+');
-        while (!feof($input_handler)) {
-            $data = fread($input_handler, 1024);
-            $wrote = fwrite($chunkgroup_handler, $data);
-            $tmp_size += $wrote;
-
-            if ($tmp_size > (int) $this->server->getMaxFileSize()) {
-                fclose($input_handler);
-                fclose($chunkgroup_handler);
-                unlink($file);
-
-                throw new Exception\InsufficientStorage(
-                    'file size exceeded limit',
-                    Exception\InsufficientStorage::FILE_SIZE_LIMIT
-                );
-            }
+        } else {
+            $session = $session['_id'];
+            $this->storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
         }
 
         if ($index === $chunks) {
-            clearstatcache();
-            if (!is_readable($file)) {
-                throw new Exception\Conflict(
-                    'chunks lost, reupload all chunks',
-                    Exception\Conflict::CHUNKS_LOST
-                );
-            }
+            $attributes = $this->_verifyAttributes($attributes);
 
-            if ($tmp_size !== $size) {
-                fclose($chunkgroup_handler);
-                unlink($file);
+            return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
+        }
 
-                throw new Exception\Conflict(
-                    'merged chunks temp file size is not as expected',
-                    Exception\Conflict::CHUNKS_INVALID_SIZE
-                );
-            }
-
-            try {
-                $attributes = $this->_verifyAttributes($attributes);
-
-                return $this->_put($file, $id, $p, $collection, $name, $attributes, $conflict);
-            } catch (\Exception $e) {
-                unlink($file);
-
-                throw $e;
-            }
-        } else {
-            return (new Response())->setCode(206)->setBody([
+        return (new Response())->setCode(206)->setBody([
                 'status' => 206,
                 'data' => $index,
             ]);
-        }
     }
 
     /**
@@ -435,22 +393,24 @@ class File extends Node
         $attributes = $this->_verifyAttributes($attributes);
 
         ini_set('auto_detect_line_endings', '1');
-        $content = fopen('php://input', 'rb');
+        $input = fopen('php://input', 'rb');
 
-        return $this->_put($content, $id, $p, $collection, $name, $attributes, $conflict);
+        $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
+
+        return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
     }
 
     /**
      * Add or update file.
      *
-     * @param resource|string $content
-     * @param string          $id
-     * @param string          $p
-     * @param string          $collection
-     * @param string          $name
+     * @param ObjecId $session
+     * @param string  $id
+     * @param string  $p
+     * @param string  $collection
+     * @param string  $name
      */
     protected function _put(
-        $content,
+        ObjectId $session,
         ?string $id = null,
         ?string $p = null,
         ?string $collection = null,
@@ -469,7 +429,7 @@ class File extends Node
         try {
             if (null !== $p) {
                 $node = $this->_getNode(null, $p);
-                $result = $node->put($content, false, $attributes);
+                $result = $node->setContent($session, $attributes);
 
                 return (new Response())->setCode(200)->setBody([
                     'status' => 200,
@@ -478,7 +438,7 @@ class File extends Node
             }
             if (null !== $id && null === $collection) {
                 $node = $this->_getNode($id);
-                $result = $node->put($content, false, $attributes);
+                $result = $node->setContent($session, $attributes);
 
                 return (new Response())->setCode(200)->setBody([
                     'status' => 200,
@@ -490,7 +450,7 @@ class File extends Node
 
                 if ($collection->childExists($name)) {
                     $child = $collection->getChild($name);
-                    $result = $child->put($content, false, $attributes);
+                    $result = $child->setContent($session, $attributes);
 
                     return (new Response())->setCode(200)->setBody([
                         'status' => 200,
@@ -501,7 +461,7 @@ class File extends Node
                     throw new Exception\InvalidArgument('name must be a valid string');
                 }
 
-                $result = $collection->addFile($name, $content, $attributes)->getId();
+                $result = $collection->addFile($name, $session, $attributes)->getId();
 
                 return (new Response())->setCode(201)->setBody([
                     'status' => 201,
@@ -529,7 +489,7 @@ class File extends Node
                         throw new Exception\InvalidArgument('name must be a valid string');
                     }
 
-                    $result = $parent->addFile($name, $content, $attributes)->getId();
+                    $result = $parent->addFile($name, $session, $attributes)->getId();
 
                     return (new Response())->setCode(201)->setBody([
                         'status' => 201,

@@ -18,6 +18,7 @@ use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Auth\Auth;
 use Micro\Auth\Identity;
+use MongoDB\BSON\ObjectId;
 
 interface HookInterface
 {
@@ -72,19 +73,15 @@ interface HookInterface
      * Run: prePutFile.
      *
      * Executed pre a put file request
-     *
-     * @param resource|string $content
      */
-    public function prePutFile(File $node, $content, bool $force, array $attributes): void;
+    public function prePutFile(File $node, ObjectId $session): void;
 
     /**
      * Run: postPutFile.
      *
      * Executed post a put file request
-     *
-     * @param resource|string $content
      */
-    public function postPutFile(File $node, $content, bool $force, array $attributes): void;
+    public function postPutFile(File $node): void;
 
     /**
      * Run: preCreateCollection.

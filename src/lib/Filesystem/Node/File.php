@@ -18,8 +18,10 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
-use Balloon\Mime;
+use MimeType\MimeType;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\GridFS\Exception as GridFSException;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IFile;
 
@@ -85,13 +87,6 @@ class File extends AbstractNode implements IFile
     protected $history = [];
 
     /**
-     * Storage.
-     *
-     * @var Storage
-     */
-    protected $_storage;
-
-    /**
      * Storage attributes.
      *
      * @var mixed
@@ -126,16 +121,17 @@ class File extends AbstractNode implements IFile
      */
     public function get()
     {
-        try {
-            if (null === $this->storage) {
-                return null;
-            }
+        if (null === $this->storage) {
+            return null;
+        }
 
+        try {
             return $this->_storage->getFile($this, $this->storage);
-        } catch (\Exception $e) {
+        } catch (GridFSException\FileNotFoundException $e) {
             throw new Exception\NotFound(
-                'content not found',
-                Exception\NotFound::CONTENTS_NOT_FOUND
+                'storage blob is gone',
+                Exception\NotFound::CONTENTS_NOT_FOUND,
+                $e
             );
         }
     }
@@ -367,7 +363,7 @@ class File extends AbstractNode implements IFile
             ]);
 
             return $this->save('history');
-        } catch (StorageException\NotFound $e) {
+        } catch (StorageException\BlobNotFound $e) {
             $this->_logger->error('failed remove version ['.$version.'] from file ['.$this->_id.']', [
                 'category' => get_class($this),
                 'exception' => $e,
@@ -468,65 +464,45 @@ class File extends AbstractNode implements IFile
     }
 
     /**
-     * Change content.
-     *
-     * @param resource|string $file
+     * Change content (Sabe dav compatible method).
      */
-    public function put($file, bool $new = false, array $attributes = []): int
+    public function put($content): int
     {
-        $this->_logger->debug('add contents for file ['.$this->_id.']', [
+        $this->_logger->debug('write new file content into temporary storage for file ['.$this->_id.']', [
             'category' => get_class($this),
         ]);
 
-        $this->validatePutRequest($file, $new, $attributes);
-        $file = $this->createTemporaryFile($file, $stream);
-        $new_hash = $this->verifyFile($file, $new);
+        $session = $this->_storage->storeTemporaryFile($content, $this->_user);
 
-        if ($this->hash === $new_hash) {
-            $this->_logger->info('stop PUT execution, content checksums are equal for file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
+        return $this->setContent($session);
+    }
 
-            //Remove tmp file
-            if (null !== $file) {
-                unlink($file);
-                fclose($stream);
-            }
+    /**
+     * Set content (temporary file).
+     */
+    public function setContent(ObjectId $session, array $attributes = []): int
+    {
+        $this->_logger->debug('set temporary file ['.$session.'] as file content for ['.$this->_id.']', [
+            'category' => get_class($this),
+        ]);
 
-            return $this->version;
-        }
+        $this->prePutFile($session);
+        $result = $this->_storage->storeFile($this, $session, $this->storage_adapter);
+        $this->storage = $result['reference'];
+        $this->hash = $result['hash'];
+        $this->size = $result['size'];
 
-        $this->hash = $new_hash;
-
-        //Write new content
-        if ($this->size > 0) {
-            $this->storage = $this->_storage->storeFile($this, $stream, $this->storage_adapter);
-        } else {
+        if ($this->size === 0) {
             $this->storage = null;
+        } else {
+            $this->storage = $result['reference'];
         }
 
-        //Update current version
+        $this->mime = MimeType::getType($this->name);
         $this->increaseVersion();
 
-        //Get meta attributes
-        if (isset($attributes['mime'])) {
-            $this->mime = $attributes['mime'];
-        } elseif (null !== $file) {
-            $this->mime = (new Mime())->getMime($file, $this->name);
-        }
-
-        //Remove tmp file
-        if (null !== $file) {
-            unlink($file);
-            fclose($stream);
-        }
-
-        $this->_logger->debug('set mime ['.$this->mime.'] for content, file=['.$this->_id.']', [
-            'category' => get_class($this),
-        ]);
-
         $this->addVersion($attributes)
-             ->postPutFile($file, $new, $attributes);
+             ->postPutFile();
 
         return $this->version;
     }
@@ -578,24 +554,9 @@ class File extends AbstractNode implements IFile
     }
 
     /**
-     * Create uuidv4.
+     * Pre content change checks.
      */
-    protected function guidv4(string $data): string
-    {
-        assert(16 === strlen($data));
-
-        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
-
-        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
-    }
-
-    /**
-     * Change content.
-     *
-     * @param resource|string $file
-     */
-    protected function validatePutRequest($file, bool $new = false, array $attributes = []): bool
+    protected function prePutFile(ObjectId $session): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
             throw new AclException\Forbidden(
@@ -604,7 +565,7 @@ class File extends AbstractNode implements IFile
             );
         }
 
-        $this->_hook->run('prePutFile', [$this, &$file, &$new, &$attributes]);
+        $this->_hook->run('prePutFile', [$this, &$session]);
 
         if ($this->readonly) {
             throw new Exception\Conflict(
@@ -613,102 +574,11 @@ class File extends AbstractNode implements IFile
             );
         }
 
-        if ($this->isShareMember() && false === $new && 'w' === $this->_acl->getAclPrivilege($this->getShareNode())) {
-            throw new AclException\Forbidden(
-                'not allowed to overwrite node',
-                AclException\Forbidden::NOT_ALLOWED_TO_OVERWRITE
-            );
-        }
-
         return true;
     }
 
     /**
-     * Verify content to be added.
-     *
-     * @param string $path
-     *
-     * @return bool
-     */
-    protected function verifyFile(?string $path, bool $new = false): string
-    {
-        if (null === $path) {
-            $this->size = 0;
-            $new_hash = self::EMPTY_CONTENT;
-        } else {
-            $size = filesize($path);
-            $this->size = $size;
-            $new_hash = md5_file($path);
-
-            if (!$this->_user->checkQuota($size)) {
-                $this->_logger->warning('could not execute PUT, user quota is full', [
-                    'category' => get_class($this),
-                ]);
-
-                if (true === $new) {
-                    $this->_forceDelete();
-                }
-
-                throw new Exception\InsufficientStorage(
-                    'user quota is full',
-                    Exception\InsufficientStorage::USER_QUOTA_FULL
-                );
-            }
-        }
-
-        return $new_hash;
-    }
-
-    /**
-     * Create temporary file.
-     *
-     * @param resource|string $file
-     * @param resource        $stream
-     *
-     * @return string
-     */
-    protected function createTemporaryFile($file, &$stream): ?string
-    {
-        if (is_string($file)) {
-            if (!is_readable($file)) {
-                throw new Exception('file does not exists or is not readable');
-            }
-
-            $stream = fopen($file, 'r');
-        } elseif (is_resource($file)) {
-            $tmp = $this->_fs->getServer()->getTempDir().DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.$this->_user->getId();
-            if (!file_exists($tmp)) {
-                mkdir($tmp, 0700, true);
-            }
-
-            $tmp_file = $tmp.DIRECTORY_SEPARATOR.$this->guidv4(openssl_random_pseudo_bytes(16));
-            $stream = fopen($tmp_file, 'w+');
-            $size = stream_copy_to_stream($file, $stream, ((int) $this->_fs->getServer()->getMaxFileSize() + 1));
-            rewind($stream);
-            fclose($file);
-
-            if ($size > (int) $this->_fs->getServer()->getMaxFileSize()) {
-                unlink($tmp_file);
-
-                throw new Exception\InsufficientStorage(
-                    'file size exceeded limit',
-                    Exception\InsufficientStorage::FILE_SIZE_LIMIT
-                );
-            }
-
-            $file = $tmp_file;
-        } else {
-            $file = null;
-        }
-
-        return $file;
-    }
-
-    /**
      * Add new version.
-     *
-     *
-     * @return File
      */
     protected function addVersion(array $attributes = []): self
     {
@@ -738,35 +608,33 @@ class File extends AbstractNode implements IFile
                 'mime' => $this->mime,
                 'hash' => $this->hash,
             ];
-        } else {
-            $this->_logger->debug('added first file version [1] for file ['.$this->_id.']', [
-                'category' => get_class($this),
-            ]);
 
-            $this->history[0] = [
-                'version' => 1,
-                'changed' => isset($attributes['changed']) ? $attributes['changed'] : new UTCDateTime(),
-                'user' => $this->owner,
-                'type' => self::HISTORY_CREATE,
-                'storage' => $this->storage,
-                'storage_adapter' => $this->storage_adapter,
-                'size' => $this->size,
-                'mime' => $this->mime,
-                'hash' => $this->hash,
-            ];
+            return $this;
         }
+
+        $this->_logger->debug('added first file version [1] for file ['.$this->_id.']', [
+            'category' => get_class($this),
+        ]);
+
+        $this->history[0] = [
+            'version' => 1,
+            'changed' => isset($attributes['changed']) ? $attributes['changed'] : new UTCDateTime(),
+            'user' => $this->owner,
+            'type' => self::HISTORY_CREATE,
+            'storage' => $this->storage,
+            'storage_adapter' => $this->storage_adapter,
+            'size' => $this->size,
+            'mime' => $this->mime,
+            'hash' => $this->hash,
+        ];
 
         return $this;
     }
 
     /**
      * Finalize put request.
-     *
-     * @param resource|string $file
-     *
-     * @return File
      */
-    protected function postPutFile($file, bool $new, array $attributes): self
+    protected function postPutFile(): self
     {
         try {
             $this->save([
@@ -784,7 +652,7 @@ class File extends AbstractNode implements IFile
                 'category' => get_class($this),
             ]);
 
-            $this->_hook->run('postPutFile', [$this, $file, $new, $attributes]);
+            $this->_hook->run('postPutFile', [$this]);
 
             return $this;
         } catch (\Exception $e) {

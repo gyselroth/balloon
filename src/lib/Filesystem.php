@@ -186,7 +186,7 @@ class Filesystem
         }
 
         if (true === $node['directory']) {
-            $this->cache[(string) $id] = new Collection($node, $this, $this->logger, $this->hook, $this->acl);
+            $this->cache[(string) $id] = new Collection($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
         } else {
             $this->cache[(string) $id] = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
         }
@@ -546,7 +546,7 @@ class Filesystem
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
         if (true === $node['directory']) {
-            $instance = new Collection($node, $this, $this->logger, $this->hook, $this->acl);
+            $instance = new Collection($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
         } else {
             $instance = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
         }

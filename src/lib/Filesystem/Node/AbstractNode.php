@@ -202,6 +202,13 @@ abstract class AbstractNode implements NodeInterface
     protected $acl;
 
     /**
+     * Storage.
+     *
+     * @var Storage
+     */
+    protected $_storage;
+
+    /**
      * Convert to filename.
      *
      * @return string
@@ -236,6 +243,14 @@ abstract class AbstractNode implements NodeInterface
     public function getFilesystem(): Filesystem
     {
         return $this->_fs;
+    }
+
+    /**
+     * temporary session.
+     */
+    public function temporarySession($stream, ObjectId $session = null): ObjectId
+    {
+        return $this->_storage->storeTemporaryFile($stream, $this->_user, $session);
     }
 
     /**

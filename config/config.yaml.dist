@@ -25,7 +25,6 @@ Balloon\Bootstrap\AbstractBootstrap:
 Balloon\Server:
   arguments:
     config:
-      temp_dir: "/tmp/balloon"
       max_file_version: 16
       max_file_size: 17179869184
       server_url: "{ENV(BALLOON_URL,https://localhost)}"
@@ -119,6 +118,10 @@ Balloon\Hook:
       method: injectHook
       arguments:
         hook: '{Balloon\Hook\AutoDestroy}'
+    Balloon\Hook\CleanTempStorage:
+      method: injectHook
+      arguments:
+        hook: '{Balloon\Hook\CleanTempStorage}'
   services:
     Balloon\Hook\Delta:
     Balloon\Hook\AutoCreateUser:
@@ -136,6 +139,11 @@ Balloon\Hook:
       arguments:
         config:
           interval: 28800
+    Balloon\Hook\CleanTempStorage:
+      arguments:
+        config:
+          interval: 172800
+          max_age: 172800
 Balloon\Converter:
   calls:
     Balloon\Converter\Adapter\ImagickImage:
@@ -156,7 +164,7 @@ Balloon\Converter:
         config:
           preview_max_size: 500
           timeout: 10
-          tmp: "/tmp/balloon"
+          tmp: "/tmp"
           soffice: "/usr/bin/soffice"
 Psr\Log\LoggerInterface:
   use: "Monolog\\Logger"
