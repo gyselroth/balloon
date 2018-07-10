@@ -1,9 +1,16 @@
+## 2.0.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Jul 10 15:10:42 CEST 2018
+
+* API: [FIX] Fixed performance of GET /nodes/* (user quota was queried each time), added quota index and only return quota at GET /users/*
+
+
 ## 2.0.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Jul 10 10:02:39 CEST 2018
 
 * API: [CHANGE] quota attributes are now part of the root document GET /api/v2/users/{id}
-* CORE: [CHANGE] Implemented #92, Store chunks in gridfs temporary storage instead filesystem, increases stability and performance. Also fixes issues in load balanced environements.
+* CORE: [CHANGE] Implemented #92, Store chunks in gridfs temporary storage instead filesystem, increases stability and performance. Also fixes issues in load balanced environments.
 * CORE: [CHANGE] Quota is now checked after each uploaded chunk (implemented in #92)
 * CORE: [CHANGE] Added hook script to clean temporary blobs from gridfs #92
 * CORE: [CHANGE] Added mongodb index for group.member (Delta\CoreInstallation)

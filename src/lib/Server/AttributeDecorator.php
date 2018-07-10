@@ -138,6 +138,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
         }
 
         $user = $this->server->getIdentity();
+        $quota = null;
 
         $result = [
             'id' => (string) $attributes['_id'],
@@ -157,11 +158,25 @@ class AttributeDecorator implements AttributeDecoratorInterface
                 return null;
             },
             'locale' => isset($attributes['locale']) ? (string) $attributes['locale'] : null,
-        ];
+            'hard_quota' => isset($attributes['hard_quota']) ? (string) $attributes['hard_quota'] : null,
+            'soft_quota' => isset($attributes['soft_quota']) ? (string) $attributes['soft_quota'] : null,
+            'available' => function ($role) use (&$quota, $attributes, $user) {
+                $quota === null ? $quota = $role->getQuotaUsage() : null;
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+                    return $quota['available'];
+                }
 
-        if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
-            return array_merge($result, $role->getQuotaUsage());
-        }
+                return null;
+            },
+            'used' => function ($role) use (&$quota, $attributes, $user) {
+                $quota === null ? $quota = $role->getQuotaUsage() : null;
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+                    return $quota['used'];
+                }
+
+                return null;
+            },
+        ];
 
         return $result;
     }

@@ -1029,6 +1029,7 @@ class Nodes extends Controller
             'created',
             'meta',
             'readonly',
+            'acl',
         ];
 
         if ($this instanceof ApiCollection) {
@@ -1037,11 +1038,11 @@ class Nodes extends Controller
 
         $check = array_merge(array_flip($valid_attributes), $attributes);
 
-        if ($this instanceof ApiCollection && count($check) > 6) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, filter, readonly and/or meta attributes may be overwritten');
+        if ($this instanceof ApiCollection && count($check) > 7) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, filter, readonly and/or meta attributes may be overwritten');
         }
-        if ($this instanceof ApiFile && count($check) > 5) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, readonly and/or meta attributes may be overwritten');
+        if ($this instanceof ApiFile && count($check) > 6) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, readonly and/or meta attributes may be overwritten');
         }
 
         foreach ($attributes as $attribute => $value) {
