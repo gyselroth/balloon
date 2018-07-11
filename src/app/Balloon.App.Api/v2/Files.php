@@ -264,7 +264,8 @@ class Files extends Nodes
         ?string $changed = null,
         ?string $created = null,
         ?bool $readonly = null,
-        ?array $meta = null
+        ?array $meta = null,
+        ?array $acl = null
     ) {
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
@@ -279,7 +280,7 @@ class Files extends Nodes
         }
 
         if ($index === $chunks) {
-            $attributes = compact('changed', 'created', 'readonly', 'meta');
+            $attributes = compact('changed', 'created', 'readonly', 'meta', 'acl');
             $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
             $attributes = $this->_verifyAttributes($attributes);
 
@@ -386,13 +387,14 @@ class Files extends Nodes
         ?string $changed = null,
         ?string $created = null,
         ?bool $readonly = null,
-        ?array $meta = null
+        ?array $meta = null,
+        ?array $acl = null
     ): Response {
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
         $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
 
-        $attributes = compact('changed', 'created', 'readonly', 'meta');
+        $attributes = compact('changed', 'created', 'readonly', 'meta', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);
 

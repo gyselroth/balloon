@@ -19,7 +19,7 @@ class Forbidden extends \Sabre\DAV\Exception\Forbidden implements ExceptionInter
     const NOT_ALLOWED_TO_DELETE = 34;
     const NOT_ALLOWED_TO_MODIFY = 35;
     const NOT_ALLOWED_TO_OVERWRITE = 36;
-    const NOT_ALLOWED_TO_SHARE = 37;
+    const NOT_ALLOWED_TO_MANAGE = 37;
     const NOT_ALLOWED_TO_CREATE = 38;
     const NOT_ALLOWED_TO_MOVE = 39;
     const NOT_ALLOWED_TO_ACCESS = 40;

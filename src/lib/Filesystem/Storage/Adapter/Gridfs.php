@@ -398,10 +398,6 @@ class Gridfs implements AdapterInterface
             $data .= fread($stream, 8192);
         }
 
-        $this->logger->warning('read:'.$bytes.'&/'.$length, [
-                'category' => get_class($this),
-            ]);
-
         return $data;
     }
 }

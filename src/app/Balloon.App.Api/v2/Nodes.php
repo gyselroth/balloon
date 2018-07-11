@@ -506,9 +506,9 @@ class Nodes extends Controller
      * @param array|string $id
      * @param array|string $p
      */
-    public function patch(?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?string $id = null, ?string $p = null): Response
+    public function patch(?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null, ?string $id = null, ?string $p = null): Response
     {
-        $attributes = compact('name', 'meta', 'readonly', 'filter');
+        $attributes = compact('name', 'meta', 'readonly', 'filter', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         return $this->bulk($id, $p, function ($node) use ($attributes) {
@@ -530,6 +530,10 @@ class Nodes extends Controller
                         if ($node instanceof Collection) {
                             $node->setFilter($value);
                         }
+
+                    break;
+                    case 'acl':
+                        $node->setAcl($value);
 
                     break;
                 }

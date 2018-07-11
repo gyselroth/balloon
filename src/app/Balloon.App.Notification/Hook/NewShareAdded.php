@@ -45,8 +45,6 @@ class NewShareAdded extends AbstractHook
 
     /**
      * Constructor.
-     *
-     * @param Notification $notifier
      */
     public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger)
     {
@@ -56,11 +54,7 @@ class NewShareAdded extends AbstractHook
     }
 
     /**
-     * Run: postSaveNodeAttributes.
-     *
-     * Executed post node attributes were saved to mongodb
-     *
-     * @param string $recursion
+     * {@inheritdoc}
      */
     public function postSaveNodeAttributes(NodeInterface $node, array $attributes, array $remove, ?string $recursion, bool $recursion_first): void
     {
@@ -104,9 +98,6 @@ class NewShareAdded extends AbstractHook
 
     /**
      * Check if users needs a notification and checks if mail adress is available.
-     *
-     *
-     * @return string
      */
     protected function checkNotify(NodeInterface $node, User $user): bool
     {

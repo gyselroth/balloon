@@ -14,6 +14,7 @@ namespace Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
+use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
@@ -21,22 +22,32 @@ use Psr\Log\LoggerInterface;
 class Acl
 {
     /**
+     * Privileges.
+     */
+    public const PRIVILEGE_DENY = 'd';
+    public const PRIVILEGE_READ = 'r';
+    public const PRIVILEGE_WRITE = 'w';
+    public const PRIVILEGE_WRITEPLUS = 'w+';
+    public const PRIVILEGE_READWRITE = 'rw';
+    public const PRIVILEGE_MANAGE = 'm';
+
+    /**
      * ACL privileges weight table.
      */
-    const PRIVILEGES_WEIGHT = [
-        'd' => 0,
-        'r' => 1,
-        'w' => 2,
-        'w+' => 3,
-        'rw' => 4,
-        'm' => 5,
+    public const PRIVILEGES_WEIGHT = [
+        self::PRIVILEGE_DENY => 0,
+        self::PRIVILEGE_READ => 1,
+        self::PRIVILEGE_WRITE => 2,
+        self::PRIVILEGE_WRITEPLUS => 3,
+        self::PRIVILEGE_READWRITE => 4,
+        self::PRIVILEGE_MANAGE => 5,
     ];
 
     /**
      * Types.
      */
-    const TYPE_USER = 'user';
-    const TYPE_GROUP = 'group';
+    public const TYPE_USER = 'user';
+    public const TYPE_GROUP = 'group';
 
     /**
      * Logger.
@@ -56,7 +67,7 @@ class Acl
     /**
      * Check acl.
      */
-    public function isAllowed(NodeInterface $node, string $privilege = 'r'): bool
+    public function isAllowed(NodeInterface $node, string $privilege = self::PRIVILEGE_READ): bool
     {
         $this->logger->debug('check acl for ['.$node->getId().'] with privilege ['.$privilege.']', [
             'category' => get_class($this),
@@ -77,9 +88,9 @@ class Acl
         $priv = $this->getAclPrivilege($node);
         $result = false;
 
-        if ('w+' === $priv && $node->isOwnerRequest()) {
+        if (self::PRIVILEGE_WRITEPLUS === $priv && $node->isOwnerRequest()) {
             $result = true;
-        } elseif ('w+' !== $priv && self::PRIVILEGES_WEIGHT[$priv] >= self::PRIVILEGES_WEIGHT[$privilege]) {
+        } elseif (self::PRIVILEGE_WRITEPLUS !== $priv && self::PRIVILEGES_WEIGHT[$priv] >= self::PRIVILEGES_WEIGHT[$privilege]) {
             $result = true;
         }
 
@@ -96,79 +107,26 @@ class Acl
      */
     public function getAclPrivilege(NodeInterface $node): string
     {
-        $result = 'd';
-        $acl = [];
-        $fs = $node->getFilesystem();
-        $user = $fs->getUser();
+        $user = $node->getFilesystem()->getUser();
 
         if ($node->isShareMember()) {
-            try {
-                $share = $fs->findRawNode($node->getShareId());
-            } catch (\Exception $e) {
-                $this->logger->error('could not found share node ['.$node->getShareId().'] for share child node ['.$node->getId().'], dead reference?', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-
-                return 'd';
-            }
-
-            if ((string) $share['owner'] === (string) $user->getId()) {
-                return 'm';
-            }
-
-            $acl = $share['acl'];
-        } elseif ($node->isReference() && $node->isOwnerRequest()) {
-            try {
-                $share = $fs->findRawNode($node->getShareId());
-            } catch (\Exception $e) {
-                $this->logger->error('could not find share node ['.$node->getShareId().'] for reference ['.$node->getId().'], dead reference?', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-
-                return 'd';
-            }
-
-            if ($share['deleted'] instanceof UTCDateTime || true !== $share['shared']) {
-                $this->logger->error('share node ['.$share['_id'].'] has been deleted, dead reference?', [
-                    'category' => get_class($this),
-                ]);
-
-                return 'd';
-            }
-
-            $acl = $share['acl'];
-        } elseif (!$node->isOwnerRequest()) {
+            return $this->processShareMember($node, $user);
+        }
+        if ($node->isReference() && $node->isOwnerRequest()) {
+            return $this->processShareReference($node, $user);
+        }
+        if (!$node->isOwnerRequest()) {
             $this->logger->warning('user ['.$user.'] not allowed to access non owned node ['.$node->getId().']', [
                 'category' => get_class($this),
             ]);
 
-            return 'd';
-        } elseif ($node->isOwnerRequest()) {
-            return 'm';
+            return self::PRIVILEGE_DENY;
+        }
+        if ($node->isOwnerRequest()) {
+            return self::PRIVILEGE_MANAGE;
         }
 
-        if (!is_array($acl)) {
-            return 'd';
-        }
-
-        $groups = $user->getGroups();
-        foreach ($acl as $rule) {
-            if (self::TYPE_USER === $rule['type'] && $rule['id'] === (string) $user->getId()) {
-                $priv = $rule['privilege'];
-            } elseif (self::TYPE_GROUP === $rule['type'] && in_array($rule['id'], $groups)) {
-                $priv = $rule['privilege'];
-            } else {
-                continue;
-            }
-
-            if (self::PRIVILEGES_WEIGHT[$priv] > self::PRIVILEGES_WEIGHT[$result]) {
-                $result = $priv;
-            }
-        }
-
-        return $result;
+        return self::PRIVILEGE_DENY;
     }
 
     /**
@@ -233,6 +191,91 @@ class Acl
         }
 
         return $acl;
+    }
+
+    /**
+     * Process share member.
+     */
+    protected function processShareMember(NodeInterface $node, User $user): string
+    {
+        try {
+            $share = $node->getFilesystem()->findRawNode($node->getShareId());
+        } catch (\Exception $e) {
+            $this->logger->error('could not found share node ['.$node->getShareId().'] for share child node ['.$node->getId().'], dead reference?', [
+                'category' => get_class($this),
+                'exception' => $e,
+            ]);
+
+            return self::PRIVILEGE_DENY;
+        }
+
+        if ((string) $share['owner'] === (string) $user->getId()) {
+            return self::PRIVILEGE_MANAGE;
+        }
+
+        $acl = $node->getAttributes()['acl'];
+        $share = $this->processRuleset($user, $share['acl']);
+
+        if (count($acl) > 0) {
+            $own = $this->processRuleset($user, $node->getAttributes()['acl']);
+
+            if ($share !== self::PRIVILEGE_DENY) {
+                return $own;
+            }
+        }
+
+        return $share;
+    }
+
+    /**
+     * Process share reference.
+     */
+    protected function processShareReference(NodeInterface $node, User $user): string
+    {
+        try {
+            $share = $node->getFilesystem()->findRawNode($node->getShareId());
+        } catch (\Exception $e) {
+            $this->logger->error('could not find share node ['.$node->getShareId().'] for reference ['.$node->getId().'], dead reference?', [
+                 'category' => get_class($this),
+                 'exception' => $e,
+            ]);
+
+            return self::PRIVILEGE_DENY;
+        }
+
+        if ($share['deleted'] instanceof UTCDateTime || true !== $share['shared']) {
+            $this->logger->error('share node ['.$share['_id'].'] has been deleted, dead reference?', [
+                 'category' => get_class($this),
+            ]);
+
+            return self::PRIVILEGE_DENY;
+        }
+
+        return $this->processRuleset($user, $share['acl']);
+    }
+
+    /**
+     * Process ruleset.
+     */
+    protected function processRuleset(User $user, array $acl): string
+    {
+        $result = self::PRIVILEGE_DENY;
+        $groups = $user->getGroups();
+
+        foreach ($acl as $rule) {
+            if (self::TYPE_USER === $rule['type'] && $rule['id'] === (string) $user->getId()) {
+                $priv = $rule['privilege'];
+            } elseif (self::TYPE_GROUP === $rule['type'] && in_array($rule['id'], $groups)) {
+                $priv = $rule['privilege'];
+            } else {
+                continue;
+            }
+            if (self::PRIVILEGES_WEIGHT[$priv] > self::PRIVILEGES_WEIGHT[$result]) {
+                $result = $priv;
+            }
+        }
+
+        return $result;
     }
 
     /**

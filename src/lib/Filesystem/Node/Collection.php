@@ -133,22 +133,6 @@ class Collection extends AbstractNode implements IQuota
     }
 
     /**
-     * Get share.
-     */
-    public function getAcl(): array
-    {
-        if ($this->isReference()) {
-            $acl = $this->_fs->findRawNode($this->getShareId())['acl'];
-        } elseif ($this->isShare()) {
-            $acl = $this->acl;
-        } else {
-            return [];
-        }
-
-        return $this->_acl->resolveAclTable($this->_server, $acl);
-    }
-
-    /**
      * Get Share name.
      */
     public function getShareName(): string
@@ -418,7 +402,7 @@ class Collection extends AbstractNode implements IQuota
         if (!$this->_acl->isAllowed($this, 'm')) {
             throw new ForbiddenException(
                 'not allowed to share node',
-                ForbiddenException::NOT_ALLOWED_TO_SHARE
+                ForbiddenException::NOT_ALLOWED_TO_MANAGE
             );
         }
 
@@ -475,7 +459,7 @@ class Collection extends AbstractNode implements IQuota
         if (!$this->_acl->isAllowed($this, 'm')) {
             throw new ForbiddenException(
                 'not allowed to share node',
-                ForbiddenException::NOT_ALLOWED_TO_SHARE
+                ForbiddenException::NOT_ALLOWED_TO_MANAGE
             );
         }
 
@@ -610,6 +594,10 @@ class Collection extends AbstractNode implements IQuota
 
             $save = array_merge($meta, $attributes);
 
+            if (isset($save['acl'])) {
+                $this->validateAcl($save['acl']);
+            }
+
             $result = $this->_db->storage->insertOne($save, [
                 '$isolated' => true,
             ]);
@@ -699,6 +687,10 @@ class Collection extends AbstractNode implements IQuota
 
             $save = array_merge($meta, $attributes);
 
+            if (isset($save['acl'])) {
+                $this->validateAcl($save['acl']);
+            }
+
             $result = $this->_db->storage->insertOne($save, [
                 '$isolated' => true,
             ]);
@@ -767,6 +759,27 @@ class Collection extends AbstractNode implements IQuota
         foreach ($children as $child) {
             $callable($child);
         }
+
+        return true;
+    }
+
+    /**
+     * Validate acl.
+     */
+    protected function validateAcl(array $acl): bool
+    {
+        if (!$this->_acl->isAllowed($this, 'm')) {
+            throw new ForbiddenException(
+                 'not allowed to set acl',
+                  ForbiddenException::NOT_ALLOWED_TO_MANAGE
+            );
+        }
+
+        if (!$this->isSpecial()) {
+            throw new Exception\Conflict('node acl may only be set on share member nodes', Exception\Conflict::NOT_SHARED);
+        }
+
+        $this->_acl->validateAcl($this->_server, $acl);
 
         return true;
     }

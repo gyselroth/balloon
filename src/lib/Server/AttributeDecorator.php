@@ -158,8 +158,8 @@ class AttributeDecorator implements AttributeDecoratorInterface
                 return null;
             },
             'locale' => isset($attributes['locale']) ? (string) $attributes['locale'] : null,
-            'hard_quota' => isset($attributes['hard_quota']) ? (string) $attributes['hard_quota'] : null,
-            'soft_quota' => isset($attributes['soft_quota']) ? (string) $attributes['soft_quota'] : null,
+            'hard_quota' => isset($attributes['hard_quota']) ? (int) $attributes['hard_quota'] : null,
+            'soft_quota' => isset($attributes['soft_quota']) ? (int) $attributes['soft_quota'] : null,
             'available' => function ($role) use (&$quota, $attributes, $user) {
                 $quota === null ? $quota = $role->getQuotaUsage() : null;
                 if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {

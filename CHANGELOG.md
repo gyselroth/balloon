@@ -2,7 +2,11 @@
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Jul 10 15:10:42 CEST 2018
 
-* API: [FIX] Fixed performance of GET /nodes/* (user quota was queried each time), added quota index and only return quota at GET /users/*
+* API: [FIX] fixed performance of GET /nodes/* (user quota was queried each time), added quota index and only return quota at GET /users/*
+* CORE: [FIX] Migration\Delta\Md5BlobIgnoreNull Index with name: md5_1 already exists with different options
+* CORE: [FEATURE] Possibility to set acl nodes on share member directly #142
+* CORE: [FIX] fixed Migration\Delta\v1AclTov2Acl Undefined index: group 
+* API: [FIX] fixed Balloon\Filesystem\Exception\NotFound while browsing a deleted node
 
 
 ## 2.0.3
