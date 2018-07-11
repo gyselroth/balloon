@@ -145,6 +145,13 @@ class AttributeDecorator implements AttributeDecoratorInterface
             'access' => function ($node) use ($acl) {
                 return $acl->getAclPrivilege($node);
             },
+            'acl' => function ($node) use ($attributes) {
+                if ($node->isShareMember() && count($attributes['acl']) > 0) {
+                    return $node->getAcl();
+                }
+
+                return null;
+            },
             'share' => function ($node) {
                 if ($node->isShared() || !$node->isSpecial()) {
                     return null;

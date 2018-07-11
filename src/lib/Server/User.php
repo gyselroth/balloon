@@ -552,20 +552,26 @@ class User implements RoleInterface
      */
     public function getQuotaUsage(): array
     {
-        $result = $this->db->storage->find(
+        $result = $this->db->storage->aggregate([
             [
-                'owner' => $this->_id,
-                'directory' => false,
-                'deleted' => false,
+                '$match' => [
+                    'owner' => $this->_id,
+                    'directory' => false,
+                    'deleted' => false,
+                ],
             ],
-            ['size']
-        );
+            [
+                '$group' => [
+                    '_id' => null,
+                    'sum' => ['$sum' => '$size'],
+                ],
+            ],
+        ]);
 
+        $result = iterator_to_array($result);
         $sum = 0;
-        foreach ($result as $size) {
-            if (isset($size['size'])) {
-                $sum += $size['size'];
-            }
+        if (isset($result[0]['sum'])) {
+            $sum = $result[0]['sum'];
         }
 
         return [

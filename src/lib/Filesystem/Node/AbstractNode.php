@@ -197,9 +197,9 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Acl.
      *
-     * @var Acl
+     * @var array
      */
-    protected $acl;
+    protected $acl = [];
 
     /**
      * Storage.
@@ -344,7 +344,7 @@ abstract class AbstractNode implements NodeInterface
 
         if (true === $exists && NodeInterface::CONFLICT_MERGE === $conflict) {
             $new = $this->copyTo($parent, $conflict);
-            $this->delete(true/*, false, false*/);
+            $this->delete(true);
 
             return $new;
         }
@@ -358,10 +358,44 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
+     * Set node acl.
+     */
+    public function setAcl(array $acl): NodeInterface
+    {
+        if (!$this->_acl->isAllowed($this, 'm')) {
+            throw new ForbiddenException(
+                'not allowed to update acl',
+                 ForbiddenException::NOT_ALLOWED_TO_MANAGE
+            );
+        }
+
+        if (!$this->isShareMember()) {
+            throw new Exception\Conflict('node acl may only be set on share member nodes', Exception\Conflict::NOT_SHARED);
+        }
+
+        $this->_acl->validateAcl($this->_server, $acl);
+        $this->acl = $acl;
+        $this->save(['acl']);
+
+        return $this;
+    }
+
+    /**
+     * Get ACL.
+     */
+    public function getAcl(): array
+    {
+        if ($this->isReference()) {
+            $acl = $this->_fs->findRawNode($this->getShareId())['acl'];
+        } else {
+            $acl = $this->acl;
+        }
+
+        return $this->_acl->resolveAclTable($this->_server, $acl);
+    }
+
+    /**
      * Get share id.
-     *
-     *
-     * @return ObjectId
      */
     public function getShareId(bool $reference = false): ?ObjectId
     {

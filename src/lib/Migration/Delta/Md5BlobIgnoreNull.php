@@ -13,6 +13,7 @@ namespace Balloon\Migration\Delta;
 
 use MongoDB\Database;
 use MongoDB\Driver\Exception\CommandException;
+use MongoDB\Driver\Exception\RuntimeException;
 
 class Md5BlobIgnoreNull implements DeltaInterface
 {
@@ -38,7 +39,7 @@ class Md5BlobIgnoreNull implements DeltaInterface
     {
         try {
             $this->createIndex();
-        } catch (CommandException $e) {
+        } catch (CommandException | RuntimeException $e) {
             if ($e->getCode() === 85) {
                 $this->db->selectCollection('fs.files')->dropIndex('md5_1');
                 $this->createIndex();

@@ -410,7 +410,7 @@ class Filesystem
      * @param bool   $allow_root Allow instance of root collection
      * @param bool   $deleted    How to handle deleted node
      */
-    public function getNode($id = null, $path = null, $class = null, bool $multiple = false, bool $allow_root = false, int $deleted = NodeInterface::DELETED_EXCLUDE): NodeInterface
+    public function getNode($id = null, $path = null, $class = null, bool $multiple = false, bool $allow_root = false, ?int $deleted = null): NodeInterface
     {
         if (empty($id) && empty($path)) {
             if (true === $allow_root) {

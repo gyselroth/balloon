@@ -1,9 +1,20 @@
+## 2.0.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Jul 11 17:35:2 CEST 2018
+
+* API: [FIX] fixed performance of GET /nodes/* (user quota was queried each time), added quota index and only return quota at GET /users/*
+* CORE: [FIX] Migration\Delta\Md5BlobIgnoreNull Index with name: md5_1 already exists with different options
+* CORE: [FEATURE] Possibility to set acl nodes on share member directly #142
+* CORE: [FIX] fixed Migration\Delta\v1AclTov2Acl Undefined index: group 
+* API: [FIX] fixed Balloon\Filesystem\Exception\NotFound while browsing a deleted node
+
+
 ## 2.0.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Jul 10 10:02:39 CEST 2018
 
 * API: [CHANGE] quota attributes are now part of the root document GET /api/v2/users/{id}
-* CORE: [CHANGE] Implemented #92, Store chunks in gridfs temporary storage instead filesystem, increases stability and performance. Also fixes issues in load balanced environements.
+* CORE: [CHANGE] Implemented #92, Store chunks in gridfs temporary storage instead filesystem, increases stability and performance. Also fixes issues in load balanced environments.
 * CORE: [CHANGE] Quota is now checked after each uploaded chunk (implemented in #92)
 * CORE: [CHANGE] Added hook script to clean temporary blobs from gridfs #92
 * CORE: [CHANGE] Added mongodb index for group.member (Delta\CoreInstallation)
