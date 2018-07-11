@@ -1,6 +1,6 @@
 ## 2.0.4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Tue Jul 10 15:10:42 CEST 2018
+**Date**: Wed Jul 11 17:35:2 CEST 2018
 
 * API: [FIX] fixed performance of GET /nodes/* (user quota was queried each time), added quota index and only return quota at GET /users/*
 * CORE: [FIX] Migration\Delta\Md5BlobIgnoreNull Index with name: md5_1 already exists with different options
