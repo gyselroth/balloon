@@ -1,3 +1,11 @@
+## 2.0.6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Jul 13 00:40:01 CEST 2018
+
+* API: [FIX] fixed POST /nodes/{node}/clone Argument 2 passed to Balloon\Filesystem\Node\Collection::addFile() must be an instance of MongoDB\BSON\ObjectId or null, resource given
+* CORE: [FIX] fixed Argument 2 passed to Balloon\Filesystem\Node\Collection::addFile() must be an instance of MongoDB\BSON\ObjectId or null, resource given in Balloon.App.Convert (Converter add file)
+
+
 ## 2.0.5
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Jul 12 21:10:34 CEST 2018
