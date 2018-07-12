@@ -64,7 +64,6 @@ class DeltaDecorator
             'deleted' => $node['deleted'],
             'changed' => $this->dateTimeToUnix($node['changed']),
             'path' => $node['path'],
-            'directory' => $node['directory'],
         ];
     }
 

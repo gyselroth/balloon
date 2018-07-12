@@ -62,7 +62,6 @@ class DeltaAttributeDecorator implements AttributeDecoratorInterface
             'deleted' => $node['deleted'],
             'changed' => $node['changed']->toDateTime()->format('c'),
             'path' => $node['path'],
-            'directory' => $node['directory'],
         ];
     }
 
