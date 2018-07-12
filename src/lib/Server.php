@@ -76,13 +76,6 @@ class Server
     protected $max_file_version = 16;
 
     /**
-     * Max file size.
-     *
-     * @var int
-     */
-    protected $max_file_size = 17179869184;
-
-    /**
      * Password policy.
      *
      * @var string
@@ -154,7 +147,6 @@ class Server
 
                 break;
                 case 'max_file_version':
-                case 'max_file_size':
                 case 'password_hash':
                     $this->{$name} = (int) $value;
 
@@ -181,14 +173,6 @@ class Server
     public function getMaxFileVersion(): int
     {
         return $this->max_file_version;
-    }
-
-    /**
-     * Get max file size.
-     */
-    public function getMaxFileSize(): int
-    {
-        return $this->max_file_size;
     }
 
     /**

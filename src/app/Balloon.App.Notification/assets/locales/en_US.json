@@ -10,7 +10,7 @@
         },
         "subscription": {
             "subject": "Changes made in your balloon",
-            "body": "There are new changes in your balloon {node.name}.\n You get this message because you have subscribed {node.name} for updates."
+            "body": "There are new changes in your balloon {node.name}.\n You get this message because you have either subscribed {node.name} directly or the parent folder."
         }
     },
     "hi": "Hi %s",

@@ -67,13 +67,16 @@ class Acl
     /**
      * Check acl.
      */
-    public function isAllowed(NodeInterface $node, string $privilege = self::PRIVILEGE_READ): bool
+    public function isAllowed(NodeInterface $node, string $privilege = self::PRIVILEGE_READ, ?User $user = null): bool
     {
         $this->logger->debug('check acl for ['.$node->getId().'] with privilege ['.$privilege.']', [
             'category' => get_class($this),
         ]);
 
-        if (null === $node->getFilesystem()->getUser()) {
+        $custom = $user;
+        $user = $user === null ? $node->getFilesystem()->getUser() : $user;
+
+        if (null === $user) {
             $this->logger->debug('system acl call, grant full access', [
                 'category' => get_class($this),
             ]);
@@ -85,19 +88,24 @@ class Acl
             throw new Exception('unknown privilege '.$privilege.' requested');
         }
 
-        $priv = $this->getAclPrivilege($node);
+        $priv = $this->getAclPrivilege($node, $user);
         $result = false;
 
-        if (self::PRIVILEGE_WRITEPLUS === $priv && $node->isOwnerRequest()) {
+        if (self::PRIVILEGE_WRITEPLUS === $priv && $node->getOwner() == $user->getId()) {
             $result = true;
         } elseif (self::PRIVILEGE_WRITEPLUS !== $priv && self::PRIVILEGES_WEIGHT[$priv] >= self::PRIVILEGES_WEIGHT[$privilege]) {
             $result = true;
         }
 
-        $this->logger->debug('check acl for node ['.$node->getId().'], requested privilege ['.$privilege.']', [
-            'category' => get_class($this),
-            'params' => ['privileges' => $priv],
-        ]);
+        if ($result === true) {
+            $this->logger->debug('grant access to node ['.$node->getId().'] for user ['.$user->getId().'] by privilege ['.$priv.']', [
+                'category' => get_class($this),
+            ]);
+        } else {
+            $this->logger->debug('deny access to node ['.$node->getId().'] for user ['.$user->getId().'] by privilege ['.$priv.']', [
+                'category' => get_class($this),
+            ]);
+        }
 
         return $result;
     }
@@ -105,9 +113,9 @@ class Acl
     /**
      * Get access privilege.
      */
-    public function getAclPrivilege(NodeInterface $node): string
+    public function getAclPrivilege(NodeInterface $node, ?User $user = null): string
     {
-        $user = $node->getFilesystem()->getUser();
+        $user = $user === null ? $node->getFilesystem()->getUser() : $user;
 
         if ($node->isShareMember()) {
             return $this->processShareMember($node, $user);
