@@ -1,12 +1,15 @@
 ## 2.0.4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Wed Jul 11 17:35:2 CEST 2018
+**Date**: Wed Jul 12 10:54:23 CEST 2018
 
 * API: [FIX] fixed performance of GET /nodes/* (user quota was queried each time), added quota index and only return quota at GET /users/*
 * CORE: [FIX] Migration\Delta\Md5BlobIgnoreNull Index with name: md5_1 already exists with different options
 * CORE: [FEATURE] Possibility to set acl nodes on share member directly #142
 * CORE: [FIX] fixed Migration\Delta\v1AclTov2Acl Undefined index: group 
 * API: [FIX] fixed Balloon\Filesystem\Exception\NotFound while browsing a deleted node
+* CORE: [FIX] fixed subscribe recursively to existing sub folders in Balloon.App.Notification
+* CORE: [FIX] do not send notifications to users which are not allowed to access the subscribed node in Balloon.App.Notification
+* CORE: [CHANGE] removed file size limit completely
 
 
 ## 2.0.3

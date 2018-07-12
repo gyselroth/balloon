@@ -26,7 +26,6 @@ Balloon\Server:
   arguments:
     config:
       max_file_version: 16
-      max_file_size: 17179869184
       server_url: "{ENV(BALLOON_URL,https://localhost)}"
       password_policy: '#^.*$#'
       password_hash: 1

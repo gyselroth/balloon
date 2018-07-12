@@ -349,7 +349,7 @@ class Notifier
             if ($node instanceof Collection && $recursive === true) {
                 $db = $this->db;
                 $node->doRecursiveAction(function ($child) use ($db, $subscription) {
-                    $subscription['node_id'] = $child->getId();
+                    $subscription['node'] = $child->getId();
                     $db->subscription->replaceOne(
                         [
                         'user' => $subscription['user'],

@@ -12,12 +12,14 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Hook;
 
 use Balloon\App\Notification\Notifier;
+use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
 use Balloon\Server;
 use Balloon\Server\User;
+use Generator;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
@@ -52,16 +54,24 @@ class Subscription extends AbstractHook
     protected $logger;
 
     /**
+     * ACL.
+     *
+     * @var Acl
+     */
+    protected $acl;
+
+    /**
      * Constructor.
      *
      * @param Notification $notifier
      */
-    public function __construct(Notifier $notifier, Server $server, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(Notifier $notifier, Server $server, Acl $acl, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->notifier = $notifier;
         $this->server = $server;
         $this->setOptions($config);
         $this->logger = $logger;
+        $this->acl = $acl;
     }
 
     /**
@@ -175,8 +185,8 @@ class Subscription extends AbstractHook
             return false;
         }
 
-        $this->notifier->throttleSubscriptions($node, $receiver);
         $receiver = $this->server->getUsers(['_id' => ['$in' => $receiver]]);
+        $receiver = $this->filterAccess($node, $receiver);
         $message = $this->notifier->nodeMessage('subscription', $node);
 
         return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
@@ -209,8 +219,28 @@ class Subscription extends AbstractHook
             }
         }
 
-        $this->notifier->throttleSubscriptions($node, $receiver);
-
         return $receiver;
+    }
+
+    /**
+     * Only send notifcation if node is accessible by user.
+     */
+    protected function filterAccess(NodeInterface $node, iterable $receiver): Generator
+    {
+        $users = [];
+
+        foreach ($receiver as $user) {
+            if ($this->acl->isAllowed($node, 'r', $user)) {
+                $users[] = $user->getId();
+                yield $user;
+            } else {
+                $this->logger->debug('skip message for user ['.$user->getId().'], node ['.$node->getId().'] not accessible by this user', [
+                    'category' => get_class($this),
+                ]);
+            }
+        }
+
+        $this->notifier->throttleSubscriptions($node, $users);
+        $this->notifier->throttleSubscriptions($node->getParent(), $users);
     }
 }
