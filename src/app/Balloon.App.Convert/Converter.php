@@ -181,8 +181,12 @@ class Converter
             if (isset($slave['slave'])) {
                 $slave = $master->getFilesystem()->findNodeById($slave['slave']);
 
+                $handler = $result->getStream();
+                $session = $master->temporarySession($handler);
+                fclose($handler);
+
                 $slave->setReadonly(false);
-                $slave->put($result->getPath());
+                $slave->setContent($session);
                 $slave->setReadonly();
 
                 return true;
@@ -205,7 +209,11 @@ class Converter
             $name = $master->getName().'.'.$slave['format'];
         }
 
-        $node = $master->getParent()->addFile($name, $result->getPath(), [
+        $handler = $result->getStream();
+        $session = $master->temporarySession($handler);
+        fclose($handler);
+
+        $node = $master->getParent()->addFile($name, $session, [
             'owner' => $master->getOwner(),
             'app' => [
                 __NAMESPACE__ => [

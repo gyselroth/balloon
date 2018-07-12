@@ -158,7 +158,8 @@ class File extends AbstractNode implements IFile
             $result = $parent->getChild($this->name);
             $result->put($this->get());
         } else {
-            $result = $parent->addFile($name, $this->get(), [
+            $session = $this->temporarySession($this->get());
+            $result = $parent->addFile($name, $session, [
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
