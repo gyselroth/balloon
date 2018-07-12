@@ -1,3 +1,10 @@
+## 2.0.5
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Jul 12 21:10:34 CEST 2018
+
+* API: [FIX] fixed uncaught exception: DateTime::setTimestamp() expects parameter 1 to be integer, string given in Balloon.App.Sharelink
+
+
 ## 2.0.4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Jul 12 10:54:23 CEST 2018
