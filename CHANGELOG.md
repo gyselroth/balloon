@@ -4,6 +4,7 @@
 
 * API: [FIX] fixed POST /nodes/{node}/clone Argument 2 passed to Balloon\Filesystem\Node\Collection::addFile() must be an instance of MongoDB\BSON\ObjectId or null, resource given
 * CORE: [FIX] fixed Argument 2 passed to Balloon\Filesystem\Node\Collection::addFile() must be an instance of MongoDB\BSON\ObjectId or null, resource given in Balloon.App.Convert (Converter add file)
+* API: [FIX] fixed GET /api/v1|2/nodes/delta with cursor and delteted nodes uncaught exception Undefined index: directory]
 
 
 ## 2.0.5
