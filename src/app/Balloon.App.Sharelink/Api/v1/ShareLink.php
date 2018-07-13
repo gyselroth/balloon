@@ -71,9 +71,10 @@ class ShareLink extends Controller
     public function post(?string $id = null, ?string $p = null, array $options = []): Response
     {
         $node = $this->fs->getNode($id, $p);
-        $options['shared'] = true;
+        $expiration = isset($options['expiration']) ? (string) $options['expiration'] : null;
+        $password = isset($options['password']) ? (string) $options['password'] : null;
 
-        $this->sharelink->shareLink($node, $options);
+        $this->sharelink->shareLink($node, $expiration, $password);
 
         return (new Response())->setCode(204);
     }
@@ -100,9 +101,7 @@ class ShareLink extends Controller
     public function delete(?string $id = null, ?string $p = null): Response
     {
         $node = $this->fs->getNode($id, $p);
-        $options = ['shared' => false];
-
-        $this->sharelink->shareLink($node, $options);
+        $this->sharelink->deleteShareLink($node);
 
         return (new Response())->setCode(204);
     }
