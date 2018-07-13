@@ -1,3 +1,11 @@
+## 2.0.7
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Jul 13 09:39:56 CEST 2018
+
+* API: [FIX] fixed POST /api/v1/node/{node}/share-link uncaught exception: Argument 2 passed to Balloon\App\Sharelink\Sharelink::shareLink() must be of the type string or null, array given
+* API: [FIX] fixed DELETE /api/v1/node/{node}/share-link uncaught exception: Argument 2 passed to Balloon\App\Sharelink\Sharelink::shareLink() must be of the type string or null, array given
+
+
 ## 2.0.6
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Jul 13 00:40:01 CEST 2018
