@@ -40,6 +40,7 @@ class ContainerBuilder
         array_unshift($configs, $global);
 
         foreach (glob(constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'*.yaml') as $path) {
+            clearstatcache(true, $path);
             $configs[] = $path;
         }
 
