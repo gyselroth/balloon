@@ -1,3 +1,11 @@
+## 2.0.8
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Jul 16 11:12:56 CEST 2018
+
+* CORE: [FIX] fixed Warning config.yaml ist not a readable stream in kubernetes after configMap change (php clearstatcache for each yaml config)
+* CORE: [FIX] fixed multiple notification under the same parent and within throttle time range
+
+
 ## 2.0.7
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Jul 13 09:39:56 CEST 2018

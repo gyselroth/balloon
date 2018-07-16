@@ -219,6 +219,8 @@ class Subscription extends AbstractHook
             }
         }
 
+        $this->notifier->throttleSubscriptions($node, $receiver);
+
         return $receiver;
     }
 
@@ -241,6 +243,5 @@ class Subscription extends AbstractHook
         }
 
         $this->notifier->throttleSubscriptions($node, $users);
-        $this->notifier->throttleSubscriptions($node->getParent(), $users);
     }
 }
