@@ -141,13 +141,13 @@ class NodeDecorator
                 }
             },
             'parent' => function ($node) {
-                $id = $node->getAttributes()['parent'];
+                $parent = $node->getParent();
 
-                if (null === $id) {
+                if (null === $parent || $parent->isRoot()) {
                     return null;
                 }
 
-                return (string) $id;
+                return (string) $parent->getId();
             },
             'access' => function ($node) use ($acl) {
                 return $acl->getAclPrivilege($node);
