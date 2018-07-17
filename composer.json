@@ -32,7 +32,7 @@
         "sabre/dav" : "3.*",
         "psr/log": "1.*",
         "psr/container": "*",
-        "mongodb/mongodb": "1.2.0",
+        "mongodb/mongodb": "^1.2.0",
         "ext-mongodb": "*",
         "ext-curl": "*",
         "ext-mbstring": "*",

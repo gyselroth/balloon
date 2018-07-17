@@ -1,3 +1,11 @@
+## 2.0.9
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Jul 17 12:29:51 CEST 2018
+
+* CORE: [FIX] create initial gridfs chunks index during CoreInstallation delta
+* API: [FIX] fixed invalid parent node id in GET /api/v1/delta if node is a direct child of a share #161
+
+
 ## 2.0.8
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Jul 16 11:12:56 CEST 2018

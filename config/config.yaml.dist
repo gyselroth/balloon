@@ -73,13 +73,13 @@ Balloon\App\Elasticsearch\Migration\Delta\Installation:
   arguments:
     config:
       #index_configuration: "/path/to/index.json"
-Balloon\App\Office\App:
+Balloon\App\Office\Constructor\Http:
   arguments:
     config:
       loleaflet: "{ENV(BALLOON_OFFICE_URI,https://localhost:9980/loleaflet)}/dist/loleaflet.html"
       wopi_url: "{ENV(BALLOON_WOPI_URL,https://localhost)}"
       token_ttl: 3600
-Balloon\App\DesktopClient\DesktopClient:
+Balloon\App\DesktopClient\Constructor\Http:
   arguments:
     config:
       github_request_url: "https://api.github.com/repos/gyselroth/balloon-client-desktop/releases/latest"
