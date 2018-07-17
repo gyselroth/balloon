@@ -50,6 +50,11 @@ class CoreInstallation implements DeltaInterface
             ],
         ]);
 
+        $this->db->selectCollection('fs.chunks')->createIndex(
+            ['files_id' => 1, 'n' => 1],
+            ['unique' => true]
+        );
+
         $this->db->storage->createIndexes([
             ['key' => ['acl.id' => 1]],
             ['key' => ['hash' => 1]],

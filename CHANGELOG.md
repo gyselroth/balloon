@@ -1,3 +1,10 @@
+## 2.0.9
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**:
+
+* CORE: [FIX] create initial gridfs chunks index during CoreInstallation delta, upgrade mongodb-library to 1.4.x
+
+
 ## 2.0.8
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Jul 16 11:12:56 CEST 2018
