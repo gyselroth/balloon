@@ -1,3 +1,10 @@
+## 2.0.10
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jul 19 11:42:50 CEST 2018
+
+* CORE: [FIX] fixed security leak, it was possible to gain access to mailbox shared nodes which were not available as authenticated user but via a shared link (unauthenticated).
+
+
 ## 2.0.9
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Jul 17 12:29:51 CEST 2018

@@ -19,6 +19,7 @@ use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
+use Balloon\Server;
 use DateTime;
 use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Auth\Auth;
@@ -44,10 +45,19 @@ class Http
     protected $logger;
 
     /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
      * Init.
      */
-    public function __construct(Router $router, Hook $hook, Share $sharelink, NodeAttributeDecorator $node_decorator_v2, NodeAttributeDecoratorv1 $node_decorator_v1, LoggerInterface $logger)
+    public function __construct(Router $router, Server $server, Hook $hook, Share $sharelink, NodeAttributeDecorator $node_decorator_v2, NodeAttributeDecoratorv1 $node_decorator_v1, LoggerInterface $logger)
     {
+        $this->server = $server;
+
         $router
             ->appendRoute(new Route('/share/{t:#(.*+)#}', $this, 'start'))
             ->appendRoute(new Route('/share', $this, 'start'))
@@ -99,14 +109,13 @@ class Http
 
     /**
      * Start.
-     *
-     * @param string $password
      */
     public function start(string $t, bool $download = false, ?string $password = null)
     {
         try {
             $node = $this->sharelink->findNodeWithShareToken($t);
             $share = $node->getAppAttributes('Balloon\\App\\Sharelink');
+            $node->setFilesystem($this->server->getFilesystem($this->server->getUserById($node->getOwner())));
 
             if (array_key_exists('password', $share)) {
                 $valid = false;
