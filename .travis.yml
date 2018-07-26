@@ -7,8 +7,8 @@ addons:
     packages:
     - imagemagick
 before_install:
-- pecl list-files mongodb | grep 'not installed' && echo "\n" | pecl install mongodb
-- pecl list-files imagick | grep 'not installed' && echo "\n" | pecl install imagick
+- pecl list-files mongodb | grep -v 'not installed' || echo "\n" | pecl install mongodb
+- pecl list-files imagick | grep -v 'not installed' || echo "\n" | pecl install imagick
 - export version=$TRAVIS_TAG
 - if [[ "${version:0:1}" == "v" ]]; then version=${version:1}; fi;
 - if [ "$version" == "" ]; then version=$TRAVIS_BUILD_NUMBER; fi;
