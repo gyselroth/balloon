@@ -1,3 +1,11 @@
+## 2.0.11
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Aug 07 09:29:51 CEST 2018
+
+* API: [FIX] downloading multiple nodes via v1 API creates corrupt zip archive #165
+* PACKAGING: [FIX] travis build fail because pecl extensions are already installed #167
+
+
 ## 2.0.10
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Jul 19 11:42:50 CEST 2018
