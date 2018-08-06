@@ -1345,7 +1345,7 @@ class Node extends Controller
             }
         }
 
-        $archive->finalize();
+        $archive->finish();
     }
 
     /**
