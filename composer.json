@@ -47,12 +47,14 @@
         "bramus/monolog-colored-line-formatter": "~2.0",
         "zendframework/zend-servicemanager": "^3.3",
         "maennchen/zipstream-php": "^0.5.1",
-        "katzien/php-mime-type": "^2.1"
+        "katzien/php-mime-type": "^2.1",
+        "icewind/smb": "*"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
         "ext-imagick": "Required for image previews and converter",
         "ext-ldap": "Required for ldap authentication and ldap synchronization"
+        "ext-smb": "Required for SMB mounts"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.0.0",
