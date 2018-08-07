@@ -53,7 +53,7 @@
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
         "ext-imagick": "Required for image previews and converter",
-        "ext-ldap": "Required for ldap authentication and ldap synchronization"
+        "ext-ldap": "Required for ldap authentication and ldap synchronization",
         "ext-smb": "Required for SMB mounts"
     },
     "require-dev": {

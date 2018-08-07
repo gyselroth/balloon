@@ -11,25 +11,17 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Storage\Adapter;
 
+use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Storage\Exception;
-use Balloon\Server\User;
-use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
-use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use MongoDB\GridFS\Bucket;
 use Psr\Log\LoggerInterface;
 
 class Gridfs implements AdapterInterface
 {
-    /**
-     * Grid chunks.
-     */
-    public const CHUNK_SIZE = 261120;
-
     /**
      * Database.
      *
@@ -76,10 +68,7 @@ class Gridfs implements AdapterInterface
      */
     public function deleteFile(File $file, array $attributes): bool
     {
-        if (!isset($attributes['_id'])) {
-            throw new Exception\BlobNotFound('attributes do not contain a gridfs id');
-        }
-
+        $this->verifyAttributes($attributes);
         $exists = $this->getFileById($attributes['_id']);
 
         if (null === $exists) {
@@ -124,11 +113,9 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getFile(File $file, array $attributes)
+    public function openReadStream(File $file, array $attributes)
     {
-        if (!isset($attributes['_id'])) {
-            throw new Exception\BlobNotFound('attributes do not contain a gridfs id');
-        }
+        $this->verifyAttributes($attributes);
 
         return $this->gridfs->openDownloadStream($attributes['_id']);
     }
@@ -136,70 +123,32 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeFile(File $file, ObjectId $session): array
+    public function storeFile(File $file, $contents): array
     {
-        $this->logger->debug('finalize temporary file ['.$session.'] and add file ['.$file->getId().'] as reference', [
-            'category' => get_class($this),
-        ]);
+        $exists = $this->getFileByHash($file->getHash());
 
-        $md5 = $this->db->command([
-            'filemd5' => $session,
-            'root' => 'fs',
-        ])->toArray()[0]['md5'];
-
-        $blob = $this->getFileByHash($md5);
-
-        if ($blob !== null) {
-            $this->logger->debug('found existing file with hash ['.$md5.'], add file ['.$file->getId().'] as reference to ['.$blob['_id'].']', [
-                'category' => get_class($this),
-            ]);
-
-            $this->db->selectCollection('fs.files')->updateOne([
-                'md5' => $blob['md5'],
-            ], [
-                '$addToSet' => [
-                    'metadata.references' => $file->getId(),
-                ],
-            ]);
-
-            $this->gridfs->delete($session);
-
-            return [
-                'reference' => ['_id' => $blob['_id']],
-                'size' => $blob['length'],
-                'hash' => $md5,
-            ];
+        if (null === $exists) {
+            return $this->storeNew($file, $contents);
         }
 
-        $this->logger->debug('calculated hash ['.$md5.'] for temporary file ['.$session.'], remove temporary flag', [
+        $this->logger->info('gridfs content node with hash ['.$file->getHash().'] does already exists,
+          add new file reference for ['.$file->getId().']', [
             'category' => get_class($this),
         ]);
 
-        $this->db->selectCollection('fs.files')->updateOne([
-            '_id' => $session,
-        ], [
-            '$set' => [
-                'md5' => $md5,
-                'metadata.references' => [$file->getId()],
-            ],
-            '$unset' => [
-                'metadata.temporary' => true,
-            ],
-        ]);
-
-        $blob = $this->getFileById($session);
-
-        return [
-            'reference' => ['_id' => $session],
-            'size' => $blob['length'],
-            'hash' => $md5,
+        $action['$addToSet'] = [
+            'metadata.references' => $file->getId(),
         ];
+
+        $this->db->{'fs.files'}->updateOne(['md5' => $file->getHash()], $action);
+
+        return ['_id' => $exists['_id']];
     }
 
     /**
-     * Create collection.
+     * {@inheritdoc}
      */
-    public function createCollection(Collection $collection): array
+    public function createCollection(Collection $parent, string $name, array $attributes): array
     {
         return [];
     }
@@ -207,41 +156,36 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeTemporaryFile($stream, User $user, ?ObjectId $session = null): ObjectId
+    public function deleteCollection(Collection $collection, array $attributes): bool
     {
-        $exists = $session;
+        return true;
+    }
 
-        if ($session === null) {
-            $session = new ObjectId();
+    /**
+     * {@inheritdoc}
+     */
+    public function rename(NodeInterface $node, string $new_name, array $attributes): bool
+    {
+        return true;
+    }
 
-            $this->logger->info('create new tempory storage file ['.$session.']', [
-                'category' => get_class($this),
-            ]);
-
-            $this->db->selectCollection('fs.files')->insertOne([
-                '_id' => $session,
-                'chunkSize' => self::CHUNK_SIZE,
-                'length' => 0,
-                'uploadDate' => new UTCDateTime(),
-                'metadata' => ['temporary' => true],
-            ]);
+    /**
+     * Verify gridfs storage reference.
+     */
+    protected function verifyAttributes(array $attributes): bool
+    {
+        if (!isset($attributes['_id'])) {
+            throw new Exception('attributes do not contain a gridfs id');
         }
 
-        $temp = $this->db->selectCollection('fs.files')->findOne([
-            '_id' => $session,
-        ]);
-
-        if ($temp === null) {
-            throw new Exception\SessionNotFound('Temporary storage for this file is gone');
-        }
-
-        $this->storeStream($stream, $user, $exists, $temp);
-
-        return $session;
+        return true;
     }
 
     /**
      * Get stored file.
+     *
+     *
+     * @return array
      */
     protected function getFileById(ObjectId $id): ?array
     {
@@ -250,6 +194,9 @@ class Gridfs implements AdapterInterface
 
     /**
      * Get stored file.
+     *
+     *
+     * @return array
      */
     protected function getFileByHash(string $hash): ?array
     {
@@ -257,147 +204,26 @@ class Gridfs implements AdapterInterface
     }
 
     /**
-     * Store stream content.
+     * Store new file.
+     *
+     * @param resource $contents
      */
-    protected function storeStream($stream, User $user, ?ObjectId $exists = null, array $temp): int
+    protected function storeNew(File $file, $contents): array
     {
-        $data = null;
-        $length = $temp['length'];
-        $chunks = 0;
-        $left = 0;
+        set_time_limit((int) ($file->getSize() / 15339168));
+        $id = new ObjectId();
 
-        if ($exists !== null) {
-            $chunks = (int) ceil($temp['length'] / $temp['chunkSize']);
-            $left = (int) ($chunks * $temp['chunkSize'] - $temp['length']);
-
-            if ($left < 0) {
-                $left = 0;
-            } else {
-                $this->logger->debug('found existing chunks ['.$chunks.'] for temporary file ['.$temp['_id'].'] while the last chunk has ['.$left.'] bytes free', [
-                    'category' => get_class($this),
-                ]);
-
-                --$chunks;
-
-                $last = $this->db->selectCollection('fs.chunks')->findOne([
-                    'files_id' => $temp['_id'],
-                    'n' => $chunks,
-                ]);
-
-                if ($last === null) {
-                    throw new Exception\ChunkNotFound('Chunk not found, file is corrupt');
-                }
-
-                $data = $last['data']->getData();
-            }
-        }
-
-        while (!feof($stream)) {
-            if ($data !== null) {
-                $append = $this->readStream($stream, $left);
-                $data .= $append;
-                $chunk = new Binary($data, Binary::TYPE_GENERIC);
-                $size = mb_strlen($append, '8bit');
-                $length += $size;
-
-                $this->logger->debug('append data ['.$size.'] to last chunk ['.$chunks.'] in temporary file ['.$temp['_id'].']', [
-                    'category' => get_class($this),
-                ]);
-
-                $last = $this->db->selectCollection('fs.chunks')->updateOne([
-                    'files_id' => $temp['_id'],
-                    'n' => $chunks,
-                ], [
-                    '$set' => [
-                        'data' => $chunk,
-                    ],
-                ]);
-
-                ++$chunks;
-                $data = null;
-
-                continue;
-            }
-
-            $content = $this->readStream($stream, $temp['chunkSize']);
-            $size = mb_strlen($content, '8bit');
-            $length += $size;
-
-            $chunk = new Binary($content, Binary::TYPE_GENERIC);
-            $last = $this->db->selectCollection('fs.chunks')->insertOne([
-                'files_id' => $temp['_id'],
-                'n' => $chunks,
-                'data' => $chunk,
-            ]);
-
-            $this->logger->debug('inserted new chunk ['.$last->getInsertedId().'] ['.$size.'] in temporary file ['.$temp['_id'].']', [
-                'category' => get_class($this),
-            ]);
-
-            ++$chunks;
-
-            continue;
-        }
-
-        $this->verifyQuota($user, $length, $temp['_id']);
-
-        $this->db->selectCollection('fs.files')->updateOne([
-            '_id' => $temp['_id'],
-        ], [
-            '$set' => [
-                'uploadDate' => new UTCDateTime(),
-                'length' => $length,
+        //somehow mongo-connector does not catch metadata when set during uploadFromStream()
+        $stream = $this->gridfs->uploadFromStream($id, $contents, ['_id' => $id, 'metadata' => [
+            'references' => [
+                $file->getId(),
             ],
+        ]]);
+
+        $this->logger->info('added new gridfs content node ['.$id.'] for file ['.$file->getId().']', [
+            'category' => get_class($this),
         ]);
 
-        return $length;
-    }
-
-    /**
-     * Verify quota.
-     */
-    protected function verifyQuota(User $user, int $size, ObjectId $session): bool
-    {
-        if (!$user->checkQuota($size)) {
-            $this->logger->warning('stop adding chunk, user ['.$user->getId().'] quota is full, remove upload session', [
-                'category' => get_class($this),
-            ]);
-
-            $this->gridfs->delete($session);
-
-            throw new Exception\InsufficientStorage(
-                'user quota is full',
-                 Exception\InsufficientStorage::USER_QUOTA_FULL
-            );
-        }
-
-        return true;
-    }
-
-    /**
-     * Read x bytes from stream.
-     */
-    protected function readStream($stream, int $bytes): string
-    {
-        $length = 0;
-        $data = '';
-        while (!feof($stream)) {
-            if ($length + 8192 > $bytes) {
-                $max = $bytes - $length;
-
-                if ($max === 0) {
-                    return $data;
-                }
-
-                $length += $max;
-
-                return $data .= fread($stream, $max);
-            }
-
-            $length += 8192;
-            $data .= fread($stream, 8192);
-        }
-
-        return $data;
+        return ['_id' => $id];
     }
 }

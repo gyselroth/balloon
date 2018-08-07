@@ -15,13 +15,12 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception as AclException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageInterface;
 use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
 use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use MongoDB\GridFS\Exception as GridFSException;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IFile;
 
@@ -96,7 +95,7 @@ class File extends AbstractNode implements IFile
     /**
      * Initialize file node.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Storage $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageInterface $storage)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -126,8 +125,8 @@ class File extends AbstractNode implements IFile
         }
 
         try {
-            return $this->_storage->getFile($this, $this->storage);
-        } catch (GridFSException\FileNotFoundException $e) {
+            return $this->_storage->openReadStream($this, $this->storage);
+        } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'storage blob is gone',
                 Exception\NotFound::CONTENTS_NOT_FOUND,

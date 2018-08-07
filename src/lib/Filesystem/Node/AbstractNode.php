@@ -15,7 +15,7 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageInterface;
 use Balloon\Hook;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -216,6 +216,24 @@ abstract class AbstractNode implements NodeInterface
     public function __toString()
     {
         return $this->name;
+    }
+
+    /**
+     * Set storage adapter.
+     */
+    public function setStorage(StorageInterface $adapter): self
+    {
+        $this->_storage = $adapter;
+
+        return $this;
+    }
+
+    /**
+     * Get storage adapter.
+     */
+    public function getStorage(): StorageInterface
+    {
+        return $this->_storage;
     }
 
     /**

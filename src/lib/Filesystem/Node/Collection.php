@@ -15,7 +15,7 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageInterface;
 use Balloon\Hook;
 use Balloon\Server\User;
 use Generator;
@@ -54,9 +54,16 @@ class Collection extends AbstractNode implements IQuota
     protected $filter;
 
     /**
+     * Mount.
+     *
+     * @var array
+     */
+    protected $mount = [];
+
+    /**
      * Initialize.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Storage $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageInterface $storage)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -168,6 +175,7 @@ class Collection extends AbstractNode implements IQuota
             'created' => $this->created,
             'destroy' => $this->destroy,
             'readonly' => $this->readonly,
+            'mount' => $this->mount,
         ];
     }
 
@@ -705,7 +713,11 @@ class Collection extends AbstractNode implements IQuota
             $this->save('changed');
 
             $file = $this->_fs->initNode($save);
-            $file->setContent($session, $attributes);
+
+            if ($session !== null) {
+                $file->setContent($session, $attributes);
+            }
+
             $this->_hook->run('postCreateFile', [$this, $file, $clone]);
 
             return $file;

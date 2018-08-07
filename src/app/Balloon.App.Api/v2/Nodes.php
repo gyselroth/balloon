@@ -79,11 +79,11 @@ class Nodes extends Controller
     /**
      * Initialize.
      */
-    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, Storage $storage)
+    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger/*, Storage $storage*/)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
-        $this->storage = $storage;
+        //$this->storage = $storage;
         $this->server = $server;
         $this->node_decorator = $decorator;
         $this->logger = $logger;
@@ -1037,13 +1037,13 @@ class Nodes extends Controller
         ];
 
         if ($this instanceof ApiCollection) {
-            $valid_attributes[] = 'filter';
+            $valid_attributes += ['filter', 'mount'];
         }
 
         $check = array_merge(array_flip($valid_attributes), $attributes);
 
-        if ($this instanceof ApiCollection && count($check) > 7) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, filter, readonly and/or meta attributes may be overwritten');
+        if ($this instanceof ApiCollection && count($check) > 8) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, filter, mount, readonly and/or meta attributes may be overwritten');
         }
         if ($this instanceof ApiFile && count($check) > 6) {
             throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, readonly and/or meta attributes may be overwritten');

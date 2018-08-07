@@ -5,7 +5,6 @@ use Balloon\Converter;
 use Balloon\Converter\Adapter\ImagickImage;
 use Balloon\Converter\Adapter\Office;
 use Balloon\Exception;
-use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
@@ -153,17 +152,10 @@ return [
                 'method' => 'injectHook',
                 'arguments' => ['hook' => '{'.Hook\CleanTempStorage::class.'}']
             ],
-        ]
-    ],
-    Storage::class => [
-        'calls' => [
-            'gridfs' => [
-                'method' => 'injectAdapter',
-                'arguments' => [
-                    'adapter' => '{'.Gridfs::class.'}',
-                    'name' => 'gridfs'
-                ]
-            ]
+            Hook\ExternalStorage::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.Hook\ExternalStorage::class.'}']
+            ],
         ]
     ],
     Migration::class => [

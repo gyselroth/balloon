@@ -107,6 +107,11 @@ class Subscription extends AbstractHook
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
         $this->notify($node);
+
+        if ($this->server->getIdentity() === null) {
+            return;
+        }
+
         $subscription = $this->notifier->getSubscription($parent, $this->server->getIdentity());
 
         if ($subscription !== null && $subscription['recursive'] === true) {

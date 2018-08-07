@@ -16,9 +16,8 @@ use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\Factory as NodeFactory;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Storage;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectId;
@@ -78,11 +77,11 @@ class Filesystem
     protected $user;
 
     /**
-     * Storage.
+     * Node factory.
      *
-     * @var Storage
+     * @var NodeFactory
      */
-    protected $storage;
+    protected $node_factory;
 
     /**
      * Acl.
@@ -103,14 +102,14 @@ class Filesystem
      *
      * @param User $user
      */
-    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, Acl $acl, ?User $user = null)
+    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, NodeFactory $node_factory, Acl $acl, ?User $user = null)
     {
         $this->user = $user;
         $this->server = $server;
         $this->db = $db;
         $this->logger = $logger;
         $this->hook = $hook;
-        $this->storage = $storage;
+        $this->node_factory = $node_factory;
         $this->acl = $acl;
     }
 
@@ -185,11 +184,8 @@ class Filesystem
             );
         }
 
-        if (true === $node['directory']) {
-            $this->cache[(string) $id] = new Collection($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        } else {
-            $this->cache[(string) $id] = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        }
+        $instance = $this->node_factory->build($this, $node);
+        $this->cache[(string) $id] = $instance;
 
         return $node;
     }
@@ -545,11 +541,8 @@ class Filesystem
         if (!array_key_exists('directory', $node)) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
-        if (true === $node['directory']) {
-            $instance = new Collection($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        } else {
-            $instance = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        }
+
+        $instance = $this->node_factory->build($this, $node);
 
         if (!$this->acl->isAllowed($instance, 'r')) {
             if ($instance->isReference()) {
