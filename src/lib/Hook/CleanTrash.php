@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Hook;
 
-use Balloon\Async\CleanTrash as Job;
-use TaskScheduler\Async;
+use Balloon\Scheduler\CleanTrash as Job;
+use TaskScheduler\Scheduler;
 
 class CleanTrash extends AbstractHook
 {
@@ -31,20 +31,20 @@ class CleanTrash extends AbstractHook
     protected $max_age = 2592000;
 
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Constructor.
      *
      * @param iterable $config
      */
-    public function __construct(Async $async, ?Iterable $config = null)
+    public function __construct(Scheduler $scheduler, ?Iterable $config = null)
     {
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->setOptions($config);
     }
 
@@ -77,9 +77,9 @@ class CleanTrash extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function preExecuteAsyncJobs(): void
+    public function preExecuteSchedulerJobs(): void
     {
-        $this->async->addJobOnce(Job::class, [
+        $this->scheduler->addJobOnce(Job::class, [
             'max_age' => $this->max_age,
         ], [
             'interval' => $this->interval,

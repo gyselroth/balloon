@@ -11,12 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon\Hook;
 
-use Balloon\Async\SmbListener;
-use Balloon\Async\SmbScanner;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
+use Balloon\Scheduler\SmbListener;
+use Balloon\Scheduler\SmbScanner;
 use Balloon\Server;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 
 class ExternalStorage extends AbstractHook
 {
@@ -28,11 +28,11 @@ class ExternalStorage extends AbstractHook
     protected $server;
 
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Storage factory.
@@ -44,10 +44,10 @@ class ExternalStorage extends AbstractHook
     /**
      * Constructor.
      */
-    public function __construct(Server $server, Async $async, StorageFactory $factory)
+    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory)
     {
         $this->server = $server;
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->factory = $factory;
     }
 
@@ -72,8 +72,8 @@ class ExternalStorage extends AbstractHook
             return;
         }
 
-        $this->async->addJob(SmbListener::class, $node->getId());
-        $this->async->addJob(SmbScanner::class, $node->getId());
+        $this->scheduler->addJob(SmbListener::class, $node->getId());
+        $this->scheduler->addJob(SmbScanner::class, $node->getId());
 
         throw new Exception('s');
     }
@@ -81,7 +81,7 @@ class ExternalStorage extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function preExecuteAsyncJobs(): void
+    public function preExecuteSchedulerJobs(): void
     {
         $fs = $this->server->getFilesystem();
         $nodes = $fs->findNodesByFilter([
@@ -89,8 +89,8 @@ class ExternalStorage extends AbstractHook
         ]);
 
         foreach ($nodes as $node) {
-            //$this->async->addJobOnce(SmbListener::class, $node->getId());
-            //$this->async->addJobOnce(SmbScanner::class, $node->getId());
+            //$this->scheduler->addJobOnce(SmbListener::class, $node->getId());
+            //$this->scheduler->addJobOnce(SmbScanner::class, $node->getId());
         }
     }
 }

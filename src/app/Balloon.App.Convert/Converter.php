@@ -19,7 +19,7 @@ use Balloon\Server;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 
 class Converter
 {
@@ -31,11 +31,11 @@ class Converter
     protected $converter;
 
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Server.
@@ -70,12 +70,12 @@ class Converter
      *
      * @param LoggerInterface   logger
      */
-    public function __construct(Database $db, Server $server, FileConverter $converter, Async $async, LoggerInterface $logger)
+    public function __construct(Database $db, Server $server, FileConverter $converter, Scheduler $scheduler, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->db = $db;
         $this->converter = $converter;
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->logger = $logger;
     }
 
@@ -140,7 +140,7 @@ class Converter
             'format' => $format,
         ]);
 
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'master' => $node->getId(),
         ]);
 

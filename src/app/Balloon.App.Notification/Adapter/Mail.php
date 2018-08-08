@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Adapter;
 
 use Balloon\App\Notification\MessageInterface;
-use Balloon\Async\Mail as MailJob;
+use Balloon\Scheduler\Mail as MailJob;
 use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 use Zend\Mail\Message;
 use Zend\Mime\Message as MimeMessage;
 use Zend\Mime\Part as MimePart;
@@ -23,11 +23,11 @@ use Zend\Mime\Part as MimePart;
 class Mail implements AdapterInterface
 {
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Logger.
@@ -39,9 +39,9 @@ class Mail implements AdapterInterface
     /**
      * Constructor.
      */
-    public function __construct(Async $async, LoggerInterface $logger)
+    public function __construct(Scheduler $scheduler, LoggerInterface $logger)
     {
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->logger = $logger;
     }
 
@@ -78,8 +78,8 @@ class Mail implements AdapterInterface
         $type = $mail->getHeaders()->get('Content-Type');
         $type->setType('multipart/alternative');
 
-        $this->async->addJob(MailJob::class, $mail->toString(), [
-            Async::OPTION_RETRY => 1,
+        $this->scheduler->addJob(MailJob::class, $mail->toString(), [
+            Scheduler::OPTION_RETRY => 1,
         ]);
 
         return true;

@@ -14,7 +14,7 @@ namespace Balloon\App\Cli\Console;
 use Balloon\Hook;
 use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Async;
+use TaskScheduler\Queue;
 
 class Jobs
 {
@@ -33,11 +33,11 @@ class Jobs
     protected $getopt;
 
     /**
-     * Async.
+     * Queue.
      *
-     * @var Async
+     * @var Queue
      */
-    protected $async;
+    protected $queue;
 
     /**
      * Hook.
@@ -49,13 +49,13 @@ class Jobs
     /**
      * Constructor.
      */
-    public function __construct(Hook $hook, Async $async, LoggerInterface $logger, GetOpt $getopt)
+    public function __construct(Hook $hook, Queue $queue, LoggerInterface $logger, GetOpt $getopt)
     {
-        $this->async = $async;
+        $this->queue = $queue;
         $this->hook = $hook;
         $this->logger = $logger;
         $this->getopt = $getopt;
-        $this->async = $async;
+        $this->queue = $queue;
     }
 
     /*
@@ -104,7 +104,7 @@ class Jobs
         ]);
 
         $this->hook->run('preExecuteAsyncJobs');
-        $this->async->startDaemon();
+        $this->queue->process();
     }
 
     /*
@@ -115,7 +115,7 @@ class Jobs
     public function once(): bool
     {
         $this->hook->run('preExecuteAsyncJobs');
-        $this->async->startOnce();
+        $this->queue->startOnce();
         $this->hook->run('postExecuteAsyncJobs');
 
         return true;

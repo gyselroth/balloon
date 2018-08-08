@@ -14,18 +14,18 @@ namespace Balloon\App\Notification\Api\v2;
 use Balloon\App\Api\Controller;
 use Balloon\App\Notification\AttributeDecorator as NotificationAttributeDecorator;
 use Balloon\App\Notification\Notifier;
-use Balloon\Async\Mail;
 use Balloon\AttributeDecorator\Pager;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
+use Balloon\Scheduler\Mail;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 use Zend\Mail\Message;
 use Zend\Mime\Message as MimeMessage;
 use Zend\Mime\Part as MimePart;
@@ -61,11 +61,11 @@ class Notifications extends Controller
     protected $server;
 
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Logger.
@@ -98,13 +98,13 @@ class Notifications extends Controller
     /**
      * Constructor.
      */
-    public function __construct(Notifier $notifier, Server $server, Async $async, LoggerInterface $logger, RoleAttributeDecorator $role_decorator, NodeAttributeDecorator $node_decorator, NotificationAttributeDecorator $notification_decorator)
+    public function __construct(Notifier $notifier, Server $server, Scheduler $scheduler, LoggerInterface $logger, RoleAttributeDecorator $role_decorator, NodeAttributeDecorator $node_decorator, NotificationAttributeDecorator $notification_decorator)
     {
         $this->notifier = $notifier;
         $this->user = $server->getIdentity();
         $this->fs = $server->getFilesystem();
         $this->server = $server;
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->logger = $logger;
         $this->role_decorator = $role_decorator;
         $this->node_decorator = $node_decorator;
@@ -265,7 +265,7 @@ class Notifications extends Controller
 
         foreach ($receiver as $address) {
             $mail->setTo($address);
-            $this->async->addJob(Mail::class, $mail->toString());
+            $this->scheduler->addJob(Mail::class, $mail->toString());
         }
 
         return (new Response())->setCode(202);
