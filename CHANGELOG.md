@@ -1,3 +1,13 @@
+## 2.0.11
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Aug 08 15:22:51 CEST 2018
+
+* CORE: [FIX] Overwrite file via webdav ends in Balloon\Filesystem\Exception\Conflict #170
+* CORE: [FIX] do not add a new file version if content hash equals to the current one
+* API: [FIX] downloading multiple nodes via v1 API creates corrupt zip archive #165
+* PACKAGING: [FIX] travis build fail because pecl extensions are already installed #167
+
+
 ## 2.0.10
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Jul 19 11:42:50 CEST 2018

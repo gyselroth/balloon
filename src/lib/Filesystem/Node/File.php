@@ -490,6 +490,15 @@ class File extends AbstractNode implements IFile
         $this->prePutFile($session);
         $result = $this->_storage->storeFile($this, $session, $this->storage_adapter);
         $this->storage = $result['reference'];
+
+        if ($this->hash === $result['hash']) {
+            $this->_logger->debug('do not update file version, hash identical to existing version', [
+                'category' => get_class($this),
+            ]);
+
+            return $this->version;
+        }
+
         $this->hash = $result['hash'];
         $this->size = $result['size'];
 
