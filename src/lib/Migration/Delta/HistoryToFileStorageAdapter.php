@@ -53,7 +53,7 @@ class HistoryToFileStorageAdapter implements DeltaInterface
                         'history.$.storage' => $object['history']['file'] === null ? null : ['_id' => $object['history']['file']],
                         'history.$.storage_adapter' => 'gridfs',
                     ],
-                    '$unset' => ['history.$.file' => true]
+                    '$unset' => ['history.$.file' => true],
                 ]
             );
         }
