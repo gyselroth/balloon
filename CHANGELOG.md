@@ -1,3 +1,11 @@
+## 2.0.12
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Aug 09 17:25:45 CEST 2018\
+**Note**: Execute upgrade (`ballooncli upgrade start`) is required to apply this fix
+
+* CORE: [FIX] Upgrade delta missing to upgrade history versions from the old file reference to the v2 storage format #172
+
+
 ## 2.0.11
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Aug 08 15:22:51 CEST 2018
