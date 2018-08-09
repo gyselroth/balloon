@@ -216,6 +216,10 @@ return [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}']
             ],
+            Delta\HistoryToFileStorageAdapter::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\HistoryToFileStorageAdapter::class.'}']
+            ],
         ],
     ],
     Auth::class => [
