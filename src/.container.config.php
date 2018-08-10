@@ -204,6 +204,10 @@ return [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\UserCreatedDate::class.'}']
             ],
+            Delta\HistoryToFileStorageAdapter::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\HistoryToFileStorageAdapter::class.'}']
+            ],
             Delta\AddHashToHistory::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\AddHashToHistory::class.'}']
@@ -215,10 +219,6 @@ return [
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}']
-            ],
-            Delta\HistoryToFileStorageAdapter::class => [
-                'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.Delta\HistoryToFileStorageAdapter::class.'}']
             ],
         ],
     ],
