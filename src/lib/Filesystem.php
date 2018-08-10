@@ -562,7 +562,13 @@ class Filesystem
             );
         }
 
-        if (isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
+        $loaded = isset($this->cache[(string) $node['_id']]);
+
+        if ($loaded === false) {
+            $this->cache[(string) $node['_id']] = $instance;
+        }
+
+        if ($loaded === false && isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
             $this->logger->info('node ['.$node['_id'].'] is not accessible anmyore, destroy node cause of expired destroy flag', [
                 'category' => get_class($this),
             ]);
@@ -572,8 +578,8 @@ class Filesystem
             throw new Exception\Conflict('node is not available anymore');
         }
 
-        if ($this->user !== null) {
-            $this->cache[(string) $node['_id']] = $instance;
+        if ($this->user === null) {
+            unset($this->cache[(string) $node['_id']]);
         }
 
         return $instance;
