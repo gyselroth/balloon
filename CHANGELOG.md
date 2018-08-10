@@ -1,3 +1,10 @@
+## 2.0.13
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Aug 10 10:20:23 CEST 2018\
+
+* CORE: [FIX] Collection with children and set on auto destroy will end in a endless loop (both for tasks and http requests) #175
+
+
 ## 2.0.12
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Aug 09 17:25:45 CEST 2018\

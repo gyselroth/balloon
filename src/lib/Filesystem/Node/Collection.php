@@ -293,8 +293,6 @@ class Collection extends AbstractNode implements IQuota
      *
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
-     *
-     * @param string $recursion Identifier to identify a recursive action
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
