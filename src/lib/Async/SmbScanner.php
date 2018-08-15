@@ -12,8 +12,10 @@ declare(strict_types=1);
 namespace Balloon\Async;
 
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Storage\Adapter\Blackhole;
 use Balloon\Server;
+use Balloon\Server\User;
 use Icewind\SMB\IShare;
 use Icewind\SMB\Native\NativeFileInfo;
 use MongoDB\BSON\UTCDateTime;
@@ -37,14 +39,15 @@ class SmbScanner extends AbstractJob
         $dummy = new Blackhole();
         $fs = $this->server->getFilesystem();
         $collection = $fs->findNodeById($this->data);
-        $user_fs = $this->server->getUserById($collection->getOwner())->getFilesystem();
+        $user = $this->server->getUserById($collection->getOwner());
+        $user_fs = $user->getFilesystem();
         $share = $collection->getStorage()->getShare();
 
         $collection
             ->setFilesystem($user_fs)
             ->setStorage($dummy);
 
-        $this->recursiveIterator($collection, $collection, $share, $dummy);
+        $this->recursiveIterator($collection, $collection, $share, $dummy, $user);
 
         return true;
     }
@@ -52,27 +55,71 @@ class SmbScanner extends AbstractJob
     /**
      * Iterate recursively through smb share.
      */
-    protected function recursiveIterator(Collection $parent, Collection $external, IShare $share, Blackhole $dummy, string $path = '/'): void
+    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, string $path = '/'): void
     {
+        $nodes = [];
         foreach ($share->dir($path) as $node) {
+            $nodes[] = $node->getName();
+        }
+
+        foreach ($parent->getChildren() as $child) {
+            if (!in_array($child->getName(), $nodes)) {
+                $child
+                    ->setStorage($dummy)
+                    ->delete(true);
+            }
+        }
+
+        foreach ($share->dir($path) as $node) {
+            $attributes = $this->getAttributes($mount, $share, $node);
+
             if ($node->isDirectory()) {
                 if (!$parent->childExists($node->getName())) {
-                    $child = $parent->addDirectory($node->getName(), $this->getAttributes($external, $share, $node));
-                    $child->setStorage($dummy);
+                    $child = $parent->addDirectory($node->getName(), $attributes);
                 } else {
                     $child = $parent->getChild($node->getName());
                 }
 
-                $this->recursiveIterator($child, $external, $share, $dummy, $path.$node->getName().DIRECTORY_SEPARATOR);
+                $child->setStorage($dummy);
+                $this->recursiveIterator($child, $mount, $share, $dummy, $user, $path.$node->getName().DIRECTORY_SEPARATOR);
             } else {
                 if (!$parent->childExists($node->getName())) {
-                    $file = $parent->addFile($node->getName(), null, $this->getAttributes($external, $share, $node))
+                    $file = $parent->addFile($node->getName(), null, $attributes)
                         ->setStorage($dummy);
-                    //$stream = $share->read($node->getPath());
-                    //$file->put($stream, true, $this->getAttributes($external, $share, $node));
+
+                    $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
+                } else {
+                    $file = $parent->getChild($node->getName());
+
+                    if ($this->fileUpdateRequired($file, $attributes)) {
+                        $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Set file content.
+     */
+    protected function updateFileContent(Collection $parent, IShare $share, NativeFileInfo $node, File $file, User $user, array $attributes): bool
+    {
+        $storage = $parent->getStorage();
+        $stream = $share->read($node->getPath());
+        $session = $storage->storeTemporaryFile($stream, $user);
+        $file->setContent($session, $attributes);
+
+        return true;
+    }
+
+    /**
+     * Check if file content needs to be updated.
+     */
+    protected function fileUpdateRequired(File $file, array $smb_attributes): bool
+    {
+        $meta_attributes = $file->getAttributes();
+
+        return $smb_attributes['size'] != $meta_attributes['size'] && $smb_attributes['changed'] != $meta_attributes['changed'];
     }
 
     /**
@@ -87,6 +134,7 @@ class SmbScanner extends AbstractJob
         return [
             'created' => $ctime,
             'changed' => $mtime,
+            'size' => $node->getSize(),
             'storage_reference' => $collection->getId(),
             'storage' => [
                 'path' => $node->getPath(),

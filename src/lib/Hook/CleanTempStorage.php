@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Hook;
 
-use Balloon\Scheduler\CleanTempStorage as Job;
+use Balloon\Async\CleanTempStorage as Job;
 use TaskScheduler\Scheduler;
 
 class CleanTempStorage extends AbstractHook

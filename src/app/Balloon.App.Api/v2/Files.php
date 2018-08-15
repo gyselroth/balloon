@@ -273,10 +273,18 @@ class Files extends Nodes
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
-        if ($session === null) {
-            $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
+        if ($id !== null || $p !== null) {
+            $node = $this->_getNode($id, $p);
+        } elseif ($id === null && $p === null && $collection === null) {
+            $node = $this->server->getFilesystem()->getRoot();
         } else {
-            $this->storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
+            $node = $this->_getNode($collection, null);
+        }
+
+        if ($session === null) {
+            $session = $node->getStorage()->storeTemporaryFile($input, $this->server->getIdentity());
+        } else {
+            $node->getStorage()->storeTemporaryFile($input, $this->server->getIdentity(), $session);
         }
 
         if ($index === $chunks) {

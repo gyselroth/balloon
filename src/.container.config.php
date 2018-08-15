@@ -21,6 +21,9 @@ use Balloon\Migration\Delta;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Smtp;
 use Balloon\Hook;
+use Balloon\Async\WorkerFactory;
+use TaskScheduler\Queue;
+use TaskScheduler\WorkerFactoryInterface;
 
 return [
     Client::class => [
@@ -43,6 +46,13 @@ return [
                 'databaseName' => 'balloon'
             ]
         ]]
+    ],
+    Queue::class => [
+        'services' => [
+            WorkerFactoryInterface::class => [
+                'use' => WorkerFactory::class
+            ]
+        ]
     ],
     LoggerInterface::class => [
         'use' => Logger::class,

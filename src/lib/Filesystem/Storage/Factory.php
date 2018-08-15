@@ -13,6 +13,7 @@ namespace Balloon\Filesystem\Storage;
 
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface;
 use Balloon\Filesystem\Storage\Adapter\Smb;
+use Balloon\Filesystem\Storage\Adapter\Smb\Factory as SmbFactory;
 use Psr\Log\LoggerInterface;
 
 class Factory
@@ -32,11 +33,19 @@ class Factory
     protected $logger;
 
     /**
+     * SMB factory.
+     *
+     * @var SmbFactory
+     */
+    protected $smb_factory;
+
+    /**
      * Storage handler.
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, SmbFactory $smb_factory)
     {
         $this->logger = $logger;
+        $this->smb_factory = $smb_factory;
     }
 
     /**
@@ -47,11 +56,6 @@ class Factory
         $options = Validator::validate($options);
         $adapter = self::ADAPTERS[$options['adapter']];
 
-        $validator = $adapter.'\\Validator';
-        $factory = $adapter.'\\Factory';
-
-        $validator::validate($options);
-
-        return $factory::build($options, $this->logger);
+        return $this->smb_factory->build($options);
     }
 }

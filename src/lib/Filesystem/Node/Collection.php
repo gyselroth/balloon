@@ -176,6 +176,8 @@ class Collection extends AbstractNode implements IQuota
             'destroy' => $this->destroy,
             'readonly' => $this->readonly,
             'mount' => $this->mount,
+            'storage_reference' => $this->storage,
+            'storage' => $this->storage,
         ];
     }
 
@@ -330,6 +332,7 @@ class Collection extends AbstractNode implements IQuota
         }
 
         $this->deleted = new UTCDateTime();
+        $this->_storage->deleteCollection($this);
 
         if (!$this->isReference()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
@@ -505,9 +508,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Get children.
-     *
-     * @param ObjectId $id
-     * @param array    $shares
      */
     public function getChildrenRecursive(?ObjectId $id = null, ?array &$shares = []): array
     {
@@ -594,6 +594,8 @@ class Collection extends AbstractNode implements IQuota
                 'created' => new UTCDateTime(),
                 'changed' => new UTCDateTime(),
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
+                'storage' => $this->_storage->createCollection($this, $name),
+                'storage_reference' => $this->storage_reference,
             ];
 
             if (null !== $this->_user) {
@@ -686,7 +688,7 @@ class Collection extends AbstractNode implements IQuota
                 'changed' => new UTCDateTime(),
                 'version' => 0,
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
-                'storage_adapter' => $this->storage_adapter,
+                'storage_reference' => $this->storage_reference,
             ];
 
             if (null !== $this->_user) {
@@ -872,6 +874,7 @@ class Collection extends AbstractNode implements IQuota
         }
 
         try {
+            $this->_storage->forceDeleteCollection($this);
             $result = $this->_db->storage->deleteOne(['_id' => $this->_id]);
 
             if ($this->isShared()) {

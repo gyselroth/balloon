@@ -87,6 +87,12 @@ Balloon\App\DesktopClient\Constructor\Http:
       github_request_useragent: "balloon server"
       #formats: ""
       #github_asset_mapping: ""
+TaskScheduler\Queue:
+  arguments:
+    config:
+      pm: dynamic
+      max_children: 4
+      min_children: 2
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:

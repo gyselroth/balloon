@@ -198,6 +198,20 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
             },
+            'mount_node' => function ($node) use ($fs, $attributes) {
+                if (!isset($attributes['storage']['mount'])) {
+                    return null;
+                }
+
+                return $this->decorate($fs->findNodeById($attributes['storage']['mount']), ['id', 'name', '_links']);
+            },
+            'mount' => function ($node) use ($attributes) {
+                if (!isset($attributes['mount']) || count($attributes['mount']) === 0) {
+                    return null;
+                }
+
+                return $attributes['mount'];
+            },
         ];
     }
 

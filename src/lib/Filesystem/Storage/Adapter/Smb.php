@@ -11,15 +11,17 @@ declare(strict_types=1);
 
 namespace Balloon\Filesystem\Storage\Adapter;
 
-use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Storage\Exception;
+use Icewind\SMB\IFileInfo;
 use Icewind\SMB\IShare;
+use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
-class Smb implements AdapterInterface
+class Smb extends Gridfs
 {
     /**
      * SMB share.
@@ -29,19 +31,12 @@ class Smb implements AdapterInterface
     protected $share;
 
     /**
-     * Logger.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
      * SMB storage.
-     *
-     * @param Database
      */
-    public function __construct(IShare $share, LoggerInterface $logger)
+    public function __construct(IShare $share, Database $db, LoggerInterface $logger)
     {
+        $this->gridfs = $db->selectGridFSBucket();
+        $this->db = $db;
         $this->share = $share;
         $this->logger = $logger;
     }
@@ -57,40 +52,48 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasNode(NodeInterface $node, array $attributes): bool
+    public function hasNode(NodeInterface $node): bool
     {
-        $this->verifyAttributes($attributes);
-        var_dump($this->share->stat($attributes['path']));
+        return (bool) $this->share->stat($attributes['path']);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, array $attributes): bool
+    public function deleteFile(File $file, ?int $version = null): bool
     {
-        $this->verifyAttributes($attributes);
-        $this->share->del($attributes['path']);
-
-        return true;
+        return $this->deleteNode($file, $version);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function openReadStream(File $file, array $attributes)
+    public function forceDeleteFile(File $file, ?int $version = null): bool
     {
-        $this->verifyAttributes($attributes);
+        if (null === $this->hasNode($file)) {
+            $this->logger->debug('smb blob ['.$this->getPath($file).'] was not found for file reference=['.$file->getId().']', [
+                'category' => get_class($this),
+            ]);
 
-        return $this->share->read($attributes['path']);
+            return false;
+        }
+
+        return $this->share->del($this->getPath($file));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function storeFile(File $file, $contents): array
+    public function openReadStream(File $file)
     {
-        $path = $file->getPath();
+        return $this->share->read($this->getPath($file));
+    }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function storeFile(File $file, ObjectId $session): array
+    {
         return [
             'path' => $path,
         ];
@@ -99,15 +102,9 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createCollection(Collection $parent, string $name, array $attributes): array
+    public function createCollection(Collection $parent, string $name): array
     {
-        if (count($attributes) === 0) {
-            $path = DIRECTORY_SEPARATOR.$name;
-        } else {
-            $this->verifyAttributes($attributes);
-            $path = $attributes['path'].DIRECTORY_SEPARATOR.$name;
-        }
-
+        $path = $this->getPath($parent).DIRECTORY_SEPARATOR.$name;
         $this->share->mkdir($path);
 
         return [
@@ -118,31 +115,66 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteCollection(Collection $collection, array $attributes): bool
+    public function deleteCollection(Collection $collection): bool
     {
-        $this->verifyAttributes($attributes);
-        $path = $collection->getPath();
-        $this->share->rmdir($path);
-
-        return true;
+        return $this->deleteNode($collection, $version);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function rename(NodeInterface $node, string $new_name, array $attributes): bool
+    public function forceDeleteCollection(Collection $collection): bool
     {
+        if (null === $this->hasNode($file)) {
+            $this->logger->debug('smb collection ['.$this->getPath($file).'] was not found for collection reference ['.$file->getId().']', [
+                'category' => get_class($this),
+            ]);
+
+            return false;
+        }
+
+        return $this->share->rmdir($this->getPath($collection));
     }
 
     /**
-     * Verify SMB reference.
+     * {@inheritdoc}
      */
-    protected function verifyAttributes(array $attributes): bool
+    public function rename(NodeInterface $node, string $new_name): bool
     {
-        if (!isset($attributes['path'])) {
-            throw Exception('no path given for smb storage definiton');
+        return $this->share->rename($this->getPath($node), $new_name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function deleteNode(NodeInterface $node, ?int $version = null): bool
+    {
+        if (null === $this->hasNode($file)) {
+            $this->logger->debug('smb node ['.$this->getPath($file).'] was not found for reference=['.$node->getId().']', [
+                'category' => get_class($this),
+            ]);
+
+            return false;
         }
 
-        return true;
+        return $this->share->setMode($this->getPath($node), IFileInfo::MODE_HIDDEN);
+    }
+
+    /**
+     * Get SMB path from node.
+     */
+    protected function getPath(NodeInterface $node): string
+    {
+        $attributes = $node->getAttributes();
+
+        if (isset($attributes['mount']) && count($attributes['mount']) !== 0) {
+            return DIRECTORY_SEPARATOR;
+        }
+
+        if (!isset($attributes['storage']['path'])) {
+            throw new Exception\BlobNotFound('no storage.path given for smb storage definiton');
+        }
+
+        return $attributes['storage']['path'];
     }
 }

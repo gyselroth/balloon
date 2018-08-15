@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\Hook;
 
+use Balloon\Async\SmbListener;
+use Balloon\Async\SmbScanner;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
-use Balloon\Scheduler\SmbListener;
-use Balloon\Scheduler\SmbScanner;
 use Balloon\Server;
 use TaskScheduler\Scheduler;
 
@@ -72,7 +72,10 @@ class ExternalStorage extends AbstractHook
             return;
         }
 
-        $this->scheduler->addJob(SmbListener::class, $node->getId());
+        //$this->scheduler->addJob(SmbListener::class, $node->getId(), [
+        //    Scheduler::OPTION_IGNORE_MAX_CHILDREN => true
+        //]);
+
         $this->scheduler->addJob(SmbScanner::class, $node->getId());
 
         throw new Exception('s');
@@ -81,7 +84,7 @@ class ExternalStorage extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function preExecuteSchedulerJobs(): void
+    public function preExecuteAsyncJobs(): void
     {
         $fs = $this->server->getFilesystem();
         $nodes = $fs->findNodesByFilter([
@@ -90,7 +93,7 @@ class ExternalStorage extends AbstractHook
 
         foreach ($nodes as $node) {
             //$this->scheduler->addJobOnce(SmbListener::class, $node->getId());
-            //$this->scheduler->addJobOnce(SmbScanner::class, $node->getId());
+            $this->scheduler->addJobOnce(SmbScanner::class, $node->getId());
         }
     }
 }

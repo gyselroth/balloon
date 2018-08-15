@@ -51,7 +51,7 @@ class CleanTrash extends AbstractJob
     }
 
     /**
-     * Start.
+     * {@inheritdoc}
      */
     public function start(): bool
     {

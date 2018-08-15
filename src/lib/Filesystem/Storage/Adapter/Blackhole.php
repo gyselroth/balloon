@@ -14,13 +14,22 @@ namespace Balloon\Filesystem\Storage\Adapter;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Server\User;
+use MongoDB\BSON\ObjectId;
 
 class Blackhole implements AdapterInterface
 {
     /**
+     * Storage.
+     *
+     * @var array
+     */
+    protected $streams = [];
+
+    /**
      * {@inheritdoc}
      */
-    public function hasNode(NodeInterface $node, array $attributes): bool
+    public function hasNode(NodeInterface $node): bool
     {
         return true;
     }
@@ -28,7 +37,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, array $attributes): bool
+    public function deleteFile(File $file, ?int $version = null): bool
     {
         return true;
     }
@@ -36,7 +45,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function openReadStream(File $file, array $attributes)
+    public function forceDeleteFile(File $file, ?int $version = null): bool
     {
         return true;
     }
@@ -44,7 +53,15 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeFile(File $file, $contents): array
+    public function openReadStream(File $file)
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createCollection(Collection $parent, string $name): array
     {
         return [];
     }
@@ -52,15 +69,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createCollection(Collection $parent, string $name, array $attributes): array
-    {
-        return [];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function deleteCollection(Collection $collection, array $attributes): bool
+    public function deleteCollection(Collection $collection): bool
     {
         return true;
     }
@@ -68,8 +77,57 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function rename(NodeInterface $node, string $new_name, array $attributes): bool
+    public function forceDeleteCollection(Collection $collection): bool
     {
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rename(NodeInterface $node, string $new_name): bool
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function storeTemporaryFile($stream, User $user, ?ObjectId $session = null): ObjectId
+    {
+        $session = new ObjectId();
+        $this->streams[(string) $session] = $stream;
+
+        return $session;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function storeFile(File $file, ObjectId $session): array
+    {
+        $hash = hash_init('md5');
+        $stream = $this->streams[(string) $session];
+        $size = 0;
+
+        while (!feof($stream)) {
+            $buffer = fgets($stream, 65536);
+
+            if ($buffer === false) {
+                continue;
+            }
+
+            $size += mb_strlen($buffer, '8bit');
+            hash_update($hash, $buffer);
+        }
+
+        unset($this->streams[(string) $session]);
+        $md5 = hash_final($hash);
+
+        return [
+            'reference' => $file->getAttributes()['storage'],
+            'size' => $size,
+            'hash' => $md5,
+        ];
     }
 }

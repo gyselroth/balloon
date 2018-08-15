@@ -16,16 +16,40 @@ use Balloon\Filesystem\Storage\Adapter\Smb;
 use Icewind\SMB\AnonymousAuth;
 use Icewind\SMB\BasicAuth;
 use Icewind\SMB\ServerFactory;
+use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
 class Factory
 {
     /**
+     * Database.
+     *
+     * @var Database
+     */
+    protected $db;
+
+    /**
+     * Logger.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Construct.
+     */
+    public function __construct(Database $db, LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        $this->db = $db;
+    }
+
+    /**
      * Create adapter.
      **/
-    public static function build(array $options, LoggerInterface $logger): AdapterInterface
+    public function build(array $options): AdapterInterface
     {
-        $options = Validator::validate($options);
+        $options = $this->validate($options);
 
         $factory = new ServerFactory();
 
@@ -48,6 +72,14 @@ class Factory
             throw new Exception('share '.$options['share'].' was not found');
         }*/
 
-        return new Smb($share, $logger);
+        return new Smb($share, $this->db, $this->logger);
+    }
+
+    /**
+     * Validate.
+     */
+    public function validate(array $options): array
+    {
+        return Validator::validate($options);
     }
 }

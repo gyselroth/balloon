@@ -188,11 +188,18 @@ abstract class AbstractNode implements NodeInterface
     protected $_acl;
 
     /**
-     * Storage adapter.
+     * Mount.
      *
-     * @var string
+     * @var ObjectId
      */
-    protected $storage_adapter;
+    protected $storage_reference;
+
+    /**
+     * Storage attributes.
+     *
+     * @var array
+     */
+    protected $storage;
 
     /**
      * Acl.
@@ -537,6 +544,7 @@ abstract class AbstractNode implements NodeInterface
             //child does not exists, we can safely rename
         }
 
+        $this->_storage->rename($this, $name);
         $this->name = $name;
 
         return $this->save('name');
@@ -631,7 +639,7 @@ abstract class AbstractNode implements NodeInterface
                 'user' => $this->owner,
                 'type' => File::HISTORY_UNDELETE,
                 'storage' => $this->storage,
-                'storage_adapter' => $this->storage_adapter,
+                'storage_reference' => $this->storage_reference,
                 'size' => $this->size,
                 'mime' => $this->mime,
             ];
