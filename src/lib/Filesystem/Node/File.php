@@ -289,7 +289,6 @@ class File extends AbstractNode implements IFile
             return $result;
         }
 
-        $this->_storage->deleteFile($this);
         $ts = new UTCDateTime();
         $this->deleted = $ts;
         $this->increaseVersion();
@@ -305,8 +304,11 @@ class File extends AbstractNode implements IFile
             'hash' => $this->hash,
         ];
 
+        $this->storage = $this->_storage->deleteFile($this);
+
         $result = $this->save([
             'version',
+            'storage',
             'deleted',
             'history',
         ], [], $recursion, $recursion_first);

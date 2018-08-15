@@ -67,6 +67,13 @@ class Factory
     protected $acl;
 
     /**
+     * Storage cache.
+     *
+     * @var array
+     */
+    protected $cache = [];
+
+    /**
      * Initialize.
      */
     public function __construct(Database $db, Hook $hook, LoggerInterface $logger, StorageAdapter $storage, Acl $acl, StorageFactory $storage_factory)
@@ -90,9 +97,21 @@ class Factory
 
         if (isset($node['storage_reference'])) {
             $external = $fs->findNodeById($node['storage_reference'])->getAttributes()['mount'];
-            $storage = $this->storage_factory->build($external);
+            $id = (string) $node['storage_reference'];
+
+            if (isset($this->cache[$id])) {
+                $storage = $this->cache[$id];
+            } else {
+                $storage = $this->cache[$id] = $this->storage_factory->build($external);
+            }
         } elseif (isset($node['mount'])) {
-            $storage = $this->storage_factory->build($node['mount']);
+            $id = (string) $node['_id'];
+
+            if (isset($this->cache[$id])) {
+                $storage = $this->cache[$id];
+            } else {
+                $storage = $this->cache[$id] = $this->storage_factory->build($node['mount']);
+            }
         } else {
             $storage = $this->storage;
         }

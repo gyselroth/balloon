@@ -66,9 +66,9 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteCollection(Collection $collection): bool
+    public function deleteCollection(Collection $collection): array
     {
-        return true;
+        return $collection->getAttributes()['storage'];
     }
 
     /**
@@ -82,9 +82,17 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function rename(NodeInterface $node, string $new_name): bool
+    public function undelete(NodeInterface $node): array
     {
-        return true;
+        return $collection->getAttributes()['storage'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rename(NodeInterface $node, string $new_name): array
+    {
+        return $node->getAttributes()['storage'];
     }
 
     /**
@@ -103,7 +111,7 @@ class Gridfs implements AdapterInterface
         $exists = $this->getFileById($this->getId($file));
 
         if (null === $exists) {
-            $this->logger->debug('gridfs blob ['.$exists['_id'].'] was not found for file refernce ['.$file->getId().']', [
+            $this->logger->debug('gridfs blob ['.$exists['_id'].'] was not found for file reference ['.$file->getId().']', [
                 'category' => get_class($this),
             ]);
 
@@ -144,9 +152,9 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, ?int $version = null): bool
+    public function deleteFile(File $file, ?int $version = null): array
     {
-        return true;
+        return $file->getAttributes()['storage'];
     }
 
     /**
@@ -226,6 +234,14 @@ class Gridfs implements AdapterInterface
     public function createCollection(Collection $parent, string $name): array
     {
         return [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function move(NodeInterface $node, Collection $parent): array
+    {
+        return $node->getAttributes()['storage'];
     }
 
     /**

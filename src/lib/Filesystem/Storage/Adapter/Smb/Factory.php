@@ -72,7 +72,7 @@ class Factory
             throw new Exception('share '.$options['share'].' was not found');
         }*/
 
-        return new Smb($share, $this->db, $this->logger);
+        return new Smb($share, $this->db, $this->logger, isset($options['root']) ? $options['root'] : '');
     }
 
     /**

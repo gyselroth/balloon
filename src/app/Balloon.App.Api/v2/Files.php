@@ -278,7 +278,7 @@ class Files extends Nodes
         } elseif ($id === null && $p === null && $collection === null) {
             $node = $this->server->getFilesystem()->getRoot();
         } else {
-            $node = $this->_getNode($collection, null);
+            $node = $this->_getNode($collection, null, Collection::class);
         }
 
         if ($session === null) {

@@ -54,13 +54,6 @@ class Collection extends AbstractNode implements IQuota
     protected $filter;
 
     /**
-     * Mount.
-     *
-     * @var array
-     */
-    protected $mount = [];
-
-    /**
      * Initialize.
      */
     public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageInterface $storage)
@@ -137,6 +130,14 @@ class Collection extends AbstractNode implements IQuota
         );
 
         return $new_parent;
+    }
+
+    /**
+     * Is mount.
+     */
+    public function isMounted(): bool
+    {
+        return count($this->mount) > 0;
     }
 
     /**
@@ -332,7 +333,7 @@ class Collection extends AbstractNode implements IQuota
         }
 
         $this->deleted = new UTCDateTime();
-        $this->_storage->deleteCollection($this);
+        $this->storage = $this->_storage->deleteCollection($this);
 
         if (!$this->isReference()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
@@ -342,7 +343,7 @@ class Collection extends AbstractNode implements IQuota
 
         if (null !== $this->_id) {
             $result = $this->save([
-                'deleted',
+                'deleted', 'storage',
             ], [], $recursion, false);
         } else {
             $result = true;
@@ -595,7 +596,7 @@ class Collection extends AbstractNode implements IQuota
                 'changed' => new UTCDateTime(),
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
                 'storage' => $this->_storage->createCollection($this, $name),
-                'storage_reference' => $this->storage_reference,
+                'storage_reference' => $this->getMount(),
             ];
 
             if (null !== $this->_user) {
@@ -688,7 +689,7 @@ class Collection extends AbstractNode implements IQuota
                 'changed' => new UTCDateTime(),
                 'version' => 0,
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
-                'storage_reference' => $this->storage_reference,
+                'storage_reference' => $this->getMount(),
             ];
 
             if (null !== $this->_user) {

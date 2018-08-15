@@ -31,14 +31,22 @@ class Smb extends Gridfs
     protected $share;
 
     /**
+     * SMB Root directory within share.
+     *
+     * @var string
+     */
+    protected $root = '';
+
+    /**
      * SMB storage.
      */
-    public function __construct(IShare $share, Database $db, LoggerInterface $logger)
+    public function __construct(IShare $share, Database $db, LoggerInterface $logger, $root = '')
     {
         $this->gridfs = $db->selectGridFSBucket();
         $this->db = $db;
         $this->share = $share;
         $this->logger = $logger;
+        $this->root = $root;
     }
 
     /**
@@ -54,13 +62,19 @@ class Smb extends Gridfs
      */
     public function hasNode(NodeInterface $node): bool
     {
-        return (bool) $this->share->stat($attributes['path']);
+        $attributes = $node->getAttributes();
+
+        if (isset($attributes['storage']['path'])) {
+            return (bool) $this->share->stat($attributes['storage']['path']);
+        }
+
+        return false;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, ?int $version = null): bool
+    public function deleteFile(File $file, ?int $version = null): array
     {
         return $this->deleteNode($file, $version);
     }
@@ -70,8 +84,8 @@ class Smb extends Gridfs
      */
     public function forceDeleteFile(File $file, ?int $version = null): bool
     {
-        if (null === $this->hasNode($file)) {
-            $this->logger->debug('smb blob ['.$this->getPath($file).'] was not found for file reference=['.$file->getId().']', [
+        if (false === $this->hasNode($file)) {
+            $this->logger->debug('smb blob for file ['.$file->getId().'] was not found', [
                 'category' => get_class($this),
             ]);
 
@@ -94,8 +108,36 @@ class Smb extends Gridfs
      */
     public function storeFile(File $file, ObjectId $session): array
     {
+        $path = $this->getPath($file->getParent()).DIRECTORY_SEPARATOR.$file->getName();
+
+        $this->logger->debug('copy file from ['.$session.'] to smb share ['.$path.']', [
+            'category' => get_class($this),
+        ]);
+
+        $md5 = $this->db->command([
+            'filemd5' => $session,
+            'root' => 'fs',
+        ])->toArray()[0]['md5'];
+
+        $this->logger->debug('calculated hash ['.$md5.'] for temporary file ['.$session.']', [
+            'category' => get_class($this),
+        ]);
+
+        $to = $this->share->write($path);
+        $from = $this->gridfs->openDownloadStream($session);
+
+        $size = stream_copy_to_stream($from, $to);
+        fclose($to);
+        fclose($from);
+        $this->gridfs->delete($session);
+
         return [
-            'path' => $path,
+            'reference' => [
+                'path' => $path,
+                'ino' => null,
+            ],
+            'size' => $size,
+            'hash' => $md5,
         ];
     }
 
@@ -109,13 +151,14 @@ class Smb extends Gridfs
 
         return [
             'path' => $path,
+            'ino' => null,
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function deleteCollection(Collection $collection): bool
+    public function deleteCollection(Collection $collection): array
     {
         return $this->deleteNode($collection, $version);
     }
@@ -125,8 +168,8 @@ class Smb extends Gridfs
      */
     public function forceDeleteCollection(Collection $collection): bool
     {
-        if (null === $this->hasNode($file)) {
-            $this->logger->debug('smb collection ['.$this->getPath($file).'] was not found for collection reference ['.$file->getId().']', [
+        if (false === $this->hasNode($collection)) {
+            $this->logger->debug('smb collection ['.$collection->getId().'] was not found', [
                 'category' => get_class($this),
             ]);
 
@@ -139,25 +182,63 @@ class Smb extends Gridfs
     /**
      * {@inheritdoc}
      */
-    public function rename(NodeInterface $node, string $new_name): bool
+    public function rename(NodeInterface $node, string $new_name): array
     {
-        return $this->share->rename($this->getPath($node), $new_name);
+        $path = dirname($this->getPath($node)).DIRECTORY_SEPARATOR.$new_name;
+        $this->share->rename($this->getPath($node), $path);
+        $reference = $node->getAttributes()['storage'];
+        $reference['path'] = $path;
+
+        return $reference;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function deleteNode(NodeInterface $node, ?int $version = null): bool
+    public function move(NodeInterface $node, Collection $parent): array
     {
-        if (null === $this->hasNode($file)) {
-            $this->logger->debug('smb node ['.$this->getPath($file).'] was not found for reference=['.$node->getId().']', [
+        $path = $this->getPath($parent).DIRECTORY_SEPARATOR.$node->getName();
+        $this->share->rename($this->getPath($node), $path);
+        $reference = $node->getAttributes()['storage'];
+        $reference['path'] = $path;
+
+        return $reference;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function undelete(NodeInterface $node): array
+    {
+        if (null === $this->hasNode($node)) {
+            $this->logger->debug('smb node ['.$this->getPath($node).'] was not found for reference=['.$node->getId().']', [
+                'category' => get_class($this),
+            ]);
+
+            return $node->getAttributes()['storage'];
+        }
+
+        $this->share->setMode($this->getPath($node), IFileInfo::MODE_NORMAL);
+
+        return $this->rename($node, $node->getName());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function deleteNode(NodeInterface $node, ?int $version = null): array
+    {
+        if (null === $this->hasNode($node)) {
+            $this->logger->debug('smb node ['.$this->getPath($node).'] was not found for reference=['.$node->getId().']', [
                 'category' => get_class($this),
             ]);
 
             return false;
         }
 
-        return $this->share->setMode($this->getPath($node), IFileInfo::MODE_HIDDEN);
+        $this->share->setMode($this->getPath($node), IFileInfo::MODE_HIDDEN);
+
+        return $this->rename($node, '.'.$node->getId());
     }
 
     /**
@@ -168,7 +249,7 @@ class Smb extends Gridfs
         $attributes = $node->getAttributes();
 
         if (isset($attributes['mount']) && count($attributes['mount']) !== 0) {
-            return DIRECTORY_SEPARATOR;
+            return $this->root;
         }
 
         if (!isset($attributes['storage']['path'])) {

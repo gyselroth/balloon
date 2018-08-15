@@ -209,6 +209,13 @@ abstract class AbstractNode implements NodeInterface
     protected $acl = [];
 
     /**
+     * Mount.
+     *
+     * @var array
+     */
+    protected $mount = [];
+
+    /**
      * Storage.
      *
      * @var Storage
@@ -360,7 +367,7 @@ abstract class AbstractNode implements NodeInterface
             }
         }
 
-        if ($parent->isSpecial() && $this->shared !== $parent->getShareId() || !$parent->isSpecial() && $this->isShareMember()) {
+        if ($parent->isSpecial() && $this->shared !== $parent->getShareId() || !$parent->isSpecial() && $this->isShareMember() || $parent->getMount() != $this->getMount()) {
             $new = $this->copyTo($parent, $conflict);
             $this->delete();
 
@@ -374,10 +381,11 @@ abstract class AbstractNode implements NodeInterface
             return $new;
         }
 
+        $this->storage = $this->_storage->move($this, $parent);
         $this->parent = $parent->getRealId();
         $this->owner = $this->_user->getId();
 
-        $this->save(['parent', 'shared', 'owner']);
+        $this->save(['parent', 'shared', 'owner', 'storage']);
 
         return $this;
     }
@@ -544,10 +552,10 @@ abstract class AbstractNode implements NodeInterface
             //child does not exists, we can safely rename
         }
 
-        $this->_storage->rename($this, $name);
+        $this->storage = $this->_storage->rename($this, $name);
         $this->name = $name;
 
-        return $this->save('name');
+        return $this->save('name', 'storage');
     }
 
     /**
@@ -578,9 +586,15 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
+     * Get mount node.
+     */
+    public function getMount(): ?ObjectId
+    {
+        return count($this->mount) > 0 ? $this->_id : $this->storage_reference;
+    }
+
+    /**
      * Undelete.
-     *
-     * @param string $recursion
      */
     public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
     {
@@ -627,6 +641,7 @@ abstract class AbstractNode implements NodeInterface
             $recursion_first = false;
         }
 
+        $this->storage = $this->_storage->undelete($this);
         $this->deleted = false;
 
         if ($this instanceof File) {
@@ -653,6 +668,7 @@ abstract class AbstractNode implements NodeInterface
         }
 
         $this->save([
+                'storage',
                 'name',
                 'deleted',
             ], [], $recursion, $recursion_first);

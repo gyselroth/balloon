@@ -37,9 +37,9 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, ?int $version = null): bool
+    public function deleteFile(File $file, ?int $version = null): array
     {
-        return true;
+        return $file->getAttributes()['storage'];
     }
 
     /**
@@ -69,9 +69,17 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteCollection(Collection $collection): bool
+    public function deleteCollection(Collection $collection): array
     {
-        return true;
+        return $collection->getAttributes()['storage'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function move(NodeInterface $node, Collection $parent): array
+    {
+        return $node->getAttributes()['storage'];
     }
 
     /**
@@ -85,9 +93,17 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function rename(NodeInterface $node, string $new_name): bool
+    public function undelete(NodeInterface $node): array
     {
-        return true;
+        return $collection->getAttributes()['storage'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rename(NodeInterface $node, string $new_name): array
+    {
+        return $node->getAttributes()['storage'];
     }
 
     /**
