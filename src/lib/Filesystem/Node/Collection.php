@@ -335,7 +335,7 @@ class Collection extends AbstractNode implements IQuota
         $this->deleted = new UTCDateTime();
         $this->storage = $this->_storage->deleteCollection($this);
 
-        if (!$this->isReference()) {
+        if (!$this->isReference() && !$this->isMounted()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(false, $recursion, false);
             }, NodeInterface::DELETED_EXCLUDE);
@@ -863,12 +863,10 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Completely remove node.
-     *
-     * @param string $recursion Identifier to identify a recursive action
      */
     protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isReference()) {
+        if (!$this->isReference() && !$this->isMounted()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(true, $recursion, false);
             }, NodeInterface::DELETED_INCLUDE);

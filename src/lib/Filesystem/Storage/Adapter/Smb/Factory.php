@@ -60,16 +60,7 @@ class Factory
 
         $smb = $factory->createServer($options['host'], $auth);
         $share = $smb->getShare($options['share']);
-
-        /*foreach($smb->listShares() as $smb_share) {
-            if($smb_share->getName() === $options['share']) {
-                $share = $smb_share;
-            }
-        }
-
-        if($share === null) {
-            throw new Exception('share '.$options['share'].' was not found');
-        }*/
+        $share->test();
 
         return new Smb($share, $this->logger, [
             Smb::OPTION_ROOT => isset($options['root']) ? $options['root'] : '',

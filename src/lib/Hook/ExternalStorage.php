@@ -60,7 +60,7 @@ class ExternalStorage extends AbstractHook
             return;
         }
 
-        $adapter = $this->factory->build($attributes['mount']);
+        $this->factory->build($attributes['mount'])->test();
     }
 
     /**
@@ -68,17 +68,14 @@ class ExternalStorage extends AbstractHook
      */
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
-        if (count($node->getAttributes()['mount']) === 0) {
+        if (!$node->isMounted()) {
             return;
         }
 
+        $this->scheduler->addJob(SmbScanner::class, $node->getId());
         //$this->scheduler->addJob(SmbListener::class, $node->getId(), [
         //    Scheduler::OPTION_IGNORE_MAX_CHILDREN => true
         //]);
-
-        $this->scheduler->addJob(SmbScanner::class, $node->getId());
-
-        throw new Exception('s');
     }
 
     /**

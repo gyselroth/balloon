@@ -300,6 +300,16 @@ class Smb implements AdapterInterface
     }
 
     /**
+     * Test connection to storage.
+     */
+    public function test(): bool
+    {
+        $this->share->dir('/');
+
+        return true;
+    }
+
+    /**
      * Set options.
      */
     protected function setOptions(array $config = []): self
