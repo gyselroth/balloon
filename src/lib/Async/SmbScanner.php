@@ -107,6 +107,7 @@ class SmbScanner extends AbstractJob
         $storage = $parent->getStorage();
         $stream = $share->read($node->getPath());
         $session = $storage->storeTemporaryFile($stream, $user);
+        fclose($stream);
         $file->setContent($session, $attributes);
 
         return true;

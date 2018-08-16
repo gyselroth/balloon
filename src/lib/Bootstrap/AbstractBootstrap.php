@@ -67,7 +67,9 @@ abstract class AbstractBootstrap
                 break;
             }
 
-            throw new ErrorException($message, 0, $severity, $file, $line);
+            if (error_reporting() !== 0) {
+                throw new ErrorException($message, 0, $severity, $file, $line);
+            }
         });
 
         return $this;

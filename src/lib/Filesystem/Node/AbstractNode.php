@@ -660,6 +660,7 @@ abstract class AbstractNode implements NodeInterface
             ];
 
             return $this->save([
+                'storage',
                 'name',
                 'deleted',
                 'history',

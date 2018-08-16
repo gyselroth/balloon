@@ -348,7 +348,7 @@ class File extends AbstractNode implements IFile
         try {
             //do not remove blob if there are other versions linked against it
             if ($this->history[$key]['storage'] !== null && count(array_keys($blobs, $this->history[$key]['storage'])) === 1) {
-                $this->_storage->deleteFile($this, $version);
+                $this->_storage->forceDeleteFile($this, $version);
             }
 
             array_splice($this->history, $key, 1);

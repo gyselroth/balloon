@@ -16,18 +16,10 @@ use Balloon\Filesystem\Storage\Adapter\Smb;
 use Icewind\SMB\AnonymousAuth;
 use Icewind\SMB\BasicAuth;
 use Icewind\SMB\ServerFactory;
-use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
 class Factory
 {
-    /**
-     * Database.
-     *
-     * @var Database
-     */
-    protected $db;
-
     /**
      * Logger.
      *
@@ -36,12 +28,19 @@ class Factory
     protected $logger;
 
     /**
+     * Balloon system folder.
+     *
+     * @var string
+     */
+    protected $system_folder = '.balloon';
+
+    /**
      * Construct.
      */
-    public function __construct(Database $db, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, array $config = [])
     {
         $this->logger = $logger;
-        $this->db = $db;
+        $this->setOptions($config);
     }
 
     /**
@@ -72,7 +71,10 @@ class Factory
             throw new Exception('share '.$options['share'].' was not found');
         }*/
 
-        return new Smb($share, $this->db, $this->logger, isset($options['root']) ? $options['root'] : '');
+        return new Smb($share, $this->logger, [
+            Smb::OPTION_ROOT => isset($options['root']) ? $options['root'] : '',
+            Smb::OPTION_SYSTEM_FOLDER => $this->system_folder,
+        ]);
     }
 
     /**
@@ -81,5 +83,24 @@ class Factory
     public function validate(array $options): array
     {
         return Validator::validate($options);
+    }
+
+    /**
+     * Set options.
+     */
+    protected function setOptions(array $config = []): self
+    {
+        foreach ($config as $option => $value) {
+            switch ($option) {
+                case 'system_folder':
+                    $this->{$option} = (string) $value;
+
+                break;
+                default:
+                    throw new InvalidArgumentException('unknown option '.$option.' given');
+            }
+        }
+
+        return $this;
     }
 }
