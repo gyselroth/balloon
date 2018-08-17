@@ -26,6 +26,8 @@
             "url": "https://github.com/raffis/SMB"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php": ">=7.1",
         "gyselroth/micro-auth": "*",
@@ -44,7 +46,7 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "*",
         "zendframework/zend-mail": "2.9.*",
-        "gyselroth/mongodb-php-task-scheduler": "^2.0.1",
+        "gyselroth/mongodb-php-task-scheduler": "^3.0.0",
         "hassankhan/config": "*",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",

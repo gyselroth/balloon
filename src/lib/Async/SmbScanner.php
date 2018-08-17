@@ -20,6 +20,7 @@ use Icewind\SMB\IShare;
 use Icewind\SMB\Native\NativeFileInfo;
 use MongoDB\BSON\UTCDateTime;
 use TaskScheduler\AbstractJob;
+use Balloon\Filesystem\Storage\Adapter\Smb;
 
 class SmbScanner extends AbstractJob
 {
@@ -38,16 +39,27 @@ class SmbScanner extends AbstractJob
     {
         $dummy = new Blackhole();
         $fs = $this->server->getFilesystem();
-        $collection = $fs->findNodeById($this->data);
+        $collection = $fs->findNodeById($this->data['id']);
         $user = $this->server->getUserById($collection->getOwner());
         $user_fs = $user->getFilesystem();
-        $share = $collection->getStorage()->getShare();
+        $smb = $collection->getStorage();
+        $share = $smb->getShare();
 
         $collection
             ->setFilesystem($user_fs)
             ->setStorage($dummy);
 
-        $this->recursiveIterator($collection, $collection, $share, $dummy, $user);
+        $path = $smb->getRoot();
+        if(isset($this->data['path'])) {
+            $path = $this->data['path'];
+        }
+
+        $recursive = true;
+        if(isset($this->data['recursive'])) {
+            $recursive = $this->data['recursive'];
+        }
+
+        $this->recursiveIterator($collection, $collection, $share, $dummy, $user, $smb, $path, $recursive);
 
         return true;
     }
@@ -55,9 +67,11 @@ class SmbScanner extends AbstractJob
     /**
      * Iterate recursively through smb share.
      */
-    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, string $path = '/'): void
+    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, Smb $smb, string $path = '/', bool $recursive=true): void
     {
         $nodes = [];
+        $system_path = $path.DIRECTORY_SEPARATOR.$smb->getSystemFolder();
+
         foreach ($share->dir($path) as $node) {
             $nodes[] = $node->getName();
         }
@@ -71,6 +85,10 @@ class SmbScanner extends AbstractJob
         }
 
         foreach ($share->dir($path) as $node) {
+            if($node->getPath() === $system_path) {
+                continue;
+            }
+
             $attributes = $this->getAttributes($mount, $share, $node);
 
             if ($node->isDirectory()) {
@@ -81,7 +99,10 @@ class SmbScanner extends AbstractJob
                 }
 
                 $child->setStorage($dummy);
-                $this->recursiveIterator($child, $mount, $share, $dummy, $user, $path.$node->getName().DIRECTORY_SEPARATOR);
+
+                if($recursive === true) {
+                    $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $path.$node->getName().DIRECTORY_SEPARATOR, $recursive);
+                }
             } else {
                 if (!$parent->childExists($node->getName())) {
                     $file = $parent->addFile($node->getName(), null, $attributes)
@@ -107,8 +128,8 @@ class SmbScanner extends AbstractJob
         $storage = $parent->getStorage();
         $stream = $share->read($node->getPath());
         $session = $storage->storeTemporaryFile($stream, $user);
-        fclose($stream);
         $file->setContent($session, $attributes);
+        fclose($stream);
 
         return true;
     }
@@ -139,7 +160,7 @@ class SmbScanner extends AbstractJob
             'storage_reference' => $collection->getId(),
             'storage' => [
                 'path' => $node->getPath(),
-                'ino' => $stats['ino'],
+                'ino' => $stats['ino']
             ],
         ];
     }

@@ -15,7 +15,7 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapter;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
 use Balloon\Hook;
 use Balloon\Server;
@@ -55,7 +55,7 @@ class Factory
     /**
      * Storage.
      *
-     * @var Storage
+     * @var StorageAdapterInterface
      */
     protected $storage;
 
@@ -76,7 +76,7 @@ class Factory
     /**
      * Initialize.
      */
-    public function __construct(Database $db, Hook $hook, LoggerInterface $logger, StorageAdapter $storage, Acl $acl, StorageFactory $storage_factory)
+    public function __construct(Database $db, Hook $hook, LoggerInterface $logger, StorageAdapterInterface $storage, Acl $acl, StorageFactory $storage_factory)
     {
         $this->db = $db;
         $this->logger = $logger;

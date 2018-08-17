@@ -76,6 +76,22 @@ class Smb implements AdapterInterface
     }
 
     /**
+     * Get root path
+     */
+    public function getRoot(): string
+    {
+        return $this->root;
+    }
+
+    /**
+     * Get system folder
+     */
+    public function getSystemFolder(): string
+    {
+        return $this->system_folder;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function hasNode(NodeInterface $node): bool
@@ -163,7 +179,7 @@ class Smb implements AdapterInterface
         ]);
 
         $this->share->rename($path, $dest);
-        $stats = $this->share->getStat($dest);
+        $stats = $this->share->getStat($path);
 
         return [
             'reference' => [
@@ -337,7 +353,7 @@ class Smb implements AdapterInterface
         $path = $this->root.DIRECTORY_SEPARATOR.$this->system_folder;
 
         try {
-            $this->share->getStat($path);
+            $this->share->stat($path);
         } catch (SMBException\NotFoundException $e) {
             $this->logger->debug('create smb system folder ['.$path.']', [
                 'category' => get_class($this),

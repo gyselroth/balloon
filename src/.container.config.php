@@ -24,6 +24,9 @@ use Balloon\Hook;
 use Balloon\Async\WorkerFactory;
 use TaskScheduler\Queue;
 use TaskScheduler\WorkerFactoryInterface;
+use Balloon\Filesystem\Node\Factory as NodeFactory;
+use Balloon\Filesystem\Storage\Adapter\Gridfs as GridfsStorage;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 
 return [
     Client::class => [
@@ -37,6 +40,13 @@ return [
                 ]
             ]
         ],
+    ],
+    NodeFactory::class => [
+        'services' => [
+            StorageAdapterInterface::class => [
+                'use' => GridfsStorage::class
+            ]
+        ]
     ],
     Database::class => [
         'use' => '{MongoDB\Client}',

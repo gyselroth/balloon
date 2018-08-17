@@ -17,6 +17,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
 use Balloon\Server;
 use TaskScheduler\Scheduler;
+use MongoDB\BSON\ObjectId;
 
 class ExternalStorage extends AbstractHook
 {
@@ -72,10 +73,26 @@ class ExternalStorage extends AbstractHook
             return;
         }
 
-        $this->scheduler->addJob(SmbScanner::class, $node->getId());
-        //$this->scheduler->addJob(SmbListener::class, $node->getId(), [
-        //    Scheduler::OPTION_IGNORE_MAX_CHILDREN => true
-        //]);
+        $this->addTasks($node->getId());
+    }
+
+    /**
+     * Add tasks
+     */
+    protected function addTasks(ObjectId $node): bool
+    {
+        $this->scheduler->addJobOnce(SmbScanner::class, [
+            'id' => $node
+        ]);
+
+        $this->scheduler->addJobOnce(SmbListener::class, [
+            'id' => $node
+        ], [
+            Scheduler::OPTION_IGNORE_MAX_CHILDREN => true,
+            Scheduler::OPTION_RETRY => -1,
+        ]);
+
+        return true;
     }
 
     /**
@@ -89,8 +106,7 @@ class ExternalStorage extends AbstractHook
         ]);
 
         foreach ($nodes as $node) {
-            //$this->scheduler->addJobOnce(SmbListener::class, $node->getId());
-            $this->scheduler->addJobOnce(SmbScanner::class, $node->getId());
+            $this->addTasks($node->getId());
         }
     }
 }

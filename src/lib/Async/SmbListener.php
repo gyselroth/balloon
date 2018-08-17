@@ -16,17 +16,46 @@ use Balloon\Filesystem\Storage\Adapter\Blackhole;
 use Balloon\Server;
 use Icewind\SMB\IShare;
 use Icewind\SMB\NativeFileInfo;
+use Icewind\SMB\Change;
+use Icewind\SMB\INotifyHandler;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\BSON\ObjectId;
 use TaskScheduler\AbstractJob;
+use TaskScheduler\Scheduler;
+use Psr\Log\LoggerInterface;
+use Balloon\Filesystem\Storage\Adapter\Smb;
 
 class SmbListener extends AbstractJob
 {
     /**
+     * Server
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * Scheduler
+     *
+     * @var Scheduler
+     */
+    protected $scheduler;
+
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Constructor.
      */
-    public function __construct(Server $server)
+    public function __construct(Server $server, Scheduler $scheduler, LoggerInterface $logger)
     {
         $this->server = $server;
+        $this->scheduler = $scheduler;
+        $this->logger = $logger;
     }
 
     /**
@@ -36,43 +65,78 @@ class SmbListener extends AbstractJob
     {
         $dummy = new Blackhole();
         $fs = $this->server->getFilesystem();
-        $collection = $fs->findNodeById($this->data);
+        $collection = $fs->findNodeById($this->data['id']);
         $user_fs = $this->server->getUserById($collection->getOwner())->getFilesystem();
-        $share = $collection->getStorage()->getShare();
+        $smb = $collection->getStorage();
+        $share = $smb->getShare();
 
         $collection
             ->setFilesystem($user_fs)
             ->setStorage($dummy);
 
-        $this->notify($collection, $collection, $share, $dummy);
+        $this->notify($collection, $share, $dummy, $smb);
 
         return true;
     }
 
     /**
-     * Iterate recursively through smb share.
+     * Bind to smb changes
      */
-    protected function notify(Collection $parent, Collection $external, IShare $share, Blackhole $dummy): void
+    protected function notify(Collection $mount, IShare $share, Blackhole $dummy, Smb $smb): void
     {
-        $share->notify('')->listen(function (\Icewind\SMB\Change $change) use ($share) {
-            echo $change->getCode().': '.$change->getPath()."\n";
+        $rename_from = null;
+        $last = null;
+        $logger = $this->logger;
+        $root = $smb->getRoot();
+
+        $share->notify('')->listen(function (Change $change) use ($logger, $root, $share, $mount, $last, $rename_from) {
+            $logger->debug('smb mount ['.$mount->getId().'] notify event in ['.$change->getCode().'] for path ['.$change->getPath().']', [
+                'category' => get_class($this)
+            ]);
+
+            if(substr($change->getPath(), 0, strlen($root)) !== $root) {
+                $logger->debug('skip smb event ['.$change->getPath().'], path is not part of root ['.$root.']', [
+                    'category' => get_class($this)
+                ]);
+
+                return;
+            }
+
+            if($change->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
+                $rename_from = $change->getPath();
+            } elseif($change->getCode() === INotifyHandler::NOTIFY_RENAMED_NEW && $last === INotifyHandler::NOTIFY_RENAMED_OLD) {
+                $this->moveNode($rename_from, $change->getPath());
+                $rename_from = null;
+            } else {
+                $this->syncNode($mount, $change->getPath());
+            }
+
+            $last = $change->getCode();
         });
     }
 
-    /*protected function getAttributes(Collection $collection, IShare $share, NativeFileInfo $node): array
+    /**
+     * Move node
+     */
+    protected function moveNode(Collection $mount, string $from, string $to): bool
     {
-        $stats = $share->getStat($node->getPath());
-        $ctime = new UTCDateTime($stats['ctime'] * 1000);
-        $mtime = new UTCDateTime($stats['mtime'] * 1000);
+        return true;
+    }
 
-        return [
-            'created' => $ctime,
-            'changed' => $mtime,
-            'storage_reference' => $collection->getId(),
-            'storage' => [
-                'path' => $node->getPath(),
-                'ino' => $stats['ino'],
-            ]
-        ];
-    }*/
+    /**
+     * Add sync task
+     */
+    protected function syncNode(Collection $mount, string $path): ObjectId
+    {
+        $path = dirname($path);
+        if($path === DIRECTORY_SEPARATOR || $path === '.') {
+            $path = '';
+        }
+
+        return $this->scheduler->addJob(SmbScanner::class, [
+            'id' => $mount->getId(),
+            'path' => $path,
+            'recursive' => false,
+        ]);
+    }
 }

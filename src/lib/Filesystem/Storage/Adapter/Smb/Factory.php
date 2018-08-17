@@ -60,7 +60,6 @@ class Factory
 
         $smb = $factory->createServer($options['host'], $auth);
         $share = $smb->getShare($options['share']);
-        $share->test();
 
         return new Smb($share, $this->logger, [
             Smb::OPTION_ROOT => isset($options['root']) ? $options['root'] : '',
