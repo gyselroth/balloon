@@ -121,7 +121,7 @@ class File extends AbstractNode implements IFile
      */
     public function get()
     {
-        if (null === $this->_storage) {
+        if (null === $this->storage) {
             return null;
         }
 
