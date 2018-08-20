@@ -47,7 +47,8 @@
         "bramus/monolog-colored-line-formatter": "~2.0",
         "zendframework/zend-servicemanager": "^3.3",
         "maennchen/zipstream-php": "^0.5.1",
-        "katzien/php-mime-type": "^2.1"
+        "katzien/php-mime-type": "^2.1",
+        "guzzlehttp/guzzle": "^6.3"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
