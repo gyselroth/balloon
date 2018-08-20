@@ -76,7 +76,7 @@ class Smb implements AdapterInterface
     }
 
     /**
-     * Get root path
+     * Get root path.
      */
     public function getRoot(): string
     {
@@ -84,7 +84,7 @@ class Smb implements AdapterInterface
     }
 
     /**
-     * Get system folder
+     * Get system folder.
      */
     public function getSystemFolder(): string
     {
@@ -179,7 +179,7 @@ class Smb implements AdapterInterface
         ]);
 
         $this->share->rename($path, $dest);
-        $stats = $this->share->getStat($path);
+        $stats = $this->share->getStat($dest);
 
         return [
             'reference' => [

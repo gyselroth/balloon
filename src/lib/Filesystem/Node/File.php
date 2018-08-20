@@ -150,7 +150,7 @@ class File extends AbstractNode implements IFile
             $result = $parent->getChild($this->name);
             $result->put($this->get());
         } else {
-            $session = $this->temporarySession($this->get());
+            $session = $parent->temporarySession($this->get());
             $result = $parent->addFile($name, $session, [
                 'created' => $this->created,
                 'changed' => $this->changed,
@@ -487,7 +487,7 @@ class File extends AbstractNode implements IFile
         $this->hash = $result['hash'];
         $this->size = $result['size'];
 
-        if ($this->size === 0) {
+        if ($this->size === 0 && $this->getMount() === null) {
             $this->storage = null;
         } else {
             $this->storage = $result['reference'];

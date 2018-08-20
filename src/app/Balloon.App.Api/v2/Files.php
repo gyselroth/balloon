@@ -400,8 +400,16 @@ class Files extends Nodes
     ): Response {
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
-        $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
 
+        if ($id !== null || $p !== null) {
+            $node = $this->_getNode($id, $p);
+        } elseif ($id === null && $p === null && $collection === null) {
+            $node = $this->server->getFilesystem()->getRoot();
+        } else {
+            $node = $this->_getNode($collection, null, Collection::class);
+        }
+
+        $session = $node->getStorage()->storeTemporaryFile($input, $this->server->getIdentity());
         $attributes = compact('changed', 'created', 'readonly', 'meta', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);

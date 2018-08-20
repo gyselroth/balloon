@@ -52,14 +52,16 @@ The job MAY be scheduled via TaskScheduler. The balloon server MUST also spool a
 Changes made via SMB will have no issuer user. Neither Windows (NTFS) nor most posix filesystems store the user alongside file metadata. It will not be possible to get the changing user to bind it to a balloon event. Meaning the event owner MAY be the balloon server or the use
 r who connected the SMB share. Changes made via balloon do have an event owner like they have with the default storage adapter.
 
+## .balloon system folder
+There MAY be a .balloon folder in the share root which MUST have the DOS HIDDEN (https://www.samba.org/samba/docs/using_samba/ch08.html.) flag set. Deleted nodes and temporary nodes/blobs will reside in that directory.
+This directory MUST not be indexed by balloon.
+
 ## Delete & Restore nodes
-The SMB `hidden` flag MAY act as an invisual trash.
-A delete command issued from balloon MUST set the `hidden` flag via SMB on folders and files if force is not given.
-If a force delete command is issued via balloon the node gets deleted on the SMB share as well.
-Accordingly a restore issued via balloon MUST unset a potentially set `hidden` flag. This hidden flag MAY be supported on SAMBA server as well using (map hidden) https://www.samba.org/samba/docs/using_samba/ch08.html.
+Files and collections removed via balloon but are part of the smb storage mount MUST be moved to a system folder called .balloon in the configured smb share root.
+Deleted nodes must be moved to .balloon/trash/{id}. A restore MUST collect a node from that path and move it back to the path given or the previous path.
 
 ## Readonly nodes
-Since Windows (NTFS) ans most unix systems  also supports a `readonly` flag this can be used very well. 
+Since Windows (NTFS) and most unix systems  also supports a `readonly` flag this can be used very well. 
 If a file is marked as readonly the balloon server MAY set the `readonly` flag via SMB as well.
 
 ## Deduplication
@@ -71,9 +73,19 @@ However deduplication can still be achieved with other technolgies such as dedup
 Files content history does not make sense since with files stored on an SMB share since there can only be one version stored at a certain location.
 And a file which get changed via SMB gets overwritten anyway. Therefore balloon SHOULD always show only the latest version.
 
+## Rename & move
+A rename can be properly detected if the notification listener is running, therefore an existing node can be renamed. However if the listener is not running this is not possible.
+The old node gets removed and the new location gets added as new node. The same applies to move events. There is no such event in SMB implemented therefore nodes moved via SMB will always replicated in balloon as delete & create.
+
 ## Content checksums
 Most filesystems do not store a checksum alongside file metadata (expect ZFS or BTRFS) as so does Windows (NTFS). Neither is it possible to access those checkusms via SMB. A files checkum indexed by balloon MUST be calcualted.
 It MUST also be calcualted if a file gets stored on an SMB share via balloon.
+
+## Quota 
+Nodes which are part of an external storage mount MUST not count to the users quota. This MUST always be the case since quota is handled seperately on external storage providers.
+
+## Action issued by balloon
+All action issued via balloon MUST reflect on an external storage mount immediatly. If the storage adapter throws an exception of any kind the action MUST not be executed.
 
 ## Connect SMB share
 

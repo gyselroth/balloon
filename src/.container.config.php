@@ -224,6 +224,14 @@ return [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\GridfsFlatReferences::class.'}']
             ],
+            Delta\RemoveStorageAdapterName::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\RemoveStorageAdapterName::class.'}']
+            ],
+            Delta\SetStorageReferenceToNull::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\SetStorageReferenceToNull::class.'}']
+            ],
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}']

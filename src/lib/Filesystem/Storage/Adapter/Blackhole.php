@@ -14,6 +14,7 @@ namespace Balloon\Filesystem\Storage\Adapter;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Filesystem\Storage\Exception;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 
@@ -79,7 +80,11 @@ class Blackhole implements AdapterInterface
      */
     public function move(NodeInterface $node, Collection $parent): array
     {
-        return $node->getAttributes()['storage'];
+        $storage = $node->getAttributes()['storage'];
+        $parent = $parent->getAttributes()['storage'];
+        $storage['path'] = dirname($parent['path']).DIRECTORY_SEPARATOR.$node->getName();
+
+        return $storage;
     }
 
     /**
@@ -103,7 +108,10 @@ class Blackhole implements AdapterInterface
      */
     public function rename(NodeInterface $node, string $new_name): array
     {
-        return $node->getAttributes()['storage'];
+        $storage = $node->getAttributes()['storage'];
+        $storage['path'] = dirname($storage['path']).DIRECTORY_SEPARATOR.$new_name;
+
+        return $storage;
     }
 
     /**
@@ -123,6 +131,11 @@ class Blackhole implements AdapterInterface
     public function storeFile(File $file, ObjectId $session): array
     {
         $hash = hash_init('md5');
+
+        if (!isset($this->streams[(string) $session])) {
+            throw new Exception\BlobNotFound('temporary blob '.$session.' has not been found');
+        }
+
         $stream = $this->streams[(string) $session];
         $size = 0;
 

@@ -555,7 +555,7 @@ abstract class AbstractNode implements NodeInterface
         $this->storage = $this->_storage->rename($this, $name);
         $this->name = $name;
 
-        return $this->save('name', 'storage');
+        return $this->save(['name', 'storage']);
     }
 
     /**

@@ -558,6 +558,7 @@ class User implements RoleInterface
                     'owner' => $this->_id,
                     'directory' => false,
                     'deleted' => false,
+                    'storage_reference' => null,
                 ],
             ],
             [

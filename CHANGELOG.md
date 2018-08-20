@@ -1,3 +1,11 @@
+## 2.1.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: \
+**Note**: ballooncli upgrade required, @see UPGRADE.md
+
+* Core: [FEATURE] Implemented RFC-3 SMB external storage #156
+
+
 ## 2.0.11
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Aug 07 09:29:51 CEST 2018
