@@ -6,6 +6,8 @@
 * CORE: [FEATURE] Implemented RFC-3 SMB external storage #156
 * CORE: [CHANGE] Do not add a content history entry if a file gets deleted #179
 * CORE: [CHANGE] Do not automatically remove deleted share references #180
+* CORE: [CHANGE] Do not delete child nodes of a custom filtered collection if a delete was issued on the collection #181
+* API: [CHANGE] API returns share node from share owner instead share reference #182
 
 
 ## 2.0.11

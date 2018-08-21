@@ -530,6 +530,8 @@ class Filesystem
      */
     public function initNode(array $node): NodeInterface
     {
+        $id = $node['_id'];
+
         if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] != $this->user->getId()) {
             $node = $this->findReferenceNode($node);
         }
@@ -566,7 +568,7 @@ class Filesystem
         }
 
         if ($this->user !== null) {
-            $this->cache[(string) $node['_id']] = $instance;
+            $this->cache[(string) $id] = $instance;
         }
 
         return $instance;
