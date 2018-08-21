@@ -15,7 +15,7 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageInterface;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Hook;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -235,7 +235,7 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Set storage adapter.
      */
-    public function setStorage(StorageInterface $adapter): self
+    public function setStorage(StorageAdapterInterface $adapter): self
     {
         $this->_storage = $adapter;
 
@@ -245,7 +245,7 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Get storage adapter.
      */
-    public function getStorage(): StorageInterface
+    public function getStorage(): StorageAdapterInterface
     {
         return $this->_storage;
     }
@@ -367,7 +367,9 @@ abstract class AbstractNode implements NodeInterface
             }
         }
 
-        if ($parent->isSpecial() && $this->shared !== $parent->getShareId() || !$parent->isSpecial() && $this->isShareMember() || $parent->getMount() != $this->getMount()) {
+        if (($parent->isSpecial() && $this->shared != $parent->getShareId())
+          || (!$parent->isSpecial() && $this->isShareMember())
+          || ($parent->getMount() != $this->getMount())) {
             $new = $this->copyTo($parent, $conflict);
             $this->delete();
 
@@ -509,6 +511,14 @@ abstract class AbstractNode implements NodeInterface
     public function isShareMember(): bool
     {
         return $this->shared instanceof ObjectId && !$this->isReference();
+    }
+
+    /**
+     * Check if node is a sub node of an external storage mount.
+     */
+    public function isMountMember(): bool
+    {
+        return $this->storage_reference instanceof ObjectId;
     }
 
     /**
@@ -935,8 +945,9 @@ abstract class AbstractNode implements NodeInterface
     public function setReadonly(bool $readonly = true): bool
     {
         $this->readonly = $readonly;
+        $this->storage = $this->_storage->readonly($this, $readonly);
 
-        return $this->save('readonly');
+        return $this->save(['readonly', 'storage']);
     }
 
     /**

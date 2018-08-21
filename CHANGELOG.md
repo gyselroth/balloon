@@ -7,6 +7,7 @@
 * CORE: [CHANGE] Do not add a content history entry if a file gets deleted #179
 * CORE: [CHANGE] Do not automatically remove deleted share references #180
 * CORE: [CHANGE] Do not delete child nodes of a custom filtered collection if a delete was issued on the collection #181
+* CORE: [FIX]  Move within the same share executes a delete n create instead move #183
 * API: [CHANGE] API returns share node from share owner instead share reference #182
 
 
