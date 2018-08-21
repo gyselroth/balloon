@@ -112,9 +112,20 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, ?int $version = null): array
+    public function deleteFile(File $file, ?int $version = null): ?array
     {
         return $this->deleteNode($file);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function readonly(NodeInterface $node, bool $readonly = true): ?array
+    {
+        $path = $this->getPath($node);
+        $this->share->setMode($path, IFileInfo::MODE_READONLY);
+
+        return $node->getAttributes()['storage'];
     }
 
     /**
@@ -205,7 +216,7 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteCollection(Collection $collection): array
+    public function deleteCollection(Collection $collection): ?array
     {
         return $this->deleteNode($collection);
     }
@@ -229,7 +240,7 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function rename(NodeInterface $node, string $new_name): array
+    public function rename(NodeInterface $node, string $new_name): ?array
     {
         $reference = $node->getAttributes()['storage'];
 
@@ -245,7 +256,7 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function move(NodeInterface $node, Collection $parent): array
+    public function move(NodeInterface $node, Collection $parent): ?array
     {
         $reference = $node->getAttributes()['storage'];
 
@@ -261,7 +272,7 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function undelete(NodeInterface $node): array
+    public function undelete(NodeInterface $node): ?array
     {
         if (false === $this->hasNode($node)) {
             $this->logger->debug('smb node ['.$this->getPath($node).'] was not found for reference=['.$node->getId().']', [
@@ -419,6 +430,12 @@ class Smb implements AdapterInterface
      */
     protected function storeStream($stream, string $path): int
     {
+        if ($stream === null) {
+            $dest = $this->share->write($path);
+
+            return 0;
+        }
+
         $dest = $this->share->append($path);
         $bytes = stream_copy_to_stream($stream, $dest);
         fclose($dest);

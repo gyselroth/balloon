@@ -38,7 +38,15 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, ?int $version = null): array
+    public function deleteFile(File $file, ?int $version = null): ?array
+    {
+        return $file->getAttributes()['storage'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function readonly(NodeInterface $node): ?array
     {
         return $file->getAttributes()['storage'];
     }
@@ -70,7 +78,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteCollection(Collection $collection): array
+    public function deleteCollection(Collection $collection): ?array
     {
         return $collection->getAttributes()['storage'];
     }
@@ -78,7 +86,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function move(NodeInterface $node, Collection $parent): array
+    public function move(NodeInterface $node, Collection $parent): ?array
     {
         $storage = $node->getAttributes()['storage'];
         $parent = $parent->getAttributes()['storage'];
@@ -98,7 +106,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function undelete(NodeInterface $node): array
+    public function undelete(NodeInterface $node): ?array
     {
         return $collection->getAttributes()['storage'];
     }
@@ -106,7 +114,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function rename(NodeInterface $node, string $new_name): array
+    public function rename(NodeInterface $node, string $new_name): ?array
     {
         $storage = $node->getAttributes()['storage'];
         $storage['path'] = dirname($storage['path']).DIRECTORY_SEPARATOR.$new_name;

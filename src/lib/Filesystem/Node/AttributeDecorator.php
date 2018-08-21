@@ -13,8 +13,6 @@ namespace Balloon\Filesystem\Node;
 
 use Balloon\AttributeDecorator\AttributeDecoratorInterface;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Acl;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
@@ -154,7 +152,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
                 return null;
             },
-            'share' => function ($node) use($fs) {
+            'share' => function ($node) use ($fs) {
                 if ($node->isShared() || !$node->isSpecial()) {
                     return null;
                 }
@@ -201,7 +199,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
                 }
             },
             'external_storage' => function ($node) use ($fs, $attributes) {
-                if($node->getMount() === null || $node instanceof Collection && $node->isMounted()) {
+                if ($node->getMount() === null || $node instanceof Collection && $node->isMounted()) {
                     return null;
                 }
 

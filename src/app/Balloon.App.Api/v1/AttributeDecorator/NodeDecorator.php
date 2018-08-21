@@ -249,7 +249,7 @@ class NodeDecorator
         return [
             'shared' => $node->isShared(),
             'reference' => $node->isReference(),
-            'filtered' => $node->isCustomFilter(),
+            'filtered' => $node->isFiltered(),
         ];
     }
 

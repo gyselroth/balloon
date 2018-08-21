@@ -19,6 +19,7 @@ use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterfa
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
 use Balloon\Hook;
 use Balloon\Server;
+use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
@@ -95,31 +96,40 @@ class Factory
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
 
-        if (isset($node['storage_reference'])) {
+        $storage = $this->storage;
+        $children_storage = $this->storage;
+
+        if (isset($node['reference'])) {
+            $share = $fs->findRawNode($node['reference']);
+            if (isset($share['mount'])) {
+                $children_storage = $this->getStorage($share['_id'], $share['mount']);
+            }
+        } elseif (isset($node['storage_reference'])) {
             $external = $fs->findNodeById($node['storage_reference'])->getAttributes()['mount'];
-            $id = (string) $node['storage_reference'];
-
-            if (isset($this->cache[$id])) {
-                $storage = $this->cache[$id];
-            } else {
-                $storage = $this->cache[$id] = $this->storage_factory->build($external);
-            }
+            $children_storage = $this->getStorage($node['storage_reference'], $external);
+            $storage = $children_storage;
         } elseif (isset($node['mount'])) {
-            $id = (string) $node['_id'];
-
-            if (isset($this->cache[$id])) {
-                $storage = $this->cache[$id];
-            } else {
-                $storage = $this->cache[$id] = $this->storage_factory->build($node['mount']);
-            }
-        } else {
-            $storage = $this->storage;
+            $children_storage = $this->getStorage($node['_id'], $node['mount']);
         }
 
         if (true === $node['directory']) {
-            return new Collection($node, $fs, $this->logger, $this->hook, $this->acl, $storage);
+            return new Collection($node, $fs, $this->logger, $this->hook, $this->acl, $storage, $children_storage);
         }
 
         return new File($node, $fs, $this->logger, $this->hook, $this->acl, $storage);
+    }
+
+    /**
+     * Get by id.
+     */
+    protected function getStorage(ObjectId $node, array $mount): StorageAdapterInterface
+    {
+        $id = (string) $node;
+
+        if (isset($this->cache[$id])) {
+            return $this->cache[$id];
+        }
+
+        return $this->cache[$id] = $this->storage_factory->build($mount);
     }
 }

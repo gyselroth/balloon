@@ -15,7 +15,7 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception as AclException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageInterface;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
 use MimeType\MimeType;
@@ -86,7 +86,7 @@ class File extends AbstractNode implements IFile
     /**
      * Initialize file node.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageInterface $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageAdapterInterface $storage)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -102,6 +102,14 @@ class File extends AbstractNode implements IFile
         }
 
         $this->raw_attributes = $attributes;
+    }
+
+    /**
+     * Get storage adapter.
+     */
+    public function getStorage(): StorageAdapterInterface
+    {
+        return $this->_storage;
     }
 
     /**

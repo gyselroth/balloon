@@ -15,7 +15,7 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageInterface;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Hook;
 use Balloon\Server\User;
 use Generator;
@@ -49,14 +49,20 @@ class Collection extends AbstractNode implements IQuota
     /**
      * filter.
      *
-     * @param string
+     * @var string
      */
     protected $filter;
 
     /**
+     * Storage for child nodes.
+     *
+     * @var StorageAdapterInterface
+     */
+
+    /**
      * Initialize.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageInterface $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageAdapterInterface $storage, StorageAdapterInterface $children_storage)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -66,6 +72,7 @@ class Collection extends AbstractNode implements IQuota
         $this->_hook = $hook;
         $this->_acl = $acl;
         $this->_storage = $storage;
+        $this->_children_storage = $children_storage;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -73,6 +80,14 @@ class Collection extends AbstractNode implements IQuota
 
         $this->mime = 'inode/directory';
         $this->raw_attributes = $attributes;
+    }
+
+    /**
+     * Get storage adapter.
+     */
+    public function getStorage(): StorageAdapterInterface
+    {
+        return $this->_children_storage;
     }
 
     /**
@@ -177,7 +192,7 @@ class Collection extends AbstractNode implements IQuota
             'destroy' => $this->destroy,
             'readonly' => $this->readonly,
             'mount' => $this->mount,
-            'storage_reference' => $this->storage,
+            'storage_reference' => $this->storage_reference,
             'storage' => $this->storage,
         ];
     }
@@ -595,7 +610,7 @@ class Collection extends AbstractNode implements IQuota
                 'created' => new UTCDateTime(),
                 'changed' => new UTCDateTime(),
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
-                'storage' => $this->_storage->createCollection($this, $name),
+                'storage' => $this->_children_storage->createCollection($this, $name),
                 'storage_reference' => $this->getMount(),
             ];
 
@@ -745,7 +760,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function createFile($name, $data = null, array $attributes = []): string
     {
-        $session = $this->_storage->storeTemporaryFile($data, $this->_user);
+        $session = $this->_children_storage->storeTemporaryFile($data, $this->_user);
         $file = $this->addFile($name, $session, $attributes);
 
         return $file->getETag();

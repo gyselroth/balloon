@@ -107,7 +107,7 @@ Files and collections removed via balloon but are part of the smb storage mount 
 Deleted nodes must be moved to .balloon/trash/{id}. A restore MUST collect a node from that path and move it back to the path given or the previous path.
 
 ## Readonly nodes
-SMB also supports a `readonly` flag which MAY be used if a node is marked as readonly from balloon.
+SMB also supports a `readonly` flag which MAY be used if a node is marked as readonly via balloon.
 
 ## Deduplication
 There is no native support for SMB blob deduplication. Unlike GridFS where files with the same hash get grouped together is this not
@@ -118,6 +118,7 @@ However deduplication can still be achieved using other technolgies such as dedu
 Unlike GridFS a new version of a file SHALL not be stored on the SMB storage. Since it is actively used and there SHALL not be any co existing files.
 However file revisioning MAY be achieved with other technologies such as "Previous versions" on Windows. Balloon MAY still track a files content history but the storage reference SHALL always point to the same blob on the SMB storage.
 Therefore it is not possible to restore files via balloon, users MAY use technologies provided by the SMB/CIFS server.
+Even though there is no content history the files version MUST increase after the content changes.
 
 ## Rename & move
 A rename can be properly detected if the notification listener is running, therefore an existing node MUST get renamed. However if the listener is not running this is not possible.
@@ -129,7 +130,9 @@ Using inodes is theoretically possible to match nodes from SMB to balloon, but t
 ## Quota
 Nodes which are part of an external storage mount MUST not count to the users quota. This MUST always be the case since quota is handled seperately on external storage providers.
 
-## Mount SMB share via API
+## Api v2 features
+
+### Mount SMB share via API
 The /api/v2/collections POST endpoint MUST support an attribute `external_storage` to define a custom external storage:
 
 ```
@@ -148,6 +151,19 @@ POST /api/v2/collections -d '{
     }
 }'
 ```
+
+Mount credentials MUST also be changeable via a PATCH request while changing other mount options MUST throw an exception.
+
+### Get mount options
+If a collection is mounted, an addition attribute mount MUST be provided with the mount options.
+If a password is set, the password MUST NOT be provided, instead an attribute has_password MUST be returned.
+While a mounted collection is shared the share reference MUST provide the mount attribute as well but MUST NOT contain
+any credentials (including password, username, has_password).
+
+### Mount member nodes
+Child nodes of a mounted collection MUST provide an attribute external_storage which is a reference (external_storage.id and external_storage.name)
+to the storage mount (Or mounted storage share reference if so).
+
 ## References
 * [1] https://www.samba.org/samba/docs/current/man-html/smbclient.1.html.
 * [2] https://github.com/gyselroth/mongodb-php-task-scheduler

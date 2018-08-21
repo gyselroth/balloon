@@ -27,7 +27,7 @@ interface AdapterInterface
     /**
      * Delete file (Move to trash if supported).
      */
-    public function deleteFile(File $file, ?int $version = null): array;
+    public function deleteFile(File $file, ?int $version = null): ?array;
 
     /**
      * Delete file completely.
@@ -57,7 +57,7 @@ interface AdapterInterface
     /**
      * Delete collection.
      */
-    public function deleteCollection(Collection $collection): array;
+    public function deleteCollection(Collection $collection): ?array;
 
     /**
      * Delete collection.
@@ -67,15 +67,20 @@ interface AdapterInterface
     /**
      * Rename node.
      */
-    public function rename(NodeInterface $node, string $new_name): array;
+    public function rename(NodeInterface $node, string $new_name): ?array;
 
     /**
      * Move node.
      */
-    public function move(NodeInterface $node, Collection $parent): array;
+    public function move(NodeInterface $node, Collection $parent): ?array;
 
     /**
      * Undelete node.
      */
-    public function undelete(NodeInterface $node): array;
+    public function undelete(NodeInterface $node): ?array;
+
+    /**
+     * Readonly.
+     */
+    public function readonly(NodeInterface $node, bool $readonly = true): ?array;
 }
