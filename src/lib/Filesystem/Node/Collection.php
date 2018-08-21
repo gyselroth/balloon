@@ -236,7 +236,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Is custom filter node.
      */
-    public function isCustomFilter(): bool
+    public function isFiltered(): bool
     {
         return !empty($this->filter);
     }
@@ -335,7 +335,7 @@ class Collection extends AbstractNode implements IQuota
         $this->deleted = new UTCDateTime();
         $this->storage = $this->_storage->deleteCollection($this);
 
-        if (!$this->isReference() && !$this->isMounted()) {
+        if (!$this->isReference() && !$this->isMounted() && !$this->isFiltered()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(false, $recursion, false);
             }, NodeInterface::DELETED_EXCLUDE);

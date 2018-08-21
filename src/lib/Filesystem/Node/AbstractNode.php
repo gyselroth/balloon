@@ -650,7 +650,7 @@ abstract class AbstractNode implements NodeInterface
                 'deleted',
             ], [], $recursion, $recursion_first);
 
-        if ($this instanceof File || $this->isReference() || $this->isMounted()) {
+        if ($this instanceof File || $this->isReference() || $this->isMounted() || $this->isFiltered()) {
             return true;
         }
 
