@@ -143,7 +143,7 @@ class Burl implements AdapterInterface
     public function match(File $file): bool
     {
         foreach ($this->formats as $format => $mimetype) {
-            if ($file->getExtension() === $format) {
+            if ($file->getContentType() === $mimetype) {
                 return true;
             }
         }

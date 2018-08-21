@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Testsuite\Unit\Lib\Converter\Adapter;
 
 use Balloon\App\Burl\Converter\Adapter\Burl;
+use Balloon\App\Burl\Constructor\Http;
 use Balloon\Converter\Exception;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook;
@@ -19,6 +20,7 @@ use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Balloon\Testsuite\Unit\Test;
+use Micro\Http\Router;
 use MongoDB\BSON\ObjectId;
 use \Imagick;
 use GuzzleHttp\Client as GuzzleHttpClient;
@@ -65,6 +67,7 @@ class BurlTest extends Test
 
     public function setUp()
     {
+        new Http($this->createMock(Router::class), $this->createMock(Hook::class));
         $this->storage = $this->createMock(Storage::class);
         $this->storage
             ->method('getFile')
@@ -123,6 +126,7 @@ class BurlTest extends Test
                 'owner' => $this->fs->getUser()->getId(),
                 '_id'   => new ObjectId(),
                 'name'  => 'test.burl',
+                'mime'  => self::BURL_MIME_TYPE,
             ],
             $this->fs,
             $this->createMock(LoggerInterface::class),
@@ -136,6 +140,7 @@ class BurlTest extends Test
                 'owner' => $this->fs->getUser()->getId(),
                 '_id'   => new ObjectId(),
                 'name'  => 'test.txt',
+                'mime'  => 'text/plain',
             ],
             $this->fs,
             $this->createMock(LoggerInterface::class),
