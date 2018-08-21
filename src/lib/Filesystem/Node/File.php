@@ -32,8 +32,6 @@ class File extends AbstractNode implements IFile
     const HISTORY_CREATE = 0;
     const HISTORY_EDIT = 1;
     const HISTORY_RESTORE = 2;
-    const HISTORY_DELETE = 3;
-    const HISTORY_UNDELETE = 4;
 
     /**
      * Empty content hash (NULL).
@@ -291,19 +289,6 @@ class File extends AbstractNode implements IFile
 
         $ts = new UTCDateTime();
         $this->deleted = $ts;
-        $this->increaseVersion();
-
-        $this->history[] = [
-            'version' => $this->version,
-            'changed' => $ts,
-            'user' => ($this->_user === null) ? null : $this->_user->getId(),
-            'type' => self::HISTORY_DELETE,
-            'storage' => $this->storage,
-            'storage_reference' => $this->storage_reference,
-            'size' => $this->size,
-            'hash' => $this->hash,
-        ];
-
         $this->storage = $this->_storage->deleteFile($this);
 
         $result = $this->save([
@@ -481,6 +466,7 @@ class File extends AbstractNode implements IFile
             'category' => get_class($this),
         ]);
 
+        $storage = $this->storage;
         $this->prePutFile($session);
         $result = $this->_storage->storeFile($this, $session);
         $this->storage = $result['reference'];
@@ -496,8 +482,11 @@ class File extends AbstractNode implements IFile
         $this->mime = MimeType::getType($this->name);
         $this->increaseVersion();
 
-        $this->addVersion($attributes)
-             ->postPutFile();
+        if ($result['reference'] != $storage) {
+            $this->addVersion($attributes);
+        }
+
+        $this->postPutFile();
 
         return $this->version;
     }

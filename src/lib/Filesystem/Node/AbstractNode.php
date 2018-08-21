@@ -644,37 +644,13 @@ abstract class AbstractNode implements NodeInterface
         $this->storage = $this->_storage->undelete($this);
         $this->deleted = false;
 
-        if ($this instanceof File) {
-            $current = $this->version;
-            $new = $this->increaseVersion();
-
-            $this->history[] = [
-                'version' => $new,
-                'changed' => $this->changed,
-                'user' => $this->owner,
-                'type' => File::HISTORY_UNDELETE,
-                'storage' => $this->storage,
-                'storage_reference' => $this->storage_reference,
-                'size' => $this->size,
-                'mime' => $this->mime,
-            ];
-
-            return $this->save([
-                'storage',
-                'name',
-                'deleted',
-                'history',
-                'version',
-            ], [], $recursion, $recursion_first);
-        }
-
         $this->save([
                 'storage',
                 'name',
                 'deleted',
             ], [], $recursion, $recursion_first);
 
-        if ($this->isReference()) {
+        if ($this instanceof File || $this->isReference() || $this->isMounted()) {
             return true;
         }
 
