@@ -56,10 +56,20 @@ class CleanTrash extends AbstractJob
     public function start(): bool
     {
         $lt = (time() - $this->data['max_age']) * 1000;
-        $result = $this->server->getFilesystem()->findNodesByFilter(['deleted' => ['$lt' => new UTCDateTime($lt)]]);
+        $result = $this->server->getFilesystem()->findNodesByFilter([
+            'reference' => ['$exists' => false]
+            'deleted' => ['$lt' => new UTCDateTime($lt)]
+        ]);
 
         foreach ($result as $node) {
-            $node->delete(true);
+            try {
+                $node->delete(true);
+            } catch(Exception $e) {
+                $this->logger->error('failed delete node ['.$node->getId().']', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ])
+            }
         }
 
         $this->logger->info('found ['.$result->getReturn().'] nodes for cleanup, force removed them from trash', [

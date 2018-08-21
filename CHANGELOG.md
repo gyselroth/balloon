@@ -5,6 +5,7 @@
 
 * CORE: [FEATURE] Implemented RFC-3 SMB external storage #156
 * CORE: [CHANGE] Do not add a content history entry if a file gets deleted #179
+* CORE: [CHANGE] Do not automatically remove deleted share references #180
 
 
 ## 2.0.11
