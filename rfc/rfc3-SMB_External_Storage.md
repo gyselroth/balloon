@@ -67,8 +67,8 @@ The encryption key MAY be the same for all mountpoints and MUST be injected from
 
 ## Synchronization
 If the listener is not started or a new SMB share gets added, the balloon server MUST issue a initial sync job. This job MUST synchronize the SMB share with balloon.
-ctime and mtime of each node MUST be used from the SMB provider. Server with cifs unix extension MAY also use the uid to map the user to a balloon account.
-After a new mount gets added to balloon both a recursive scan MUST be executed and a SMB notify listener MUST be started. This MAY happen asynchronously.
+ctime and mtime of each node MUST be used from the SMB provider.
+After a new mount gets added to balloon both a recursive scan MUST be executed and a SMB notify listener MUST be started. This MAY happen both asynchronously.
 
 ### Notification listener
 The SMB protocol supports `notify` and the smbclient implementation does as well [1].
@@ -95,7 +95,7 @@ All action issued via balloon MUST reflect on an external storage mount immediat
 ## Recursive removal of nodes via balloon
 Like share references a recursive removal request MUST NOT delete children of an external storage mount folder on the storage level. Meaning a delete request MUST delete all meta data (Or MAY set the deleted flag depenending if the force flag is given or not) but MUST NOT delete children on the storage itself. A recursive delete request on the storage level SHALL only be executed if the delete request is within the external storage mount itself.
 
-# Move from and to external storage mounts
+## Move from and to external storage mounts
 Moving nodes from a different storage adapter MUST be reflected as delete and add like move from a non shared collection to a shared one. This is required since the different storage adapters supports different features, also the content must be copied to the oder storage.
 
 ## .balloon system folder
