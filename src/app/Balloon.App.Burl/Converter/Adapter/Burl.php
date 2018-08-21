@@ -64,13 +64,6 @@ class Burl implements AdapterInterface
     protected $timeout = '10';
 
     /**
-     * Tmp.
-     *
-     * @var string
-     */
-    protected $tmp = '/tmp';
-
-    /**
      * Formats.
      *
      * @var array
@@ -122,14 +115,6 @@ class Burl implements AdapterInterface
                     }
 
                     $this->browserlessUrl = (string) $value;
-
-                    break;
-                case 'tmp':
-                    if (!is_writeable($value)) {
-                        throw new Exception('tmp option must be a writable directory');
-                    }
-
-                    $this->tmp = (string) $value;
 
                     break;
                 case 'timeout':

@@ -1,14 +1,14 @@
 <?php
 use Balloon\App\Burl\Converter\Adapter as BurlConverterAdapter;
-use Balloon\Converter\Adapter\AdapterInterface;
+use Balloon\Converter;
 
 
 return [
-    AdapterInterface::class => [
+    Converter::class => [
         'calls' => [
             BurlConverterAdapter::class => [
-                'method' => 'inject',
-                'arguments' => ['hook' => '{'.BurlConverterAdapter::class.'}']
+                'method' => 'injectAdapter',
+                'arguments' => ['adapter' => '{'.BurlConverterAdapter::class.'}']
             ]
         ],
     ],
