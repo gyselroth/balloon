@@ -3,7 +3,8 @@
 **Date**: \
 **Note**: ballooncli upgrade required, @see UPGRADE.md
 
-* Core: [FEATURE] Implemented RFC-3 SMB external storage #156
+* CORE: [FEATURE] Implemented RFC-3 SMB external storage #156
+* CORE: [CHANGE] Do not add a content history entry if a file gets deleted #179
 
 
 ## 2.0.11
