@@ -14,6 +14,8 @@ elasticsearch:
     image: gyselroth/balloon-elasticsearch:latest
 postfix:
     image: webuni/postfix
+browserless:
+    image: browserless/chrome
 balloon-dev:
     image: gyselroth/balloon-development:latest
     ports:
@@ -32,3 +34,4 @@ balloon-dev:
         - BALLOON_WOPI_URL=https://balloon-dev
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
+        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
