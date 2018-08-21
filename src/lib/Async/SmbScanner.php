@@ -203,7 +203,6 @@ class SmbScanner extends AbstractJob
             'storage_reference' => $collection->getId(),
             'storage' => [
                 'path' => $node->getPath(),
-                'ino' => $stats['ino'],
             ],
         ];
     }

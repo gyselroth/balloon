@@ -98,6 +98,8 @@ class ExternalStorage extends AbstractHook
     {
         $this->scheduler->addJobOnce(SmbScanner::class, [
             'id' => $node,
+        ], [
+            Scheduler::OPTION_INTERVAL => 86400,
         ]);
 
         $this->scheduler->addJobOnce(SmbListener::class, [

@@ -179,12 +179,10 @@ class Smb implements AdapterInterface
         ]);
 
         $this->share->rename($path, $dest);
-        $stats = $this->share->getStat($dest);
 
         return [
             'reference' => [
                 'path' => $dest,
-                'ino' => $stats['ino'],
             ],
             'size' => $size,
             'hash' => $md5,
@@ -198,11 +196,9 @@ class Smb implements AdapterInterface
     {
         $path = $this->getPath($parent).DIRECTORY_SEPARATOR.$name;
         $this->share->mkdir($path);
-        $stats = $this->share->getStat($path);
 
         return [
             'path' => $path,
-            'ino' => $stats['ino'],
         ];
     }
 
