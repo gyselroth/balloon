@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Burl\Constructor;
 
+use Balloon\Hook;
+use Micro\Http\Router;
 use MimeType\Mapping;
 
 class Http
