@@ -9,13 +9,15 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Converter\Adapter;
+namespace Balloon\App\Burl\Converter\Adapter;
 
+use Balloon\Converter\Adapter\AdapterInterface;
 use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
 use GuzzleHttp\Psr7\StreamWrapper;
+use GuzzleHttp\Psr7\Response;
 use Imagick;
 use Psr\Log\LoggerInterface;
 
@@ -83,7 +85,10 @@ class Burl implements AdapterInterface
      * @param array
      */
     protected $target_formats = [
-        'pdf' => 'application/pdf',
+        'pdf'   => 'application/pdf',
+        'jpg'   => 'image/jpeg',
+        'jpeg'  => 'image/jpeg',
+        'png'   => 'image/png',
     ];
 
     /**
@@ -153,7 +158,7 @@ class Burl implements AdapterInterface
     public function match(File $file): bool
     {
         foreach ($this->formats as $format => $mimetype) {
-            if ($file->getContentType() === $mimetype) {
+            if ($file->getExtension() === $format) {
                 return true;
             }
         }
@@ -182,31 +187,25 @@ class Burl implements AdapterInterface
      */
     public function createPreview(File $file): Result
     {
-        $response = $this->client->request(
-            'POST',
-            $this->browserlessUrl . '/screenshot',
-            [
-                'json' => [
-                    'url'       => \stream_get_contents($file->get()),
-                    'options'   => [
-                        'fullPage' => true,
-                        'type'     => 'jpeg',
-                        'quality'  => 75,
-                    ],
-                ]
-            ]
-        );
+        try {
+            $imageFile = $this->getImage(\stream_get_contents($file->get()), self::PREVIEW_FORMAT);
+        } catch (Exception $e) {
+            throw new Exception('failed create preview');
+        }
+        $image = new Imagick($imageFile->getPath());
 
-        $desth = tmpfile();
-        $dest = stream_get_meta_data($desth)['uri'];
+        $width = $image->getImageWidth();
+        $height = $image->getImageHeight();
 
-        stream_copy_to_stream(StreamWrapper::getResource($response->getBody()), $desth);
-
-        if (!file_exists($dest) || filesize($dest) <= 0) {
-            throw new Exception('failed create prevew');
+        if ($height <= $width && $width > $this->preview_max_size) {
+            $image->scaleImage($this->preview_max_size, 0);
+        } elseif ($height > $this->preview_max_size) {
+            $image->scaleImage(0, $this->preview_max_size);
         }
 
-        return new Result($dest, $desth);
+        $image->writeImage($imageFile->getPath());
+
+        return $imageFile;
     }
 
     /**
@@ -214,12 +213,49 @@ class Burl implements AdapterInterface
      */
     public function convert(File $file, string $format): Result
     {
+        switch ($format) {
+            case 'pdf':
+                return $this->getPdf(\stream_get_contents($file->get()));
+            case 'png':
+                return $this->getImage(\stream_get_contents($file->get()), 'png');
+            case 'jpg':
+            case 'jpeg':
+                return $this->getImage(\stream_get_contents($file->get()), 'jpeg');
+            default:
+                throw new Exception('target format [' . $format . '] not supported');
+        }
+    }
+
+    protected function getImage(string $url, string $format): Result
+    {
+        $response = $this->client->request(
+            'POST',
+            $this->browserlessUrl . '/screenshot',
+            [
+                'connect_timeout'   => $this->$timeout,
+                'timeout'           => $this->$timeout,
+                'json'              => [
+                    'url'       => $url,
+                    'options'   => [
+                        'fullPage' => true,
+                        'type'     => $format,
+                        'quality'  => 75,
+                    ],
+                ]
+            ]
+        );
+
+        return $this->getResponseIntoResult($response, $format);
+    }
+
+    protected function getPdf(string $url): Result
+    {
         $response = $this->client->request(
             'POST',
             $this->browserlessUrl . '/pdf',
             [
                 'json' => [
-                    'url'       => \stream_get_contents($file->get()),
+                    'url'       => $url,
                     'options'   => [
                         'printBackground'   => false,
                         'format'            => 'A4',
@@ -228,13 +264,18 @@ class Burl implements AdapterInterface
             ]
         );
 
+        return $this->getResponseIntoResult($response, 'pdf');
+    }
+
+    protected function getResponseIntoResult(Response $response, string $format): Result
+    {
         $desth = tmpfile();
         $dest = stream_get_meta_data($desth)['uri'];
 
-        stream_copy_to_stream($response->getBody(), $desth);
+        stream_copy_to_stream(StreamWrapper::getResource($response->getBody()), $desth);
 
         if (!file_exists($dest) || filesize($dest) <= 0) {
-            throw new Exception('failed create prevew');
+            throw new Exception('failed get ' . $format);
         }
 
         return new Result($dest, $desth);
