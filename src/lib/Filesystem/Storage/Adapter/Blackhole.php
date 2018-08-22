@@ -46,7 +46,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function readonly(NodeInterface $node): ?array
+    public function readonly(NodeInterface $node, bool $readonly = true): ?array
     {
         return $file->getAttributes()['storage'];
     }

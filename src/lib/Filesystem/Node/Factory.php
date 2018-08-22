@@ -90,33 +90,31 @@ class Factory
     /**
      * Build node instance.
      */
-    public function build(Filesystem $fs, array $node): NodeInterface
+    public function build(Filesystem $fs, array $node, ?Collection $parent): NodeInterface
     {
         if (!isset($node['directory'])) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
 
         $storage = $this->storage;
-        $children_storage = $this->storage;
 
         if (isset($node['reference'])) {
             $share = $fs->findRawNode($node['reference']);
             if (isset($share['mount'])) {
-                $children_storage = $this->getStorage($share['_id'], $share['mount']);
+                $storage = $this->getStorage($share['_id'], $share['mount']);
             }
         } elseif (isset($node['storage_reference'])) {
             $external = $fs->findNodeById($node['storage_reference'])->getAttributes()['mount'];
-            $children_storage = $this->getStorage($node['storage_reference'], $external);
-            $storage = $children_storage;
+            $storage = $this->getStorage($node['storage_reference'], $external);
         } elseif (isset($node['mount'])) {
-            $children_storage = $this->getStorage($node['_id'], $node['mount']);
+            $storage = $this->getStorage($node['_id'], $node['mount']);
         }
 
         if (true === $node['directory']) {
-            return new Collection($node, $fs, $this->logger, $this->hook, $this->acl, $storage, $children_storage);
+            return new Collection($node, $fs, $this->logger, $this->hook, $this->acl, $parent, $storage);
         }
 
-        return new File($node, $fs, $this->logger, $this->hook, $this->acl, $storage);
+        return new File($node, $fs, $this->logger, $this->hook, $this->acl, $parent);
     }
 
     /**

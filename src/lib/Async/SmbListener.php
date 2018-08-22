@@ -112,8 +112,8 @@ class SmbListener extends AbstractJob
                 //do nothing
             } elseif ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_NEW && $last->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
                 $this->renameNode($mount, $dummy, $last->getPath(), $change->getPath());
-            } elseif ($last === null || $last->getPath() !== $change->getPath()) {
-                $this->syncNode($mount, $change->getPath());
+            } else {
+                $this->syncNode($mount, $change->getPath(), $change->getCode());
             }
 
             $last = $change;
@@ -144,7 +144,7 @@ class SmbListener extends AbstractJob
             ]);
 
             $node = $this->getNode($mount, $from);
-            $node->setStorage($dummy);
+            $node->getParent()->setStorage($dummy);
 
             if (basename($from) !== basename($to)) {
                 $node->setName(basename($to));
@@ -164,13 +164,8 @@ class SmbListener extends AbstractJob
     /**
      * Add sync task.
      */
-    protected function syncNode(Collection $mount, string $path): ObjectId
+    protected function syncNode(Collection $mount, string $path, int $action): ObjectId
     {
-        $path = dirname($path);
-        if ($path === DIRECTORY_SEPARATOR || $path === '.') {
-            $path = '';
-        }
-
         $this->logger->debug('add new smb sync job for path ['.$path.'] in mount ['.$mount->getId().']', [
             'category' => get_class($this),
         ]);
@@ -178,6 +173,7 @@ class SmbListener extends AbstractJob
         return $this->scheduler->addJob(SmbScanner::class, [
             'id' => $mount->getId(),
             'path' => $path,
+            'action' => $action,
             'recursive' => false,
         ]);
     }

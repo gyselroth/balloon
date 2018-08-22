@@ -15,7 +15,6 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception as AclException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
 use MimeType\MimeType;
@@ -86,7 +85,7 @@ class File extends AbstractNode implements IFile
     /**
      * Initialize file node.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageAdapterInterface $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Collection $parent)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -94,22 +93,15 @@ class File extends AbstractNode implements IFile
         $this->_user = $fs->getUser();
         $this->_logger = $logger;
         $this->_hook = $hook;
-        $this->_storage = $storage;
+        //$this->_parent->getStorage() = $storage;
         $this->_acl = $acl;
+        $this->_parent = $parent;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
         }
 
         $this->raw_attributes = $attributes;
-    }
-
-    /**
-     * Get storage adapter.
-     */
-    public function getStorage(): StorageAdapterInterface
-    {
-        return $this->_storage;
     }
 
     /**
@@ -124,7 +116,7 @@ class File extends AbstractNode implements IFile
         }
 
         try {
-            return $this->_storage->openReadStream($this);
+            return $this->_parent->getStorage()->openReadStream($this);
         } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'storage blob is gone',
@@ -297,7 +289,7 @@ class File extends AbstractNode implements IFile
 
         $ts = new UTCDateTime();
         $this->deleted = $ts;
-        $this->storage = $this->_storage->deleteFile($this);
+        $this->storage = $this->_parent->getStorage()->deleteFile($this);
 
         $result = $this->save([
             'version',
@@ -341,7 +333,7 @@ class File extends AbstractNode implements IFile
         try {
             //do not remove blob if there are other versions linked against it
             if ($this->history[$key]['storage'] !== null && count(array_keys($blobs, $this->history[$key]['storage'])) === 1) {
-                $this->_storage->forceDeleteFile($this, $version);
+                $this->_parent->getStorage()->forceDeleteFile($this, $version);
             }
 
             array_splice($this->history, $key, 1);
@@ -460,7 +452,7 @@ class File extends AbstractNode implements IFile
             'category' => get_class($this),
         ]);
 
-        $session = $this->_storage->storeTemporaryFile($content, $this->_user);
+        $session = $this->_parent->getStorage()->storeTemporaryFile($content, $this->_user);
 
         return $this->setContent($session);
     }
@@ -476,7 +468,7 @@ class File extends AbstractNode implements IFile
 
         $storage = $this->storage;
         $this->prePutFile($session);
-        $result = $this->_storage->storeFile($this, $session);
+        $result = $this->_parent->getStorage()->storeFile($this, $session);
         $this->storage = $result['reference'];
         $this->hash = $result['hash'];
         $this->size = $result['size'];
@@ -505,7 +497,7 @@ class File extends AbstractNode implements IFile
     protected function _forceDelete(): bool
     {
         try {
-            $this->_storage->forceDeleteFile($this);
+            $this->_parent->getStorage()->forceDeleteFile($this);
             $this->cleanHistory();
             $this->_db->storage->deleteOne([
                 '_id' => $this->_id,

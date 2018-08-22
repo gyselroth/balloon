@@ -274,17 +274,17 @@ class Files extends Nodes
         }
 
         if ($id !== null || $p !== null) {
-            $node = $this->_getNode($id, $p);
+            $storage = $this->_getNode($id, $p)->getParent()->getStorage();
         } elseif ($id === null && $p === null && $collection === null) {
-            $node = $this->server->getFilesystem()->getRoot();
+            $storage = $this->server->getFilesystem()->getRoot()->getStorage();
         } else {
-            $node = $this->_getNode($collection, null, Collection::class);
+            $storage = $this->_getNode($collection, null, Collection::class)->getStorage();
         }
 
         if ($session === null) {
-            $session = $node->getStorage()->storeTemporaryFile($input, $this->server->getIdentity());
+            $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
         } else {
-            $node->getStorage()->storeTemporaryFile($input, $this->server->getIdentity(), $session);
+            $storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
         }
 
         if ($index === $chunks) {
@@ -402,14 +402,14 @@ class Files extends Nodes
         $input = fopen('php://input', 'rb');
 
         if ($id !== null || $p !== null) {
-            $node = $this->_getNode($id, $p);
+            $storage = $this->_getNode($id, $p)->getParent()->getStorage();
         } elseif ($id === null && $p === null && $collection === null) {
-            $node = $this->server->getFilesystem()->getRoot();
+            $storage = $this->server->getFilesystem()->getRoot()->getStorage();
         } else {
-            $node = $this->_getNode($collection, null, Collection::class);
+            $storage = $this->_getNode($collection, null, Collection::class)->getStorage();
         }
 
-        $session = $node->getStorage()->storeTemporaryFile($input, $this->server->getIdentity());
+        $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
         $attributes = compact('changed', 'created', 'readonly', 'meta', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);

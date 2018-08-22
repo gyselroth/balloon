@@ -98,6 +98,13 @@ class Filesystem
     protected $cache = [];
 
     /**
+     * Node storage cache.
+     *
+     * @var array
+     */
+    protected $raw_cache = [];
+
+    /**
      * Initialize.
      *
      * @param User $user
@@ -172,8 +179,8 @@ class Filesystem
      */
     public function findRawNode(ObjectId $id): array
     {
-        if (isset($this->cache[(string) $id])) {
-            return $this->cache[(string) $id]->getRawAttributes();
+        if (isset($this->raw_cache[(string) $id])) {
+            return $this->raw_cache[(string) $id];
         }
 
         $node = $this->db->storage->findOne(['_id' => $id]);
@@ -184,8 +191,7 @@ class Filesystem
             );
         }
 
-        $instance = $this->node_factory->build($this, $node);
-        $this->cache[(string) $id] = $instance;
+        $this->raw_cache[(string) $id] = $node;
 
         return $node;
     }
@@ -537,14 +543,18 @@ class Filesystem
         }
 
         if (isset($node['parent'])) {
-            $this->findNodeById($node['parent']);
+            $parent = $this->findNodeById($node['parent']);
+        } elseif ($node['_id'] !== null) {
+            $parent = $this->getRoot();
+        } else {
+            $parent = null;
         }
 
         if (!array_key_exists('directory', $node)) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
 
-        $instance = $this->node_factory->build($this, $node);
+        $instance = $this->node_factory->build($this, $node, $parent);
 
         if (!$this->acl->isAllowed($instance, 'r')) {
             if ($instance->isReference()) {

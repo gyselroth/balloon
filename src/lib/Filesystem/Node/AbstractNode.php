@@ -15,7 +15,6 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Hook;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -233,24 +232,6 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
-     * Set storage adapter.
-     */
-    public function setStorage(StorageAdapterInterface $adapter): self
-    {
-        $this->_storage = $adapter;
-
-        return $this;
-    }
-
-    /**
-     * Get storage adapter.
-     */
-    public function getStorage(): StorageAdapterInterface
-    {
-        return $this->_storage;
-    }
-
-    /**
      * Get owner.
      */
     public function getOwner(): ObjectId
@@ -282,7 +263,7 @@ abstract class AbstractNode implements NodeInterface
      */
     public function temporarySession($stream, ObjectId $session = null): ObjectId
     {
-        return $this->_storage->storeTemporaryFile($stream, $this->_user, $session);
+        return $this->_parent->getStorage()->storeTemporaryFile($stream, $this->_user, $session);
     }
 
     /**
@@ -383,7 +364,7 @@ abstract class AbstractNode implements NodeInterface
             return $new;
         }
 
-        $this->storage = $this->_storage->move($this, $parent);
+        $this->storage = $this->_parent->getStorage()->move($this, $parent);
         $this->parent = $parent->getRealId();
         $this->owner = $this->_user->getId();
 
@@ -562,7 +543,7 @@ abstract class AbstractNode implements NodeInterface
             //child does not exists, we can safely rename
         }
 
-        $this->storage = $this->_storage->rename($this, $name);
+        $this->storage = $this->_parent->getStorage()->rename($this, $name);
         $this->name = $name;
 
         return $this->save(['name', 'storage']);
@@ -651,7 +632,7 @@ abstract class AbstractNode implements NodeInterface
             $recursion_first = false;
         }
 
-        $this->storage = $this->_storage->undelete($this);
+        $this->storage = $this->_parent->getStorage()->undelete($this);
         $this->deleted = false;
 
         $this->save([
@@ -701,38 +682,37 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get parent.
-     *
-     * @return Collection
      */
     public function getParent(): ?Collection
     {
-        try {
-            if ($this->isRoot()) {
-                return null;
-            }
-            if ($this->isInRoot()) {
-                return $this->_fs->getRoot();
-            }
+        //try {
+        /*if ($this->isRoot()) {
+            return null;
+        }
+        if ($this->isInRoot()) {
+            return $this->_fs->getRoot();
+        }*/
 
-            $parent = $this->_fs->findNodeById($this->parent);
+        return $this->_parent;
+        /*$parent = $this->_fs->findNodeById($this->parent);
 
-            if ($parent->isShare() && !$parent->isOwnerRequest() && null !== $this->_user) {
-                $node = $this->_db->storage->findOne([
-                        'owner' => $this->_user->getId(),
-                        'shared' => true,
-                        'reference' => $this->parent,
-                    ]);
+        if ($parent->isShare() && !$parent->isOwnerRequest() && null !== $this->_user) {
+            $node = $this->_db->storage->findOne([
+                    'owner' => $this->_user->getId(),
+                    'shared' => true,
+                    'reference' => $this->parent,
+                ]);
 
-                return $this->_fs->initNode($node);
-            }
+            return $this->_fs->initNode($node);
+        }
 
-            return $parent;
-        } catch (Exception\NotFound $e) {
+        return $parent;*/
+        /*} catch (Exception\NotFound $e) {
             throw new Exception\NotFound(
                 'parent node '.$this->parent.' could not be found',
                 Exception\NotFound::PARENT_NOT_FOUND
             );
-        }
+        }*/
     }
 
     /**
@@ -945,7 +925,7 @@ abstract class AbstractNode implements NodeInterface
     public function setReadonly(bool $readonly = true): bool
     {
         $this->readonly = $readonly;
-        $this->storage = $this->_storage->readonly($this, $readonly);
+        $this->storage = $this->_parent->getStorage()->readonly($this, $readonly);
 
         return $this->save(['readonly', 'storage']);
     }

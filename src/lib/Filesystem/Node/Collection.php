@@ -54,15 +54,9 @@ class Collection extends AbstractNode implements IQuota
     protected $filter;
 
     /**
-     * Storage for child nodes.
-     *
-     * @var StorageAdapterInterface
-     */
-
-    /**
      * Initialize.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, StorageAdapterInterface $storage, StorageAdapterInterface $children_storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -72,7 +66,7 @@ class Collection extends AbstractNode implements IQuota
         $this->_hook = $hook;
         $this->_acl = $acl;
         $this->_storage = $storage;
-        $this->_children_storage = $children_storage;
+        $this->_parent = $parent;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -83,11 +77,21 @@ class Collection extends AbstractNode implements IQuota
     }
 
     /**
+     * Set storage adapter.
+     */
+    public function setStorage(StorageAdapterInterface $adapter): self
+    {
+        $this->_storage = $adapter;
+
+        return $this;
+    }
+
+    /**
      * Get storage adapter.
      */
     public function getStorage(): StorageAdapterInterface
     {
-        return $this->_children_storage;
+        return $this->_storage;
     }
 
     /**
@@ -348,7 +352,7 @@ class Collection extends AbstractNode implements IQuota
         }
 
         $this->deleted = new UTCDateTime();
-        $this->storage = $this->_storage->deleteCollection($this);
+        $this->storage = $this->_parent->getStorage()->deleteCollection($this);
 
         if (!$this->isReference() && !$this->isMounted() && !$this->isFiltered()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
@@ -610,7 +614,7 @@ class Collection extends AbstractNode implements IQuota
                 'created' => new UTCDateTime(),
                 'changed' => new UTCDateTime(),
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
-                'storage' => $this->_children_storage->createCollection($this, $name),
+                'storage' => $this->_storage->createCollection($this, $name),
                 'storage_reference' => $this->getMount(),
             ];
 
@@ -760,7 +764,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function createFile($name, $data = null, array $attributes = []): string
     {
-        $session = $this->_children_storage->storeTemporaryFile($data, $this->_user);
+        $session = $this->_storage->storeTemporaryFile($data, $this->_user);
         $file = $this->addFile($name, $session, $attributes);
 
         return $file->getETag();
@@ -888,7 +892,7 @@ class Collection extends AbstractNode implements IQuota
         }
 
         try {
-            $this->_storage->forceDeleteCollection($this);
+            $this->_parent->getStorage()->forceDeleteCollection($this);
             $result = $this->_db->storage->deleteOne(['_id' => $this->_id]);
 
             if ($this->isShared()) {
