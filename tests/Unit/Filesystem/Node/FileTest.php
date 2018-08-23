@@ -14,8 +14,8 @@ namespace Balloon\Testsuite\Filesystem\Node;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Exception;
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
@@ -136,7 +136,7 @@ class FileTest extends Test
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
             $this->createMock(Acl::class),
-            $this->createMock(Storage::class)
+            $this->createMock(Collection::class)
         );
     }
 }

@@ -54,6 +54,13 @@ class Collection extends AbstractNode implements IQuota
     protected $filter;
 
     /**
+     * Storage.
+     *
+     * @var StorageAdapterInterface
+     */
+    protected $_storage;
+
+    /**
      * Initialize.
      */
     public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage)
@@ -300,6 +307,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function getChild($name, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
     {
+        $name = $this->checkName($name);
         $filter = $this->getChildrenFilter($deleted, $filter);
         $filter['name'] = new Regex('^'.preg_quote($name).'$', 'i');
         $node = $this->_db->storage->findOne($filter);
@@ -390,6 +398,8 @@ class Collection extends AbstractNode implements IQuota
      */
     public function childExists($name, $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): bool
     {
+        $name = $this->checkName($name);
+
         $find = [
             'parent' => $this->getRealId(),
             'name' => new Regex('^'.preg_quote($name).'$', 'i'),

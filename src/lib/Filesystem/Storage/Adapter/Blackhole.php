@@ -48,7 +48,7 @@ class Blackhole implements AdapterInterface
      */
     public function readonly(NodeInterface $node, bool $readonly = true): ?array
     {
-        return $file->getAttributes()['storage'];
+        return $node->getAttributes()['storage'];
     }
 
     /**
@@ -108,7 +108,7 @@ class Blackhole implements AdapterInterface
      */
     public function undelete(NodeInterface $node): ?array
     {
-        return $collection->getAttributes()['storage'];
+        return $node->getAttributes()['storage'];
     }
 
     /**

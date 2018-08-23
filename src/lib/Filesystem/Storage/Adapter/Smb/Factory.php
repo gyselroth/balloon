@@ -16,6 +16,7 @@ use Balloon\Filesystem\Storage\Adapter\Smb;
 use Icewind\SMB\AnonymousAuth;
 use Icewind\SMB\BasicAuth;
 use Icewind\SMB\ServerFactory;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 class Factory

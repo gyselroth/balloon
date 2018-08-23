@@ -21,6 +21,7 @@ use Icewind\SMB\IFileInfo;
 use Icewind\SMB\INotifyHandler;
 use Icewind\SMB\IShare;
 use MongoDB\BSON\UTCDateTime;
+use Normalizer;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
 
@@ -109,6 +110,10 @@ class SmbScanner extends AbstractJob
         $dummy = $mount->getStorage();
 
         foreach ($nodes as $child) {
+            if ($child === '.') {
+                continue;
+            }
+
             try {
                 $sub .= DIRECTORY_SEPARATOR.$child;
                 $parent = $parent->getChild($child);
@@ -140,7 +145,6 @@ class SmbScanner extends AbstractJob
             'recursive' => $recursive,
         ]);
 
-        $nodes = [];
         $system_path = $path.DIRECTORY_SEPARATOR.$smb->getSystemFolder();
 
         if ($path === $system_path) {
@@ -149,6 +153,7 @@ class SmbScanner extends AbstractJob
 
         if ($action === INotifyHandler::NOTIFY_REMOVED) {
             $node = $parent->getChild(basename($path));
+            $node->setStorage($dummy);
             $node->delete(true);
 
             return;
@@ -158,31 +163,34 @@ class SmbScanner extends AbstractJob
         if ($node->isDirectory()) {
             $parent->setStorage($dummy);
 
-            if ($parent->childExists($node->getName())) {
-                $child = $parent->getChild($node->getName());
+            if ($path === DIRECTORY_SEPARATOR) {
+                $child = $parent;
             } else {
-                $child = $parent->addDirectory($node->getName(), $this->getAttributes($mount, $share, $node));
+                if ($parent->childExists($node->getName())) {
+                    $child = $parent->getChild($node->getName());
+                } else {
+                    $child = $parent->addDirectory($node->getName(), $this->getAttributes($mount, $share, $node));
+                }
             }
 
             if ($recursive === true) {
                 $child->setStorage($dummy);
-
-                foreach ($share->dir($path) as $node) {
-                    $nodes[] = $node->getName();
-                }
-
-                foreach ($parent->getChildren() as $child) {
-                    if (!in_array($child->getName(), $nodes)) {
-                        $child->delete(true);
-                    }
-                }
+                $nodes = [];
 
                 foreach ($share->dir($path) as $node) {
                     if ($node->getPath() === $system_path) {
                         continue;
                     }
 
-                    $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $path.DIRECTORY_SEPARATOR.$node->getName(), $recursive, $action);
+                    $nodes[] = Normalizer::normalize($node->getName());
+                    $child_path = ($path === DIRECTORY_SEPARATOR) ? $path.$node->getName() : $path.DIRECTORY_SEPARATOR.$node->getName();
+                    $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $child_path, $recursive, $action);
+                }
+
+                foreach ($child->getChildren() as $sub_child) {
+                    if (!in_array($sub_child->getName(), $nodes)) {
+                        $sub_child->delete(true);
+                    }
                 }
             }
         } else {
@@ -199,18 +207,20 @@ class SmbScanner extends AbstractJob
             'category' => get_class($this),
         ]);
 
+        $attributes = $this->getAttributes($mount, $share, $node);
+
         if ($parent->childExists($node->getName())) {
             $file = $parent->getChild($node->getName());
-            $attributes = $this->getAttributes($mount, $share, $node);
 
             if ($this->fileUpdateRequired($file, $attributes)) {
                 $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
             }
-        } elseif ($action !== INotifyHandler::NOTIFY_REMOVED) {
-            $attributes = $this->getAttributes($mount, $share, $node);
-            $file = $parent->addFile($node->getName(), null, $attributes);
-            $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
+
+            return true;
         }
+
+        $file = $parent->addFile($node->getName(), null, $attributes);
+        $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
 
         return true;
     }

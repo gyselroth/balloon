@@ -19,6 +19,7 @@ use Balloon\Server\User;
 use Icewind\SMB\Exception as SMBException;
 use Icewind\SMB\IFileInfo;
 use Icewind\SMB\IShare;
+use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
@@ -42,6 +43,13 @@ class Smb implements AdapterInterface
      * @var IShare
      */
     protected $share;
+
+    /**
+     * Logger.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * SMB Root directory within share.

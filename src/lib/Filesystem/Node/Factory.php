@@ -61,6 +61,13 @@ class Factory
     protected $storage;
 
     /**
+     * Storage Factory.
+     *
+     * @var StorageFactory
+     */
+    protected $storage_factory;
+
+    /**
      * Acl.
      *
      * @var Acl

@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Notification\Adapter;
 
 use Balloon\App\Notification\MessageInterface;
-use Balloon\Scheduler\Mail as MailJob;
+use Balloon\Async\Mail as MailJob;
 use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Scheduler;

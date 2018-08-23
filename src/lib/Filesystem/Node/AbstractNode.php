@@ -215,11 +215,11 @@ abstract class AbstractNode implements NodeInterface
     protected $mount = [];
 
     /**
-     * Storage.
+     * Parent collection.
      *
-     * @var Storage
+     * @var Collection
      */
-    protected $_storage;
+    protected $_parent;
 
     /**
      * Convert to filename.
@@ -350,7 +350,7 @@ abstract class AbstractNode implements NodeInterface
 
         if (($parent->isSpecial() && $this->shared != $parent->getShareId())
           || (!$parent->isSpecial() && $this->isShareMember())
-          || ($parent->getMount() != $this->getMount())) {
+          || ($parent->getMount() != $this->getParent()->getMount())) {
             $new = $this->copyTo($parent, $conflict);
             $this->delete();
 

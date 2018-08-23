@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Async;
 
 use Balloon\Server;
+use Exception;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
@@ -57,18 +58,18 @@ class CleanTrash extends AbstractJob
     {
         $lt = (time() - $this->data['max_age']) * 1000;
         $result = $this->server->getFilesystem()->findNodesByFilter([
-            'reference' => ['$exists' => false]
-            'deleted' => ['$lt' => new UTCDateTime($lt)]
+            'reference' => ['$exists' => false],
+            'deleted' => ['$lt' => new UTCDateTime($lt)],
         ]);
 
         foreach ($result as $node) {
             try {
                 $node->delete(true);
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->error('failed delete node ['.$node->getId().']', [
                     'category' => get_class($this),
                     'exception' => $e,
-                ])
+                ]);
             }
         }
 

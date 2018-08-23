@@ -89,7 +89,7 @@ class SmbListener extends AbstractJob
         $root = $smb->getRoot();
         $system = ($root === '') ? $smb->getSystemFolder() : $root.DIRECTORY_SEPARATOR.$smb->getSystemFolder();
 
-        $share->notify('')->listen(function (Change $change) use ($logger, $root, $share, $mount, &$last, $dummy, $system) {
+        $share->notify('')->listen(function (Change $change) use ($logger, $root, $mount, &$last, $dummy, $system) {
             $logger->debug('smb mount ['.$mount->getId().'] notify event in ['.$change->getCode().'] for path ['.$change->getPath().']', [
                 'category' => get_class($this),
             ]);

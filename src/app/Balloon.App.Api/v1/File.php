@@ -277,8 +277,16 @@ class File extends Node
             'metadata.chunkgroup' => $this->server->getIdentity()->getId().'_'.$chunkgroup,
         ]);
 
+        if ($id !== null || $p !== null) {
+            $storage = $this->_getNode($id, $p)->getParent()->getStorage();
+        } elseif ($id === null && $p === null && $collection === null) {
+            $storage = $this->server->getFilesystem()->getRoot()->getStorage();
+        } else {
+            $storage = $this->_getNode($collection, null, Collection::class)->getStorage();
+        }
+
         if ($session === null) {
-            $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
+            $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
             $this->db->selectCollection('fs.files')->updateOne(
                 ['_id' => $session],
                 ['$set' => [
@@ -287,7 +295,7 @@ class File extends Node
             );
         } else {
             $session = $session['_id'];
-            $this->storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
+            $storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
         }
 
         if ($index === $chunks) {
@@ -395,7 +403,15 @@ class File extends Node
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
 
-        $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
+        if ($id !== null || $p !== null) {
+            $storage = $this->_getNode($id, $p)->getParent()->getStorage();
+        } elseif ($id === null && $p === null && $collection === null) {
+            $storage = $this->server->getFilesystem()->getRoot()->getStorage();
+        } else {
+            $storage = $this->_getNode($collection, null, Collection::class)->getStorage();
+        }
+
+        $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
 
         return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
     }
