@@ -191,6 +191,7 @@ class BurlTest extends Test
             [
                 'owner' => $this->fs->getUser()->getId(),
                 '_id' => new ObjectId(),
+                'storage' => [],
             ],
             $this->fs,
             $this->createMock(LoggerInterface::class),
@@ -223,6 +224,7 @@ class BurlTest extends Test
             [
                 'owner' => $this->fs->getUser()->getId(),
                 '_id' => new ObjectId(),
+                'storage' => [],
             ],
             $this->fs,
             $this->createMock(LoggerInterface::class),
@@ -254,6 +256,7 @@ class BurlTest extends Test
             [
                 'owner' => $this->fs->getUser()->getId(),
                 '_id' => new ObjectId(),
+                'storage' => [],
             ],
             $this->fs,
             $this->createMock(LoggerInterface::class),
