@@ -334,7 +334,7 @@ class Gridfs implements AdapterInterface
     /**
      * Store stream content.
      */
-    protected function storeStream($stream, User $user, ?ObjectId $exists = null, array $temp): int
+    protected function storeStream($stream, User $user, ?ObjectId $exists, array $temp): int
     {
         $data = null;
         $length = $temp['length'];
