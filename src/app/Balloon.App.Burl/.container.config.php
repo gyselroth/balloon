@@ -1,9 +1,14 @@
 <?php
 use Balloon\App\Burl\Constructor\Http;
-use Balloon\App\Burl\Converter\Burl;
+use Balloon\App\Burl\Converter\Adapter\Burl;
 use Balloon\Converter;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Client;
 
 return [
+    ClientInterface::class => [
+        'use' => Client::class,
+    ],
     AbstractBootstrap::class => [
         'calls' => [
             'Balloon.App.Burl' => [
@@ -16,7 +21,7 @@ return [
         'calls' => [
             Burl::class => [
                 'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.BurlConverterAdapter::class.'}']
+                'arguments' => ['adapter' => '{'.Burl::class.'}']
             ]
         ],
     ],
