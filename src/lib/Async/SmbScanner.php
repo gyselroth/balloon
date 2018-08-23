@@ -17,7 +17,6 @@ use Balloon\Filesystem\Storage\Adapter\Blackhole;
 use Balloon\Filesystem\Storage\Adapter\Smb;
 use Balloon\Server;
 use Balloon\Server\User;
-use Exception;
 use Icewind\SMB\IFileInfo;
 use Icewind\SMB\INotifyHandler;
 use Icewind\SMB\IShare;
@@ -77,13 +76,16 @@ class SmbScanner extends AbstractJob
             $path = $this->data['path'];
         }
 
-        if ($path === '') {
+        if ($path === '' || $path === '.') {
             $path = DIRECTORY_SEPARATOR;
         }
 
         if ($path !== DIRECTORY_SEPARATOR) {
-            $collection = $this->getParent($collection, $share, $path, $action);
-            $collection->setStorage($dummy);
+            $parent_path = dirname($path);
+            if ($path !== '.') {
+                $collection = $this->getParent($collection, $share, $parent_path, $action);
+                $collection->setStorage($dummy);
+            }
         }
 
         $recursive = true;
@@ -91,7 +93,7 @@ class SmbScanner extends AbstractJob
             $recursive = $this->data['recursive'];
         }
 
-        $this->recursiveIterator($collection, $mount, $share, $dummy, $user, $smb, $path, $recursive);
+        $this->recursiveIterator($collection, $mount, $share, $dummy, $user, $smb, $path, $recursive, $action);
 
         return true;
     }
@@ -104,13 +106,14 @@ class SmbScanner extends AbstractJob
         $parent = $mount;
         $nodes = explode(DIRECTORY_SEPARATOR, $path);
         $sub = '';
+        $dummy = $mount->getStorage();
+
         foreach ($nodes as $child) {
             try {
-                $dummy = $parent->getStorage();
                 $sub .= DIRECTORY_SEPARATOR.$child;
                 $parent = $parent->getChild($child);
                 $parent->setStorage($dummy);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 if ($action === INotifyHandler::NOTIFY_REMOVED) {
                     throw $e;
                 }
@@ -130,10 +133,11 @@ class SmbScanner extends AbstractJob
     /**
      * Iterate recursively through smb share.
      */
-    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, Smb $smb, string $path = '/', bool $recursive = true): void
+    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, Smb $smb, string $path, bool $recursive, int $action): void
     {
-        $this->logger->debug('sync smb collection path ['.$path.']', [
+        $this->logger->debug('sync smb path ['.$path.'] in mount ['.$mount->getId().'] from operation ['.$action.']', [
             'category' => get_class($this),
+            'recursive' => $recursive,
         ]);
 
         $nodes = [];
@@ -143,16 +147,26 @@ class SmbScanner extends AbstractJob
             return;
         }
 
+        if ($action === INotifyHandler::NOTIFY_REMOVED) {
+            $node = $parent->getChild(basename($path));
+            $node->delete(true);
+
+            return;
+        }
+
         $node = $share->stat($path);
         if ($node->isDirectory()) {
-            /* if (!$parent->childExists($node->getName())) {
-                 $child = $parent->addDirectory($node->getName(), $attributes);
-             } else {
-                 $child = $parent->getChild($node->getName());
-             }*/
-
             $parent->setStorage($dummy);
+
+            if ($parent->childExists($node->getName())) {
+                $child = $parent->getChild($node->getName());
+            } else {
+                $child = $parent->addDirectory($node->getName(), $this->getAttributes($mount, $share, $node));
+            }
+
             if ($recursive === true) {
+                $child->setStorage($dummy);
+
                 foreach ($share->dir($path) as $node) {
                     $nodes[] = $node->getName();
                 }
@@ -168,34 +182,32 @@ class SmbScanner extends AbstractJob
                         continue;
                     }
 
-                    $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $path.$node->getName().DIRECTORY_SEPARATOR, $recursive);
+                    $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $path.DIRECTORY_SEPARATOR.$node->getName(), $recursive, $action);
                 }
             }
         } else {
-            $this->syncFile($parent, $node, $action, $share, $user);
+            $this->syncFile($parent, $mount, $node, $action, $share, $user);
         }
     }
 
     /**
      * Sync file.
      */
-    protected function syncFile(Collection $parent, IFileInfo $node, int $action, IShare $share, User $user): bool
+    protected function syncFile(Collection $parent, Collection $mount, IFileInfo $node, int $action, IShare $share, User $user): bool
     {
+        $this->logger->debug('update smb file meta data from ['.$node->getPath().'] in parent node ['.$parent->getId().']', [
+            'category' => get_class($this),
+        ]);
+
         if ($parent->childExists($node->getName())) {
             $file = $parent->getChild($node->getName());
-
-            if ($action === INotifyHandler::NOTIFY_DELETE) {
-                $file->delete(true);
-
-                return true;
-            }
-
-            $file = $parent->getChild($node->getName());
+            $attributes = $this->getAttributes($mount, $share, $node);
 
             if ($this->fileUpdateRequired($file, $attributes)) {
                 $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
             }
-        } elseif ($action !== INotifyHandler::NOTIFY_DELETE) {
+        } elseif ($action !== INotifyHandler::NOTIFY_REMOVED) {
+            $attributes = $this->getAttributes($mount, $share, $node);
             $file = $parent->addFile($node->getName(), null, $attributes);
             $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
         }
@@ -237,7 +249,7 @@ class SmbScanner extends AbstractJob
         $ctime = new UTCDateTime($stats['ctime'] * 1000);
         $mtime = new UTCDateTime($stats['mtime'] * 1000);
 
-        return [
+        $attributes = [
             'created' => $ctime,
             'changed' => $mtime,
             'storage_reference' => $collection->getId(),
@@ -245,5 +257,11 @@ class SmbScanner extends AbstractJob
                 'path' => $node->getPath(),
             ],
         ];
+
+        if (!$node->isDirectory()) {
+            $attributes['size'] = $node->getSize();
+        }
+
+        return $attributes;
     }
 }

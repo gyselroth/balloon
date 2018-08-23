@@ -174,7 +174,7 @@ class SmbListener extends AbstractJob
             'id' => $mount->getId(),
             'path' => $path,
             'action' => $action,
-            'recursive' => false,
+            'recursive' => true,
         ]);
     }
 }
