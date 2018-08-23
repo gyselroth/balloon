@@ -13,6 +13,7 @@ Balloon\Bootstrap\Cli:
 Balloon\Bootstrap\AbstractBootstrap:
   calls:
     Balloon.App.Api: {method: inject, arguments:{object: '{Balloon\App\Api\Constructor\Http}'}}
+    Balloon.App.Burl: {method: inject, arguments:{object: '{Balloon\App\Burl\Constructor\Http}'}}
     Balloon.App.Webdav: {method: inject, arguments:{object: '{Balloon\App\Webdav\Constructor\Http}'}}
     Balloon.App.Sharelink: {method: inject, arguments:{object: '{Balloon\App\Sharelink\Constructor\Http}'}}
     Balloon.App.Convert: {method: inject, arguments:{object: '{Balloon\App\Convert\Constructor\Http}'}}

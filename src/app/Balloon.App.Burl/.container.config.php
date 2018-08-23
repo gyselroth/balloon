@@ -9,6 +9,15 @@ return [
     ClientInterface::class => [
         'use' => Client::class,
     ],
+    Burl::class => [
+        'arguments' => [
+            'config' => [
+                'browserlessUrl'    => "{ENV(BALLOON_BURL_BROWSERLESS_URL,https://chrome.browserless.io)}",
+                'preview_max_size'  => 500,
+                'timeout'           => 10,
+            ]
+        ]
+    ],
     AbstractBootstrap::class => [
         'calls' => [
             'Balloon.App.Burl' => [

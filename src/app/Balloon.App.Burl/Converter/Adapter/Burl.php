@@ -213,19 +213,23 @@ class Burl implements AdapterInterface
 
     protected function getImage(string $url, string $format): Result
     {
+        $options = [
+            'fullPage' => false,
+            'type'     => $format,
+        ];
+        if ('jpeg' === $format) {
+            $options['quality'] = 75;
+        }
+
         $response = $this->client->request(
             'POST',
             $this->browserlessUrl . '/screenshot',
             [
-                'connect_timeout'   => $this->$timeout,
-                'timeout'           => $this->$timeout,
+                'connect_timeout'   => $this->timeout,
+                'timeout'           => $this->timeout,
                 'json'              => [
                     'url'       => $url,
-                    'options'   => [
-                        'fullPage' => true,
-                        'type'     => $format,
-                        'quality'  => 75,
-                    ],
+                    'options'   => $options,
                 ]
             ]
         );
