@@ -11,10 +11,27 @@
 * API: [CHANGE] API returns share node from share owner instead share reference #182
 
 
+## 2.0.13
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Aug 10 10:20:23 CEST 2018\
+
+* CORE: [FIX] Collection with children and set on auto destroy will end in a endless loop (both for tasks and http requests) #175
+
+
+## 2.0.12
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Aug 09 17:25:45 CEST 2018\
+**Note**: Execute upgrade (`ballooncli upgrade start; ballooncli upgrade start -d 'Balloon\Migration\Delta\AddHashToHistory' -f`) is required to apply this fix
+
+* CORE: [FIX] Upgrade delta missing to upgrade history versions from the old file reference to the v2 storage format #172
+
+
 ## 2.0.11
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Tue Aug 07 09:29:51 CEST 2018
+**Date**: Wed Aug 08 15:22:51 CEST 2018
 
+* CORE: [FIX] Overwrite file via webdav ends in Balloon\Filesystem\Exception\Conflict #170
+* CORE: [FIX] do not add a new file version if content hash equals to the current one
 * API: [FIX] downloading multiple nodes via v1 API creates corrupt zip archive #165
 * PACKAGING: [FIX] travis build fail because pecl extensions are already installed #167
 

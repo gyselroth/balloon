@@ -331,8 +331,6 @@ class Collection extends AbstractNode implements IQuota
      *
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
-     *
-     * @param string $recursion Identifier to identify a recursive action
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
@@ -772,10 +770,16 @@ class Collection extends AbstractNode implements IQuota
      * @param string $name
      * @param string $data
      */
-    public function createFile($name, $data = null, array $attributes = []): string
+    public function createFile($name, $data = null): string
     {
         $session = $this->_storage->storeTemporaryFile($data, $this->_user);
-        $file = $this->addFile($name, $session, $attributes);
+
+        if ($this->childExists($name)) {
+            $file = $this->getChild($name);
+            $file->setContent($session);
+        } else {
+            $file = $this->addFile($name, $session);
+        }
 
         return $file->getETag();
     }
