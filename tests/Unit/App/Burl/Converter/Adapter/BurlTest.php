@@ -22,7 +22,6 @@ use Balloon\Testsuite\Unit\Test;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Psr7\Response;
 use Imagick;
-use Micro\Http\Router;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
