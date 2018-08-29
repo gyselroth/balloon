@@ -51,7 +51,7 @@ class BurlTest extends Test
 
     public function setUp()
     {
-        new Http($this->createMock(Router::class), $this->createMock(Hook::class));
+        new Http();
         $this->storage = $this->createMock(Storage::class);
         $this->storage
             ->method('getFile')
