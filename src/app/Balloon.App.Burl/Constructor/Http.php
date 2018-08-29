@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Burl\Constructor;
 
-use Balloon\Hook;
-use Micro\Http\Router;
 use MimeType\Mapping;
 
 class Http
@@ -20,7 +18,7 @@ class Http
     /**
      * Constructor.
      */
-    public function __construct(Router $router, Hook $hook)
+    public function __construct()
     {
         Mapping::$types['burl'] = 'application/vnd.balloon.burl';
 
