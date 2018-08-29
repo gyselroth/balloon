@@ -211,6 +211,9 @@ class Burl implements AdapterInterface
         }
     }
 
+    /**
+     * Get screenshot of url.
+     */
     protected function getImage(string $url, string $format): Result
     {
         $options = [
@@ -237,6 +240,9 @@ class Burl implements AdapterInterface
         return $this->getResponseIntoResult($response, $format);
     }
 
+    /**
+     * Get pdf of url contents.
+     */
     protected function getPdf(string $url): Result
     {
         $response = $this->client->request(
@@ -256,6 +262,9 @@ class Burl implements AdapterInterface
         return $this->getResponseIntoResult($response, 'pdf');
     }
 
+    /**
+     * Turn PSR7-Response into a Result.
+     */
     protected function getResponseIntoResult(Response $response, string $format): Result
     {
         $desth = tmpfile();
