@@ -16,8 +16,8 @@ use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
-use GuzzleHttp\Psr7\StreamWrapper;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\StreamWrapper;
 use Imagick;
 use Psr\Log\LoggerInterface;
 
@@ -78,10 +78,10 @@ class Burl implements AdapterInterface
      * @param array
      */
     protected $target_formats = [
-        'pdf'   => 'application/pdf',
-        'jpg'   => 'image/jpeg',
-        'jpeg'  => 'image/jpeg',
-        'png'   => 'image/png',
+        'pdf' => 'application/pdf',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
     ];
 
     /**
@@ -207,7 +207,7 @@ class Burl implements AdapterInterface
             case 'jpeg':
                 return $this->getImage(\stream_get_contents($file->get()), 'jpeg');
             default:
-                throw new Exception('target format [' . $format . '] not supported');
+                throw new Exception('target format ['.$format.'] not supported');
         }
     }
 
@@ -215,7 +215,7 @@ class Burl implements AdapterInterface
     {
         $options = [
             'fullPage' => false,
-            'type'     => $format,
+            'type' => $format,
         ];
         if ('jpeg' === $format) {
             $options['quality'] = 75;
@@ -223,14 +223,14 @@ class Burl implements AdapterInterface
 
         $response = $this->client->request(
             'POST',
-            $this->browserlessUrl . '/screenshot',
+            $this->browserlessUrl.'/screenshot',
             [
-                'connect_timeout'   => $this->timeout,
-                'timeout'           => $this->timeout,
-                'json'              => [
-                    'url'       => $url,
-                    'options'   => $options,
-                ]
+                'connect_timeout' => $this->timeout,
+                'timeout' => $this->timeout,
+                'json' => [
+                    'url' => $url,
+                    'options' => $options,
+                ],
             ]
         );
 
@@ -241,15 +241,15 @@ class Burl implements AdapterInterface
     {
         $response = $this->client->request(
             'POST',
-            $this->browserlessUrl . '/pdf',
+            $this->browserlessUrl.'/pdf',
             [
                 'json' => [
-                    'url'       => $url,
-                    'options'   => [
-                        'printBackground'   => false,
-                        'format'            => 'A4',
+                    'url' => $url,
+                    'options' => [
+                        'printBackground' => false,
+                        'format' => 'A4',
                     ],
-                ]
+                ],
             ]
         );
 
@@ -264,7 +264,7 @@ class Burl implements AdapterInterface
         stream_copy_to_stream(StreamWrapper::getResource($response->getBody()), $desth);
 
         if (!file_exists($dest) || filesize($dest) <= 0) {
-            throw new Exception('failed get ' . $format);
+            throw new Exception('failed get '.$format);
         }
 
         return new Result($dest, $desth);
