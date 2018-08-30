@@ -319,6 +319,12 @@ class Filesystem
         foreach ($result as $node) {
             try {
                 $return = $this->initNode($node);
+
+                if (in_array($return->getId(), $nodes)) {
+                    continue;
+                }
+
+                $nodes[] = $return->getId();
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
                     'category' => get_class($this),
