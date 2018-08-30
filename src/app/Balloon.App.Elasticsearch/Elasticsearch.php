@@ -141,23 +141,23 @@ class Elasticsearch
         $nodes = [];
         foreach ($result['hits']['hits'] as $node) {
             if ('storage' === $node['_type']) {
-                $nodes[] = $node['_id'];
+                $nodes[$node['_id']] = $node;
             } elseif ('fs' === $node['_type']) {
                 if (isset($node['_source']['metadata']['ref'])) {
                     foreach ($node['_source']['metadata']['ref'] as $blob) {
-                        $nodes[] = $blob['id'];
+                        $nodes[$blob['id']] = $blob;
                     }
                 }
 
                 if (isset($node['_source']['metadata']['share_ref'])) {
                     foreach ($node['_source']['metadata']['share_ref'] as $blob) {
-                        $nodes[] = $blob['id'];
+                        $nodes[$blob['id']] = $blob;
                     }
                 }
             }
         }
 
-        return $this->fs->findNodesById($nodes, null, $deleted);
+        return $this->fs->findNodesById(array_keys($nodes), null, $deleted);
     }
 
     /**
