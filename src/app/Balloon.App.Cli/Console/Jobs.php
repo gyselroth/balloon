@@ -105,6 +105,8 @@ class Jobs
 
         $this->hook->run('preExecuteAsyncJobs');
         $this->queue->process();
+
+        return true;
     }
 
     /*
