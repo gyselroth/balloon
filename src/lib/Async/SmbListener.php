@@ -19,9 +19,9 @@ use Balloon\Server;
 use Icewind\SMB\Change;
 use Icewind\SMB\INotifyHandler;
 use Icewind\SMB\IShare;
-use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
+use TaskScheduler\Process;
 use TaskScheduler\Scheduler;
 
 class SmbListener extends AbstractJob
@@ -164,7 +164,7 @@ class SmbListener extends AbstractJob
     /**
      * Add sync task.
      */
-    protected function syncNode(Collection $mount, string $path, int $action): ObjectId
+    protected function syncNode(Collection $mount, string $path, int $action): Process
     {
         $this->logger->debug('add new smb sync job for path ['.$path.'] in mount ['.$mount->getId().']', [
             'category' => get_class($this),

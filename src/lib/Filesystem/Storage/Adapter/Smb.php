@@ -131,7 +131,12 @@ class Smb implements AdapterInterface
     public function readonly(NodeInterface $node, bool $readonly = true): ?array
     {
         $path = $this->getPath($node);
-        $this->share->setMode($path, IFileInfo::MODE_READONLY);
+
+        if ($readonly === true) {
+            $this->share->setMode($path, IFileInfo::MODE_READONLY);
+        } else {
+            $this->share->setMode($path, IFileInfo::MODE_NORMAL);
+        }
 
         return $node->getAttributes()['storage'];
     }
@@ -253,7 +258,7 @@ class Smb implements AdapterInterface
         $reference = $node->getAttributes()['storage'];
 
         if (!$node->isDeleted()) {
-            $path = dirname($this->getPath($node)).DIRECTORY_SEPARATOR.$new_name;
+            $path = join('/', [rtrim(dirname($this->getPath($node)), '/'), $new_name]);
             $this->share->rename($this->getPath($node), $path);
             $reference['path'] = $path;
         }
@@ -269,7 +274,7 @@ class Smb implements AdapterInterface
         $reference = $node->getAttributes()['storage'];
 
         if (!$node->isDeleted()) {
-            $path = $this->getPath($parent).DIRECTORY_SEPARATOR.$node->getName();
+            $path = join('/', [rtrim($this->getPath($parent), '/'), $node->getName()]);
             $this->share->rename($this->getPath($node), $path);
             $reference['path'] = $path;
         }

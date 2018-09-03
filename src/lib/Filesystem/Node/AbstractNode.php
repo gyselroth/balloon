@@ -259,14 +259,6 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
-     * temporary session.
-     */
-    public function temporarySession($stream, ObjectId $session = null): ObjectId
-    {
-        return $this->_parent->getStorage()->storeTemporaryFile($stream, $this->_user, $session);
-    }
-
-    /**
      * Check if $node is a sub node of any parent nodes of this node.
      */
     public function isSubNode(NodeInterface $node): bool

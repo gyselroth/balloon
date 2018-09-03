@@ -13,10 +13,12 @@ namespace Balloon\Async;
 
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\Blackhole;
 use Balloon\Filesystem\Storage\Adapter\Smb;
 use Balloon\Server;
 use Balloon\Server\User;
+use Icewind\SMB\Exception\NotFoundException;
 use Icewind\SMB\IFileInfo;
 use Icewind\SMB\INotifyHandler;
 use Icewind\SMB\IShare;
@@ -136,6 +138,24 @@ class SmbScanner extends AbstractJob
     }
 
     /**
+     * Delete node.
+     */
+    protected function deleteNode(NodeInterface $node, Blackhole $dummy): bool
+    {
+        if ($node instanceof Collection) {
+            $node->doRecursiveAction(function (NodeInterface $node) use ($dummy) {
+                if ($node instanceof Collection) {
+                    $node->setStorage($dummy);
+                }
+            });
+        }
+
+        $node->delete(true);
+
+        return true;
+    }
+
+    /**
      * Iterate recursively through smb share.
      */
     protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, Smb $smb, string $path, bool $recursive, int $action): void
@@ -151,15 +171,18 @@ class SmbScanner extends AbstractJob
             return;
         }
 
-        if ($action === INotifyHandler::NOTIFY_REMOVED) {
-            $node = $parent->getChild(basename($path));
-            $node->setStorage($dummy);
-            $node->delete(true);
+        try {
+            $node = $share->stat($path);
+        } catch (NotFoundException $e) {
+            if ($action === INotifyHandler::NOTIFY_REMOVED) {
+                $node = $parent->getChild(basename($path));
+                $node->getParent()->setStorage($dummy);
+                $this->deleteNode($node, $dummy);
+            }
 
             return;
         }
 
-        $node = $share->stat($path);
         if ($node->isDirectory()) {
             $parent->setStorage($dummy);
 
@@ -189,7 +212,7 @@ class SmbScanner extends AbstractJob
 
                 foreach ($child->getChildren() as $sub_child) {
                     if (!in_array($sub_child->getName(), $nodes)) {
-                        $sub_child->delete(true);
+                        $this->deleteNode($sub_child, $dummy);
                     }
                 }
             }
@@ -211,7 +234,7 @@ class SmbScanner extends AbstractJob
 
         if ($parent->childExists($node->getName())) {
             $file = $parent->getChild($node->getName());
-
+            $file->getParent()->setStorage($parent->getStorage());
             if ($this->fileUpdateRequired($file, $attributes)) {
                 $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
             }
@@ -220,10 +243,15 @@ class SmbScanner extends AbstractJob
         }
 
         $file = $parent->addFile($node->getName(), null, $attributes);
+        $file->getParent()->setStorage($parent->getStorage());
         $this->updateFileContent($parent, $share, $node, $file, $user, $attributes);
 
         return true;
     }
+
+    /**
+     * Update file content.
+     */
 
     /**
      * Set file content.
@@ -247,7 +275,7 @@ class SmbScanner extends AbstractJob
     {
         $meta_attributes = $file->getAttributes();
 
-        return $smb_attributes['size'] != $meta_attributes['size'] && $smb_attributes['changed'] != $meta_attributes['changed'];
+        return $smb_attributes['size'] != $meta_attributes['size'] || $smb_attributes['changed'] != $meta_attributes['changed'];
     }
 
     /**
@@ -255,16 +283,15 @@ class SmbScanner extends AbstractJob
      */
     protected function getAttributes(Collection $collection, IShare $share, IFileInfo $node): array
     {
-        $stats = $share->getStat($node->getPath());
-        $ctime = new UTCDateTime($stats['ctime'] * 1000);
-        $mtime = new UTCDateTime($stats['mtime'] * 1000);
+        $stats = $share->stat($node->getPath());
+        $mtime = new UTCDateTime($stats->getMTime() * 1000);
 
         $attributes = [
-            'created' => $ctime,
+            'created' => $mtime,
             'changed' => $mtime,
             'storage_reference' => $collection->getId(),
             'storage' => [
-                'path' => $node->getPath(),
+                'path' => '/'.ltrim($node->getPath(), '/'),
             ],
         ];
 

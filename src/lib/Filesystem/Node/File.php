@@ -93,7 +93,6 @@ class File extends AbstractNode implements IFile
         $this->_user = $fs->getUser();
         $this->_logger = $logger;
         $this->_hook = $hook;
-        //$this->_parent->getStorage() = $storage;
         $this->_acl = $acl;
         $this->_parent = $parent;
 
@@ -148,13 +147,16 @@ class File extends AbstractNode implements IFile
             $result = $parent->getChild($this->name);
             $result->put($this->get());
         } else {
-            $session = $parent->temporarySession($this->get());
+            $stream = $this->get();
+            $parent->getStorage()->storeTemporaryFile($stream, $this->server->getUserById($this->getOwner()));
             $result = $parent->addFile($name, $session, [
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'meta' => $this->meta,
             ], NodeInterface::CONFLICT_NOACTION, true);
+
+            fclose($stream);
         }
 
         $this->_hook->run(
@@ -466,13 +468,14 @@ class File extends AbstractNode implements IFile
             'category' => get_class($this),
         ]);
 
+        $previous = $this->version;
         $storage = $this->storage;
         $this->prePutFile($session);
         $result = $this->_parent->getStorage()->storeFile($this, $session);
         $this->storage = $result['reference'];
 
         if ($this->hash === $result['hash']) {
-            $this->_logger->debug('do not update file version, hash identical to existing version', [
+            $this->_logger->debug('do not update file version, hash identical to existing version ['.$this->hash.' == '.$result['hash'].']', [
                 'category' => get_class($this),
             ]);
 
@@ -491,7 +494,17 @@ class File extends AbstractNode implements IFile
         $this->mime = MimeType::getType($this->name);
         $this->increaseVersion();
 
-        if ($result['reference'] != $storage) {
+        if (isset($attributes['changed'])) {
+            if (!($attributes['changed'] instanceof UTCDateTime)) {
+                throw new Exception\InvalidArgument('attribute changed must be an instance of UTCDateTime');
+            }
+
+            $this->changed = $attributes['changed'];
+        } else {
+            $this->changed = new UTCDateTime();
+        }
+
+        if ($result['reference'] != $storage || $previous === 0) {
             $this->addVersion($attributes);
         }
 
@@ -577,16 +590,6 @@ class File extends AbstractNode implements IFile
     protected function addVersion(array $attributes = []): self
     {
         if (1 !== $this->version) {
-            if (isset($attributes['changed'])) {
-                if (!($attributes['changed'] instanceof UTCDateTime)) {
-                    throw new Exception\InvalidArgument('attribute changed must be an instance of UTCDateTime');
-                }
-
-                $this->changed = $attributes['changed'];
-            } else {
-                $this->changed = new UTCDateTime();
-            }
-
             $this->_logger->debug('added new history version ['.$this->version.'] for file ['.$this->_id.']', [
                 'category' => get_class($this),
             ]);

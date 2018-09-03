@@ -13,6 +13,8 @@ namespace Balloon\Async;
 
 use Balloon\Bootstrap\ContainerBuilder;
 use Composer\Autoload\ClassLoader as Composer;
+use ErrorException;
+use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Scheduler;
@@ -39,10 +41,50 @@ class WorkerFactory implements WorkerFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function build(): Worker
+    public function build(ObjectId $id): Worker
     {
         $dic = ContainerBuilder::get($this->composer);
+        $this->setErrorHandler($dic->get(LoggerInterface::class));
 
-        return new Worker($dic->get(Scheduler::class), $dic->get(Database::class), $dic->get(LoggerInterface::class), $dic);
+        return new Worker($id, $dic->get(Scheduler::class), $dic->get(Database::class), $dic->get(LoggerInterface::class), $dic);
+    }
+
+    /**
+     * Set error handler.
+     */
+    protected function setErrorHandler(LoggerInterface $logger): self
+    {
+        set_error_handler(function ($severity, $message, $file, $line) use ($logger) {
+            $log = $message.' in '.$file.':'.$line;
+
+            switch ($severity) {
+                case E_ERROR:
+                case E_USER_ERROR:
+                    $logger->error($log, [
+                        'category' => get_class($this),
+                    ]);
+
+                break;
+                case E_WARNING:
+                case E_USER_WARNING:
+                    $logger->warning($log, [
+                        'category' => get_class($this),
+                    ]);
+
+                break;
+                default:
+                    $logger->debug($log, [
+                        'category' => get_class($this),
+                    ]);
+
+                break;
+            }
+
+            if (error_reporting() !== 0) {
+                throw new ErrorException($message, 0, $severity, $file, $line);
+            }
+        });
+
+        return $this;
     }
 }

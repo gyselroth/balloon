@@ -180,13 +180,12 @@ class Converter
         try {
             if (isset($slave['slave'])) {
                 $slave = $master->getFilesystem()->findNodeById($slave['slave']);
-
                 $handler = $result->getStream();
-                $session = $master->temporarySession($handler);
-                fclose($handler);
-
+                $storage = $slave->getParent()->getStorage();
+                $session = $storage->storeTemporaryFile($handler, $this->server->getUserById($master->getOwner()));
                 $slave->setReadonly(false);
                 $slave->setContent($session);
+                fclose($handler);
                 $slave->setReadonly();
 
                 return true;
@@ -210,8 +209,9 @@ class Converter
         }
 
         $handler = $result->getStream();
-        $session = $master->temporarySession($handler);
-        fclose($handler);
+
+        $storage = $master->getParent()->getStorage();
+        $session = $storage->storeTemporaryFile($handler, $this->server->getUserById($master->getOwner()));
 
         $node = $master->getParent()->addFile($name, $session, [
             'owner' => $master->getOwner(),
@@ -222,6 +222,7 @@ class Converter
             ],
         ], NodeInterface::CONFLICT_RENAME);
 
+        fclose($handler);
         $node->setReadonly();
 
         $result = $this->db->{$this->collection_name}->updateOne(['_id' => $slave['_id']], [

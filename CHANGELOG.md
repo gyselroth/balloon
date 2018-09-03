@@ -11,6 +11,13 @@
 * API: [CHANGE] API returns share node from share owner instead share reference #182
 
 
+## 2.0.14
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Aug 30 16:51:44 CEST 2018\
+
+* CORE: [FIX] Balloon.App.Elasticsearch returns search result nodes for each share reference #187
+
+
 ## 2.0.13
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Aug 10 10:20:23 CEST 2018\

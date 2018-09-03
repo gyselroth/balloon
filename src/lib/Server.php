@@ -439,7 +439,10 @@ class Server
         }
 
         $user = new User(array_shift($users), $this, $this->db, $this->logger);
-        $this->cache_users[(string) $id] = $user;
+
+        if ($this->identity !== null) {
+            $this->cache_users[(string) $id] = $user;
+        }
 
         return $user;
     }
@@ -638,7 +641,10 @@ class Server
         }
 
         $group = new Group($group, $this, $this->db, $this->logger);
-        $this->cache_groups[(string) $id] = $group;
+
+        if ($this->identity !== null) {
+            $this->cache_groups[(string) $id] = $group;
+        }
 
         return $group;
     }

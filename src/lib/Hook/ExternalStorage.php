@@ -96,7 +96,7 @@ class ExternalStorage extends AbstractHook
      */
     protected function addTasks(ObjectId $node): bool
     {
-        $this->scheduler->addJob(SmbScanner::class, [
+        $this->scheduler->addJobOnce(SmbScanner::class, [
             'id' => $node,
         ], [
             Scheduler::OPTION_INTERVAL => 86400,
