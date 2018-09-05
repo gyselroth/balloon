@@ -677,34 +677,7 @@ abstract class AbstractNode implements NodeInterface
      */
     public function getParent(): ?Collection
     {
-        //try {
-        /*if ($this->isRoot()) {
-            return null;
-        }
-        if ($this->isInRoot()) {
-            return $this->_fs->getRoot();
-        }*/
-
         return $this->_parent;
-        /*$parent = $this->_fs->findNodeById($this->parent);
-
-        if ($parent->isShare() && !$parent->isOwnerRequest() && null !== $this->_user) {
-            $node = $this->_db->storage->findOne([
-                    'owner' => $this->_user->getId(),
-                    'shared' => true,
-                    'reference' => $this->parent,
-                ]);
-
-            return $this->_fs->initNode($node);
-        }
-
-        return $parent;*/
-        /*} catch (Exception\NotFound $e) {
-            throw new Exception\NotFound(
-                'parent node '.$this->parent.' could not be found',
-                Exception\NotFound::PARENT_NOT_FOUND
-            );
-        }*/
     }
 
     /**

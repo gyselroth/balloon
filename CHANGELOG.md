@@ -9,6 +9,7 @@
 * CORE: [CHANGE] Do not delete child nodes of a custom filtered collection if a delete was issued on the collection #181
 * CORE: [FIX] Move within the same share executes a delete n create instead move #183
 * API: [CHANGE] API returns share node from share owner instead share reference #182
+* API: [FIX] `0` is not allowed as collection name #189 
 
 
 ## 2.0.14
