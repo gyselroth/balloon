@@ -69,7 +69,7 @@ class AutoDestroy extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function preExecuteSchedulerJobs(): void
+    public function preExecuteAsyncJobs(): void
     {
         $this->scheduler->addJobOnce(Job::class, [], [
             'interval' => $this->interval,

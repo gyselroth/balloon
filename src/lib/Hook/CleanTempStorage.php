@@ -77,7 +77,7 @@ class CleanTempStorage extends AbstractHook
     /**
      * {@inheritdoc}
      */
-    public function preExecuteSchedulerJobs(): void
+    public function preExecuteAsyncJobs(): void
     {
         $this->scheduler->addJobOnce(Job::class, [
             'max_age' => $this->max_age,
