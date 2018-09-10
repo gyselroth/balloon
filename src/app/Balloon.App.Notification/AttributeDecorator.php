@@ -15,6 +15,7 @@ use Balloon\AttributeDecorator\AttributeDecoratorInterface;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttribueDecorator;
 use Closure;
+use DateTime;
 
 class AttributeDecorator implements AttributeDecoratorInterface
 {
@@ -99,6 +100,9 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
             },
+            'created' => function($message) {
+                return (new DateTime())->setTimestamp($message['_id']->getTimestamp())->format('c');
+            }
         ];
     }
 
