@@ -11,6 +11,7 @@
 * CORE: [FIX] Exception during restore a readonly share reference #193
 * API: [CHANGE] API returns share node from share owner instead share reference #182
 * API: [FIX] `0` is not allowed as collection name #189 
+* API: [FIX] Created timestamp missing from GET /api/v2/notifications response #190
 
 
 ## 2.0.14
