@@ -897,8 +897,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Mark node as self-destroyable.
-     *
-     * @param UTCDateTime $ts
      */
     public function setDestroyable(?UTCDateTime $ts): bool
     {

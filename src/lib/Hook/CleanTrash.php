@@ -79,11 +79,10 @@ class CleanTrash extends AbstractHook
      */
     public function preExecuteAsyncJobs(): void
     {
-        $this->scheduler->addJobOnce(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'max_age' => $this->max_age,
         ], [
-            //'interval' => $this->interval,
-            'interval' => 40,
+            'interval' => $this->interval,
         ]);
     }
 }

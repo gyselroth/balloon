@@ -12,6 +12,7 @@
 * API: [CHANGE] API returns share node from share owner instead share reference #182
 * API: [FIX] `0` is not allowed as collection name #189 
 * API: [FIX] Created timestamp missing from GET /api/v2/notifications response #190
+* API: [CHANGE] PUT with path /api/v1/file and PUT /api/v2/files does not required a leading slash (Slash is now optional)
 
 
 ## 2.0.14

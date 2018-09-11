@@ -207,7 +207,15 @@ class SmbScanner extends AbstractJob
 
                     $nodes[] = Normalizer::normalize($node->getName());
                     $child_path = ($path === DIRECTORY_SEPARATOR) ? $path.$node->getName() : $path.DIRECTORY_SEPARATOR.$node->getName();
-                    $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $child_path, $recursive, $action);
+
+                    try {
+                        $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $child_path, $recursive, $action);
+                    } catch (\Exception $e) {
+                        $this->logger->error('failed sync child node ['.$child_path.'] in smb mount', [
+                            'category' => get_class($this),
+                            'exception' => $e,
+                        ]);
+                    }
                 }
 
                 foreach ($child->getChildren() as $sub_child) {

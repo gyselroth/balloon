@@ -134,9 +134,11 @@ class Smb implements AdapterInterface
 
         if ($readonly === true) {
             $this->share->setMode($path, IFileInfo::MODE_READONLY);
-        } else {
-            $this->share->setMode($path, IFileInfo::MODE_NORMAL);
+
+            return $node->getAttributes()['storage'];
         }
+
+        $this->share->setMode($path, IFileInfo::MODE_NORMAL);
 
         return $node->getAttributes()['storage'];
     }

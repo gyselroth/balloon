@@ -100,9 +100,9 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
             },
-            'created' => function($message) {
+            'created' => function ($message) {
                 return (new DateTime())->setTimestamp($message['_id']->getTimestamp())->format('c');
-            }
+            },
         ];
     }
 

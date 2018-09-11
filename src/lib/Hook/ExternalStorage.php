@@ -83,6 +83,8 @@ class ExternalStorage extends AbstractHook
     {
         $fs = $this->server->getFilesystem();
         $nodes = $fs->findNodesByFilter([
+            'deleted' => false,
+            'directory' => true,
             'mount' => ['$type' => 3],
         ]);
 

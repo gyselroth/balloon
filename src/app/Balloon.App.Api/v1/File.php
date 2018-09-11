@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v1;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Helper;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -277,13 +278,7 @@ class File extends Node
             'metadata.chunkgroup' => $this->server->getIdentity()->getId().'_'.$chunkgroup,
         ]);
 
-        if ($id !== null || $p !== null) {
-            $storage = $this->_getNode($id, $p)->getParent()->getStorage();
-        } elseif ($id === null && $p === null && $collection === null) {
-            $storage = $this->server->getFilesystem()->getRoot()->getStorage();
-        } else {
-            $storage = $this->_getNode($collection, null, Collection::class)->getStorage();
-        }
+        $storage = $this->getStorage($id, $p, $collection);
 
         if ($session === null) {
             $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
@@ -403,17 +398,30 @@ class File extends Node
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
 
-        if ($id !== null || $p !== null) {
-            $storage = $this->_getNode($id, $p)->getParent()->getStorage();
-        } elseif ($id === null && $p === null && $collection === null) {
-            $storage = $this->server->getFilesystem()->getRoot()->getStorage();
-        } else {
-            $storage = $this->_getNode($collection, null, Collection::class)->getStorage();
-        }
-
+        $storage = $this->getStorage($id, $p, $collection);
         $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
 
         return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
+    }
+
+    /**
+     * Get storage.
+     */
+    protected function getStorage($id, $p, $collection): StorageAdapterInterface
+    {
+        if ($id !== null) {
+            return $this->_getNode($id, $p)->getParent()->getStorage();
+        }
+        if ($p !== null) {
+            $path = '/'.ltrim(dirname('/'.$p), '/');
+
+            return $this->_getNode($id, $path, Collection::class)->getStorage();
+        }
+        if ($id === null && $p === null && $collection === null) {
+            return $this->server->getFilesystem()->getRoot()->getStorage();
+        }
+
+        return $this->_getNode($collection, null, Collection::class)->getStorage();
     }
 
     /**
@@ -495,7 +503,7 @@ class File extends Node
                     throw new Exception\InvalidArgument('path (p) must be a valid string');
                 }
 
-                $parent_path = dirname($p);
+                $parent_path = '/'.ltrim(dirname('/'.$p), '/');
                 $name = basename($p);
 
                 try {
