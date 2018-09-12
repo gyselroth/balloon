@@ -1,6 +1,6 @@
-## 2.1.0
+## 2.1.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: \
+**Date**: Wed Sept 12 14:14:45 CEST 2018\
 **Note**: ballooncli upgrade required, @see UPGRADE.md
 
 * CORE: [FEATURE] Implemented RFC-3 SMB external storage #156
@@ -14,6 +14,8 @@
 * API: [FIX] Created timestamp missing from GET /api/v2/notifications response #190
 * API: [CHANGE] PUT with path /api/v1/file and PUT /api/v2/files does not required a leading slash (Slash is now optional)
 * CORE: [FIX] Change notifications tells wrong subscribed node #169
+* CORE: [CHANGE] Upgrade gyselroth/mongodb-php-task-scheduler to v3 #192
+* CORE: [CHANGE] Upgrade gyselroth/micro-container to v2.x #191
 
 
 ## 2.0.14
