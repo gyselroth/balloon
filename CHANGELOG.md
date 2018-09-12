@@ -20,7 +20,7 @@
 
 ## 2.0.14
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Thu Aug 30 16:51:44 CEST 2018
+**Date**: Thu Aug 30 16:51:44 CEST 2018\
 
 * CORE: [FIX] Balloon.App.Elasticsearch returns search result nodes for each share reference #187
 
