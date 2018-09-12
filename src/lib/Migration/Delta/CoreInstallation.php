@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Migration\Delta;
 
+use Balloon\Server;
 use MongoDB\Database;
 
 class CoreInstallation implements DeltaInterface
@@ -23,11 +24,19 @@ class CoreInstallation implements DeltaInterface
     protected $db;
 
     /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
      * Construct.
      */
-    public function __construct(Database $db)
+    public function __construct(Database $db, Server $server)
     {
         $this->db = $db;
+        $this->server = $server;
     }
 
     /**
@@ -84,6 +93,11 @@ class CoreInstallation implements DeltaInterface
                 'size' => 100000, ]
             );
         }
+
+        $this->server->addUser('admin', [
+            'password' => 'admin',
+            'mail' => 'root@localhost.local',
+        ]);
 
         return true;
     }

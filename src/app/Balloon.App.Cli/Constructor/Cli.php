@@ -30,18 +30,12 @@ class Cli
     {
         $this->getopt = $getopt;
         $getopt->addCommands([
-            \GetOpt\Command::create('users', Console\User::class)
-                ->addOptions(Console\User::getOptions())
-                ->addOperands(Console\User::getOperands()),
-            \GetOpt\Command::create('groups', Console\Group::class)
-                ->addOptions(Console\Group::getOptions())
-                ->addOperands(Console\User::getOperands()),
             \GetOpt\Command::create('jobs', Console\Jobs::class)
                 ->addOptions(Console\Jobs::getOptions())
-                ->addOperands(Console\User::getOperands()),
+                ->addOperands(Console\Jobs::getOperands()),
             \GetOpt\Command::create('upgrade', Console\Upgrade::class)
                 ->addOptions(Console\Upgrade::getOptions())
-                ->addOperands(Console\User::getOperands()),
+                ->addOperands(Console\Upgrade::getOperands()),
         ]);
     }
 }

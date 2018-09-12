@@ -16,6 +16,7 @@
 * CORE: [FIX] Change notifications tells wrong subscribed node #169
 * CORE: [CHANGE] Upgrade gyselroth/mongodb-php-task-scheduler to v3 #192
 * CORE: [CHANGE] Upgrade gyselroth/micro-container to v2.x #191
+* CORE: [CHANGE] Remove user management functionality from Balloon.App.Cli #152
 
 
 ## 2.0.14
