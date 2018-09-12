@@ -191,7 +191,12 @@ class Notifications extends Controller
     public function post(array $receiver, string $subject, string $body): Response
     {
         $users = $this->server->getUsersById($receiver);
-        $message = $this->notifier->customMessage($subject, $body);
+
+        $message = $this->notifier->compose('user_message', [
+            'user_subject' => $subject,
+            'user_body' => $body,
+        ]);
+
         $this->notifier->notify($users, $this->user, $message);
 
         return (new Response())->setCode(202);
@@ -221,7 +226,11 @@ class Notifications extends Controller
         }
 
         $users = $this->server->getUsers();
-        $message = $this->notifier->customMessage($subject, $body);
+        $message = $this->notifier->compose('user_message', [
+            'user_subject' => $subject,
+            'user_body' => $body,
+        ]);
+
         $this->notifier->notify($users, $this->user, $message);
 
         return (new Response())->setCode(202);
@@ -243,7 +252,10 @@ class Notifications extends Controller
      */
     public function postMail(array $receiver, string $subject, string $body)
     {
-        $message = $this->notifier->customMessage($subject, $body);
+        $message = $this->notifier->compose('user_message', [
+            'user_subject' => $subject,
+            'user_body' => $body,
+        ]);
 
         $html = new MimePart($message->renderTemplate('mail_html.phtml'));
         $html->type = 'text/html';

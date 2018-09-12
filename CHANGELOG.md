@@ -13,18 +13,19 @@
 * API: [FIX] `0` is not allowed as collection name #189 
 * API: [FIX] Created timestamp missing from GET /api/v2/notifications response #190
 * API: [CHANGE] PUT with path /api/v1/file and PUT /api/v2/files does not required a leading slash (Slash is now optional)
+* CORE: [FIX] Change notifications tells wrong subscribed node #169
 
 
 ## 2.0.14
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Thu Aug 30 16:51:44 CEST 2018\
+**Date**: Thu Aug 30 16:51:44 CEST 2018
 
 * CORE: [FIX] Balloon.App.Elasticsearch returns search result nodes for each share reference #187
 
 
 ## 2.0.13
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Fri Aug 10 10:20:23 CEST 2018\
+**Date**: Fri Aug 10 10:20:23 CEST 2018
 
 * CORE: [FIX] Collection with children and set on auto destroy will end in a endless loop (both for tasks and http requests) #175
 

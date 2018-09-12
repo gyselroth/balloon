@@ -177,6 +177,50 @@ class Subscription extends AbstractHook
     {
         $receiver = $this->getReceiver($node);
         $parent = $node->getParent();
+
+        if ($parent !== null) {
+            $parents = $this->getReceiver($parent);
+            $parents = array_diff($parents, $receiver);
+
+            $this->send($node, $parent, $parents);
+        }
+
+        $this->send($node, $node, $receiver);
+
+        return true;
+    }
+
+    /**
+     * Send.
+     */
+    protected function send(NodeInterface $node, NodeInterface $subscription, array $receiver)
+    {
+        if (empty($receiver)) {
+            $this->logger->debug('skip subscription notification for node ['.$node->getId().'] due empty receiver list', [
+                'category' => get_class($this),
+            ]);
+
+            return false;
+        }
+
+        $receiver = $this->server->getUsers(['_id' => ['$in' => $receiver]]);
+        $receiver = $this->filterAccess($node, $receiver);
+
+        $message = $this->notifier->compose('subscription', [
+            'subscription' => $subscription,
+            'node' => $node,
+        ]);
+
+        return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
+    }
+
+    /**
+     * Check if we need to notify.
+     */
+    /*protected function notify(NodeInterface $node): bool
+    {
+        $receiver = $this->getReceiver($node);
+        $parent = $node->getParent();
         if ($parent !== null) {
             $parents = $this->getReceiver($parent);
             $receiver = array_merge($parents, $receiver);
@@ -192,10 +236,14 @@ class Subscription extends AbstractHook
 
         $receiver = $this->server->getUsers(['_id' => ['$in' => $receiver]]);
         $receiver = $this->filterAccess($node, $receiver);
-        $message = $this->notifier->nodeMessage('subscription', $node);
+
+        $message = $this->notifier->compose('subscription', [
+            'subscription' => $sub_node,
+            'node' => $node
+        ]);
 
         return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
-    }
+    }*/
 
     /**
      * Get receiver list.
