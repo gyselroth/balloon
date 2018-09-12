@@ -57,6 +57,7 @@ class SmbScanner extends AbstractJob
      */
     public function start(): bool
     {
+        gc_enabled();
         $dummy = new Blackhole();
         $fs = $this->server->getFilesystem();
         $mount = $collection = $fs->findNodeById($this->data['id']);
@@ -165,6 +166,8 @@ class SmbScanner extends AbstractJob
             'recursive' => $recursive,
         ]);
 
+        $this->logger->debug('memory:'.memory_get_usage().'/');
+
         $system_path = $path.DIRECTORY_SEPARATOR.$smb->getSystemFolder();
 
         if ($path === $system_path) {
@@ -256,10 +259,6 @@ class SmbScanner extends AbstractJob
 
         return true;
     }
-
-    /**
-     * Update file content.
-     */
 
     /**
      * Set file content.

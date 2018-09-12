@@ -589,7 +589,7 @@ class Filesystem
             throw new Exception\Conflict('node is not available anymore');
         }
 
-        if ($this->user === null) {
+        if (PHP_SAPI === 'cli') {
             unset($this->cache[(string) $node['_id']]);
         }
 
