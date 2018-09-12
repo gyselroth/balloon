@@ -15,8 +15,8 @@ use Balloon\App\Burl\Constructor\Http;
 use Balloon\App\Burl\Converter\Adapter\Burl;
 use Balloon\Converter\Exception;
 use Balloon\Filesystem\Acl;
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Testsuite\Unit\Test;
 use GuzzleHttp\Client as GuzzleHttpClient;
@@ -51,13 +51,6 @@ class BurlTest extends Test
     public function setUp()
     {
         new Http();
-        $this->storage = $this->createMock(Storage::class);
-        $this->storage
-            ->method('getFile')
-            ->willReturn(
-                fopen('data://text/plain;base64,'.base64_encode('http://example.com'), 'r')
-            );
-
         $this->fs = $this->getMockServer()->getFilesystem();
         $this->burlConverter = $this->createBurlConverter();
     }
@@ -120,7 +113,7 @@ class BurlTest extends Test
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
             $this->createMock(Acl::class),
-            $this->createMock(Storage::class)
+            $this->createMock(Collection::class)
         ));
 
         $fileNotMatch = $this->burlConverter->match(new File(
@@ -134,7 +127,7 @@ class BurlTest extends Test
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
             $this->createMock(Acl::class),
-            $this->createMock(Storage::class)
+            $this->createMock(Collection::class)
         ));
 
         // assertions
@@ -159,7 +152,7 @@ class BurlTest extends Test
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
             $this->createMock(Acl::class),
-            $this->createMock(Storage::class)
+            $this->createMock(Collection::class)
         ));
 
         // assertions
@@ -177,19 +170,7 @@ class BurlTest extends Test
         ));
         $this->burlConverter = $this->createBurlConverter($httpClient);
 
-        $file = new File(
-            [
-                'owner' => $this->fs->getUser()->getId(),
-                '_id' => new ObjectId(),
-                'storage' => [],
-            ],
-            $this->fs,
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(Hook::class),
-            $this->createMock(Acl::class),
-            $this->storage
-        );
-
+        $file = $this->getMockFile();
         $preview = $this->burlConverter->createPreview($file);
 
         $image = new Imagick();
@@ -211,19 +192,7 @@ class BurlTest extends Test
         ));
         $this->burlConverter = $this->createBurlConverter($httpClient);
 
-        $file = new File(
-            [
-                'owner' => $this->fs->getUser()->getId(),
-                '_id' => new ObjectId(),
-                'storage' => [],
-            ],
-            $this->fs,
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(Hook::class),
-            $this->createMock(Acl::class),
-            $this->storage
-        );
-
+        $file = $this->getMockFile();
         $result = $this->burlConverter->convert($file, 'jpg');
         $image = new Imagick();
         $image->readImage($result->getPath());
@@ -244,23 +213,23 @@ class BurlTest extends Test
         ));
         $this->burlConverter = $this->createBurlConverter($httpClient);
 
-        $file = new File(
-            [
-                'owner' => $this->fs->getUser()->getId(),
-                '_id' => new ObjectId(),
-                'storage' => [],
-            ],
-            $this->fs,
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(Hook::class),
-            $this->createMock(Acl::class),
-            $this->storage
-        );
-
+        $file = $this->getMockFile();
         $result = $this->burlConverter->convert($file, 'pdf');
 
         // assertions
         $this->assertEquals(self::PDF_MIME_TYPE, \mime_content_type($result->getPath()));
+    }
+
+    protected function getMockFile()
+    {
+        $mock = $this->createMock(File::class);
+        $mock
+            ->method('get')
+            ->willReturn(
+                fopen('data://text/plain;base64,'.base64_encode('http://example.com'), 'r')
+            );
+
+        return $mock;
     }
 
     protected function createBurlConverter(GuzzleHttpClient $httpClient = null)
