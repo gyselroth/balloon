@@ -97,6 +97,7 @@ class CoreInstallation implements DeltaInterface
         $this->server->addUser('admin', [
             'password' => 'admin',
             'mail' => 'root@localhost.local',
+            'admin' => true,
         ]);
 
         return true;

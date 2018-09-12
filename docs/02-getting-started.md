@@ -82,7 +82,7 @@ apt-get install mongodb-org elasticsearch libreoffice clamav balloon balloon-web
 
 >**Note**: ClamAV, Elasticsearch and LibreOffice are optional balloon components and are used in the core apps Balloon.App.ClamAV, Balloon.App.Elasticsearch and Balloon.App.Preview.
 
-After all packages have been installed the balloon web interface is reachable under `https://localhost`.
+After all packages have been installed the balloon web interface is reachable at `https://localhost`.
 The installation will create a default admin account:
 
 Username: admin \
@@ -168,10 +168,18 @@ The balloon server can now be started using:
 docker-compose -f balloon-stable.yaml up
 ```
 
->**Note**: All balloon containers also support an exact tagged version instead `latest`. It is also possible to use the latest pre releases via docker using the `latest-unstable` tag for the balloon-jobs, balloon and balloon-web container definiton above. It is in no way reccomened to use pre-releases in production environments! 
+You need to initialize balloon once (You do not need to execute this everytime you start the server via docker-compose, it is just a one time call):
+```
+docker exec balloon-stable-balloon_1 ballooncli upgrade -i -vvv
+```
 
-After all packages have been installed the balloon web interface is reachable under `https://localhost`.
-The balloon container will try to create an account named admin at every bootstrap if it does not exists yet:
+>**Note**: All balloon containers provide a version tag besides `latest`. It is best practice to use an exact version of a service instead the latest tag in production environment.
+The containers provide a `latest-unstable` tag for the balloon-jobs, balloon and balloon-web container. It is in no way reccomened to use pre-releases in production environments! 
+
+>**Note**: If you want to install beta and alpha versions replace `latest` with `latest-unstable` or specify an exact version tag. Pre-releases are only ment for testing purposes and are in **no** way recommended in production environements!
+
+
+The balloon web interface is now reachable at `https://localhost`.
 
 Username: admin \
 Password: admin \
@@ -186,11 +194,26 @@ This topic is only for advanced users or developers and describes how to deploy 
 If you are a developer please also continue reading [this](https://github.com/gyselroth/balloon/blob/master/CONTRIBUTING.md) article.
 
 **Requirements**:
+* posix based operating system (Basically every linux/unix)
 * make
 * [comoser](https://getcomposer.org/download/)
 * [npm >= v5](https://nodejs.org/en/)
 * git
-* PHP and required PHP modules, see composer dependencies
+* php >= 7.2
+* php ext-mongodb
+* php ext-curl
+* php ext-mbstring
+* php ext-intl
+* php ext-zip
+* php ext-posix
+* php ext-pnctl
+
+**Optional requirements**:
+
+* php ext-apc (Used in \Micro\Auth to cache discovery metadata)
+* php ext-imagick (Used in Balloon.App.Preview)
+* php ext-ldap (Used for LDAP authentication adapter in Micro\Auth)
+* php ext-smb (Used for SMB external storage)
 
 This will only install the balloon server and the balloon web client. Dependencies such as MongoDB, LibreOffice or Elasticsearch wont get installed.
 You can install those dependencies either bei using distributed packages, see [Debian based distribution](#debian-based-distribution) or by installing them seperately from source.
