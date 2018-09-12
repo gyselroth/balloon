@@ -13,6 +13,7 @@ Balloon\Bootstrap\Cli:
 Balloon\Bootstrap\AbstractBootstrap:
   calls:
     Balloon.App.Api: {method: inject, arguments:{object: '{Balloon\App\Api\Constructor\Http}'}}
+    Balloon.App.Burl: {method: inject, arguments:{object: '{Balloon\App\Burl\Constructor\Http}'}}
     Balloon.App.Webdav: {method: inject, arguments:{object: '{Balloon\App\Webdav\Constructor\Http}'}}
     Balloon.App.Sharelink: {method: inject, arguments:{object: '{Balloon\App\Sharelink\Constructor\Http}'}}
     Balloon.App.Convert: {method: inject, arguments:{object: '{Balloon\App\Convert\Constructor\Http}'}}
@@ -29,6 +30,11 @@ Balloon\Server:
       server_url: "{ENV(BALLOON_URL,https://localhost)}"
       password_policy: '#^.*$#'
       password_hash: 1
+Balloon\App\Burl\Converter\Adapter\Burl:
+    arguments:
+        browserlessUrl: "{ENV(BALLOON_BURL_BROWSERLESS_URL,https://chrome.browserless.io)}"
+        preview_max_size: 500
+        timeout: 10
 Balloon\App\ClamAv\Scanner:
   arguments:
     config:

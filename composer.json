@@ -54,6 +54,7 @@
         "zendframework/zend-servicemanager": "^3.3",
         "maennchen/zipstream-php": "^0.5.1",
         "katzien/php-mime-type": "^2.1",
+        "guzzlehttp/guzzle": "^6.3",
         "icewind/smb": "dev-master#71b5819"
     },
     "suggest": {
