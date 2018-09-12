@@ -51,7 +51,7 @@ class CleanTempStorage extends AbstractJob
     }
 
     /**
-     * Start.
+     * {@inheritdoc}
      */
     public function start(): bool
     {

@@ -13,8 +13,8 @@ namespace Balloon\Testsuite\Unit\Filesystem\Delta;
 
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Delta;
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
@@ -94,7 +94,7 @@ class DeltaTest extends Test
                 $this->createMock(LoggerInterface::class),
                 $this->createMock(Hook::class),
                 $this->createMock(Acl::class),
-                $this->createMock(Storage::class)
+                $this->createMock(Collection::class)
             ),
             new File(
                 [
@@ -105,7 +105,7 @@ class DeltaTest extends Test
                 $this->createMock(LoggerInterface::class),
                 $this->createMock(Hook::class),
                 $this->createMock(Acl::class),
-                $this->createMock(Storage::class)
+                $this->createMock(Collection::class)
             ),
         ];
         $data = [

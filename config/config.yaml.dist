@@ -93,6 +93,12 @@ Balloon\App\DesktopClient\Constructor\Http:
       github_request_useragent: "balloon server"
       #formats: ""
       #github_asset_mapping: ""
+TaskScheduler\Queue:
+  arguments:
+    config:
+      pm: dynamic
+      max_children: 4
+      min_children: 2
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:
@@ -100,15 +106,10 @@ Zend\Mail\Transport\SmtpOptions:
       port: 25
 Zend\Mail\Transport\TransportInterface:
   use: "Zend\\Mail\\Transport\\Smtp"
-Balloon\Filesystem:
-  expose: true
-Balloon\Filesystem\Storage:
-  calls:
-    gridfs:
-      method: injectAdapter
-      arguments:
-        adapter: '{Balloon\Filesystem\Storage\Adapter\Gridfs}'
-        name: 'gridfs'
+Balloon\Filesystem\Node\Factory:
+  services:
+    Balloon\Filesystem\Storage\Adapter\AdapterInterface:
+      use: "Balloon\Filesystem\Storage\Adapter\Gridfs"
 Balloon\Hook:
   calls:
     Balloon\Hook\Delta:

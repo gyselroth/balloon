@@ -205,12 +205,12 @@ class TemplateHandler
 
         $string = $i18n['type'][$notification][$type];
 
-        if (isset($context['node'])) {
-            $string = $this->decorateNode($string, $context['node']);
-        }
-
-        if (isset($context['user'])) {
-            $string = $this->decorateUser($string, $context['user']);
+        foreach ($context as $key => $value) {
+            if ($value instanceof User) {
+                $string = $this->decorateResource($string, $value, $key, $this->role_decorator);
+            } elseif ($value instanceof NodeInterface) {
+                $string = $this->decorateResource($string, $value, $key, $this->decorator);
+            }
         }
 
         return $this->decorate($string, $context);
@@ -233,30 +233,12 @@ class TemplateHandler
     /**
      * Replace variables.
      */
-    protected function decorateNode(string $template, NodeInterface $node): string
+    protected function decorateResource(string $template, $resource, string $prefix, $decorator): string
     {
-        $decorator = $this->decorator;
-
-        return preg_replace_callback('/(\{node\.(([a-z]\.*)+)\})/', function ($match) use ($node, $decorator) {
+        return preg_replace_callback('/(\{'.$prefix.'\.(([a-z]\.*)+)\})/', function ($match) use ($resource, $decorator) {
             $key = explode('.', $match[2]);
             $key = array_shift($key);
-            $attrs = $decorator->decorate($node, [$key]);
-
-            return $this->getArrayValue($attrs, $match[2]);
-        }, $template);
-    }
-
-    /**
-     * Replace variables.
-     */
-    protected function decorateUser(string $template, User $user): string
-    {
-        $role_decorator = $this->role_decorator;
-
-        return preg_replace_callback('/(\{user\.(([a-z]\.*)+)\})/', function ($match) use ($user, $role_decorator) {
-            $key = explode('.', $match[2]);
-            $key = array_shift($key);
-            $attrs = $role_decorator->decorate($user, [$key]);
+            $attrs = $decorator->decorate($resource, [$key]);
 
             return $this->getArrayValue($attrs, $match[2]);
         }, $template);

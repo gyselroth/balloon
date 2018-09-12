@@ -13,23 +13,23 @@ namespace Balloon\App\ClamAv;
 
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 
 class Hook extends AbstractHook
 {
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Constructor.
      */
-    public function __construct(Async $async)
+    public function __construct(Scheduler $scheduler)
     {
-        $this->async = $async;
+        $this->scheduler = $scheduler;
     }
 
     /**
@@ -37,7 +37,7 @@ class Hook extends AbstractHook
      */
     public function postPutFile(File $node): void
     {
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
         ]);
     }

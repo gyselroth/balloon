@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v2;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -273,10 +274,12 @@ class Files extends Nodes
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
+        $storage = $this->getStorage($id, $p, $collection);
+
         if ($session === null) {
-            $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
+            $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
         } else {
-            $this->storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
+            $storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
         }
 
         if ($index === $chunks) {
@@ -392,13 +395,34 @@ class Files extends Nodes
     ): Response {
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
-        $session = $this->storage->storeTemporaryFile($input, $this->server->getIdentity());
 
+        $storage = $this->getStorage($id, $p, $collection);
+        $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
         $attributes = compact('changed', 'created', 'readonly', 'meta', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);
 
         return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
+    }
+
+    /**
+     * Get storage.
+     */
+    protected function getStorage($id, $p, $collection): StorageAdapterInterface
+    {
+        if ($id !== null) {
+            return $this->_getNode($id, $p)->getParent()->getStorage();
+        }
+        if ($p !== null) {
+            $path = '/'.ltrim(dirname('/'.$p), '/');
+
+            return $this->_getNode($id, $path, Collection::class)->getStorage();
+        }
+        if ($id === null && $p === null && $collection === null) {
+            return $this->server->getFilesystem()->getRoot()->getStorage();
+        }
+
+        return $this->_getNode($collection, null, Collection::class)->getStorage();
     }
 
     /**
@@ -472,7 +496,7 @@ class Files extends Nodes
                     throw new Exception\InvalidArgument('path (p) must be a valid string');
                 }
 
-                $parent_path = dirname($p);
+                $parent_path = '/'.ltrim(dirname('/'.$p), '/');
                 $name = basename($p);
 
                 try {

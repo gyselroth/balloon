@@ -19,7 +19,7 @@ use Balloon\Server;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 
 class Converter
 {
@@ -31,11 +31,11 @@ class Converter
     protected $converter;
 
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Server.
@@ -70,12 +70,12 @@ class Converter
      *
      * @param LoggerInterface   logger
      */
-    public function __construct(Database $db, Server $server, FileConverter $converter, Async $async, LoggerInterface $logger)
+    public function __construct(Database $db, Server $server, FileConverter $converter, Scheduler $scheduler, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->db = $db;
         $this->converter = $converter;
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->logger = $logger;
     }
 
@@ -140,7 +140,7 @@ class Converter
             'format' => $format,
         ]);
 
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'master' => $node->getId(),
         ]);
 
@@ -180,13 +180,12 @@ class Converter
         try {
             if (isset($slave['slave'])) {
                 $slave = $master->getFilesystem()->findNodeById($slave['slave']);
-
                 $handler = $result->getStream();
-                $session = $master->temporarySession($handler);
-                fclose($handler);
-
+                $storage = $slave->getParent()->getStorage();
+                $session = $storage->storeTemporaryFile($handler, $this->server->getUserById($master->getOwner()));
                 $slave->setReadonly(false);
                 $slave->setContent($session);
+                fclose($handler);
                 $slave->setReadonly();
 
                 return true;
@@ -210,8 +209,9 @@ class Converter
         }
 
         $handler = $result->getStream();
-        $session = $master->temporarySession($handler);
-        fclose($handler);
+
+        $storage = $master->getParent()->getStorage();
+        $session = $storage->storeTemporaryFile($handler, $this->server->getUserById($master->getOwner()));
 
         $node = $master->getParent()->addFile($name, $session, [
             'owner' => $master->getOwner(),
@@ -222,6 +222,7 @@ class Converter
             ],
         ], NodeInterface::CONFLICT_RENAME);
 
+        fclose($handler);
         $node->setReadonly();
 
         $result = $this->db->{$this->collection_name}->updateOne(['_id' => $slave['_id']], [

@@ -1,6 +1,33 @@
+## 2.1.0-beta1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Sept 12 14:14:45 CEST 2018\
+**Note**: ballooncli upgrade required, @see UPGRADE.md
+
+* CORE: [FEATURE] Implemented RFC-3 SMB external storage #156
+* CORE: [CHANGE] Do not add a content history entry if a file gets deleted #179
+* CORE: [CHANGE] Do not automatically remove deleted share references #180
+* CORE: [CHANGE] Do not delete child nodes of a custom filtered collection if a delete was issued on the collection #181
+* CORE: [FIX] Move within the same share executes a delete n create instead move #183
+* CORE: [FIX] Exception during restore a readonly share reference #193
+* API: [CHANGE] API returns share node from share owner instead share reference #182
+* API: [FIX] `0` is not allowed as collection name #189 
+* API: [FIX] Created timestamp missing from GET /api/v2/notifications response #190
+* API: [CHANGE] PUT with path /api/v1/file and PUT /api/v2/files does not required a leading slash (Slash is now optional)
+* CORE: [FIX] Change notifications tells wrong subscribed node #169
+* CORE: [CHANGE] Upgrade gyselroth/mongodb-php-task-scheduler to v3 #192
+* CORE: [CHANGE] Upgrade gyselroth/micro-container to v2.x #191
+
+
+## 2.0.14
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Aug 30 16:51:44 CEST 2018\
+
+* CORE: [FIX] Balloon.App.Elasticsearch returns search result nodes for each share reference #187
+
+
 ## 2.0.13
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Fri Aug 10 10:20:23 CEST 2018\
+**Date**: Fri Aug 10 10:20:23 CEST 2018
 
 * CORE: [FIX] Collection with children and set on auto destroy will end in a endless loop (both for tasks and http requests) #175
 

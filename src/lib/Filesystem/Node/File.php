@@ -15,13 +15,11 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception as AclException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
 use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use MongoDB\GridFS\Exception as GridFSException;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IFile;
 
@@ -33,8 +31,6 @@ class File extends AbstractNode implements IFile
     const HISTORY_CREATE = 0;
     const HISTORY_EDIT = 1;
     const HISTORY_RESTORE = 2;
-    const HISTORY_DELETE = 3;
-    const HISTORY_UNDELETE = 4;
 
     /**
      * Empty content hash (NULL).
@@ -87,16 +83,9 @@ class File extends AbstractNode implements IFile
     protected $history = [];
 
     /**
-     * Storage attributes.
-     *
-     * @var mixed
-     */
-    protected $storage;
-
-    /**
      * Initialize file node.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Storage $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Collection $parent)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -104,8 +93,8 @@ class File extends AbstractNode implements IFile
         $this->_user = $fs->getUser();
         $this->_logger = $logger;
         $this->_hook = $hook;
-        $this->_storage = $storage;
         $this->_acl = $acl;
+        $this->_parent = $parent;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -126,8 +115,8 @@ class File extends AbstractNode implements IFile
         }
 
         try {
-            return $this->_storage->getFile($this, $this->storage);
-        } catch (GridFSException\FileNotFoundException $e) {
+            return $this->_parent->getStorage()->openReadStream($this);
+        } catch (\Exception $e) {
             throw new Exception\NotFound(
                 'storage blob is gone',
                 Exception\NotFound::CONTENTS_NOT_FOUND,
@@ -158,13 +147,16 @@ class File extends AbstractNode implements IFile
             $result = $parent->getChild($this->name);
             $result->put($this->get());
         } else {
-            $session = $this->temporarySession($this->get());
+            $stream = $this->get();
+            $session = $parent->getStorage()->storeTemporaryFile($stream, $this->_server->getUserById($this->getOwner()));
             $result = $parent->addFile($name, $session, [
                 'created' => $this->created,
                 'changed' => $this->changed,
                 'deleted' => $this->deleted,
                 'meta' => $this->meta,
             ], NodeInterface::CONFLICT_NOACTION, true);
+
+            fclose($stream);
         }
 
         $this->_hook->run(
@@ -226,7 +218,7 @@ class File extends AbstractNode implements IFile
             'hash' => $this->history[$v]['hash'],
             'origin' => $this->history[$v]['version'],
             'storage' => $this->history[$v]['storage'],
-            'storage_adapter' => $this->history[$v]['storage_adapter'],
+            'storage_reference' => $this->history[$v]['storage_reference'],
             'size' => $this->history[$v]['size'],
             'mime' => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
         ];
@@ -235,7 +227,7 @@ class File extends AbstractNode implements IFile
             $this->deleted = false;
             $this->version = $new;
             $this->storage = $this->history[$v]['storage'];
-            $this->storage_adapter = $this->history[$v]['storage_adapter'];
+            $this->storage_reference = $this->history[$v]['storage_reference'];
 
             $this->hash = null === $file ? self::EMPTY_CONTENT : $this->history[$v]['hash'];
             $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
@@ -246,7 +238,7 @@ class File extends AbstractNode implements IFile
                 'deleted',
                 'version',
                 'storage',
-                'storage_adapter',
+                'storage_reference',
                 'hash',
                 'mime',
                 'size',
@@ -299,21 +291,11 @@ class File extends AbstractNode implements IFile
 
         $ts = new UTCDateTime();
         $this->deleted = $ts;
-        $this->increaseVersion();
-
-        $this->history[] = [
-            'version' => $this->version,
-            'changed' => $ts,
-            'user' => ($this->_user === null) ? null : $this->_user->getId(),
-            'type' => self::HISTORY_DELETE,
-            'storage' => $this->storage,
-            'storage_adapter' => $this->storage_adapter,
-            'size' => $this->size,
-            'hash' => $this->hash,
-        ];
+        $this->storage = $this->_parent->getStorage()->deleteFile($this);
 
         $result = $this->save([
             'version',
+            'storage',
             'deleted',
             'history',
         ], [], $recursion, $recursion_first);
@@ -325,8 +307,7 @@ class File extends AbstractNode implements IFile
 
     /**
      * Check if file is temporary.
-     *
-     **/
+     */
     public function isTemporaryFile(): bool
     {
         foreach ($this->temp_files as $pattern) {
@@ -354,7 +335,7 @@ class File extends AbstractNode implements IFile
         try {
             //do not remove blob if there are other versions linked against it
             if ($this->history[$key]['storage'] !== null && count(array_keys($blobs, $this->history[$key]['storage'])) === 1) {
-                $this->_storage->deleteFile($this, $this->history[$key]['storage']);
+                $this->_parent->getStorage()->forceDeleteFile($this, $version);
             }
 
             array_splice($this->history, $key, 1);
@@ -411,7 +392,7 @@ class File extends AbstractNode implements IFile
             'created' => $this->created,
             'destroy' => $this->destroy,
             'readonly' => $this->readonly,
-            'storage_adapter' => $this->storage_adapter,
+            'storage_reference' => $this->storage_reference,
             'storage' => $this->storage,
         ];
     }
@@ -473,7 +454,7 @@ class File extends AbstractNode implements IFile
             'category' => get_class($this),
         ]);
 
-        $session = $this->_storage->storeTemporaryFile($content, $this->_user);
+        $session = $this->_parent->getStorage()->storeTemporaryFile($content, $this->_user);
 
         return $this->setContent($session);
     }
@@ -487,12 +468,14 @@ class File extends AbstractNode implements IFile
             'category' => get_class($this),
         ]);
 
+        $previous = $this->version;
+        $storage = $this->storage;
         $this->prePutFile($session);
-        $result = $this->_storage->storeFile($this, $session, $this->storage_adapter);
+        $result = $this->_parent->getStorage()->storeFile($this, $session);
         $this->storage = $result['reference'];
 
         if ($this->hash === $result['hash']) {
-            $this->_logger->debug('do not update file version, hash identical to existing version', [
+            $this->_logger->debug('do not update file version, hash identical to existing version ['.$this->hash.' == '.$result['hash'].']', [
                 'category' => get_class($this),
             ]);
 
@@ -502,7 +485,7 @@ class File extends AbstractNode implements IFile
         $this->hash = $result['hash'];
         $this->size = $result['size'];
 
-        if ($this->size === 0) {
+        if ($this->size === 0 && $this->getMount() === null) {
             $this->storage = null;
         } else {
             $this->storage = $result['reference'];
@@ -511,8 +494,21 @@ class File extends AbstractNode implements IFile
         $this->mime = MimeType::getType($this->name);
         $this->increaseVersion();
 
-        $this->addVersion($attributes)
-             ->postPutFile();
+        if (isset($attributes['changed'])) {
+            if (!($attributes['changed'] instanceof UTCDateTime)) {
+                throw new Exception\InvalidArgument('attribute changed must be an instance of UTCDateTime');
+            }
+
+            $this->changed = $attributes['changed'];
+        } else {
+            $this->changed = new UTCDateTime();
+        }
+
+        if ($result['reference'] != $storage || $previous === 0) {
+            $this->addVersion($attributes);
+        }
+
+        $this->postPutFile();
 
         return $this->version;
     }
@@ -523,6 +519,7 @@ class File extends AbstractNode implements IFile
     protected function _forceDelete(): bool
     {
         try {
+            $this->_parent->getStorage()->forceDeleteFile($this);
             $this->cleanHistory();
             $this->_db->storage->deleteOne([
                 '_id' => $this->_id,
@@ -593,16 +590,6 @@ class File extends AbstractNode implements IFile
     protected function addVersion(array $attributes = []): self
     {
         if (1 !== $this->version) {
-            if (isset($attributes['changed'])) {
-                if (!($attributes['changed'] instanceof UTCDateTime)) {
-                    throw new Exception\InvalidArgument('attribute changed must be an instance of UTCDateTime');
-                }
-
-                $this->changed = $attributes['changed'];
-            } else {
-                $this->changed = new UTCDateTime();
-            }
-
             $this->_logger->debug('added new history version ['.$this->version.'] for file ['.$this->_id.']', [
                 'category' => get_class($this),
             ]);
@@ -613,7 +600,7 @@ class File extends AbstractNode implements IFile
                 'user' => $this->_user->getId(),
                 'type' => self::HISTORY_EDIT,
                 'storage' => $this->storage,
-                'storage_adapter' => $this->storage_adapter,
+                'storage_reference' => $this->storage_reference,
                 'size' => $this->size,
                 'mime' => $this->mime,
                 'hash' => $this->hash,
@@ -632,7 +619,7 @@ class File extends AbstractNode implements IFile
             'user' => $this->owner,
             'type' => self::HISTORY_CREATE,
             'storage' => $this->storage,
-            'storage_adapter' => $this->storage_adapter,
+            'storage_reference' => $this->storage_reference,
             'size' => $this->size,
             'mime' => $this->mime,
             'hash' => $this->hash,
@@ -655,7 +642,7 @@ class File extends AbstractNode implements IFile
                 'version',
                 'history',
                 'storage',
-                'storage_adapter',
+                'storage_reference',
             ]);
 
             $this->_logger->debug('modifed file metadata ['.$this->_id.']', [
