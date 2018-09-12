@@ -152,13 +152,13 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
                 return null;
             },
-            'share' => function ($node) {
+            'share' => function ($node) use ($fs) {
                 if ($node->isShared() || !$node->isSpecial()) {
                     return null;
                 }
 
                 try {
-                    return $this->decorate($node->getShareNode(), ['id', 'name', '_links']);
+                    return $this->decorate($fs->findNodeById($node->getShareId(true)), ['id', 'name', '_links']);
                 } catch (\Exception $e) {
                     return null;
                 }
@@ -197,6 +197,13 @@ class AttributeDecorator implements AttributeDecoratorInterface
                 } catch (\Exception $e) {
                     return null;
                 }
+            },
+            'external_storage' => function ($node) use ($fs, $attributes) {
+                if ($node->getMount() === null || $node instanceof Collection && $node->isMounted()) {
+                    return null;
+                }
+
+                return $this->decorate($fs->findNodeById($attributes['storage_reference']), ['id', 'name', '_links']);
             },
         ];
     }
@@ -258,6 +265,32 @@ class AttributeDecorator implements AttributeDecoratorInterface
                 }
 
                 return json_decode($attributes['filter'], true);
+            },
+            'mount' => function ($node) use ($fs, $attributes) {
+                $mount = $node->getAttributes()['mount'];
+
+                if (!$node->isMounted() && !$node->isReference()) {
+                    return null;
+                }
+
+                if ($node->isReference()) {
+                    $attributes = $fs->findRawNode($node->getShareId());
+                    if (isset($attributes['mount']) && count($attributes['mount']) > 0) {
+                        $mount = $attributes['mount'];
+                        unset($mount['username'], $mount['password']);
+
+                        return $mount;
+                    }
+
+                    return null;
+                }
+
+                if (!empty($mount['password'])) {
+                    unset($mount['password']);
+                    $mount['has_password'] = true;
+                }
+
+                return $mount;
             },
         ];
     }

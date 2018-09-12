@@ -22,32 +22,65 @@ interface AdapterInterface
     /**
      * Check if file exists.
      */
-    public function hasNode(NodeInterface $node, array $attributes): bool;
+    public function hasNode(NodeInterface $node): bool;
 
     /**
-     * Delete file.
+     * Delete file (Move to trash if supported).
      */
-    public function deleteFile(File $file, array $attributes): bool;
+    public function deleteFile(File $file, ?int $version = null): ?array;
+
+    /**
+     * Delete file completely.
+     */
+    public function forceDeleteFile(File $file, ?int $version = null): bool;
 
     /**
      * Get stored file.
-     *
-     * @return resource
      */
-    public function getFile(File $file, array $attributes);
-
-    /**
-     * Store file.
-     */
-    public function storeFile(File $file, ObjectId $session);
+    public function openReadStream(File $file);
 
     /**
      * Store temporary file.
      */
-    public function storeTemporaryFile($stream, User $user, ?ObjectId $session): ObjectId;
+    public function storeTemporaryFile($stream, User $user, ?ObjectId $session = null): ObjectId;
+
+    /**
+     * Store file.
+     */
+    public function storeFile(File $file, ObjectId $session): array;
 
     /**
      * Create collection.
      */
-    public function createCollection(Collection $collection);
+    public function createCollection(Collection $parent, string $name): array;
+
+    /**
+     * Delete collection.
+     */
+    public function deleteCollection(Collection $collection): ?array;
+
+    /**
+     * Delete collection.
+     */
+    public function forceDeleteCollection(Collection $collection): bool;
+
+    /**
+     * Rename node.
+     */
+    public function rename(NodeInterface $node, string $new_name): ?array;
+
+    /**
+     * Move node.
+     */
+    public function move(NodeInterface $node, Collection $parent): ?array;
+
+    /**
+     * Undelete node.
+     */
+    public function undelete(NodeInterface $node): ?array;
+
+    /**
+     * Readonly.
+     */
+    public function readonly(NodeInterface $node, bool $readonly = true): ?array;
 }

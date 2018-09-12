@@ -343,16 +343,13 @@ class Collection extends Node
                 'data' => (string) $result,
             ]);
         }
+
         if (null !== $id && null === $name) {
             throw new Exception\InvalidArgument('name must be set with id');
         }
+
         $parent = $this->fs->getNode($id, null, null, false, true);
-
-        if (!is_string($name) || empty($name)) {
-            throw new Exception\InvalidArgument('name must be a valid string');
-        }
-
-        $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
+        $result = $parent->addDirectory((string) $name, $attributes, $conflict)->getId();
 
         return (new Response())->setCode(201)->setBody([
             'status' => 201,

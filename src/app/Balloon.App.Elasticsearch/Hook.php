@@ -15,23 +15,23 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 
 class Hook extends AbstractHook
 {
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Constructor.
      */
-    public function __construct(Async $async)
+    public function __construct(Scheduler $scheduler)
     {
-        $this->async = $async;
+        $this->scheduler = $scheduler;
     }
 
     /**
@@ -39,7 +39,7 @@ class Hook extends AbstractHook
      */
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_CREATE,
         ]);
@@ -50,7 +50,7 @@ class Hook extends AbstractHook
      */
     public function postCreateFile(Collection $parent, File $node, bool $clone): void
     {
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_CREATE,
         ]);
@@ -65,7 +65,7 @@ class Hook extends AbstractHook
             return;
         }
 
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_DELETE_COLLECTION,
         ]);
@@ -80,7 +80,7 @@ class Hook extends AbstractHook
             return;
         }
 
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_DELETE_FILE,
             'hash' => $node->getHash(),
@@ -95,19 +95,19 @@ class Hook extends AbstractHook
         if ($node instanceof Collection) {
             $raw = $node->getRawAttributes();
             if ($node->isShared() && !isset($raw['acl'])) {
-                $this->async->addJob(Job::class, [
+                $this->scheduler->addJob(Job::class, [
                     'id' => $node->getId(),
                     'action' => Job::ACTION_ADD_SHARE,
                 ]);
             } elseif (!$node->isShared() && isset($raw['acl']) && $raw['acl'] !== []) {
-                $this->async->addJob(Job::class, [
+                $this->scheduler->addJob(Job::class, [
                     'id' => $node->getId(),
                     'action' => Job::ACTION_DELETE_SHARE,
                 ]);
             }
         }
 
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
             'action' => Job::ACTION_UPDATE,
             'hash' => ($node instanceof File) ? $node->getRawAttributes()['hash'] : null,

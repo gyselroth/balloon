@@ -15,7 +15,7 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Hook\AbstractHook;
 use MongoDB\GridFS\Exception\FileNotFoundException;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 
 class Hook extends AbstractHook
 {
@@ -27,11 +27,11 @@ class Hook extends AbstractHook
     protected $preview;
 
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Logger.
@@ -43,10 +43,10 @@ class Hook extends AbstractHook
     /**
      * Constructor.
      */
-    public function __construct(Preview $preview, Async $async, LoggerInterface $logger)
+    public function __construct(Preview $preview, Scheduler $scheduler, LoggerInterface $logger)
     {
         $this->preview = $preview;
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->logger = $logger;
     }
 
@@ -72,7 +72,7 @@ class Hook extends AbstractHook
      */
     public function postPutFile(File $node): void
     {
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
         ]);
     }
@@ -82,7 +82,7 @@ class Hook extends AbstractHook
      */
     public function postRestoreFile(File $node, int $version): void
     {
-        $this->async->addJob(Job::class, [
+        $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
         ]);
     }

@@ -5,7 +5,6 @@ use Balloon\Converter;
 use Balloon\Converter\Adapter\ImagickImage;
 use Balloon\Converter\Adapter\Office;
 use Balloon\Exception;
-use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
@@ -22,6 +21,12 @@ use Balloon\Migration\Delta;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Smtp;
 use Balloon\Hook;
+use Balloon\Async\WorkerFactory;
+use TaskScheduler\Queue;
+use TaskScheduler\WorkerFactoryInterface;
+use Balloon\Filesystem\Node\Factory as NodeFactory;
+use Balloon\Filesystem\Storage\Adapter\Gridfs as GridfsStorage;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 
 return [
     Client::class => [
@@ -36,6 +41,13 @@ return [
             ]
         ],
     ],
+    NodeFactory::class => [
+        'services' => [
+            StorageAdapterInterface::class => [
+                'use' => GridfsStorage::class
+            ]
+        ]
+    ],
     Database::class => [
         'use' => '{MongoDB\Client}',
         'selects' => [[
@@ -44,6 +56,13 @@ return [
                 'databaseName' => 'balloon'
             ]
         ]]
+    ],
+    Queue::class => [
+        'services' => [
+            WorkerFactoryInterface::class => [
+                'use' => WorkerFactory::class
+            ]
+        ]
     ],
     LoggerInterface::class => [
         'use' => Logger::class,
@@ -153,17 +172,10 @@ return [
                 'method' => 'injectHook',
                 'arguments' => ['hook' => '{'.Hook\CleanTempStorage::class.'}']
             ],
-        ]
-    ],
-    Storage::class => [
-        'calls' => [
-            'gridfs' => [
-                'method' => 'injectAdapter',
-                'arguments' => [
-                    'adapter' => '{'.Gridfs::class.'}',
-                    'name' => 'gridfs'
-                ]
-            ]
+            Hook\ExternalStorage::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.Hook\ExternalStorage::class.'}']
+            ],
         ]
     ],
     Migration::class => [
@@ -215,6 +227,14 @@ return [
             Delta\GridfsFlatReferences::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\GridfsFlatReferences::class.'}']
+            ],
+            Delta\RemoveStorageAdapterName::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\RemoveStorageAdapterName::class.'}']
+            ],
+            Delta\SetStorageReferenceToNull::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\SetStorageReferenceToNull::class.'}']
             ],
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',

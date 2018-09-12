@@ -42,7 +42,7 @@ class AutoDestroy extends AbstractJob
     }
 
     /**
-     * Start.
+     * {@inheritdoc}
      */
     public function start(): bool
     {

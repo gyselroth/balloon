@@ -26,7 +26,7 @@ class ContainerBuilder
         $configs = self::detectApps($composer);
         $config = self::loadConfig($configs);
         $container = new Container($config);
-        $container->add(get_class($composer), $composer);
+        //$container->add(get_class($composer), $composer);
 
         return $container;
     }

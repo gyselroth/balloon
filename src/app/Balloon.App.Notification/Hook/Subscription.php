@@ -107,6 +107,11 @@ class Subscription extends AbstractHook
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
         $this->notify($node);
+
+        if ($this->server->getIdentity() === null) {
+            return;
+        }
+
         $subscription = $this->notifier->getSubscription($parent, $this->server->getIdentity());
 
         if ($subscription !== null && $subscription['recursive'] === true) {
@@ -172,11 +177,24 @@ class Subscription extends AbstractHook
     {
         $receiver = $this->getReceiver($node);
         $parent = $node->getParent();
+
         if ($parent !== null) {
             $parents = $this->getReceiver($parent);
-            $receiver = array_merge($parents, $receiver);
+            $parents = array_diff($parents, $receiver);
+
+            $this->send($node, $parent, $parents);
         }
 
+        $this->send($node, $node, $receiver);
+
+        return true;
+    }
+
+    /**
+     * Send.
+     */
+    protected function send(NodeInterface $node, NodeInterface $subscription, array $receiver)
+    {
         if (empty($receiver)) {
             $this->logger->debug('skip subscription notification for node ['.$node->getId().'] due empty receiver list', [
                 'category' => get_class($this),
@@ -187,7 +205,11 @@ class Subscription extends AbstractHook
 
         $receiver = $this->server->getUsers(['_id' => ['$in' => $receiver]]);
         $receiver = $this->filterAccess($node, $receiver);
-        $message = $this->notifier->nodeMessage('subscription', $node);
+
+        $message = $this->notifier->compose('subscription', [
+            'subscription' => $subscription,
+            'node' => $node,
+        ]);
 
         return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
     }

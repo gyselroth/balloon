@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Hook;
 
 use Balloon\Async\AutoDestroy as Job;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 
 class AutoDestroy extends AbstractHook
 {
@@ -24,20 +24,20 @@ class AutoDestroy extends AbstractHook
     protected $interval = 28800;
 
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Constructor.
      *
      * @param iterable $config
      */
-    public function __construct(Async $async, ?Iterable $config = null)
+    public function __construct(Scheduler $scheduler, ?Iterable $config = null)
     {
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->setOptions($config);
     }
 
@@ -71,7 +71,7 @@ class AutoDestroy extends AbstractHook
      */
     public function preExecuteAsyncJobs(): void
     {
-        $this->async->addJobOnce(Job::class, [], [
+        $this->scheduler->addJobOnce(Job::class, [], [
             'interval' => $this->interval,
         ]);
     }

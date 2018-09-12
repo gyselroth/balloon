@@ -84,25 +84,15 @@ class Notifier
     }
 
     /**
-     * Create custom message.
-     */
-    public function customMessage(string $subject, string $body): MessageInterface
-    {
-        return new UserMessage($subject, $body, $this->template);
-    }
-
-    /**
      * Node message factory.
      */
-    public function nodeMessage(string $type, NodeInterface $node): MessageInterface
+    public function compose(string $type, array $context = []): MessageInterface
     {
-        return new NodeMessage($type, $this->template, $node);
+        return new Message($type, $this->template, $context);
     }
 
     /**
      * Send notification.
-     *
-     * @param User $sender
      */
     public function notify(Iterable $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {

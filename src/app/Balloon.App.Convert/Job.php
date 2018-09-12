@@ -13,7 +13,7 @@ namespace Balloon\App\Convert;
 
 use Balloon\Server;
 use TaskScheduler\AbstractJob;
-use TaskScheduler\Async;
+use TaskScheduler\Scheduler;
 
 class Job extends AbstractJob
 {
@@ -32,19 +32,19 @@ class Job extends AbstractJob
     protected $server;
 
     /**
-     * Async.
+     * Scheduler.
      *
-     * @var Async
+     * @var Scheduler
      */
-    protected $async;
+    protected $scheduler;
 
     /**
      * Constructor.
      */
-    public function __construct(Server $server, Async $async, Converter $converter)
+    public function __construct(Server $server, Scheduler $scheduler, Converter $converter)
     {
         $this->server = $server;
-        $this->async = $async;
+        $this->scheduler = $scheduler;
         $this->converter = $converter;
     }
 
@@ -59,7 +59,7 @@ class Job extends AbstractJob
             $this->converter->convert($this->data['id'], $master);
         } else {
             foreach ($this->converter->getSlaves($master) as $slave) {
-                $this->async->addJob(self::class, [
+                $this->scheduler->addJob(self::class, [
                     'master' => $this->data['master'],
                     'id' => $slave['_id'],
                 ]);
