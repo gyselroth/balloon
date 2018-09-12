@@ -215,37 +215,6 @@ class Subscription extends AbstractHook
     }
 
     /**
-     * Check if we need to notify.
-     */
-    /*protected function notify(NodeInterface $node): bool
-    {
-        $receiver = $this->getReceiver($node);
-        $parent = $node->getParent();
-        if ($parent !== null) {
-            $parents = $this->getReceiver($parent);
-            $receiver = array_merge($parents, $receiver);
-        }
-
-        if (empty($receiver)) {
-            $this->logger->debug('skip subscription notification for node ['.$node->getId().'] due empty receiver list', [
-                'category' => get_class($this),
-            ]);
-
-            return false;
-        }
-
-        $receiver = $this->server->getUsers(['_id' => ['$in' => $receiver]]);
-        $receiver = $this->filterAccess($node, $receiver);
-
-        $message = $this->notifier->compose('subscription', [
-            'subscription' => $sub_node,
-            'node' => $node
-        ]);
-
-        return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
-    }*/
-
-    /**
      * Get receiver list.
      */
     protected function getReceiver(NodeInterface $node): array
