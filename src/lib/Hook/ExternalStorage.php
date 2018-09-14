@@ -17,6 +17,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
 use Balloon\Server;
 use MongoDB\BSON\ObjectId;
+use TaskScheduler\JobInterface;
 use TaskScheduler\Scheduler;
 
 class ExternalStorage extends AbstractHook
@@ -79,9 +80,47 @@ class ExternalStorage extends AbstractHook
     /**
      * {@inheritdoc}
      */
+    public function preDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void
+    {
+        if ($node->isMounted() && $force === true) {
+            throw new \Exception('mounted collection can not get removed');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postDeleteCollection(Collection $node, bool $force, ?string $recursion, bool $recursion_first): void
+    {
+        if (!$node->isMounted()) {
+            return;
+        }
+
+        foreach ($this->scheduler->getJobs([
+            '$or' => [['class' => SmbScanner::class], ['class' => SmbListener::class]],
+            'data.id' => $node->getId(),
+            'status' => ['$lte' => JobInterface::STATUS_PROCESSING],
+        ]) as $job) {
+            $this->scheduler->cancelJob($job->getId());
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function preExecuteAsyncJobs(): void
     {
         $fs = $this->server->getFilesystem();
+
+        foreach ($this->scheduler->getJobs([
+            '$or' => [['class' => SmbScanner::class], ['class' => SmbListener::class]],
+            'status' => ['$lte' => JobInterface::STATUS_PROCESSING],
+        ]) as $job) {
+            if ($fs->findNodeById($job->getData()['id'])->isDeleted()) {
+                $this->scheduler->cancelJob($job->getId());
+            }
+        }
+
         $nodes = $fs->findNodesByFilter([
             'deleted' => false,
             'directory' => true,

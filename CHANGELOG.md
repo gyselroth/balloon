@@ -1,3 +1,13 @@
+## 2.1.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Sept 14 13:24:34 CEST 2018
+
+* CORE: [FIX] Change mimetype if file extension does change
+* CORE: [FIX] Fixed register burl mimetype in Balloon.App.Burl
+* CORE: [CHANGE] It is not possible to completey disable AutoDestroy, CleanTempStorage, CleanTrash #195
+* CORE: [FIX] SmbScanner and SmbListere jobs get now removed if a mount is deleted
+
+
 ## 2.1.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Sept 12 14:14:45 CEST 2018\
@@ -17,6 +27,7 @@
 * CORE: [CHANGE] Upgrade gyselroth/mongodb-php-task-scheduler to v3 #192
 * CORE: [CHANGE] Upgrade gyselroth/micro-container to v2.x #191
 * CORE: [CHANGE] Remove user management functionality from Balloon.App.Cli #152
+* CORE: [FEATURE] New .burl handler #134
 
 
 ## 2.0.14

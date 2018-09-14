@@ -17,7 +17,6 @@ use Balloon\Filesystem\Acl\Exception as AclException;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
-use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
@@ -491,7 +490,6 @@ class File extends AbstractNode implements IFile
             $this->storage = $result['reference'];
         }
 
-        $this->mime = MimeType::getType($this->name);
         $this->increaseVersion();
 
         if (isset($attributes['changed'])) {

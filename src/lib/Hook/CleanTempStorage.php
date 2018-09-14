@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Hook;
 
 use Balloon\Async\CleanTempStorage as Job;
+use TaskScheduler\JobInterface;
 use TaskScheduler\Scheduler;
 
 class CleanTempStorage extends AbstractHook
@@ -39,8 +40,6 @@ class CleanTempStorage extends AbstractHook
 
     /**
      * Constructor.
-     *
-     * @param iterable $config
      */
     public function __construct(Scheduler $scheduler, ?Iterable $config = null)
     {
@@ -50,8 +49,6 @@ class CleanTempStorage extends AbstractHook
 
     /**
      * Set options.
-     *
-     * @param iterable $config
      */
     public function setOptions(?Iterable $config = null): HookInterface
     {
@@ -79,10 +76,22 @@ class CleanTempStorage extends AbstractHook
      */
     public function preExecuteAsyncJobs(): void
     {
+        if ($this->interval === 0) {
+            foreach ($this->scheduler->getJobs([
+                'class' => Job::class,
+                'status' => ['$lte' => JobInterface::STATUS_PROCESSING],
+            ]) as $job) {
+                $this->scheduler->cancelJob($job->getId());
+            }
+
+            return;
+        }
+
         $this->scheduler->addJobOnce(Job::class, [
             'max_age' => $this->max_age,
         ], [
             'interval' => $this->interval,
+            'ignore_data' => true,
         ]);
     }
 }

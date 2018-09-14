@@ -468,9 +468,6 @@ class Filesystem
 
     /**
      * Find nodes with custom filters.
-     *
-     * @param int $offset
-     * @param int $limit
      */
     public function findNodesByFilter(array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
@@ -478,6 +475,8 @@ class Filesystem
             'skip' => $offset,
             'limit' => $limit,
         ]);
+
+        $count = $this->db->storage->count($filter);
 
         foreach ($result as $node) {
             try {
@@ -490,14 +489,11 @@ class Filesystem
             }
         }
 
-        return $this->db->storage->count($filter);
+        return $count;
     }
 
     /**
      * Get custom filtered children.
-     *
-     * @param int $offset
-     * @param int $limit
      */
     public function findNodesByFilterUser(int $deleted, array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
@@ -523,6 +519,8 @@ class Filesystem
             'limit' => $limit,
         ]);
 
+        $count = $this->db->storage->count($stored_filter);
+
         foreach ($result as $node) {
             try {
                 yield $this->initNode($node);
@@ -534,7 +532,7 @@ class Filesystem
             }
         }
 
-        return $this->db->storage->count($stored_filter);
+        return $count;
     }
 
     /**

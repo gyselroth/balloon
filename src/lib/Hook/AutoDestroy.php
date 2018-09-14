@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Hook;
 
 use Balloon\Async\AutoDestroy as Job;
+use TaskScheduler\JobInterface;
 use TaskScheduler\Scheduler;
 
 class AutoDestroy extends AbstractHook
@@ -71,6 +72,17 @@ class AutoDestroy extends AbstractHook
      */
     public function preExecuteAsyncJobs(): void
     {
+        if ($this->interval === 0) {
+            foreach ($this->scheduler->getJobs([
+                'class' => Job::class,
+                'status' => ['$lte' => JobInterface::STATUS_PROCESSING],
+            ]) as $job) {
+                $this->scheduler->cancelJob($job->getId());
+            }
+
+            return;
+        }
+
         $this->scheduler->addJobOnce(Job::class, [], [
             'interval' => $this->interval,
         ]);

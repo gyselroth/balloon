@@ -19,6 +19,7 @@ use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterfa
 use Balloon\Hook;
 use Balloon\Server\User;
 use Generator;
+use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\BSON\UTCDateTime;
@@ -712,6 +713,7 @@ class Collection extends AbstractNode implements IQuota
                 'parent' => $this->getRealId(),
                 'directory' => false,
                 'hash' => null,
+                'mime' => MimeType::getType($name),
                 'created' => new UTCDateTime(),
                 'changed' => new UTCDateTime(),
                 'version' => 0,

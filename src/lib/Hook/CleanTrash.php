@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Hook;
 
 use Balloon\Async\CleanTrash as Job;
+use TaskScheduler\JobInterface;
 use TaskScheduler\Scheduler;
 
 class CleanTrash extends AbstractHook
@@ -79,10 +80,22 @@ class CleanTrash extends AbstractHook
      */
     public function preExecuteAsyncJobs(): void
     {
-        $this->scheduler->addJob(Job::class, [
+        if ($this->interval === 0) {
+            foreach ($this->scheduler->getJobs([
+                'class' => Job::class,
+                'status' => ['$lte' => JobInterface::STATUS_PROCESSING],
+            ]) as $job) {
+                $this->scheduler->cancelJob($job->getId());
+            }
+
+            return;
+        }
+
+        $this->scheduler->addJobOnce(Job::class, [
             'max_age' => $this->max_age,
         ], [
             'interval' => $this->interval,
+            'ignore_data' => true,
         ]);
     }
 }

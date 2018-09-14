@@ -93,6 +93,11 @@ Balloon\App\DesktopClient\Constructor\Http:
       github_request_useragent: "balloon server"
       #formats: ""
       #github_asset_mapping: ""
+TaskScheduler\Scheduler:
+  arguments:
+    config:
+      job_queue_size: 1000000
+      event_queue_size: 5000000
 TaskScheduler\Queue:
   arguments:
     config:

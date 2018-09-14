@@ -4,6 +4,7 @@ use Balloon\App\Burl\Converter\Adapter\Burl;
 use Balloon\Converter;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Client;
+use Balloon\Bootstrap\AbstractBootstrap;
 
 return [
     ClientInterface::class => [

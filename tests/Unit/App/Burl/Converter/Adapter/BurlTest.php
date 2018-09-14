@@ -22,6 +22,7 @@ use Balloon\Testsuite\Unit\Test;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Psr7\Response;
 use Imagick;
+use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
@@ -218,6 +219,11 @@ class BurlTest extends Test
 
         // assertions
         $this->assertEquals(self::PDF_MIME_TYPE, \mime_content_type($result->getPath()));
+    }
+
+    public function testMimeBurl()
+    {
+        $this->assertSame('application/vnd.balloon.burl', MimeType::getType('foo.burl'));
     }
 
     protected function getMockFile()

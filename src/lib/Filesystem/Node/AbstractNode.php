@@ -18,6 +18,7 @@ use Balloon\Filesystem\Exception;
 use Balloon\Hook;
 use Balloon\Server;
 use Balloon\Server\User;
+use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
@@ -516,8 +517,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Set the name.
-     *
-     * @param string $name
      */
     public function setName($name): bool
     {
@@ -538,7 +537,11 @@ abstract class AbstractNode implements NodeInterface
         $this->storage = $this->_parent->getStorage()->rename($this, $name);
         $this->name = $name;
 
-        return $this->save(['name', 'storage']);
+        if ($this instanceof File) {
+            $this->mime = MimeType::getType($this->name);
+        }
+
+        return $this->save(['name', 'storage', 'mime']);
     }
 
     /**
