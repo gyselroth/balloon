@@ -1,3 +1,10 @@
+## 2.1.0-beta3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**:
+
+* CORE: [FIX] A new share notification is also sent to accounts which already received a notification #168
+
+
 ## 2.1.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Sept 14 13:24:34 CEST 2018
