@@ -342,7 +342,7 @@ class Smb implements AdapterInterface
      */
     public function test(): bool
     {
-        $this->share->dir('/');
+        $this->share->dir($this->root);
 
         return true;
     }

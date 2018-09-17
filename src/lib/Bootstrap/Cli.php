@@ -80,8 +80,6 @@ class Cli extends AbstractBootstrap
 
     /**
      * Execute class action.
-     *
-     * @param object $command
      */
     protected function executeCommand($command)
     {
@@ -89,8 +87,14 @@ class Cli extends AbstractBootstrap
         if (is_callable([&$command, $action])) {
             return call_user_func_array([&$command, $action], []);
         }
+        if ($action === null && is_callable([&$command, '__invoke'])) {
+            return $command();
+        }
+        if (is_callable([&$command, 'help'])) {
+            return call_user_func_array([&$command, 'help'], []);
+        }
 
-        return call_user_func_array([&$command, 'help'], []);
+        echo $this->getopt->getHelpText();
     }
 
     /**
@@ -113,8 +117,6 @@ class Cli extends AbstractBootstrap
 
     /**
      * Remove logger.
-     *
-     * @return Cli
      */
     protected function reduceLogLevel(): self
     {
@@ -133,8 +135,6 @@ class Cli extends AbstractBootstrap
 
     /**
      * Configure cli logger.
-     *
-     * @return Cli
      */
     protected function configureLogger(?int $level = null): self
     {
@@ -160,8 +160,6 @@ class Cli extends AbstractBootstrap
 
     /**
      * Set exception handler.
-     *
-     * @return Cli
      */
     protected function setExceptionHandler(): self
     {

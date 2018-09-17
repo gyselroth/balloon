@@ -3,7 +3,7 @@
 Run upgrade is required to upgrade all nodes to 2.1.x:
 
 ```sh
-ballooncli upgrade -vvvv start
+ballooncli upgrade -vvvv
 ```
 
 ## 1.x -> 2.x

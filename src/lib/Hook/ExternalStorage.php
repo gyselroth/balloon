@@ -14,14 +14,24 @@ namespace Balloon\Hook;
 use Balloon\Async\SmbListener;
 use Balloon\Async\SmbScanner;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Storage\Exception;
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
 use Balloon\Server;
 use MongoDB\BSON\ObjectId;
+use ParagonIE\Halite\HiddenString;
+use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\Symmetric\Crypto as Symmetric;
+use ParagonIE\Halite\Symmetric\EncryptionKey;
 use TaskScheduler\JobInterface;
 use TaskScheduler\Scheduler;
 
 class ExternalStorage extends AbstractHook
 {
+    /**
+     * Default key.
+     */
+    private const DEFAULT_KEY = '3140040033da9bd0dedd8babc8b89cda7f2132dd5009cc43c619382863d0c75e172ebf18e713e1987f35d6ea3ace43b561c50d9aefc4441a8c4418f6928a70e4655de5a9660cd323de63b4fd2fb76525470f25311c788c5e366e29bf60c438c4ac0b440e';
+
     /**
      * Server.
      *
@@ -44,13 +54,21 @@ class ExternalStorage extends AbstractHook
     protected $factory;
 
     /**
+     * Encryption key.
+     *
+     * @var EncryptionKey
+     */
+    protected $key;
+
+    /**
      * Constructor.
      */
-    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory)
+    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory, EncryptionKey $key)
     {
         $this->server = $server;
         $this->scheduler = $scheduler;
         $this->factory = $factory;
+        $this->key = $key;
     }
 
     /**
@@ -60,6 +78,15 @@ class ExternalStorage extends AbstractHook
     {
         if (!isset($attributes['mount'])) {
             return;
+        }
+
+        if (isset($attributes['mount']['password'])) {
+            if (KeyFactory::export($this->key)->getString() === self::DEFAULT_KEY) {
+                throw new Exception\InvalidEncryptionKey('smb encryption key required to be changed');
+            }
+
+            $message = new HiddenString($attributes['mount']['password']);
+            $attributes['mount']['password'] = Symmetric::encrypt($message, $this->key);
         }
 
         $this->factory->build($attributes['mount'])->test();

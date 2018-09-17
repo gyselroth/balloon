@@ -29,16 +29,16 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.2",
         "gyselroth/micro-auth": "*",
-        "gyselroth/micro-container": "^1.0.0",
+        "gyselroth/micro-container": "^2.0.0",
         "gyselroth/micro-http": "^0.0.6",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",
         "psr/log": "1.*",
         "psr/container": "*",
-        "mongodb/mongodb": "^1.2.0",
+        "mongodb/mongodb": "^1.4.0",
         "ext-mongodb": "*",
         "ext-curl": "*",
         "ext-mbstring": "*",
@@ -55,7 +55,8 @@
         "maennchen/zipstream-php": "^0.5.1",
         "katzien/php-mime-type": "^2.1",
         "guzzlehttp/guzzle": "^6.3",
-        "icewind/smb": "dev-master#71b5819"
+        "icewind/smb": "dev-master#71b5819",
+        "paragonie/halite": "^4"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",

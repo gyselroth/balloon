@@ -1,8 +1,11 @@
 ## 2.1.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**:
+**Date**: Mon Sept 17 17:02:34 CEST 2018
 
 * CORE: [FIX] A new share notification is also sent to accounts which already received a notification #168
+* CORE: [CHANGE] ballooncli jobs and ballooncli upgrade do not require an action start nor listen anymore.
+* CORE: [CHANGE] Implemented smb password encryption via libsodium for RFC-3 credentials (Generate a key using ballooncli key)
+* CORE: [FIX] Fixed using a sub directory for a RFC-3 smb mount
 
 
 ## 2.1.0-beta2
@@ -54,7 +57,7 @@
 ## 2.0.12
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Aug 09 17:25:45 CEST 2018\
-**Note**: Execute upgrade (`ballooncli upgrade start; ballooncli upgrade start -d 'Balloon\Migration\Delta\AddHashToHistory' -f`) is required to apply this fix
+**Note**: Execute upgrade (`ballooncli upgrade; ballooncli upgrade -d 'Balloon\Migration\Delta\AddHashToHistory' -f`) is required to apply this fix
 
 * CORE: [FIX] Upgrade delta missing to upgrade history versions from the old file reference to the v2 storage format #172
 

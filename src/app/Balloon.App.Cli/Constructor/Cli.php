@@ -36,6 +36,9 @@ class Cli
             \GetOpt\Command::create('upgrade', Console\Upgrade::class)
                 ->addOptions(Console\Upgrade::getOptions())
                 ->addOperands(Console\Upgrade::getOperands()),
+            \GetOpt\Command::create('key', Console\Key::class)
+                ->addOptions(Console\Key::getOptions())
+                ->addOperands(Console\Key::getOperands()),
         ]);
     }
 }

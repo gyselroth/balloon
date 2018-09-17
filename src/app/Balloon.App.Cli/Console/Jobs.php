@@ -58,46 +58,10 @@ class Jobs
         $this->queue = $queue;
     }
 
-    /*
-     * Get operands
-     *
-     * @return array
-     */
-    public static function getOperands(): array
-    {
-        return [
-            \GetOpt\Operand::create('action', \GetOpt\Operand::REQUIRED),
-            \GetOpt\Operand::create('id', \GetOpt\Operand::OPTIONAL),
-        ];
-    }
-
-    /**
-     * Get help.
-     */
-    public function help(): Jobs
-    {
-        echo "listen\n";
-        echo "Start job listener (blocking process)\n\n";
-
-        echo "once\n";
-        echo "Execute all leftover jobs\n\n";
-        echo $this->getopt->getHelpText();
-
-        return $this;
-    }
-
-    /**
-     * Get options.
-     */
-    public static function getOptions(): array
-    {
-        return [];
-    }
-
     /**
      * Start.
      */
-    public function listen(): bool
+    public function __invoke(): bool
     {
         $this->logger->info('daemon execution requested, fire up daemon', [
             'category' => get_class($this),
@@ -109,17 +73,17 @@ class Jobs
         return true;
     }
 
-    /*
-     * Start.
-     *
-     * @return bool
-     */
-    public function once(): bool
+    // Get operands
+    public static function getOperands(): array
     {
-        $this->hook->run('preExecuteAsyncJobs');
-        $this->queue->startOnce();
-        $this->hook->run('postExecuteAsyncJobs');
+        return [];
+    }
 
-        return true;
+    /**
+     * Get options.
+     */
+    public static function getOptions(): array
+    {
+        return [];
     }
 }

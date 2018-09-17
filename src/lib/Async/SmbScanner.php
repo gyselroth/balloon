@@ -57,7 +57,6 @@ class SmbScanner extends AbstractJob
      */
     public function start(): bool
     {
-        gc_enabled();
         $dummy = new Blackhole();
         $fs = $this->server->getFilesystem();
         $mount = $collection = $fs->findNodeById($this->data['id']);
@@ -76,6 +75,7 @@ class SmbScanner extends AbstractJob
             ->setStorage($dummy);
 
         $path = $smb->getRoot();
+
         if (isset($this->data['path'])) {
             $path = $this->data['path'];
         }
@@ -84,9 +84,9 @@ class SmbScanner extends AbstractJob
             $path = DIRECTORY_SEPARATOR;
         }
 
-        if ($path !== DIRECTORY_SEPARATOR) {
-            $parent_path = dirname($path);
-            if ($path !== '.') {
+        if ($path !== DIRECTORY_SEPARATOR && isset($this->data['path'])) {
+            $parent_path = dirname(substr(ltrim($path, '/'), strlen(ltrim($path, '/'))));
+            if ($path !== '.' && $parent_path !== '') {
                 $collection = $this->getParent($collection, $share, $parent_path, $action);
                 $collection->setStorage($dummy);
             }
@@ -159,14 +159,12 @@ class SmbScanner extends AbstractJob
     /**
      * Iterate recursively through smb share.
      */
-    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, Smb $smb, string $path, bool $recursive, int $action): void
+    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, Smb $smb, string $path, bool $recursive, int $action, bool $root = false): void
     {
-        $this->logger->debug('sync smb path ['.$path.'] in mount ['.$mount->getId().'] from operation ['.$action.']', [
+        $this->logger->debug('sync smb path ['.$path.'] in mount ['.$mount->getId().'] from operation ['.$action.'], mapped to collection path ['.$parent->getPath().']', [
             'category' => get_class($this),
             'recursive' => $recursive,
         ]);
-
-        $this->logger->debug('memory:'.memory_get_usage().'/');
 
         $system_path = $path.DIRECTORY_SEPARATOR.$smb->getSystemFolder();
 
@@ -189,7 +187,7 @@ class SmbScanner extends AbstractJob
         if ($node->isDirectory()) {
             $parent->setStorage($dummy);
 
-            if ($path === DIRECTORY_SEPARATOR) {
+            if ($path === DIRECTORY_SEPARATOR || $path === $smb->getRoot()) {
                 $child = $parent;
             } else {
                 if ($parent->childExists($node->getName())) {
@@ -212,7 +210,7 @@ class SmbScanner extends AbstractJob
                     $child_path = ($path === DIRECTORY_SEPARATOR) ? $path.$node->getName() : $path.DIRECTORY_SEPARATOR.$node->getName();
 
                     try {
-                        $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $child_path, $recursive, $action);
+                        $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $child_path, $recursive, $action, true);
                     } catch (\Exception $e) {
                         $this->logger->error('failed sync child node ['.$child_path.'] in smb mount', [
                             'category' => get_class($this),

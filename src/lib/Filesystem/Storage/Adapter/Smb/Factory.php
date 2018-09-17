@@ -17,6 +17,8 @@ use Icewind\SMB\AnonymousAuth;
 use Icewind\SMB\BasicAuth;
 use Icewind\SMB\ServerFactory;
 use InvalidArgumentException;
+use ParagonIE\Halite\Symmetric\Crypto as Symmetric;
+use ParagonIE\Halite\Symmetric\EncryptionKey;
 use Psr\Log\LoggerInterface;
 
 class Factory
@@ -36,11 +38,19 @@ class Factory
     protected $system_folder = '.balloon';
 
     /**
+     * Encryption key.
+     *
+     * @var EncryptionKey
+     */
+    protected $key;
+
+    /**
      * Construct.
      */
-    public function __construct(LoggerInterface $logger, array $config = [])
+    public function __construct(LoggerInterface $logger, EncryptionKey $key, array $config = [])
     {
         $this->logger = $logger;
+        $this->key = $key;
         $this->setOptions($config);
     }
 
@@ -56,7 +66,17 @@ class Factory
         if (!isset($options['username']) || !isset($options['password']) || !isset($options['workgroup'])) {
             $auth = new AnonymousAuth();
         } else {
-            $auth = new BasicAuth($options['username'], $options['workgroup'], $options['password']);
+            try {
+                $decrypted = Symmetric::decrypt($options['password'], $this->key);
+                $auth = new BasicAuth($options['username'], $options['workgroup'], $decrypted->getString());
+            } catch (\Exception $e) {
+                $this->logger->error('failed decrypt basic auth credentials, fallback to anonymous auth', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+
+                $auth = new AnonymousAuth();
+            }
         }
 
         $smb = $factory->createServer($options['host'], $auth);
