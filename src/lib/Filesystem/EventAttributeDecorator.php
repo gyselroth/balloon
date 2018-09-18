@@ -88,9 +88,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Add decorator.
-     *
-     *
-     * @return AttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self
     {
@@ -120,9 +117,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     *
-     * @return array
      */
     protected function getPrevious(array $event): ?array
     {
@@ -153,9 +147,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     *
-     * @return array
      */
     protected function getNode(array $event): ?array
     {
@@ -170,9 +161,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     *
-     * @return array
      */
     protected function getParent(array $event): ?array
     {
@@ -193,9 +181,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     *
-     * @return array
      */
     protected function getUser(array $event): ?array
     {
@@ -210,9 +195,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     *
-     * @return array
      */
     protected function getShare(array $event): ?array
     {
@@ -230,8 +212,6 @@ class EventAttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Execute closures.
-     *
-     * @param NodeInterface
      */
     protected function translateAttributes(array $event, array $attributes): array
     {
