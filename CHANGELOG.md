@@ -1,3 +1,10 @@
+## 2.1.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**:
+
+* CORE: [FIX] Presets env variable BALLOON_CLAMAV_URI 
+
+
 ## 2.1.0-beta4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Sept 21 14:57:10 CEST 2018
