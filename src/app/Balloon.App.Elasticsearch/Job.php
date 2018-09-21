@@ -208,8 +208,8 @@ class Job extends AbstractJob
 
         $params = [
             'id' => (string) $node,
-            'type' => 'storage',
-            'index' => $this->es->getIndex(),
+            'index' => 'nodes',
+            'type' => '_doc',
         ];
 
         $this->es->getEsClient()->delete($params);
@@ -228,8 +228,8 @@ class Job extends AbstractJob
 
         $params = [
             'id' => (string) $node,
-            'type' => 'storage',
-            'index' => $this->es->getIndex(),
+            'index' => 'nodes',
+            'type' => '_doc',
         ];
 
         $this->es->getEsClient()->delete($params);
@@ -330,9 +330,9 @@ class Job extends AbstractJob
     protected function getParams(NodeInterface $node): array
     {
         return [
-            'index' => $this->es->getIndex(),
+            'index' => 'nodes',
             'id' => (string) $node->getId(),
-            'type' => 'storage',
+            'type' => '_doc',
         ];
     }
 
@@ -342,9 +342,9 @@ class Job extends AbstractJob
     protected function deleteBlob(string $id): bool
     {
         $params = [
-            'index' => $this->es->getIndex(),
+            'index' => 'blobs',
             'id' => $id,
-            'type' => 'fs',
+            'type' => '_doc',
         ];
 
         $this->es->getEsClient()->delete($params);
@@ -362,8 +362,8 @@ class Job extends AbstractJob
         }
 
         $params = [
-            'index' => $this->es->getIndex(),
-            'type' => 'fs',
+            'index' => 'blobs',
+            'type' => '_doc',
             'body' => [
                 'query' => [
                     'match' => [
@@ -472,9 +472,9 @@ class Job extends AbstractJob
         $content = base64_encode(stream_get_contents($file->get()));
 
         $params = [
-            'index' => $this->es->getIndex(),
+            'index' => 'blobs',
+            'type' => '_doc',
             'id' => $file->getHash(),
-            'type' => 'fs',
             'body' => [
                 'md5' => $file->getHash(),
                 'metadata' => $meta,
@@ -493,9 +493,8 @@ class Job extends AbstractJob
     protected function updateBlob(string $id, array $meta): bool
     {
         $params = [
-            'index' => $this->es->getIndex(),
-            'id' => $id,
-            'type' => 'fs',
+            'index' => 'blobs',
+            'type' => '_doc',
             'body' => [
                 'doc' => [
                     'metadata' => $meta,

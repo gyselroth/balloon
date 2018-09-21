@@ -17,7 +17,7 @@ use Balloon\Migration\Delta\DeltaInterface;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
-class Installation implements DeltaInterface
+class v6 implements DeltaInterface
 {
     /**
      * Elasticsearch.
@@ -42,6 +42,8 @@ class Installation implements DeltaInterface
 
     /**
      * Construct.
+     *
+     * @param iterable $config
      */
     public function __construct(Elasticsearch $es, LoggerInterface $logger, Iterable $config = null)
     {
@@ -78,7 +80,7 @@ class Installation implements DeltaInterface
      */
     public function start(): bool
     {
-        $this->logger->info('create elasticsearch index ['.$this->es->getIndex().']', [
+        /*$this->logger->info('create elasticsearch index ['.$this->es->getIndex().']', [
             'category' => get_class($this),
         ]);
 
@@ -98,9 +100,10 @@ class Installation implements DeltaInterface
         $index = [
             'index' => $this->es->getIndex(),
             'body' => $index,
-        ];
+        ];*/
 
-        $this->es->getEsClient()->indices()->create($index);
+        $this->es->getEsClient()->indices()->create(['index' => 'blobs']);
+        $this->es->getEsClient()->indices()->create(['index' => 'nodes']);
 
         return true;
     }

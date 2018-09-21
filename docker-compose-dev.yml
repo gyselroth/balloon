@@ -11,7 +11,11 @@ libreoffice:
     environment:
         - domain=balloon-dev
 elasticsearch:
-    image: gyselroth/balloon-elasticsearch:latest
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
+    entrypoint:
+        - /bin/sh
+        - -c
+        - elasticsearch-plugin install --batch ingest-attachment && docker-entrypoint.sh
 postfix:
     image: webuni/postfix
 browserless:
@@ -24,8 +28,8 @@ balloon-dev:
         - .:/srv/www/balloon
     links:
         - clamav
-        - mongodb
         - elasticsearch
+        - mongodb
         - postfix
         - browserless
     environment:

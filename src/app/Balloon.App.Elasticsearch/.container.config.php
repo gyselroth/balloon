@@ -1,6 +1,7 @@
 <?php
 use Balloon\Migration;
 use Balloon\App\Elasticsearch\Migration\Delta\Installation;
+use Balloon\App\Elasticsearch\Migration\Delta\v6;
 use Balloon\App\Elasticsearch\Hook as ElasticsearchHook;
 use Balloon\Hook;
 use Balloon\Bootstrap\AbstractBootstrap;
@@ -20,6 +21,10 @@ return [
             Installation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Installation::class.'}']
+            ],
+            v6::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.v6::class.'}']
             ],
         ]
     ],

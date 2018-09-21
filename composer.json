@@ -33,7 +33,7 @@
         "gyselroth/micro-auth": "*",
         "gyselroth/micro-container": "^2.0.0",
         "gyselroth/micro-http": "^0.0.6",
-        "elasticsearch/elasticsearch": "5.*",
+        "elasticsearch/elasticsearch": "6.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",
         "psr/log": "1.*",

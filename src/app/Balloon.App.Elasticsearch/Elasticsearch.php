@@ -19,7 +19,6 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Generator;
 use InvalidArgumentException;
-use Micro\Http\Router;
 use Psr\Log\LoggerInterface;
 
 class Elasticsearch
@@ -66,11 +65,7 @@ class Elasticsearch
      */
     protected $logger;
 
-    /*
-     * Constructor
-     *
-     * @param Router
-     */
+    // Constructor
     public function __construct(Server $server, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->setOptions($config);
@@ -81,8 +76,6 @@ class Elasticsearch
 
     /**
      * Set options.
-     *
-     * @param iterable $config
      *
      * @return Elasticsearch
      */
@@ -170,8 +163,6 @@ class Elasticsearch
 
     /**
      * Get es client.
-     *
-     * @return Elasticsearch
      */
     public function getEsClient(): Client
     {
@@ -186,9 +177,6 @@ class Elasticsearch
 
     /**
      * Search.
-     *
-     * @param int $skip
-     * @param int $limit
      */
     protected function executeQuery(array $query, ?int $skip = null, ?int $limit = null): array
     {
