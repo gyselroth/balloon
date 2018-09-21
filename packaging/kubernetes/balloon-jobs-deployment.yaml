@@ -1,0 +1,69 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: balloon-jobs
+  name: balloon-jobs
+  namespace: balloon
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      k8s-app: balloon-jobs
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: balloon-jobs
+    spec:
+      containers:
+      - command:
+        - ballooncli
+        - jobs
+        - -vvvv
+        env:
+        - name: BALLOON_CLAMAV_URI
+          value: tcp://clamav:3310
+        - name: BALLOON_OFFICE_URI
+          value: https://OFFICE_DOMAIN
+        - name: BALLOON_ELASTICSEARCH_URI
+          value: http://elasticsearch:9200
+        - name: BALLOON_MONGODB_URI
+          value: mongodb://mongo-0.mongo,mongo-1.mongo,mongo-2.mongo:27017
+        - name: BALLOON_SMTP_HOST
+          value: localhost
+        - name: BALLOON_URL
+          value: https://BALLOON_DOMAIN
+        - name: BALLOON_WOPI_URL
+          value: https://balloon
+        - name: BALLOON_BURL_BROWSERLESS_URL
+          value: http://chrome:3000
+        image: gyselroth/balloon:2.1.0-beta3
+        imagePullPolicy: IfNotPresent
+        name: balloon-jobs
+        resources:
+          limits:
+            cpu: 600m
+            memory: 800Mi
+          requests:
+            cpu: 215m
+            memory: 10Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        #volumeMounts:
+        #- mountPath: /usr/share/balloon/config
+        #  name: config-volume
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      #volumes:
+      #- configMap:
+      #    defaultMode: 420
+      #    name: balloon-config
+      #  name: config-volume
