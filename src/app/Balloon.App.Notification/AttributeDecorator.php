@@ -30,7 +30,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Role decorator.
      *
-     * @var RoleAttribueDecorator
+     * @var RoleAttributeDecorator
      */
     protected $role_decorator;
 
