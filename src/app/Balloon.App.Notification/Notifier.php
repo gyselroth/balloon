@@ -94,7 +94,7 @@ class Notifier
     /**
      * Send notification.
      */
-    public function notify(Iterable $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
+    public function notify(Iterable $receiver, ?User $sender, MessageInterface $message): bool
     {
         if (0 === count($this->adapter)) {
             $this->logger->warning('there are no notification adapter enabled, notification can not be sent', [
@@ -110,7 +110,7 @@ class Notifier
                     'category' => get_class($this),
                 ]);
 
-                $adapter->notify($user, $sender, $message, $context);
+                $adapter->notify($user, $sender, $message);
             }
         }
 
@@ -181,17 +181,22 @@ class Notifier
     /**
      * Add notification.
      */
-    public function postNotification(User $receiver, ?User $sender, MessageInterface $message, array $context = []): ObjectId
+    public function postNotification(User $receiver, ?User $sender, MessageInterface $message): ObjectId
     {
         $data = [
-            'context' => $context,
             'subject' => $message->getSubject($receiver),
             'body' => $message->getBody($receiver),
             'receiver' => $receiver->getId(),
+            'locale' => $receiver->getAttributes()['locale'],
+            'type' => $message->getType(),
         ];
 
         if ($sender instanceof User) {
             $data['sender'] = $sender->getId();
+        }
+
+        if (isset($message->getContext()['node'])) {
+            $data['node'] = $message->getContext()['node']->getId();
         }
 
         $result = $this->db->{$this->collection_name}->insertOne($data);

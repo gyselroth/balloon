@@ -4,6 +4,7 @@
 
 * CORE: [CHANGE] Removed possibility to specify a root path in an smb share (RFC-3), this functionality is not yet ready to get released 
 * CORE: [FIX] Create a share in a sub folder leads to an invalid link in the mail notification #196
+* CORE: [CHANGE] Include node and locale attribute in GET /api/v2/notifications response #198
 
 
 ## 2.1.0-beta3

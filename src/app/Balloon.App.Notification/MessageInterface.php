@@ -29,4 +29,14 @@ interface MessageInterface
      * Render template.
      */
     public function renderTemplate(string $template, ?User $user = null): string;
+
+    /**
+     * Get type.
+     */
+    public function getType(): string;
+
+    /**
+     * Get context.
+     */
+    public function getContext(): array;
 }

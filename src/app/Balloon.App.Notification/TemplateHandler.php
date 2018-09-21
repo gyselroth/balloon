@@ -81,10 +81,6 @@ class TemplateHandler
 
     /**
      * Set config.
-     *
-     * @param iterable $config
-     *
-     * @return TemplateHandler
      */
     public function setOptions(?Iterable $config = null): self
     {

@@ -71,6 +71,22 @@ class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
+    public function getContext(): array
+    {
+        return $this->context;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function renderTemplate(string $template, ?User $user = null): string
     {
         $context = $this->context;

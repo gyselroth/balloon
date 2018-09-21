@@ -2,6 +2,7 @@
 use Balloon\Hook;
 use Balloon\Migration;
 use Balloon\App\Notification\Migration\Delta\Installation;
+use Balloon\App\Notification\Migration\Delta\AddLocale;
 use Balloon\App\Notification\Hook\NewShareAdded;
 use Balloon\App\Notification\Hook\Subscription;
 use Balloon\App\Notification\Adapter\Db;
@@ -47,6 +48,10 @@ return [
             Installation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Installation::class.'}']
+            ],
+            AddLocale::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.AddLocale::class.'}']
             ],
         ],
     ],

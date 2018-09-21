@@ -12,8 +12,9 @@ declare(strict_types=1);
 namespace Balloon\App\Notification;
 
 use Balloon\AttributeDecorator\AttributeDecoratorInterface;
+use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Server;
-use Balloon\Server\AttributeDecorator as RoleAttribueDecorator;
+use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Closure;
 use DateTime;
 
@@ -34,6 +35,13 @@ class AttributeDecorator implements AttributeDecoratorInterface
     protected $role_decorator;
 
     /**
+     * Node decorator.
+     *
+     * @var NodeAttributeDecorator
+     */
+    protected $node_decorator;
+
+    /**
      * Custom attributes.
      *
      * @var array
@@ -43,9 +51,10 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Init.
      */
-    public function __construct(Server $server, RoleAttribueDecorator $role_decorator)
+    public function __construct(Server $server, NodeAttributeDecorator $node_decorator, RoleAttributeDecorator $role_decorator)
     {
         $this->server = $server;
+        $this->node_decorator = $node_decorator;
         $this->role_decorator = $role_decorator;
     }
 
@@ -66,9 +75,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Add decorator.
-     *
-     *
-     * @return AttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self
     {
@@ -84,11 +90,14 @@ class AttributeDecorator implements AttributeDecoratorInterface
     {
         $server = $this->server;
         $role_decorator = $this->role_decorator;
+        $fs = $this->server->getFilesystem();
+        $node_decorator = $this->node_decorator;
 
         return [
             'id' => (string) $message['_id'],
             'message' => (string) $message['body'],
             'subject' => (string) $message['subject'],
+            'locale' => (string) $message['locale'],
             'sender' => function ($message) use ($server, $role_decorator) {
                 if (!isset($message['sender'])) {
                     return null;
@@ -102,6 +111,15 @@ class AttributeDecorator implements AttributeDecoratorInterface
             },
             'created' => function ($message) {
                 return (new DateTime())->setTimestamp($message['_id']->getTimestamp())->format('c');
+            },
+            'node' => function ($message) use ($node_decorator, $fs) {
+                if (isset($message['node'])) {
+                    try {
+                        return $node_decorator->decorate($fs->findNodeById($message['node']), ['id', 'name', '_links']);
+                    } catch (\Exception $e) {
+                        return null;
+                    }
+                }
             },
         ];
     }

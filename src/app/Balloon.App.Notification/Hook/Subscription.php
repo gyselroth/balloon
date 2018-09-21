@@ -62,8 +62,6 @@ class Subscription extends AbstractHook
 
     /**
      * Constructor.
-     *
-     * @param Notification $notifier
      */
     public function __construct(Notifier $notifier, Server $server, Acl $acl, LoggerInterface $logger, ?Iterable $config = null)
     {
@@ -76,10 +74,6 @@ class Subscription extends AbstractHook
 
     /**
      * Set config.
-     *
-     * @param iterable $config
-     *
-     * @return Subscription
      */
     public function setOptions(?Iterable $config = null): self
     {
