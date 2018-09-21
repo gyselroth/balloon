@@ -127,10 +127,6 @@ class Notifier
 
     /**
      * Inject adapter.
-     *
-     * @param string $name
-     *
-     * @return Notifier
      */
     public function injectAdapter(AdapterInterface $adapter, ?string $name = null): self
     {
@@ -205,10 +201,6 @@ class Notifier
 
     /**
      * Get notifications.
-     *
-     * @param int $offset
-     * @param int $limit
-     * @param int $total
      */
     public function getNotifications(User $user, ?int $offset = null, ?int $limit = null, ?int &$total = null): Iterable
     {

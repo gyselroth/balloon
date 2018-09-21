@@ -13,6 +13,7 @@ namespace Balloon\Hook;
 
 use Balloon\Async\SmbListener;
 use Balloon\Async\SmbScanner;
+use Balloon\Filesystem\Exception\NotFound as NotFoundException;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Storage\Exception;
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
@@ -22,6 +23,7 @@ use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Symmetric\Crypto as Symmetric;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
+use Psr\Log\LoggerInterface;
 use TaskScheduler\JobInterface;
 use TaskScheduler\Scheduler;
 
@@ -61,14 +63,22 @@ class ExternalStorage extends AbstractHook
     protected $key;
 
     /**
+     * Logger.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Constructor.
      */
-    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory, EncryptionKey $key)
+    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory, EncryptionKey $key, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->scheduler = $scheduler;
         $this->factory = $factory;
         $this->key = $key;
+        $this->logger = $logger;
     }
 
     /**
@@ -143,8 +153,17 @@ class ExternalStorage extends AbstractHook
             '$or' => [['class' => SmbScanner::class], ['class' => SmbListener::class]],
             'status' => ['$lte' => JobInterface::STATUS_PROCESSING],
         ]) as $job) {
-            if ($fs->findNodeById($job->getData()['id'])->isDeleted()) {
+            try {
+                if ($fs->findNodeById($job->getData()['id'])->isDeleted()) {
+                    $this->scheduler->cancelJob($job->getId());
+                }
+            } catch (NotFoundException $e) {
                 $this->scheduler->cancelJob($job->getId());
+            } catch (\Exception $e) {
+                $this->logger->error('failed pre check mount job ['.$job->getId().']', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
             }
         }
 

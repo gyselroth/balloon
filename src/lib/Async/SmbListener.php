@@ -111,7 +111,7 @@ class SmbListener extends AbstractJob
             if ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
                 //do nothing
             } elseif ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_NEW && $last->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
-                $this->renameNode($mount, $dummy, $last->getPath(), $change->getPath(), $root);
+                $this->renameNode($mount, $dummy, $last->getPath(), $change->getPath());
             } else {
                 $this->syncNode($mount, $change->getPath(), $change->getCode());
             }
@@ -123,11 +123,9 @@ class SmbListener extends AbstractJob
     /**
      * Get parent node from sub path.
      */
-    protected function getNode(Collection $mount, string $path, string $root): NodeInterface
+    protected function getNode(Collection $mount, string $path): NodeInterface
     {
-        $path = ltrim(substr(ltrim($path, '/'), strlen(ltrim($root, '/'))), '/');
-        $nodes = explode('/', $path);
-
+        $nodes = explode(DIRECTORY_SEPARATOR, $path);
         foreach ($nodes as $child) {
             $mount = $mount->getChild($child);
         }
@@ -138,14 +136,14 @@ class SmbListener extends AbstractJob
     /**
      * Rename node.
      */
-    protected function renameNode(Collection $mount, Blackhole $dummy, string $from, string $to, string $root): bool
+    protected function renameNode(Collection $mount, Blackhole $dummy, string $from, string $to): bool
     {
         try {
             $this->logger->debug('rename smb node from ['.$from.'] to ['.$to.'] in mount ['.$mount->getId().']', [
                 'category' => get_class($this),
             ]);
 
-            $node = $this->getNode($mount, $from, $root);
+            $node = $this->getNode($mount, $from);
             $node->getParent()->setStorage($dummy);
 
             if (basename($from) !== basename($to)) {

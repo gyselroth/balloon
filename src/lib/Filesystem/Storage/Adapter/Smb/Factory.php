@@ -66,6 +66,10 @@ class Factory
         if (!isset($options['username']) || !isset($options['password']) || !isset($options['workgroup'])) {
             $auth = new AnonymousAuth();
         } else {
+            $this->logger->debug('decrypt basic auth credentials for username ['.$options['username'].']', [
+                'category' => get_class($this),
+            ]);
+
             try {
                 $decrypted = Symmetric::decrypt($options['password'], $this->key);
                 $auth = new BasicAuth($options['username'], $options['workgroup'], $decrypted->getString());
@@ -83,7 +87,6 @@ class Factory
         $share = $smb->getShare($options['share']);
 
         return new Smb($share, $this->logger, [
-            Smb::OPTION_ROOT => isset($options['root']) ? $options['root'] : '',
             Smb::OPTION_SYSTEM_FOLDER => $this->system_folder,
         ]);
     }

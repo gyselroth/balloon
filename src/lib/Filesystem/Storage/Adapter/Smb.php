@@ -354,8 +354,8 @@ class Smb implements AdapterInterface
     {
         foreach ($config as $option => $value) {
             switch ($option) {
-                case 'root':
-                case 'system_folder':
+                case self::OPTION_SYSTEM_FOLDER:
+                case self::OPTION_ROOT:
                     $this->{$option} = (string) $value;
 
                 break;
