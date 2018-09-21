@@ -133,6 +133,7 @@ class TemplateHandler
         $context += [
             'subject' => $this->parseString($notification, 'subject', $context + $this->context),
             'body' => $this->parseString($notification, 'body', $context + $this->context),
+            'type' => $notification,
         ];
 
         $template = new Template($path, $this->getLocale($context), $context + $this->context);

@@ -1,8 +1,9 @@
 ## 2.1.0-beta4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**:
+**Date**: Fri Sept 21 12:01:10 CEST 2018
 
 * CORE: [CHANGE] Removed possibility to specify a root path in an smb share (RFC-3), this functionality is not yet ready to get released 
+* CORE: [FIX] Create a share in a sub folder leads to an invalid link in the mail notification #196
 
 
 ## 2.1.0-beta3
