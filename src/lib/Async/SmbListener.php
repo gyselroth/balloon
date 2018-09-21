@@ -15,6 +15,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\Blackhole;
 use Balloon\Filesystem\Storage\Adapter\Smb;
+use Balloon\Helper;
 use Balloon\Server;
 use Icewind\SMB\Change;
 use Icewind\SMB\INotifyHandler;
@@ -146,8 +147,8 @@ class SmbListener extends AbstractJob
             $node = $this->getNode($mount, $from);
             $node->getParent()->setStorage($dummy);
 
-            if (basename($from) !== basename($to)) {
-                $node->setName(basename($to));
+            if (Helper::mb_basename($from) !== Helper::mb_basename($to)) {
+                $node->setName(Helper::mb_basename($to));
             }
 
             return true;

@@ -16,6 +16,7 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\Blackhole;
 use Balloon\Filesystem\Storage\Adapter\Smb;
+use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\User;
 use Icewind\SMB\Exception\NotFoundException;
@@ -175,7 +176,7 @@ class SmbScanner extends AbstractJob
             $node = $share->stat($path);
         } catch (NotFoundException $e) {
             if ($action === INotifyHandler::NOTIFY_REMOVED) {
-                $node = $parent->getChild(basename($path));
+                $node = $parent->getChild(Helper::mb_basename($path));
                 $node->getParent()->setStorage($dummy);
                 $this->deleteNode($node, $dummy);
             }
@@ -205,7 +206,7 @@ class SmbScanner extends AbstractJob
                         continue;
                     }
 
-                    $nodes[] = Normalizer::normalize($node->getName());
+                    $nodes[] = $node->getName();
                     $child_path = ($path === DIRECTORY_SEPARATOR) ? $path.$node->getName() : $path.DIRECTORY_SEPARATOR.$node->getName();
 
                     try {
@@ -219,7 +220,9 @@ class SmbScanner extends AbstractJob
                 }
 
                 foreach ($child->getChildren() as $sub_child) {
-                    if (!in_array($sub_child->getName(), $nodes)) {
+                    $sub_name = Normalizer::normalize($sub_child->getName());
+
+                    if (!in_array($sub_name, $nodes)) {
                         $this->deleteNode($sub_child, $dummy);
                     }
                 }

@@ -1,10 +1,11 @@
 ## 2.1.0-beta4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Fri Sept 21 12:01:10 CEST 2018
+**Date**: Fri Sept 21 14:57:10 CEST 2018
 
 * CORE: [CHANGE] Removed possibility to specify a root path in an smb share (RFC-3), this functionality is not yet ready to get released 
 * CORE: [FIX] Create a share in a sub folder leads to an invalid link in the mail notification #196
 * CORE: [CHANGE] Include node and locale attribute in GET /api/v2/notifications response #198
+* CORE: [FIX] fixes multibyte issues with smb filenames (RFC-3), https://github.com/icewind1991/SMB/pull/74
 
 
 ## 2.1.0-beta3
