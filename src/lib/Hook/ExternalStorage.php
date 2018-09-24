@@ -194,7 +194,7 @@ class ExternalStorage extends AbstractHook
         ], [
             Scheduler::OPTION_IGNORE_MAX_CHILDREN => true,
             Scheduler::OPTION_RETRY => -1,
-        ]);
+       ]);
 
         return true;
     }

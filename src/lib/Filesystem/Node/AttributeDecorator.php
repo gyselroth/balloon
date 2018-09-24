@@ -57,8 +57,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Init.
-     *
-     * @param Decorator $role_decorator
      */
     public function __construct(Server $server, Acl $acl, RoleAttributeDecorator $role_decorator)
     {

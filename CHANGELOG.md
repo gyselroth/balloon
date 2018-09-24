@@ -1,8 +1,10 @@
-## 2.1.0
+## 2.1.0-beta5
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**:
+**Date**: Mon Sept 24 15:41:10 CEST 2018
 
 * CORE: [FIX] Presets env variable BALLOON_CLAMAV_URI 
+* CORE: [CHANGE] Balloon\Async\SmbListener does not use a blocking listener anymore
+* CORE: [FIX] Balloon\\Filesystem\\Storage\\Exception\\BlobNotFound for 0Bytes files
 
 
 ## 2.1.0-beta4

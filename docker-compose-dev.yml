@@ -16,6 +16,25 @@ postfix:
     image: webuni/postfix
 browserless:
     image: browserless/chrome
+balloon-dev-jobs:
+    image: gyselroth/balloon-development:latest
+    volumes:
+        - .:/srv/www/balloon
+    entrypoint: php /srv/www/balloon/src/cgi-bin/cli.php jobs -vvvv
+    links:
+        - clamav
+        - mongodb
+        - elasticsearch
+        - postfix
+        - browserless
+    environment:
+        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+        - BALLOON_CLAMAV_URI=tcp://clamav:3310
+        - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
+        - BALLOON_WOPI_URL=https://balloon-dev
+        - BALLOON_SMTP_HOST=postfix
+        - BALLOON_URL=http://localhost:8080
+        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
 balloon-dev:
     image: gyselroth/balloon-development:latest
     ports:

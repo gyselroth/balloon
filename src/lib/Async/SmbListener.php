@@ -17,7 +17,6 @@ use Balloon\Filesystem\Storage\Adapter\Blackhole;
 use Balloon\Filesystem\Storage\Adapter\Smb;
 use Balloon\Helper;
 use Balloon\Server;
-use Icewind\SMB\Change;
 use Icewind\SMB\INotifyHandler;
 use Icewind\SMB\IShare;
 use Psr\Log\LoggerInterface;
@@ -90,35 +89,42 @@ class SmbListener extends AbstractJob
         $root = $smb->getRoot();
         $system = ($root === '') ? $smb->getSystemFolder() : $root.DIRECTORY_SEPARATOR.$smb->getSystemFolder();
 
-        $share->notify('')->listen(function (Change $change) use ($logger, $root, $mount, &$last, $dummy, $system) {
-            $logger->debug('smb mount ['.$mount->getId().'] notify event in ['.$change->getCode().'] for path ['.$change->getPath().']', [
-                'category' => get_class($this),
-            ]);
+        $notify = $share->notify('');
 
-            if (substr($change->getPath(), 0, strlen($root)) !== $root) {
-                $logger->debug('skip smb event ['.$change->getPath().'], path is not part of root ['.$root.']', [
+        while (true) {
+            //pcntl_signal_dispatch();
+
+            foreach ($notify->getChanges() as $change) {
+                $logger->debug('smb mount ['.$mount->getId().'] notify event in ['.$change->getCode().'] for path ['.$change->getPath().']', [
                     'category' => get_class($this),
                 ]);
 
-                return;
-            }
-            if (substr($change->getPath(), 0, strlen($system)) === $system) {
-                $logger->debug('skip smb event ['.$change->getPath().'], path is part of balloon system folder ['.$system.']', [
-                    'category' => get_class($this),
-                ]);
+                if (substr($change->getPath(), 0, strlen($root)) !== $root) {
+                    $logger->debug('skip smb event ['.$change->getPath().'], path is not part of root ['.$root.']', [
+                        'category' => get_class($this),
+                    ]);
 
-                return;
-            }
-            if ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
-                //do nothing
-            } elseif ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_NEW && $last->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
-                $this->renameNode($mount, $dummy, $last->getPath(), $change->getPath());
-            } else {
-                $this->syncNode($mount, $change->getPath(), $change->getCode());
-            }
+                    return;
+                }
+                if (substr($change->getPath(), 0, strlen($system)) === $system) {
+                    $logger->debug('skip smb event ['.$change->getPath().'], path is part of balloon system folder ['.$system.']', [
+                        'category' => get_class($this),
+                    ]);
 
-            $last = $change;
-        });
+                    return;
+                }
+
+                if ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
+                    //do nothing
+                } elseif ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_NEW && $last->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
+                    $this->renameNode($mount, $dummy, $last->getPath(), $change->getPath());
+                } else {
+                    $this->syncNode($mount, $change->getPath(), $change->getCode());
+                }
+
+                $last = $change;
+            }
+        }
     }
 
     /**

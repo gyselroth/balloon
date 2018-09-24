@@ -116,7 +116,11 @@ class Gridfs implements AdapterInterface
      */
     public function forceDeleteFile(File $file, ?int $version = null): bool
     {
-        $exists = $this->getFileById($this->getId($file));
+        try {
+            $exists = $this->getFileById($this->getId($file));
+        } catch (Exception\BlobNotFound $e) {
+            return true;
+        }
 
         if (null === $exists) {
             $this->logger->debug('gridfs blob ['.$exists['_id'].'] was not found for file reference ['.$file->getId().']', [
