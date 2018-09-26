@@ -40,8 +40,6 @@ class CleanTrash extends AbstractHook
 
     /**
      * Constructor.
-     *
-     * @param iterable $config
      */
     public function __construct(Scheduler $scheduler, ?Iterable $config = null)
     {
@@ -51,8 +49,6 @@ class CleanTrash extends AbstractHook
 
     /**
      * Set options.
-     *
-     * @param iterable $config
      */
     public function setOptions(?Iterable $config = null): HookInterface
     {

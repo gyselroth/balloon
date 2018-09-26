@@ -63,12 +63,14 @@ class Factory
 
         $factory = new ServerFactory();
 
-        if (!isset($options['username']) || !isset($options['password']) || !isset($options['workgroup'])) {
+        if (!isset($options['username']) || !isset($options['password'])) {
             $auth = new AnonymousAuth();
         } else {
             $this->logger->debug('decrypt basic auth credentials for username ['.$options['username'].']', [
                 'category' => get_class($this),
             ]);
+
+            $options = array_merge(['workgroup' => null], $options);
 
             try {
                 $decrypted = Symmetric::decrypt($options['password'], $this->key);

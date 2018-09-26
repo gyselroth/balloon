@@ -1,3 +1,10 @@
+## 2.1.0-beta6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Sept 24 15:41:10 CEST 2018
+
+* CORE: [FIX] Testing Balloon\Filesystem\Storage\Adapter\Smb does not use smbclient since the notify handler requires a domain (smbclient --authentication-file)
+
+
 ## 2.1.0-beta5
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Sept 24 15:41:10 CEST 2018

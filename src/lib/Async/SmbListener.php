@@ -92,8 +92,6 @@ class SmbListener extends AbstractJob
         $notify = $share->notify('');
 
         while (true) {
-            //pcntl_signal_dispatch();
-
             foreach ($notify->getChanges() as $change) {
                 $logger->debug('smb mount ['.$mount->getId().'] notify event in ['.$change->getCode().'] for path ['.$change->getPath().']', [
                     'category' => get_class($this),
