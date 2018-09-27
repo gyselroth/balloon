@@ -102,14 +102,14 @@ class SmbListener extends AbstractJob
                         'category' => get_class($this),
                     ]);
 
-                    return;
+                    continue;
                 }
                 if (substr($change->getPath(), 0, strlen($system)) === $system) {
                     $logger->debug('skip smb event ['.$change->getPath().'], path is part of balloon system folder ['.$system.']', [
                         'category' => get_class($this),
                     ]);
 
-                    return;
+                    continue;
                 }
 
                 if ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {

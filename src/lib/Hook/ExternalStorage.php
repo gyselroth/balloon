@@ -18,6 +18,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Storage\Exception;
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
 use Balloon\Server;
+use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
@@ -70,15 +71,44 @@ class ExternalStorage extends AbstractHook
     protected $logger;
 
     /**
+     * Interval.
+     */
+    protected $interval = 86400;
+
+    /**
      * Constructor.
      */
-    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory, EncryptionKey $key, LoggerInterface $logger)
+    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory, EncryptionKey $key, LoggerInterface $logger, ?array $config = null)
     {
         $this->server = $server;
         $this->scheduler = $scheduler;
         $this->factory = $factory;
         $this->key = $key;
         $this->logger = $logger;
+        $this->setOptions($config);
+    }
+
+    /**
+     * Set options.
+     */
+    public function setOptions(?Iterable $config = null): HookInterface
+    {
+        if (null === $config) {
+            return $this;
+        }
+
+        foreach ($config as $option => $value) {
+            switch ($option) {
+                case 'interval':
+                    $this->{$option} = (int) $value;
+
+                break;
+                default:
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -186,7 +216,7 @@ class ExternalStorage extends AbstractHook
         $this->scheduler->addJobOnce(SmbScanner::class, [
             'id' => $node,
         ], [
-            Scheduler::OPTION_INTERVAL => 86400,
+            Scheduler::OPTION_INTERVAL => $this->interval,
         ]);
 
         $job = $this->scheduler->addJobOnce(SmbListener::class, [

@@ -1,3 +1,11 @@
+## 2.1.0-rc1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Sept 27 11:39:33 CEST 2018
+
+* CORE: [CHANGE] Possibility to change the SmbScanner interval 
+* CORE: [FIX] Fixed abort running SmbListener loop with no respawn
+
+
 ## 2.1.0-beta6
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Sept 24 15:41:10 CEST 2018

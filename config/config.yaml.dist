@@ -155,6 +155,10 @@ Balloon\Hook:
         config:
           interval: 172800
           max_age: 172800
+    Balloon\Hook\ExternalStorage:
+      arguments:
+        config:
+          interval: 86400
 ParagonIE\Halite\Symmetric\EncryptionKey:
   services:
     ParagonIE\Halite\HiddenString:
