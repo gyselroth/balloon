@@ -261,7 +261,7 @@ class Acl
             return self::PRIVILEGE_DENY;
         }
 
-        return self::PRIVILEGE_MANAGE;
+        return self::PRIVILEGE_READWRITE;
     }
 
     /**

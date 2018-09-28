@@ -89,9 +89,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Add decorator.
-     *
-     *
-     * @return AttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self
     {
@@ -102,8 +99,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     * @param NodeInterface
      */
     protected function getAttributes(NodeInterface $node, array $attributes): array
     {
@@ -239,8 +234,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     * @param NodeInterface
      */
     protected function getTypeAttributes(NodeInterface $node, array $attributes): array
     {
@@ -295,8 +288,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Execute closures.
-     *
-     * @param NodeInterface
      */
     protected function translateAttributes(NodeInterface $node, array $attributes): array
     {

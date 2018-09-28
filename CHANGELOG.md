@@ -1,3 +1,10 @@
+## 2.1.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: 
+
+* CORE: [FIX] Fixed manage permission with read/write privielge on share which was another fix for #193
+
+
 ## 2.1.0-rc1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Sept 27 11:39:33 CEST 2018
