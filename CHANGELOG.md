@@ -1,3 +1,10 @@
+## 2.1.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Oct 02 16:21:22 CEST 2018
+
+* CORE: [FIX] Share access for manager privilege is considered as only rw #201, #193
+
+
 ## 2.1.0
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Oct 02 08:51:22 CEST 2018

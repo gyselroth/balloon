@@ -429,8 +429,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get share node.
-     *
-     * @return Collection
      */
     public function getShareNode(): ?Collection
     {
@@ -584,7 +582,7 @@ abstract class AbstractNode implements NodeInterface
      */
     public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->_acl->isAllowed($this, 'w')) {
+        if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
             throw new ForbiddenException(
                 'not allowed to restore node '.$this->name,
                 ForbiddenException::NOT_ALLOWED_TO_UNDELETE
@@ -713,9 +711,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Create zip.
-     *
-     * @param bool          $self   true means that the zip represents the collection itself instead a child of the zip
-     * @param NodeInterface $parent
      */
     public function zip(ZipStream $archive, bool $self = true, ?NodeInterface $parent = null, string $path = '', int $depth = 0): bool
     {
