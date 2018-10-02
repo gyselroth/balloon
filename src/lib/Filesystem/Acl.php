@@ -262,9 +262,6 @@ class Acl
         }
 
         return $this->processRuleset($user, $share['acl']);
-        //if($requested === )
-        /*if($requested === self::PRIVILEGE_MANAGE) {}
-        return self::PRIVILEGE_MANAGE;*/
     }
 
     /**
