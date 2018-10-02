@@ -17,22 +17,28 @@
         }
     },
     "repositories": [
-         {
-             "type": "git",
-             "url": "https://github.com/raffis/php-mongomock"
-         }
+        {
+            "type": "git",
+            "url": "https://github.com/raffis/php-mongomock"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/raffis/SMB"
+        }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.2",
         "gyselroth/micro-auth": "*",
-        "gyselroth/micro-container": "^1.0.0",
+        "gyselroth/micro-container": "^2.0.0",
         "gyselroth/micro-http": "^0.0.6",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "3.*",
         "psr/log": "1.*",
         "psr/container": "*",
-        "mongodb/mongodb": "^1.2.0",
+        "mongodb/mongodb": "^1.4.0",
         "ext-mongodb": "*",
         "ext-curl": "*",
         "ext-mbstring": "*",
@@ -40,19 +46,23 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "*",
         "zendframework/zend-mail": "2.9.*",
-        "gyselroth/mongodb-php-task-scheduler": "^1.0.1",
+        "gyselroth/mongodb-php-task-scheduler": "^3.0.0",
         "hassankhan/config": "*",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",
         "bramus/monolog-colored-line-formatter": "~2.0",
         "zendframework/zend-servicemanager": "^3.3",
         "maennchen/zipstream-php": "^0.5.1",
-        "katzien/php-mime-type": "^2.1"
+        "katzien/php-mime-type": "^2.1",
+        "guzzlehttp/guzzle": "^6.3",
+        "icewind/smb": "dev-master#523d1bc",
+        "paragonie/halite": "^4"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
         "ext-imagick": "Required for image previews and converter",
-        "ext-ldap": "Required for ldap authentication and ldap synchronization"
+        "ext-ldap": "Required for ldap authentication and ldap synchronization",
+        "ext-smb": "Required for SMB mounts"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.0.0",

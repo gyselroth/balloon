@@ -14,7 +14,7 @@ namespace Balloon\App\Cli\Console;
 use Balloon\Hook;
 use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Async;
+use TaskScheduler\Queue;
 
 class Jobs
 {
@@ -33,11 +33,11 @@ class Jobs
     protected $getopt;
 
     /**
-     * Async.
+     * Queue.
      *
-     * @var Async
+     * @var Queue
      */
-    protected $async;
+    protected $queue;
 
     /**
      * Hook.
@@ -49,41 +49,34 @@ class Jobs
     /**
      * Constructor.
      */
-    public function __construct(Hook $hook, Async $async, LoggerInterface $logger, GetOpt $getopt)
+    public function __construct(Hook $hook, Queue $queue, LoggerInterface $logger, GetOpt $getopt)
     {
-        $this->async = $async;
+        $this->queue = $queue;
         $this->hook = $hook;
         $this->logger = $logger;
         $this->getopt = $getopt;
-        $this->async = $async;
-    }
-
-    /*
-     * Get operands
-     *
-     * @return array
-     */
-    public static function getOperands(): array
-    {
-        return [
-            \GetOpt\Operand::create('action', \GetOpt\Operand::REQUIRED),
-            \GetOpt\Operand::create('id', \GetOpt\Operand::OPTIONAL),
-        ];
+        $this->queue = $queue;
     }
 
     /**
-     * Get help.
+     * Start.
      */
-    public function help(): Jobs
+    public function __invoke(): bool
     {
-        echo "listen\n";
-        echo "Start job listener (blocking process)\n\n";
+        $this->logger->info('daemon execution requested, fire up daemon', [
+            'category' => get_class($this),
+        ]);
 
-        echo "once\n";
-        echo "Execute all leftover jobs\n\n";
-        echo $this->getopt->getHelpText();
+        $this->hook->run('preExecuteAsyncJobs');
+        $this->queue->process();
 
-        return $this;
+        return true;
+    }
+
+    // Get operands
+    public static function getOperands(): array
+    {
+        return [];
     }
 
     /**
@@ -92,32 +85,5 @@ class Jobs
     public static function getOptions(): array
     {
         return [];
-    }
-
-    /**
-     * Start.
-     */
-    public function listen(): bool
-    {
-        $this->logger->info('daemon execution requested, fire up daemon', [
-            'category' => get_class($this),
-        ]);
-
-        $this->hook->run('preExecuteAsyncJobs');
-        $this->async->startDaemon();
-    }
-
-    /*
-     * Start.
-     *
-     * @return bool
-     */
-    public function once(): bool
-    {
-        $this->hook->run('preExecuteAsyncJobs');
-        $this->async->startOnce();
-        $this->hook->run('postExecuteAsyncJobs');
-
-        return true;
     }
 }

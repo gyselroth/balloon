@@ -51,10 +51,14 @@ class CleanTempStorage extends AbstractJob
     }
 
     /**
-     * Start.
+     * {@inheritdoc}
      */
     public function start(): bool
     {
+        $this->logger->debug('clean temporary storage from blobs older than ['.$this->data['max_age'].'s]', [
+            'category' => get_class($this),
+        ]);
+
         $lt = (time() - $this->data['max_age']) * 1000;
         $result = $this->db->selectCollection('fs.files')->find([
             'uploadDate' => ['$lt' => new UTCDateTime($lt)],

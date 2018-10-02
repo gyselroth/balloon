@@ -16,9 +16,8 @@ use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Delta;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\File;
+use Balloon\Filesystem\Node\Factory as NodeFactory;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Storage;
 use Balloon\Server\User;
 use Generator;
 use MongoDB\BSON\ObjectId;
@@ -78,11 +77,11 @@ class Filesystem
     protected $user;
 
     /**
-     * Storage.
+     * Node factory.
      *
-     * @var Storage
+     * @var NodeFactory
      */
-    protected $storage;
+    protected $node_factory;
 
     /**
      * Acl.
@@ -99,18 +98,25 @@ class Filesystem
     protected $cache = [];
 
     /**
+     * Node storage cache.
+     *
+     * @var array
+     */
+    protected $raw_cache = [];
+
+    /**
      * Initialize.
      *
      * @param User $user
      */
-    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, Storage $storage, Acl $acl, ?User $user = null)
+    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, NodeFactory $node_factory, Acl $acl, ?User $user = null)
     {
         $this->user = $user;
         $this->server = $server;
         $this->db = $db;
         $this->logger = $logger;
         $this->hook = $hook;
-        $this->storage = $storage;
+        $this->node_factory = $node_factory;
         $this->acl = $acl;
     }
 
@@ -173,8 +179,8 @@ class Filesystem
      */
     public function findRawNode(ObjectId $id): array
     {
-        if (isset($this->cache[(string) $id])) {
-            return $this->cache[(string) $id]->getRawAttributes();
+        if (isset($this->raw_cache[(string) $id])) {
+            return $this->raw_cache[(string) $id];
         }
 
         $node = $this->db->storage->findOne(['_id' => $id]);
@@ -185,11 +191,7 @@ class Filesystem
             );
         }
 
-        if (true === $node['directory']) {
-            $this->cache[(string) $id] = new Collection($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        } else {
-            $this->cache[(string) $id] = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        }
+        $this->raw_cache[(string) $id] = $node;
 
         return $node;
     }
@@ -466,9 +468,6 @@ class Filesystem
 
     /**
      * Find nodes with custom filters.
-     *
-     * @param int $offset
-     * @param int $limit
      */
     public function findNodesByFilter(array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
@@ -476,6 +475,8 @@ class Filesystem
             'skip' => $offset,
             'limit' => $limit,
         ]);
+
+        $count = $this->db->storage->count($filter);
 
         foreach ($result as $node) {
             try {
@@ -488,14 +489,11 @@ class Filesystem
             }
         }
 
-        return $this->db->storage->count($filter);
+        return $count;
     }
 
     /**
      * Get custom filtered children.
-     *
-     * @param int $offset
-     * @param int $limit
      */
     public function findNodesByFilterUser(int $deleted, array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
@@ -521,6 +519,8 @@ class Filesystem
             'limit' => $limit,
         ]);
 
+        $count = $this->db->storage->count($stored_filter);
+
         foreach ($result as $node) {
             try {
                 yield $this->initNode($node);
@@ -532,7 +532,7 @@ class Filesystem
             }
         }
 
-        return $this->db->storage->count($stored_filter);
+        return $count;
     }
 
     /**
@@ -540,22 +540,25 @@ class Filesystem
      */
     public function initNode(array $node): NodeInterface
     {
+        $id = $node['_id'];
+
         if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] != $this->user->getId()) {
             $node = $this->findReferenceNode($node);
         }
 
         if (isset($node['parent'])) {
-            $this->findNodeById($node['parent']);
+            $parent = $this->findNodeById($node['parent']);
+        } elseif ($node['_id'] !== null) {
+            $parent = $this->getRoot();
+        } else {
+            $parent = null;
         }
 
         if (!array_key_exists('directory', $node)) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
-        if (true === $node['directory']) {
-            $instance = new Collection($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        } else {
-            $instance = new File($node, $this, $this->logger, $this->hook, $this->acl, $this->storage);
-        }
+
+        $instance = $this->node_factory->build($this, $node, $parent);
 
         if (!$this->acl->isAllowed($instance, 'r')) {
             if ($instance->isReference()) {
@@ -584,7 +587,7 @@ class Filesystem
             throw new Exception\Conflict('node is not available anymore');
         }
 
-        if ($this->user === null) {
+        if (PHP_SAPI === 'cli') {
             unset($this->cache[(string) $node['_id']]);
         }
 

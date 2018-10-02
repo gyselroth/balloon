@@ -246,7 +246,7 @@
           },
           "mime" : {
             "type" : "text",
-            "index" : "not_analyzed",
+            "index": false,
             "fields" : {
               "keyword" : {
                 "type" : "keyword",

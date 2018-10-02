@@ -177,6 +177,7 @@ class AttributeDecoratorTest extends Test
             'deleted' => new UTCDateTime(0),
             'destroy' => new UTCDateTime(0),
             'filter' => json_encode(['name' => 'foo']),
+            'mount' => [],
         ]);
 
         return $stub;

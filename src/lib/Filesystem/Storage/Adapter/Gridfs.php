@@ -66,24 +66,64 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasNode(NodeInterface $node, array $attributes): bool
+    public function deleteCollection(Collection $collection): ?array
     {
-        return null !== $this->getFileById($attributes);
+        return $collection->getAttributes()['storage'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, array $attributes): bool
+    public function forceDeleteCollection(Collection $collection): bool
     {
-        if (!isset($attributes['_id'])) {
-            throw new Exception\BlobNotFound('attributes do not contain a gridfs id');
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function undelete(NodeInterface $node): ?array
+    {
+        return $node->getAttributes()['storage'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rename(NodeInterface $node, string $new_name): ?array
+    {
+        return $node->getAttributes()['storage'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function readonly(NodeInterface $node, bool $readonly = true): ?array
+    {
+        return $node->getAttributes()['storage'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasNode(NodeInterface $node): bool
+    {
+        return null !== $this->getFileById($node->getId());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function forceDeleteFile(File $file, ?int $version = null): bool
+    {
+        try {
+            $exists = $this->getFileById($this->getId($file));
+        } catch (Exception\BlobNotFound $e) {
+            return true;
         }
 
-        $exists = $this->getFileById($attributes['_id']);
-
         if (null === $exists) {
-            $this->logger->debug('gridfs content node ['.$exists['_id'].'] was not found, file reference=['.$file->getId().']', [
+            $this->logger->debug('gridfs blob ['.$exists['_id'].'] was not found for file reference ['.$file->getId().']', [
                 'category' => get_class($this),
             ]);
 
@@ -124,13 +164,17 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getFile(File $file, array $attributes)
+    public function deleteFile(File $file, ?int $version = null): ?array
     {
-        if (!isset($attributes['_id'])) {
-            throw new Exception\BlobNotFound('attributes do not contain a gridfs id');
-        }
+        return $file->getAttributes()['storage'];
+    }
 
-        return $this->gridfs->openDownloadStream($attributes['_id']);
+    /**
+     * {@inheritdoc}
+     */
+    public function openReadStream(File $file)
+    {
+        return $this->gridfs->openDownloadStream($this->getId($file));
     }
 
     /**
@@ -197,11 +241,19 @@ class Gridfs implements AdapterInterface
     }
 
     /**
-     * Create collection.
+     * {@inheritdoc}
      */
-    public function createCollection(Collection $collection): array
+    public function createCollection(Collection $parent, string $name): array
     {
         return [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function move(NodeInterface $node, Collection $parent): ?array
+    {
+        return $node->getAttributes()['storage'];
     }
 
     /**
@@ -232,12 +284,39 @@ class Gridfs implements AdapterInterface
         ]);
 
         if ($temp === null) {
-            throw new Exception\SessionNotFound('Temporary storage for this file is gone');
+            throw new Exception\SessionNotFound('temporary storage for this file is gone');
         }
 
         $this->storeStream($stream, $user, $exists, $temp);
 
         return $session;
+    }
+
+    /**
+     * Get file blob id.
+     */
+    protected function getId(NodeInterface $node, ?int $version = null): ObjectId
+    {
+        $attributes = $node->getAttributes();
+
+        if ($version !== null) {
+            $history = $node->getHistory();
+
+            $key = array_search($version, array_column($history, 'version'), true);
+            $blobs = array_column($history, 'storage');
+
+            if ($key === false || !isset($blobs[$key]['_id'])) {
+                throw new Exception\BlobNotFound('attributes do not contain a gridfs id storage._id');
+            }
+
+            return $blobs[$key]['_id'];
+        }
+
+        if (!isset($attributes['storage']['_id'])) {
+            throw new Exception\BlobNotFound('attributes do not contain a gridfs id storage._id');
+        }
+
+        return $attributes['storage']['_id'];
     }
 
     /**

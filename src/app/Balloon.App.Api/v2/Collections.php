@@ -313,16 +313,13 @@ class Collections extends Nodes
 
             return (new Response())->setCode(201)->setBody($result);
         }
+
         if (null !== $id && null === $name) {
             throw new Exception\InvalidArgument('name must be set with id');
         }
+
         $parent = $this->fs->getNode($id, null, null, false, true);
-
-        if (!is_string($name) || empty($name)) {
-            throw new Exception\InvalidArgument('name must be a valid string');
-        }
-
-        $result = $parent->addDirectory($name, $attributes, $conflict);
+        $result = $parent->addDirectory((string) $name, $attributes, $conflict);
         $result = $this->node_decorator->decorate($result);
 
         return (new Response())->setCode(201)->setBody($result);

@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Testsuite\Unit;
 
 use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Node\Factory as NodeFactory;
 use Balloon\Hook;
 use Balloon\Server;
 use Helmich\MongoMock\MockDatabase;
@@ -48,7 +48,7 @@ abstract class Test extends TestCase
 
         $server = new Server(
             self::getMockDatabase(),
-            $this->createMock(Storage::class),
+            $this->createMock(NodeFactory::class),
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
             $acl

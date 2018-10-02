@@ -27,7 +27,6 @@ fi
 
 echo "create admin user"
 /usr/bin/ballooncli upgrade start -vvv -i
-/usr/bin/ballooncli users add -u admin -p admin -m root@localhost.local -a
 chown -R www-data. /var/log/balloon
 
 echo "create systemctl service"

@@ -198,25 +198,29 @@ class Delta extends AbstractHook
             }
         } elseif (in_array('shared', $attributes, true) && $raw['shared'] !== $node->isShare() && !$node->isShare()) {
             $operation = 'delete'.$suffix.$suffix2;
-        } elseif ($node instanceof File && $node->getVersion() !== $raw['version']) {
+        } elseif ($node instanceof File && $node->getVersion() !== $raw['version'] && $raw['version'] !== 0) {
             $history = $node->getHistory();
             $last = end($history);
 
-            switch ($last['type']) {
-                case File::HISTORY_EDIT:
-                    $operation = 'editFile';
-                    $log['previous'] = [
-                        'version' => $raw['version'],
-                    ];
+            if ($last['version'] === $node->getVersion()) {
+                switch ($last['type']) {
+                    case File::HISTORY_EDIT:
+                        $operation = 'editFile';
+                        $log['previous'] = [
+                            'version' => $raw['version'],
+                        ];
 
-                    break;
-                case File::HISTORY_RESTORE:
-                    $operation = 'restoreFile';
-                    $log['previous'] = [
-                        'version' => $raw['version'],
-                    ];
+                        break;
+                    case File::HISTORY_RESTORE:
+                        $operation = 'restoreFile';
+                        $log['previous'] = [
+                            'version' => $raw['version'],
+                        ];
 
-                    break;
+                        break;
+                }
+            } else {
+                $operation = 'editFile';
             }
         }
 

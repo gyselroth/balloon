@@ -3,7 +3,14 @@
 This is a step-by-step tutorial how to correctly deploy the balloon server and the [balloon web](github.com/gyselroth/balloon-client-web) based user interface.
 This tutorial includes the web interface, of course you may also just install the server components only. The web ui acts as a balloon client and is completely optional.
 
-There are multiple supported ways to deploy balloon
+There are multiple supported ways to deploy balloon:
+
+* Classic way as deb package via apt
+* Manually as tar archive
+* Docker (docker-compose or via a orchestration plattform like [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/))
+* Compile manually from scratch
+
+The docker deployment is the **recommended** way to deploy balloon. And it is also the simplest way.
 
 ## Debian based distribution
 
@@ -15,7 +22,7 @@ Both the server and the web ui get distributed as .deb packages to make it easy 
 You need a running debian based linux distribution. This can be [debian](https://www.debian.org) itself or debian based distribution like [Ubuntu](https://www.ubuntu.com). You may also convert the package using `alien` to rpm and other package formats. 
 If you are not sure how to deploy such a server please visit the documentation of those distributions as this is out of the scope of this documentation.
 
-This tutorial will install all balloon components on the same server. In production environments this may not be the reccommended way and it is neither scalable nor performant. You certainly can deploy all components on different server. The balloon server is fully scalable and can be scaled horizontally as well as can the required components like MongoDB and Elasticsearch (Elasticsearch is optional since it is a core app and my be disabled). You can also deploy multiple web ui instances if you have to. Everything will scale easlily to your needs.
+This tutorial describes how to install all balloon components on the same server. In production environments this may not be the best way and it is neither scalable nor performant. You certainly can deploy all components on different server. The balloon server is fully scalable and can be scaled horizontally as well as can the required components like MongoDB and Elasticsearch (Elasticsearch is optional since it is a core app and my be disabled). You can also deploy multiple web ui instances if you have to. Everything will scale easlily to your needs.
 
 ### Package Repository
 
@@ -45,7 +52,7 @@ sudo apt-get update
 ```
 
 #### MongoDB
-balloon uses MongoDB as its main noSQL database. At least MongoDB 3.4 is required. If your current distribution does not ship at least this release you will need to add the official MongoDB repository.
+balloon uses MongoDB as its main database. At least MongoDB 3.4 is required. If your current distribution does not ship at least this release you will need to add the official MongoDB repository.
 
 >**Note**: MongoDB recommends to use the official MongoDB repository anyway since the releases in the debian and or ubuntu repositories are not maintained by them and lack newer minor releases.
 
@@ -70,20 +77,20 @@ sudo apt-get update
 ### Install balloon
 Now balloon and its components can be installed.
 ```
-apt-get install mongodb-org elasticsearch clamav balloon balloon-web
+apt-get install mongodb-org elasticsearch libreoffice clamav balloon balloon-web
 ```
 
->**Note**: ClamAV and Elasticsearch are optional balloon components and are used in the core apps Balloon.App.Elasticsearch and Balloon.App.ClamAV.
+>**Note**: ClamAV, Elasticsearch and LibreOffice are optional balloon components and are used in the core apps Balloon.App.ClamAV, Balloon.App.Elasticsearch and Balloon.App.Preview.
 
-After all packages have been installed the balloon web interface is reachable under `https://localhost`.
+After all packages have been installed the balloon web interface is reachable at `https://localhost`.
 The installation will create a default admin account:
 
 Username: admin \
 Password: admin \
 
-## Docker (compose)
+## Docker (docker-compose)
 
-The probably easiest and fastest way to setup a balloon environment is to spin it up using docker and docker-compose.
+The easiest, fastest and recommended way to deploy a balloon environment is to spin it up using docker and docker-compose.
 Since the installation is not the same for different host os and docker can be started on Linux, Windows and Mac please visit 
 the docker documentation on how to install [docker](https://docs.docker.com/install) and [docker-compose](https://docs.docker.com/compose/install).
 
@@ -118,6 +125,8 @@ elasticsearch:
     image: gyselroth/balloon-elasticsearch:latest
 postfix:
     image: webuni/postfix
+browserless:
+    image: browserless/chrome
 balloon:
     image: gyselroth/balloon:latest
     links:
@@ -125,6 +134,7 @@ balloon:
         - mongodb
         - elasticsearch
         - postfix
+        - browserless
     entrypoint: php-fpm
     environment:
         - BALLOON_MONGODB_URI=mongodb://mongodb:27017
@@ -133,6 +143,7 @@ balloon:
         - BALLOON_WOPI_URL=https://balloon
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
+        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
 balloon-jobs:
     image: gyselroth/balloon:latest
     links:
@@ -140,7 +151,8 @@ balloon-jobs:
         - mongodb
         - elasticsearch
         - postfix
-    entrypoint: ballooncli jobs listen
+        - browserless
+    entrypoint: ballooncli jobs
     environment:
         - BALLOON_MONGODB_URI=mongodb://mongodb:27017
         - BALLOON_CLAMAV_URI=tcp://clamav:3310
@@ -148,6 +160,7 @@ balloon-jobs:
         - BALLOON_WOPI_URL=https://balloon
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
+        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
 ```
 
 The balloon server can now be started using:
@@ -155,10 +168,18 @@ The balloon server can now be started using:
 docker-compose -f balloon-stable.yaml up
 ```
 
->**Note**: All balloon containers also support an exact tagged version instead `latest`. It is also possible to use the latest pre releases via docker using the `latest-unstable` tag for the balloon-jobs, balloon and balloon-web container definiton above. It is in no way reccomened to use pre-releases in production environments! 
+You need to initialize balloon once (You do not need to execute this everytime you start the server via docker-compose, it is just a one time call):
+```
+docker exec balloon-stable-balloon_1 ballooncli upgrade -i -vvv
+```
 
-After all packages have been installed the balloon web interface is reachable under `https://localhost`.
-The balloon container will try to create an account named admin at every bootstrap if it does not exists yet:
+>**Note**: All balloon containers provide a version tag besides `latest`. It is best practice to use an exact version of a service instead the latest tag in production environment.
+The containers provide a `latest-unstable` tag for the balloon-jobs, balloon and balloon-web container. It is in no way reccomened to use pre-releases in production environments! 
+
+>**Note**: If you want to install beta and alpha versions replace `latest` with `latest-unstable` or specify an exact version tag. Pre-releases are only ment for testing purposes and are in **no** way recommended in production environements!
+
+
+The balloon web interface is now reachable at `https://localhost`.
 
 Username: admin \
 Password: admin \
@@ -173,14 +194,29 @@ This topic is only for advanced users or developers and describes how to deploy 
 If you are a developer please also continue reading [this](https://github.com/gyselroth/balloon/blob/master/CONTRIBUTING.md) article.
 
 **Requirements**:
+* posix based operating system (Basically every linux/unix)
 * make
 * [comoser](https://getcomposer.org/download/)
 * [npm >= v5](https://nodejs.org/en/)
 * git
-* PHP and required PHP modules, see composer dependencies
+* php >= 7.2
+* php ext-mongodb
+* php ext-curl
+* php ext-mbstring
+* php ext-intl
+* php ext-zip
+* php ext-posix
+* php ext-pnctl
+
+**Optional requirements**:
+
+* php ext-apc (Used in \Micro\Auth to cache discovery metadata)
+* php ext-imagick (Used in Balloon.App.Preview)
+* php ext-ldap (Used for LDAP authentication adapter in Micro\Auth)
+* php ext-smb (Used for SMB external storage)
 
 This will only install the balloon server and the balloon web client. Dependencies such as MongoDB, LibreOffice or Elasticsearch wont get installed.
-You can install those dependencies either bei using distributed packages, see [Debian based distribution](#Debian based distribution) or by installing them seperately from source.
+You can install those dependencies either bei using distributed packages, see [Debian based distribution](#debian-based-distribution) or by installing them seperately from source.
 
 ### Install balloon server
 ```sh

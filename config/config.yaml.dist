@@ -13,6 +13,7 @@ Balloon\Bootstrap\Cli:
 Balloon\Bootstrap\AbstractBootstrap:
   calls:
     Balloon.App.Api: {method: inject, arguments:{object: '{Balloon\App\Api\Constructor\Http}'}}
+    Balloon.App.Burl: {method: inject, arguments:{object: '{Balloon\App\Burl\Constructor\Http}'}}
     Balloon.App.Webdav: {method: inject, arguments:{object: '{Balloon\App\Webdav\Constructor\Http}'}}
     Balloon.App.Sharelink: {method: inject, arguments:{object: '{Balloon\App\Sharelink\Constructor\Http}'}}
     Balloon.App.Convert: {method: inject, arguments:{object: '{Balloon\App\Convert\Constructor\Http}'}}
@@ -29,6 +30,11 @@ Balloon\Server:
       server_url: "{ENV(BALLOON_URL,https://localhost)}"
       password_policy: '#^.*$#'
       password_hash: 1
+Balloon\App\Burl\Converter\Adapter\Burl:
+    arguments:
+        browserlessUrl: "{ENV(BALLOON_BURL_BROWSERLESS_URL,https://chrome.browserless.io)}"
+        preview_max_size: 500
+        timeout: 10
 Balloon\App\ClamAv\Scanner:
   arguments:
     config:
@@ -87,6 +93,17 @@ Balloon\App\DesktopClient\Constructor\Http:
       github_request_useragent: "balloon server"
       #formats: ""
       #github_asset_mapping: ""
+TaskScheduler\Scheduler:
+  arguments:
+    config:
+      job_queue_size: 1000000
+      event_queue_size: 5000000
+TaskScheduler\Queue:
+  arguments:
+    config:
+      pm: dynamic
+      max_children: 4
+      min_children: 2
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:
@@ -94,15 +111,10 @@ Zend\Mail\Transport\SmtpOptions:
       port: 25
 Zend\Mail\Transport\TransportInterface:
   use: "Zend\\Mail\\Transport\\Smtp"
-Balloon\Filesystem:
-  expose: true
-Balloon\Filesystem\Storage:
-  calls:
-    gridfs:
-      method: injectAdapter
-      arguments:
-        adapter: '{Balloon\Filesystem\Storage\Adapter\Gridfs}'
-        name: 'gridfs'
+Balloon\Filesystem\Node\Factory:
+  services:
+    Balloon\Filesystem\Storage\Adapter\AdapterInterface:
+      use: "Balloon\Filesystem\Storage\Adapter\Gridfs"
 Balloon\Hook:
   calls:
     Balloon\Hook\Delta:
@@ -143,6 +155,15 @@ Balloon\Hook:
         config:
           interval: 172800
           max_age: 172800
+    Balloon\Hook\ExternalStorage:
+      arguments:
+        config:
+          interval: 86400
+ParagonIE\Halite\Symmetric\EncryptionKey:
+  services:
+    ParagonIE\Halite\HiddenString:
+      arguments:
+        value: 3140040033da9bd0dedd8babc8b89cda7f2132dd5009cc43c619382863d0c75e172ebf18e713e1987f35d6ea3ace43b561c50d9aefc4441a8c4418f6928a70e4655de5a9660cd323de63b4fd2fb76525470f25311c788c5e366e29bf60c438c4ac0b440e
 Balloon\Converter:
   calls:
     Balloon\Converter\Adapter\ImagickImage:

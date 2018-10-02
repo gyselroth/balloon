@@ -90,9 +90,6 @@ class Delta
 
     /**
      * Build a single dimension array with all nodes.
-     *
-     * @param array         $cursor
-     * @param NodeInterface $node
      */
     public function buildFeedFromCurrentState(?array $cursor = null, int $limit = 100, ?NodeInterface $node = null): array
     {
@@ -163,10 +160,6 @@ class Delta
 
     /**
      * Get last delta event.
-     *
-     * @param NodeInterface $node
-     *
-     * @return array
      */
     public function getLastRecord(?NodeInterface $node = null): ?array
     {
@@ -193,8 +186,6 @@ class Delta
 
     /**
      * Get last cursor.
-     *
-     * @param NodeInterface $node
      */
     public function getLastCursor(?NodeInterface $node = null): string
     {
@@ -221,9 +212,6 @@ class Delta
 
     /**
      * Get delta feed with changes and cursor.
-     *
-     * @param string        $cursor
-     * @param NodeInterface $node
      */
     public function getDeltaFeed(?string $cursor = null, int $limit = 250, ?NodeInterface $node = null): array
     {
@@ -317,8 +305,6 @@ class Delta
 
     /**
      * Get event log.
-     *
-     * @param NodeInterface $node
      */
     public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): Iterable
     {
@@ -368,9 +354,6 @@ class Delta
 
     /**
      * Get delta feed with changes and cursor.
-     *
-     * @param string        $cursor
-     * @param NodeInterface $node
      */
     protected function getDeltaQuery(?string $cursor = null, int $limit = 250, ?NodeInterface $node = null): array
     {
@@ -417,9 +400,6 @@ class Delta
 
     /**
      * Get delta event for a (forced) deleted node.
-     *
-     *
-     * @return array
      */
     protected function getDeletedNodeDelta(array $event): ?array
     {
@@ -452,7 +432,7 @@ class Delta
     }
 
     /**
-     * Init.
+     * Parse client.
      */
     protected function parseClient(): bool
     {
@@ -504,10 +484,6 @@ class Delta
 
     /**
      * Decode cursor.
-     *
-     * @param string $cursor
-     *
-     * @return array
      */
     protected function decodeCursor(?string $cursor): ?array
     {
@@ -547,14 +523,6 @@ class Delta
 
     /**
      * Get children with custom filter.
-     *
-     * @param array         $filter
-     * @param int           $limit
-     * @param string        $cursor
-     * @param bool          $has_more
-     * @param NodeInterface $parent
-     *
-     * @return array
      */
     protected function findNodeAttributesWithCustomFilter(
         ?array $filter = null,

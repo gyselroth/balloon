@@ -18,10 +18,6 @@ class Helper
 {
     /**
      * Convert UTCDateTime to unix ts.
-     *
-     * @param UTCDateTime $date
-     *
-     * @return stdClass
      */
     public static function DateTimeToUnix(?UTCDateTime $date): ?stdClass
     {
@@ -45,5 +41,22 @@ class Helper
         return ((string) (int) $timestamp === $timestamp)
             && ($timestamp <= PHP_INT_MAX)
             && ($timestamp >= ~PHP_INT_MAX);
+    }
+
+    /**
+     * Multibyte unicode safe version of basename().
+     *
+     * @see http://php.net/manual/en/function.basename.php#121405
+     */
+    public static function mb_basename($path): string
+    {
+        if (preg_match('@^.*[\\\\/]([^\\\\/]+)$@s', $path, $matches)) {
+            return $matches[1];
+        }
+        if (preg_match('@^([^\\\\/]+)$@s', $path, $matches)) {
+            return $matches[1];
+        }
+
+        return '';
     }
 }

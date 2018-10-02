@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon;
 
 use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Node\Factory as NodeFactory;
 use Balloon\Server\Group;
 use Balloon\Server\User;
 use Generator;
@@ -34,11 +34,11 @@ class Server
     protected $db;
 
     /**
-     * Storage.
+     * Node Factory.
      *
-     * @var Storage
+     * @var NodeFactory
      */
-    protected $storage;
+    protected $node_factory;
 
     /**
      * LoggerInterface.
@@ -112,13 +112,11 @@ class Server
 
     /**
      * Initialize.
-     *
-     * @param iterable $config
      */
-    public function __construct(Database $db, Storage $storage, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
+    public function __construct(Database $db, NodeFactory $node_factory, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
     {
         $this->db = $db;
-        $this->storage = $storage;
+        $this->node_factory = $node_factory;
         $this->logger = $logger;
         $this->hook = $hook;
         $this->acl = $acl;
@@ -181,13 +179,13 @@ class Server
     public function getFilesystem(?User $user = null): Filesystem
     {
         if (null !== $user) {
-            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl, $user);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->node_factory, $this->acl, $user);
         }
         if ($this->identity instanceof User) {
-            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl, $this->identity);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->node_factory, $this->acl, $this->identity);
         }
 
-        return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->storage, $this->acl);
+        return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->node_factory, $this->acl);
     }
 
     /**
@@ -441,7 +439,10 @@ class Server
         }
 
         $user = new User(array_shift($users), $this, $this->db, $this->logger);
-        $this->cache_users[(string) $id] = $user;
+
+        if ($this->identity !== null) {
+            $this->cache_users[(string) $id] = $user;
+        }
 
         return $user;
     }
@@ -640,7 +641,10 @@ class Server
         }
 
         $group = new Group($group, $this, $this->db, $this->logger);
-        $this->cache_groups[(string) $id] = $group;
+
+        if ($this->identity !== null) {
+            $this->cache_groups[(string) $id] = $group;
+        }
 
         return $group;
     }

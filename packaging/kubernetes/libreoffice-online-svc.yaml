@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: libreoffice
+  name: libreoffice
+  namespace: balloon
+spec:
+  ports:
+  - name: "http"
+    port: 9980
+    protocol: TCP
+    targetPort: 9980
+  selector:
+    k8s-app: libreoffice
+  sessionAffinity: None
+  type: ClusterIP

@@ -101,11 +101,13 @@ class Acl
             $this->logger->debug('grant access to node ['.$node->getId().'] for user ['.$user->getId().'] by privilege ['.$priv.']', [
                 'category' => get_class($this),
             ]);
-        } else {
-            $this->logger->debug('deny access to node ['.$node->getId().'] for user ['.$user->getId().'] by privilege ['.$priv.']', [
-                'category' => get_class($this),
-            ]);
+
+            return $result;
         }
+
+        $this->logger->debug('deny access to node ['.$node->getId().'] for user ['.$user->getId().'] by privilege ['.$priv.']', [
+            'category' => get_class($this),
+        ]);
 
         return $result;
     }
@@ -259,7 +261,7 @@ class Acl
             return self::PRIVILEGE_DENY;
         }
 
-        return $this->processRuleset($user, $share['acl']);
+        return self::PRIVILEGE_READWRITE;
     }
 
     /**

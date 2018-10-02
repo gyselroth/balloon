@@ -18,6 +18,7 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Hook\AbstractHook;
 use Balloon\Server;
 use Balloon\Server\User;
+use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
 class NewShareAdded extends AbstractHook
@@ -77,6 +78,10 @@ class NewShareAdded extends AbstractHook
 
         $receiver = [];
         foreach ($node->getAcl() as $rule) {
+            if (isset($raw['acl']) && $this->hadRole($raw['acl'], $rule['role']->getId())) {
+                continue;
+            }
+
             if ('user' === $rule['type']) {
                 if (!isset($receiver[(string) $rule['role']->getId()]) && $this->checkNotify($node, $rule['role'])) {
                     $receiver[(string) $rule['role']->getId()] = $rule['role'];
@@ -91,9 +96,26 @@ class NewShareAdded extends AbstractHook
         }
 
         if (!empty($receiver)) {
-            $message = $this->notifier->nodeMessage('new_share_added', $node);
+            $message = $this->notifier->compose('new_share_added', [
+                'node' => $node,
+            ]);
+
             $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
         }
+    }
+
+    /**
+     * Check if had role before.
+     */
+    protected function hadRole(array $acl, ObjectId $id): bool
+    {
+        foreach ($acl as $rule) {
+            if ($rule['id'] == $id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

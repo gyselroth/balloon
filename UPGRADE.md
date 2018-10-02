@@ -1,3 +1,11 @@
+## 2.x -> 2.1.x
+### Upgrade
+Run upgrade is required to upgrade all nodes to 2.1.x:
+
+```sh
+ballooncli upgrade -vvvv
+```
+
 ## 1.x -> 2.x
 ### Deployment
 balloon 2.0.0 can be easily deployed using debian packages or docker images. Consider to rethink they way you deploy new balloon versions.
@@ -9,7 +17,7 @@ from v1.0.x. There is now way to automatically migrate your configuration.
 ### Upgrade
 balloon 2.0.0 features an in-built upgrade mechanism. All you need to do after migrating the configuration is run the upgrade:
 ```sh
-ballooncli upgrade -vvvv
+ballooncli upgrade -vvvv start
 ```
 
 ### API

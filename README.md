@@ -8,34 +8,31 @@
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgyselroth%2Fballoon?ref=badge_shield)
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/app/img/balloon-startup.png"/>
+    <img src="https://raw.githubusercontent.com/gyselroth/balloon-screenshots/master/src/tree.png"/>
 </p>
 
-## Features
-
-* Virtual Filesystem based on MongoDB which is highly scalable
-* Multiple types of authentication, local (MongoDB), LDAP, OpenID-Connect
-* REST API
-* WebDAV Support (Support for network drives on Windows)
 * Various DMS features like tagging, meta data, sharing, file history and more
+* Using MongoDB which is highly scalable and super fast
+* WebDAV Support (Support for network drives on Windows)
 * Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
-* Events
-* Integrated app system to support 3rd party apps
-* The core is shipped with various core apps pre-installed
-* Integrated deduplication system to save your storage
+* High performance server, horizontally scalable, easy clustering
+* Deployable out of the box for debian (deb), tar archive, docker images, kubernetes and more
 * User quotas
-* File previews (core app)
-* Notifications (core app)
-* Full text search via Elasticsearch (core app)
-* Malware scanning via ClamAV (core app)
-* WOPI support for libre office online and Office 365 (ongoing) (core app)
+* App system for 3rd party apps
+* The core is shipped with various core apps pre-installed
+* File previews (core app, Balloon.App.Preview)
+* Mail Notifications (core app, Balloon.App.Notificsation)
+* Full text search using [Elasticsearch](https://github.com/elastic/elasticsearch) (core app, Balloon.App.Elasticsearch)
+* Malware scanning using [ClamAV](https://github.com/Cisco-Talos/clamav-devel) (core app, Balloon.App.ClamAv)
+* WOPI support for libre office online and Office 365 (ongoing) (core app, Balloon.App.Office)
 * Automatically let your files convert to other file formats (Keep an auotmatic updated pdf file for a word file for example) (core app)
 * Automatically destroy files/folders at a certain time
-* Globally accessible share links (core app)
-* Task scheduler
-* Cluster/Distributed system support
-* Support for cloud native deployment
-* Packaged for debian and as docker image
+* Mount external storage (Currently only SMB/CIFS is supported since v2.1.0)
+* Eventlog
+* Integrated deduplication system to save your storage
+* Globally accessible share links (core app, Balloon.App.Sharelink)
+* Multiple types of authentication, local (MongoDB), LDAP, OpenID-Connect
+* REST API
 * ... and much more
 
 ## Documentation
@@ -58,3 +55,7 @@ in the [upgrade guide](https://github.com/gyselroth/balloon/blob/master/UPGRADE.
 
 ## Contribute
 We are glad that you would like to contribute to this project. Please follow the given [terms](https://github.com/gyselroth/balloon/blob/master/CONTRIBUTING.md).
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/app/img/balloon-startup.png"/>
+</p>

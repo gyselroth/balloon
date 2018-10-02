@@ -1,3 +1,86 @@
+## 2.1.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: 
+
+* CORE: [FIX] Fixed manage permission with read/write privielge on share which was another fix for #193
+
+
+## 2.1.0-rc1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Sept 27 11:39:33 CEST 2018
+
+* CORE: [CHANGE] Possibility to change the SmbScanner interval 
+* CORE: [FIX] Fixed abort running SmbListener loop with no respawn
+
+
+## 2.1.0-beta6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Sept 24 15:41:10 CEST 2018
+
+* CORE: [FIX] Testing Balloon\Filesystem\Storage\Adapter\Smb does not use smbclient since the notify handler requires a domain (smbclient --authentication-file)
+
+
+## 2.1.0-beta5
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Sept 24 15:41:10 CEST 2018
+
+* CORE: [FIX] Presets env variable BALLOON_CLAMAV_URI 
+* CORE: [CHANGE] Balloon\Async\SmbListener does not use a blocking listener anymore
+* CORE: [FIX] Balloon\\Filesystem\\Storage\\Exception\\BlobNotFound for 0Bytes files
+
+
+## 2.1.0-beta4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Sept 21 14:57:10 CEST 2018
+
+* CORE: [CHANGE] Removed possibility to specify a root path in an smb share (RFC-3), this functionality is not yet ready to get released 
+* CORE: [FIX] Create a share in a sub folder leads to an invalid link in the mail notification #196
+* CORE: [CHANGE] Include node and locale attribute in GET /api/v2/notifications response #198
+* CORE: [FIX] fixes multibyte issues with smb filenames (RFC-3), https://github.com/icewind1991/SMB/pull/74
+
+
+## 2.1.0-beta3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Sept 17 17:02:34 CEST 2018
+
+* CORE: [FIX] A new share notification is also sent to accounts which already received a notification #168
+* CORE: [CHANGE] ballooncli jobs and ballooncli upgrade do not require an action start nor listen anymore.
+* CORE: [CHANGE] Implemented smb password encryption via libsodium for RFC-3 credentials (Generate a key using ballooncli key)
+* CORE: [FIX] Fixed using a sub directory for a RFC-3 smb mount
+
+
+## 2.1.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Sept 14 13:24:34 CEST 2018
+
+* CORE: [FIX] Change mimetype if file extension does change
+* CORE: [FIX] Fixed register burl mimetype in Balloon.App.Burl
+* CORE: [CHANGE] It is not possible to completey disable AutoDestroy, CleanTempStorage, CleanTrash #195
+* CORE: [FIX] SmbScanner and SmbListere jobs get now removed if a mount is deleted
+
+
+## 2.1.0-beta1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Sept 12 14:14:45 CEST 2018\
+**Note**: ballooncli upgrade required, @see UPGRADE.md
+
+* CORE: [FEATURE] Implemented RFC-3 SMB external storage #156
+* CORE: [CHANGE] Do not add a content history entry if a file gets deleted #179
+* CORE: [CHANGE] Do not automatically remove deleted share references #180
+* CORE: [CHANGE] Do not delete child nodes of a custom filtered collection if a delete was issued on the collection #181
+* CORE: [FIX] Move within the same share executes a delete n create instead move #183
+* CORE: [FIX] Exception during restore a readonly share reference #193
+* API: [CHANGE] API returns share node from share owner instead share reference #182
+* API: [FIX] `0` is not allowed as collection name #189 
+* API: [FIX] Created timestamp missing from GET /api/v2/notifications response #190
+* API: [CHANGE] PUT with path /api/v1/file and PUT /api/v2/files does not required a leading slash (Slash is now optional)
+* CORE: [FIX] Change notifications tells wrong subscribed node #169
+* CORE: [CHANGE] Upgrade gyselroth/mongodb-php-task-scheduler to v3 #192
+* CORE: [CHANGE] Upgrade gyselroth/micro-container to v2.x #191
+* CORE: [CHANGE] Remove user management functionality from Balloon.App.Cli #152
+* CORE: [FEATURE] New .burl handler #134
+
+
 ## 2.0.14
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Aug 30 16:51:44 CEST 2018\
@@ -7,7 +90,7 @@
 
 ## 2.0.13
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Fri Aug 10 10:20:23 CEST 2018\
+**Date**: Fri Aug 10 10:20:23 CEST 2018
 
 * CORE: [FIX] Collection with children and set on auto destroy will end in a endless loop (both for tasks and http requests) #175
 
@@ -15,7 +98,7 @@
 ## 2.0.12
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Aug 09 17:25:45 CEST 2018\
-**Note**: Execute upgrade (`ballooncli upgrade start; ballooncli upgrade start -d 'Balloon\Migration\Delta\AddHashToHistory' -f`) is required to apply this fix
+**Note**: Execute upgrade (`ballooncli upgrade; ballooncli upgrade -d 'Balloon\Migration\Delta\AddHashToHistory' -f`) is required to apply this fix
 
 * CORE: [FIX] Upgrade delta missing to upgrade history versions from the old file reference to the v2 storage format #172
 

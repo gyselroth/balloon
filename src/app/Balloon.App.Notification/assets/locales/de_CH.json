@@ -10,7 +10,7 @@
         },
         "subscription": {
             "subject": "Es sind Änderungen in deinem balloon vorhanden",
-            "body": "Es sind Änderungen in deinem balloon vorhanden {node.name}.\n Du bekommst diese Meldung weil du Änderungen an {node.name} direkt oder dem übergeordneter Ordner abonniert hast."
+            "body": "Es sind Änderungen in deinem balloon vorhanden {node.name}.\n Du bekommst diese Meldung weil du Änderungen an {subscription.path} abonniert hast."
         }
     },
     "hi": "Hallo %s",

@@ -31,13 +31,6 @@ abstract class AbstractHook implements HookInterface
     /**
      * {@inheritdoc}
      */
-    public function postExecuteAsyncJobs(): void
-    {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function preAuthentication(Auth $auth): void
     {
     }

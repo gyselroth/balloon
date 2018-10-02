@@ -11,10 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification;
 
-use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server\User;
 
-class NodeMessage implements MessageInterface
+class Message implements MessageInterface
 {
     /**
      * Message type.
@@ -24,11 +23,11 @@ class NodeMessage implements MessageInterface
     protected $type;
 
     /**
-     * Node.
+     * Context.
      *
-     * @var NodeInterface
+     * @var array
      */
-    protected $node;
+    protected $context = [];
 
     /**
      * Template handler.
@@ -40,11 +39,11 @@ class NodeMessage implements MessageInterface
     /**
      * Constructor.
      */
-    public function __construct(string $type, TemplateHandler $template, NodeInterface $node)
+    public function __construct(string $type, TemplateHandler $template, array $context = [])
     {
         $this->type = $type;
         $this->template = $template;
-        $this->node = $node;
+        $this->context = $context;
     }
 
     /**
@@ -52,10 +51,10 @@ class NodeMessage implements MessageInterface
      */
     public function getSubject(?User $user = null): string
     {
-        return $this->template->getSubject($this->type, [
-            'user' => $user,
-            'node' => $this->node,
-        ]);
+        $context = $this->context;
+        $context['user'] = $user;
+
+        return $this->template->getSubject($this->type, $context);
     }
 
     /**
@@ -63,10 +62,26 @@ class NodeMessage implements MessageInterface
      */
     public function getBody(?User $user = null): string
     {
-        return $this->template->getBody($this->type, [
-            'user' => $user,
-            'node' => $this->node,
-        ]);
+        $context = $this->context;
+        $context['user'] = $user;
+
+        return $this->template->getBody($this->type, $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContext(): array
+    {
+        return $this->context;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getType(): string
+    {
+        return $this->type;
     }
 
     /**
@@ -74,9 +89,9 @@ class NodeMessage implements MessageInterface
      */
     public function renderTemplate(string $template, ?User $user = null): string
     {
-        return $this->template->renderTemplate($this->type, $template, [
-            'user' => $user,
-            'node' => $this->node,
-        ]);
+        $context = $this->context;
+        $context['user'] = $user;
+
+        return $this->template->renderTemplate($this->type, $template, $context);
     }
 }

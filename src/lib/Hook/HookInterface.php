@@ -28,11 +28,6 @@ interface HookInterface
     public function preExecuteAsyncJobs(): void;
 
     /**
-     * Run: preExecuteAsyncJobs.
-     */
-    public function postExecuteAsyncJobs(): void;
-
-    /**
      * Run: preAuthentication.
      *
      * Executed before authentication

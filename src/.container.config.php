@@ -5,7 +5,6 @@ use Balloon\Converter;
 use Balloon\Converter\Adapter\ImagickImage;
 use Balloon\Converter\Adapter\Office;
 use Balloon\Exception;
-use Balloon\Filesystem\Storage;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
@@ -22,6 +21,15 @@ use Balloon\Migration\Delta;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Smtp;
 use Balloon\Hook;
+use Balloon\Async\WorkerFactory;
+use TaskScheduler\Queue;
+use TaskScheduler\WorkerFactoryInterface;
+use Balloon\Filesystem\Node\Factory as NodeFactory;
+use Balloon\Filesystem\Storage\Adapter\Gridfs as GridfsStorage;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
+use ParagonIE\Halite\Symmetric\EncryptionKey;
+use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\HiddenString;
 
 return [
     Client::class => [
@@ -36,6 +44,27 @@ return [
             ]
         ],
     ],
+    NodeFactory::class => [
+        'services' => [
+            StorageAdapterInterface::class => [
+                'use' => GridfsStorage::class
+            ]
+        ]
+    ],
+    EncryptionKey::class => [
+        'use' => KeyFactory::class,
+        'factory' => 'importEncryptionKey',
+        'arguments' => [
+            'keyData' => '{'.HiddenString::class.'}'
+        ],
+        'services' => [
+            HiddenString::class => [
+                'arguments' => [
+                    'value' => "{ENV(BALLOON_ENCRYPTION_KEY,3140040033da9bd0dedd8babc8b89cda7f2132dd5009cc43c619382863d0c75e172ebf18e713e1987f35d6ea3ace43b561c50d9aefc4441a8c4418f6928a70e4655de5a9660cd323de63b4fd2fb76525470f25311c788c5e366e29bf60c438c4ac0b440e)}"
+                ]
+            ]
+        ]
+    ],
     Database::class => [
         'use' => '{MongoDB\Client}',
         'selects' => [[
@@ -44,6 +73,13 @@ return [
                 'databaseName' => 'balloon'
             ]
         ]]
+    ],
+    Queue::class => [
+        'services' => [
+            WorkerFactoryInterface::class => [
+                'use' => WorkerFactory::class
+            ]
+        ]
     ],
     LoggerInterface::class => [
         'use' => Logger::class,
@@ -153,17 +189,10 @@ return [
                 'method' => 'injectHook',
                 'arguments' => ['hook' => '{'.Hook\CleanTempStorage::class.'}']
             ],
-        ]
-    ],
-    Storage::class => [
-        'calls' => [
-            'gridfs' => [
-                'method' => 'injectAdapter',
-                'arguments' => [
-                    'adapter' => '{'.Gridfs::class.'}',
-                    'name' => 'gridfs'
-                ]
-            ]
+            Hook\ExternalStorage::class => [
+                'method' => 'injectHook',
+                'arguments' => ['hook' => '{'.Hook\ExternalStorage::class.'}']
+            ],
         ]
     ],
     Migration::class => [
@@ -215,6 +244,14 @@ return [
             Delta\GridfsFlatReferences::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\GridfsFlatReferences::class.'}']
+            ],
+            Delta\RemoveStorageAdapterName::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\RemoveStorageAdapterName::class.'}']
+            ],
+            Delta\SetStorageReferenceToNull::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\SetStorageReferenceToNull::class.'}']
             ],
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',

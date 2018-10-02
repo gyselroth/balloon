@@ -15,10 +15,10 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage;
 use Balloon\Hook;
 use Balloon\Server;
 use Balloon\Server\User;
+use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
@@ -188,11 +188,18 @@ abstract class AbstractNode implements NodeInterface
     protected $_acl;
 
     /**
-     * Storage adapter.
+     * Mount.
      *
-     * @var string
+     * @var ObjectId
      */
-    protected $storage_adapter;
+    protected $storage_reference;
+
+    /**
+     * Storage attributes.
+     *
+     * @var array
+     */
+    protected $storage;
 
     /**
      * Acl.
@@ -202,11 +209,18 @@ abstract class AbstractNode implements NodeInterface
     protected $acl = [];
 
     /**
-     * Storage.
+     * Mount.
      *
-     * @var Storage
+     * @var array
      */
-    protected $_storage;
+    protected $mount = [];
+
+    /**
+     * Parent collection.
+     *
+     * @var Collection
+     */
+    protected $_parent;
 
     /**
      * Convert to filename.
@@ -243,14 +257,6 @@ abstract class AbstractNode implements NodeInterface
     public function getFilesystem(): Filesystem
     {
         return $this->_fs;
-    }
-
-    /**
-     * temporary session.
-     */
-    public function temporarySession($stream, ObjectId $session = null): ObjectId
-    {
-        return $this->_storage->storeTemporaryFile($stream, $this->_user, $session);
     }
 
     /**
@@ -335,7 +341,9 @@ abstract class AbstractNode implements NodeInterface
             }
         }
 
-        if ($parent->isSpecial() && $this->shared !== $parent->getShareId() || !$parent->isSpecial() && $this->isShareMember()) {
+        if (($parent->isSpecial() && $this->shared != $parent->getShareId())
+          || (!$parent->isSpecial() && $this->isShareMember())
+          || ($parent->getMount() != $this->getParent()->getMount())) {
             $new = $this->copyTo($parent, $conflict);
             $this->delete();
 
@@ -349,10 +357,11 @@ abstract class AbstractNode implements NodeInterface
             return $new;
         }
 
+        $this->storage = $this->_parent->getStorage()->move($this, $parent);
         $this->parent = $parent->getRealId();
         $this->owner = $this->_user->getId();
 
-        $this->save(['parent', 'shared', 'owner']);
+        $this->save(['parent', 'shared', 'owner', 'storage']);
 
         return $this;
     }
@@ -479,6 +488,14 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
+     * Check if node is a sub node of an external storage mount.
+     */
+    public function isMountMember(): bool
+    {
+        return $this->storage_reference instanceof ObjectId;
+    }
+
+    /**
      * Is share.
      */
     public function isShare(): bool
@@ -500,8 +517,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Set the name.
-     *
-     * @param string $name
      */
     public function setName($name): bool
     {
@@ -519,9 +534,14 @@ abstract class AbstractNode implements NodeInterface
             //child does not exists, we can safely rename
         }
 
+        $this->storage = $this->_parent->getStorage()->rename($this, $name);
         $this->name = $name;
 
-        return $this->save('name');
+        if ($this instanceof File) {
+            $this->mime = MimeType::getType($this->name);
+        }
+
+        return $this->save(['name', 'storage', 'mime']);
     }
 
     /**
@@ -552,9 +572,15 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
+     * Get mount node.
+     */
+    public function getMount(): ?ObjectId
+    {
+        return count($this->mount) > 0 ? $this->_id : $this->storage_reference;
+    }
+
+    /**
      * Undelete.
-     *
-     * @param string $recursion
      */
     public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
     {
@@ -601,37 +627,16 @@ abstract class AbstractNode implements NodeInterface
             $recursion_first = false;
         }
 
+        $this->storage = $this->_parent->getStorage()->undelete($this);
         $this->deleted = false;
 
-        if ($this instanceof File) {
-            $current = $this->version;
-            $new = $this->increaseVersion();
-
-            $this->history[] = [
-                'version' => $new,
-                'changed' => $this->changed,
-                'user' => $this->owner,
-                'type' => File::HISTORY_UNDELETE,
-                'storage' => $this->storage,
-                'storage_adapter' => $this->storage_adapter,
-                'size' => $this->size,
-                'mime' => $this->mime,
-            ];
-
-            return $this->save([
-                'name',
-                'deleted',
-                'history',
-                'version',
-            ], [], $recursion, $recursion_first);
-        }
-
         $this->save([
+                'storage',
                 'name',
                 'deleted',
             ], [], $recursion, $recursion_first);
 
-        if ($this->isReference()) {
+        if ($this instanceof File || $this->isReference() || $this->isMounted() || $this->isFiltered()) {
             return true;
         }
 
@@ -672,38 +677,10 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get parent.
-     *
-     * @return Collection
      */
     public function getParent(): ?Collection
     {
-        try {
-            if ($this->isRoot()) {
-                return null;
-            }
-            if ($this->isInRoot()) {
-                return $this->_fs->getRoot();
-            }
-
-            $parent = $this->_fs->findNodeById($this->parent);
-
-            if ($parent->isShare() && !$parent->isOwnerRequest() && null !== $this->_user) {
-                $node = $this->_db->storage->findOne([
-                        'owner' => $this->_user->getId(),
-                        'shared' => true,
-                        'reference' => $this->parent,
-                    ]);
-
-                return $this->_fs->initNode($node);
-            }
-
-            return $parent;
-        } catch (Exception\NotFound $e) {
-            throw new Exception\NotFound(
-                'parent node '.$this->parent.' could not be found',
-                Exception\NotFound::PARENT_NOT_FOUND
-            );
-        }
+        return $this->_parent;
     }
 
     /**
@@ -916,14 +893,13 @@ abstract class AbstractNode implements NodeInterface
     public function setReadonly(bool $readonly = true): bool
     {
         $this->readonly = $readonly;
+        $this->storage = $this->_parent->getStorage()->readonly($this, $readonly);
 
-        return $this->save('readonly');
+        return $this->save(['readonly', 'storage']);
     }
 
     /**
      * Mark node as self-destroyable.
-     *
-     * @param UTCDateTime $ts
      */
     public function setDestroyable(?UTCDateTime $ts): bool
     {

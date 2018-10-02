@@ -7,7 +7,9 @@ endif;
 
 echo $this->body."\n\n";
 
-if ($this->node):
+if ($this->node && $this->type === 'new_share_added'):
+     echo sprintf($this->translate('link'), $this->server_url.'?menu=cloud&selected[]='.$this->node->getId().'&view=preview')."\n\n";
+elseif($this->node):
      echo sprintf($this->translate('link'), $this->server_url.'?menu=cloud&collection='.$this->node->getParent()->getId().'&selected[]='.$this->node->getId().'&view=preview')."\n\n";
 endif;
 

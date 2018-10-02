@@ -84,27 +84,17 @@ class Notifier
     }
 
     /**
-     * Create custom message.
-     */
-    public function customMessage(string $subject, string $body): MessageInterface
-    {
-        return new UserMessage($subject, $body, $this->template);
-    }
-
-    /**
      * Node message factory.
      */
-    public function nodeMessage(string $type, NodeInterface $node): MessageInterface
+    public function compose(string $type, array $context = []): MessageInterface
     {
-        return new NodeMessage($type, $this->template, $node);
+        return new Message($type, $this->template, $context);
     }
 
     /**
      * Send notification.
-     *
-     * @param User $sender
      */
-    public function notify(Iterable $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
+    public function notify(Iterable $receiver, ?User $sender, MessageInterface $message): bool
     {
         if (0 === count($this->adapter)) {
             $this->logger->warning('there are no notification adapter enabled, notification can not be sent', [
@@ -120,7 +110,7 @@ class Notifier
                     'category' => get_class($this),
                 ]);
 
-                $adapter->notify($user, $sender, $message, $context);
+                $adapter->notify($user, $sender, $message);
             }
         }
 
@@ -137,10 +127,6 @@ class Notifier
 
     /**
      * Inject adapter.
-     *
-     * @param string $name
-     *
-     * @return Notifier
      */
     public function injectAdapter(AdapterInterface $adapter, ?string $name = null): self
     {
@@ -195,17 +181,22 @@ class Notifier
     /**
      * Add notification.
      */
-    public function postNotification(User $receiver, ?User $sender, MessageInterface $message, array $context = []): ObjectId
+    public function postNotification(User $receiver, ?User $sender, MessageInterface $message): ObjectId
     {
         $data = [
-            'context' => $context,
             'subject' => $message->getSubject($receiver),
             'body' => $message->getBody($receiver),
             'receiver' => $receiver->getId(),
+            'locale' => $receiver->getAttributes()['locale'],
+            'type' => $message->getType(),
         ];
 
         if ($sender instanceof User) {
             $data['sender'] = $sender->getId();
+        }
+
+        if (isset($message->getContext()['node'])) {
+            $data['node'] = $message->getContext()['node']->getId();
         }
 
         $result = $this->db->{$this->collection_name}->insertOne($data);
@@ -215,10 +206,6 @@ class Notifier
 
     /**
      * Get notifications.
-     *
-     * @param int $offset
-     * @param int $limit
-     * @param int $total
      */
     public function getNotifications(User $user, ?int $offset = null, ?int $limit = null, ?int &$total = null): Iterable
     {

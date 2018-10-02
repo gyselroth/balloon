@@ -15,10 +15,11 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage;
+use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Hook;
 use Balloon\Server\User;
 use Generator;
+use MimeType\MimeType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\BSON\UTCDateTime;
@@ -49,14 +50,21 @@ class Collection extends AbstractNode implements IQuota
     /**
      * filter.
      *
-     * @param string
+     * @var string
      */
     protected $filter;
 
     /**
+     * Storage.
+     *
+     * @var StorageAdapterInterface
+     */
+    protected $_storage;
+
+    /**
      * Initialize.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Storage $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -66,6 +74,7 @@ class Collection extends AbstractNode implements IQuota
         $this->_hook = $hook;
         $this->_acl = $acl;
         $this->_storage = $storage;
+        $this->_parent = $parent;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -73,6 +82,24 @@ class Collection extends AbstractNode implements IQuota
 
         $this->mime = 'inode/directory';
         $this->raw_attributes = $attributes;
+    }
+
+    /**
+     * Set storage adapter.
+     */
+    public function setStorage(StorageAdapterInterface $adapter): self
+    {
+        $this->_storage = $adapter;
+
+        return $this;
+    }
+
+    /**
+     * Get storage adapter.
+     */
+    public function getStorage(): StorageAdapterInterface
+    {
+        return $this->_storage;
     }
 
     /**
@@ -133,6 +160,14 @@ class Collection extends AbstractNode implements IQuota
     }
 
     /**
+     * Is mount.
+     */
+    public function isMounted(): bool
+    {
+        return count($this->mount) > 0;
+    }
+
+    /**
      * Get Share name.
      */
     public function getShareName(): string
@@ -168,6 +203,9 @@ class Collection extends AbstractNode implements IQuota
             'created' => $this->created,
             'destroy' => $this->destroy,
             'readonly' => $this->readonly,
+            'mount' => $this->mount,
+            'storage_reference' => $this->storage_reference,
+            'storage' => $this->storage,
         ];
     }
 
@@ -225,7 +263,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Is custom filter node.
      */
-    public function isCustomFilter(): bool
+    public function isFiltered(): bool
     {
         return !empty($this->filter);
     }
@@ -270,6 +308,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function getChild($name, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
     {
+        $name = $this->checkName($name);
         $filter = $this->getChildrenFilter($deleted, $filter);
         $filter['name'] = new Regex('^'.preg_quote($name).'$', 'i');
         $node = $this->_db->storage->findOne($filter);
@@ -320,8 +359,9 @@ class Collection extends AbstractNode implements IQuota
         }
 
         $this->deleted = new UTCDateTime();
+        $this->storage = $this->_parent->getStorage()->deleteCollection($this);
 
-        if (!$this->isReference()) {
+        if (!$this->isReference() && !$this->isMounted() && !$this->isFiltered()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(false, $recursion, false);
             }, NodeInterface::DELETED_EXCLUDE);
@@ -329,7 +369,7 @@ class Collection extends AbstractNode implements IQuota
 
         if (null !== $this->_id) {
             $result = $this->save([
-                'deleted',
+                'deleted', 'storage',
             ], [], $recursion, false);
         } else {
             $result = true;
@@ -357,6 +397,8 @@ class Collection extends AbstractNode implements IQuota
      */
     public function childExists($name, $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): bool
     {
+        $name = $this->checkName($name);
+
         $find = [
             'parent' => $this->getRealId(),
             'name' => new Regex('^'.preg_quote($name).'$', 'i'),
@@ -495,9 +537,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Get children.
-     *
-     * @param ObjectId $id
-     * @param array    $shares
      */
     public function getChildrenRecursive(?ObjectId $id = null, ?array &$shares = []): array
     {
@@ -584,6 +623,8 @@ class Collection extends AbstractNode implements IQuota
                 'created' => new UTCDateTime(),
                 'changed' => new UTCDateTime(),
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
+                'storage' => $this->_storage->createCollection($this, $name),
+                'storage_reference' => $this->getMount(),
             ];
 
             if (null !== $this->_user) {
@@ -672,11 +713,12 @@ class Collection extends AbstractNode implements IQuota
                 'parent' => $this->getRealId(),
                 'directory' => false,
                 'hash' => null,
+                'mime' => MimeType::getType($name),
                 'created' => new UTCDateTime(),
                 'changed' => new UTCDateTime(),
                 'version' => 0,
                 'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
-                'storage_adapter' => $this->storage_adapter,
+                'storage_reference' => $this->getMount(),
             ];
 
             if (null !== $this->_user) {
@@ -703,7 +745,11 @@ class Collection extends AbstractNode implements IQuota
             $this->save('changed');
 
             $file = $this->_fs->initNode($save);
-            $file->setContent($session, $attributes);
+
+            if ($session !== null) {
+                $file->setContent($session, $attributes);
+            }
+
             $this->_hook->run('postCreateFile', [$this, $file, $clone]);
 
             return $file;
@@ -852,18 +898,17 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Completely remove node.
-     *
-     * @param string $recursion Identifier to identify a recursive action
      */
     protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isReference()) {
+        if (!$this->isReference() && !$this->isMounted()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(true, $recursion, false);
             }, NodeInterface::DELETED_INCLUDE);
         }
 
         try {
+            $this->_parent->getStorage()->forceDeleteCollection($this);
             $result = $this->_db->storage->deleteOne(['_id' => $this->_id]);
 
             if ($this->isShared()) {

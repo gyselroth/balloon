@@ -307,7 +307,11 @@
                                     <table border="0" cellpadding="0" cellspacing="0">
                                       <tbody>
                                         <tr>
-                                          <td> <a href="<?php echo $this->server_url.'?menu=cloud&collection='.$this->node->getParent()->getId().'&selected[]='.$this->node->getId().'&view=preview'; ?>" target="_blank"><?php echo $this->translate('open_in_browser'); ?></a></td>
+                                        <?php if ($this->type === 'new_share_added'):
+                                             echo '<td><a href="'.sprintf($this->translate('link'), $this->server_url.'?menu=cloud&selected[]='.$this->node->getId().'&view=preview').'" target="_blank">'.$this->translate('open_in_browser').'</a></td>';
+                                        else:
+                                             echo '<td><a href="'.sprintf($this->translate('link'), $this->server_url.'?menu=cloud&collection='.$this->node->getParent()->getId().'&selected[]='.$this->node->getId().'&view=preview').'" target="_blank">'.$this->translate('open_in_browser').'</a></td>';
+                                        endif; ?>
                                         </tr>
                                       </tbody>
                                     </table>
