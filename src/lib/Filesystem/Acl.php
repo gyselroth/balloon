@@ -261,7 +261,7 @@ class Acl
             return self::PRIVILEGE_DENY;
         }
 
-        return self::PRIVILEGE_READWRITE;
+        return $this->processRuleset($user, $share['acl']);
     }
 
     /**
@@ -290,8 +290,6 @@ class Acl
 
     /**
      * Verify if role exists.
-     *
-     * @param string $id
      */
     protected function verifyRole(Server $server, string $type, ObjectId $id): bool
     {

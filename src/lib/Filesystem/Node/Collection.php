@@ -439,13 +439,6 @@ class Collection extends AbstractNode implements IQuota
             throw new Exception('a sub node of a share can not be shared');
         }
 
-        if (!$this->_acl->isAllowed($this, 'm')) {
-            throw new ForbiddenException(
-                'not allowed to share node',
-                ForbiddenException::NOT_ALLOWED_TO_MANAGE
-            );
-        }
-
         $this->_acl->validateAcl($this->_server, $acl);
 
         $action = [

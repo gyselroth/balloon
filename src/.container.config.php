@@ -24,6 +24,7 @@ use Balloon\Hook;
 use Balloon\Async\WorkerFactory;
 use TaskScheduler\Queue;
 use TaskScheduler\WorkerFactoryInterface;
+use TaskScheduler\WorkerManager;
 use Balloon\Filesystem\Node\Factory as NodeFactory;
 use Balloon\Filesystem\Storage\Adapter\Gridfs as GridfsStorage;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
@@ -75,6 +76,13 @@ return [
         ]]
     ],
     Queue::class => [
+        'services' => [
+            WorkerFactoryInterface::class => [
+                'use' => WorkerFactory::class
+            ]
+        ]
+    ],
+    WorkerManager::class => [
         'services' => [
             WorkerFactoryInterface::class => [
                 'use' => WorkerFactory::class

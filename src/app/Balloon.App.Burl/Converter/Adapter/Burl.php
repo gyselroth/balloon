@@ -224,6 +224,10 @@ class Burl implements AdapterInterface
             $options['quality'] = 75;
         }
 
+        $this->logger->debug('request screenshot from ['.$this->browserlessUrl.'/screenshot'.'] using url ['.$url.']', [
+            'category' => get_class($this),
+        ]);
+
         $response = $this->client->request(
             'POST',
             $this->browserlessUrl.'/screenshot',
@@ -245,6 +249,10 @@ class Burl implements AdapterInterface
      */
     protected function getPdf(string $url): Result
     {
+        $this->logger->debug('request pdf from ['.$this->browserlessUrl.'/pdf'.'] using url ['.$url.']', [
+            'category' => get_class($this),
+        ]);
+
         $response = $this->client->request(
             'POST',
             $this->browserlessUrl.'/pdf',
