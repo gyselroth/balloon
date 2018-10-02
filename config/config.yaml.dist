@@ -31,10 +31,11 @@ Balloon\Server:
       password_policy: '#^.*$#'
       password_hash: 1
 Balloon\App\Burl\Converter\Adapter\Burl:
-    arguments:
-        browserlessUrl: "{ENV(BALLOON_BURL_BROWSERLESS_URL,https://chrome.browserless.io)}"
-        preview_max_size: 500
-        timeout: 10
+  arguments:
+    config:
+      browserlessUrl: "{ENV(BALLOON_BURL_BROWSERLESS_URL,https://chrome.browserless.io)}"
+      preview_max_size: 500
+      timeout: 10
 Balloon\App\ClamAv\Scanner:
   arguments:
     config:
