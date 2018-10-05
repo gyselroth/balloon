@@ -44,16 +44,15 @@ class AutoCreateUser extends AbstractHook
     /**
      * Constructor.
      */
-    public function __construct(Server $server, LoggerInterface $logger)
+    public function __construct(Server $server, LoggerInterface $logger, ?array $config = null)
     {
         $this->server = $server;
         $this->logger = $logger;
+        $this->setOptions($config);
     }
 
     /**
      * Set options.
-     *
-     * @param iterable $config
      */
     public function setOptions(?Iterable $config): HookInterface
     {

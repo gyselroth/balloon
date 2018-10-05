@@ -140,8 +140,12 @@ Balloon\Hook:
       arguments:
         config:
           attributes:
-            soft_quota: 1000000
-            hard_quota: 1000000
+            soft_quota:
+                type: int
+                value: 1000000
+            hard_quota:
+                type: int
+                value: 1000000
     Balloon\Hook\CleanTrash:
       arguments:
         config:
