@@ -1,3 +1,10 @@
+## 2.1.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Oct 05 11:11:56 CEST 2018
+
+* CORE: [FIX] AutoCreate user hook custom attributes does not work #203
+
+
 ## 2.1.1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Oct 02 16:21:22 CEST 2018
