@@ -1,3 +1,10 @@
+## 2.1.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Oct 08 16:04:56 CEST 2018
+
+* CORE: [FIX] GridfsFlatReferences delta gets not applied #205
+
+
 ## 2.1.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Oct 05 11:11:56 CEST 2018
