@@ -45,7 +45,7 @@ class GridfsFlatReferences implements DeltaInterface
                 $references[] = $reference['id'];
             }
 
-            $this->db->storage->updateOne(
+            $this->db->{'fs.files'}->updateOne(
                 ['_id' => $object['_id']],
                 [
                     '$unset' => [
