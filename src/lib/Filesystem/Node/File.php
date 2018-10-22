@@ -213,28 +213,25 @@ class File extends AbstractNode implements IFile
             'hash' => $this->history[$v]['hash'],
             'origin' => $this->history[$v]['version'],
             'storage' => $this->history[$v]['storage'],
-            'storage_reference' => $this->history[$v]['storage_reference'],
             'size' => $this->history[$v]['size'],
             'mime' => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
         ];
 
         try {
-            $new = $this->increaseVersion();
             $this->deleted = false;
-            $this->version = $new;
             $this->storage = $this->history[$v]['storage'];
-            $this->storage_reference = $this->history[$v]['storage_reference'];
 
             $this->hash = null === $file ? self::EMPTY_CONTENT : $this->history[$v]['hash'];
             $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
             $this->size = $this->history[$v]['size'];
             $this->changed = $this->history[$v]['changed'];
+            $new = $this->increaseVersion();
+            $this->version = $new;
 
             $this->save([
                 'deleted',
                 'version',
                 'storage',
-                'storage_reference',
                 'hash',
                 'mime',
                 'size',
@@ -591,7 +588,6 @@ class File extends AbstractNode implements IFile
                 'user' => $this->_user->getId(),
                 'type' => self::HISTORY_EDIT,
                 'storage' => $this->storage,
-                'storage_reference' => $this->storage_reference,
                 'size' => $this->size,
                 'mime' => $this->mime,
                 'hash' => $this->hash,
@@ -610,7 +606,6 @@ class File extends AbstractNode implements IFile
             'user' => $this->owner,
             'type' => self::HISTORY_CREATE,
             'storage' => $this->storage,
-            'storage_reference' => $this->storage_reference,
             'size' => $this->size,
             'mime' => $this->mime,
             'hash' => $this->hash,
@@ -633,7 +628,6 @@ class File extends AbstractNode implements IFile
                 'version',
                 'history',
                 'storage',
-                'storage_reference',
             ]);
 
             $this->_logger->debug('modifed file metadata ['.$this->_id.']', [

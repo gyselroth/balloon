@@ -261,6 +261,10 @@ return [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\SetStorageReferenceToNull::class.'}']
             ],
+            Delta\RemoveStorageReferenceFromHistory::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\RemoveStorageReferenceFromHistory::class.'}']
+            ],
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}']
