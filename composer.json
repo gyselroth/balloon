@@ -30,7 +30,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.2",
-        "gyselroth/micro-auth": "^0.0.7",
+        "gyselroth/micro-auth": "^0.0.8",
         "gyselroth/micro-container": "^2.0.0",
         "gyselroth/micro-http": "^0.0.6",
         "elasticsearch/elasticsearch": "5.*",
