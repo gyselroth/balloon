@@ -4,7 +4,7 @@
 
 * CORE: [CHANGE] Upgraded micro-auth to v0.0.7 (Accepts access_token from query string), see gyselroth/balloon-client-web #87
 * CORE: [FIX] Balloon\Filesystem\Exception\NotFound storage blob is gone exception after max_version reached #209
-* CORE: [FIX] Undefined index: storage_reference if restoring a node version created before upgrading to v2.1.x #210
+* CORE: [FIX] Undefined index: storage_reference after restoring a files version which has been created before v2.1.x #210
 
 
 ## 2.1.3
