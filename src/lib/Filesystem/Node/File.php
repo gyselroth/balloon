@@ -104,8 +104,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Read content and return ressource.
-     *
-     * @return resource
      */
     public function get()
     {
@@ -126,8 +124,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Copy node.
-     *
-     * @param string $recursion
      */
     public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
     {
@@ -200,7 +196,6 @@ class File extends AbstractNode implements IFile
         }
 
         $current = $this->version;
-        $new = $this->increaseVersion();
 
         $v = array_search($version, array_column($this->history, 'version'), true);
         if (false === $v) {
@@ -208,36 +203,35 @@ class File extends AbstractNode implements IFile
         }
 
         $file = $this->history[$v]['storage'];
+        $latest = $this->version + 1;
 
         $this->history[] = [
-            'version' => $new,
+            'version' => $latest,
             'changed' => $this->changed,
             'user' => $this->owner,
             'type' => self::HISTORY_RESTORE,
             'hash' => $this->history[$v]['hash'],
             'origin' => $this->history[$v]['version'],
             'storage' => $this->history[$v]['storage'],
-            'storage_reference' => $this->history[$v]['storage_reference'],
             'size' => $this->history[$v]['size'],
             'mime' => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
         ];
 
         try {
             $this->deleted = false;
-            $this->version = $new;
             $this->storage = $this->history[$v]['storage'];
-            $this->storage_reference = $this->history[$v]['storage_reference'];
 
             $this->hash = null === $file ? self::EMPTY_CONTENT : $this->history[$v]['hash'];
             $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
             $this->size = $this->history[$v]['size'];
             $this->changed = $this->history[$v]['changed'];
+            $new = $this->increaseVersion();
+            $this->version = $new;
 
             $this->save([
                 'deleted',
                 'version',
                 'storage',
-                'storage_reference',
                 'hash',
                 'mime',
                 'size',
@@ -267,8 +261,6 @@ class File extends AbstractNode implements IFile
      *
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
-     *
-     * @param string $recursion
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
@@ -428,8 +420,6 @@ class File extends AbstractNode implements IFile
 
     /**
      * Get hash.
-     *
-     * @return string
      */
     public function getHash(): ?string
     {
@@ -546,7 +536,7 @@ class File extends AbstractNode implements IFile
         $max = $this->_fs->getServer()->getMaxFileVersion();
         if (count($this->history) >= $max) {
             $del = key($this->history);
-            $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$del.'] from file ['.$this->_id.']', [
+            $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$this->history[$del]['version'].'] from file ['.$this->_id.']', [
                 'category' => get_class($this),
             ]);
 
@@ -598,7 +588,6 @@ class File extends AbstractNode implements IFile
                 'user' => $this->_user->getId(),
                 'type' => self::HISTORY_EDIT,
                 'storage' => $this->storage,
-                'storage_reference' => $this->storage_reference,
                 'size' => $this->size,
                 'mime' => $this->mime,
                 'hash' => $this->hash,
@@ -617,7 +606,6 @@ class File extends AbstractNode implements IFile
             'user' => $this->owner,
             'type' => self::HISTORY_CREATE,
             'storage' => $this->storage,
-            'storage_reference' => $this->storage_reference,
             'size' => $this->size,
             'mime' => $this->mime,
             'hash' => $this->hash,
@@ -640,7 +628,6 @@ class File extends AbstractNode implements IFile
                 'version',
                 'history',
                 'storage',
-                'storage_reference',
             ]);
 
             $this->_logger->debug('modifed file metadata ['.$this->_id.']', [

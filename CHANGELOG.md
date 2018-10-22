@@ -1,3 +1,12 @@
+## 2.1.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Oct 22 10:32:56 CEST 2018\
+
+* CORE: [CHANGE] Upgraded micro-auth to v0.0.7 (Accepts access_token from query string), see gyselroth/balloon-client-web #87
+* CORE: [FIX] Balloon\Filesystem\Exception\NotFound storage blob is gone exception after max_version reached #209
+* CORE: [FIX] Undefined index: storage_reference after restoring a files version which has been created before v2.1.x #210
+
+
 ## 2.1.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Oct 08 16:04:56 CEST 2018
