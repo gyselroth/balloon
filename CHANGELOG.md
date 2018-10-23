@@ -1,3 +1,10 @@
+## 2.1.5
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Oct 22 10:40:57 CEST 2018\
+
+* CORE: [CHANGE] Upgraded micro-auth to v0.0.8 (Accepts access_token from query string), see gyselroth/balloon-client-web #87
+
+
 ## 2.1.4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Oct 22 10:32:56 CEST 2018\
