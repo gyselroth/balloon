@@ -4,6 +4,7 @@
 
 * CORE: [FIX] Undefined index: shared at /srv/www/balloon/src/lib/Hook/Delta.php:193 #216 
 * CORE: [FIX] Sub nodes of folder shared inside an external storage are not visible #217
+* CORE: [FIX] Filesystem\Exception\Conflict could not add node test into a deleted parent collection during copy operation #218
 
 
 ## 2.1.5
