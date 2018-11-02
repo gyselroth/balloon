@@ -507,11 +507,9 @@ class Collection extends AbstractNode implements IQuota
         $this->share_name = null;
         $this->acl = [];
         $action = [
-            '$unset' => [
-                'shared' => $this->_id,
-            ],
             '$set' => [
                 'owner' => $this->_user->getId(),
+                'shared' => false,
             ],
         ];
 
