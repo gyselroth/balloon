@@ -1,6 +1,6 @@
 ## 2.1.6
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Fri Nov 02 10:40:57 CEST 2018\
+**Date**: Fri Nov 02 10:40:57 CET 2018\
 
 * CORE: [FIX] Undefined index: shared at /srv/www/balloon/src/lib/Hook/Delta.php:193 #216 
 * CORE: [FIX] Sub nodes of folder shared inside an external storage are not visible #217
