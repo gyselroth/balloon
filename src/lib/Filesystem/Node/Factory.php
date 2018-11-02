@@ -109,9 +109,12 @@ class Factory
             $share = $fs->findRawNode($node['reference']);
             if (isset($share['mount'])) {
                 $storage = $this->getStorage($share['_id'], $share['mount']);
+            } elseif (isset($share['storage_reference'])) {
+                $external = $fs->findRawNode($share['storage_reference'])['mount'];
+                $storage = $this->getStorage($share['storage_reference'], $external);
             }
         } elseif (isset($node['storage_reference'])) {
-            $external = $fs->findNodeById($node['storage_reference'])->getAttributes()['mount'];
+            $external = $fs->findRawNode($node['storage_reference'])['mount'];
             $storage = $this->getStorage($node['storage_reference'], $external);
         } elseif (isset($node['mount'])) {
             $storage = $this->getStorage($node['_id'], $node['mount']);

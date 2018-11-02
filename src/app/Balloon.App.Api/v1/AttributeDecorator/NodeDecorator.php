@@ -112,8 +112,6 @@ class NodeDecorator
 
     /**
      * Get Attributes.
-     *
-     * @param NodeInterface
      */
     protected function getAttributes(NodeInterface $node, array $attributes): array
     {
