@@ -269,7 +269,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function getSize(): int
     {
-        return $this->_db->storage->count($this->getChildrenFilter());
+        return count($this->getChildren());
     }
 
     /**

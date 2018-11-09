@@ -3,6 +3,7 @@
 **Date**: Fri Nov 09 09:25:33 CET 2018\
 
 * CORE: [FIX] Balloon\Filesystem\Acl\Exception\Forbidden if collection shared with deny priv #221
+* CORE: [FIX] Number of child nodes for mailbox permission is invalid #177
 
 
 ## 2.1.6
