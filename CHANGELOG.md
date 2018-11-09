@@ -1,6 +1,14 @@
+## 2.1.7
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Nov 09 09:25:33 CET 2018\
+
+* CORE: [FIX] Balloon\Filesystem\Acl\Exception\Forbidden if collection shared with deny priv #221
+* CORE: [FIX] Number of child nodes for mailbox permission is invalid #177
+
+
 ## 2.1.6
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Fri Nov 02 10:40:57 CEST 2018\
+**Date**: Fri Nov 02 10:40:57 CET 2018\
 
 * CORE: [FIX] Undefined index: shared at /srv/www/balloon/src/lib/Hook/Delta.php:193 #216 
 * CORE: [FIX] Sub nodes of folder shared inside an external storage are not visible #217
