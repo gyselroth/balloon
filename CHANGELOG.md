@@ -1,3 +1,10 @@
+## 2.1.7
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Nov 09 09:25:33 CET 2018\
+
+* CORE: [FIX] Balloon\Filesystem\Acl\Exception\Forbidden if collection shared with deny priv #221
+
+
 ## 2.1.6
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Nov 02 10:40:57 CET 2018\
