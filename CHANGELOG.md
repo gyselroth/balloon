@@ -1,3 +1,10 @@
+## 2.1.8
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Nov 13 09:40:32 CET 2018\
+
+* CORE: [FIX] Share folder notification contains invalid open folder link #223
+
+
 ## 2.1.7
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Nov 09 09:25:33 CET 2018\
