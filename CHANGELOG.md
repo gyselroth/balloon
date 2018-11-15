@@ -1,3 +1,10 @@
+## 2.1.9
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Nov 15 17:12:32 CET 2018\
+
+* CORE: [FIX] MongoDB\Driver\Exception\BulkWriteException during chunked upload and file > 1GB (aborts at exactly 256 chunks) #226
+
+
 ## 2.1.8
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Nov 13 09:40:32 CET 2018\
