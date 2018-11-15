@@ -400,6 +400,11 @@ class Gridfs implements AdapterInterface
 
             $content = $this->readStream($stream, $temp['chunkSize']);
             $size = mb_strlen($content, '8bit');
+
+            if ($size === 0) {
+                continue;
+            }
+
             $length += $size;
 
             $chunk = new Binary($content, Binary::TYPE_GENERIC);
