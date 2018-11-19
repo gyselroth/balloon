@@ -16,6 +16,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
+use Elasticsearch\Client;
 use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
@@ -43,9 +44,9 @@ class Job extends AbstractJob
     /**
      * Elasticsearch.
      *
-     * @var Elasticsearch
+     * @var Client
      */
-    protected $es;
+    protected $client;
 
     /**
      * Logger.
@@ -70,13 +71,10 @@ class Job extends AbstractJob
 
     /**
      * Constructor.
-     *
-     * @param Elasticsarch $es
-     * @param iterable     $config
      */
-    public function __construct(Elasticsearch $es, Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, Iterable $config = null)
+    public function __construct(Client $client, Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, Iterable $config = null)
     {
-        $this->es = $es;
+        $this->client = $client;
         $this->fs = $server->getFilesystem();
         $this->decorator = $decorator;
         $this->logger = $logger;
@@ -86,10 +84,6 @@ class Job extends AbstractJob
 
     /**
      * Set options.
-     *
-     * @param iterable $config
-     *
-     * @return Job
      */
     public function setOptions(?Iterable $config = null): self
     {
@@ -164,7 +158,7 @@ class Job extends AbstractJob
         $params = $this->getParams($node);
         $params['body'] = $this->decorator->decorate($node);
 
-        $this->es->getEsClient()->index($params);
+        $this->client->index($params);
 
         if ($node instanceof File) {
             $this->storeBlob($node);
@@ -184,7 +178,7 @@ class Job extends AbstractJob
 
         $params = $this->getParams($node);
         $params['body'] = $this->decorator->decorate($node);
-        $this->es->getEsClient()->index($params);
+        $this->client->index($params);
 
         if ($node instanceof File && $hash !== $node->getHash()) {
             if ($hash !== null) {
@@ -212,7 +206,7 @@ class Job extends AbstractJob
             'index' => $this->es->getIndex(),
         ];
 
-        $this->es->getEsClient()->delete($params);
+        $this->client->delete($params);
 
         return true;
     }
@@ -232,7 +226,7 @@ class Job extends AbstractJob
             'index' => $this->es->getIndex(),
         ];
 
-        $this->es->getEsClient()->delete($params);
+        $this->client->delete($params);
 
         if ($hash !== null) {
             return $this->deleteBlobReference((string) $node, $hash);
@@ -347,7 +341,7 @@ class Job extends AbstractJob
             'type' => 'fs',
         ];
 
-        $this->es->getEsClient()->delete($params);
+        $this->client->delete($params);
 
         return true;
     }
@@ -373,7 +367,7 @@ class Job extends AbstractJob
             ],
         ];
 
-        $result = $this->es->getEsClient()->search($params);
+        $result = $this->client->search($params);
 
         if (count($result['hits']['hits']) === 0) {
             return null;
@@ -472,7 +466,13 @@ class Job extends AbstractJob
         $content = base64_encode(stream_get_contents($file->get()));
 
         $params = [
+<<<<<<< HEAD
             'index' => $this->es->getIndex(),
+=======
+            'pipeline' => 'attachments',
+            'index' => 'blobs',
+            'type' => '_doc',
+>>>>>>> b94aa4bc... Partially implemented #197
             'id' => $file->getHash(),
             'type' => 'fs',
             'body' => [
@@ -482,7 +482,7 @@ class Job extends AbstractJob
             ],
         ];
 
-        $this->es->getEsClient()->index($params);
+        $this->client->index($params);
 
         return true;
     }
@@ -493,9 +493,15 @@ class Job extends AbstractJob
     protected function updateBlob(string $id, array $meta): bool
     {
         $params = [
+<<<<<<< HEAD
             'index' => $this->es->getIndex(),
             'id' => $id,
             'type' => 'fs',
+=======
+            'index' => 'blobs',
+            'type' => '_doc',
+            'id' => $id,
+>>>>>>> b94aa4bc... Partially implemented #197
             'body' => [
                 'doc' => [
                     'metadata' => $meta,
@@ -503,7 +509,7 @@ class Job extends AbstractJob
             ],
         ];
 
-        $this->es->getEsClient()->update($params);
+        $this->client->update($params);
 
         return true;
     }

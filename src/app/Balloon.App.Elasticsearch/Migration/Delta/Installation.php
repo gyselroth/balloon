@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon\App\Elasticsearch\Migration\Delta;
 
-use Balloon\App\Elasticsearch\Elasticsearch;
 use Balloon\App\Elasticsearch\Exception;
 use Balloon\Migration\Delta\DeltaInterface;
+use Elasticsearch\Client;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
@@ -22,9 +22,9 @@ class Installation implements DeltaInterface
     /**
      * Elasticsearch.
      *
-     * @var Elasticsearch
+     * @var Client
      */
-    protected $es;
+    protected $client;
 
     /**
      * Logger.
@@ -42,12 +42,10 @@ class Installation implements DeltaInterface
 
     /**
      * Construct.
-     *
-     * @param iterable $config
      */
-    public function __construct(Elasticsearch $es, LoggerInterface $logger, Iterable $config = null)
+    public function __construct(Client $client, LoggerInterface $logger, Iterable $config = null)
     {
-        $this->es = $es;
+        $this->client = $client;
         $this->logger = $logger;
         $this->setOptions($config);
     }
@@ -106,7 +104,24 @@ class Installation implements DeltaInterface
             'body' => $index,
         ];
 
-        $this->es->getEsClient()->indices()->create($index);
+        $this->client->indices()->create($index);
+        $this->client->ingest()->putPipeline([
+            'name' => 'attachments',
+            'description' => 'Document attachment pipeline',
+            'processors' => [
+            [
+              'attachment' => [
+                'field' => 'content',
+                'target_field' => 'attachment',
+              ],
+            ],
+            [
+              'remove' => [
+                'field' => 'content',
+              ],
+            ],
+            ],
+        ]);
 
         return true;
     }

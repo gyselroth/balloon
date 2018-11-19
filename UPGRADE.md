@@ -1,5 +1,6 @@
 ## 2.x -> 2.4.x
 
+<<<<<<< HEAD
 balloon v2.4.x comes with the stable version v3.0.0 of [\TaskScheduler](https://github.com/gyselroth/mongodb-php-task-scheduler) which requires the sysvmsg dependency
 built into php. Note: This only affects you if you built php from scratch. The balloon docker image comes already with this dependency and if you are using the balloon deb package, most 
 linux flavors already ship php with this dependency.
@@ -40,6 +41,24 @@ Run upgrade is required to upgrade all nodes to 2.3.x:
 ```sh
 ballooncli upgrade -vvvv
 ```
+=======
+### Dependencies
+
+balloon v2.2.x comes with the stable version v3.0.0 of [\TaskScheduler](https://github.com/gyselroth/mongodb-php-task-scheduler) which requires the sysvmsg dependency
+built into php. Note: This only affects you if you built php from scratch. The balloon docker image comes already with this dependency and if you are using the balloon deb package, most 
+linux flavors already ship php with this dependency.
+
+### Elasticsearch
+balloon v2.2 comes with support for elasticsearch 6.x and the newer elasticsearch ingest-attachment instead of mapper-attachment.
+This requires a full reindex of elasticsearch:
+
+>**Note**: The reindex process makes use of the async functionality of balloon, be sure that you have enaugh workers or a big enaugh \TaskScheduler queue.
+
+```
+ballooncli elasticsearch reindex -vvv
+```
+
+>>>>>>> b94aa4bc... Partially implemented #197
 
 ## 2.x -> 2.1.x
 
@@ -77,7 +96,7 @@ It is recommended that you upgrade your client to the new API v2.
 * Add api, dav, share as modules to your src/config.xml, @see dist/config.xml
 
 
-### Server
+### Dependencies
 * PHP7.1 is now required, upgrade your server to php7.1
 * run ./build.sh --dep afterwards to check if all necessary libraries are installed
 * First entry file changed to index.php, please verify your webserver configuration, @see dist/nginx.conf

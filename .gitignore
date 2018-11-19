@@ -1,5 +1,6 @@
 vendor
 config/config.yaml
+config/php.ini
 build
 build_apidoc
 apidoc

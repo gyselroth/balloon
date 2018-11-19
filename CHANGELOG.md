@@ -1,8 +1,8 @@
 ## 2.5.0
-
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: 
 
+* CORE: [CHANGE] Support for elasticsearch 6.x #197
 * API: [FEATURE] Move from apidoc to swagger/openapi #86 
 
 
