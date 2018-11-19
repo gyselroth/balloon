@@ -576,12 +576,13 @@ class Delta
         $delta = [];
         $has_more = false;
 
-        $max = $limit;
         if ($parent === null) {
             $result = $this->db->storage->find($filter, [
                 'skip' => $cursor,
-                'limit' => ++$max,
+                'limit' => $limit,
             ]);
+
+            $total = $this->db->storage->count($filter);
         } else {
             $query = [
                 ['$match' => $filter],
@@ -592,18 +593,32 @@ class Delta
                     'connectFromField' => 'pointer',
                     'connectToField' => 'parent',
                     'as' => 'children',
+                    'restrictSearchWithMatch' => [
+                        'deleted' => false
+                    ]
                 ]],
-                ['$match' => ['_id' => $parent->getId()]],
                 ['$unwind' => '$children'],
-                ['$skip' => $cursor],
-                ['$limit' => ++$max],
+                ['$group' => [ '_id' => null, 'total' => [ '$sum' => 1 ]]],
             ];
 
+            $result = $this->db->storage->aggregate($query);
+
+            $total = 0;
+            $result = iterator_to_array($result);
+            if(count($result) > 0) {
+                $total = $result[0]['total'];
+            }
+
+            array_pop($query);
+            $query[] = ['$skip' => $cursor];
+            $query[] = ['$limit' => $limit];
             $result = $this->db->storage->aggregate($query);
         }
 
         $requested = $cursor;
         foreach ($result as $key => $node) {
+            $cursor++;
+
             try {
                 if (isset($node['children'])) {
                     $node = $node['children'];
@@ -614,24 +629,17 @@ class Delta
                 continue;
             }
 
-            if (count($delta) >= $limit) {
-                if ($parent !== null && ($requested === null || $requested === 0)) {
-                    array_unshift($delta, $parent);
-                }
-
-                $has_more = true;
-
-                return $delta;
-            }
-
             $delta[$node->getPath()] = $node;
-            ++$cursor;
+        }
+
+        if($cursor < $total) {
+            $has_more = true;
         }
 
         if ($parent !== null && ($requested === null || $requested === 0)) {
             array_unshift($delta, $parent);
         }
 
-        return $delta;
+        return array_values($delta);
     }
 }

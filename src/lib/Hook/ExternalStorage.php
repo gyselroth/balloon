@@ -222,7 +222,7 @@ class ExternalStorage extends AbstractHook
         $job = $this->scheduler->addJobOnce(SmbListener::class, [
             'id' => $node,
         ], [
-            Scheduler::OPTION_IGNORE_MAX_CHILDREN => true,
+            Scheduler::OPTION_FORCE_SPAWN => true,
             Scheduler::OPTION_RETRY => -1,
         ]);
 

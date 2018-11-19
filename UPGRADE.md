@@ -1,4 +1,15 @@
-## 2.x _> 2.3.x
+## 2.x -> 2.4.x
+
+balloon v2.2.x comes with the stable version v3.0.0 of [\TaskScheduler](https://github.com/gyselroth/mongodb-php-task-scheduler) which requires the sysvmsg dependency
+built into php. Note: This only affects you if you built php from scratch. The balloon docker image comes already with this dependency and if you are using the balloon deb package, most 
+linux flavors already ship php with this dependency.
+
+A one-time flush of the process queue is required:
+```sh
+ballooncli jobs -f -vvvv
+```
+
+## 2.x -> 2.3.x
 ### Upgrade
 Run upgrade is required to upgrade all nodes to 2.3.x:
 
@@ -7,7 +18,7 @@ ballooncli upgrade -vvvv
 ```
 
 ## 2.x -> 2.1.x
-### Upgrade
+
 Run upgrade is required to upgrade all nodes to 2.1.x:
 
 ```sh

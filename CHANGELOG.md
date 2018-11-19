@@ -45,6 +45,7 @@
 **Date**: Wed Dez 05 08:50:32 CET 2018\
 
 * API: [FEATURE] Progressive stream via http #199 
+* CORE: [CHANGE] Upgrade to stable v3 \TaskScheduler #220, possibilty to flush job queue using ballooncli jobs -f
 
 
 ## 2.1.9
