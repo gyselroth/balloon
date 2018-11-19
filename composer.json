@@ -56,7 +56,8 @@
         "katzien/php-mime-type": "^2.1",
         "guzzlehttp/guzzle": "^6.3",
         "icewind/smb": "dev-master#523d1bc",
-        "paragonie/halite": "^4"
+        "paragonie/halite": "^4",
+        "php-ffmpeg/php-ffmpeg": "^0.13.0"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",

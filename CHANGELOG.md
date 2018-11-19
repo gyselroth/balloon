@@ -1,3 +1,42 @@
+## 2.2.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 05 08:50:32 CET 2018\
+
+* API: [FEATURE] Progressive stream via http #199 
+
+
+## 2.1.9
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Nov 15 17:12:32 CET 2018\
+
+* CORE: [FIX] MongoDB\Driver\Exception\BulkWriteException during chunked upload and file > 1GB (aborts at exactly 256 chunks) #226
+
+
+## 2.1.8
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Nov 13 09:40:32 CET 2018\
+
+* CORE: [FIX] Share folder notification contains invalid open folder link #223
+
+
+## 2.1.7
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Nov 09 09:25:33 CET 2018\
+
+* CORE: [FIX] Balloon\Filesystem\Acl\Exception\Forbidden if collection shared with deny priv #221
+* CORE: [FIX] Number of child nodes for mailbox permission is invalid #177
+
+
+## 2.1.6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Nov 02 10:40:57 CET 2018\
+
+* CORE: [FIX] Undefined index: shared at /srv/www/balloon/src/lib/Hook/Delta.php:193 #216 
+* CORE: [FIX] Sub nodes of folder shared inside an external storage are not visible #217
+* CORE: [FIX] Filesystem\Exception\Conflict could not add node test into a deleted parent collection during copy operation #218
+* CORE: [FIX] Restores do not reflect in the delta properly #215 
+
+
 ## 2.1.5
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Oct 22 10:40:57 CEST 2018\

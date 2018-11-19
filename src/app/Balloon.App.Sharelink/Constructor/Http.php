@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink\Constructor;
 
+use Balloon\App\Api\Helper;
 use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator as NodeAttributeDecoratorv1;
 use Balloon\App\Sharelink\Api\v1;
 use Balloon\App\Sharelink\Api\v2;
@@ -133,34 +134,17 @@ class Http
             }
 
             if ($node instanceof Collection) {
-                $mime = 'application/zip';
-                $stream = $node->getZip();
-                $name = $node->getName().'.zip';
-            } else {
-                $mime = $node->getContentType();
-                $stream = $node->get();
-                $name = $node->getName();
-            }
-
-            if (true === $download || preg_match('#html#', $mime)) {
-                header('Content-Disposition: attachment; filename*=UTF-8\'\''.rawurlencode($name));
-                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-                header('Content-Type: application/octet-stream');
-                header('Content-Length: '.$node->getSize());
-                header('Content-Transfer-Encoding: binary');
-            } else {
-                header('Content-Disposition: inline; filename="'.$name.'"');
-                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-                header('Content-Type: '.$mime);
-            }
-
-            if (null === $stream) {
+                $node->getZip();
                 exit();
             }
 
-            while (!feof($stream)) {
-                echo fread($stream, 8192);
+            if (preg_match('#html#', $mime)) {
+                $download = true;
             }
+
+            $response = new Response();
+
+            return Helper::streamContent($response, $node, $download);
         } catch (\Exception $e) {
             $this->logger->error('failed load node with given access token', [
                 'category' => get_class($this),
