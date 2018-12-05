@@ -138,7 +138,7 @@ class Http
                 exit();
             }
 
-            if (preg_match('#html#', $mime)) {
+            if (preg_match('#html#', $node->getContentType())) {
                 $download = true;
             }
 
