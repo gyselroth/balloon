@@ -46,7 +46,7 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "*",
         "zendframework/zend-mail": "2.9.*",
-        "gyselroth/mongodb-php-task-scheduler": "^3.0.0",
+        "gyselroth/mongodb-php-task-scheduler": "3.0.0-beta8",
         "hassankhan/config": "*",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",
@@ -56,8 +56,7 @@
         "katzien/php-mime-type": "^2.1",
         "guzzlehttp/guzzle": "^6.3",
         "icewind/smb": "dev-master#523d1bc",
-        "paragonie/halite": "^4",
-        "php-ffmpeg/php-ffmpeg": "^0.13.0"
+        "paragonie/halite": "^4"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
