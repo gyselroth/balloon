@@ -46,7 +46,7 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "*",
         "zendframework/zend-mail": "2.9.*",
-        "gyselroth/mongodb-php-task-scheduler": "^3.0.0",
+        "gyselroth/mongodb-php-task-scheduler": "3.0.0-beta8",
         "hassankhan/config": "*",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",

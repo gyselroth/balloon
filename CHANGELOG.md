@@ -1,3 +1,10 @@
+## 2.2.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 05 08:50:32 CET 2018\
+
+* API: [FEATURE] Progressive stream via http #199 
+
+
 ## 2.1.9
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Nov 15 17:12:32 CET 2018\

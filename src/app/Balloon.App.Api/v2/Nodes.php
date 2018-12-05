@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v2;
 
 use Balloon\App\Api\Controller;
+use Balloon\App\Api\Helper as ApiHelper;
 use Balloon\App\Api\v2\Collections as ApiCollection;
 use Balloon\App\Api\v2\Files as ApiFile;
 use Balloon\AttributeDecorator\Pager;
@@ -202,9 +203,6 @@ class Nodes extends Controller
      * @apiPermission none
      * @apiDescription Download node contents. Collections are zipped during streaming.
      * @apiUse _getNode
-     *
-     * @apiParam (GET Parameter) {number} [offset=0] Read stream from a specific offset in bytes
-     * @apiParam (GET Parameter) {number} [limit=0] Read stream until a specific limit in bytes
      * @apiParam (GET Parameter) {boolean} [download=false] Force download file (Content-Disposition: attachment HTTP header)
      *
      * @apiExample (cURL) example:
@@ -232,8 +230,6 @@ class Nodes extends Controller
     public function getContent(
         $id = null,
         $p = null,
-        int $offset = 0,
-        int $limit = 0,
         bool $download = false,
         string $name = 'selected'
     ): ?Response {
@@ -248,49 +244,7 @@ class Nodes extends Controller
 
         $response = new Response();
 
-        if (true === $download) {
-            $response->setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\''.rawurlencode($node->getName()));
-            $response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-            $response->setHeader('Content-Type', 'application/octet-stream');
-            $response->setHeader('Content-Length', (string) $node->getSize());
-            $response->setHeader('Content-Transfer-Encoding', 'binary');
-        } else {
-            $response->setHeader('Content-Disposition', 'inline; filename*=UTF-8\'\''.rawurlencode($node->getName()));
-            $response->setHeader('Content-Type', $node->getContentType());
-        }
-
-        return $response
-          ->setOutputFormat(null)
-          ->setBody(function () use ($node, $offset, $limit) {
-              $stream = $node->get();
-              $name = $node->getName();
-
-              if (null === $stream) {
-                  return;
-              }
-
-              if (0 !== $offset) {
-                  if (fseek($stream, $offset) === -1) {
-                      throw new Exception\Conflict(
-                        'invalid offset requested',
-                        Exception\Conflict::INVALID_OFFSET
-                    );
-                  }
-              }
-
-              $read = 0;
-              while (!feof($stream)) {
-                  if (0 !== $limit && $read + 8192 > $limit) {
-                      echo fread($stream, $limit - $read);
-                      exit();
-                  }
-
-                  echo fread($stream, 8192);
-                  $read += 8192;
-              }
-
-              exit();
-          });
+        return ApiHelper::streamContent($response, $node, $download);
     }
 
     /**
