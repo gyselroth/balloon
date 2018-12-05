@@ -191,13 +191,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
             },
-            'external_storage' => function ($node) use ($fs, $attributes) {
-                if ($node->getMount() === null || $node instanceof Collection && $node->isMounted()) {
-                    return null;
-                }
-
-                return $this->decorate($fs->findNodeById($attributes['storage_reference']), ['id', 'name', '_links']);
-            },
         ];
     }
 

@@ -147,7 +147,6 @@ class File extends AbstractNode implements IFile
             $result = $parent->addFile($name, $session, [
                 'created' => $this->created,
                 'changed' => $this->changed,
-                'deleted' => $this->deleted,
                 'meta' => $this->meta,
             ], NodeInterface::CONFLICT_NOACTION, true);
 
