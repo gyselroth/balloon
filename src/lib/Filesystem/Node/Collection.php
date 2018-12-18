@@ -104,9 +104,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Copy node with children.
-     *
-     * @param Collection $parent
-     * @param string     $recursion
      */
     public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
     {
@@ -141,7 +138,6 @@ class Collection extends AbstractNode implements IQuota
             $new_parent = $parent->addDirectory($name, [
                 'created' => $this->created,
                 'changed' => $this->changed,
-                'deleted' => $this->deleted,
                 'filter' => $this->filter,
                 'meta' => $this->meta,
             ], NodeInterface::CONFLICT_NOACTION, true);
@@ -273,7 +269,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function getSize(): int
     {
-        return $this->_db->storage->count($this->getChildrenFilter());
+        return count($this->getChildren());
     }
 
     /**
@@ -507,11 +503,9 @@ class Collection extends AbstractNode implements IQuota
         $this->share_name = null;
         $this->acl = [];
         $action = [
-            '$unset' => [
-                'shared' => $this->_id,
-            ],
             '$set' => [
                 'owner' => $this->_user->getId(),
+                'shared' => false,
             ],
         ];
 

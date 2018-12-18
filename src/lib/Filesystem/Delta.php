@@ -236,7 +236,7 @@ class Delta
 
                 //include share children after a new reference was added, otherwise the children would be lost if the cursor is newer
                 //than the create timestamp of the share reference
-                if ('addCollectionReference' === $log['operation'] && $log_node->isReference()) {
+                if (('addCollectionReference' === $log['operation'] || 'undeleteCollectionReference' === $log['operation']) && $log_node->isReference()) {
                     $members = $this->fs->findNodesByFilter([
                         'shared' => $log_node->getShareId(),
                         'deleted' => false,
@@ -245,6 +245,10 @@ class Delta
                     foreach ($members as $share_member) {
                         $delta[$share_member->getPath()] = $share_member;
                     }
+                } elseif ('undeleteCollection' === $log['operation'] || 'undeleteCollectionShare' === $log['operation']) {
+                    $log_node->doRecursiveAction(function ($sub_node) use (&$delta) {
+                        $delta[$sub_node->getPath()] = $sub_node;
+                    });
                 }
 
                 if (array_key_exists('previous', $log)) {
