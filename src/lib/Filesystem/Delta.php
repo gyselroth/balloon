@@ -573,7 +573,7 @@ class Delta
                 return $delta;
             }
 
-            $delta[] = $node;
+            $delta[$node->getPath()] = $node;
             $positions[] = $cursor;
         }
 

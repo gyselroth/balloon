@@ -2,6 +2,7 @@
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Dez 18 11:35:32 CET 2018\
 
+* API: [FIX] Initial delta may contain nodes with the same path with different id (double share references) #230
 * API: [FIX] Delta with specific node id may result in empty responses but has_more:true #229
 
 
