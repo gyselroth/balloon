@@ -535,18 +535,23 @@ class Delta
 
         $result = $this->db->storage->find($filter, [
             'skip' => $cursor,
-            'limit' => $limit,
+            'limit' => $parent === null ? $limit : 0,
         ]);
 
-        $left = $this->db->storage->count($filter, [
-            'skip' => $cursor,
-        ]);
+        $has_more = false;
 
-        $result = $result->toArray();
-        $count = count($result);
-        $has_more = ($left - $count) > 0;
+        if ($parent === null) {
+            $left = $this->db->storage->count($filter, [
+                'skip' => $cursor,
+            ]);
 
-        foreach ($result as $node) {
+            $result = $result->toArray();
+            $count = count($result);
+            $has_more = ($left - $count) > 0;
+        }
+
+        $positions = [];
+        foreach ($result as $key => $node) {
             ++$cursor;
 
             try {
@@ -559,7 +564,17 @@ class Delta
                 continue;
             }
 
+            if (count($delta) > $limit) {
+                $cursor = array_pop($positions);
+                $cursor = array_pop($positions);
+                array_pop($delta);
+                $has_more = true;
+
+                return $delta;
+            }
+
             $delta[] = $node;
+            $positions[] = $cursor;
         }
 
         return $delta;
