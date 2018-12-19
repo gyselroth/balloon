@@ -24,6 +24,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 
 class Filesystem
 {
@@ -91,25 +92,16 @@ class Filesystem
     protected $acl;
 
     /**
-     * Node storage cache.
+     * Cache.
      *
-     * @var array
+     * @var CacheInterface
      */
-    protected $cache = [];
-
-    /**
-     * Node storage cache.
-     *
-     * @var array
-     */
-    protected $raw_cache = [];
+    protected $cache;
 
     /**
      * Initialize.
-     *
-     * @param User $user
      */
-    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, NodeFactory $node_factory, Acl $acl, ?User $user = null)
+    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, CacheInterface $cache, NodeFactory $node_factory, Acl $acl, ?User $user = null)
     {
         $this->user = $user;
         $this->server = $server;
@@ -118,12 +110,11 @@ class Filesystem
         $this->hook = $hook;
         $this->node_factory = $node_factory;
         $this->acl = $acl;
+        $this->cache = $cache;
     }
 
     /**
      * Get user.
-     *
-     * @return User
      */
     public function getUser(): ?User
     {
@@ -179,8 +170,8 @@ class Filesystem
      */
     public function findRawNode(ObjectId $id): array
     {
-        if (isset($this->raw_cache[(string) $id])) {
-            return $this->raw_cache[(string) $id];
+        if ($this->cache->has('|raw|'.(string) $id)) {
+            return $this->cache->get('|raw|'.(string) $id);
         }
 
         $node = $this->db->storage->findOne(['_id' => $id]);
@@ -191,21 +182,18 @@ class Filesystem
             );
         }
 
-        $this->raw_cache[(string) $id] = $node;
+        $this->cache->set('|raw|'.(string) $id, $node);
 
         return $node;
     }
 
     /**
      * Factory loader.
-     *
-     * @param ObjectId|string $id
-     * @param string          $class Fore check node type
      */
     public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
     {
-        if (isset($this->cache[(string) $id])) {
-            return $this->cache[(string) $id];
+        if ($this->cache->has('|nodes|'.(string) $id)) {
+            return $this->cache->get('|nodes|'.(string) $id);
         }
 
         if (!is_string($id) && !($id instanceof ObjectId)) {
@@ -257,8 +245,6 @@ class Filesystem
 
     /**
      * Load node with path.
-     *
-     * @param string $class Fore check node type
      */
     public function findNodeByPath(string $path = '', ?string $class = null): NodeInterface
     {
@@ -380,9 +366,7 @@ class Filesystem
     /**
      * Load nodes by id.
      *
-     * @param array  $id
-     * @param array  $path
-     * @param string $class Force set node type
+     * @param null|mixed $class
      */
     public function getNodes(?array $id = null, ?array $path = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
     {
@@ -411,12 +395,9 @@ class Filesystem
     /**
      * Load node.
      *
-     * @param string $id
-     * @param string $path
-     * @param string $class      Force set node type
-     * @param bool   $multiple   Allow $id to be an array
-     * @param bool   $allow_root Allow instance of root collection
-     * @param bool   $deleted    How to handle deleted node
+     * @param null|mixed $id
+     * @param null|mixed $path
+     * @param null|mixed $class
      */
     public function getNode($id = null, $path = null, $class = null, bool $multiple = false, bool $allow_root = false, ?int $deleted = null): NodeInterface
     {
@@ -571,10 +552,10 @@ class Filesystem
             );
         }
 
-        $loaded = isset($this->cache[(string) $node['_id']]);
+        $loaded = $this->cache->has('|nodes|'.(string) $node['_id']);
 
         if ($loaded === false) {
-            $this->cache[(string) $node['_id']] = $instance;
+            $this->cache->set('|nodes|'.(string) $node['_id'], $instance);
         }
 
         if ($loaded === false && isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
@@ -587,8 +568,10 @@ class Filesystem
             throw new Exception\Conflict('node is not available anymore');
         }
 
+        $this->logger->debug('MEMORY_USAGE: '.$this->cache->getAll().' - '.memory_get_usage().' - '.memory_get_usage(true));
+
         if (PHP_SAPI === 'cli') {
-            unset($this->cache[(string) $node['_id']]);
+            $this->cache->delete('|nodes|'.(string) $node['_id']);
         }
 
         return $instance;

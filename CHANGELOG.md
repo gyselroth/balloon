@@ -1,3 +1,12 @@
+## 2.3.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 18 17:31:02 CET 2018\
+**Note**: ballooncli upgrade required, @see UPGRADE.md
+
+* API: [FIX] memory leak in delta request specifc node recursive #233
+* CORE: [CHANGE] Add new field pointer which gets used to recursively resolve child nodes #234
+
+
 ## 2.2.1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Dez 18 11:35:32 CET 2018\

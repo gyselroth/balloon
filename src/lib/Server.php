@@ -23,6 +23,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 
 class Server
 {
@@ -97,39 +98,29 @@ class Server
     protected $server_url = 'https://localhost';
 
     /**
-     * Users cache.
+     * Cache.
      *
-     * @var array
+     * @var CacheInterface
      */
-    protected $cache_users = [];
-
-    /**
-     * Group cache.
-     *
-     * @var array
-     */
-    protected $cache_groups = [];
+    protected $cache;
 
     /**
      * Initialize.
      */
-    public function __construct(Database $db, NodeFactory $node_factory, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
+    public function __construct(Database $db, NodeFactory $node_factory, LoggerInterface $logger, CacheInterface $cache, Hook $hook, Acl $acl, ?Iterable $config = null)
     {
         $this->db = $db;
         $this->node_factory = $node_factory;
         $this->logger = $logger;
         $this->hook = $hook;
         $this->acl = $acl;
+        $this->cache = $cache;
 
         $this->setOptions($config);
     }
 
     /**
      * Set options.
-     *
-     * @param iterable $config
-     *
-     * @return Server
      */
     public function setOptions(?Iterable $config = null): self
     {
@@ -179,13 +170,13 @@ class Server
     public function getFilesystem(?User $user = null): Filesystem
     {
         if (null !== $user) {
-            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->node_factory, $this->acl, $user);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->cache, $this->node_factory, $this->acl, $user);
         }
         if ($this->identity instanceof User) {
-            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->node_factory, $this->acl, $this->identity);
+            return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->cache, $this->node_factory, $this->acl, $this->identity);
         }
 
-        return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->node_factory, $this->acl);
+        return new Filesystem($this, $this->db, $this->hook, $this->logger, $this->cache, $this->node_factory, $this->acl);
     }
 
     /**
@@ -422,8 +413,8 @@ class Server
      */
     public function getUserById(ObjectId $id): User
     {
-        if (isset($this->cache_users[(string) $id])) {
-            return $this->cache_users[(string) $id];
+        if ($this->cache->has('|users|'.(string) $id)) {
+            return $this->cache->get('|users|'.(string) $id);
         }
 
         $aggregation = $this->getUserAggregationPipes();
@@ -441,7 +432,7 @@ class Server
         $user = new User(array_shift($users), $this, $this->db, $this->logger);
 
         if ($this->identity !== null) {
-            $this->cache_users[(string) $id] = $user;
+            $this->cache->set('|users|'.(string) $id, $user);
         }
 
         return $user;
@@ -587,9 +578,6 @@ class Server
 
     /**
      * Get groups.
-     *
-     * @param int $offset
-     * @param int $limit
      */
     public function getGroups(array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
@@ -623,13 +611,11 @@ class Server
 
     /**
      * Get group by id.
-     *
-     * @param string $id
      */
     public function getGroupById(ObjectId $id): Group
     {
-        if (isset($this->cache_groups[(string) $id])) {
-            return $this->cache_groups[(string) $id];
+        if ($this->cache->has('|groups|'.(string) $id)) {
+            return $this->cache->get('|groups|'.(string) $id);
         }
 
         $group = $this->db->group->findOne([
@@ -643,7 +629,7 @@ class Server
         $group = new Group($group, $this, $this->db, $this->logger);
 
         if ($this->identity !== null) {
-            $this->cache_groups[(string) $id] = $group;
+            $this->cache->set('|groups|'.(string) $id, $group);
         }
 
         return $group;

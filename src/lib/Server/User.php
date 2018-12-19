@@ -355,8 +355,6 @@ class User implements RoleInterface
 
     /**
      * Find new shares and create reference.
-     *
-     * @return User
      */
     public function updateShares(): self
     {
@@ -447,6 +445,7 @@ class User implements RoleInterface
                 'shared' => true,
                 'parent' => null,
                 'reference' => $node['_id'],
+                'pointer' => $node['_id'],
             ];
 
             $dir = $this->getFilesystem()->getRoot();
@@ -505,10 +504,6 @@ class User implements RoleInterface
 
     /**
      * Set hard quota.
-     *
-     * @param int $quota In Bytes
-     *
-     * @return User
      */
     public function setHardQuota(int $quota): self
     {
@@ -520,10 +515,6 @@ class User implements RoleInterface
 
     /**
      * Set soft quota.
-     *
-     * @param int $quota In Bytes
-     *
-     * @return User
      */
     public function setSoftQuota(int $quota): self
     {
@@ -593,8 +584,6 @@ class User implements RoleInterface
 
     /**
      * Check quota.
-     *
-     * @param int $add Size in bytes
      */
     public function checkQuota(int $add): bool
     {
