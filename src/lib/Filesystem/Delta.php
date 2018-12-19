@@ -536,49 +536,53 @@ class Delta
         ?NodeInterface $parent = null
     ) {
         $delta = [];
-
-        $result = $this->db->storage->find($filter, [
-            'skip' => $cursor,
-            'limit' => $parent === null ? $limit : 0,
-        ]);
-
         $has_more = false;
 
+        $max = $limit;
         if ($parent === null) {
-            $left = $this->db->storage->count($filter, [
+            $result = $this->db->storage->find($filter, [
                 'skip' => $cursor,
+                'limit' => ++$max,
             ]);
+        } else {
+            $query = [
+                ['$match' => $filter],
+                ['$match' => ['_id' => $parent->getId()]],
+                ['$graphLookup' => [
+                    'from' => 'storage',
+                    'startWith' => '$pointer',
+                    'connectFromField' => 'pointer',
+                    'connectToField' => 'parent',
+                    'as' => 'children',
+                ]],
+                ['$match' => ['_id' => $parent->getId()]],
+                ['$unwind' => '$children'],
+                ['$skip' => $cursor],
+                ['$limit' => ++$max],
+            ];
 
-            $result = $result->toArray();
-            $count = count($result);
-            $has_more = ($left - $count) > 0;
+            $result = $this->db->storage->aggregate($query);
         }
 
-        $positions = [];
         foreach ($result as $key => $node) {
-            ++$cursor;
-
             try {
-                $node = $this->fs->initNode($node);
-
-                if (null !== $parent && !$parent->isSubNode($node)) {
-                    continue;
+                if (isset($node['children'])) {
+                    $node = $node['children'];
                 }
+
+                $node = $this->fs->initNode($node);
             } catch (\Exception $e) {
                 continue;
             }
 
-            if (count($delta) > $limit) {
-                $cursor = array_pop($positions);
-                $cursor = array_pop($positions);
-                array_pop($delta);
+            if (count($delta) >= $limit) {
                 $has_more = true;
 
                 return $delta;
             }
 
             $delta[$node->getPath()] = $node;
-            $positions[] = $cursor;
+            ++$cursor;
         }
 
         return $delta;

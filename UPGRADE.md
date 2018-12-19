@@ -1,3 +1,11 @@
+## 2.x _> 2.3.x
+### Upgrade
+Run upgrade is required to upgrade all nodes to 2.3.x:
+
+```sh
+ballooncli upgrade -vvvv
+```
+
 ## 2.x -> 2.1.x
 ### Upgrade
 Run upgrade is required to upgrade all nodes to 2.1.x:

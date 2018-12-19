@@ -71,6 +71,7 @@ class CoreInstallation implements DeltaInterface
             ['key' => ['reference' => 1]],
             ['key' => ['shared' => 1]],
             ['key' => ['deleted' => 1]],
+            ['key' => ['pointer' => 1]],
             ['key' => [
                 'owner' => 1,
                 'directory' => 1,
