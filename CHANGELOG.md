@@ -7,7 +7,7 @@
 * CORE: [CHANGE] Add new field pointer which gets used to recursively resolve child nodes #234
 * CORE: [FIX] Share reference may be created twice #231
 * CORE: [CHANGE] Cleanup release delta data backups with a post v2 release delta #153
-* API: [FIX] Delta/events are visible to user with mailbox access for nodes which they do not own #146
+* API: [FIX] Events are visible to user with mailbox access for nodes which they do not own #146
 
 
 ## 2.2.1
