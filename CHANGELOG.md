@@ -6,6 +6,7 @@
 * API: [FIX] memory leak in delta request specifc node recursive #233
 * CORE: [CHANGE] Add new field pointer which gets used to recursively resolve child nodes #234
 * CORE: [FIX] Share reference may be created twice #231
+* CORE: [CHANGE] Cleanup release delta data backups with a post v2 release delta #153
 
 
 ## 2.2.1

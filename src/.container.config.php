@@ -281,6 +281,10 @@ return [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CreateUniqueNodeIndex::class.'}']
             ],
+            Delta\Postv1Cleanup::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\Postv1Cleanup::class.'}']
+            ],
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}']
