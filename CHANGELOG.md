@@ -1,3 +1,10 @@
+## 2.3.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 18 21:31:02 CET 2018\
+
+* API: [FIX] delta should include the requested node itself #237
+
+
 ## 2.3.0
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Dez 18 17:31:02 CET 2018\

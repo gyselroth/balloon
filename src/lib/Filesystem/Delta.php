@@ -602,6 +602,7 @@ class Delta
             $result = $this->db->storage->aggregate($query);
         }
 
+        $requested = $cursor;
         foreach ($result as $key => $node) {
             try {
                 if (isset($node['children'])) {
@@ -614,6 +615,10 @@ class Delta
             }
 
             if (count($delta) >= $limit) {
+                if ($requested === null || $requested === 0) {
+                    array_unshift($delta, $parent);
+                }
+
                 $has_more = true;
 
                 return $delta;
@@ -621,6 +626,10 @@ class Delta
 
             $delta[$node->getPath()] = $node;
             ++$cursor;
+        }
+
+        if ($requested === null || $requested === 0) {
+            array_unshift($delta, $parent);
         }
 
         return $delta;
