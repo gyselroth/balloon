@@ -514,7 +514,6 @@ class Server
     {
         $aggregation = $this->getUserAggregationPipes();
         array_unshift($aggregation, ['$match' => ['username' => $name]]);
-        var_dump($this->db->user->aggregate($aggregation));
         $users = $this->db->user->aggregate($aggregation)->toArray();
 
         if (count($users) > 1) {
