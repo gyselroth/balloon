@@ -44,6 +44,13 @@ class Delta
     protected $user;
 
     /**
+     * Acl.
+     *
+     * @var Acl
+     */
+    protected $acl;
+
+    /**
      * Client.
      *
      * @var array
@@ -58,10 +65,11 @@ class Delta
     /**
      * Initialize delta.
      */
-    public function __construct(Filesystem $fs, Database $db)
+    public function __construct(Filesystem $fs, Database $db, Acl $acl)
     {
         $this->fs = $fs;
         $this->db = $db;
+        $this->acl = $acl;
         $this->user = $fs->getUser();
         $this->parseClient();
     }
@@ -312,7 +320,7 @@ class Delta
      */
     public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): Iterable
     {
-        $filter = $this->getDeltaFilter();
+        $filter = $this->getEventFilter();
 
         if (null !== $node) {
             $old = $filter;
@@ -507,6 +515,36 @@ class Delta
         $cursor[1] = (int) $cursor[1];
 
         return $cursor;
+    }
+
+    /**
+     * Get event filter for db query.
+     */
+    protected function getEventFilter(): array
+    {
+        $shares = [];
+        $cursor = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_INCLUDE, [
+            '$or' => [
+                ['reference' => ['$exists' => true]],
+                ['shared' => true],
+            ],
+        ]);
+
+        foreach ($cursor as $share) {
+            if ($this->acl->getAclPrivilege($share) != Acl::PRIVILEGE_WRITEPLUS) {
+                $shares[] = $share->getRealId();
+            }
+        }
+
+        return [
+            '$or' => [
+                ['share' => [
+                    '$in' => $shares,
+                ]], [
+                    'owner' => $this->user->getId(),
+                ],
+            ],
+        ];
     }
 
     /**

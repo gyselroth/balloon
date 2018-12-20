@@ -162,7 +162,7 @@ class Filesystem
             return $this->delta;
         }
 
-        return $this->delta = new Delta($this, $this->db);
+        return $this->delta = new Delta($this, $this->db, $this->acl);
     }
 
     /**
