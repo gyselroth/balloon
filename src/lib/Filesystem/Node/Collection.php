@@ -556,11 +556,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Create new directory.
-     *
-     * @param string $name
-     * @param arracy $attributes
-     *
-     * @return Collection
      */
     public function addDirectory($name, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): self
     {
@@ -601,8 +596,12 @@ class Collection extends AbstractNode implements IQuota
             );
         }
 
+        $id = new ObjectId();
+
         try {
             $meta = [
+                '_id' => $id,
+                'pointer' => $id,
                 'name' => $name,
                 'deleted' => false,
                 'parent' => $this->getRealId(),
@@ -624,11 +623,7 @@ class Collection extends AbstractNode implements IQuota
                 $this->validateAcl($save['acl']);
             }
 
-            $result = $this->_db->storage->insertOne($save, [
-                '$isolated' => true,
-            ]);
-
-            $save['_id'] = $result->getInsertedId();
+            $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new collection ['.$save['_id'].'] under parent ['.$this->_id.']', [
                 'category' => get_class($this),
@@ -693,8 +688,12 @@ class Collection extends AbstractNode implements IQuota
             );
         }
 
+        $id = new ObjectId();
+
         try {
             $meta = [
+                '_id' => $id,
+                'pointer' => $id,
                 'name' => $name,
                 'deleted' => false,
                 'parent' => $this->getRealId(),
@@ -718,11 +717,7 @@ class Collection extends AbstractNode implements IQuota
                 $this->validateAcl($save['acl']);
             }
 
-            $result = $this->_db->storage->insertOne($save, [
-                '$isolated' => true,
-            ]);
-
-            $save['_id'] = $result->getInsertedId();
+            $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [
                 'category' => get_class($this),

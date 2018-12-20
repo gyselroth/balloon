@@ -31,6 +31,8 @@ use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterfa
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\HiddenString;
+use Psr\SimpleCache\CacheInterface;
+use Cache\Adapter\PHPArray\ArrayCachePool;
 
 return [
     Client::class => [
@@ -74,6 +76,12 @@ return [
                 'databaseName' => 'balloon'
             ]
         ]]
+    ],
+    CacheInterface::class => [
+        'use' => ArrayCachePool::class,
+        'arguments' => [
+            'limit' => 5000,
+        ]
     ],
     Queue::class => [
         'services' => [
@@ -264,6 +272,18 @@ return [
             Delta\RemoveStorageReferenceFromHistory::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\RemoveStorageReferenceFromHistory::class.'}']
+            ],
+            Delta\SetPointerId::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\SetPointerId::class.'}']
+            ],
+            Delta\CreateUniqueNodeIndex::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\CreateUniqueNodeIndex::class.'}']
+            ],
+            Delta\Postv1Cleanup::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\Postv1Cleanup::class.'}']
             ],
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',

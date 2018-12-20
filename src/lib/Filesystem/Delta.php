@@ -44,6 +44,13 @@ class Delta
     protected $user;
 
     /**
+     * Acl.
+     *
+     * @var Acl
+     */
+    protected $acl;
+
+    /**
      * Client.
      *
      * @var array
@@ -58,10 +65,11 @@ class Delta
     /**
      * Initialize delta.
      */
-    public function __construct(Filesystem $fs, Database $db)
+    public function __construct(Filesystem $fs, Database $db, Acl $acl)
     {
         $this->fs = $fs;
         $this->db = $db;
+        $this->acl = $acl;
         $this->user = $fs->getUser();
         $this->parseClient();
     }
@@ -312,7 +320,7 @@ class Delta
      */
     public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): Iterable
     {
-        $filter = $this->getDeltaFilter();
+        $filter = $this->getEventFilter();
 
         if (null !== $node) {
             $old = $filter;
@@ -510,6 +518,36 @@ class Delta
     }
 
     /**
+     * Get event filter for db query.
+     */
+    protected function getEventFilter(): array
+    {
+        $shares = [];
+        $cursor = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_INCLUDE, [
+            '$or' => [
+                ['reference' => ['$exists' => true]],
+                ['shared' => true],
+            ],
+        ]);
+
+        foreach ($cursor as $share) {
+            if ($this->acl->getAclPrivilege($share) != Acl::PRIVILEGE_WRITEPLUS) {
+                $shares[] = $share->getRealId();
+            }
+        }
+
+        return [
+            '$or' => [
+                ['share' => [
+                    '$in' => $shares,
+                ]], [
+                    'owner' => $this->user->getId(),
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Get delta filter for db query.
      */
     protected function getDeltaFilter(): array
@@ -536,49 +574,53 @@ class Delta
         ?NodeInterface $parent = null
     ) {
         $delta = [];
-
-        $result = $this->db->storage->find($filter, [
-            'skip' => $cursor,
-            'limit' => $parent === null ? $limit : 0,
-        ]);
-
         $has_more = false;
 
+        $max = $limit;
         if ($parent === null) {
-            $left = $this->db->storage->count($filter, [
+            $result = $this->db->storage->find($filter, [
                 'skip' => $cursor,
+                'limit' => ++$max,
             ]);
+        } else {
+            $query = [
+                ['$match' => $filter],
+                ['$match' => ['_id' => $parent->getId()]],
+                ['$graphLookup' => [
+                    'from' => 'storage',
+                    'startWith' => '$pointer',
+                    'connectFromField' => 'pointer',
+                    'connectToField' => 'parent',
+                    'as' => 'children',
+                ]],
+                ['$match' => ['_id' => $parent->getId()]],
+                ['$unwind' => '$children'],
+                ['$skip' => $cursor],
+                ['$limit' => ++$max],
+            ];
 
-            $result = $result->toArray();
-            $count = count($result);
-            $has_more = ($left - $count) > 0;
+            $result = $this->db->storage->aggregate($query);
         }
 
-        $positions = [];
         foreach ($result as $key => $node) {
-            ++$cursor;
-
             try {
-                $node = $this->fs->initNode($node);
-
-                if (null !== $parent && !$parent->isSubNode($node)) {
-                    continue;
+                if (isset($node['children'])) {
+                    $node = $node['children'];
                 }
+
+                $node = $this->fs->initNode($node);
             } catch (\Exception $e) {
                 continue;
             }
 
-            if (count($delta) > $limit) {
-                $cursor = array_pop($positions);
-                $cursor = array_pop($positions);
-                array_pop($delta);
+            if (count($delta) >= $limit) {
                 $has_more = true;
 
                 return $delta;
             }
 
             $delta[$node->getPath()] = $node;
-            $positions[] = $cursor;
+            ++$cursor;
         }
 
         return $delta;

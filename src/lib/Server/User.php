@@ -21,6 +21,7 @@ use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
+use MongoDB\Driver\Exception\BulkWriteException;
 use Psr\Log\LoggerInterface;
 
 class User implements RoleInterface
@@ -287,8 +288,6 @@ class User implements RoleInterface
 
     /**
      * Get node attribute usage.
-     *
-     * @param array|string $attributes
      */
     public function getNodeAttributeSummary($attributes = [], int $limit = 25): array
     {
@@ -355,8 +354,6 @@ class User implements RoleInterface
 
     /**
      * Find new shares and create reference.
-     *
-     * @return User
      */
     public function updateShares(): self
     {
@@ -447,6 +444,7 @@ class User implements RoleInterface
                 'shared' => true,
                 'parent' => null,
                 'reference' => $node['_id'],
+                'pointer' => $node['_id'],
             ];
 
             $dir = $this->getFilesystem()->getRoot();
@@ -460,6 +458,17 @@ class User implements RoleInterface
                     $new = $node['share_name'].' ('.substr(uniqid('', true), -4).')';
                     $dir->addDirectory($new, $attrs);
                 }
+            } catch (BulkWriteException $e) {
+                if ($e->getCode() !== 11000) {
+                    throw $e;
+                }
+
+                $this->logger->warning('share reference to ['.$node['_id'].'] has already been created', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+
+                continue;
             } catch (\Exception $e) {
                 $this->logger->error('failed create new share reference to share ['.$node['_id'].']', [
                     'category' => get_class($this),
@@ -487,8 +496,6 @@ class User implements RoleInterface
 
     /**
      * Get namespace.
-     *
-     * @return string
      */
     public function getNamespace(): ?string
     {
@@ -505,10 +512,6 @@ class User implements RoleInterface
 
     /**
      * Set hard quota.
-     *
-     * @param int $quota In Bytes
-     *
-     * @return User
      */
     public function setHardQuota(int $quota): self
     {
@@ -520,10 +523,6 @@ class User implements RoleInterface
 
     /**
      * Set soft quota.
-     *
-     * @param int $quota In Bytes
-     *
-     * @return User
      */
     public function setSoftQuota(int $quota): self
     {
@@ -593,8 +592,6 @@ class User implements RoleInterface
 
     /**
      * Check quota.
-     *
-     * @param int $add Size in bytes
      */
     public function checkQuota(int $add): bool
     {

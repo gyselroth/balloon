@@ -1,6 +1,18 @@
+## 2.3.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 18 17:31:02 CET 2018\
+**Note**: ballooncli upgrade required, @see UPGRADE.md
+
+* API: [FIX] memory leak in delta request specifc node recursive #233
+* CORE: [CHANGE] Add new field pointer which gets used to recursively resolve child nodes #234
+* CORE: [FIX] Share reference may be created twice #231
+* CORE: [CHANGE] Cleanup release delta data backups with a post v2 release delta #153
+* API: [FIX] Events are visible to user with mailbox access for nodes which they do not own #146
+
+
 ## 2.2.1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Tue Dez 18 11:35:32 CET 2018\
+**Date**: Tu  Dez 18 11:35:32 CET 2018\
 
 * API: [FIX] Initial delta may contain nodes with the same path with different id (double share references) #230
 * API: [FIX] Delta with specific node id may result in empty responses but has_more:true #229
