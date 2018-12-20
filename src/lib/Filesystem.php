@@ -568,8 +568,6 @@ class Filesystem
             throw new Exception\Conflict('node is not available anymore');
         }
 
-        $this->logger->debug('MEMORY_USAGE: '.$this->cache->getAll().' - '.memory_get_usage().' - '.memory_get_usage(true));
-
         if (PHP_SAPI === 'cli') {
             $this->cache->delete('|nodes|'.(string) $node['_id']);
         }
