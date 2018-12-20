@@ -34,7 +34,7 @@ class DeltaTest extends Test
     {
         $this->server = $this->getMockServer();
         $this->fs = $this->server->getFilesystem();
-        $this->delta = new Delta($this->fs, self::getMockDatabase());
+        $this->delta = new Delta($this->fs, self::getMockDatabase(), $this->createMock(Acl::class));
     }
 
     public function testAddRecord()
