@@ -623,9 +623,7 @@ class Collection extends AbstractNode implements IQuota
                 $this->validateAcl($save['acl']);
             }
 
-            $result = $this->_db->storage->insertOne($save, [
-                '$isolated' => true,
-            ]);
+            $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new collection ['.$save['_id'].'] under parent ['.$this->_id.']', [
                 'category' => get_class($this),
@@ -719,9 +717,7 @@ class Collection extends AbstractNode implements IQuota
                 $this->validateAcl($save['acl']);
             }
 
-            $result = $this->_db->storage->insertOne($save, [
-                '$isolated' => true,
-            ]);
+            $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [
                 'category' => get_class($this),

@@ -547,9 +547,6 @@ class Server
 
     /**
      * Get users.
-     *
-     * @param int $offset
-     * @param int $limit
      */
     public function getUsers(array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {

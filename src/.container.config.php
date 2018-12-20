@@ -277,6 +277,10 @@ return [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\SetPointerId::class.'}']
             ],
+            Delta\CreateUniqueNodeIndex::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\CreateUniqueNodeIndex::class.'}']
+            ],
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}']

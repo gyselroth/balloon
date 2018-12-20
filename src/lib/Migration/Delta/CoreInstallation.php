@@ -65,6 +65,12 @@ class CoreInstallation implements DeltaInterface
         );
 
         $this->db->storage->createIndexes([
+            ['key' => [
+                'name' => 1,
+                'owner' => 1,
+                'parent' => 1,
+                'deleted' => 1,
+            ], 'unique' => true],
             ['key' => ['acl.id' => 1]],
             ['key' => ['hash' => 1]],
             ['key' => ['parent' => 1, 'owner' => 1]],
