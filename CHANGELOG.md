@@ -1,13 +1,20 @@
+## 2.3.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Dez 21 09:47:01 CET 2018\
+
+* API: [FIX] php error during initial delta call without parent node #239
+
+
 ## 2.3.1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Wed Dez 18 21:31:02 CET 2018\
+**Date**: Thu Dez 20 21:31:02 CET 2018\
 
 * API: [FIX] delta should include the requested node itself #237
 
 
 ## 2.3.0
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Wed Dez 18 17:31:02 CET 2018\
+**Date**: Thu Dez 20 17:31:02 CET 2018\
 **Note**: ballooncli upgrade required, @see UPGRADE.md
 
 * API: [FIX] memory leak in delta request specifc node recursive #233

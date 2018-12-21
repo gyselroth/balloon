@@ -615,7 +615,7 @@ class Delta
             }
 
             if (count($delta) >= $limit) {
-                if ($requested === null || $requested === 0) {
+                if ($parent !== null && ($requested === null || $requested === 0)) {
                     array_unshift($delta, $parent);
                 }
 
@@ -628,7 +628,7 @@ class Delta
             ++$cursor;
         }
 
-        if ($requested === null || $requested === 0) {
+        if ($parent !== null && ($requested === null || $requested === 0)) {
             array_unshift($delta, $parent);
         }
 
