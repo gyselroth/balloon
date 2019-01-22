@@ -1,3 +1,11 @@
+## 2.3.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Jan 22 14:34:01 CET 2019\
+
+* API: [CHANGE] Query resources by id does not work, unknown top level operator: $oid #243
+* API: [CHANGE] Allow filter to be set by query string #51
+
+
 ## 2.3.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Dez 21 09:47:01 CET 2018\
