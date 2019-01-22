@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * balloon
  *
- * @copyright   Copryright (c) 2012-2018 gyselroth GmbH (https://gyselroth.com)
+ * @copyright   Copryright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
@@ -16,6 +16,8 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
+use function MongoDB\BSON\fromJSON;
+use function MongoDB\BSON\toPHP;
 
 class Collections extends Nodes
 {
@@ -88,16 +90,17 @@ class Collections extends Nodes
      *  {..}
      * ]
      *
-     * @param string $id
-     * @param string $p
-     * @param int    $offset
-     * @param int    $limit
+     * @param string     $id
+     * @param string     $p
+     * @param int        $offset
+     * @param int        $limit
+     * @param null|mixed $query
      */
     public function getChildren(
         ?string $id = null,
         ?string $p = null,
         int $deleted = 0,
-        array $query = [],
+        $query = null,
         array $attributes = [],
         ?int $offset = 0,
         ?int $limit = 20
@@ -109,6 +112,16 @@ class Collections extends Nodes
             $uri = '/api/v2/collections/children';
         } else {
             $uri = '/api/v2/collections/'.$node->getId().'/children';
+        }
+
+        if ($query === null) {
+            $query = [];
+        } elseif (is_string($query)) {
+            $query = toPHP(fromJSON($query), [
+                'root' => 'array',
+                'document' => 'array',
+                'array' => 'array',
+            ]);
         }
 
         $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $query, $offset, $limit);

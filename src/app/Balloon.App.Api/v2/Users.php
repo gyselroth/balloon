@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * balloon
  *
- * @copyright   Copryright (c) 2012-2018 gyselroth GmbH (https://gyselroth.com)
+ * @copyright   Copryright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
@@ -19,6 +19,8 @@ use Balloon\Server\User\Exception;
 use Micro\Http\Response;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
+use function MongoDB\BSON\fromJSON;
+use function MongoDB\BSON\toPHP;
 
 class Users
 {
@@ -256,13 +258,24 @@ class Users
      *      "name": "loginuser"
      * }
      *
-     * @param string $id
-     * @param string $uname
-     * @param string $attributes
+     * @param string     $id
+     * @param string     $uname
+     * @param string     $attributes
+     * @param null|mixed $query
      */
-    public function get(?string $id = null, ?string $uname = null, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function get(?string $id = null, ?string $uname = null, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if ($id === null && $uname === null) {
+            if ($query === null) {
+                $query = [];
+            } elseif (is_string($query)) {
+                $query = toPHP(fromJSON($query), [
+                    'root' => 'array',
+                    'document' => 'array',
+                    'array' => 'array',
+                ]);
+            }
+
             $result = $this->server->getUsers($query, $offset, $limit);
             $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, '/api/v2/users');
             $result = $pager->paging();
