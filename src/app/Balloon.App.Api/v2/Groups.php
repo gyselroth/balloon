@@ -18,8 +18,8 @@ use Balloon\Server\Group;
 use Balloon\Server\User;
 use Balloon\Server\User\Exception;
 use Micro\Http\Response;
-use MongoDB\BSON\ObjectId;
 use function MongoDB\BSON\fromJSON;
+use MongoDB\BSON\ObjectId;
 use function MongoDB\BSON\toPHP;
 
 class Groups
