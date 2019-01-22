@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @copyright   Copryright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
+
 use Balloon\Bootstrap\ContainerBuilder;
 use Balloon\Bootstrap\Http;
 use Micro\Http\Response;
