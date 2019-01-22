@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * balloon
  *
- * @copyright   Copryright (c) 2012-2018 gyselroth GmbH (https://gyselroth.com)
+ * @copyright   Copryright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
@@ -31,6 +31,8 @@ use Micro\Http\Response;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use ZipStream\ZipStream;
+use function MongoDB\BSON\fromJSON;
+use function MongoDB\BSON\toPHP;
 
 class Nodes extends Controller
 {
@@ -283,6 +285,7 @@ class Nodes extends Controller
      *
      * @param null|mixed $id
      * @param null|mixed $p
+     * @param null|mixed $query
      */
 
     /**
@@ -326,9 +329,19 @@ class Nodes extends Controller
      * @param array|string $id
      * @param array|string $p
      */
-    public function get($id = null, $p = null, int $deleted = 0, array $query = [], array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function get($id = null, $p = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if ($id === null && $p === null) {
+            if ($query === null) {
+                $query = [];
+            } elseif (is_string($query)) {
+                $query = toPHP(fromJSON($query), [
+                    'root' => 'array',
+                    'document' => 'array',
+                    'array' => 'array',
+                ]);
+            }
+
             if ($this instanceof ApiFile) {
                 $query['directory'] = false;
                 $uri = '/api/v2/files';
