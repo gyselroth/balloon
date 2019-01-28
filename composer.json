@@ -31,7 +31,7 @@
     "require": {
         "php": ">=7.2",
         "gyselroth/micro-auth": "^0.0.8",
-        "gyselroth/micro-container": "^2.0.3",
+        "gyselroth/micro-container": "^2.1.0",
         "gyselroth/micro-http": "^0.0.6",
         "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
@@ -46,7 +46,7 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "*",
         "zendframework/zend-mail": "2.9.*",
-        "gyselroth/mongodb-php-task-scheduler": "3.0.0-beta8",
+        "gyselroth/mongodb-php-task-scheduler": "^3.0.2",
         "hassankhan/config": "*",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",
