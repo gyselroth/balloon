@@ -3,8 +3,9 @@ MongoDB\Client:
     uri: "{ENV(BALLOON_MONGODB_URI,mongodb://localhost:27017)}"
 MongoDB\Database:
   use: '{MongoDB\Client}'
-  selects:
+  calls:
     - method: selectDatabase
+      select: true
       arguments:
         databaseName: 'balloon'
 Balloon\Bootstrap\Cli:

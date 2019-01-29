@@ -140,17 +140,14 @@ class File extends AbstractNode implements IFile
 
         if (NodeInterface::CONFLICT_MERGE === $conflict && $parent->childExists($this->name)) {
             $result = $parent->getChild($this->name);
-            $result->put($this->get());
-        } else {
-            $stream = $this->get();
-            $session = $parent->getStorage()->storeTemporaryFile($stream, $this->_server->getUserById($this->getOwner()));
-            $result = $parent->addFile($name, $session, [
-                'created' => $this->created,
-                'changed' => $this->changed,
-                'meta' => $this->meta,
-            ], NodeInterface::CONFLICT_NOACTION, true);
 
-            fclose($stream);
+            if ($result instanceof Collection) {
+                $result = $this->copyToCollection($result, $name);
+            } else {
+                $result->put($this->get());
+            }
+        } else {
+            $result = $this->copyToCollection($parent, $name);
         }
 
         $this->_hook->run(
@@ -462,6 +459,13 @@ class File extends AbstractNode implements IFile
         $result = $this->_parent->getStorage()->storeFile($this, $session);
         $this->storage = $result['reference'];
 
+        if ($this->isDeleted() && $this->hash === $result['hash']) {
+            $this->deleted = false;
+            $this->save(['deleted']);
+        }
+
+        $this->deleted = false;
+
         if ($this->hash === $result['hash']) {
             $this->_logger->debug('do not update file version, hash identical to existing version ['.$this->hash.' == '.$result['hash'].']', [
                 'category' => get_class($this),
@@ -498,6 +502,24 @@ class File extends AbstractNode implements IFile
         $this->postPutFile();
 
         return $this->version;
+    }
+
+    /**
+     * Copy to collection.
+     */
+    protected function copyToCollection(Collection $parent, string $name): NodeInterface
+    {
+        $stream = $this->get();
+        $session = $parent->getStorage()->storeTemporaryFile($stream, $this->_server->getUserById($this->getOwner()));
+        $result = $parent->addFile($name, $session, [
+            'created' => $this->created,
+            'changed' => $this->changed,
+            'meta' => $this->meta,
+        ], NodeInterface::CONFLICT_NOACTION, true);
+
+        fclose($stream);
+
+        return $result;
     }
 
     /**
@@ -622,6 +644,7 @@ class File extends AbstractNode implements IFile
             $this->save([
                 'size',
                 'changed',
+                'deleted',
                 'mime',
                 'hash',
                 'version',

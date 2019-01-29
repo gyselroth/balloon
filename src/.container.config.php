@@ -70,11 +70,12 @@ return [
     ],
     Database::class => [
         'use' => '{MongoDB\Client}',
-        'selects' => [[
+        'calls' => [[
             'method' => 'selectDatabase',
             'arguments' => [
                 'databaseName' => 'balloon'
-            ]
+            ],
+            'select' => true
         ]]
     ],
     CacheInterface::class => [

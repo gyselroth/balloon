@@ -260,8 +260,29 @@ class Filesystem
         $parts = explode('/', $path);
         $parent = $this->getRoot();
         array_shift($parts);
+        $count = count($parts);
+
+        $i = 0;
+        $filter = [];
+
         foreach ($parts as $node) {
-            $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
+            ++$i;
+
+            if ($count === $i) {
+                $filter = [
+                    'directory' => ($class === Collection::class),
+                ];
+            }
+
+            try {
+                $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE, $filter);
+            } catch (Exception\NotFound $e) {
+                if ($count == $i) {
+                    $parent = $parent->getChild($node, NodeInterface::DELETED_INCLUDE, $filter);
+                } else {
+                    throw $e;
+                }
+            }
         }
 
         if (null !== $class && !($parent instanceof $class)) {
@@ -273,9 +294,6 @@ class Filesystem
 
     /**
      * Load nodes by id.
-     *
-     * @param string $class   Force check node type
-     * @param bool   $deleted
      */
     public function findNodesById(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): Generator
     {
@@ -332,8 +350,6 @@ class Filesystem
 
     /**
      * Load nodes by id.
-     *
-     * @param string $class Force check node type
      */
     public function findNodesByPath(array $path = [], ?string $class = null): Generator
     {

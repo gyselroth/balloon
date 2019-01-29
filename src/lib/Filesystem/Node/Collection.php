@@ -134,6 +134,10 @@ class Collection extends AbstractNode implements IQuota
 
         if (NodeInterface::CONFLICT_MERGE === $conflict && $parent->childExists($this->name)) {
             $new_parent = $parent->getChild($this->name);
+
+            if ($new_parent instanceof File) {
+                $new_parent = $this;
+            }
         } else {
             $new_parent = $parent->addDirectory($name, [
                 'created' => $this->created,
@@ -207,8 +211,6 @@ class Collection extends AbstractNode implements IQuota
 
     /**
      * Set collection filter.
-     *
-     * @param string $filter
      */
     public function setFilter(?array $filter = null): bool
     {
@@ -758,8 +760,8 @@ class Collection extends AbstractNode implements IQuota
     {
         $session = $this->_storage->storeTemporaryFile($data, $this->_user);
 
-        if ($this->childExists($name)) {
-            $file = $this->getChild($name);
+        if ($this->childExists($name, NodeInterface::DELETED_INCLUDE, ['directory' => false])) {
+            $file = $this->getChild($name, NodeInterface::DELETED_INCLUDE, ['directory' => false]);
             $file->setContent($session);
         } else {
             $file = $this->addFile($name, $session);
