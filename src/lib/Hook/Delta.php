@@ -50,10 +50,6 @@ class Delta extends AbstractHook
         ?string $recursion,
         bool $recursion_first
     ): void {
-        if (false === $recursion_first) {
-            return;
-        }
-
         $event = [
             'parent' => $parent->getRealId(),
         ];
@@ -72,10 +68,6 @@ class Delta extends AbstractHook
         ?string $recursion,
         bool $recursion_first
     ): void {
-        if (false === $recursion_first) {
-            return;
-        }
-
         $event = [
             'parent' => $parent->getRealId(),
         ];

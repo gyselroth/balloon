@@ -5,6 +5,7 @@
 
 * CORE: [CHANGE] Upgrade to stable v3 \TaskScheduler #220, possibilty to flush job queue using ballooncli jobs -f
 * CORE: [CHANGE] Create a new file should check if there is an existing , deleted one with the same name under the same collection #241
+* CORE: [FIX] Missing copy delta entries #252
 * API: [FIX] Call to undefined method Balloon\Filesystem\Node\Collection::put() #249
 * API: [FIX] Missing nodes in delta if delta requested for single node #251
 * API: [FIX] Call to undefined method Balloon\\Filesystem\\Node\\Collection::setContent() #250
