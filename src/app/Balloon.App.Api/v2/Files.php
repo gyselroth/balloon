@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v2;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
@@ -468,8 +469,8 @@ class Files extends Nodes
             if (null === $p && null === $id && null !== $name) {
                 $collection = $this->_getNode($collection, null, Collection::class, false, true);
 
-                if ($collection->childExists($name)) {
-                    $child = $collection->getChild($name);
+                if ($collection->childExists($name, NodeInterface::DELETED_INCLUDE, ['directory' => false])) {
+                    $child = $collection->getChild($name, NodeInterface::DELETED_INCLUDE, ['directory' => false]);
                     $child->setContent($session, $attributes);
                     $result = $this->node_decorator->decorate($child);
 

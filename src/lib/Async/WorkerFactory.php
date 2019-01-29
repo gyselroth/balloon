@@ -15,9 +15,7 @@ use Balloon\Bootstrap\ContainerBuilder;
 use Composer\Autoload\ClassLoader as Composer;
 use ErrorException;
 use MongoDB\BSON\ObjectId;
-use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Scheduler;
 use TaskScheduler\Worker;
 use TaskScheduler\WorkerFactoryInterface;
 use TaskScheduler\WorkerManager;
@@ -47,7 +45,9 @@ class WorkerFactory implements WorkerFactoryInterface
         $dic = ContainerBuilder::get($this->composer);
         $this->setErrorHandler($dic->get(LoggerInterface::class));
 
-        return new Worker($id, $dic->get(Scheduler::class), $dic->get(Database::class), $dic->get(LoggerInterface::class), $dic);
+        return $dic->make(Worker::class, [
+            'id' => $id,
+        ]);
     }
 
     /**
