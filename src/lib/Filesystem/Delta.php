@@ -594,18 +594,18 @@ class Delta
                     'connectToField' => 'parent',
                     'as' => 'children',
                     'restrictSearchWithMatch' => [
-                        'deleted' => false
-                    ]
+                        'deleted' => false,
+                    ],
                 ]],
                 ['$unwind' => '$children'],
-                ['$group' => [ '_id' => null, 'total' => [ '$sum' => 1 ]]],
+                ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
             ];
 
             $result = $this->db->storage->aggregate($query);
 
             $total = 0;
             $result = iterator_to_array($result);
-            if(count($result) > 0) {
+            if (count($result) > 0) {
                 $total = $result[0]['total'];
             }
 
@@ -617,7 +617,7 @@ class Delta
 
         $requested = $cursor;
         foreach ($result as $key => $node) {
-            $cursor++;
+            ++$cursor;
 
             try {
                 if (isset($node['children'])) {
@@ -632,7 +632,7 @@ class Delta
             $delta[$node->getPath()] = $node;
         }
 
-        if($cursor < $total) {
+        if ($cursor < $total) {
             $has_more = true;
         }
 
