@@ -124,7 +124,7 @@ class Collections extends Nodes
             ]);
         }
 
-        $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $query, $offset, $limit);
+        $nodes = $this->fs->getNode($id, $p, NodeCollection::class, false, true)->getChildNodes($deleted, $query, $offset, $limit);
         $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
         $result = $pager->paging();
 
