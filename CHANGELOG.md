@@ -1,3 +1,10 @@
+## 2.4.1 
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Jan 29 17:04:01 CET 2019\
+
+* API: [FIX] Request node by path results in `Balloon\\Filesystem\\Exception\\NotFound` #255
+
+
 ## 2.4.0
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Jan 29 14:42:01 CET 2019\

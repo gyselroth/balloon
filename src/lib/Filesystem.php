@@ -268,7 +268,7 @@ class Filesystem
         foreach ($parts as $node) {
             ++$i;
 
-            if ($count === $i) {
+            if ($count === $i && $class !== null) {
                 $filter = [
                     'directory' => ($class === Collection::class),
                 ];
