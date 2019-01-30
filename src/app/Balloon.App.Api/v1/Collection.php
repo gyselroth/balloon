@@ -101,7 +101,7 @@ class Collection extends Node
         array $attributes = []
     ): Response {
         $children = [];
-        $nodes = $this->fs->getNode($id, $p, null, false, true)->getChildNodes($deleted, $filter);
+        $nodes = $this->fs->getNode($id, $p, NodeCollection::class, false, true)->getChildNodes($deleted, $filter);
 
         foreach ($nodes as $node) {
             $children[] = $this->node_decorator->decorate($node, $attributes);
