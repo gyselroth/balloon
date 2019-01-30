@@ -1,12 +1,36 @@
 ## 2.x -> 2.4.x
 
-balloon v2.2.x comes with the stable version v3.0.0 of [\TaskScheduler](https://github.com/gyselroth/mongodb-php-task-scheduler) which requires the sysvmsg dependency
+balloon v2.4.x comes with the stable version v3.0.0 of [\TaskScheduler](https://github.com/gyselroth/mongodb-php-task-scheduler) which requires the sysvmsg dependency
 built into php. Note: This only affects you if you built php from scratch. The balloon docker image comes already with this dependency and if you are using the balloon deb package, most 
 linux flavors already ship php with this dependency.
 
 A one-time flush of the process queue is required:
 ```sh
 ballooncli jobs -f -vvvv
+```
+
+### Configuration changes
+
+ballon v2.4.x comes with micro PSR-11 container v.2.1.0 in which any selects statements are required to be replaced with calls statements. 
+(selects statements just get ignored, upgrade to calls for required settings.)
+
+For example, the MongoDB database name may be changed from:
+
+```
+selects:
+- method: selectDatabase
+  arguments:
+    databaseName: 'balloon2'
+```
+
+to:
+
+```
+ calls:
+ - method: selectDatabase
+   select: true
+   arguments:
+    databaseName: 'balloon2'
 ```
 
 ## 2.x -> 2.3.x
