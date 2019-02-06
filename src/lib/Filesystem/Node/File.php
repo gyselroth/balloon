@@ -125,7 +125,7 @@ class File extends AbstractNode implements IFile
     /**
      * Copy node.
      */
-    public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
+    public function copyTo(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true, int $deleted = NodeInterface::DELETED_EXCLUDE): NodeInterface
     {
         $this->_hook->run(
             'preCopyFile',

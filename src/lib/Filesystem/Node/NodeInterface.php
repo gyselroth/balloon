@@ -47,15 +47,11 @@ interface NodeInterface extends DAV\INode
      *
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
-     *
-     * @param string $recursion
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool;
 
     /**
      * Set filesystem.
-     *
-     * @return NodeInterface
      */
     public function setFilesystem(Filesystem $fs): self;
 
@@ -66,41 +62,26 @@ interface NodeInterface extends DAV\INode
 
     /**
      * Check if $node is a sub node of any parent nodes of this node.
-     *
-     * @param NodeInterface $node
      */
     public function isSubNode(self $node): bool;
 
     /**
      * Move node.
-     *
-     *
-     * @return NodeInterface
      */
     public function setParent(Collection $parent, int $conflict = self::CONFLICT_NOACTION): self;
 
     /**
      * Copy node.
-     *
-     * @param string $recursion
-     *
-     * @return NodeInterface
      */
-    public function copyTo(Collection $parent, int $conflict = self::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): self;
+    public function copyTo(Collection $parent, int $conflict = self::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true, int $deleted = self::DELETED_EXCLUDE): self;
 
     /**
      * Get share id.
-     *
-     *
-     * @return ObjectId
      */
     public function getShareId(bool $reference = false): ?ObjectId;
 
     /**
      * Get share node.
-     *
-     *
-     * @return Collection
      */
     public function getShareNode(): ?Collection;
 
