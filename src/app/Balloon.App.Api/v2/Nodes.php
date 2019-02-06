@@ -969,6 +969,7 @@ class Nodes extends Controller
         foreach ($this->_getNodes($id, $path) as $node) {
             try {
                 $node->zip($archive);
+                //json_decode($stored, true),
             } catch (\Exception $e) {
                 $this->logger->debug('failed zip node in multi node request ['.$node->getId().']', [
                    'category' => get_class($this),

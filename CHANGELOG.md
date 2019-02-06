@@ -5,6 +5,7 @@
 * CORE: [FIX] Move node from share to share ends in Balloon\\Filesystem\\Exception\\Conflict a node called a does already exists in this collection #268
 * CORE: [FIX] Omit parent filtered collection if itself part of the result set #263
 * CORE: [FIX] filtered collections must decode json into bson and bson into php mongodb objects #260
+* CORE: [FIX] validate filter before creating filtered collection #264
 
 
 ## 2.4.1 

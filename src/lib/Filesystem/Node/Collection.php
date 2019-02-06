@@ -623,6 +623,10 @@ class Collection extends AbstractNode implements IQuota
 
             $save = array_merge($meta, $attributes);
 
+            if (isset($save['filter'])) {
+                $this->validateFilter($save['filter']);
+            }
+
             if (isset($save['acl'])) {
                 $this->validateAcl($save['acl']);
             }
@@ -795,6 +799,22 @@ class Collection extends AbstractNode implements IQuota
         foreach ($children as $child) {
             $callable($child);
         }
+
+        return true;
+    }
+
+    /**
+     * Validate filtered collection query.
+     */
+    protected function validateFilter(string $filter): bool
+    {
+        $filter = toPHP(fromJSON($filter), [
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ]);
+
+        $this->_db->storage->findOne($filter);
 
         return true;
     }
