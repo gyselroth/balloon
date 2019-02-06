@@ -147,7 +147,7 @@ class Collection extends AbstractNode implements IQuota
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        foreach ($this->getChildNodes(NodeInterface::DELETED_INCLUDE) as $child) {
+        foreach ($this->getChildNodes(NodeInterface::DELETED_EXCLUDE) as $child) {
             $child->copyTo($new_parent, $conflict, $recursion, false);
         }
 

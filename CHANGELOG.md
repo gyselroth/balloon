@@ -1,3 +1,10 @@
+## 2.4.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: 
+
+* CORE: [FIX]  Move node from share to share ends in Balloon\\Filesystem\\Exception\\Conflict a node called a does already exists in this collection #268
+
+
 ## 2.4.1 
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Jan 29 17:04:01 CET 2019\
