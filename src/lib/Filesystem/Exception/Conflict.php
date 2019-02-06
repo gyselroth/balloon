@@ -23,13 +23,13 @@ class Conflict extends \Sabre\DAV\Exception\Conflict implements ExceptionInterfa
     const DELETED_PARENT = 21;
     const NODE_CONTAINS_SHARED_NODE = 22;
     const PARENT_NOT_AVAILABLE_ANYMORE = 23;
-    const NOT_DELETED = 24;
     const READONLY = 25;
     const CANT_COPY_INTO_ITSELF = 272;
     const NOT_SHARED = 273;
     const CHUNKS_LOST = 275;
     const CHUNKS_INVALID_SIZE = 276;
     const INVALID_OFFSET = 278;
+    const SHARED_NODE_CANT_BE_INDIRECT_CHILD_OF_SHARE = 279;
 
     /**
      * {@inheritdoc}

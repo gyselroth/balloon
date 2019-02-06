@@ -314,7 +314,7 @@ abstract class AbstractNode implements NodeInterface
         }
         if ($this->isShared() && $this instanceof Collection && $parent->isShared()) {
             throw new Exception\Conflict(
-                'a shared folder can not be a child of a shared folder too',
+                'a shared folder can not be a child of a shared folder',
                 Exception\Conflict::SHARED_NODE_CANT_BE_CHILD_OF_SHARE
             );
         }
@@ -339,6 +339,13 @@ abstract class AbstractNode implements NodeInterface
                     Exception\Conflict::NODE_CONTAINS_SHARED_NODE
                 );
             }
+        }
+
+        if ($this->isShared() && $parent->isSpecial()) {
+            throw new Exception\Conflict(
+                'a shared folder can not be an indirect child of a shared folder',
+                Exception\Conflict::SHARED_NODE_CANT_BE_INDIRECT_CHILD_OF_SHARE
+            );
         }
 
         if (($parent->isSpecial() && $this->shared != $parent->getShareId())
