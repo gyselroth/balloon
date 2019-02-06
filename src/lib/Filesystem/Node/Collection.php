@@ -20,8 +20,10 @@ use Balloon\Hook;
 use Balloon\Server\User;
 use Generator;
 use MimeType\MimeType;
+use function MongoDB\BSON\fromJSON;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
+use function MongoDB\BSON\toPHP;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IQuota;
@@ -858,11 +860,17 @@ class Collection extends AbstractNode implements IQuota
         }
 
         if ($this->filter !== null && $this->_user !== null) {
+            $stored = toPHP(fromJSON($this->filter), [
+                'root' => 'array',
+                'document' => 'array',
+                'array' => 'array',
+            ]);
+
             $include = isset($search['deleted']) ? ['deleted' => $search['deleted']] : [];
             $stored_filter = ['$and' => [
                 array_merge(
                     $include,
-                    json_decode($this->filter, true),
+                    $stored,
                     $filter
                 ),
                 ['$or' => [
@@ -870,8 +878,8 @@ class Collection extends AbstractNode implements IQuota
                     ['shared' => ['$in' => $this->_user->getShares()]],
                 ]],
                 [
-                    '_id' => ['$ne' => $this->_id]
-                ]
+                    '_id' => ['$ne' => $this->_id],
+                ],
             ]];
 
             $search = ['$or' => [
