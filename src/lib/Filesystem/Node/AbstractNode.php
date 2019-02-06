@@ -286,7 +286,7 @@ abstract class AbstractNode implements NodeInterface
      */
     public function setParent(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION): NodeInterface
     {
-        if ($this->parent === $parent->getId()) {
+        if ($this->parent == $parent->getId()) {
             throw new Exception\Conflict(
                 'source node '.$this->name.' is already in the requested parent folder',
                 Exception\Conflict::ALREADY_THERE

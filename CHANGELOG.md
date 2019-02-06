@@ -8,6 +8,7 @@
 * CORE: [FIX] validate filter before creating filtered collection #264
 * CORE: [FIX] Restore a collection with child nodes ends in exception could not restore node into a deleted parent #258
 * CORE: [FIX] Restore a collection which holds two deleted collections with the same name results in Balloon\Filesystem\Exception\Conflict #270
+* CORE: [FIX] Move node into the same parent does not end in an exception #271
 
 
 ## 2.4.1 
