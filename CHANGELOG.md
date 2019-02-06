@@ -6,6 +6,7 @@
 * CORE: [FIX] Omit parent filtered collection if itself part of the result set #263
 * CORE: [FIX] filtered collections must decode json into bson and bson into php mongodb objects #260
 * CORE: [FIX] validate filter before creating filtered collection #264
+* CORE: [FIX] Restore a collection with child nodes ends in exception could not restore node into a deleted parent #258
 
 
 ## 2.4.1 

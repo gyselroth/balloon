@@ -31,8 +31,6 @@ use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterfa
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\HiddenString;
-use Psr\SimpleCache\CacheInterface;
-use Cache\Adapter\PHPArray\ArrayCachePool;
 
 return [
     Client::class => [
@@ -77,12 +75,6 @@ return [
             ],
             'select' => true
         ]]
-    ],
-    CacheInterface::class => [
-        'use' => ArrayCachePool::class,
-        'arguments' => [
-            'limit' => 5000,
-        ]
     ],
     Queue::class => [
         'services' => [

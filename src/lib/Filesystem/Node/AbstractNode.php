@@ -595,8 +595,6 @@ abstract class AbstractNode implements NodeInterface
             );
         }
 
-        $this->_logger->debug('TEST: undelete '.spl_object_hash($this->getParent()).' - '.$this->getName().' - '.$this->isDeleted().'- parent:'.$this->getParent()->getId().' - '.$this->getParent()->getName().' - '.$this->getParent()->isDeleted());
-
         $parent = $this->getParent();
         if ($parent->isDeleted()) {
             throw new Exception\Conflict(
@@ -635,8 +633,6 @@ abstract class AbstractNode implements NodeInterface
                 'name',
                 'deleted',
             ], [], $recursion, $recursion_first);
-
-        $this->_logger->debug('TEST: save set undelete '.spl_object_hash($this->getParent()).' - '.$this->getName().' - '.$this->isDeleted().'- parent:'.$this->getParent()->getId().' - '.$this->getParent()->getName().' - '.$this->getParent()->isDeleted());
 
         if ($this instanceof File || $this->isReference() || $this->isMounted() || $this->isFiltered()) {
             return true;

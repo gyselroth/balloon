@@ -24,7 +24,6 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use Psr\SimpleCache\CacheInterface;
 
 class Filesystem
 {
@@ -94,14 +93,21 @@ class Filesystem
     /**
      * Cache.
      *
-     * @var CacheInterface
+     * @var array
      */
-    protected $cache;
+    protected $cache = [];
+
+    /**
+     * RAW Cache.
+     *
+     * @var array
+     */
+    protected $raw_cache = [];
 
     /**
      * Initialize.
      */
-    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, CacheInterface $cache, NodeFactory $node_factory, Acl $acl, ?User $user = null)
+    public function __construct(Server $server, Database $db, Hook $hook, LoggerInterface $logger, NodeFactory $node_factory, Acl $acl, ?User $user = null)
     {
         $this->user = $user;
         $this->server = $server;
@@ -110,7 +116,6 @@ class Filesystem
         $this->hook = $hook;
         $this->node_factory = $node_factory;
         $this->acl = $acl;
-        $this->cache = $cache;
     }
 
     /**
@@ -170,8 +175,8 @@ class Filesystem
      */
     public function findRawNode(ObjectId $id): array
     {
-        if ($this->cache->has('|raw|'.(string) $id)) {
-            return $this->cache->get('|raw|'.(string) $id);
+        if (isset($this->raw_cache[(string) $id])) {
+            return $this->raw_cache[(string) $id];
         }
 
         $node = $this->db->storage->findOne(['_id' => $id]);
@@ -182,7 +187,7 @@ class Filesystem
             );
         }
 
-        $this->cache->set('|raw|'.(string) $id, $node);
+        $this->raw_cache[(string) $id] = $node;
 
         return $node;
     }
@@ -192,8 +197,8 @@ class Filesystem
      */
     public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
     {
-        if ($this->cache->has('|nodes|'.(string) $id)) {
-            return $this->cache->get('|nodes|'.(string) $id);
+        if (isset($this->cache[(string) $id])) {
+            return $this->cache[(string) $id];
         }
 
         if (!is_string($id) && !($id instanceof ObjectId)) {
@@ -568,10 +573,10 @@ class Filesystem
             );
         }
 
-        $loaded = $this->cache->has('|nodes|'.(string) $node['_id']);
+        $loaded = isset($this->cache[(string) $node['_id']]);
 
         if ($loaded === false) {
-            $this->cache->set('|nodes|'.(string) $node['_id'], $instance);
+            $this->cache[(string) $node['_id']] = $instance;
         }
 
         if ($loaded === false && isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
@@ -585,7 +590,7 @@ class Filesystem
         }
 
         if (PHP_SAPI === 'cli') {
-            $this->cache->delete('|nodes|'.(string) $node['_id']);
+            unset($this->cache[(string) $node['_id']]);
         }
 
         return $instance;
