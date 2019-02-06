@@ -12,6 +12,7 @@
 * CORE: [FIX] clone 0byte file ends in exception #259
 * CORE: [FIX] Force removal of a filtered collection ends in timeout or loss of nodes #272
 * CORE: [FIX] Move share/reference to sub folder of a share #267
+* CORE: [FIX] Office previews not working, soffice exec kills worker manager and worker #266
 
 
 ## 2.4.1 

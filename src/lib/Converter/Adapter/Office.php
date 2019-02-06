@@ -287,7 +287,7 @@ class Office implements AdapterInterface
             'category' => get_class($this),
         ]);
 
-        shell_exec($command);
+        exec($command);
         $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$format;
 
         if (!file_exists($temp)) {
