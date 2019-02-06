@@ -869,6 +869,9 @@ class Collection extends AbstractNode implements IQuota
                     ['owner' => $this->_user->getId()],
                     ['shared' => ['$in' => $this->_user->getShares()]],
                 ]],
+                [
+                    '_id' => ['$ne' => $this->_id]
+                ]
             ]];
 
             $search = ['$or' => [

@@ -2,7 +2,8 @@
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: 
 
-* CORE: [FIX]  Move node from share to share ends in Balloon\\Filesystem\\Exception\\Conflict a node called a does already exists in this collection #268
+* CORE: [FIX] Move node from share to share ends in Balloon\\Filesystem\\Exception\\Conflict a node called a does already exists in this collection #268
+* CORE: [FIX] Omit parent filtered collection if itself part of the result set #263
 
 
 ## 2.4.1 
