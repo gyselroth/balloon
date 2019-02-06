@@ -916,7 +916,7 @@ class Collection extends AbstractNode implements IQuota
      */
     protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isReference() && !$this->isMounted()) {
+        if (!$this->isReference() && !$this->isMounted() && !$this->isFiltered()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(true, $recursion, false);
             }, NodeInterface::DELETED_INCLUDE);

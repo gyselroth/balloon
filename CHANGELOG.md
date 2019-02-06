@@ -10,6 +10,7 @@
 * CORE: [FIX] Restore a collection which holds two deleted collections with the same name results in Balloon\Filesystem\Exception\Conflict #270
 * CORE: [FIX] Move node into the same parent does not end in an exception #271
 * CORE: [FIX] clone 0byte file ends in exception #259
+* CORE: [FIX] Force removal of a filtered collection ends in timeout or loss of nodes #272
 
 
 ## 2.4.1 
