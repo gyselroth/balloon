@@ -1,3 +1,20 @@
+## 2.4.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: wed Feb 06 15:40:03 CET 2019 
+
+* CORE: [FIX] Move node from share to share ends in Balloon\\Filesystem\\Exception\\Conflict a node called a does already exists in this collection #268
+* CORE: [FIX] Omit parent filtered collection if itself part of the result set #263
+* CORE: [FIX] filtered collections must decode json into bson and bson into php mongodb objects #260
+* CORE: [FIX] validate filter before creating filtered collection #264
+* CORE: [FIX] Restore a collection with child nodes ends in exception could not restore node into a deleted parent #258
+* CORE: [FIX] Restore a collection which holds two deleted collections with the same name results in Balloon\Filesystem\Exception\Conflict #270
+* CORE: [FIX] Move node into the same parent does not end in an exception #271
+* CORE: [FIX] clone 0byte file ends in exception #259
+* CORE: [FIX] Force removal of a filtered collection ends in timeout or loss of nodes #272
+* CORE: [FIX] Move share/reference to sub folder of a share #267
+* CORE: [FIX] Office previews not working, soffice exec kills worker manager and worker #266
+
+
 ## 2.4.1 
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Jan 29 17:04:01 CET 2019\

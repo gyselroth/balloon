@@ -18,7 +18,6 @@ use Balloon\Server;
 use Helmich\MongoMock\MockDatabase;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Psr\SimpleCache\CacheInterface;
 
 abstract class Test extends TestCase
 {
@@ -51,7 +50,6 @@ abstract class Test extends TestCase
             self::getMockDatabase(),
             $this->createMock(NodeFactory::class),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(CacheInterface::class),
             $this->createMock(Hook::class),
             $acl
         );

@@ -286,7 +286,7 @@ abstract class AbstractNode implements NodeInterface
      */
     public function setParent(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION): NodeInterface
     {
-        if ($this->parent === $parent->getId()) {
+        if ($this->parent == $parent->getId()) {
             throw new Exception\Conflict(
                 'source node '.$this->name.' is already in the requested parent folder',
                 Exception\Conflict::ALREADY_THERE
@@ -314,7 +314,7 @@ abstract class AbstractNode implements NodeInterface
         }
         if ($this->isShared() && $this instanceof Collection && $parent->isShared()) {
             throw new Exception\Conflict(
-                'a shared folder can not be a child of a shared folder too',
+                'a shared folder can not be a child of a shared folder',
                 Exception\Conflict::SHARED_NODE_CANT_BE_CHILD_OF_SHARE
             );
         }
@@ -339,6 +339,13 @@ abstract class AbstractNode implements NodeInterface
                     Exception\Conflict::NODE_CONTAINS_SHARED_NODE
                 );
             }
+        }
+
+        if ($this->isShared() && $parent->isSpecial()) {
+            throw new Exception\Conflict(
+                'a shared folder can not be an indirect child of a shared folder',
+                Exception\Conflict::SHARED_NODE_CANT_BE_INDIRECT_CHILD_OF_SHARE
+            );
         }
 
         if (($parent->isSpecial() && $this->shared != $parent->getShareId())
@@ -588,12 +595,6 @@ abstract class AbstractNode implements NodeInterface
                 ForbiddenException::NOT_ALLOWED_TO_UNDELETE
             );
         }
-        if (!$this->isDeleted()) {
-            throw new Exception\Conflict(
-                'node is not deleted, skip restore',
-                Exception\Conflict::NOT_DELETED
-            );
-        }
 
         $parent = $this->getParent();
         if ($parent->isDeleted()) {
@@ -605,8 +606,11 @@ abstract class AbstractNode implements NodeInterface
 
         if ($parent->childExists($this->name)) {
             if (NodeInterface::CONFLICT_MERGE === $conflict) {
-                $this->copyTo($parent, $conflict);
-                $this->delete(true);
+                $new = $this->copyTo($parent, $conflict, null, true, NodeInterface::DELETED_INCLUDE);
+
+                if ($new->getId() != $this->getId()) {
+                    $this->delete(true);
+                }
             } elseif (NodeInterface::CONFLICT_RENAME === $conflict) {
                 $this->setName($this->getDuplicateName());
                 $this->raw_attributes['name'] = $this->name;

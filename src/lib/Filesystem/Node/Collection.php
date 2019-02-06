@@ -20,8 +20,10 @@ use Balloon\Hook;
 use Balloon\Server\User;
 use Generator;
 use MimeType\MimeType;
+use function MongoDB\BSON\fromJSON;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
+use function MongoDB\BSON\toPHP;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IQuota;
@@ -105,7 +107,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Copy node with children.
      */
-    public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
+    public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true, int $deleted = NodeInterface::DELETED_EXCLUDE): NodeInterface
     {
         if (null === $recursion) {
             $recursion_first = true;
@@ -147,8 +149,8 @@ class Collection extends AbstractNode implements IQuota
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        foreach ($this->getChildNodes(NodeInterface::DELETED_INCLUDE) as $child) {
-            $child->copyTo($new_parent, $conflict, $recursion, false);
+        foreach ($this->getChildNodes($deleted) as $child) {
+            $child->copyTo($new_parent, $conflict, $recursion, false, $deleted);
         }
 
         $this->_hook->run(
@@ -621,6 +623,10 @@ class Collection extends AbstractNode implements IQuota
 
             $save = array_merge($meta, $attributes);
 
+            if (isset($save['filter'])) {
+                $this->validateFilter($save['filter']);
+            }
+
             if (isset($save['acl'])) {
                 $this->validateAcl($save['acl']);
             }
@@ -798,6 +804,22 @@ class Collection extends AbstractNode implements IQuota
     }
 
     /**
+     * Validate filtered collection query.
+     */
+    protected function validateFilter(string $filter): bool
+    {
+        $filter = toPHP(fromJSON($filter), [
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ]);
+
+        $this->_db->storage->findOne($filter);
+
+        return true;
+    }
+
+    /**
      * Validate acl.
      */
     protected function validateAcl(array $acl): bool
@@ -858,17 +880,26 @@ class Collection extends AbstractNode implements IQuota
         }
 
         if ($this->filter !== null && $this->_user !== null) {
+            $stored = toPHP(fromJSON($this->filter), [
+                'root' => 'array',
+                'document' => 'array',
+                'array' => 'array',
+            ]);
+
             $include = isset($search['deleted']) ? ['deleted' => $search['deleted']] : [];
             $stored_filter = ['$and' => [
                 array_merge(
                     $include,
-                    json_decode($this->filter, true),
+                    $stored,
                     $filter
                 ),
                 ['$or' => [
                     ['owner' => $this->_user->getId()],
                     ['shared' => ['$in' => $this->_user->getShares()]],
                 ]],
+                [
+                    '_id' => ['$ne' => $this->_id],
+                ],
             ]];
 
             $search = ['$or' => [
@@ -885,7 +916,7 @@ class Collection extends AbstractNode implements IQuota
      */
     protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->isReference() && !$this->isMounted()) {
+        if (!$this->isReference() && !$this->isMounted() && !$this->isFiltered()) {
             $this->doRecursiveAction(function ($node) use ($recursion) {
                 $node->delete(true, $recursion, false);
             }, NodeInterface::DELETED_INCLUDE);
