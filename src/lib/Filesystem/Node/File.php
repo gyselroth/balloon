@@ -144,7 +144,10 @@ class File extends AbstractNode implements IFile
             if ($result instanceof Collection) {
                 $result = $this->copyToCollection($result, $name);
             } else {
-                $result->put($this->get());
+                $stream = $this->get();
+                if ($stream !== null) {
+                    $result->put($stream);
+                }
             }
         } else {
             $result = $this->copyToCollection($parent, $name);
@@ -509,15 +512,19 @@ class File extends AbstractNode implements IFile
      */
     protected function copyToCollection(Collection $parent, string $name): NodeInterface
     {
-        $stream = $this->get();
-        $session = $parent->getStorage()->storeTemporaryFile($stream, $this->_server->getUserById($this->getOwner()));
-        $result = $parent->addFile($name, $session, [
+        $result = $parent->addFile($name, null, [
             'created' => $this->created,
             'changed' => $this->changed,
             'meta' => $this->meta,
         ], NodeInterface::CONFLICT_NOACTION, true);
 
-        fclose($stream);
+        $stream = $this->get();
+
+        if ($stream !== null) {
+            $session = $parent->getStorage()->storeTemporaryFile($stream, $this->_server->getUserById($this->getOwner()));
+            $result->setContent($session);
+            fclose($stream);
+        }
 
         return $result;
     }
