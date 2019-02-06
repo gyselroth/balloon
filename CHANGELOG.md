@@ -7,6 +7,7 @@
 * CORE: [FIX] filtered collections must decode json into bson and bson into php mongodb objects #260
 * CORE: [FIX] validate filter before creating filtered collection #264
 * CORE: [FIX] Restore a collection with child nodes ends in exception could not restore node into a deleted parent #258
+* CORE: [FIX] Restore a collection which holds two deleted collections with the same name results in Balloon\Filesystem\Exception\Conflict #270
 
 
 ## 2.4.1 

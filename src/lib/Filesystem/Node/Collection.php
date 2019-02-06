@@ -107,7 +107,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Copy node with children.
      */
-    public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): NodeInterface
+    public function copyTo(self $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true, int $deleted = NodeInterface::DELETED_EXCLUDE): NodeInterface
     {
         if (null === $recursion) {
             $recursion_first = true;
@@ -149,8 +149,8 @@ class Collection extends AbstractNode implements IQuota
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        foreach ($this->getChildNodes(NodeInterface::DELETED_EXCLUDE) as $child) {
-            $child->copyTo($new_parent, $conflict, $recursion, false);
+        foreach ($this->getChildNodes($deleted) as $child) {
+            $child->copyTo($new_parent, $conflict, $recursion, false, $deleted);
         }
 
         $this->_hook->run(

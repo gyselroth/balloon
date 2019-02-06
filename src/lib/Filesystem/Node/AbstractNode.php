@@ -588,12 +588,6 @@ abstract class AbstractNode implements NodeInterface
                 ForbiddenException::NOT_ALLOWED_TO_UNDELETE
             );
         }
-        if (!$this->isDeleted()) {
-            throw new Exception\Conflict(
-                'node is not deleted, skip restore',
-                Exception\Conflict::NOT_DELETED
-            );
-        }
 
         $parent = $this->getParent();
         if ($parent->isDeleted()) {
@@ -605,8 +599,11 @@ abstract class AbstractNode implements NodeInterface
 
         if ($parent->childExists($this->name)) {
             if (NodeInterface::CONFLICT_MERGE === $conflict) {
-                $this->copyTo($parent, $conflict);
-                $this->delete(true);
+                $new = $this->copyTo($parent, $conflict, null, true, NodeInterface::DELETED_INCLUDE);
+
+                if ($new->getId() != $this->getId()) {
+                    $this->delete(true);
+                }
             } elseif (NodeInterface::CONFLICT_RENAME === $conflict) {
                 $this->setName($this->getDuplicateName());
                 $this->raw_attributes['name'] = $this->name;

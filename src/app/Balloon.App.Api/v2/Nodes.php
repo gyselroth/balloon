@@ -186,9 +186,7 @@ class Nodes extends Controller
                 $node = $node->setParent($parent, $conflict);
             }
 
-            if ($node->isDeleted()) {
-                $node->undelete($conflict);
-            }
+            $node->undelete($conflict);
 
             return [
                 'code' => 200,
