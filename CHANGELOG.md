@@ -1,4 +1,4 @@
-## 2.4.2
+## 2.4.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Feb 26 14:23:03 CET 2019 
 
