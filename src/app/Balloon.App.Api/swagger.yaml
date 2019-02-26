@@ -205,7 +205,7 @@ paths:
           type: string
           description: 'Resource identifier'
       responses:
-        '200':
+        200:
           description: List of users
           schema:
             type: array
@@ -1069,6 +1069,8 @@ paths:
         - in: body
           name: body
           description: 'Document content'
+          schema:
+            type: string
       responses:
         200:
           description: "Operation was successful"
@@ -1106,7 +1108,7 @@ paths:
       tags:
         - balloon_app_office_v2
       summary: 'Create new session for a document'
-      operationId: createDocument
+      operationId: createSession
       produces:
         - application/json
       parameters:
@@ -1147,6 +1149,36 @@ paths:
           description: "Resource does not exists"
         403:
           description: "Access denied"
+  '/api/v2/nodes':
+    get:
+      tags:
+        - v2
+      summary: 'Get single node by path'
+      operationId: getNodeByPath
+      produces:
+        - application/json
+      parameters:
+        - name: p
+          in: query
+          required: true
+          type: string
+          description: 'Node identifier'
+        - name: attributes
+          in: query
+          required: false
+          type: 'array'
+          description: 'Filter attributes'
+          items:
+            type: string
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/Node"
+        404:
+          description: "Resource does not exists"
+        403:
+          description: "Access denied"          
   '/api/v2/nodes/{node}/clone':
     post:
       tags:
@@ -1393,6 +1425,12 @@ paths:
             using JSON (For example: {"name": -1}).'
           required: false
           type: string
+        - in: query
+          name: recursive
+          description: 'Include children recursively.'
+          required: false
+          type: boolean
+          default: false
       responses:
         200:
           description: "List of children"
@@ -1444,6 +1482,12 @@ paths:
             using JSON (For example: {"name": -1}).'
           required: false
           type: string
+        - in: query
+          name: recursive
+          description: 'Include children recursively.'
+          required: false
+          type: boolean
+          default: false
       responses:
         200:
           description: "List of children"
@@ -1629,6 +1673,8 @@ paths:
         - in: body
           name: body
           description: File content
+          schema:
+            type: string
       responses:
         201:
           description: "File created"
@@ -1696,6 +1742,8 @@ paths:
           name: body
           description: 'File content'
           required: true
+          schema:
+            type: string
       responses:
         200:
           description: "File updated"
@@ -1709,6 +1757,62 @@ paths:
           description: "Chunk uploaded"
           schema:
             $ref: "#/definitions/ChunkSession"
+        404:
+          description: "Resource does not exists"
+        403:
+          description: "Access denied"
+  '/api/v2/nodes':
+    get:
+      tags:
+        - v2
+      summary: 'Get all nodes'
+      operationId: getNodes
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: number
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: number
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+        - name: deleted
+          in: query
+          required: false
+          type: number
+          description: 'Wheter include deleted nodes or not, possible values:  0 Exclude deleted 1 Only deleted 2 Include deleted  '
+      responses:
+        200:
+          description: "List of nodes"
+          schema:
+            $ref: "#/definitions/Nodes"
         404:
           description: "Resource does not exists"
         403:
@@ -1796,7 +1900,7 @@ paths:
           description: 'Change attributes '
           required: true
           schema:
-            $ref: '#/definitions/Patch'
+            $ref: '#/definitions/Node'
       responses:
         200:
           description: "Node"
@@ -1812,8 +1916,6 @@ paths:
         - balloon_app_sharelink_v2
       summary: 'Delete an existing sharing link'
       operationId: deleteLink
-      consumes:
-        - application/json
       produces:
         - application/json
       parameters:
@@ -1822,12 +1924,6 @@ paths:
           required: true
           type: string
           description: 'Node identifier'
-        - in: body
-          name: body
-          description: 'Create a unique sharing link of a node (global accessible): a possible existing link will be deleted if this method will be called. '
-          required: true
-          schema:
-            $ref: '#/definitions/Balloon/App/ShareLink/ShareLink'
       responses:
         204:
           description: "The server responds with 204 if operation was successful"
@@ -1840,8 +1936,6 @@ paths:
         - balloon_app_sharelink_v2
       summary: 'Create a unique sharing link of a node (global accessible): a possible existing link will be deleted if this method will be called.'
       operationId: createLink
-      consumes:
-        - application/json
       produces:
         - application/json
       parameters:
@@ -1850,12 +1944,17 @@ paths:
           required: true
           type: string
           description: 'Node identifier'
-        - in: body
-          name: body
-          description: 'Create a unique sharing link of a node (global accessible): a possible existing link will be deleted if this method will be called. '
-          required: true
-          schema:
-            $ref: '#/definitions/Balloon/App/ShareLink/ShareLink'
+        - name: expiration
+          in: query
+          required: false
+          type: number
+          description: 'Expire timestamp as unix timestap. Tells the server when the public link should expire automatically. The default is to never expire.'
+          default: 0
+        - name: password
+          in: query
+          required: false
+          type: string
+          description: 'Optionally set a password to protect the public link.'
       responses:
         201:
           description: "Node"
@@ -2220,6 +2319,13 @@ definitions:
             description: "User locale."
             type: "string"
             default: "en_US"
+          auth:
+            description: "Authentication source."
+            type: "string"
+            default: "internal"
+            enum:
+            - internal
+            - external
           hard_quota:
             description: "Hard quota in bytes (Max. limit of storage usage). Note that external storage is not part of the quota. The default is no limit."
             type: "number"
@@ -2261,6 +2367,11 @@ definitions:
           namespace:
             description: "User namespace."
             type: "string"
+          member:
+            description: "Array of user id's."
+            type: "array"
+            items:
+              type: string
   Nodes:
     description: "A list of nodes."
     allOf:
@@ -2433,6 +2544,25 @@ definitions:
           name:
             description: "The username of the share owner."
             type: "string"
+  Delta:
+    description: "The delta is a differential feed to get changes since the last delta call."
+    type: object
+    properties:
+      reset:
+        description: "If true the client needs to reset its state."
+        type: "boolean"
+        default: false
+      cursor:
+        description: "ACL rules."
+        type: string
+      has_more:
+        description: "If true the server has more entries and the client must send another request with the latest cursor."
+        type: boolean
+        default: false
+      nodes:
+        type: array
+        items:  
+          $ref: '#/definitions/Node'
   Share:
     description: "Node share."
     type: object
@@ -2477,6 +2607,28 @@ definitions:
           name:
             description: "The name of role resource."
             type: "string"
+  UserNodeAttributeSummary:
+    description: "Request node fiel statistics."
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: object
+        properties:
+          _id:
+            type: string
+          sum: 
+            type: number
+  ChunkSession:
+    description: "Chunking upload session."
+    type: object
+    properties:
+      session:
+        description: "The upload session id"
+        type: string
+      chunks_left:
+        description: "Tells how many chunks are left to upload." 
+        type: number
   EventLogs:
     description: "A list of events."
     allOf:

@@ -1,6 +1,14 @@
+## 2.5.0
+
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: 
+
+* API: [FEATURE] Move from apidoc to swagger/openapi #86 
+
+
 ## 2.4.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: wed Feb 06 15:40:03 CET 2019 
+**Date**: Wed Feb 06 15:40:03 CET 2019 
 
 * CORE: [FIX] Move node from share to share ends in Balloon\\Filesystem\\Exception\\Conflict a node called a does already exists in this collection #268
 * CORE: [FIX] Omit parent filtered collection if itself part of the result set #263
