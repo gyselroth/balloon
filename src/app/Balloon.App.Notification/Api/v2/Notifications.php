@@ -221,7 +221,7 @@ class Notifications extends Controller
         if (!$this->user->isAdmin()) {
             throw new ForbiddenException(
                 'submitted parameters require to have admin privileges',
-                    ForbiddenException::ADMIN_PRIV_REQUIRED
+                ForbiddenException::ADMIN_PRIV_REQUIRED
                 );
         }
 

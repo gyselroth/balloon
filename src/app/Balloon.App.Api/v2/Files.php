@@ -16,6 +16,7 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
+use Balloon\Helper;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -498,7 +499,7 @@ class Files extends Nodes
                 }
 
                 $parent_path = '/'.ltrim(dirname('/'.$p), '/');
-                $name = basename($p);
+                $name = Helper::mb_basename($p);
 
                 try {
                     $parent = $this->fs->findNodeByPath($parent_path, Collection::class);

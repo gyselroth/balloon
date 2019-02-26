@@ -22,9 +22,9 @@ spec:
     spec:
       containers:
       - command:
-        - ballooncli
-        - jobs
-        - -vvvv
+        - sh
+        - -c
+        - "ballooncli jobs -vvv"
         env:
         - name: BALLOON_CLAMAV_URI
           value: tcp://clamav:3310

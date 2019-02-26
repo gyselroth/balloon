@@ -327,7 +327,7 @@ class Notifier
                 'user' => $subscription['user'],
                 'node' => $subscription['node'],
             ],
-            $subscription,
+                $subscription,
                 [
                 'upsert' => true,
             ]
@@ -342,7 +342,7 @@ class Notifier
                         'user' => $subscription['user'],
                         'node' => $subscription['node'],
                     ],
-                    $subscription,
+                        $subscription,
                         [
                         'upsert' => true,
                     ]
