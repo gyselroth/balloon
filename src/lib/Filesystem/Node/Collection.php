@@ -236,15 +236,18 @@ class Collection extends AbstractNode implements IQuota
      *  0 - Exclude deleted
      *  1 - Only deleted
      *  2 - Include deleted
-     *
-     * @param int $offset
-     * @param int $limit
      */
-    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null): Generator
+    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null, bool $recursive = false): Generator
     {
         $filter = $this->getChildrenFilter($deleted, $filter);
 
-        return $this->_fs->findNodesByFilter($filter, $offset, $limit);
+        if ($recursive === false) {
+            return $this->_fs->findNodesByFilter($filter, $offset, $limit);
+        }
+
+        unset($filter['parent']);
+
+        return $this->_fs->findNodesByFilterRecursive($this, $filter, $offset, $limit);
     }
 
     /**

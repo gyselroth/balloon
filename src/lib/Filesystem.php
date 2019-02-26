@@ -495,6 +495,56 @@ class Filesystem
     }
 
     /**
+     * Find nodes with custom filter recursive.
+     */
+    public function findNodesByFilterRecursive(Collection $collection, array $filter, ?int $offset = null, ?int $limit = null): Generator
+    {
+        $query = [
+            ['$match' => ['_id' => $collection->getId()]],
+            ['$graphLookup' => [
+                'from' => 'storage',
+                'startWith' => '$pointer',
+                'connectFromField' => 'pointer',
+                'connectToField' => 'parent',
+                'as' => 'children',
+                'restrictSearchWithMatch' => $filter,
+            ]],
+            ['$unwind' => '$children'],
+            ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
+        ];
+
+        $result = $this->db->storage->aggregate($query);
+
+        $total = 0;
+        $result = iterator_to_array($result);
+        if (count($result) > 0) {
+            $total = $result[0]['total'];
+        }
+
+        array_pop($query);
+        $query[] = ['$skip' => $offset];
+        $query[] = ['$limit' => $limit];
+        $result = $this->db->storage->aggregate($query);
+
+        foreach ($result as $node) {
+            try {
+                if (isset($node['children'])) {
+                    $node = $node['children'];
+                }
+
+                yield $this->initNode($node);
+            } catch (\Exception $e) {
+                $this->logger->error('remove node from result list, failed load node', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        return $total;
+    }
+
+    /**
      * Get custom filtered children.
      */
     public function findNodesByFilterUser(int $deleted, array $filter, ?int $offset = null, ?int $limit = null): Generator

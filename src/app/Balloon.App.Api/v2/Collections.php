@@ -34,7 +34,8 @@ class Collections extends Nodes
         $query = null,
         array $attributes = [],
         ?int $offset = 0,
-        ?int $limit = 20
+        ?int $limit = 20,
+        ?bool $recursive = false
     ): Response {
         $children = [];
 
@@ -55,7 +56,7 @@ class Collections extends Nodes
             ]);
         }
 
-        $nodes = $this->fs->getNode($id, $p, NodeCollection::class, false, true)->getChildNodes($deleted, $query, $offset, $limit);
+        $nodes = $this->fs->getNode($id, $p, NodeCollection::class, false, true)->getChildNodes($deleted, $query, $offset, $limit, $recursive);
         $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
         $result = $pager->paging();
 

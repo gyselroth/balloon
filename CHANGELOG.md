@@ -11,6 +11,7 @@
 * CORE: [FIX] share_name must get validated as node name before creating #278
 * CORE: [FEATURE] Internal auth adapter allow login using mail address #261
 * CORE: [CHANGE] Remove the possibilty to combine filtered collection and a manual tree #269
+* API: [FEATURE] Add recursive=1/0 to GET /api/v2/collections/:id/children #265
 
 
 ## 2.4.4
