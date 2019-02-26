@@ -160,6 +160,13 @@ class User implements RoleInterface
     protected $fs;
 
     /**
+     * Identity.
+     *
+     * @var Identity
+     */
+    protected $identity;
+
+    /**
      * Instance user.
      */
     public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger)
@@ -182,13 +189,19 @@ class User implements RoleInterface
     }
 
     /**
+     * Get identity.
+     */
+    public function getIdentity(): ?Identity
+    {
+        return $this->identity;
+    }
+
+    /**
      * Update user with identity attributes.
-     *
-     *
-     * @return User
      */
     public function updateIdentity(Identity $identity): self
     {
+        $this->identity = $identity;
         $attr_sync = $identity->getAdapter()->getAttributeSyncCache();
         if ($attr_sync === -1) {
             return $this;

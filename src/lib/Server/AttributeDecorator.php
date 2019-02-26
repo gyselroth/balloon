@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Server;
 
 use Balloon\AttributeDecorator\AttributeDecoratorInterface;
+use Balloon\Auth\Adapter\Basic\Db;
 use Balloon\Server;
 use Closure;
 
@@ -41,8 +42,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Decorate attributes.
-     *
-     * @param array $attributes
      */
     public function decorate(RoleInterface $role, ?array $attributes = null): array
     {
@@ -68,9 +67,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Add decorator.
-     *
-     *
-     * @return AttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self
     {
@@ -81,8 +77,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get Attributes.
-     *
-     * @param RoleInterface
      */
     protected function getAttributes(RoleInterface $role, array $attributes): array
     {
@@ -110,8 +104,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get group Attributes.
-     *
-     * @param RoleInterface
      */
     protected function getGroupAttributes(RoleInterface $role, array $attributes): array
     {
@@ -129,8 +121,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Get user Attributes.
-     *
-     * @param RoleInterface
      */
     protected function getUserAttributes(RoleInterface $role, array $attributes): array
     {
@@ -177,6 +167,18 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
                 return null;
             },
+            'auth' => function () use ($user) {
+                $identity = $user->getIdentity();
+                if ($identity === null) {
+                    return null;
+                }
+
+                if ($identity->getAdapter() instanceof Db) {
+                    return 'internal';
+                }
+
+                return 'external';
+            },
         ];
 
         return $result;
@@ -184,8 +186,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
     /**
      * Execute closures.
-     *
-     * @param RoleInterface
      */
     protected function translateAttributes(RoleInterface $role, array $attributes): array
     {

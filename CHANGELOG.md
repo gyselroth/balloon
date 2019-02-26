@@ -7,6 +7,7 @@
 * CORE: [CHANGE] Upgrade smbclient to 3.1.0 #275
 * API: [CHANGE] PATCH /api/v2/users/{id} must allow own id #280
 * API: [CHANGE] Remove deprecated api endpoints/changes in v2.5 #284
+* API: [FEATURE] Provide new attribute `auth` internal/external in GET /api/v2/users/{id} for the current user #282
 
 
 ## 2.4.3
