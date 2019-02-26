@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v1;
 use Balloon\App\Api\v1\AttributeDecorator\RoleDecorator;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
+use Balloon\Helper;
 use Balloon\Server\User;
 use Micro\Http\Response;
 
@@ -334,7 +335,7 @@ class Collection extends Node
             }
 
             $parent_path = dirname($p);
-            $name = basename($p);
+            $name = Helper::mb_basename($p);
             $parent = $this->fs->findNodeByPath($parent_path, NodeCollection::class);
             $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
 

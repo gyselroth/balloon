@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v2;
 use Balloon\AttributeDecorator\Pager;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection as NodeCollection;
+use Balloon\Helper;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
 use function MongoDB\BSON\fromJSON;
@@ -319,7 +320,7 @@ class Collections extends Nodes
             }
 
             $parent_path = dirname($p);
-            $name = basename($p);
+            $name = Helper::mb_basename($p);
             $parent = $this->fs->findNodeByPath($parent_path, NodeCollection::class);
             $result = $parent->addDirectory($name, $attributes, $conflict);
             $result = $this->node_decorator->decorate($result);

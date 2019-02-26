@@ -1,3 +1,10 @@
+## 2.4.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Feb 26 16:04:01 CET 2019 
+
+* CORE: [FIX] Create file with leading unicode character cuts of first character (for collections) #288
+
+
 ## 2.4.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Feb 26 14:23:03 CET 2019 
