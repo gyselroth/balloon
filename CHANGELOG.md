@@ -9,6 +9,7 @@
 * API: [CHANGE] Remove deprecated api endpoints/changes in v2.5 #284
 * API: [FEATURE] Provide new attribute `auth` internal/external in GET /api/v2/users/{id} for the current user #282
 * CORE: [FIX] share_name must get validated as node name before creating #278
+* CORE: [FEATURE] Internal auth adapter allow login using mail address #261
 
 
 ## 2.4.3

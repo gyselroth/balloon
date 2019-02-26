@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\Auth\Adapter\Basic;
 
-use Micro\Auth\Adapter\AdapterInterface;
 use Micro\Auth\Adapter\Basic\AbstractBasic;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
@@ -27,9 +26,6 @@ class Db extends AbstractBasic
 
     /**
      * Set options.
-     *
-     *
-     * @return AdapterInterface
      */
     public function __construct(LoggerInterface $logger, Database $db, ?Iterable $config = null)
     {
@@ -40,14 +36,14 @@ class Db extends AbstractBasic
 
     /**
      * Find identity.
-     *
-     *
-     * @return array
      */
     public function findIdentity(string $username): ?array
     {
         return $this->db->user->findOne([
-            'username' => $username,
+            '$or' => [
+                ['username' => $username],
+                ['mail' => $username],
+            ],
         ]);
     }
 
@@ -91,7 +87,7 @@ class Db extends AbstractBasic
         }
 
         $this->attributes = $result;
-        $this->identifier = $username;
+        $this->identifier = $result['username'];
 
         return true;
     }
