@@ -234,13 +234,13 @@ class Groups
      *
      * @param array $member
      */
-    public function post(string $name, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
+    public function post(string $name, ?array $member = null, ?string $namespace = null): Response
     {
         if (!$this->user->isAdmin()) {
             throw new Exception\NotAdmin('submitted parameters require admin privileges');
         }
 
-        $attributes = compact('namespace', 'optional');
+        $attributes = compact('namespace');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         $id = $this->server->addGroup($name, $member, $attributes);
@@ -272,9 +272,9 @@ class Groups
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      */
-    public function patch(string $id, ?array $member = null, ?string $namespace = null, ?array $optional = null): Response
+    public function patch(string $id, ?array $member = null, ?string $namespace = null): Response
     {
-        $attributes = compact('namespace', 'optional', 'name', 'member');
+        $attributes = compact('namespace', 'name', 'member');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         $group = $this->_getGroup($id, true);

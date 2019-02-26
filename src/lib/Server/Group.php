@@ -42,13 +42,6 @@ class Group implements RoleInterface
     protected $member = [];
 
     /**
-     * Optional group attributes.
-     *
-     * @var array
-     */
-    protected $optional = [];
-
-    /**
      * Is group deleted?
      *
      * @var bool|UTCDateTime
@@ -145,7 +138,7 @@ class Group implements RoleInterface
             'created' => $this->created,
             'changed' => $this->changed,
             'deleted' => $this->deleted,
-            'optional' => $this->optional,
+            'member' => $this->member,
         ];
     }
 

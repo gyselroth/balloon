@@ -326,13 +326,13 @@ class Users
      *      "id": "544627ed3c58891f058b4633"
      * }
      */
-    public function post(string $username, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?string $locale = null, ?array $optional = null): Response
+    public function post(string $username, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?string $locale = null): Response
     {
         if (!$this->user->isAdmin()) {
             throw new Exception\NotAdmin('submitted parameters require admin privileges');
         }
 
-        $attributes = compact('password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale', 'optional');
+        $attributes = compact('password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         if (isset($attributes['avatar'])) {
@@ -372,9 +372,9 @@ class Users
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      */
-    public function patch(string $id, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null, ?array $optional = null): Response
+    public function patch(string $id, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null): Response
     {
-        $attributes = compact('username', 'password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale', 'optional');
+        $attributes = compact('username', 'password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         if (isset($attributes['avatar'])) {

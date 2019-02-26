@@ -123,6 +123,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
             'id' => (string) $attributes['_id'],
             'name' => $attributes['name'],
             'namespace' => isset($attributes['namespace']) ? (string) $attributes['namespace'] : null,
+            'member' => array_map(function($member){ return (string)$member; }, $attributes['member']);,
         ];
     }
 

@@ -41,13 +41,6 @@ class User implements RoleInterface
     protected $username;
 
     /**
-     * Optional user attributes.
-     *
-     * @var array
-     */
-    protected $optional = [];
-
-    /**
      * Locale.
      *
      * @var string
@@ -262,7 +255,6 @@ class User implements RoleInterface
             'hard_quota' => $this->hard_quota,
             'mail' => $this->mail,
             'admin' => $this->admin,
-            'optional' => $this->optional,
             'avatar' => $this->avatar,
         ];
     }
@@ -722,6 +714,6 @@ class User implements RoleInterface
             '$limit' => $limit,
         ];
 
-        return $mongodb->aggregate($ops)->toArray();
+        return array_values($mongodb->aggregate($ops)->toArray());
     }
 }

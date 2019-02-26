@@ -166,7 +166,7 @@ class File extends AbstractNode implements IFile
      */
     public function getHistory(): array
     {
-        return $this->history;
+        return array_values($this->history);
     }
 
     /**
