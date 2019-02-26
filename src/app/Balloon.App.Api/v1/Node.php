@@ -299,8 +299,8 @@ class Node extends Controller
               if (0 !== $offset) {
                   if (fseek($stream, $offset) === -1) {
                       throw new Exception\Conflict(
-                        'invalid offset requested',
-                        Exception\Conflict::INVALID_OFFSET
+                          'invalid offset requested',
+                          Exception\Conflict::INVALID_OFFSET
                     );
                   }
               }

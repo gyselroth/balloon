@@ -1,6 +1,13 @@
 ## 2.4.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: wed Feb 06 15:40:03 CET 2019 
+**Date**: Tue Feb 26 14:23:03 CET 2019 
+
+* CORE: [FIX] Create file with leading unicode character cuts of first character #288
+
+
+## 2.4.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Feb 06 15:40:03 CET 2019 
 
 * CORE: [FIX] Move node from share to share ends in Balloon\\Filesystem\\Exception\\Conflict a node called a does already exists in this collection #268
 * CORE: [FIX] Omit parent filtered collection if itself part of the result set #263

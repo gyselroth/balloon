@@ -451,7 +451,7 @@ class Gridfs implements AdapterInterface
 
             throw new Exception\InsufficientStorage(
                 'user quota is full',
-                 Exception\InsufficientStorage::USER_QUOTA_FULL
+                Exception\InsufficientStorage::USER_QUOTA_FULL
             );
         }
 

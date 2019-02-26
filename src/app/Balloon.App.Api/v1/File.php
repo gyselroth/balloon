@@ -504,7 +504,7 @@ class File extends Node
                 }
 
                 $parent_path = '/'.ltrim(dirname('/'.$p), '/');
-                $name = basename($p);
+                $name = Helper::mb_basename($p);
 
                 try {
                     $parent = $this->fs->findNodeByPath($parent_path, Collection::class);

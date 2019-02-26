@@ -381,7 +381,7 @@ abstract class AbstractNode implements NodeInterface
         if (!$this->_acl->isAllowed($this, 'm')) {
             throw new ForbiddenException(
                 'not allowed to update acl',
-                 ForbiddenException::NOT_ALLOWED_TO_MANAGE
+                ForbiddenException::NOT_ALLOWED_TO_MANAGE
             );
         }
 
