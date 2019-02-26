@@ -439,6 +439,7 @@ class Collection extends AbstractNode implements IQuota
             throw new Exception('a sub node of a share can not be shared');
         }
 
+        $this->checkName($name);
         $this->_acl->validateAcl($this->_server, $acl);
 
         $action = [
