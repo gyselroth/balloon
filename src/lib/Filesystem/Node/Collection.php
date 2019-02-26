@@ -826,8 +826,8 @@ class Collection extends AbstractNode implements IQuota
     {
         if (!$this->_acl->isAllowed($this, 'm')) {
             throw new ForbiddenException(
-                 'not allowed to set acl',
-                  ForbiddenException::NOT_ALLOWED_TO_MANAGE
+                'not allowed to set acl',
+                ForbiddenException::NOT_ALLOWED_TO_MANAGE
             );
         }
 

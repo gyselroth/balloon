@@ -466,13 +466,9 @@ class Job extends AbstractJob
         $content = base64_encode(stream_get_contents($file->get()));
 
         $params = [
-<<<<<<< HEAD
-            'index' => $this->es->getIndex(),
-=======
             'pipeline' => 'attachments',
             'index' => 'blobs',
             'type' => '_doc',
->>>>>>> b94aa4bc... Partially implemented #197
             'id' => $file->getHash(),
             'type' => 'fs',
             'body' => [
@@ -493,15 +489,9 @@ class Job extends AbstractJob
     protected function updateBlob(string $id, array $meta): bool
     {
         $params = [
-<<<<<<< HEAD
-            'index' => $this->es->getIndex(),
-            'id' => $id,
-            'type' => 'fs',
-=======
             'index' => 'blobs',
             'type' => '_doc',
             'id' => $id,
->>>>>>> b94aa4bc... Partially implemented #197
             'body' => [
                 'doc' => [
                     'metadata' => $meta,

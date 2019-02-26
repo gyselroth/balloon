@@ -147,7 +147,7 @@ interface HookInterface
     public function preCopyFile(
         File $node,
         Collection $parent,
-       int $conflict,
+        int $conflict,
         ?string $recursion,
         bool $recursion_first
     ): void;
@@ -163,7 +163,7 @@ interface HookInterface
         File $node,
         Collection $parent,
         File $new_node,
-       int $conflict,
+        int $conflict,
         ?string $recursion,
         bool $recursion_first
     ): void;
