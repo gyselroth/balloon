@@ -9,6 +9,13 @@
 * API: [CHANGE] Remove deprecated api endpoints/changes in v2.5 #284
 
 
+## 2.4.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Feb 26 14:23:03 CET 2019 
+
+* CORE: [FIX] Create file with leading unicode character cuts of first character #288
+
+
 ## 2.4.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Feb 06 15:40:03 CET 2019 
