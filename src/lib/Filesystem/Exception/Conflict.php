@@ -30,6 +30,7 @@ class Conflict extends \Sabre\DAV\Exception\Conflict implements ExceptionInterfa
     const CHUNKS_INVALID_SIZE = 276;
     const INVALID_OFFSET = 278;
     const SHARED_NODE_CANT_BE_INDIRECT_CHILD_OF_SHARE = 279;
+    const DYNAMIC_PARENT = 280;
 
     /**
      * {@inheritdoc}

@@ -572,35 +572,7 @@ class Collection extends AbstractNode implements IQuota
         }
 
         $this->_hook->run('preCreateCollection', [$this, &$name, &$attributes, &$clone]);
-
-        if ($this->readonly) {
-            throw new Exception\Conflict(
-                'node is set as readonly, it is not possible to add new sub nodes',
-                Exception\Conflict::READONLY
-            );
-        }
-
-        $name = $this->checkName($name);
-
-        if ($this->childExists($name)) {
-            if (NodeInterface::CONFLICT_NOACTION === $conflict) {
-                throw new Exception\Conflict(
-                    'a node called '.$name.' does already exists in this collection',
-                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                );
-            }
-            if (NodeInterface::CONFLICT_RENAME === $conflict) {
-                $name = $this->getDuplicateName($name);
-            }
-        }
-
-        if ($this->isDeleted()) {
-            throw new Exception\Conflict(
-                'could not add node '.$name.' into a deleted parent collection',
-                Exception\Conflict::DELETED_PARENT
-            );
-        }
-
+        $name = $this->validateInsert($name, $conflict, Collection::class);
         $id = new ObjectId();
 
         try {
@@ -668,35 +640,7 @@ class Collection extends AbstractNode implements IQuota
         }
 
         $this->_hook->run('preCreateFile', [$this, &$name, &$attributes, &$clone]);
-
-        if ($this->readonly) {
-            throw new Exception\Conflict(
-                'node is set as readonly, it is not possible to add new sub nodes',
-                Exception\Conflict::READONLY
-            );
-        }
-
-        $name = $this->checkName($name);
-
-        if ($this->childExists($name)) {
-            if (NodeInterface::CONFLICT_NOACTION === $conflict) {
-                throw new Exception\Conflict(
-                    'a node called '.$name.' does already exists in this collection',
-                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                );
-            }
-            if (NodeInterface::CONFLICT_RENAME === $conflict) {
-                $name = $this->getDuplicateName($name, File::class);
-            }
-        }
-
-        if ($this->isDeleted()) {
-            throw new Exception\Conflict(
-                'could not add node '.$name.' into a deleted parent collection',
-                Exception\Conflict::DELETED_PARENT
-            );
-        }
-
+        $name = $this->validateInsert($name, $conflict, File::class);
         $id = new ObjectId();
 
         try {
@@ -802,6 +746,49 @@ class Collection extends AbstractNode implements IQuota
         }
 
         return true;
+    }
+
+    /**
+     * Validate insert.
+     */
+    protected function validateInsert(string $name, int $conflict = NodeInterface::CONFLICT_NOACTION, string $type = Collection::class): string
+    {
+        if ($this->readonly) {
+            throw new Exception\Conflict(
+                'node is set as readonly, it is not possible to add new sub nodes',
+                Exception\Conflict::READONLY
+            );
+        }
+
+        $name = $this->checkName($name);
+
+        if ($this->childExists($name)) {
+            if (NodeInterface::CONFLICT_NOACTION === $conflict) {
+                throw new Exception\Conflict(
+                    'a node called '.$name.' does already exists in this collection',
+                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
+                );
+            }
+            if (NodeInterface::CONFLICT_RENAME === $conflict) {
+                $name = $this->getDuplicateName($name, $type);
+            }
+        }
+
+        if ($this->isFiltered()) {
+            throw new Exception\Conflict(
+                'could not add node '.$name.' into a filtered parent collection',
+                Exception\Conflict::DYNAMIC_PARENT
+            );
+        }
+
+        if ($this->isDeleted()) {
+            throw new Exception\Conflict(
+                'could not add node '.$name.' into a deleted parent collection',
+                Exception\Conflict::DELETED_PARENT
+            );
+        }
+
+        return $name;
     }
 
     /**
