@@ -207,30 +207,6 @@ class Groups
     }
 
     /**
-     * @api {head} /api/v2/groups/:id Group exists
-     * @apiVersion 2.0.0
-     * @apiName postQuota
-     * @apiUse _getGroup
-     * @apiGroup Group
-     * @apiPermission admin
-     * @apiDescription Check if group account exists
-     *
-     * @apiExample Example usage:
-     * curl -XHEAD "https://SERVER/api/v2/group"
-     * curl -XHEAD "https://SERVER/api/v2/groups/544627ed3c58891f058b4611"
-     * curl -XHEAD "https://SERVER/api/v2/group?name=logingroup"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
-     */
-    public function head(string $id): Response
-    {
-        $result = $this->_getGroup($id, true);
-
-        return (new Response())->setCode(204);
-    }
-
-    /**
      * @api {post} /api/v2/groups Create group
      * @apiVersion 2.0.0
      * @apiName postGroup

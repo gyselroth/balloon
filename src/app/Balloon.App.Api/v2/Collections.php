@@ -22,46 +22,6 @@ use function MongoDB\BSON\toPHP;
 class Collections extends Nodes
 {
     /**
-     * @api {head} /api/v2/collections/:id/children children exists?
-     * @apiVersion 2.0.0
-     * @apiName head
-     * @apiGroup Node\Collection
-     * @apiPermission none
-     * @apiDescription Check if collection has any children
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) example:
-     * curl -XHEAD "https://SERVER/api/v2/collections/children?id=544627ed3c58891f058b4686"
-     * curl -XHEAD "https://SERVER/api/v2/collections/544627ed3c58891f058b4686/children"
-     * curl -XHEAD "https://SERVER/api/v2/collections/children?p=/absolute/path/to/my/collection"
-     *
-     * @apiSuccessExample {json} Success-Response (Children exists):
-     * HTTP/1.1 204 Not Content
-     *
-     * @apiErrorExample {json} Error-Response (No children exists):
-     * HTTP/1.1 404 Not Found
-     *
-     * @param string $id
-     * @param string $p
-     */
-    public function headChildren(?string $id = null, ?string $p = null): Response
-    {
-        $result = $this->fs->getNode($id, $p, null, false, true);
-        $children = $result->getSize();
-
-        $response = (new Response())
-            ->setHeader('Content-Length', $children);
-
-        if ($children > 0) {
-            $response->setCode(204);
-        } else {
-            $response->setCode(404);
-        }
-
-        return $response;
-    }
-
-    /**
      * @api {get} /api/v2/collections/:id/children Get children
      * @apiVersion 2.0.0
      * @apiName getChildren

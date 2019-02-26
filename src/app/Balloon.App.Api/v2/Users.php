@@ -104,34 +104,20 @@ class Users
 
     /**
      * Get user instance.
-     *
-     * @param string $id
-     * @param string $uname
-     *
-     * @return User
      */
-    public function _getUser(?string $id = null, ?string $uname = null, bool $require_admin = false)
+    public function _getUser(string $id, bool $require_admin = true): User
     {
-        if (null !== $id || null !== $uname) {
-            if ($this->user->isAdmin() || $require_admin === false) {
-                if (null !== $id && null !== $uname) {
-                    throw new Exception\InvalidArgument(
-                        'provide either id (user id) or uname (username)',
-                        Exception\InvalidArgument::IDENTIFIER_NOT_UNIQUE
-                    );
-                }
+        $user = $this->server->getUserById(new ObjectId($id));
 
-                if (null !== $id) {
-                    return $this->server->getUserById(new ObjectId($id));
-                }
-
-                return $this->server->getUserByName($uname);
-            }
-
-            throw new Exception\NotAdmin('submitted parameters require admin privileges');
+        if ($user->getId() == $this->user->getId() || $require_admin === false) {
+            return $user;
         }
 
-        return $this->user;
+        if ($this->user->isAdmin()) {
+            return $user;
+        }
+
+        throw new Exception\NotAdmin('submitted parameters require admin privileges');
     }
 
     /**
@@ -159,7 +145,7 @@ class Users
      */
     public function getWhoami(array $attributes = []): Response
     {
-        $result = $this->decorator->decorate($this->_getUser(), $attributes);
+        $result = $this->decorator->decorate($this->user, $attributes);
 
         return (new Response())->setCode(200)->setBody($result);
     }
@@ -180,13 +166,11 @@ class Users
      * curl -XGET "https://SERVER/api/v2/users/544627ed3c58891f058b4611/node-attribute-summary?pretty"
      * curl -XGET "https://SERVER/api/v2/users/node-attribute-summary?uname=loginuser&pretty"
      *
-     * @param string $id
-     * @param string $uname
      * @param string $attributes
      */
-    public function getNodeAttributeSummary(?string $id = null, ?string $uname = null, array $attributes = [], int $limit = 25): Response
+    public function getNodeAttributeSummary(string $id, array $attributes = [], int $limit = 25): Response
     {
-        $result = $this->_getUser($id, $uname)->getNodeAttributeSummary($attributes, $limit);
+        $result = $this->_getUser($id)->getNodeAttributeSummary($attributes, $limit);
 
         return (new Response())->setCode(200)->setBody($result);
     }
@@ -218,13 +202,10 @@ class Users
      *      "name": "group"
      *  }
      * ]
-     *
-     * @param string $id
-     * @param string $uname
      */
-    public function getGroups(?string $id = null, ?string $uname = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function getGroups(string $id, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        $user = $this->_getUser($id, $uname);
+        $user = $this->_getUser($id);
         $result = $user->getResolvedGroups($offset, $limit);
         $uri = '/api/v2/users/'.$user->getId().'/groups';
         $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $uri);
@@ -259,13 +240,12 @@ class Users
      * }
      *
      * @param string     $id
-     * @param string     $uname
      * @param string     $attributes
      * @param null|mixed $query
      */
-    public function get(?string $id = null, ?string $uname = null, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function get(?string $id = null, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        if ($id === null && $uname === null) {
+        if ($id === null) {
             if ($query === null) {
                 $query = [];
             } elseif (is_string($query)) {
@@ -280,7 +260,7 @@ class Users
             $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, '/api/v2/users');
             $result = $pager->paging();
         } else {
-            $result = $this->decorator->decorate($this->_getUser($id, $uname), $attributes);
+            $result = $this->decorator->decorate($this->_getUser($id, false), $attributes);
         }
 
         return (new Response())->setCode(200)->setBody($result);
@@ -304,13 +284,10 @@ class Users
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     *
-     * @param string $id
-     * @param string $uname
      */
-    public function getAvatar(?string $id = null, ?string $uname = null): Response
+    public function getAvatar(string $id): Response
     {
-        $avatar = $this->_getUser($id, $uname)->getAttributes()['avatar'];
+        $avatar = $this->_getUser($id, false)->getAttributes()['avatar'];
         if ($avatar instanceof Binary) {
             return (new Response())
                 ->setOutputFormat('text')
@@ -319,33 +296,6 @@ class Users
         }
 
         return (new Response())->setCode(404);
-    }
-
-    /**
-     * @api {head} /api/v2/users/:id User exists?
-     * @apiVersion 2.0.0
-     * @apiName head
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission admin
-     * @apiDescription Check if user account exists
-     *
-     * @apiExample Example usage:
-     * curl -XHEAD "https://SERVER/api/v2/user"
-     * curl -XHEAD "https://SERVER/api/v2/users/544627ed3c58891f058b4611"
-     * curl -XHEAD "https://SERVER/api/v2/user?uname=loginuser"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
-     *
-     * @param string $uname
-     * @param string $id
-     */
-    public function head(?string $id = null, ?string $uname = null): Response
-    {
-        $result = $this->_getUser($id, $uname, true);
-
-        return (new Response())->setCode(204);
     }
 
     /**
@@ -421,11 +371,8 @@ class Users
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     *
-     * @param string $uname
-     * @param string $id
      */
-    public function patch(?string $id = null, ?string $uname = null, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null, ?array $optional = null): Response
+    public function patch(string $id, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null, ?array $optional = null): Response
     {
         $attributes = compact('username', 'password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale', 'optional');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
@@ -434,7 +381,7 @@ class Users
             $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);
         }
 
-        $user = $this->_getUser($id, $uname, true);
+        $user = $this->_getUser($id);
         $user->setAttributes($attributes);
         $result = $this->decorator->decorate($user);
 
@@ -470,13 +417,10 @@ class Users
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
-     *
-     * @param string $uname
-     * @param string $id
      */
-    public function delete(?string $id = null, ?string $uname = null, bool $force = false): Response
+    public function delete(string $id, bool $force = false): Response
     {
-        $user = $this->_getUser($id, $uname, true);
+        $user = $this->_getUser($id);
 
         if ($user->getId() === $this->user->getId()) {
             throw new Exception\InvalidArgument(
@@ -505,13 +449,10 @@ class Users
      *
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 204 No Content
-     *
-     * @param string $uname
-     * @param string $id
      */
-    public function postUndelete(?string $id = null, ?string $uname = null): Response
+    public function postUndelete(string $id): Response
     {
-        $this->_getUser($id, $uname, true)->undelete();
+        $this->_getUser($id)->undelete();
 
         return (new Response())->setCode(204);
     }

@@ -84,51 +84,6 @@ class Nodes extends Controller
     }
 
     /**
-     * @api {head} /api/v2/nodes/:id Node exists?
-     * @apiVersion 2.0.0
-     * @apiName head
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Check if a node exists. Per default deleted nodes are ignore which means it will
-     *  return a 404 if a deleted node is requested. You can change this behaviour via the deleted parameter.
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) example:
-     * curl -XHEAD "https://SERVER/api/v2/node?id=544627ed3c58891f058b4686"
-     * curl -XHEAD "https://SERVER/api/v2/nodes/544627ed3c58891f058b4686"
-     * curl -XHEAD "https://SERVER/api/v2/node?p=/absolute/path/to/my/node"
-     *
-     * @apiParam (GET Parameter) {number} [deleted=0] Wherever include deleted node or not, possible values:</br>
-     * - 0 Exclude deleted</br>
-     * - 1 Only deleted</br>
-     * - 2 Include deleted</br>
-     *
-     * @apiSuccessExample {json} Success-Response (Node does exist):
-     * HTTP/1.1 200 OK
-     *
-     * @apiSuccessExample {json} Success-Response (Node does not exist):
-     * HTTP/1.1 404 Not Found
-     *
-     * @param string $id
-     * @param string $p
-     */
-    public function head(?string $id = null, ?string $p = null, int $deleted = 0): Response
-    {
-        try {
-            $result = $this->_getNode($id, $p, null, false, false, $deleted);
-
-            $response = (new Response())
-                ->setHeader('Content-Length', (string) $result->getSize())
-                ->setHeader('Content-Type', $result->getContentType())
-                ->setCode(200);
-
-            return $response;
-        } catch (\Exception $e) {
-            return (new Response())->setCode(404);
-        }
-    }
-
-    /**
      * @api {post} /api/v2/nodes/:id/undelete Restore node
      * @apiVersion 2.0.0
      * @apiName postUndelete
