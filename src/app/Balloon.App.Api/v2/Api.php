@@ -17,24 +17,7 @@ use Micro\Http\Response;
 class Api extends Controller
 {
     /**
-     * @api {get} / Server & API Status
-     * @apiVersion 2.0.0
-     * @apiName get
-     * @apiGroup Api
-     * @apiPermission none
-     * @apiDescription Get server time and api status/version
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2?pretty"
-     *
-     * @apiSuccess {string} name balloon identifier
-     * @apiSuccess {number} api_version API Version
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "name": "balloon",
-     *      "api_version": 2
-     * }
+     * Server & API Status.
      */
     public function get(): Response
     {

@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\DesktopClient\Api\v2;
 
-use Balloon\App\DesktopClient\App\Http as App;
 use Balloon\App\DesktopClient\DesktopClient;
-use Balloon\Server;
 use Micro\Http\Response;
 
 class Download
@@ -31,20 +29,7 @@ class Download
     }
 
     /**
-     * @api {get} /api/v2/desktop-clients/:format/content
-     * @apiVersion 2.0.0
-     * @apiName getContent
-     * @apiGroup App\DesktopClient
-     * @apiPermission none
-     * @apiDescription Download balloon desktop client
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/desktop-clients/exe/content > balloon-desktop.exe"
-     *
-     * @apiParam (GET Parameter) {string} [format] Request client foramt (deb, rpm, exe, pkg, zip or a custom format)
-     *
-     * @apiSuccessExample {binary} Success-Response:
-     * HTTP/1.1 200 OK
+     * Get client as downlaod stream.
      */
     public function getContent(string $format): Response
     {

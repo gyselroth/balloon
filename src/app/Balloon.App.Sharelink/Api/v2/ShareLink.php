@@ -52,32 +52,7 @@ class ShareLink extends Controller
     }
 
     /**
-     * @api {post} /api/v2/nodes/:id/share-link Create share link
-     * @apiVersion 2.0.0
-     * @apiName postShareLink
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Create a unique sharing link of a node (global accessible):
-     * a possible existing link will be deleted if this method will be called.
-     * @apiUse _getNode
-     * @apiUse _writeAction
-     *
-     * @apiParam (POST Parameter) {number} [expiration] Expiration unix timestamp of the sharing link
-     * @apiParam (POST Parameter) {string} [password] Protected shared link with password
-     *
-     * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/node/share-link?id=544627ed3c58891f058b4686&pretty"
-     * curl -XPOST "https://SERVER/api/v2/node/544627ed3c58891f058b4686/share-link?pretty"
-     * curl -XPOST "https://SERVER/api/v2/node/share-link?p=/absolute/path/to/my/node&pretty"
-     *
-     * @apiSuccessExample {json} Success-Response (Created or modified share link):
-     * HTTP/1.1 200 OK
-     * {
-     *      "id": "544627ed3c58891f058b4686"
-     * }
-     *
-     * @param string $id
-     * @param string $p
+     * Create share link.
      */
     public function post(?string $id = null, ?string $p = null, ?string $password = null, ?string $expiration = null): Response
     {
@@ -89,23 +64,7 @@ class ShareLink extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/nodes/:id/share-link Delete share link
-     * @apiVersion 2.0.0
-     * @apiName deleteShareLink
-     * @apiGroup Node
-     * @apiPermission none
-     * @apiDescription Delete an existing sharing link
-     * @apiUse _getNode
-     * @apiUse _writeAction
-     *
-     * @apiExample (cURL) example:
-     * curl -XDELETE "https://SERVER/api/v2/node/share-link?id=544627ed3c58891f058b4686?pretty"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
-     *
-     * @param string $id
-     * @param string $p
+     * Delete share link.
      */
     public function delete(?string $id = null, ?string $p = null): Response
     {

@@ -5,7 +5,6 @@ BASE_DIR = .
 SRC_DIR = $(BASE_DIR)/src
 CORE_DIR = $(SRC_DIR)/lib
 CORE_API_DIR = $(SRC_DIR)/app
-DOC_DIR = $(BASE_DIR)/apidoc
 CONFIG_DIR = $(BASE_DIR)/config
 VENDOR_DIR = $(BASE_DIR)/vendor
 NODE_MODULES_DIR = $(BASE_DIR)/node_modules
@@ -14,7 +13,6 @@ UNITTESTS_DIR = $(TESTS_DIR)/Unit
 DIST_DIR = $(BASE_DIR)/dist
 LOG_DIR = $(BASE_DIR)/log
 BUILD_DIR = $(BASE_DIR)/build
-APIDOC_BUILD_DIR = $(BASE_DIR)/build_apidoc
 INSTALL_PREFIX = "/"
 
 # VERSION
@@ -31,10 +29,6 @@ PHP_BIN = php
 # COMPOSER STUFF
 COMPOSER_BIN = composer
 COMPOSER_LOCK = $(BASE_DIR)/composer.lock
-# NPM STUFF
-NPM_BIN = npm
-# APIDOC STUFF
-APIDOC_BIN = $(NODE_MODULES_DIR)/apidoc/bin/apidoc
 # PHP CS FIXER STUFF
 PHPCS_FIXER_SCRIPT = $(VENDOR_DIR)/bin/php-cs-fixer
 PHPCS_FIXER_LOCK = $(BASE_DIR)/.php_cs.cache
@@ -90,7 +84,7 @@ mostlyclean:
 
 
 .PHONY: deps
-deps: composer npm
+deps: composer
 
 
 .PHONY: build
@@ -102,7 +96,7 @@ dist: tar deb
 
 
 .PHONY: deb
-deb: $(DIST_DIR)/balloon-$(VERSION).deb $(DIST_DIR)/balloon-apidoc-$(VERSION).deb
+deb: $(DIST_DIR)/balloon-$(VERSION).deb
 
 $(DIST_DIR)/balloon-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	$(COMPOSER_BIN) update --no-dev
@@ -127,15 +121,6 @@ $(DIST_DIR)/balloon-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@dpkg-deb --build $(BUILD_DIR) $@
 	$(COMPOSER_BIN) update
-
-$(DIST_DIR)/balloon-apidoc-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
-	@mkdir -p $(APIDOC_BUILD_DIR)/DEBIAN
-	@cp $(BASE_DIR)/packaging/debian/control-apidoc $(APIDOC_BUILD_DIR)/DEBIAN/control
-	@sed -i s/'{version}'/$(VERSION)/g $(APIDOC_BUILD_DIR)/DEBIAN/control
-	@mkdir -p $(APIDOC_BUILD_DIR)/usr/share/balloon-apidoc
-	@cp -Rp $(DOC_DIR)/* $(APIDOC_BUILD_DIR)/usr/share/balloon-apidoc
-	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
-	@dpkg-deb --build $(APIDOC_BUILD_DIR) $@
 
 .PHONY: tar
 tar: $(TAR)
@@ -217,28 +202,11 @@ $(CHANGELOG_TARGET): CHANGELOG.md
 	@echo generated $@ from $<
 
 
-.PHONY: apidoc
-apidoc: $(APIDOC_TARGET)
-
-$(APIDOC_TARGET): $(APIDOC_BIN) $(PHP_CORE_API_FILES)
-	$(APIDOC_BIN) -i $(CORE_API_DIR) -o $(DOC_DIR)
-	@touch $@
-
-
 .PHONY: composer
 composer: $(COMPOSER_TARGET)
 
 $(COMPOSER_TARGET) $(PHPCS_FIXER_SCRIPT) $(PHPUNIT_SCRIPT) $(PHPSTAN_SCRIPT): $(BASE_DIR)/composer.json
 	$(COMPOSER_BIN) update
-	@touch $@
-
-
-.PHONY: npm
-npm: $(NPM_TARGET)
-
-$(NPM_TARGET) $(APIDOC_BIN): $(BASE_DIR)/package.json
-	@test "`$(NPM_BIN) install --dry-run 2>&1 >/dev/null | grep Failed`" == ""
-	$(NPM_BIN) update
 	@touch $@
 
 

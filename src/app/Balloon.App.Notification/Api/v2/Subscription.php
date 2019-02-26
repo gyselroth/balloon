@@ -16,7 +16,6 @@ use Balloon\App\Notification\Notifier;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Server;
-use Micro\Http\Response;
 
 class Subscription extends Controller
 {
@@ -52,23 +51,7 @@ class Subscription extends Controller
     }
 
     /**
-     * @api {post} /api/v2/nodes/:id/subscription Subscribe for node update
-     * @apiVersion 2.0.0
-     * @apiName postSubscribe
-     * @apiGroup App\Notification
-     * @apiPermission none
-     * @apiDescription Receive node updates
-     * @apiUse _getNodes
-     * @apiUse _multiError
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/notifications/subscribe"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "id": ""
-     * }
+     * Subscribe to node updates.
      *
      * @param null|mixed $id
      * @param null|mixed $p

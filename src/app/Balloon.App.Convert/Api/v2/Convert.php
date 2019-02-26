@@ -55,28 +55,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {get} /api/v2/files/:id/convert/supported-formats Get supported formats
-     * @apiVersion 2.0.0
-     * @apiName getSupportedFormats
-     * @apiGroup App\Convert
-     * @apiPermission none
-     * @apiDescription Get supported file formats to convert to (formats do vary between files)
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/files/convert/supported-formats?id=544627ed3c58891f058b4686"
-     *
-     * @apiSuccess {string[]} - List of supported formats
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     *  "png",
-     *  "jpg",
-     *  "tiff"
-     * ]
-     *
-     * @param string $id
-     * @param string $p
+     * Get supported formats.
      */
     public function getSupportedFormats(?string $id = null, ?string $p = null): Response
     {
@@ -87,24 +66,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {get} /api/v2/files/:id/convert/slaves Get slaves
-     * @apiVersion 2.0.0
-     * @apiName getSlaves
-     * @apiGroup App\Convert
-     * @apiPermission none
-     * @apiDescription Get existing conversion slaves
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/files/convert/slaves?id=544627ed3c58891f058b4686"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     * ]
-     *
-     * @param string $id
-     * @param string $p
+     * Get slaves.
      */
     public function getSlaves(?string $id = null, ?string $p = null, array $attributes = [], ?int $offset = 0, ?int $limit = 20): Response
     {
@@ -118,27 +80,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {post} /api/v2/files/:id/convert/slaves Add new slave
-     * @apiVersion 2.0.0
-     * @apiName postSlaves
-     * @apiGroup App\Convert
-     * @apiPermission none
-     * @apiDescription Add new conversion slave
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/files/convert/slave?id=544627ed3c58891f058b4686"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 202 Accepted
-     * {
-     *      "id": "944627ed3c58891f058b468e",
-     *      "master": "944627ed3c58891f058b4686",
-     *      "format": "png",
-     * }
-     *
-     * @param string $id
-     * @param string $p
+     * Add new slave.
      */
     public function postSlaves(string $format, ?string $id = null, ?string $p = null): Response
     {
@@ -150,23 +92,7 @@ class Convert extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/files/:id/convert/slaves/:slave Delete slave
-     * @apiVersion 2.0.0
-     * @apiName deleteSlaves
-     * @apiGroup App\Convert
-     * @apiPermission none
-     * @apiDescription Delete conversion slave
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XDELETE "https://SERVER/api/v2/files/convert/slave?id=544627ed3c58891f058b4686"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 204 No Content
-     *
-     * @param string $id
-     * @param string $p
-     * @param string $slave
+     * Delete slave.
      */
     public function deleteSlaves(ObjectId $slave, ?string $id = null, ?string $p = null, bool $node = false): Response
     {

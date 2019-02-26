@@ -56,53 +56,6 @@ class Users
     }
 
     /**
-     * @apiDefine _getUser
-     *
-     * @apiParam (GET Parameter) {string[]} uid Either a single uid (user id) or a uname (username) must be given.
-     * @apiParam (GET Parameter) {string[]} uname Either a single uid (user id) or a uname (username) must be given.
-     *
-     * @apiErrorExample {json} Error-Response (No admin privileges):
-     * HTTP/1.1 403 Forbidden
-     * {
-     *      "status": 403,
-     *      "data": {
-     *          "error": "Balloon\\Filesystem\\Acl\\Exception\\Forbidden",
-     *          "message": "submitted parameters require to have admin privileges",
-     *          "code": 41
-     *      }
-     * }
-     *
-     * @apiErrorExample {json} Error-Response (User not found):
-     * HTTP/1.1 404 Not Found
-     * {
-     *      "status": 404,
-     *      "data": {
-     *          "error": "Balloon\\Server\\User\\Exception",
-     *          "message": "requested user was not found",
-     *          "code": 53
-     *      }
-     * }
-     *
-     * @apiErrorExample {json} Error-Response (Invalid argument):
-     * HTTP/1.1 400 Bad Request
-     * {
-     *      "status": 400,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\InvalidArgument",
-     *          "message": "provide either uid (user id) or uname (username)",
-     *          "Code": 0
-     *      }
-     * }
-     */
-
-    /**
-     * @apiDefine _getUsers
-     *
-     * @apiParam (GET Parameter) {string[]} uid Either a single uid (user id) as string or multiple as an array or a single uname (username) as string or multiple usernames as array must be given.
-     * @apiParam (GET Parameter) {string[]} uname Either a single uid (userid) as string or multiple as an array or a single uname (username) as string or multiple usernames as array must be given.
-     */
-
-    /**
      * Get user instance.
      */
     public function _getUser(string $id, bool $require_admin = true): User
@@ -121,27 +74,7 @@ class Users
     }
 
     /**
-     * @api {get} /api/v2/users/whoami Who am I?
-     * @apiVersion 2.0.0
-     * @apiName getWhoami
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission none
-     * @apiDescription Get the username of the authenticated user
-     * If you want to receive your own username you have to leave the parameters uid and uname empty.
-     * Requesting this api with parameter uid or uname requires admin privileges.
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/users/whoami?pretty"
-     *
-     * @apiSuccess {string} id User ID
-     * @apiSuccess {string} name Username
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *     "id": "544627ed3c58891f058b4611",
-     *     "name": "peter.meier"
-     * }
+     * Who am I?
      */
     public function getWhoami(array $attributes = []): Response
     {
@@ -151,22 +84,7 @@ class Users
     }
 
     /**
-     * @api {get} /api/v2/users/:id/node-attribute-summary Node attribute summary
-     * @apiVersion 2.0.0
-     * @apiName getNodeAttributeSummary
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission none
-     * @apiDescription Get summary and usage of specific node attributes
-     * If you want to receive your own node summary you have to leave the parameters uid and uname empty.
-     * Requesting this api with parameter uid or uname requires admin privileges.
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/users/node-attribute-summary?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/544627ed3c58891f058b4611/node-attribute-summary?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/node-attribute-summary?uname=loginuser&pretty"
-     *
-     * @param string $attributes
+     * Node attribute summary.
      */
     public function getNodeAttributeSummary(string $id, array $attributes = [], int $limit = 25): Response
     {
@@ -176,32 +94,7 @@ class Users
     }
 
     /**
-     * @api {get} /api/v2/users/:id/groups Group membership
-     * @apiVersion 2.0.0
-     * @apiName getGroups
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission none
-     * @apiDescription Get all user groups
-     * If you want to receive your own groups you have to leave the parameters uid and uname empty.
-     * Requesting this api with parameter uid or uname requires admin privileges.
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/users/groups?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/544627ed3c58891f058b4611/groups?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/groups?uname=loginuser&pretty"
-     *
-     * @apiSuccess {object[]} - List of groups
-     * @apiSuccess {string} -.id Group ID
-     * @apiSuccess {string} -.name Name
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     *  {
-     *      "id": "544627ed3c58891f058b4611",
-     *      "name": "group"
-     *  }
-     * ]
+     * Group membership.
      */
     public function getGroups(string $id, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -215,32 +108,8 @@ class Users
     }
 
     /**
-     * @api {get} /api/v2/users/:id User attributes
-     * @apiVersion 2.0.0
-     * @apiName get
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission none
-     * @apiDescription Get all user attributes including username, mail, id,....
-     * If you want to receive your own attributes you have to leave the parameters uid and uname empty.
-     * Requesting this api with parameter uid or uname requires admin privileges.
+     * User attributes.
      *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/users/attributes?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/544627ed3c58891f058b4611/attributes?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/attributes?uname=loginser&pretty"
-     *
-     * @apiSuccess (200 OK) {string} id User ID
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "id": "544627ed3c58891f058b4611",
-     *      "name": "loginuser"
-     * }
-     *
-     * @param string     $id
-     * @param string     $attributes
      * @param null|mixed $query
      */
     public function get(?string $id = null, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
@@ -267,23 +136,7 @@ class Users
     }
 
     /**
-     * @api {get} /api/v2/users/:id/avatar Get user avatar
-     * @apiVersion 2.0.0
-     * @apiName getAvatar
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission none
-     * @apiDescription Get users avaatr
-     *
-     * @apiExample Example usage:
-     * curl -XGET "https://SERVER/api/v2/users/avatar?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/544627ed3c58891f058b4611/avatar?pretty"
-     * curl -XGET "https://SERVER/api/v2/users/avatar?uname=loginser&pretty"
-     *
-     * @apiSuccess (200 OK) {string} id User ID
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
+     * Get user avatar.
      */
     public function getAvatar(string $id): Response
     {
@@ -299,32 +152,7 @@ class Users
     }
 
     /**
-     * @api {post} /api/v2/users Create user
-     * @apiVersion 2.0.0
-     * @apiName post
-     * @apiGroup User
-     * @apiPermission admin
-     * @apiDescription Create user
-     *
-     * @apiExample Example usage:
-     * curl -XPOST "https://SERVER/api/v2/user"
-     *
-     * @apiParam (POST Parameter) {string} username Name of the new user
-     * @apiParam (POST Parameter) {string} [password] Password
-     * @apiParam (POST Parameter) {boolean} [admin] Admin
-     * @apiParam (POST Parameter) {string} [mail] Mail address
-     * @apiParam (POST Parameter) {string} [avatar] Avatar image base64 encoded
-     * @apiParam (POST Parameter) {string} [namespace] User namespace
-     * @apiParam (POST Parameter) {number} [hard_quota] The new hard quota in bytes (Unlimited by default)
-     * @apiParam (POST Parameter) {number} [soft_quota] The new soft quota in bytes (Unlimited by default)
-     *
-     * @apiSuccess (200 OK) {string} id User ID
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 201 Created
-     * {
-     *      "id": "544627ed3c58891f058b4633"
-     * }
+     * Create user.
      */
     public function post(string $username, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?string $locale = null): Response
     {
@@ -346,31 +174,7 @@ class Users
     }
 
     /**
-     * @api {patch} /api/v2/users/:id Change attributes
-     * @apiVersion 2.0.0
-     * @apiName patch
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission admin
-     * @apiDescription Set attributes for user
-     *
-     * @apiExample Example usage:
-     * curl -XPOST "https://SERVER/api/v2/users/attributes" -d '{"attributes": ["mail": "user@example.com"]}'
-     * curl -XPOST "https://SERVER/api/v2/users/attributes?{%22attributes%22:[%22mail%22:%22user@example.com%22]}""
-     * curl -XPOST "https://SERVER/api/v2/users/544627ed3c58891f058b4611/attributes" -d '{"attributes": ["admin": "false"]}'
-     * curl -XPOST "https://SERVER/api/v2/users/quota?uname=loginuser"  -d '{"attributes": ["admin": "false"]}'
-     *
-     * @apiParam (POST Parameter) {string} username Name of the new user
-     * @apiParam (POST Parameter) {string} [password] Password
-     * @apiParam (POST Parameter) {boolean} [admin] Admin
-     * @apiParam (POST Parameter) {string} [mail] Mail address
-     * @apiParam (POST Parameter) {string} [avatar] Avatar image base64 encoded
-     * @apiParam (POST Parameter) {string} [namespace] User namespace
-     * @apiParam (POST Parameter) {number} [hard_quota] The new hard quota in bytes (Unlimited by default)
-     * @apiParam (POST Parameter) {number} [soft_quota] The new soft quota in bytes (Unlimited by default)
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
+     * Change attributes.
      */
     public function patch(string $id, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null): Response
     {
@@ -389,34 +193,7 @@ class Users
     }
 
     /**
-     * @api {delete} /api/v2/users/:id Delete user
-     * @apiVersion 2.0.0
-     * @apiName delete
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission admin
-     * @apiDescription Delete user account, this will also remove any data owned by the user. If force is false, all data gets moved to the trash. If force
-     * is true all data owned by the user gets ereased.
-     *
-     * @apiExample Example usage:
-     * curl -XDELETE "https://SERVER/api/v2/users/544627ed3c58891f058b4611?force=1"
-     * curl -XDELETE "https://SERVER/api/v2/user?uname=loginuser"
-     *
-     * @apiParam (GET Parameter) {bool} [force=false] Per default the user account will be disabled, if force is set
-     * the user account gets removed completely.
-     *
-     * @apiErrorExample {json} Error-Response (Can not delete yourself):
-     * HTTP/1.1 400 Bad Request
-     * {
-     *      "status": 400,
-     *      "data": {
-     *          "error": "Balloon\\Server\\User\\Exception",
-     *          "message": "requested user was not found"
-     *      }
-     * }
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
+     * Delete user.
      */
     public function delete(string $id, bool $force = false): Response
     {
@@ -435,20 +212,7 @@ class Users
     }
 
     /**
-     * @api {post} /api/v2/users/:id/undelete Enable user account
-     * @apiVersion 2.0.0
-     * @apiName postUndelete
-     * @apiUse _getUser
-     * @apiGroup User
-     * @apiPermission admin
-     * @apiDescription Apiore user account. This endpoint does not restore any data, it only does reactivate an existing user account.
-     *
-     * @apiExample Example usage:
-     * curl -XPOST "https://SERVER/api/v2/users/544627ed3c58891f058b4611/undelete"
-     * curl -XPOST "https://SERVER/api/v2/users/undelete?user=loginuser"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 No Content
+     * Enable user account.
      */
     public function postUndelete(string $id): Response
     {

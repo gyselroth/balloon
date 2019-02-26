@@ -44,40 +44,7 @@ class Preview extends Controller
     }
 
     /**
-     * @api {get} /api/v2/files/:id/preview Get Preview
-     * @apiVersion 2.0.0
-     * @apiName get
-     * @apiGroup Node\File
-     * @apiPermission none
-     * @apiDescription Get a preview of the files content. The body either contains an encoded string or a jpeg binary
-     * @apiUse _getNode
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/file/preview?id=544627ed3c58891f058b4686 > preview.jpg"
-     * curl -XGET "https://SERVER/api/v2/file/544627ed3c58891f058b4686/preview > preview.jpg"
-     * curl -XGET "https://SERVER/api/v2/file/preview?p=/absolute/path/to/my/file > preview.jpg"
-     *
-     * @apiParam (GET Parameter) {string} [encode=false] Set to base64 to return a jpeg encoded preview as base64, else return it as jpeg binary
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
-     *
-     * @apiSuccessExample {binary} Success-Response:
-     * HTTP/1.1 200 OK
-     *
-     * @apiErrorExample {json} Error-Response (thumbnail not found):
-     * HTTP/1.1 404 Not Found
-     * {
-     *      "status": 404,
-     *      "data": {
-     *          "error": "Balloon\\Exception\\NotFound",
-     *          "message": "no preview exists"
-     *      }
-     * }
-     *
-     * @param string $id
-     * @param string $p
-     * @param string $encode
+     * Get Preview.
      */
     public function get(?string $id = null, ?string $p = null, ?string $encode = null): Response
     {

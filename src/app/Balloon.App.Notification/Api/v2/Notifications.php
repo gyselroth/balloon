@@ -112,29 +112,7 @@ class Notifications extends Controller
     }
 
     /**
-     * @api {get} /api/v2/notifications Get notifications
-     * @apiVersion 2.0.0
-     * @apiName get
-     * @apiGroup App\Notification
-     * @apiPermission none
-     * @apiDescription Fetch my nofitifications
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/notification"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     *  "id": "",
-     *  "message": "Hi there, this is a notification",
-     *  "subject": "Hi",
-     *  "sender": {
-     *      "id": "",
-     *      "name": ""
-     *  }
-     * ]
-     *
-     * @param ObjectId $id
+     * Get notifications.
      */
     public function get(?ObjectId $id = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -154,18 +132,7 @@ class Notifications extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/notifications Delete notification
-     * @apiVersion 2.0.0
-     * @apiName delete
-     * @apiGroup App\Notification
-     * @apiPermission none
-     * @apiDescription Fetch my nofitifications
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/notification"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 204 No Content
+     * Delete notification.
      */
     public function delete(ObjectId $id): Response
     {
@@ -175,18 +142,7 @@ class Notifications extends Controller
     }
 
     /**
-     * @api {post} /api/v2/notifications Post a notification to a group of users
-     * @apiVersion 2.0.0
-     * @apiName post
-     * @apiGroup App\Notification
-     * @apiPermission none
-     * @apiDescription Send notification
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/notification"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 202 Accepted
+     * Post a notification to a group of users.
      */
     public function post(array $receiver, string $subject, string $body): Response
     {
@@ -203,18 +159,7 @@ class Notifications extends Controller
     }
 
     /**
-     * @api {post} /api/v2/notifications/broadcast Post a notification to all users
-     * @apiVersion 2.0.0
-     * @apiName postBroadcast
-     * @apiGroup App\Notification
-     * @apiPermission admin
-     * @apiDescription Send notification
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XPOST "https://SERVER/api/v2/notifications/broadcast"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 202 Accepted
+     * Post a notification to all users.
      */
     public function postBroadcast(string $subject, string $body): Response
     {
@@ -237,18 +182,7 @@ class Notifications extends Controller
     }
 
     /**
-     * @api {post} /api/v2/notifications/mail Send a mail
-     * @apiVersion 2.0.0
-     * @apiName postMail
-     * @apiGroup App\Notification
-     * @apiPermission none
-     * @apiDescription Send mail
-     *
-     * @apiExample (cURL) exmaple:
-     * curl -XGET "https://SERVER/api/v2/notifications/mail"
-     *
-     * @apiSuccessExample {string} Success-Response:
-     * HTTP/1.1 202 Accepted
+     * Send a mail.
      */
     public function postMail(array $receiver, string $subject, string $body)
     {
