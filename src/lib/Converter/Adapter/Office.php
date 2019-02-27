@@ -230,8 +230,24 @@ class Office implements AdapterInterface
      */
     public function createPreview(File $file): Result
     {
+        return $this->createPreviewFromStream($file->get());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convert(File $file, string $format): Result
+    {
+        return $this->convertFromStream($file->get(), $format);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createPreviewFromStream($stream): Result
+    {
         //we need a pdf to create an image from the first page
-        $pdf = $this->convert($file, 'pdf');
+        $pdf = $this->convertFromStream($stream, 'pdf');
 
         $desth = tmpfile();
         $dest = stream_get_meta_data($desth)['uri'];
@@ -264,11 +280,11 @@ class Office implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function convert(File $file, string $format): Result
+    protected function convertFromStream($stream, string $format): Result
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
-        stream_copy_to_stream($file->get(), $sourceh);
+        stream_copy_to_stream($stream, $sourceh);
 
         $command = 'HOME='.escapeshellarg($this->tmp).' timeout '.escapeshellarg($this->timeout).' '
             .escapeshellarg($this->soffice)
