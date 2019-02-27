@@ -11,11 +11,12 @@ declare(strict_types=1);
 
 namespace Balloon\Auth\Adapter\Basic;
 
+use Balloon\Auth\InternalAuthInterface;
 use Micro\Auth\Adapter\Basic\AbstractBasic;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
-class Db extends AbstractBasic
+class Db extends AbstractBasic implements InternalAuthInterface
 {
     /**
      * Db.

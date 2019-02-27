@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Server;
 
 use Balloon\AttributeDecorator\AttributeDecoratorInterface;
-use Balloon\Auth\Adapter\Basic\Db;
+use Balloon\Auth\InternalAuthInterface;
 use Balloon\Server;
 use Closure;
 
@@ -173,7 +173,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
 
-                if ($identity->getAdapter() instanceof Db) {
+                if ($identity->getAdapter() instanceof InternalAuthInterface) {
                     return 'internal';
                 }
 

@@ -20,10 +20,6 @@
         {
             "type": "git",
             "url": "https://github.com/raffis/php-mongomock"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/raffis/SMB"
         }
     ],
     "minimum-stability": "dev",
@@ -33,7 +29,7 @@
         "gyselroth/micro-auth": "^0.0.8",
         "gyselroth/micro-container": "^2.1.0",
         "gyselroth/micro-http": "^0.0.6",
-        "elasticsearch/elasticsearch": "6.*",
+        "elasticsearch/elasticsearch": "5.*",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "^3.2.0",
         "psr/log": "^1.0.0",
@@ -56,7 +52,8 @@
         "katzien/php-mime-type": "^2.1",
         "guzzlehttp/guzzle": "^6.3",
         "icewind/smb": "^3.1.0",
-        "paragonie/halite": "^4"
+        "paragonie/halite": "^4",
+        "bshaffer/oauth2-server-php": "^1.11"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
