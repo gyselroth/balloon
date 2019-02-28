@@ -5,13 +5,12 @@ declare(strict_types=1);
 /**
  * balloon
  *
- * @copyright   Copryright (c) 2012-2018 gyselroth GmbH (https://gyselroth.com)
+ * @copyright   Copryright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
 namespace Balloon\App\Markdown\Converter\Adapter;
 
-use Balloon\Converter\Adapter\AdapterInterface;
 use Balloon\Converter\Adapter\Office;
 use Balloon\Converter\Exception;
 use Balloon\Converter\Result;
@@ -58,9 +57,9 @@ class Markdown extends Office
     /**
      * Initialize.
      *
-     * @param Parsedown $parser markdown parser
+     * @param Parsedown       $parser markdown parser
      * @param LoggerInterface $logger PSR-3 Logger
-     * @param iterable $config
+     * @param iterable        $config
      */
     public function __construct(\Parsedown $parser, LoggerInterface $logger, ?Iterable $config = null)
     {
@@ -106,7 +105,7 @@ class Markdown extends Office
     public function createPreview(File $file): Result
     {
         return parent::createPreviewFromStream(
-            $this::getStreamFromString($this->getHtml($file))
+            $this::getStreamFromString($this->parseMarkdownToHtml($file))
         );
     }
 
@@ -115,7 +114,7 @@ class Markdown extends Office
      */
     public function convert(File $file, string $format): Result
     {
-        $tmpHtmlFile = $this::getStreamFromString($this->getHtml($file));
+        $tmpHtmlFile = $this::getStreamFromString($this->parseMarkdownToHtml($file));
         if ('html' === $format) {
             $dest = stream_get_meta_data($tmpHtmlFile)['uri'];
 
@@ -125,18 +124,26 @@ class Markdown extends Office
 
             return new Result($dest, $tmpHtmlFile);
         }
+
         return parent::convertFromStream($tmpHtmlFile, $format);
     }
 
+    /**
+     * Turn string into a stream.
+     */
     protected static function getStreamFromString(string $string)
     {
         $stream = tmpfile();
         fwrite($stream, $string);
         rewind($stream);
+
         return $stream;
     }
 
-    protected function getHtml(File $file): string
+    /**
+     * Parse Markdown file to HTML.
+     */
+    protected function parseMarkdownToHtml(File $file): string
     {
         return $this->parser->text(\stream_get_contents($file->get()));
     }
