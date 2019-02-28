@@ -11,19 +11,19 @@ declare(strict_types=1);
 
 namespace Balloon\App\Idp\GrantType;
 
-use Balloon\App\Idp\Storage\UserCredentialsMultiFactor as UserCredentialsMultiFactorStorage;
 use Dolondro\GoogleAuthenticator\GoogleAuthenticator;
 use OAuth2\GrantType\GrantTypeInterface;
 use OAuth2\RequestInterface;
 use OAuth2\ResponseInterface;
 use OAuth2\ResponseType\AccessTokenInterface;
+use OAuth2\Storage\UserCredentialsInterface;
 
 class UserCredentialsMultiFactor implements GrantTypeInterface
 {
     /**
      * Storage.
      *
-     * @var UserCredentialsMultiFactor
+     * @var UserCredentialsInterface
      */
     protected $storage;
 
@@ -33,6 +33,7 @@ class UserCredentialsMultiFactor implements GrantTypeInterface
      * @var GoogleAuthenticator
      */
     protected $authenticator;
+
     /**
      * User details.
      *
@@ -43,7 +44,7 @@ class UserCredentialsMultiFactor implements GrantTypeInterface
     /**
      * Init.
      */
-    public function __construct(UserCredentialsMultiFactorStorage $storage, GoogleAuthenticator $authenticator)
+    public function __construct(UserCredentialsInterface $storage, GoogleAuthenticator $authenticator)
     {
         $this->storage = $storage;
         $this->authenticator = $authenticator;

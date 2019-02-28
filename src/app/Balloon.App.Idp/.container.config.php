@@ -13,8 +13,7 @@ use OAuth2\GrantType\RefreshToken;
 use Micro\Auth\Auth;
 use Balloon\App\Idp\Auth\Token;
 use Balloon\App\Idp\GrantType\UserCredentialsMultiFactor;
-use Balloon\App\Idp\Storage\UserCredentials as UserCredentialsStorage;
-use Balloon\App\Idp\Storage\UserCredentialsMultiFactor as UserCredentialsMultiFactorStorage;
+use Balloon\App\Idp\Storage\Db as DbStorage;
 use Balloon\Hook;
 use Balloon\App\Idp\Hook\MultiFactorAuth;
 use Balloon\Server;
@@ -22,7 +21,7 @@ use Balloon\Server;
 return [
     OAuth2Server::class => [
         'arguments' => [
-            'storage' => '{'.UserCredentialsStorage::class.'}',
+            'storage' => '{'.DbStorage::class.'}',
             'config' => [
                 'enforce_state' => true,
                 'allow_implicit' => true,
@@ -36,25 +35,18 @@ return [
             ]
         ],
         'services' => [
-            /*UserCredentialsInterface::class => [
-                'use' => UserCredentialsStorage::class,
-                'merge' => false,
-            ],*/
             RefreshTokenInterface::class => [
-                'use' => UserCredentialsStorage::class,
+                'use' => DbStorage::class,
             ],
             UserCredentials::class => [
                 'arguments' => [
-                    'storage' => '{'.UserCredentialsStorage::class.'}'
+                    'storage' => '{'.DbStorage::class.'}'
                 ]
             ],
             UserCredentialsMultiFactor::class => [
                 'arguments' => [
-                    'storage' => '{'.UserCredentialsMultiFactorStorage::class.'}'
+                    'storage' => '{'.DbStorage::class.'}'
                 ]
-            ],
-            UserCredentialsMultiFactorStorage::class => [
-                'merge' => false
             ],
             Server::class => [
                 'singleton' => false

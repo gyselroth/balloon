@@ -88,7 +88,7 @@ class MultiFactorAuth extends AbstractHook
      */
     public function preServerIdentity(Identity $identity, ?User &$user): void
     {
-        if (null === $user) {
+        if (null === $user || '/index.php/api/v2/tokens' === $_SERVER['ORIG_SCRIPT_NAME']) {
             return;
         }
 
