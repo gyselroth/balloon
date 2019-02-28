@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Idp\Storage;
 
+use Balloon\App\Idp\Exception\MultiFactorAuthenticationRequired;
 use Balloon\Hook;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -98,6 +99,8 @@ class Db extends OAuthMongoDB
 
                         return true;
                     }
+                } catch (MultiFactorAuthenticationRequired $e) {
+                    throw $e;
                 } catch (\Exception $e) {
                     $this->logger->error('failed authenticate user, unexcepted exception was thrown', [
                         'category' => get_class($this),
