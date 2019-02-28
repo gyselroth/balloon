@@ -53,7 +53,8 @@
         "guzzlehttp/guzzle": "^6.3",
         "icewind/smb": "^3.1.0",
         "paragonie/halite": "^4",
-        "bshaffer/oauth2-server-php": "^1.11"
+        "bshaffer/oauth2-server-php": "^1.11",
+        "dolondro/google-authenticator": "^2.0"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",

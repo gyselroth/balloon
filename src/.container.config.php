@@ -6,7 +6,6 @@ use Balloon\Converter\Adapter\ImagickImage;
 use Balloon\Converter\Adapter\Office;
 use Balloon\Exception;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
-use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
 use Micro\Auth\Auth;
 use Micro\Config\Config;

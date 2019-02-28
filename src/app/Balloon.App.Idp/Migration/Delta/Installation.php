@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Idp\Migration\Delta;
 
-use Balloon\App\Idp\Storage\MongoDB;
+use Balloon\App\Idp\Storage\UserCredentials;
 use Balloon\Migration\Delta\DeltaInterface;
 use MongoDB\Database;
 use ParagonIE\Halite\KeyFactory;
@@ -28,14 +28,14 @@ class Installation implements DeltaInterface
     /**
      * OAuth2 storage.
      *
-     * @var MongoDB
+     * @var UserCredentials
      */
     protected $storage;
 
     /**
      * Construct.
      */
-    public function __construct(MongoDB $storage, Database $db)
+    public function __construct(UserCredentials $storage, Database $db)
     {
         $this->storage = $storage;
         $this->db = $db;
@@ -46,8 +46,8 @@ class Installation implements DeltaInterface
      */
     public function start(): bool
     {
-        $this->storage->setClientDetails('balloon-client-web', null, null, 'password refresh_token');
-        $this->storage->setClientDetails('balloon-client-desktop', null, null, 'password refresh_token');
+        $this->storage->setClientDetails('balloon-client-web', null, null, 'password refresh_token password_mfa');
+        $this->storage->setClientDetails('balloon-client-desktop', null, null, 'password refresh_token password_mfa');
 
         if ($this->db->oauth_keys->count() === 0) {
             $seal_keypair = KeyFactory::generateEncryptionKeyPair();

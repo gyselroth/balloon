@@ -12,13 +12,14 @@ declare(strict_types=1);
 namespace Balloon\App\Idp\Storage;
 
 use Balloon\Hook;
+use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Auth\Adapter\Basic\BasicInterface;
 use Micro\Auth\Auth;
 use MongoDB\Database;
 use OAuth2\Storage\MongoDB as OAuthMongoDB;
 
-class MongoDB extends OAuthMongoDB
+class UserCredentials extends OAuthMongoDB
 {
     /**
      * Auth.
@@ -28,11 +29,11 @@ class MongoDB extends OAuthMongoDB
     protected $auth;
 
     /**
-     * Adapter.
+     * Secret factory.
      *
-     * @var AdapterInterface
+     * @var SecretFactory
      */
-    protected $adapter;
+    protected $secret_factory;
 
     /**
      * Hook.
@@ -44,10 +45,10 @@ class MongoDB extends OAuthMongoDB
     /**
      * {@inheritdoc}
      */
-    public function __construct(Database $db, Auth $auth, Hook $hook, array $config = [])
+    public function __construct(Database $db, Auth $auth, Hook $hook, Server $server, array $config = [])
     {
-        $this->auth = $auth;
         $this->server = $server;
+        $this->auth = $auth;
         $this->hook = $hook;
 
         parent::__construct($db, $config);
@@ -62,16 +63,16 @@ class MongoDB extends OAuthMongoDB
             if ($adapter instanceof BasicInterface) {
                 if ($adapter->plainAuth($username, $password) === true) {
                     $user = null;
+                    $identity = $this->auth->createIdentity($adapter);
 
                     try {
-                        $user = new User($this->db->user->findOne(['username' => $adapter->getIdentifier()]));
+                        $user = $this->server->getUserByName($username);
                     } catch (User\Exception\NotFound $e) {
                         $this->logger->warning('failed connect authenticated user, user account does not exists', [
                             'category' => get_class($this),
                         ]);
                     }
 
-                    $identity = $this->auth->createIdentity($adapter);
                     $this->hook->run('preServerIdentity', [$identity, &$user]);
 
                     if (!($user instanceof User)) {
@@ -99,7 +100,8 @@ class MongoDB extends OAuthMongoDB
     public function getUser($username)
     {
         try {
-            return $this->db->user->findOne(['username' => $adapter->getIdentifier()]);
+            return $this->server->getUserByName($username)
+                ->getAttributes();
         } catch (User\Exception\NotFound $e) {
             $this->logger->warning('failed connect authenticated user, user account does not exists', [
                 'category' => get_class($this),

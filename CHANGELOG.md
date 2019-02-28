@@ -12,6 +12,8 @@
 * CORE: [FEATURE] Internal auth adapter allow login using mail address #261
 * CORE: [CHANGE] Remove the possibilty to combine filtered collection and a manual tree #269
 * API: [FEATURE] Add recursive=1/0 to GET /api/v2/collections/:id/children #265
+* CORE: [FEATURE] Implement idp Balloon.App.Idp #285
+* API: [FEATURE] two factor authentication (google authenticator) #242
 
 
 ## 2.4.4

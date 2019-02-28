@@ -41,9 +41,6 @@ class Hook
 
     /**
      * Inject hook.
-     *
-     *
-     * @return Hook
      */
     public function injectHook(HookInterface $hook): self
     {
@@ -125,5 +122,19 @@ class Hook
         }
 
         return true;
+    }
+
+    /**
+     * Remove hook.
+     */
+    protected function removeHook(string $class): bool
+    {
+        if ($this->hasHook($class)) {
+            unset($this->hook[$class]);
+
+            return true;
+        }
+
+        throw new Exception('hook '.$class.' is not registered');
     }
 }

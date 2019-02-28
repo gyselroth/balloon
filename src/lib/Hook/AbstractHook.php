@@ -14,6 +14,7 @@ namespace Balloon\Hook;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Server\RoleInterface;
 use Balloon\Server\User;
 use Micro\Auth\Auth;
 use Micro\Auth\Identity;
@@ -25,6 +26,27 @@ abstract class AbstractHook implements HookInterface
      * {@inheritdoc}
      */
     public function preExecuteAsyncJobs(): void
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function preUpdateUser(User $user, array &$attributes = []): void
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postUpdateUser(User $user, array $attributes = []): void
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function preDecorateRole(RoleInterface $role, array &$attributes = []): void
     {
     }
 
