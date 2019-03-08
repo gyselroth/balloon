@@ -11,10 +11,9 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v2;
 
-use Balloon\App\Api\Controller;
 use Micro\Http\Response;
 
-class Api extends Controller
+class Api
 {
     /**
      * Server & API Status.

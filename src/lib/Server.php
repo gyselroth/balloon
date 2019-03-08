@@ -451,7 +451,7 @@ class Server
         $users = $this->db->user->aggregate($aggregation);
 
         foreach ($users as $attributes) {
-            yield new User($attributes, $this, $this->db, $this->logger);
+            yield new User($attributes, $this, $this->db, $this->hook, $this->logger);
         }
     }
 

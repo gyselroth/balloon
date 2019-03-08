@@ -82,9 +82,9 @@ class Installation implements DeltaInterface
      */
     public function start(): bool
     {
-        $this->logger->info('create elasticsearch index ['.$this->es->getIndex().']', [
+        /*$this->logger->info('create elasticsearch index ['.$this->es->getIndex().']', [
             'category' => get_class($this),
-        ]);
+        ]);*/
 
         $this->logger->debug('read index configuration from ['.$this->index_configuration.']', [
             'category' => get_class($this),
@@ -99,12 +99,12 @@ class Installation implements DeltaInterface
             throw new Exception\InvalidIndexConfiguration('invalid elasticsearch index configuration json given');
         }
 
-        $index = [
+        /*$index = [
             'index' => $this->es->getIndex(),
             'body' => $index,
         ];
 
-        $this->client->indices()->create($index);
+        $this->client->indices()->create($index);*/
         $this->client->ingest()->putPipeline([
             'name' => 'attachments',
             'description' => 'Document attachment pipeline',

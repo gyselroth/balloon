@@ -34,6 +34,13 @@ class Token extends AbstractAdapter implements InternalAuthInterface
     protected $db;
 
     /**
+     * Attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [];
+
+    /**
      * Set options.
      */
     public function __construct(OAuth2Server $server, Database $db)

@@ -15,6 +15,7 @@ use Balloon\App\Idp\Exception;
 use Balloon\Hook\AbstractHook;
 use Balloon\Server\RoleInterface;
 use Balloon\Server\User;
+use Dolondro\GoogleAuthenticator\Secret;
 use Dolondro\GoogleAuthenticator\SecretFactory;
 use Micro\Auth\Adapter\Basic\BasicInterface;
 use Micro\Auth\Identity;

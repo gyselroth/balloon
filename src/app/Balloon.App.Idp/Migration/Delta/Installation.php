@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Idp\Migration\Delta;
 
-use Balloon\App\Idp\Storage\UserCredentials;
+use Balloon\App\Idp\Storage\Db as OAuth2Storage;
 use Balloon\Migration\Delta\DeltaInterface;
 use MongoDB\Database;
 use ParagonIE\Halite\KeyFactory;
@@ -28,14 +28,14 @@ class Installation implements DeltaInterface
     /**
      * OAuth2 storage.
      *
-     * @var UserCredentials
+     * @var OAuth2Storage
      */
     protected $storage;
 
     /**
      * Construct.
      */
-    public function __construct(UserCredentials $storage, Database $db)
+    public function __construct(OAuth2Storage $storage, Database $db)
     {
         $this->storage = $storage;
         $this->db = $db;

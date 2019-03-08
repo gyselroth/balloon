@@ -14,6 +14,7 @@
 * API: [FEATURE] Add recursive=1/0 to GET /api/v2/collections/:id/children #265
 * CORE: [FEATURE] Implement idp Balloon.App.Idp #285
 * API: [FEATURE] two factor authentication (google authenticator) #242
+* API: [CHANGE] Remove the ability to do operations by path #287
 
 
 ## 2.4.4

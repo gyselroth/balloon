@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Office\Api\v1;
 
-use Balloon\App\Api\Controller;
+use Balloon\App\Api\v1\Controller;
 use Balloon\App\Office\Constructor\Http as App;
 use Balloon\App\Office\Document;
 use Balloon\App\Office\Session as WopiSession;

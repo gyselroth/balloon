@@ -14,9 +14,9 @@ namespace Balloon\App\Api\v2;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
-use Balloon\Helper;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
@@ -26,9 +26,9 @@ class Files extends Nodes
     /**
      * Get history.
      */
-    public function getHistory(RoleAttributeDecorator $role_decorator, ?string $id = null, ?string $p = null): Response
+    public function getHistory(RoleAttributeDecorator $role_decorator, string $id): Response
     {
-        $result = $this->_getNode($id, $p)->getHistory();
+        $result = $this->fs->getNode($id, File::class)->getHistory();
         $body = [];
         foreach ($result as $version) {
             if ($version['user'] === null) {
@@ -53,9 +53,9 @@ class Files extends Nodes
     /**
      * Rollback version.
      */
-    public function postRestore(int $version, ?string $id = null, ?string $p = null): Response
+    public function postRestore(int $version, string $id): Response
     {
-        $node = $this->_getNode($id, $p);
+        $node = $this->fs->getNode($id, File::class);
         $node->restore($version);
         $result = $this->node_decorator->decorate($node);
 
@@ -68,7 +68,6 @@ class Files extends Nodes
     public function putChunk(
         ?ObjectId $session = null,
         ?string $id = null,
-        ?string $p = null,
         ?string $collection = null,
         ?string $name = null,
         int $index = 1,
@@ -87,7 +86,7 @@ class Files extends Nodes
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
-        $storage = $this->getStorage($id, $p, $collection);
+        $storage = $this->getStorage($id, $collection);
 
         if ($session === null) {
             $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
@@ -100,7 +99,7 @@ class Files extends Nodes
             $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
             $attributes = $this->_verifyAttributes($attributes);
 
-            return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
+            return $this->_put($session, $id, $collection, $name, $attributes, $conflict);
         }
 
         return (new Response())->setCode(206)->setBody([
@@ -114,7 +113,6 @@ class Files extends Nodes
      */
     public function put(
         ?string $id = null,
-        ?string $p = null,
         ?string $collection = null,
         ?string $name = null,
         int $conflict = 0,
@@ -127,33 +125,29 @@ class Files extends Nodes
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
 
-        $storage = $this->getStorage($id, $p, $collection);
+        $storage = $this->getStorage($id, $collection);
         $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
         $attributes = compact('changed', 'created', 'readonly', 'meta', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);
 
-        return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
+        return $this->_put($session, $id, $collection, $name, $attributes, $conflict);
     }
 
     /**
      * Get storage.
      */
-    protected function getStorage($id, $p, $collection): StorageAdapterInterface
+    protected function getStorage($id, $collection): StorageAdapterInterface
     {
         if ($id !== null) {
-            return $this->_getNode($id, $p)->getParent()->getStorage();
+            return $this->_getNode($id)->getParent()->getStorage();
         }
-        if ($p !== null) {
-            $path = '/'.ltrim(dirname('/'.$p), '/');
 
-            return $this->_getNode($id, $path, Collection::class)->getStorage();
-        }
-        if ($id === null && $p === null && $collection === null) {
+        if ($id === null && $collection === null) {
             return $this->server->getFilesystem()->getRoot()->getStorage();
         }
 
-        return $this->_getNode($collection, null, Collection::class)->getStorage();
+        return $this->fs->getNode($collection, Collection::class)->getStorage();
     }
 
     /**
@@ -162,28 +156,16 @@ class Files extends Nodes
     protected function _put(
         ObjectId $session,
         ?string $id = null,
-        ?string $p = null,
         ?string $collection = null,
         ?string $name = null,
         array $attributes = [],
         int $conflict = 0
     ): Response {
-        if (null === $id && null === $p && null === $name) {
-            throw new Exception\InvalidArgument('neither id, p nor name was set');
-        }
-
-        if (null !== $p && null !== $name) {
-            throw new Exception\InvalidArgument('p and name can not be used at the same time');
+        if (null === $id && null === $name) {
+            throw new Exception\InvalidArgument('neither id nor name was set');
         }
 
         try {
-            if (null !== $p) {
-                $node = $this->_getNode(null, $p);
-                $node->setContent($session, $attributes);
-                $result = $this->node_decorator->decorate($node);
-
-                return (new Response())->setCode(200)->setBody($result);
-            }
             if (null !== $id && null === $collection) {
                 $node = $this->_getNode($id);
                 $node->setContent($session, $attributes);
@@ -191,8 +173,8 @@ class Files extends Nodes
 
                 return (new Response())->setCode(200)->setBody($result);
             }
-            if (null === $p && null === $id && null !== $name) {
-                $collection = $this->_getNode($collection, null, Collection::class, false, true);
+            if (null === $id && null !== $name) {
+                $collection = $this->fs->getNode($collection, Collection::class, false, true);
 
                 if ($collection->childExists($name, NodeInterface::DELETED_INCLUDE, ['directory' => false])) {
                     $child = $collection->getChild($name, NodeInterface::DELETED_INCLUDE, ['directory' => false]);
@@ -201,6 +183,7 @@ class Files extends Nodes
 
                     return (new Response())->setCode(200)->setBody($result);
                 }
+
                 if (!is_string($name) || empty($name)) {
                     throw new Exception\InvalidArgument('name must be a valid string');
                 }
@@ -216,32 +199,6 @@ class Files extends Nodes
                 Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS,
                 $e
             );
-        } catch (Exception\NotFound $e) {
-            if (null !== $p && null === $id) {
-                if (!is_string($p) || empty($p)) {
-                    throw new Exception\InvalidArgument('path (p) must be a valid string');
-                }
-
-                $parent_path = '/'.ltrim(dirname('/'.$p), '/');
-                $name = Helper::mb_basename($p);
-
-                try {
-                    $parent = $this->fs->findNodeByPath($parent_path, Collection::class);
-
-                    if (!is_string($name) || empty($name)) {
-                        throw new Exception\InvalidArgument('name must be a valid string');
-                    }
-
-                    $result = $parent->addFile($name, $session, $attributes);
-                    $result = $this->node_decorator->decorate($result);
-
-                    return (new Response())->setCode(201)->setBody($result);
-                } catch (Exception\NotFound $e) {
-                    throw new Exception('parent collection '.$parent_path.' was not found');
-                }
-            } else {
-                throw $e;
-            }
         }
     }
 }

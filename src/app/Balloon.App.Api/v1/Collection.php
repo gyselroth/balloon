@@ -45,7 +45,7 @@ class Collection extends Node
      */
     public function headChildren(?string $id = null, ?string $p = null): Response
     {
-        $result = $this->fs->getNode($id, $p, null, false, true);
+        $result = $this->getNode($id, $p, null, false, true);
         $children = $result->getSize();
 
         $response = (new Response())
@@ -102,7 +102,7 @@ class Collection extends Node
         array $attributes = []
     ): Response {
         $children = [];
-        $nodes = $this->fs->getNode($id, $p, NodeCollection::class, false, true)->getChildNodes($deleted, $filter);
+        $nodes = $this->getNode($id, $p, NodeCollection::class, false, true)->getChildNodes($deleted, $filter);
 
         foreach ($nodes as $node) {
             $children[] = $this->node_decorator->decorate($node, $attributes);
@@ -157,7 +157,7 @@ class Collection extends Node
      */
     public function getShare(RoleDecorator $role_decorator, ?string $id = null, ?string $p = null, array $attributes = []): Response
     {
-        $node = $this->fs->getNode($id, $p);
+        $node = $this->getNode($id, $p);
         $rules = false;
 
         if ($node->isShare()) {
@@ -231,7 +231,7 @@ class Collection extends Node
             }
         }
 
-        $node = $this->fs->getNode($id, $p);
+        $node = $this->getNode($id, $p);
         $result = $node->share($rules, $node->getName());
 
         if (null === $result) {
@@ -268,7 +268,7 @@ class Collection extends Node
      */
     public function deleteShare(?string $id = null, ?string $p = null): Response
     {
-        $node = $this->fs->getNode($id, $p);
+        $node = $this->getNode($id, $p);
         $result = $node->unshare();
 
         return (new Response())->setCode(204);
@@ -336,7 +336,7 @@ class Collection extends Node
 
             $parent_path = dirname($p);
             $name = Helper::mb_basename($p);
-            $parent = $this->fs->findNodeByPath($parent_path, NodeCollection::class);
+            $parent = $this->findNodeByPath($parent_path, NodeCollection::class);
             $result = $parent->addDirectory($name, $attributes, $conflict)->getId();
 
             return (new Response())->setCode(201)->setBody([
@@ -349,7 +349,7 @@ class Collection extends Node
             throw new Exception\InvalidArgument('name must be set with id');
         }
 
-        $parent = $this->fs->getNode($id, null, null, false, true);
+        $parent = $this->getNode($id, null, null, false, true);
         $result = $parent->addDirectory((string) $name, $attributes, $conflict)->getId();
 
         return (new Response())->setCode(201)->setBody([

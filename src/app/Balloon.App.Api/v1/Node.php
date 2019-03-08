@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v1;
 
-use Balloon\App\Api\Controller;
 use Balloon\App\Api\v1\AttributeDecorator\DeltaDecorator;
 use Balloon\App\Api\v1\AttributeDecorator\EventDecorator;
 use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator;
@@ -1282,7 +1281,7 @@ class Node extends Controller
             }
         }
 
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
+        return $this->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
     }
 
     /**
@@ -1312,7 +1311,7 @@ class Node extends Controller
             }
         }
 
-        return $this->fs->getNodes($id, $path, $class, $deleted);
+        return $this->getNodes($id, $path, $class, $deleted);
     }
 
     /**

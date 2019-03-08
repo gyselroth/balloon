@@ -13,8 +13,7 @@ namespace Balloon\App\Api\v2;
 
 use Balloon\AttributeDecorator\Pager;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Node\Collection as NodeCollection;
-use Balloon\Helper;
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Micro\Http\Response;
 use function MongoDB\BSON\fromJSON;
@@ -29,7 +28,6 @@ class Collections extends Nodes
      */
     public function getChildren(
         ?string $id = null,
-        ?string $p = null,
         int $deleted = 0,
         $query = null,
         array $attributes = [],
@@ -39,7 +37,7 @@ class Collections extends Nodes
     ): Response {
         $children = [];
 
-        $node = $this->fs->getNode($id, $p, null, false, true);
+        $node = $this->fs->getNode($id, Collection::class, false, true);
         if ($node->isRoot()) {
             $uri = '/api/v2/collections/children';
         } else {
@@ -56,7 +54,7 @@ class Collections extends Nodes
             ]);
         }
 
-        $nodes = $this->fs->getNode($id, $p, NodeCollection::class, false, true)->getChildNodes($deleted, $query, $offset, $limit, $recursive);
+        $nodes = $this->fs->getNode($id, Collection::class, false, true)->getChildNodes($deleted, $query, $offset, $limit, $recursive);
         $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
         $result = $pager->paging();
 
@@ -66,9 +64,9 @@ class Collections extends Nodes
     /**
      * Get Share ACL.
      */
-    public function getShare(RoleAttributeDecorator $role_decorator, ?string $id = null, ?string $p = null, array $attributes = []): Response
+    public function getShare(RoleAttributeDecorator $role_decorator, string $id, array $attributes = []): Response
     {
-        $node = $this->fs->getNode($id, $p);
+        $node = $this->fs->getNode($id, Collection::class);
 
         if (!$node->isShared()) {
             throw new Exception\Conflict('node is not a share', Exception\Conflict::NOT_SHARED);
@@ -89,9 +87,9 @@ class Collections extends Nodes
     /**
      * Create share.
      */
-    public function postShare(array $acl, string $name, ?string $id = null, ?string $p = null): Response
+    public function postShare(array $acl, string $name, string $id): Response
     {
-        $node = $this->fs->getNode($id, $p);
+        $node = $this->fs->getNode($id, Collection::class);
         $node->share($acl, $name);
         $result = $this->node_decorator->decorate($node);
 
@@ -101,9 +99,9 @@ class Collections extends Nodes
     /**
      * Delete share.
      */
-    public function deleteShare(?string $id = null, ?string $p = null): Response
+    public function deleteShare(string $id): Response
     {
-        $node = $this->fs->getNode($id, $p);
+        $node = $this->fs->getNode($id, Collection::class);
         $result = $node->unshare();
 
         return (new Response())->setCode(204);
@@ -113,37 +111,13 @@ class Collections extends Nodes
      * Create collection.
      */
     public function post(
+        string $name,
         ?string $id = null,
-        ?string $p = null,
-        ?string $name = null,
         array $attributes = [],
         int $conflict = 0
     ): Response {
-        if (null !== $p && null !== $name) {
-            throw new Exception\InvalidArgument('p and name can not be used at the same time');
-        }
-
         $attributes = $this->_verifyAttributes($attributes);
-
-        if (null === $id && null !== $p) {
-            if (!is_string($p) || empty($p)) {
-                throw new Exception\InvalidArgument('name must be a valid string');
-            }
-
-            $parent_path = dirname($p);
-            $name = Helper::mb_basename($p);
-            $parent = $this->fs->findNodeByPath($parent_path, NodeCollection::class);
-            $result = $parent->addDirectory($name, $attributes, $conflict);
-            $result = $this->node_decorator->decorate($result);
-
-            return (new Response())->setCode(201)->setBody($result);
-        }
-
-        if (null !== $id && null === $name) {
-            throw new Exception\InvalidArgument('name must be set with id');
-        }
-
-        $parent = $this->fs->getNode($id, null, null, false, true);
+        $parent = $this->fs->getNode($id, null, false, true);
         $result = $parent->addDirectory((string) $name, $attributes, $conflict);
         $result = $this->node_decorator->decorate($result);
 

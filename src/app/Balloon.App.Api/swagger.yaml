@@ -1149,36 +1149,6 @@ paths:
           description: "Resource does not exists"
         403:
           description: "Access denied"
-  '/api/v2/nodes':
-    get:
-      tags:
-        - v2
-      summary: 'Get single node by path'
-      operationId: getNodeByPath
-      produces:
-        - application/json
-      parameters:
-        - name: p
-          in: query
-          required: true
-          type: string
-          description: 'Node identifier'
-        - name: attributes
-          in: query
-          required: false
-          type: 'array'
-          description: 'Filter attributes'
-          items:
-            type: string
-      responses:
-        200:
-          description: "Node"
-          schema:
-            $ref: "#/definitions/Node"
-        404:
-          description: "Resource does not exists"
-        403:
-          description: "Access denied"          
   '/api/v2/nodes/{node}/clone':
     post:
       tags:
@@ -2561,7 +2531,7 @@ definitions:
         default: false
       nodes:
         type: array
-        items:  
+        items:
           $ref: '#/definitions/Node'
   Share:
     description: "Node share."
@@ -2617,7 +2587,7 @@ definitions:
         properties:
           _id:
             type: string
-          sum: 
+          sum:
             type: number
   ChunkSession:
     description: "Chunking upload session."
@@ -2627,7 +2597,7 @@ definitions:
         description: "The upload session id"
         type: string
       chunks_left:
-        description: "Tells how many chunks are left to upload." 
+        description: "Tells how many chunks are left to upload."
         type: number
   EventLogs:
     description: "A list of events."

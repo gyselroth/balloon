@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Elasticsearch\Api\v1;
 
-use Balloon\App\Api\Controller;
 use Balloon\App\Api\v1\AttributeDecorator\NodeDecorator as NodeAttributeDecorator;
+use Balloon\App\Api\v1\Controller;
 use Balloon\App\Elasticsearch\Elasticsearch;
 use Micro\Http\Response;
 use Psr\Log\LoggerInterface;

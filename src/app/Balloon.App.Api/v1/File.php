@@ -507,7 +507,7 @@ class File extends Node
                 $name = Helper::mb_basename($p);
 
                 try {
-                    $parent = $this->fs->findNodeByPath($parent_path, Collection::class);
+                    $parent = $this->findNodeByPath($parent_path, Collection::class);
 
                     if (!is_string($name) || empty($name)) {
                         throw new Exception\InvalidArgument('name must be a valid string');
