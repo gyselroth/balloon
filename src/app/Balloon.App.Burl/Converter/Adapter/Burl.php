@@ -13,10 +13,8 @@ namespace Balloon\App\Burl\Converter\Adapter;
 
 use Balloon\Converter\Adapter\AdapterInterface;
 use Balloon\Converter\Exception;
-use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
-use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\StreamWrapper;
 use Imagick;
 use Psr\Log\LoggerInterface;
@@ -86,8 +84,6 @@ class Burl implements AdapterInterface
 
     /**
      * Initialize.
-     *
-     * @param iterable $config
      */
     public function __construct(GuzzleHttpClientInterface $client, LoggerInterface $logger, ?Iterable $config = null)
     {
@@ -98,8 +94,6 @@ class Burl implements AdapterInterface
 
     /**
      * Set options.
-     *
-     * @param iterable $config
      */
     public function setOptions(Iterable $config = null): AdapterInterface
     {
@@ -170,14 +164,18 @@ class Burl implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createPreview(File $file): Result
+    public function createPreview(File $file)
     {
         try {
-            $imageFile = $this->getImage(\stream_get_contents($file->get()), self::PREVIEW_FORMAT);
+            $result = $this->getImage(\stream_get_contents($file->get()), self::PREVIEW_FORMAT);
         } catch (Exception $e) {
             throw new Exception('failed create preview');
         }
-        $image = new Imagick($imageFile->getPath());
+
+        $desth = tmpfile();
+        stream_copy_to_stream($result, $desth);
+        $dest = stream_get_meta_data($desth)['uri'];
+        $image = new Imagick($dest);
 
         $width = $image->getImageWidth();
         $height = $image->getImageHeight();
@@ -188,15 +186,16 @@ class Burl implements AdapterInterface
             $image->scaleImage(0, $this->preview_max_size);
         }
 
-        $image->writeImage($imageFile->getPath());
+        $image->writeImage($dest);
+        rewind($desth);
 
-        return $imageFile;
+        return $desth;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function convert(File $file, string $format): Result
+    public function convert(File $file, string $format)
     {
         switch ($format) {
             case 'pdf':
@@ -214,7 +213,7 @@ class Burl implements AdapterInterface
     /**
      * Get screenshot of url.
      */
-    protected function getImage(string $url, string $format): Result
+    protected function getImage(string $url, string $format)
     {
         $options = [
             'fullPage' => false,
@@ -241,13 +240,13 @@ class Burl implements AdapterInterface
             ]
         );
 
-        return $this->getResponseIntoResult($response, $format);
+        return StreamWrapper::getResource($response->getBody());
     }
 
     /**
      * Get pdf of url contents.
      */
-    protected function getPdf(string $url): Result
+    protected function getPdf(string $url)
     {
         $this->logger->debug('request pdf from ['.$this->browserlessUrl.'/pdf'.'] using url ['.$url.']', [
             'category' => get_class($this),
@@ -267,23 +266,6 @@ class Burl implements AdapterInterface
             ]
         );
 
-        return $this->getResponseIntoResult($response, 'pdf');
-    }
-
-    /**
-     * Turn PSR7-Response into a Result.
-     */
-    protected function getResponseIntoResult(Response $response, string $format): Result
-    {
-        $desth = tmpfile();
-        $dest = stream_get_meta_data($desth)['uri'];
-
-        stream_copy_to_stream(StreamWrapper::getResource($response->getBody()), $desth);
-
-        if (!file_exists($dest) || filesize($dest) <= 0) {
-            throw new Exception('failed get '.$format);
-        }
-
-        return new Result($dest, $desth);
+        return StreamWrapper::getResource($response->getBody());
     }
 }

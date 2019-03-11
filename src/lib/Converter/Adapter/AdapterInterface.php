@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\Converter\Adapter;
 
-use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 
 interface AdapterInterface
@@ -33,11 +32,15 @@ interface AdapterInterface
 
     /**
      * Convert.
+     *
+     * @return resource
      */
-    public function convert(File $file, string $format): Result;
+    public function convert(File $file, string $format);
 
     /**
      * Create preview.
+     *
+     * @return resource
      */
-    public function createPreview(File $file): Result;
+    public function createPreview(File $file);
 }

@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Preview;
 
 use Balloon\Converter;
-use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
@@ -46,8 +45,10 @@ class PreviewCreator extends Preview
         ]);
 
         try {
-            $result = $this->converter->createPreview($file);
-            $hash = md5_file($result->getPath());
+            $stream = $this->converter->createPreview($file);
+            $result = stream_get_contents($stream);
+            $hash = md5($result);
+            rewind($stream);
 
             $found = $this->db->{'thumbnail.files'}->findOne([
                 'md5' => $hash,
@@ -63,7 +64,7 @@ class PreviewCreator extends Preview
                 return $found['_id'];
             }
 
-            return $this->storePreview($file, $result);
+            return $this->storePreview($file, $stream);
         } catch (\Exception $e) {
             $file->unsetAppAttribute(__NAMESPACE__, 'preview');
 
@@ -74,14 +75,15 @@ class PreviewCreator extends Preview
     /**
      * Store new preview.
      */
-    protected function storePreview(File $file, Result $content): ObjectId
+    protected function storePreview(File $file, $content): ObjectId
     {
         try {
             $id = new ObjectId();
             $bucket = $this->db->selectGridFSBucket(['bucketName' => 'thumbnail']);
             $stream = $bucket->openUploadStream(null, ['_id' => $id]);
-            fwrite($stream, $content->getContents());
-            fclose($stream);
+            /*fwrite($stream, $content);
+            fclose($stream);*/
+            stream_copy_to_stream($content, $stream);
 
             $file->setAppAttribute(__NAMESPACE__, 'preview', $id);
 

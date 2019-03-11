@@ -30,7 +30,9 @@
 * Mount external storage (Currently only SMB/CIFS is supported since v2.1.0)
 * Eventlog
 * Integrated deduplication system
+* Burl (URL file format, including rendered site previews)
 * Globally accessible share links
+* Intelligent collections based on custom rules
 * Multiple types of authentication, basic auth (MongoDB), basic auth LDAP, OpenID-Connect
 * Integrated OpenID-connect server and also supports OpenID-connect for any external OpenID-Connect providers (including google, microsoft, github and more)
 * REST API (OpenAPI v3 specs)

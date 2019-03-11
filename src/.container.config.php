@@ -173,10 +173,10 @@ return [
                     'method' => 'injectAdapter',
                 'arguments' => ['adapter' => '{'.ImagickImage::class.'}']
             ],
-            Office::class => [
+            /*Office::class => [
                 'method' => 'injectAdapter',
                 'arguments' => ['adapter' => '{'.Office::class.'}']
-            ],
+            ],*/
         ]
     ],
     Hook::class => [

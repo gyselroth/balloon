@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\Converter\Adapter;
 
 use Balloon\Converter\Exception;
-use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use Imagick;
 use Psr\Log\LoggerInterface;
@@ -125,10 +124,8 @@ class Office implements AdapterInterface
 
     /**
      * Initialize.
-     *
-     * @param iterable $config
      */
-    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger, array $config = [])
     {
         $this->logger = $logger;
         $this->setOptions($config);
@@ -136,15 +133,9 @@ class Office implements AdapterInterface
 
     /**
      * Set options.
-     *
-     * @param iterable $config
      */
-    public function setOptions(Iterable $config = null): AdapterInterface
+    public function setOptions(array $config = []): AdapterInterface
     {
-        if (null === $config) {
-            return $this;
-        }
-
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'soffice':
@@ -228,7 +219,7 @@ class Office implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createPreview(File $file): Result
+    public function createPreview(File $file)
     {
         //we need a pdf to create an image from the first page
         $pdf = $this->convert($file, 'pdf');
@@ -258,13 +249,13 @@ class Office implements AdapterInterface
             throw new Exception('failed create prevew');
         }
 
-        return new Result($dest, $desth);
+        return $desth;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function convert(File $file, string $format): Result
+    public function convert(File $file, string $format)
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
@@ -298,6 +289,6 @@ class Office implements AdapterInterface
             'category' => get_class($this),
         ]);
 
-        return new Result($temp);
+        return fopen($temp, 'r');
     }
 }

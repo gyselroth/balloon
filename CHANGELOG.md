@@ -15,6 +15,8 @@
 * CORE: [FEATURE] Implement idp Balloon.App.Idp #285
 * API: [FEATURE] two factor authentication (google authenticator) #242
 * API: [CHANGE] Remove the ability to do operations by path #287
+* API: [FIX]  Delta endpoint may return 0 nodes but has_more is true. #295
+* CORE: [CHANGE] Use loolwsd to convert office documents and previews #296
 
 
 ## 2.4.4
