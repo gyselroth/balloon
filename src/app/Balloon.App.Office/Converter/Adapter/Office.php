@@ -120,6 +120,10 @@ class Office extends Soffice
             ]
         );
 
+        $this->logger->debug('convert-to request ended with status code ['.$response->getStatusCode().']', [
+            'category' => get_class($this),
+        ]);
+
         return StreamWrapper::getResource($response->getBody());
     }
 }

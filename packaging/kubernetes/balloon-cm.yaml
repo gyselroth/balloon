@@ -205,7 +205,7 @@ data:
                   base_uri: "{ENV(BALLOON_LIBREOFFICE_URL,https://libreoffice-converter:9980)}"
                   connect_timeout: 3
                   timeout: 10
-                  verify: false
+                  verify: true
         Balloon\App\Burl\Converter\Adapter\Burl:
           arguments:
             config:
@@ -217,7 +217,7 @@ data:
                   base_uri: "{ENV(BALLOON_BURL_BROWSERLESS_URL,https://browserless:3000)}"
                   connect_timeout: 3
                   timeout: 10
-                  verify: false
+                  verify: true
     Psr\Log\LoggerInterface:
       use: "Monolog\\Logger"
       arguments:

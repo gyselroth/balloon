@@ -40,11 +40,10 @@ return [
             ClientInterface::class => [
                 'arguments' => [
                     'config' => [
-                        'debug' => true,
-                        'base_uri' => '{ENV(BALLOON_LIBREOFFICE_URL,https://libreoffoce:9980)}',
+                        'base_uri' => '{ENV(BALLOON_LIBREOFFICE_URL,https://libreoffice:9980)}',
                         'connect_timeout' => 3,
                         'timeout' => 10,
-                        'verify' => false,
+                        'verify' => false
                     ]
                 ]
             ]

@@ -223,11 +223,12 @@ class Office implements AdapterInterface
     {
         //we need a pdf to create an image from the first page
         $pdf = $this->convert($file, 'pdf');
+        $source = stream_get_meta_data($pdf)['uri'];
 
         $desth = tmpfile();
         $dest = stream_get_meta_data($desth)['uri'];
 
-        $image = new Imagick($pdf->getPath().'[0]');
+        $image = new Imagick($source.'[0]');
 
         $width = $image->getImageWidth();
         $height = $image->getImageHeight();

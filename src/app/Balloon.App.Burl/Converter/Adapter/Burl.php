@@ -197,14 +197,16 @@ class Burl implements AdapterInterface
             'POST',
             'screenshot',
             [
-                'connect_timeout' => $this->timeout,
-                'timeout' => $this->timeout,
                 'json' => [
                     'url' => $url,
                     'options' => $options,
                 ],
             ]
         );
+
+        $this->logger->debu('screenshot create request ended with status code ['.$response->getStatusCode().']', [
+            'category' => get_class($this),
+        ]);
 
         return StreamWrapper::getResource($response->getBody());
     }
@@ -231,6 +233,10 @@ class Burl implements AdapterInterface
                 ],
             ]
         );
+
+        $this->logger->debug('pdf create request ended with status code ['.$response->getStatusCode().']', [
+            'category' => get_class($this),
+        ]);
 
         return StreamWrapper::getResource($response->getBody());
     }
