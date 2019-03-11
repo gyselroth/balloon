@@ -1,0 +1,333 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: syslog
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: es-master
+  namespace: syslog
+  labels:
+    component: elasticsearch
+    role: master
+    k8s-app: elasticsearch
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+        role: master
+        k8s-app: elasticsearch
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - master
+              topologyKey: kubernetes.io/hostname
+      initContainers:
+      - name: init-sysctl
+        image: busybox:1.27.2
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        securityContext:
+          privileged: true
+      containers:
+      - name: es-master
+        image: elasticsearch:6.6.1
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: "cluster.name"
+          value: syslog
+        - name: "discovery.zen.minimum_master_nodes"
+          value: "2"
+        - name: "discovery.zen.ping.unicast.hosts" 
+          value: "elasticsearch-discovery"
+        - name: "xpack.security.enabled"
+          value: "false"
+        - name: node.master
+          value: "true"
+        - name: node.ingest
+          value: "false"
+        - name: node.data
+          value: "false"
+        - name: HTTP_ENABLE
+          value: "false"
+        - name: ES_JAVA_OPTS
+          value: -Xms256m -Xmx256m
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        resources:
+          limits:
+            cpu: 2
+        ports:
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - name: storage
+          mountPath: /data
+      volumes:
+          - emptyDir:
+              medium: ""
+            name: "storage"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"    
+  name: elasticsearch-discovery
+  namespace: syslog
+  labels:
+    component: elasticsearch
+    role: master
+    k8s-app: elasticsearch
+spec:
+  clusterIP: None
+  ports:
+  - port: 9300
+    protocol: TCP
+    targetPort: 9300
+  publishNotReadyAddresses: true
+  selector:
+    component: elasticsearch
+    role: master
+  sessionAffinity: None
+  type: ClusterIP    
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: es-data
+  namespace: syslog
+  labels:
+    component: elasticsearch
+    role: data
+    k8s-app: elasticsearch
+spec:
+  serviceName: elasticsearch-data
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+        role: data
+        k8s-app: elasticsearch
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - data
+              topologyKey: kubernetes.io/hostname
+      initContainers:
+      - name: init-sysctl
+        image: busybox:1.27.2
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        securityContext:
+          privileged: true
+      containers:
+      - name: es-data
+        image: elasticsearch:6.6.1
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: "cluster.name"
+          value: syslog
+        - name: node.master
+          value: "false"
+        - name: node.ingest
+          value: "false"
+        - name: HTTP_ENABLE
+          value: "false"
+        - name: "discovery.zen.ping.unicast.hosts" 
+          value: "elasticsearch-discovery"
+        - name: "xpack.security.enabled"
+          value: "false"
+        - name: ES_JAVA_OPTS
+          value: -Xms256m -Xmx256m
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        resources:
+          limits:
+            cpu: 2
+        ports:
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - name: es-data-storage
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: es-data-storage
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "generic-nimble"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-data
+  namespace: syslog
+  labels:
+    component: elasticsearch
+    role: data
+    k8s-app: elasticsearch
+spec:
+  ports:
+  - port: 9300
+    name: transport
+  selector:
+    component: elasticsearch
+    role: data
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: es-client
+  namespace: syslog
+  labels:
+    component: elasticsearch
+    role: client
+    k8s-app: elasticsearch
+spec:
+  replicas: 6
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+        role: client
+        k8s-app: elasticsearch
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - client
+              topologyKey: kubernetes.io/hostname
+      initContainers:
+      - name: init-sysctl
+        image: busybox:1.27.2
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        securityContext:
+          privileged: true
+      containers:
+      - name: es-client
+        image: elasticsearch:6.6.1
+        command:
+        - sh
+        - -c
+        - "echo xpack.security.enabled: false >> /usr/share/elasticsearch/config/elasticsearch.yml; elasticsearch-plugin install --batch https://balloon.gyselroth.net/share/b7a9451cbb7731ed283a1b9c4b41c0b3; /usr/local/bin/docker-entrypoint.sh elasticsearch"        
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: "cluster.name"
+          value: syslog
+        - name: "node.master"
+          value: "false"
+        - name: "discovery.zen.ping.unicast.hosts" 
+          value: "elasticsearch-discovery"
+        - name: node.data
+          value: "false"
+        - name: ES_JAVA_OPTS
+          value: -Xms256m -Xmx256m
+        - name: "xpack.security.enabled"
+          value: "false"
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        resources:
+          limits:
+            cpu: 1
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - name: storage
+          mountPath: /data
+        - name: elasticsearch-config
+          mountPath: /usr/share/elasticsearch/config/readonlyrest.yml
+          subPath: readonlyrest.yml
+      volumes:
+          - emptyDir:
+              medium: ""
+            name: storage
+          - name: elasticsearch-config
+            configMap:
+              name: elasticsearch-config                 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: syslog
+  labels:
+    component: elasticsearch
+    role: client
+    k8s-app: elasticsearch
+spec:
+  selector:
+    component: elasticsearch
+    role: client
+  ports:
+  - name: http
+    port: 9200
+  type: NodePort

@@ -4,15 +4,15 @@ metadata:
   annotations:
   labels:
     k8s-app: libreoffice
-    component: wopi
-  name: libreoffice
+    component: converter
+  name: libreoffice-converter
   namespace: balloon
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       k8s-app: libreoffice
-      component: wopi
+      component: converter
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -23,7 +23,7 @@ spec:
       creationTimesdomainp: null
       labels:
         k8s-app: libreoffice
-        component: wopi
+        component: converter
     spec:
       containers:
       - env:
@@ -31,7 +31,7 @@ spec:
           value: web
         image: collabora/code:4.0.1.1
         imagePullPolicy: IfNotPresent
-        name: libreoffice
+        name: libreoffice-converter
         ports:
         - containerPort: 9980
           protocol: TCP

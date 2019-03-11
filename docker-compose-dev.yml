@@ -41,6 +41,7 @@ balloon-dev-jobs:
         - BALLOON_CLAMAV_URI=tcp://clamav:3310
         - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
         - BALLOON_WOPI_URL=https://balloon-dev
+        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
         - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
@@ -61,6 +62,7 @@ balloon-dev:
         - BALLOON_CLAMAV_URI=tcp://clamav:3310
         - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
         - BALLOON_WOPI_URL=https://balloon-dev
+        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
         - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000

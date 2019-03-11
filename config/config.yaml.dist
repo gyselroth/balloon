@@ -31,12 +31,6 @@ Balloon\Server:
       server_url: "{ENV(BALLOON_URL,https://localhost)}"
       password_policy: '#^.*$#'
       password_hash: 1
-Balloon\App\Burl\Converter\Adapter\Burl:
-  arguments:
-    config:
-      browserlessUrl: "{ENV(BALLOON_BURL_BROWSERLESS_URL,https://chrome.browserless.io)}"
-      preview_max_size: 500
-      timeout: 10
 Balloon\App\ClamAv\Scanner:
   arguments:
     config:
@@ -74,9 +68,9 @@ Balloon\App\Elasticsearch\Job:
     config:
       size_limit: 52428800
 Balloon\App\Notification\Async\Subscription:
-    arguments:
-        config:
-            notification_throttle: 120
+  arguments:
+    config:
+      notification_throttle: 120
 Balloon\App\Elasticsearch\Migration\Delta\Installation:
   arguments:
     config:
@@ -169,7 +163,7 @@ ParagonIE\Halite\Symmetric\EncryptionKey:
   services:
     ParagonIE\Halite\HiddenString:
       arguments:
-        value: 3140040033da9bd0dedd8babc8b89cda7f2132dd5009cc43c619382863d0c75e172ebf18e713e1987f35d6ea3ace43b561c50d9aefc4441a8c4418f6928a70e4655de5a9660cd323de63b4fd2fb76525470f25311c788c5e366e29bf60c438c4ac0b440e
+        value: "{ENV(BALLOON_ENCRYPTION_KEY,3140040033da9bd0dedd8babc8b89cda7f2132dd5009cc43c619382863d0c75e172ebf18e713e1987f35d6ea3ace43b561c50d9aefc4441a8c4418f6928a70e4655de5a9660cd323de63b4fd2fb76525470f25311c788c5e366e29bf60c438c4ac0b440e)}"
 Balloon\Converter:
   calls:
     Balloon\Converter\Adapter\ImagickImage:
@@ -180,18 +174,50 @@ Balloon\Converter:
       method: injectAdapter
       arguments:
         adapter: '{Balloon\Converter\Adapter\Office}'
+    Balloon\App\Office\Converter\Adapter\Office:
+      method: injectAdapter
+      arguments:
+        adapter: '{Balloon\App\Office\Converter\Adapter\Office}'
+    Balloon\App\Burl\Converter\Adapter\Office:
+      method: injectAdapter
+      arguments:
+        adapter: '{Balloon\App\Burl\Converter\Adapter\Burl}'
   services:
     Balloon\Converter\Adapter\ImagickImage:
       arguments:
         config:
-          preview_max_size: 300
-    Balloon\Converter\Adapte\Office:
+          preview_max_size: 500
+    Balloon\Converter\Adapter\Office:
       arguments:
         config:
           preview_max_size: 500
           timeout: 10
           tmp: "/tmp"
           soffice: "/usr/bin/soffice"
+    Balloon\App\Office\Converter\Adapter\Office:
+      arguments:
+        config:
+          preview_max_size: 500
+      services:
+        GuzzleHttp\ClientInterface:
+          arguments:
+            config:
+              base_uri: {ENV(BALLOON_LIBREOFFICE_URL,https://libreoffice:9980)}
+              connect_timeout: 3
+              timeout: 10
+              verify: false
+    Balloon\App\Burl\Converter\Adapter\Burl:
+      arguments:
+        config:
+          preview_max_size: 500
+      services:
+        GuzzleHttp\ClientInterface:
+          arguments:
+            config:
+              base_uri: "{ENV(BALLOON_BURL_BROWSERLESS_URL,https://chrome.browserless.io)}"
+              connect_timeout: 3
+              timeout: 10
+              verify: false
 Psr\Log\LoggerInterface:
   use: "Monolog\\Logger"
   arguments:
@@ -254,7 +280,6 @@ Micro\Auth\Auth:
       method: injectAdapter
       arguments:
         adapter: '{basic_db}'
-
   services:
     basic_db:
       use: "Balloon\\Auth\\Adapter\\Basic\\Db"

@@ -1,20 +1,19 @@
 apiVersion: apps/v1beta1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: es-data
+  name: es-client
   namespace: balloon
   labels:
     component: elasticsearch
-    role: data
+    role: client
     k8s-app: elasticsearch
 spec:
-  serviceName: elasticsearch-data
-  replicas: 3
+  replicas: 6
   template:
     metadata:
       labels:
         component: elasticsearch
-        role: data
+        role: client
         k8s-app: elasticsearch
     spec:
       affinity:
@@ -27,7 +26,7 @@ spec:
                 - key: role
                   operator: In
                   values:
-                  - data
+                  - client
               topologyKey: kubernetes.io/hostname
       initContainers:
       - name: init-sysctl
@@ -39,8 +38,12 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-data
+      - name: es-client
         image: elasticsearch:6.6.1
+        command:
+        - sh
+        - -c
+        - "echo xpack.security.enabled: false >> /usr/share/elasticsearch/config/elasticsearch.yml; elasticsearch-plugin install --batch https://balloon.gyselroth.net/share/b7a9451cbb7731ed283a1b9c4b41c0b3; /usr/local/bin/docker-entrypoint.sh elasticsearch"
         env:
         - name: NAMESPACE
           valueFrom:
@@ -52,38 +55,38 @@ spec:
               fieldPath: metadata.name
         - name: "cluster.name"
           value: syslog
-        - name: node.master
-          value: "false"
-        - name: node.ingest
-          value: "false"
-        - name: HTTP_ENABLE
+        - name: "node.master"
           value: "false"
         - name: "discovery.zen.ping.unicast.hosts"
           value: "elasticsearch-discovery"
-        - name: "xpack.security.enabled"
+        - name: node.data
           value: "false"
         - name: ES_JAVA_OPTS
           value: -Xms256m -Xmx256m
+        - name: "xpack.security.enabled"
+          value: "false"
         - name: PROCESSORS
           valueFrom:
             resourceFieldRef:
               resource: limits.cpu
         resources:
           limits:
-            cpu: 2
+            cpu: 1
         ports:
+        - containerPort: 9200
+          name: http
         - containerPort: 9300
           name: transport
         volumeMounts:
-        - name: es-data-storage
+        - name: storage
           mountPath: /data
-  volumeClaimTemplates:
-  - metadata:
-      name: es-data-storage
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "generic-nimble"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 100Gi
+        - name: elasticsearch-config
+          mountPath: /usr/share/elasticsearch/config/readonlyrest.yml
+          subPath: readonlyrest.yml
+      volumes:
+          - emptyDir:
+              medium: ""
+            name: storage
+          - name: elasticsearch-config
+            configMap:
+              name: elasticsearch-config

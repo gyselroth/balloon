@@ -1,0 +1,13 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: libreoffice-converter
+  namespace: balloon
+spec:
+  maxReplicas: 8
+  minReplicas: 4
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: libreoffice-converter
+  targetCPUUtilizationPercentage: 80

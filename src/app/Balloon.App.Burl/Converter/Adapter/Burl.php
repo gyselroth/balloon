@@ -48,20 +48,6 @@ class Burl implements AdapterInterface
     protected $logger;
 
     /**
-     * Browserlerss microservice url.
-     *
-     * @var string
-     */
-    protected $browserlessUrl = 'https://chrome.browserless.io';
-
-    /**
-     * Timeout.
-     *
-     * @var string
-     */
-    protected $timeout = '10';
-
-    /**
      * Formats.
      *
      * @var array
@@ -85,7 +71,7 @@ class Burl implements AdapterInterface
     /**
      * Initialize.
      */
-    public function __construct(GuzzleHttpClientInterface $client, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(GuzzleHttpClientInterface $client, LoggerInterface $logger, array $config = [])
     {
         $this->client = $client;
         $this->logger = $logger;
@@ -95,30 +81,10 @@ class Burl implements AdapterInterface
     /**
      * Set options.
      */
-    public function setOptions(Iterable $config = null): AdapterInterface
+    public function setOptions(array $config = []): AdapterInterface
     {
-        if (null === $config) {
-            return $this;
-        }
-
         foreach ($config as $option => $value) {
             switch ($option) {
-                case 'browserlessUrl':
-                    if (!filter_var($value, FILTER_VALIDATE_URL)) {
-                        throw new Exception('browserlessUrl option must be a valid url to a browserless instance');
-                    }
-
-                    $this->browserlessUrl = (string) $value;
-
-                    break;
-                case 'timeout':
-                    if (!is_numeric($value)) {
-                        throw new Exception('timeout option must be a number');
-                    }
-
-                    $this->timeout = (string) $value;
-
-                    break;
                 case 'preview_max_size':
                     $this->preview_max_size = (int) $value;
 
@@ -223,13 +189,13 @@ class Burl implements AdapterInterface
             $options['quality'] = 75;
         }
 
-        $this->logger->debug('request screenshot from ['.$this->browserlessUrl.'/screenshot'.'] using url ['.$url.']', [
+        $this->logger->debug('request screenshot from [/screenshot] using url ['.$url.']', [
             'category' => get_class($this),
         ]);
 
         $response = $this->client->request(
             'POST',
-            $this->browserlessUrl.'/screenshot',
+            'screenshot',
             [
                 'connect_timeout' => $this->timeout,
                 'timeout' => $this->timeout,
@@ -248,13 +214,13 @@ class Burl implements AdapterInterface
      */
     protected function getPdf(string $url)
     {
-        $this->logger->debug('request pdf from ['.$this->browserlessUrl.'/pdf'.'] using url ['.$url.']', [
+        $this->logger->debug('request pdf from [/pdf] using url ['.$url.']', [
             'category' => get_class($this),
         ]);
 
         $response = $this->client->request(
             'POST',
-            $this->browserlessUrl.'/pdf',
+            'pdf',
             [
                 'json' => [
                     'url' => $url,
