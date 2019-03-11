@@ -44,6 +44,7 @@ class Office extends Soffice
         $this->client = $client;
         $this->logger = $logger;
         $this->setOptions($config);
+        parent::__construct($logger);
     }
 
     /**

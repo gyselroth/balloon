@@ -204,7 +204,7 @@ class Burl implements AdapterInterface
             ]
         );
 
-        $this->logger->debu('screenshot create request ended with status code ['.$response->getStatusCode().']', [
+        $this->logger->debug('screenshot create request ended with status code ['.$response->getStatusCode().']', [
             'category' => get_class($this),
         ]);
 

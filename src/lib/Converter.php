@@ -35,7 +35,7 @@ class Converter
     /**
      * Initialize.
      */
-    public function __construct(LoggerInterface $logger, array $config = [])
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
