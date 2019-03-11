@@ -25,18 +25,19 @@ RUN pecl install mongodb \
     && docker-php-ext-enable mongodb apcu imagick smbclient
 
 RUN mkdir /usr/share/balloon && mkdir /usr/share/balloon/bin/console -p && mkdir /etc/balloon
-COPY src/lib /usr/share/balloon/src
-COPY src/app /usr/share/balloon/src
-COPY vendor /usr/share/balloon/src
+COPY src/lib /usr/share/balloon/src/lib
+COPY src/app /usr/share/balloon/src/app
+COPY vendor /usr/share/balloon/vendor
 COPY src/.container.config.php /usr/share/balloon/src
 COPY src/cgi-bin/cli.php /usr/share/balloon/bin/console/ballooncli
-COPY src/httpdocs /usr/share/balloon/bin
+COPY src/httpdocs /usr/share/balloon/bin/httpdocs
 COPY config/config.yaml.dist /etc/balloon/
 COPY config/config.yaml.docker.dist /etc/balloon/config.docker.yaml
+RUN ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
 
 ENV BALLOON_PATH /usr/share/balloon
 ENV BALLOON_DIR_CONFIG /etc/balloon
-ENV BALLOON_DIR_LOG /var/log/balloon
 
 EXPOSE 443 9000
-CMD nohup ballooncli jobs listen -vv && service nginx start && php-fpm;
+CMD sleep 300
+#CMD nohup ballooncli jobs listen -vv && service nginx start && php-fpm;
