@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Markdown\Converter\Adapter;
 
-use Balloon\Converter\Adapter\Office;
+use Balloon\App\Office\Converter\Adapter\Office;
 use Balloon\Converter\Exception;
 use Balloon\Filesystem\Node\File;
 use Psr\Log\LoggerInterface;
