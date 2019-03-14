@@ -416,6 +416,7 @@ paths:
       tags:
         - v2
       summary: Get summary of node usage.
+      operationId: getNodeAttributeSummary
       parameters:
         - name: user
           in: path
@@ -500,7 +501,8 @@ paths:
     post:
       tags:
         - v2
-      summary: "Restore deleted user "
+      summary: Restore deleted user
+      operationId: undeleteUser
       parameters:
         - name: user
           in: path
@@ -622,6 +624,7 @@ paths:
       tags:
         - ballon_app_elasticsearch_v2
       summary: Extended search query using elasticsearch
+      operationId: queryElasticsearch
       parameters:
         - name: query
           in: query
@@ -949,6 +952,7 @@ paths:
       tags:
         - balloon_app_convert_v2
       summary: Get supported file formats to convert to (formats do vary between files)
+      operationId: getSupportedFormats
       parameters:
         - name: file
           in: path
@@ -1714,6 +1718,7 @@ paths:
         - v2
       summary: Upload an entire file in one-shot. Use this endpoint only for small
         files, for bigger files use the chunking endpoint.
+      operationId: uploadFile
       requestBody:
         content:
           application/json:
@@ -1789,6 +1794,7 @@ paths:
         uploading the last chunk, the server will automatically create or update
         the file node. You may set the parent collection, name and or custom
         attributes only with the last request to save traffic.
+      operationId: uploadChunk
       requestBody:
         content:
           application/json:
@@ -2046,10 +2052,11 @@ paths:
     get:
       tags:
         - v2
-      summary: "Use this method to request the latest cursor if you only need to now if
+      summary: Use this method to request the latest cursor if you only need to now if
         there are changes on the server. This method will not return any other
         data than the newest cursor. To request a feed with all deltas request
-        /delta. "
+        /delta.
+      operationId: getLastCursor
       responses:
         "200":
           description: Cursor
@@ -2061,8 +2068,8 @@ paths:
     get:
       tags:
         - v2
-      summary: Download node contents. Note that collections are zipped in a realtime
-        stream.
+      summary: Download node contents. Note that collections are zipped on-the-fly.
+      operationId: downloadNode
       parameters:
         - name: node
           in: path
@@ -2103,6 +2110,7 @@ paths:
       tags:
         - v2
       summary: Delta stream with cursor support.
+      operationId: getDelta
       parameters:
         - name: limit
           in: query
@@ -2300,8 +2308,9 @@ paths:
     get:
       tags:
         - ballon_app_preview_v2
-      summary: "Get a preview of the files content. The body either contains an encoded
-        string or a jpeg binary "
+      summary: Get a preview of the files content. The body either contains an encoded
+        string or a jpeg binary.
+      operationId: getPreview
       parameters:
         - name: file
           in: path
