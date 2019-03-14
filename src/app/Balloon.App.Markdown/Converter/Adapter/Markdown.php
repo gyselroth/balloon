@@ -13,7 +13,6 @@ namespace Balloon\App\Markdown\Converter\Adapter;
 
 use Balloon\Converter\Adapter\Office;
 use Balloon\Converter\Exception;
-use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use Psr\Log\LoggerInterface;
 
@@ -102,7 +101,7 @@ class Markdown extends Office
     /**
      * {@inheritdoc}
      */
-    public function createPreview(File $file): Result
+    public function createPreview(File $file)
     {
         return parent::createPreviewFromStream(
             $this::getStreamFromString($this->parseMarkdownToHtml($file))
@@ -112,7 +111,7 @@ class Markdown extends Office
     /**
      * {@inheritdoc}
      */
-    public function convert(File $file, string $format): Result
+    public function convert(File $file, string $format)
     {
         $tmpHtmlFile = $this::getStreamFromString($this->parseMarkdownToHtml($file));
         if ('html' === $format) {
