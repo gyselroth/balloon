@@ -2,14 +2,12 @@ vendor
 config/config.yaml
 config/php.ini
 build
-build_apidoc
 apidoc
 dist
 log/*
 lib_dev
 node_modules
 composer.lock
-package-lock.json
 .php_cs.cache
 .phpstan.lock
 .phpunit.lock

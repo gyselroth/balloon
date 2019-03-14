@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Api\v2;
 
-use Balloon\App\Api\Controller;
 use Balloon\App\Notification\AttributeDecorator as NotificationAttributeDecorator;
 use Balloon\App\Notification\Notifier;
 use Balloon\Async\Mail;
@@ -30,7 +29,7 @@ use Zend\Mail\Message;
 use Zend\Mime\Message as MimeMessage;
 use Zend\Mime\Part as MimePart;
 
-class Notifications extends Controller
+class Notifications
 {
     /**
      * Notifier.

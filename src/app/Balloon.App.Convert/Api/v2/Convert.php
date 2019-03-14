@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Convert\Api\v2;
 
-use Balloon\App\Api\Controller;
 use Balloon\App\Convert\AttributeDecorator as ConvertAttributeDecorator;
 use Balloon\App\Convert\Converter;
 use Balloon\AttributeDecorator\Pager;
@@ -21,7 +20,7 @@ use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
-class Convert extends Controller
+class Convert
 {
     /**
      * Converter.
@@ -57,9 +56,9 @@ class Convert extends Controller
     /**
      * Get supported formats.
      */
-    public function getSupportedFormats(?string $id = null, ?string $p = null): Response
+    public function getSupportedFormats(string $id): Response
     {
-        $file = $this->fs->getNode($id, $p, File::class);
+        $file = $this->fs->getNode($id, File::class);
         $result = $this->converter->getSupportedFormats($file);
 
         return (new Response())->setCode(200)->setBody($result);
@@ -68,9 +67,9 @@ class Convert extends Controller
     /**
      * Get slaves.
      */
-    public function getSlaves(?string $id = null, ?string $p = null, array $attributes = [], ?int $offset = 0, ?int $limit = 20): Response
+    public function getSlaves(string $id, array $attributes = [], ?int $offset = 0, ?int $limit = 20): Response
     {
-        $file = $this->fs->getNode($id, $p, File::class);
+        $file = $this->fs->getNode($id, File::class);
         $result = $this->converter->getSlaves($file, $offset, $limit, $total);
         $uri = '/api/v2/files/'.$file->getId().'/convert/slaves';
         $pager = new Pager($this->convert_decorator, $result, $attributes, $offset, $limit, $uri, $total);
@@ -82,9 +81,9 @@ class Convert extends Controller
     /**
      * Add new slave.
      */
-    public function postSlaves(string $format, ?string $id = null, ?string $p = null): Response
+    public function postSlaves(string $format, string $id): Response
     {
-        $file = $this->fs->getNode($id, $p, File::class);
+        $file = $this->fs->getNode($id);
         $id = $this->converter->addSlave($file, $format);
         $result = $this->convert_decorator->decorate($this->converter->getSlave($id));
 
@@ -94,7 +93,7 @@ class Convert extends Controller
     /**
      * Delete slave.
      */
-    public function deleteSlaves(ObjectId $slave, ?string $id = null, ?string $p = null, bool $node = false): Response
+    public function deleteSlaves(ObjectId $slave, string $id, bool $node = false): Response
     {
         $this->converter->deleteSlave($slave, $node);
 

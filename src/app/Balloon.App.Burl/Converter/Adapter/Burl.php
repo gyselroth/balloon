@@ -13,10 +13,8 @@ namespace Balloon\App\Burl\Converter\Adapter;
 
 use Balloon\Converter\Adapter\AdapterInterface;
 use Balloon\Converter\Exception;
-use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
-use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\StreamWrapper;
 use Imagick;
 use Psr\Log\LoggerInterface;
@@ -50,20 +48,6 @@ class Burl implements AdapterInterface
     protected $logger;
 
     /**
-     * Browserlerss microservice url.
-     *
-     * @var string
-     */
-    protected $browserlessUrl = 'https://chrome.browserless.io';
-
-    /**
-     * Timeout.
-     *
-     * @var string
-     */
-    protected $timeout = '10';
-
-    /**
      * Formats.
      *
      * @var array
@@ -86,10 +70,8 @@ class Burl implements AdapterInterface
 
     /**
      * Initialize.
-     *
-     * @param iterable $config
      */
-    public function __construct(GuzzleHttpClientInterface $client, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(GuzzleHttpClientInterface $client, LoggerInterface $logger, array $config = [])
     {
         $this->client = $client;
         $this->logger = $logger;
@@ -98,33 +80,11 @@ class Burl implements AdapterInterface
 
     /**
      * Set options.
-     *
-     * @param iterable $config
      */
-    public function setOptions(Iterable $config = null): AdapterInterface
+    public function setOptions(array $config = []): AdapterInterface
     {
-        if (null === $config) {
-            return $this;
-        }
-
         foreach ($config as $option => $value) {
             switch ($option) {
-                case 'browserlessUrl':
-                    if (!filter_var($value, FILTER_VALIDATE_URL)) {
-                        throw new Exception('browserlessUrl option must be a valid url to a browserless instance');
-                    }
-
-                    $this->browserlessUrl = (string) $value;
-
-                    break;
-                case 'timeout':
-                    if (!is_numeric($value)) {
-                        throw new Exception('timeout option must be a number');
-                    }
-
-                    $this->timeout = (string) $value;
-
-                    break;
                 case 'preview_max_size':
                     $this->preview_max_size = (int) $value;
 
@@ -170,14 +130,18 @@ class Burl implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createPreview(File $file): Result
+    public function createPreview(File $file)
     {
         try {
-            $imageFile = $this->getImage(\stream_get_contents($file->get()), self::PREVIEW_FORMAT);
+            $result = $this->getImage(\stream_get_contents($file->get()), self::PREVIEW_FORMAT);
         } catch (Exception $e) {
             throw new Exception('failed create preview');
         }
-        $image = new Imagick($imageFile->getPath());
+
+        $desth = tmpfile();
+        stream_copy_to_stream($result, $desth);
+        $dest = stream_get_meta_data($desth)['uri'];
+        $image = new Imagick($dest);
 
         $width = $image->getImageWidth();
         $height = $image->getImageHeight();
@@ -188,15 +152,16 @@ class Burl implements AdapterInterface
             $image->scaleImage(0, $this->preview_max_size);
         }
 
-        $image->writeImage($imageFile->getPath());
+        $image->writeImage($dest);
+        rewind($desth);
 
-        return $imageFile;
+        return $desth;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function convert(File $file, string $format): Result
+    public function convert(File $file, string $format)
     {
         switch ($format) {
             case 'pdf':
@@ -214,7 +179,7 @@ class Burl implements AdapterInterface
     /**
      * Get screenshot of url.
      */
-    protected function getImage(string $url, string $format): Result
+    protected function getImage(string $url, string $format)
     {
         $options = [
             'fullPage' => false,
@@ -224,16 +189,14 @@ class Burl implements AdapterInterface
             $options['quality'] = 75;
         }
 
-        $this->logger->debug('request screenshot from ['.$this->browserlessUrl.'/screenshot'.'] using url ['.$url.']', [
+        $this->logger->debug('request screenshot from [/screenshot] using url ['.$url.']', [
             'category' => get_class($this),
         ]);
 
         $response = $this->client->request(
             'POST',
-            $this->browserlessUrl.'/screenshot',
+            'screenshot',
             [
-                'connect_timeout' => $this->timeout,
-                'timeout' => $this->timeout,
                 'json' => [
                     'url' => $url,
                     'options' => $options,
@@ -241,21 +204,25 @@ class Burl implements AdapterInterface
             ]
         );
 
-        return $this->getResponseIntoResult($response, $format);
+        $this->logger->debug('screenshot create request ended with status code ['.$response->getStatusCode().']', [
+            'category' => get_class($this),
+        ]);
+
+        return StreamWrapper::getResource($response->getBody());
     }
 
     /**
      * Get pdf of url contents.
      */
-    protected function getPdf(string $url): Result
+    protected function getPdf(string $url)
     {
-        $this->logger->debug('request pdf from ['.$this->browserlessUrl.'/pdf'.'] using url ['.$url.']', [
+        $this->logger->debug('request pdf from [/pdf] using url ['.$url.']', [
             'category' => get_class($this),
         ]);
 
         $response = $this->client->request(
             'POST',
-            $this->browserlessUrl.'/pdf',
+            'pdf',
             [
                 'json' => [
                     'url' => $url,
@@ -267,23 +234,10 @@ class Burl implements AdapterInterface
             ]
         );
 
-        return $this->getResponseIntoResult($response, 'pdf');
-    }
+        $this->logger->debug('pdf create request ended with status code ['.$response->getStatusCode().']', [
+            'category' => get_class($this),
+        ]);
 
-    /**
-     * Turn PSR7-Response into a Result.
-     */
-    protected function getResponseIntoResult(Response $response, string $format): Result
-    {
-        $desth = tmpfile();
-        $dest = stream_get_meta_data($desth)['uri'];
-
-        stream_copy_to_stream(StreamWrapper::getResource($response->getBody()), $desth);
-
-        if (!file_exists($dest) || filesize($dest) <= 0) {
-            throw new Exception('failed get '.$format);
-        }
-
-        return new Result($dest, $desth);
+        return StreamWrapper::getResource($response->getBody());
     }
 }

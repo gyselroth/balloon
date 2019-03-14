@@ -312,6 +312,9 @@ class Server
                     }
 
                 break;
+                case 'google_auth_secret':
+                break;
+                case 'multi_factor_auth':
                 case 'admin':
                     $value = (bool) $value;
 
@@ -330,15 +333,6 @@ class Server
                         throw new User\Exception\InvalidArgument(
                             'namespace must be a valid string',
                             User\Exception\InvalidArgument::INVALID_NAMESPACE
-                        );
-                    }
-
-                break;
-                case 'optional':
-                    if (!is_array($value)) {
-                        throw new User\Exception\InvalidArgument(
-                            'optional user attributes must be an array',
-                            User\Exception\InvalidArgument::INVALID_OPTIONAL
                         );
                     }
 
@@ -427,7 +421,7 @@ class Server
             throw new User\Exception\NotFound('user does not exists');
         }
 
-        $user = new User(array_shift($users), $this, $this->db, $this->logger);
+        $user = new User(array_shift($users), $this, $this->db, $this->hook, $this->logger);
 
         if ($this->identity !== null) {
             $this->cache[(string) $id] = $user;
@@ -457,7 +451,7 @@ class Server
         $users = $this->db->user->aggregate($aggregation);
 
         foreach ($users as $attributes) {
-            yield new User($attributes, $this, $this->db, $this->logger);
+            yield new User($attributes, $this, $this->db, $this->hook, $this->logger);
         }
     }
 
@@ -522,7 +516,7 @@ class Server
             throw new User\Exception\NotFound('user does not exists');
         }
 
-        return new User(array_shift($users), $this, $this->db, $this->logger);
+        return new User(array_shift($users), $this, $this->db, $this->hook, $this->logger);
     }
 
     /**
@@ -563,7 +557,7 @@ class Server
         $users = $this->db->user->aggregate($aggregation);
 
         foreach ($users as $attributes) {
-            yield new User($attributes, $this, $this->db, $this->logger);
+            yield new User($attributes, $this, $this->db, $this->hook, $this->logger);
         }
 
         return $this->db->user->count($filter);

@@ -4,6 +4,7 @@ metadata:
   annotations:
   labels:
     k8s-app: libreoffice
+    component: wopi
   name: libreoffice
   namespace: balloon
 spec:
@@ -11,6 +12,7 @@ spec:
   selector:
     matchLabels:
       k8s-app: libreoffice
+      component: wopi
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -21,12 +23,13 @@ spec:
       creationTimesdomainp: null
       labels:
         k8s-app: libreoffice
+        component: wopi
     spec:
       containers:
       - env:
         - name: domain
           value: web
-        image: collabora/code
+        image: collabora/code:4.0.1.1
         imagePullPolicy: IfNotPresent
         name: libreoffice
         ports:

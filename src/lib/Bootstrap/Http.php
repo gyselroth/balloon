@@ -15,6 +15,7 @@ use Balloon\Hook;
 use Balloon\Server;
 use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Auth\Auth;
+use Micro\Http\ExceptionInterface;
 use Micro\Http\Response;
 use Micro\Http\Router;
 use MongoDB\BSON\Binary;
@@ -138,8 +139,13 @@ class Http extends AbstractBootstrap
                 'exception' => $e,
             ]);
 
+            $code = 500;
+            if ($e instanceof ExceptionInterface) {
+                $code = $e->getStatusCode();
+            }
+
             (new Response())
-                ->setCode(500)
+                ->setCode($code)
                 ->setBody([
                     'error' => get_class($e),
                     'message' => $e->getMessage(),

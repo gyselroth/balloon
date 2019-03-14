@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Api\v2;
 
-use Balloon\App\Api\Controller;
+use Balloon\App\Api\v2\Controller;
 use Balloon\App\Notification\Notifier;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
@@ -52,16 +52,13 @@ class Subscription extends Controller
 
     /**
      * Subscribe to node updates.
-     *
-     * @param null|mixed $id
-     * @param null|mixed $p
      */
-    public function post($id = null, $p = null, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false)
+    public function post($id, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false)
     {
         $node_decorator = $this->node_decorator;
         $notifier = $this->notifier;
 
-        return $this->bulk($id, $p, function ($node) use ($node_decorator, $notifier, $subscribe, $exclude_me, $recursive) {
+        return $this->bulk($id, function ($node) use ($node_decorator, $notifier, $subscribe, $exclude_me, $recursive) {
             $notifier->subscribeNode($node, $subscribe, $exclude_me, $recursive);
 
             return [

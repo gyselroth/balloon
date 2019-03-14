@@ -6,11 +6,11 @@ metadata:
   labels:
     component: elasticsearch
     role: data
+    k8s-app: elasticsearch
 spec:
   ports:
   - port: 9300
     name: transport
-  clusterIP: None
   selector:
     component: elasticsearch
     role: data

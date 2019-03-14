@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Office\Api\v2;
 
-use Balloon\App\Api\Controller;
 use Balloon\App\Office\Constructor\Http as App;
 use Balloon\App\Office\Document;
 use Balloon\App\Office\Session as WopiSession;
@@ -22,7 +21,7 @@ use Balloon\Server;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
-class Sessions extends Controller
+class Sessions
 {
     /**
      * App.
@@ -56,32 +55,11 @@ class Sessions extends Controller
     }
 
     /**
-     * @api {post} /api/v2/office/sessions Create session
-     * @apiName post
-     * @apiVersion 2.0.0
-     * @apiGroup App\Office
-     * @apiPermission none
-     * @apiUse _getNode
-     * @apiDescription Create new session for a document
-     *
-     * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/office/session?id=58a18a4ca271f962af6fdbc4"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 201 Created
-     * {
-     *      "id": "544627ed3c58891f058bbbaa",
-     *      "wopi_url": "https://localhost",
-     *      "access_token": "544627ed3c58891f058b4622",
-     *      "access_token_ttl": "1486989000"
-     * }
-     *
-     * @param string $id
-     * @param string $p
+     * Create session.
      */
-    public function post(?string $id = null, ?string $p = null): Response
+    public function post(string $id): Response
     {
-        $node = $this->fs->getNode($id, $p, File::class);
+        $node = $this->fs->getNode($id, File::class);
         $document = new Document($this->fs->getDatabase(), $node);
         $ttl = $this->app->getTokenTtl();
 
@@ -99,25 +77,7 @@ class Sessions extends Controller
     }
 
     /**
-     * @api {post} /api/v2/office/sessions/:id/join Join session
-     * @apiName postJoin
-     * @apiVersion 2.0.0
-     * @apiGroup App\Office
-     * @apiPermission none
-     * @apiDescription Join running session
-     * @apiParam (GET Parameter) {string} session_id The session id to join to
-     *
-     * @apiExample (cURL) example:
-     * curl -XPOST "https://SERVER/api/v2/office/session/join?session_id=58a18a4ca271f962af6fdbc4"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "id": "544627ed3c58891f058bbbaa",
-     *      "wopi_url": "https://localhost",
-     *      "access_token": "544627ed3c58891f058b4622",
-     *      "access_token_ttl": "1486989000"
-     * }
+     * Join session.
      */
     public function postJoin(ObjectId $id): Response
     {
@@ -136,21 +96,7 @@ class Sessions extends Controller
     }
 
     /**
-     * @api {delete} /api/v2/office/session/:id Delete session
-     * @apiName delete
-     * @apiVersion 2.0.0
-     * @apiGroup App\Office
-     * @apiPermission none
-     * @apiDescription Delete a running session. If more members are active in the requested session than only the membership gets removed.
-     * The session gets completely removed if only one member exists.
-     * @apiParam (GET Parameter) {string} session_id The session id to delete
-     * @apiParam (GET Parameter) {string} access_token Access token
-     *
-     * @apiExample (cURL) example:
-     * curl -XDELETE "https://SERVER/api/v2/office/session?session_id=58a18a4ca271f962af6fdbc4&access_token=97223329239823bj223232323"
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 204 OK
+     * Delete session.
      */
     public function delete(ObjectId $id, string $access_token): Response
     {

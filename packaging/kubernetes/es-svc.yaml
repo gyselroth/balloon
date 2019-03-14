@@ -5,12 +5,13 @@ metadata:
   namespace: balloon
   labels:
     component: elasticsearch
-    role: data
+    role: client
+    k8s-app: elasticsearch
 spec:
   selector:
     component: elasticsearch
-    role: data
+    role: client
   ports:
   - name: http
     port: 9200
-#type: LoadBalancer
+  type: NodePort

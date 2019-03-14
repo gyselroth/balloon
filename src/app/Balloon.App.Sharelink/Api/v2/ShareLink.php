@@ -11,14 +11,13 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink\Api\v2;
 
-use Balloon\App\Api\Controller;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Server;
 use Micro\Http\Response;
 
-class ShareLink extends Controller
+class ShareLink
 {
     /**
      * Sharelink.
@@ -54,9 +53,9 @@ class ShareLink extends Controller
     /**
      * Create share link.
      */
-    public function post(?string $id = null, ?string $p = null, ?string $password = null, ?string $expiration = null): Response
+    public function post(string $id = null, ?string $password = null, ?string $expiration = null): Response
     {
-        $node = $this->fs->getNode($id, $p);
+        $node = $this->fs->getNode($id);
         $this->sharelink->shareLink($node, $expiration, $password);
         $result = $this->node_decorator->decorate($node);
 
@@ -66,9 +65,9 @@ class ShareLink extends Controller
     /**
      * Delete share link.
      */
-    public function delete(?string $id = null, ?string $p = null): Response
+    public function delete(string $id): Response
     {
-        $node = $this->fs->getNode($id, $p);
+        $node = $this->fs->getNode($id);
         $this->sharelink->deleteShareLink($node);
 
         return (new Response())->setCode(204);

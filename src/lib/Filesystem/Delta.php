@@ -306,12 +306,22 @@ class Delta
         }
 
         $cursor = base64_encode('delta|'.$query['cursor'].'|0|'.$query['last_id'].'|'.$query['last_ts']);
+        $nodes = array_values($delta);
+        $reset = false;
+
+        if ($query['has_more'] === true && count($nodes) < $limit) {
+            $next = $this->getDeltaFeed($cursor, $limit - count($nodes), $node);
+            $cursor = $next['cursor'];
+            $nodes = array_merge($nodes, $next['nodes']);
+            $reset = $next['reset'];
+            $query['has_more'] = $next['has_more'];
+        }
 
         return [
-            'reset' => false,
+            'reset' => $reset,
             'cursor' => $cursor,
             'has_more' => $query['has_more'],
-            'nodes' => array_values($delta),
+            'nodes' => $nodes,
         ];
     }
 

@@ -249,55 +249,6 @@ class Filesystem
     }
 
     /**
-     * Load node with path.
-     */
-    public function findNodeByPath(string $path = '', ?string $class = null): NodeInterface
-    {
-        if (empty($path) || '/' !== $path[0]) {
-            $path = '/'.$path;
-        }
-
-        $last = strlen($path) - 1;
-        if ('/' === $path[$last]) {
-            $path = substr($path, 0, -1);
-        }
-
-        $parts = explode('/', $path);
-        $parent = $this->getRoot();
-        array_shift($parts);
-        $count = count($parts);
-
-        $i = 0;
-        $filter = [];
-
-        foreach ($parts as $node) {
-            ++$i;
-
-            if ($count === $i && $class !== null) {
-                $filter = [
-                    'directory' => ($class === Collection::class),
-                ];
-            }
-
-            try {
-                $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE, $filter);
-            } catch (Exception\NotFound $e) {
-                if ($count == $i) {
-                    $parent = $parent->getChild($node, NodeInterface::DELETED_INCLUDE, $filter);
-                } else {
-                    throw $e;
-                }
-            }
-        }
-
-        if (null !== $class && !($parent instanceof $class)) {
-            throw new Exception('node is not instance of '.$class);
-        }
-
-        return $parent;
-    }
-
-    /**
      * Load nodes by id.
      */
     public function findNodesById(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): Generator
@@ -355,101 +306,39 @@ class Filesystem
 
     /**
      * Load nodes by id.
-     */
-    public function findNodesByPath(array $path = [], ?string $class = null): Generator
-    {
-        $find = [];
-        foreach ($path as $p) {
-            if (empty($path) || '/' !== $path[0]) {
-                $path = '/'.$path;
-            }
-
-            $last = strlen($path) - 1;
-            if ('/' === $path[$last]) {
-                $path = substr($path, 0, -1);
-            }
-
-            $parts = explode('/', $path);
-            $parent = $this->getRoot();
-            array_shift($parts);
-            foreach ($parts as $node) {
-                $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE);
-            }
-
-            if (null !== $class && !($parent instanceof $class)) {
-                throw new Exception('node is not an instance of '.$class);
-            }
-
-            yield $parent;
-        }
-    }
-
-    /**
-     * Load nodes by id.
      *
      * @param null|mixed $class
      */
-    public function getNodes(?array $id = null, ?array $path = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
+    public function getNodes(?array $id = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
     {
-        if (null === $id && null === $path) {
-            throw new Exception\InvalidArgument('neither parameter id nor p (path) was given');
-        }
-        if (null !== $id && null !== $path) {
-            throw new Exception\InvalidArgument('parameter id and p (path) can not be used at the same time');
-        }
-        if (null !== $id) {
-            if (null === $deleted) {
-                $deleted = NodeInterface::DELETED_INCLUDE;
-            }
-
-            return $this->findNodesById($id, $class, $deleted);
-        }
-        if (null !== $path) {
-            if (null === $deleted) {
-                $deleted = NodeInterface::DELETED_EXCLUDE;
-            }
-
-            return $this->findNodesByPath($path, $class);
-        }
+        return $this->findNodesById($id, $class, $deleted);
     }
 
     /**
      * Load node.
      *
      * @param null|mixed $id
-     * @param null|mixed $path
      * @param null|mixed $class
      */
-    public function getNode($id = null, $path = null, $class = null, bool $multiple = false, bool $allow_root = false, ?int $deleted = null): NodeInterface
+    public function getNode($id = null, $class = null, bool $multiple = false, bool $allow_root = false, ?int $deleted = null): NodeInterface
     {
-        if (empty($id) && empty($path)) {
+        if (empty($id)) {
             if (true === $allow_root) {
                 return $this->getRoot();
             }
 
-            throw new Exception\InvalidArgument('neither parameter id nor p (path) was given');
+            throw new Exception\InvalidArgument('invalid id given');
         }
-        if (null !== $id && null !== $path) {
-            throw new Exception\InvalidArgument('parameter id and p (path) can not be used at the same time');
-        }
-        if (null !== $id) {
-            if (null === $deleted) {
-                $deleted = NodeInterface::DELETED_INCLUDE;
-            }
 
-            if (true === $multiple && is_array($id)) {
-                return $this->findNodesById($id, $class, $deleted);
-            }
-
-            return $this->findNodeById($id, $class, $deleted);
+        if (null === $deleted) {
+            $deleted = NodeInterface::DELETED_INCLUDE;
         }
-        if (null !== $path) {
-            if (null === $deleted) {
-                $deleted = NodeInterface::DELETED_EXCLUDE;
-            }
 
-            return $this->findNodeByPath($path, $class);
+        if (true === $multiple && is_array($id)) {
+            return $this->findNodesById($id, $class, $deleted);
         }
+
+        return $this->findNodeById($id, $class, $deleted);
     }
 
     /**

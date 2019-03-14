@@ -14,6 +14,7 @@ namespace Balloon\Server;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
+use Balloon\Hook;
 use Balloon\Server;
 use Generator;
 use Micro\Auth\Identity;
@@ -88,6 +89,13 @@ class User implements RoleInterface
      * @var bool
      */
     protected $admin = false;
+
+    /**
+     * Multi factor auth.
+     *
+     * @var bool
+     */
+    protected $multi_factor_auth = false;
 
     /**
      * Created.
@@ -167,13 +175,28 @@ class User implements RoleInterface
     protected $identity;
 
     /**
+     * Hook.
+     *
+     * @var Hook
+     */
+    protected $hook;
+
+    /**
+     * Google auth secret.
+     *
+     * @var string
+     */
+    protected $google_auth_secret;
+
+    /**
      * Instance user.
      */
-    public function __construct(array $attributes, Server $server, Database $db, LoggerInterface $logger)
+    public function __construct(array $attributes, Server $server, Database $db, Hook $hook, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->db = $db;
         $this->logger = $logger;
+        $this->hook = $hook;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -242,13 +265,17 @@ class User implements RoleInterface
      */
     public function setAttributes(array $attributes = []): bool
     {
+        $this->hook->run('preUpdateUser', [$this, &$attributes]);
         $attributes = $this->server->validateUserAttributes($attributes);
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
         }
 
-        return $this->save(array_keys($attributes));
+        $result = $this->save(array_keys($attributes));
+        $this->hook->run('postUpdateUser', [$this, $attributes]);
+
+        return $result;
     }
 
     /**
@@ -269,6 +296,8 @@ class User implements RoleInterface
             'mail' => $this->mail,
             'admin' => $this->admin,
             'avatar' => $this->avatar,
+            'multi_factor_auth' => $this->multi_factor_auth,
+            'google_auth_secret' => $this->google_auth_secret,
         ];
     }
 

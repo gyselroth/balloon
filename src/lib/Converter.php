@@ -13,7 +13,6 @@ namespace Balloon;
 
 use Balloon\Converter\Adapter\AdapterInterface;
 use Balloon\Converter\Exception;
-use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use Psr\Log\LoggerInterface;
 
@@ -51,9 +50,6 @@ class Converter
 
     /**
      * Inject adapter.
-     *
-     *
-     * @return Converter
      */
     public function injectAdapter(AdapterInterface $adapter, ?string $name = null): self
     {
@@ -88,9 +84,6 @@ class Converter
 
     /**
      * Get adapters.
-     *
-     *
-     * @return AdapterInterface[]
      */
     public function getAdapters(array $adapters = []): array
     {
@@ -125,7 +118,7 @@ class Converter
     /**
      * Create preview.
      */
-    public function createPreview(File $file): Result
+    public function createPreview(File $file)
     {
         $this->logger->debug('create preview from file ['.$file->getId().']', [
             'category' => get_class($this),
@@ -140,9 +133,10 @@ class Converter
                 if ($adapter->matchPreview($file)) {
                     return $adapter->createPreview($file);
                 }
+
                 $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
-                        'category' => get_class($this),
-                    ]);
+                    'category' => get_class($this),
+                ]);
             } catch (\Exception $e) {
                 $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
                     'category' => get_class($this),
@@ -157,7 +151,7 @@ class Converter
     /**
      * Convert document.
      */
-    public function convert(File $file, string $format): Result
+    public function convert(File $file, string $format)
     {
         $this->logger->debug('convert file ['.$file->getId().'] to format ['.$format.']', [
             'category' => get_class($this),
@@ -172,9 +166,10 @@ class Converter
                 if ($adapter->match($file) && in_array($format, $adapter->getSupportedFormats($file), true)) {
                     return $adapter->convert($file, $format);
                 }
+
                 $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
-                        'category' => get_class($this),
-                    ]);
+                    'category' => get_class($this),
+                ]);
             } catch (\Exception $e) {
                 $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
                     'category' => get_class($this),

@@ -3,23 +3,23 @@ mongodb:
 clamav:
     image: dinkel/clamavd:latest
 libreoffice:
-    image: collabora/code
+    image: collabora/code:4.0.1.1
     ports:
         - "9980:9980"
     links:
         - balloon-dev
     environment:
         - domain=balloon-dev
+    entrypoint:
+        - sh
+        - -c
+        - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
 elasticsearch:
-<<<<<<< HEAD
-    image: gyselroth/balloon-elasticsearch:latest
-=======
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
     #entrypoint:
-    #    - /bin/sh
-    #    - -c
-    #    - elasticsearch-plugin install --batch ingest-attachment && docker-entrypoint.sh
->>>>>>> b94aa4bc... Partially implemented #197
+        #- /bin/sh
+        #- -c
+        #- "elasticsearch-plugin install --batch ingest-attachment && docker-entrypoint.sh"
 postfix:
     image: webuni/postfix
 browserless:
@@ -32,14 +32,16 @@ balloon-dev-jobs:
     links:
         - clamav
         - mongodb
-        - elasticsearch
+          #- elasticsearch
         - postfix
         - browserless
+        - libreoffice
     environment:
         - BALLOON_MONGODB_URI=mongodb://mongodb:27017
         - BALLOON_CLAMAV_URI=tcp://clamav:3310
         - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
         - BALLOON_WOPI_URL=https://balloon-dev
+        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
         - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
@@ -60,6 +62,7 @@ balloon-dev:
         - BALLOON_CLAMAV_URI=tcp://clamav:3310
         - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
         - BALLOON_WOPI_URL=https://balloon-dev
+        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
         - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000

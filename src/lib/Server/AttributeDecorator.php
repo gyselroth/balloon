@@ -12,7 +12,8 @@ declare(strict_types=1);
 namespace Balloon\Server;
 
 use Balloon\AttributeDecorator\AttributeDecoratorInterface;
-use Balloon\Auth\Adapter\Basic\Db;
+use Balloon\Auth\InternalAuthInterface;
+use Balloon\Hook;
 use Balloon\Server;
 use Closure;
 
@@ -26,6 +27,13 @@ class AttributeDecorator implements AttributeDecoratorInterface
     protected $server;
 
     /**
+     * Hook.
+     *
+     * @var Hook
+     */
+    protected $hook;
+
+    /**
      * Custom attributes.
      *
      * @var array
@@ -35,9 +43,10 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Init.
      */
-    public function __construct(Server $server)
+    public function __construct(Server $server, Hook $hook)
     {
         $this->server = $server;
+        $this->hook = $hook;
     }
 
     /**
@@ -57,6 +66,8 @@ class AttributeDecorator implements AttributeDecoratorInterface
             $this->getGroupAttributes($role, $role_attributes),
             $this->custom
         );
+
+        $this->hook->run('preDecorateRole', [$role, &$attrs]);
 
         if (0 === count($attributes)) {
             return $this->translateAttributes($role, $attrs);
@@ -173,7 +184,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
 
-                if ($identity->getAdapter() instanceof Db) {
+                if ($identity->getAdapter() instanceof InternalAuthInterface) {
                     return 'internal';
                 }
 

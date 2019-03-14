@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v2;
 
-use Balloon\App\Api\Controller;
 use Balloon\App\Api\Helper as ApiHelper;
 use Balloon\App\Api\v2\Collections as ApiCollection;
 use Balloon\App\Api\v2\Files as ApiFile;
@@ -84,22 +83,17 @@ class Nodes extends Controller
 
     /**
      * Restore node.
-     *
-     * @param null|mixed $id
-     * @param null|mixed $p
      */
     public function postUndelete(
-        $id = null,
-        $p = null,
+        $id,
         bool $move = false,
         ?string $destid = null,
-        ?string $destp = null,
         int $conflict = 0
     ): Response {
         $parent = null;
         if (true === $move) {
             try {
-                $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
+                $parent = $this->fs->getNode($destid, Collection::class, false, true);
             } catch (Exception\NotFound $e) {
                 throw new Exception\NotFound(
                     'destination collection was not found or is not a collection',
@@ -108,7 +102,7 @@ class Nodes extends Controller
             }
         }
 
-        return $this->bulk($id, $p, function ($node) use ($parent, $conflict, $move) {
+        return $this->bulk($id, function ($node) use ($parent, $conflict, $move) {
             if (true === $move) {
                 $node = $node->setParent($parent, $conflict);
             }
@@ -126,19 +120,17 @@ class Nodes extends Controller
      * Download stream.
      *
      * @param null|mixed $id
-     * @param null|mixed $p
      */
     public function getContent(
         $id = null,
-        $p = null,
         bool $download = false,
         string $name = 'selected'
     ): ?Response {
-        if (is_array($id) || is_array($p)) {
-            return $this->combine($id, $p, $name);
+        if (is_array($id)) {
+            return $this->combine($id, $name);
         }
 
-        $node = $this->_getNode($id, $p);
+        $node = $this->_getNode($id);
         if ($node instanceof Collection) {
             return $node->getZip();
         }
@@ -152,12 +144,11 @@ class Nodes extends Controller
      * Get attributes.
      *
      * @param null|mixed $id
-     * @param null|mixed $p
      * @param null|mixed $query
      */
-    public function get($id = null, $p = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function get($id = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        if ($id === null && $p === null) {
+        if ($id === null) {
             if ($query === null) {
                 $query = [];
             } elseif (is_string($query)) {
@@ -185,7 +176,7 @@ class Nodes extends Controller
             return (new Response())->setCode(200)->setBody($result);
         }
 
-        return $this->bulk($id, $p, function ($node) use ($attributes) {
+        return $this->bulk($id, function ($node) use ($attributes) {
             return [
                 'code' => 200,
                 'data' => $this->node_decorator->decorate($node, $attributes),
@@ -196,10 +187,10 @@ class Nodes extends Controller
     /**
      * Get parent nodes.
      */
-    public function getParents(?string $id = null, ?string $p = null, array $attributes = [], bool $self = false): Response
+    public function getParents(string $id, array $attributes = [], bool $self = false): Response
     {
         $result = [];
-        $request = $this->_getNode($id, $p);
+        $request = $this->_getNode($id);
         $parents = $request->getParents();
 
         if (true === $self && $request instanceof Collection) {
@@ -216,12 +207,12 @@ class Nodes extends Controller
     /**
      * Change attributes.
      */
-    public function patch(?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null, ?string $id = null, ?string $p = null): Response
+    public function patch(string $id, ?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null): Response
     {
         $attributes = compact('name', 'meta', 'readonly', 'filter', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
-        return $this->bulk($id, $p, function ($node) use ($attributes) {
+        return $this->bulk($id, function ($node) use ($attributes) {
             foreach ($attributes as $attribute => $value) {
                 switch ($attribute) {
                     case 'name':
@@ -258,19 +249,14 @@ class Nodes extends Controller
 
     /**
      * Clone node.
-     *
-     * @param null|mixed $id
-     * @param null|mixed $p
      */
     public function postClone(
-        $id = null,
-        $p = null,
+        $id,
         ?string $destid = null,
-        ?string $destp = null,
         int $conflict = 0
     ): Response {
         try {
-            $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
+            $parent = $this->fs->getNode($destid, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
             throw new Exception\NotFound(
                 'destination collection was not found or is not a collection',
@@ -278,7 +264,7 @@ class Nodes extends Controller
             );
         }
 
-        return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {
+        return $this->bulk($id, function ($node) use ($parent, $conflict) {
             $result = $node->copyTo($parent, $conflict);
 
             return [
@@ -290,19 +276,14 @@ class Nodes extends Controller
 
     /**
      * Move node.
-     *
-     * @param null|mixed $id
-     * @param null|mixed $p
      */
     public function postMove(
-        $id = null,
-        $p = null,
+        $id,
         ?string $destid = null,
-        ?string $destp = null,
         int $conflict = 0
     ): Response {
         try {
-            $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
+            $parent = $this->fs->getNode($destid, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
             throw new Exception\NotFound(
                 'destination collection was not found or is not a collection',
@@ -310,7 +291,7 @@ class Nodes extends Controller
             );
         }
 
-        return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {
+        return $this->bulk($id, function ($node) use ($parent, $conflict) {
             $result = $node->setParent($parent, $conflict);
 
             return [
@@ -322,13 +303,9 @@ class Nodes extends Controller
 
     /**
      * Delete node.
-     *
-     * @param null|mixed $id
-     * @param null|mixed $p
      */
     public function delete(
-        $id = null,
-        $p = null,
+        $id,
         bool $force = false,
         bool $ignore_flag = false,
         ?string $at = null
@@ -339,7 +316,7 @@ class Nodes extends Controller
             $at = $this->_verifyAttributes(['destroy' => $at])['destroy'];
         }
 
-        return $this->bulk($id, $p, function ($node) use ($force, $ignore_flag, $at) {
+        return $this->bulk($id, function ($node) use ($force, $ignore_flag, $at) {
             if (null === $at) {
                 $node->delete($force && $node->isDeleted() || $force && $ignore_flag);
             } else {
@@ -398,13 +375,12 @@ class Nodes extends Controller
     public function getDelta(
         DeltaAttributeDecorator $delta_decorator,
         ?string $id = null,
-        ?string $p = null,
         ?string $cursor = null,
         int $limit = 250,
         array $attributes = []
     ): Response {
-        if (null !== $id || null !== $p) {
-            $node = $this->_getNode($id, $p);
+        if (null !== $id) {
+            $node = $this->_getNode($id);
         } else {
             $node = null;
         }
@@ -424,10 +400,10 @@ class Nodes extends Controller
     /**
      * Event log.
      */
-    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, ?string $p = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        if (null !== $id || null !== $p) {
-            $node = $this->_getNode($id, $p);
+        if (null !== $id) {
+            $node = $this->_getNode($id);
             $uri = '/api/v2/nodes/'.$node->getId().'/event-log';
         } else {
             $node = null;
@@ -443,10 +419,10 @@ class Nodes extends Controller
     /**
      * Get last Cursor.
      */
-    public function getLastCursor(?string $id = null, ?string $p = null): Response
+    public function getLastCursor(?string $id = null): Response
     {
-        if (null !== $id || null !== $p) {
-            $node = $this->_getNode($id, $p);
+        if (null !== $id) {
+            $node = $this->_getNode($id);
         } else {
             $node = null;
         }
@@ -460,13 +436,12 @@ class Nodes extends Controller
      * Merge multiple nodes into one zip archive.
      *
      * @param null|mixed $id
-     * @param null|mixed $path
      */
-    protected function combine($id = null, $path = null, string $name = 'selected')
+    protected function combine($id = null, string $name = 'selected')
     {
         $archive = new ZipStream($name.'.zip');
 
-        foreach ($this->_getNodes($id, $path) as $node) {
+        foreach ($this->_getNodes($id) as $node) {
             try {
                 $node->zip($archive);
                 //json_decode($stored, true),

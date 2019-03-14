@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: libreoffice
+    component: converter
+  name: libreoffice-converter
+  namespace: balloon
+spec:
+  ports:
+  - name: "http"
+    port: 9980
+    protocol: TCP
+    targetPort: 9980
+  selector:
+    k8s-app: libreoffice
+    component: converter
+  sessionAffinity: None
+  type: ClusterIP

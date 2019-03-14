@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\Converter\Adapter;
 
 use Balloon\Converter\Exception;
-use Balloon\Converter\Result;
 use Balloon\Filesystem\Node\File;
 use Imagick;
 use Psr\Log\LoggerInterface;
@@ -129,7 +128,7 @@ class ImagickImage implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createPreview(File $file): Result
+    public function createPreview(File $file)
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
@@ -157,13 +156,13 @@ class ImagickImage implements AdapterInterface
             throw new Exception('failed convert file');
         }
 
-        return new Result($dest, $desth);
+        return $desth;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function convert(File $file, string $format): Result
+    public function convert(File $file, string $format)
     {
         $sourceh = tmpfile();
         $source = stream_get_meta_data($sourceh)['uri'];
@@ -180,6 +179,6 @@ class ImagickImage implements AdapterInterface
             throw new Exception('failed convert file');
         }
 
-        return new Result($dest, $desth);
+        return $desth;
     }
 }

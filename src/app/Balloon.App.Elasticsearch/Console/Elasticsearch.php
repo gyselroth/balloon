@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Elasticsearch\Console;
 
 use Balloon\App\Elasticsearch\Job;
+use Balloon\Filesystem;
 use Balloon\Server;
 use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;

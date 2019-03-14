@@ -7,7 +7,6 @@ CORE_DIR = $(SRC_DIR)/lib
 CORE_API_DIR = $(SRC_DIR)/app
 CONFIG_DIR = $(BASE_DIR)/config
 VENDOR_DIR = $(BASE_DIR)/vendor
-NODE_MODULES_DIR = $(BASE_DIR)/node_modules
 TESTS_DIR = $(BASE_DIR)/tests
 UNITTESTS_DIR = $(TESTS_DIR)/Unit
 DIST_DIR = $(BASE_DIR)/dist
@@ -42,14 +41,12 @@ PHPSTAN_LOCK = $(BASE_DIR)/.phpstan.lock
 
 # TARGET ALIASES
 INSTALL_TARGET = "$(INSTALL_PREFIX)usr/share/balloon"
-NPM_TARGET = $(NODE_MODULES_DIR)
 COMPOSER_TARGET = $(COMPOSER_LOCK)
-APIDOC_TARGET = $(DOC_DIR)
 PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
 CHANGELOG_TARGET = $(BUILD_DIR)/DEBIAN/changelog
-BUILD_TARGET = $(COMPOSER_TARGET) $(NPM_TARGET) $(PHPCS_CHECK_TARGET) $(PHPUNIT_TARGET) $(PHPSTAN_TARGET) $(APIDOC_TARGET)
+BUILD_TARGET = $(COMPOSER_TARGET) $(PHPCS_CHECK_TARGET) $(PHPUNIT_TARGET) $(PHPSTAN_TARGET)
 
 # MACROS
 macro_find_phpfiles = $(shell find $(1) -type f -name "*.php")
@@ -75,7 +72,6 @@ clean: mostlyclean
 mostlyclean:
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
-	@-test ! -d $(NODE_MODULES_DIR) || rm -rfv $(NODE_MODULES_DIR)
 	@-test ! -f $(DIST_DIR)/*.deb || rm -fv $(DIST_DIR)/*.deb
 	@-test ! -f $(COMPOSER_LOCK) || rm -fv $(COMPOSER_LOCK)
 	@-test ! -f $(PHPCS_FIXER_LOCK) || rm -fv $(PHPCS_FIXER_LOCK)
@@ -109,7 +105,6 @@ $(DIST_DIR)/balloon-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@rsync -a --exclude='.git' $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
-	@cp -Rp $(DOC_DIR) $(BUILD_DIR)/usr/share/balloon
 	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.systemd $(BUILD_DIR)/usr/share/balloon/scripts
 	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.upstart $(BUILD_DIR)/usr/share/balloon/scripts
 	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/share/balloon/bin/console/ballooncli
@@ -134,7 +129,6 @@ $(TAR): $(BUILD_TARGET)
 	@cp -Rp $(CONFIG_DIR) $(BUILD_DIR)
 	@cp -Rp $(VENDOR_DIR) $(BUILD_DIR)
 	@cp -Rp $(SRC_DIR) $(BUILD_DIR)
-	@cp -Rp $(DOC_DIR) $(BUILD_DIR)
 	@mkdir $(BUILD_DIR)/log
 
 	@tar -czf $(TAR) -C $(BUILD_DIR) .
@@ -245,7 +239,6 @@ $(INSTALL_TARGET): $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@rsync -a --exclude='.git' $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
-	@cp -Rp $(DOC_DIR) $(BUILD_DIR)/usr/share/balloon
 	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.systemd $(BUILD_DIR)/usr/share/balloon/scripts
 	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.upstart $(BUILD_DIR)/usr/share/balloon/scripts
 	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/share/balloon/bin/console/ballooncli

@@ -3,6 +3,7 @@ kind: Service
 metadata:
   labels:
     k8s-app: libreoffice
+    component: wopi
   name: libreoffice
   namespace: balloon
 spec:
@@ -13,5 +14,6 @@ spec:
     targetPort: 9980
   selector:
     k8s-app: libreoffice
+    component: wopi
   sessionAffinity: None
   type: ClusterIP

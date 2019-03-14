@@ -15,6 +15,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
+use Balloon\Server\RoleInterface;
 use Balloon\Server\User;
 use Micro\Auth\Auth;
 use Micro\Auth\Identity;
@@ -26,6 +27,21 @@ interface HookInterface
      * Run: preExecuteAsyncJobs.
      */
     public function preExecuteAsyncJobs(): void;
+
+    /**
+     * Run: preUpdateUser.
+     */
+    public function preUpdateUser(User $user, array &$attributes = []): void;
+
+    /**
+     * Run: postUpdateUser.
+     */
+    public function postUpdateUser(User $user, array $attributes = []): void;
+
+    /**
+     * Run: preDecorateRole.
+     */
+    public function preDecorateRole(RoleInterface $role, array &$attributes = []): void;
 
     /**
      * Run: preAuthentication.

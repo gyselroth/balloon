@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Sharelink\Api\v1;
 
-use Balloon\App\Api\Controller;
+use Balloon\App\Api\v1\Controller;
 use Balloon\App\Sharelink\Sharelink as Share;
 use Balloon\Filesystem;
 use Balloon\Server;

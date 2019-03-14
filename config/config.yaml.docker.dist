@@ -1,0 +1,6 @@
+Balloon\Converter:
+  calls:
+    Balloon\Converter\Adapter\Office: null
+Psr\Log\LoggerInterface:
+  calls:
+    file: null

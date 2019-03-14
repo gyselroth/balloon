@@ -10,28 +10,35 @@
     <img src="https://raw.githubusercontent.com/gyselroth/balloon-screenshots/master/src/tree.png"/>
 </p>
 
-* Various DMS features like tagging, meta data, sharing, file history and more
-* Using MongoDB which is highly scalable and super fast
-* WebDAV Support (Support for network drives on Windows)
-* Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
 * High performance server, horizontally scalable, easy clustering
+* Using MongoDB which is highly scalable and super fast
+* WebDAV Support (Support for network drives on Windows and other clients)
+* Various DMS features like tagging, meta data, sharing, file history and more
+* Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
+* Comes with cloud native support and deploy ready kubernetes resources
 * Deployable out of the box for debian (deb), tar archive, docker images, kubernetes and more
 * User quotas
 * App system for 3rd party apps
 * The core is shipped with various core apps pre-installed
-* File previews (core app, Balloon.App.Preview)
-* Mail Notifications (core app, Balloon.App.Notificsation)
-* Full text search using [Elasticsearch](https://github.com/elastic/elasticsearch) (core app, Balloon.App.Elasticsearch)
-* Malware scanning using [ClamAV](https://github.com/Cisco-Talos/clamav-devel) (core app, Balloon.App.ClamAv)
-* WOPI support for libre office online and Office 365 (ongoing) (core app, Balloon.App.Office)
-* Automatically let your files convert to other file formats (Keep an auotmatic updated pdf file for a word file for example) (core app)
+* File previews for various formats (including office documents, pdf, text, images, markdown, html and more)
+* Notification system (including mail notifications)
+* Full text search using [Elasticsearch](https://github.com/elastic/elasticsearch)
+* Malware scanning using [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
+* WOPI support for libre office online and Office 365 (ongoing)
+* Automatically convert files (shadow nodes) to other file formats (for example keep an automatic pdf file for a word file)
 * Automatically destroy files/folders at a certain time
 * Mount external storage (Currently only SMB/CIFS is supported since v2.1.0)
 * Eventlog
-* Integrated deduplication system to save your storage
-* Globally accessible share links (core app, Balloon.App.Sharelink)
-* Multiple types of authentication, local (MongoDB), LDAP, OpenID-Connect
-* REST API
+* Integrated deduplication system
+* Burl (URL file format, including rendered site previews)
+* Globally accessible share links
+* Intelligent collections based on custom rules
+* Multiple types of authentication, basic auth (MongoDB), basic auth LDAP, OpenID-Connect
+* Integrated OpenID-connect server and also supports OpenID-connect for any external OpenID-Connect providers (including google, microsoft, github and more)
+* REST API (OpenAPI v3 specs)
+* [Official Web UI](https://github.com/gyselroth/balloon-client-web)
+* [Official Desktop client](https://github.com/gyselroth/balloon-client-desktop) for Windows, Linux and OS X
+* Rich eco system (including various sdk's)
 * ... and much more
 
 ## Documentation

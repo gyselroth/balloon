@@ -31,7 +31,6 @@ use Psr\Log\LoggerInterface;
  */
 class BurlTest extends Test
 {
-    protected const EXCEPTION_MESSAGE = 'browserlessUrl option must be a valid url to a browserless instance';
     protected const SUPPORTED_FORMATS = [
         'pdf',
         'jpg',
@@ -56,47 +55,23 @@ class BurlTest extends Test
         $this->burlConverter = $this->createBurlConverter();
     }
 
-    public function testConstructWithInvalidUrlNull()
+    public function testConstructWithNonExistingOption()
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage(self::EXCEPTION_MESSAGE);
         new Burl(
             new GuzzleHttpClient(),
             $this->createMock(LoggerInterface::class),
             [
-                'browserlessUrl' => null,
+                'foo' => null,
             ]
         );
     }
 
-    public function testConstructWithInvalidUrlSomeString()
+    public function testSetOptionsWithNonExistingOption()
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage(self::EXCEPTION_MESSAGE);
-        new Burl(
-            new GuzzleHttpClient(),
-            $this->createMock(LoggerInterface::class),
-            [
-                'browserlessUrl' => 'foo',
-            ]
-        );
-    }
-
-    public function testSetOptionsWithInvalidUrlNull()
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage(self::EXCEPTION_MESSAGE);
         $this->burlConverter->setOptions([
-            'browserlessUrl' => null,
-        ]);
-    }
-
-    public function testSetOptionsWithInvalidUrlSomeString()
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage(self::EXCEPTION_MESSAGE);
-        $this->burlConverter->setOptions([
-            'browserlessUrl' => 'foo',
+            'foo' => null,
         ]);
     }
 
@@ -175,7 +150,12 @@ class BurlTest extends Test
         $preview = $this->burlConverter->createPreview($file);
 
         $image = new Imagick();
-        $image->readImage($preview->getPath());
+        $tmp = tmpfile();
+        $tmp_path = stream_get_meta_data($tmp)['uri'];
+        stream_copy_to_stream($preview, $tmp);
+        rewind($tmp);
+
+        $image->readImage($tmp_path);
 
         // assertions
         $this->assertTrue($image->valid());
@@ -195,8 +175,13 @@ class BurlTest extends Test
 
         $file = $this->getMockFile();
         $result = $this->burlConverter->convert($file, 'jpg');
+        $tmp = tmpfile();
+        $tmp_path = stream_get_meta_data($tmp)['uri'];
+        stream_copy_to_stream($result, $tmp);
+        rewind($tmp);
+
         $image = new Imagick();
-        $image->readImage($result->getPath());
+        $image->readImage($tmp_path);
 
         // assertions
         $this->assertTrue($image->valid());
@@ -217,8 +202,15 @@ class BurlTest extends Test
         $file = $this->getMockFile();
         $result = $this->burlConverter->convert($file, 'pdf');
 
+        $tmp = tmpfile();
+        $tmp_path = stream_get_meta_data($tmp)['uri'];
+        stream_copy_to_stream($result, $tmp);
+        rewind($tmp);
+
+        $image = new Imagick();
+
         // assertions
-        $this->assertEquals(self::PDF_MIME_TYPE, \mime_content_type($result->getPath()));
+        $this->assertEquals(self::PDF_MIME_TYPE, \mime_content_type($tmp_path));
     }
 
     public function testMimeBurl()
@@ -248,7 +240,6 @@ class BurlTest extends Test
             $httpClient,
             $this->createMock(LoggerInterface::class),
             [
-                'browserlessUrl' => 'http://browserless.example.com',
                 'preview_max_size' => self::PREVIEW_MAX_SIZE,
             ]
         );

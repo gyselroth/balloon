@@ -6,7 +6,6 @@ use Balloon\Converter\Adapter\ImagickImage;
 use Balloon\Converter\Adapter\Office;
 use Balloon\Exception;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
-use Balloon\Server;
 use Composer\Autoload\ClassLoader as Composer;
 use Micro\Auth\Auth;
 use Micro\Config\Config;
@@ -174,10 +173,10 @@ return [
                     'method' => 'injectAdapter',
                 'arguments' => ['adapter' => '{'.ImagickImage::class.'}']
             ],
-            Office::class => [
+            /*Office::class => [
                 'method' => 'injectAdapter',
                 'arguments' => ['adapter' => '{'.Office::class.'}']
-            ],
+            ],*/
         ]
     ],
     Hook::class => [
