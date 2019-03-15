@@ -86,7 +86,7 @@ class Markdown extends AbstractOffice
      */
     public function getSupportedFormats(File $file): array
     {
-        return array_keys($this->officeConverter->formats['text']);
+        return array_keys($this->formats['text']);
     }
 
     /**
