@@ -3,7 +3,7 @@ use Balloon\App\Markdown\Constructor\Http;
 use Balloon\App\Markdown\Converter\Adapter\Markdown;
 use Balloon\Converter;
 use Balloon\Converter\Adapter\AbstractOffice;
-use Balloon\App\Office\Converter\Adapter\Office;
+use Balloon\Converter\Adapter\Office;
 use Balloon\Bootstrap\AbstractBootstrap;
 
 return [
