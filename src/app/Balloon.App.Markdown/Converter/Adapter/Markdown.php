@@ -21,7 +21,7 @@ class Markdown extends AbstractOffice
     /**
      * Parsedown.
      *
-     * @var Parsedown
+     * @var \Parsedown
      */
     protected $parser;
 
