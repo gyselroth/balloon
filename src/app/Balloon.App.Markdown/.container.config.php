@@ -2,9 +2,16 @@
 use Balloon\App\Markdown\Constructor\Http;
 use Balloon\App\Markdown\Converter\Adapter\Markdown;
 use Balloon\Converter;
+use Balloon\Converter\Adapter\AbstractOffice;
+use Balloon\App\Office\Converter\Adapter\Office;
 use Balloon\Bootstrap\AbstractBootstrap;
 
 return [
+    Markdown::class => [
+        'arguments' => [
+            'officeConverter' => '{'.Office::class.'}',
+        ],
+    ],
     AbstractBootstrap::class => [
         'calls' => [
             'Balloon.App.Markdown' => [

@@ -11,25 +11,13 @@ declare(strict_types=1);
 
 namespace Balloon\App\Markdown\Converter\Adapter;
 
-use Balloon\App\Office\Converter\Adapter\Office;
+use Balloon\Converter\Adapter\AbstractOffice;
 use Balloon\Converter\Exception;
 use Balloon\Filesystem\Node\File;
 use Psr\Log\LoggerInterface;
 
-class Markdown extends Office
+class Markdown extends AbstractOffice
 {
-    /**
-     * Preview format.
-     */
-    const PREVIEW_FORMAT = 'png';
-
-    /**
-     * preview max size.
-     *
-     * @var int
-     */
-    protected $preview_max_size = 500;
-
     /**
      * Parsedown.
      *
@@ -38,11 +26,11 @@ class Markdown extends Office
     protected $parser;
 
     /**
-     * LoggerInterface.
+     * AbstractOffice.
      *
-     * @var LoggerInterface
+     * @var AbstractOffice
      */
-    protected $logger;
+    protected $officeConverter;
 
     /**
      * Formats.
@@ -56,16 +44,19 @@ class Markdown extends Office
     /**
      * Initialize.
      *
-     * @param Parsedown       $parser markdown parser
-     * @param LoggerInterface $logger PSR-3 Logger
-     * @param iterable        $config
+     * @param Parsedown       $parser          markdown parser
+     * @param AbstractOffice  $officeConverter office converter
+     * @param LoggerInterface $logger          PSR-3 Logger
      */
-    public function __construct(\Parsedown $parser, LoggerInterface $logger, ?Iterable $config = null)
-    {
+    public function __construct(
+        \Parsedown $parser,
+        AbstractOffice $officeConverter,
+        LoggerInterface $logger
+    ) {
+        parent::__construct($logger);
         $this->parser = $parser;
         $this->parser->setSafeMode(true);
-        $this->logger = $logger;
-        $this->setOptions($config);
+        $this->officeConverter = $officeConverter;
     }
 
     /**
@@ -95,7 +86,7 @@ class Markdown extends Office
      */
     public function getSupportedFormats(File $file): array
     {
-        return array_keys($this->formats['text']);
+        return array_keys($this->officeConverter->formats['text']);
     }
 
     /**
@@ -103,7 +94,7 @@ class Markdown extends Office
      */
     public function createPreview(File $file)
     {
-        return parent::createPreviewFromStream(
+        return $this->createPreviewFromStream(
             $this::getStreamFromString($this->parseMarkdownToHtml($file))
         );
     }
@@ -121,10 +112,34 @@ class Markdown extends Office
                 throw new Exception('failed get '.$format);
             }
 
-            return new Result($dest, $tmpHtmlFile);
+            return $tmpHtmlFile;
         }
 
-        return parent::convertFromStream($tmpHtmlFile, $format);
+        return $this->convertFromStream($tmpHtmlFile, $format);
+    }
+
+    /**
+     * Create preview from stream.
+     *
+     * @param resource $stream
+     *
+     * @return resource
+     */
+    protected function createPreviewFromStream($stream)
+    {
+        $this->officeConverter->createPreviewFromStream($stream);
+    }
+
+    /**
+     * Convert from stream.
+     *
+     * @param resource $stream
+     *
+     * @return resource
+     */
+    protected function convertFromStream($stream, string $format)
+    {
+        return $this->officeConverter->convertFromStream($stream, $format);
     }
 
     /**
