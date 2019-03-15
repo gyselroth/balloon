@@ -13,10 +13,29 @@ namespace Balloon\Converter\Adapter;
 
 use Balloon\Converter\Exception;
 use Balloon\Filesystem\Node\File;
-use Imagick;
+use Psr\Log\LoggerInterface;
 
-class Office extends AbstractOffice
+abstract class AbstractOffice implements AdapterInterface
 {
+    /**
+     * Preview format.
+     */
+    const PREVIEW_FORMAT = 'png';
+
+    /**
+     * preview max size.
+     *
+     * @var int
+     */
+    protected $preview_max_size = 500;
+
+    /**
+     * LoggerInterface.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
     /**
      * Soffice executable.
      *
@@ -103,36 +122,21 @@ class Office extends AbstractOffice
     ];
 
     /**
+     * Initialize.
+     */
+    public function __construct(LoggerInterface $logger, array $config = [])
+    {
+        $this->logger = $logger;
+        $this->setOptions($config);
+    }
+
+    /**
      * Set options.
      */
     public function setOptions(array $config = []): AdapterInterface
     {
         foreach ($config as $option => $value) {
             switch ($option) {
-                case 'soffice':
-                    if (!is_file($value)) {
-                        throw new Exception('soffice option must be a path to an executable office suite');
-                    }
-
-                    $this->soffice = (string) $value;
-
-                    break;
-                case 'tmp':
-                    if (!is_writeable($value)) {
-                        throw new Exception('tmp option must be a writable directory');
-                    }
-
-                    $this->tmp = (string) $value;
-
-                    break;
-                case 'timeout':
-                    if (!is_numeric($value)) {
-                        throw new Exception('timeout option must be a number');
-                    }
-
-                    $this->timeout = (string) $value;
-
-                    break;
                 case 'preview_max_size':
                     $this->preview_max_size = (int) $value;
 
@@ -204,79 +208,20 @@ class Office extends AbstractOffice
     }
 
     /**
-     * {@inheritdoc}
+     * Create preview from stream.
+     *
+     * @param resource $stream
+     *
+     * @return resource
      */
-    protected function createPreviewFromStream($stream)
-    {
-        //we need a pdf to create an image from the first page
-        $pdf = $this->convertFromStream($stream, 'pdf');
-        $source = stream_get_meta_data($pdf)['uri'];
-
-        $desth = tmpfile();
-        $dest = stream_get_meta_data($desth)['uri'];
-
-        $image = new Imagick($source.'[0]');
-
-        $width = $image->getImageWidth();
-        $height = $image->getImageHeight();
-
-        if ($height <= $width && $width > $this->preview_max_size) {
-            $image->scaleImage($this->preview_max_size, 0);
-        } elseif ($height > $this->preview_max_size) {
-            $image->scaleImage(0, $this->preview_max_size);
-        }
-
-        $image->setImageCompression(Imagick::COMPRESSION_JPEG);
-        $image->setImageCompressionQuality(100);
-        $image->stripImage();
-        $image->setColorSpace(Imagick::COLORSPACE_SRGB);
-        $image->setImageFormat(self::PREVIEW_FORMAT);
-        $image->writeImage($dest);
-
-        if (!file_exists($dest) || filesize($dest) <= 0) {
-            throw new Exception('failed create prevew');
-        }
-
-        return $desth;
-    }
+    abstract protected function createPreviewFromStream($stream);
 
     /**
-     * {@inheritdoc}
+     * Convert from stream.
+     *
+     * @param resource $stream
+     *
+     * @return resource
      */
-    protected function convertFromStream($stream, string $format)
-    {
-        $sourceh = tmpfile();
-        $source = stream_get_meta_data($sourceh)['uri'];
-        stream_copy_to_stream($stream, $sourceh);
-
-        $command = 'HOME='.escapeshellarg($this->tmp).' timeout '.escapeshellarg($this->timeout).' '
-            .escapeshellarg($this->soffice)
-            .' --headless'
-            .' --invisible'
-            .' --nocrashreport'
-            .' --nodefault'
-            .' --nofirststartwizard'
-            .' --nologo'
-            .' --norestore'
-            .' --convert-to '.escapeshellarg($format)
-            .' --outdir '.escapeshellarg($this->tmp)
-            .' '.escapeshellarg($source);
-
-        $this->logger->debug('convert file to ['.$format.'] using ['.$command.']', [
-            'category' => get_class($this),
-        ]);
-
-        exec($command);
-        $temp = $this->tmp.DIRECTORY_SEPARATOR.basename($source).'.'.$format;
-
-        if (!file_exists($temp)) {
-            throw new Exception('failed convert document into '.$format);
-        }
-
-        $this->logger->info('converted document into ['.$format.']', [
-            'category' => get_class($this),
-        ]);
-
-        return fopen($temp, 'r');
-    }
+    abstract protected function convertFromStream($stream, string $format);
 }
