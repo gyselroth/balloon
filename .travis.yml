@@ -18,8 +18,8 @@ script: make VERSION=$version deb tar
 notifications:
   email: false
 before_deploy:
-- if [[ "$version" == *"-"* ]]; then export deb_distribution=unstable; else export
-  deb_distribution=stable; fi;
+- if [[ "$version" == *"-"* ]]; then export deb_distribution=unstable; docker_tag=latest-unstable; else export
+  deb_distribution=stable; docker_tag=latest_unstable; fi;
 - if [[ "$TRAVIS_BRANCH" == "master" ]]; then export deb_distribution=nightly; fi;
 - export date=$(date +%Y-%m-%d)
 - cp packaging/debian/bintray.json bintray.json
@@ -48,10 +48,9 @@ after_deploy:
   - test "$TRAVIS_TAG" != "" && version=${TRAVIS_TAG:1};
   - test "$TRAVIS_TAG" != "" && docker build -t gyselroth/balloon:$version .
   - test "$TRAVIS_TAG" != "" && docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-  - test "$TRAVIS_TAG" != "" && docker tag gyselroth/balloon:$version
-  - test "$TRAVIS_TAG" != "" && docker tag gyselroth/balloon:latest
+  - test "$TRAVIS_TAG" != "" && docker tag gyselroth/balloon:$version gyselroth/balloon:$docker_tag
   - test "$TRAVIS_TAG" != "" && docker push gyselroth/balloon:$version
-  - test "$TRAVIS_TAG" != "" && docker push gyselroth/balloon:latest
+  - test "$TRAVIS_TAG" != "" && docker push gyselroth/balloon:$docker_tag
 env:
   global:
   - secure: m13MizT1AcfECjdbtO7HkyNU4fNti73FhsAJu88DIY2k97zERfZWybABEcCZYShGByuwJJpi4Gr23G2QIBKb9zDDAGXYJw9BjN3lbCT8SGIu/eEBUi3FZRR0p/sjA3Re9pQuSGHxBZwUouPsUHyyugdLij5/8s0oJBPaWYRv/HWfd862d4y9pV8VpG+2EUEqC2oDWRvRQdFRTNu7/XgSKj/7Xf3Rz0BBFT0jEMb4x11R+9QctqRqDK85WsZEwquTrHOkvs9j50Ojim1DZ/AuPWicv1KYT1aMjeTWkhcZjFQ15tfuKhKj872fA7ohd8Qqp2ygGk88pU+2w0WyeiwHbp8GHtNHOQqO8B7kXqslo2ZXZs36nKP6E/n7Lw37MeJOgW6Py2QIx/1VNRv9tpybTq3CzgxXa2A8uw1gdjwH0kdmJZ/AM+oDq5lq4RjgVx4Ne4bcQpwe0p19AhtdO9P5kjdNPor6UgBmx6IFoyiaBcrrHYbZue7IfPL83BkXuPu07oocFB558kcQ+TV+8RuHhID7Kg+slsWaRwIxia1AUEWNEAjLfVgoXkHzCdTtdvS5HPGvKTz8a62yfQqYCFeCn6Ioi4mPTtYRLsnynuZoktYe3oSzJcqz3T/RKcinOxjTxJ5DJUSgkhbruPaImEwweJS87pwe5SlMMX18xjVNVUo=

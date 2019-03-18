@@ -1,16 +1,16 @@
 openapi: 3.0.0
 info:
-  description: ""
+  description: "balloon API"
   version: 1.0.0
   title: balloon API
   license:
     name: MIT
-    url: https://opensource.org/licenses/GPL-3.0
+    url: https://opensource.org/licenses/MIT
 paths:
   /api:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get server status
       operationId: getApi
       responses:
@@ -23,7 +23,7 @@ paths:
   /api/v2:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get server status
       operationId: getV2
       responses:
@@ -36,7 +36,7 @@ paths:
   /api/v2/groups:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get groups
       description: A group is a colletion of users
       operationId: getGroups
@@ -90,7 +90,7 @@ paths:
           description: Access denied
     post:
       tags:
-        - v2
+        - core.v2
       summary: Add new group
       operationId: addGroup
       requestBody:
@@ -110,7 +110,7 @@ paths:
   "/api/v2/groups/{group}":
     get:
       tags:
-        - v2
+        - core.v2
       operationId: getGroup
       summary: Get single group
       parameters:
@@ -141,7 +141,7 @@ paths:
           description: Resource does not exists
     patch:
       tags:
-        - v2
+        - core.v2
       summary: Set attributes for group
       operationId: patchGroup
       parameters:
@@ -171,7 +171,7 @@ paths:
           description: Resource does not exists
     delete:
       tags:
-        - v2
+        - core.v2
       summary: Delete group
       operationId: deleteGroup
       parameters:
@@ -198,7 +198,7 @@ paths:
   "/api/v2/groups/{group}/members":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Request all member of a group
       operationId: getGroupMembers
       parameters:
@@ -224,7 +224,7 @@ paths:
   "/api/v2/groups/{group}/undelete":
     post:
       tags:
-        - v2
+        - core.v2
       summary: Restore deleted group
       operationId: undeleteGroup
       parameters:
@@ -248,7 +248,7 @@ paths:
   /api/v2/users:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get users
       description: A user is a colletion of users
       operationId: getUsers
@@ -306,7 +306,7 @@ paths:
           description: Resource does not exists
     post:
       tags:
-        - v2
+        - core.v2
       summary: Add new user
       operationId: addUser
       requestBody:
@@ -326,7 +326,7 @@ paths:
   "/api/v2/users/{user}":
     get:
       tags:
-        - v2
+        - core.v2
       operationId: getUser
       summary: Get single user
       parameters:
@@ -357,7 +357,7 @@ paths:
           description: Resource does not exists
     patch:
       tags:
-        - v2
+        - core.v2
       summary: Set attributes for user
       operationId: patchUser
       parameters:
@@ -387,7 +387,7 @@ paths:
           description: Resource does not exists
     delete:
       tags:
-        - v2
+        - core.v2
       summary: Delete user
       operationId: deleteUser
       parameters:
@@ -414,7 +414,7 @@ paths:
   "/api/v2/users/{user}/node-attribute-summary":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get summary of node usage.
       operationId: getNodeAttributeSummary
       parameters:
@@ -438,7 +438,7 @@ paths:
   "/api/v2/users/{user}/groups":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Request all groups of a user
       operationId: getUserGroups
       parameters:
@@ -500,7 +500,7 @@ paths:
   "/api/v2/users/{user}/undelete":
     post:
       tags:
-        - v2
+        - core.v2
       summary: Restore deleted user
       operationId: undeleteUser
       parameters:
@@ -524,7 +524,7 @@ paths:
   /api/v2/users/whoami:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get user object of the current authenticated user
       operationId: getCurrentUser
       parameters:
@@ -546,7 +546,7 @@ paths:
   "/api/v2/users/{user}/avatar":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get user avatar
       operationId: getUserAvatar
       parameters:
@@ -570,7 +570,7 @@ paths:
   /api/v2/nodes/trash:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Return delete nodes (Excluding sub nodes of deleted collections)
       operationId: getDeletedNodes
       parameters:
@@ -622,7 +622,7 @@ paths:
   /api/v2/nodes/search:
     get:
       tags:
-        - ballon_app_elasticsearch_v2
+        - ballon.app.elasticsearch.v2
       summary: Extended search query using elasticsearch
       operationId: queryElasticsearch
       parameters:
@@ -649,7 +649,7 @@ paths:
   /api/v2/notifications:
     get:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: Get my nofitifications
       operationId: getMyNotifications
       parameters:
@@ -697,28 +697,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppNotfificationNotifications"
+                $ref: "#/components/schemas/Balloon.App.Notfification.Notifications"
     post:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: Send notification
       operationId: postNotification
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BalloonAppNotfificationNotification"
+              $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
       responses:
         "202":
           description: Notification
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppNotfificationNotification"
+                $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
   "/api/v2/notifications/{notification}":
     get:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: Get a single notification
       operationId: getNotification
       parameters:
@@ -734,14 +734,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppNotfificationNotification"
+                $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
         "403":
           description: Access denied
         "404":
           description: Resource does not exists
     delete:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: Delete a notification
       operationId: deleteNotification
       parameters:
@@ -761,14 +761,14 @@ paths:
   /api/v2/notifications/broadcast:
     post:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: Send notification to all users
       operationId: sendBroadcast
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BalloonAppNotfificationNotification"
+              $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
         description: Notification
       responses:
         "202":
@@ -776,20 +776,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppNotfificationNotification"
+                $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
         "403":
           description: Access denied
   /api/v2/notifications/mail:
     post:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: Send mail
       operationId: sendMail
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BalloonAppNotfificationMail"
+              $ref: "#/components/schemas/Balloon.App.Notfification.Mail"
         description: Mail
       responses:
         "202":
@@ -799,7 +799,7 @@ paths:
   "/api/v2/nodes/{node}/subscription":
     post:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: Receive node updates
       operationId: subscribeNode
       parameters:
@@ -841,7 +841,7 @@ paths:
   "/api/v2/files/{file}/convert/slaves":
     get:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: Get existing convert slaves
       operationId: getSlaves
       parameters:
@@ -857,14 +857,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppConvertSlaves"
+                $ref: "#/components/schemas/Balloon.App.Convert.Slaves"
         "403":
           description: Access denied
         "404":
           description: Resource does not exists
     post:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: Add new convert slave
       operationId: addSlave
       parameters:
@@ -878,7 +878,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BalloonAppConvertSlave"
+              $ref: "#/components/schemas/Balloon.App.Convert.Slave"
         description: "Add new conversion slave "
         required: true
       responses:
@@ -887,7 +887,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppConvertSlave"
+                $ref: "#/components/schemas/Balloon.App.Convert.Slave"
         "403":
           description: Access denied
         "404":
@@ -895,7 +895,7 @@ paths:
   "/api/v2/files/{file}/convert/slaves/{slave}":
     get:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: Get single slave
       operationId: getSlave
       parameters:
@@ -917,14 +917,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppConvertSlave"
+                $ref: "#/components/schemas/Balloon.App.Convert.Slave"
         "403":
           description: Access denied
         "404":
           description: Resource does not exists
     delete:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: Delete slave
       operationId: deleteSlave
       parameters:
@@ -950,7 +950,7 @@ paths:
   "/api/v2/files/{file}/convert/supported-formats":
     get:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: Get supported file formats to convert to (formats do vary between files)
       operationId: getSupportedFormats
       parameters:
@@ -976,8 +976,8 @@ paths:
   "/api/v2/desktop-clients/{format}/content":
     get:
       tags:
-        - balloon_app_desktop_client_v2
-      summary: Download balloon desktop client
+        - balloon.app.desktopclient.v2
+      summary: Fad balloon desktop client
       operationId: getDesktopClient
       parameters:
         - name: format
@@ -1020,7 +1020,7 @@ paths:
   /api/v2/office/wopi/document:
     get:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: Get document session information including document owner, session user
         and document size
       operationId: getWopiDocument
@@ -1043,7 +1043,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppOfficeWopiDocument"
+                $ref: "#/components/schemas/Balloon.App.Office.WopiDocument"
         "403":
           description: Access denied
         "404":
@@ -1051,7 +1051,7 @@ paths:
   "/api/v2/office/documents/{document}":
     get:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: Retreive office document
       operationId: getDocument
       parameters:
@@ -1067,7 +1067,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppOfficeDocument"
+                $ref: "#/components/schemas/Balloon.App.Office.Document"
         "403":
           description: Access denied
         "404":
@@ -1075,7 +1075,7 @@ paths:
   /api/v2/office/wopi/document/contents:
     get:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: Get document contents
       operationId: getWopiDocumentContent
       parameters:
@@ -1132,7 +1132,7 @@ paths:
   /api/v2/office/documents:
     post:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       description: Create new document from an existing office document template
       operationId: createDocument
       requestBody:
@@ -1155,7 +1155,7 @@ paths:
   /api/v2/office/sessions:
     post:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: Create new session for a document
       operationId: createSession
       parameters:
@@ -1171,7 +1171,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppOfficeSession"
+                $ref: "#/components/schemas/Balloon.App.Office.Session"
         "403":
           description: Access denied
         "404":
@@ -1179,7 +1179,7 @@ paths:
   "/api/v2/office/sessions/{session}/join":
     post:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: Join running session
       operationId: joinSession
       parameters:
@@ -1195,7 +1195,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BalloonAppOfficeSession"
+                $ref: "#/components/schemas/Balloon.App.Office.Session"
         "403":
           description: Access denied
         "404":
@@ -1203,7 +1203,7 @@ paths:
   "/api/v2/nodes/{node}/clone":
     post:
       tags:
-        - v2
+        - core.v2
       summary: Clone existing node
       operationId: cloneNode
       parameters:
@@ -1246,7 +1246,7 @@ paths:
   "/api/v2/nodes/{node}/move":
     post:
       tags:
-        - v2
+        - core.v2
       summary: Move node (Change parent collection), single or multiple ones
       operationId: moveNode
       parameters:
@@ -1289,7 +1289,7 @@ paths:
   "/api/v2/nodes/{node}/undelete":
     post:
       tags:
-        - v2
+        - core.v2
       summary: Undelete (Restore from trash) a single node or multiple ones.
       operationId: undeleteNode
       parameters:
@@ -1339,7 +1339,7 @@ paths:
   "/api/v2/collections/{collection}/share":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get share acl and share name
       operationId: getShare
       parameters:
@@ -1362,7 +1362,7 @@ paths:
           description: Resource does not exists
     post:
       tags:
-        - v2
+        - core.v2
       summary: Create a new share from an existing collection
       operationId: shareCollection
       parameters:
@@ -1392,7 +1392,7 @@ paths:
           description: Resource does not exists
     delete:
       tags:
-        - v2
+        - core.v2
       summary: Does only remove sharing options and transform a share back into a
         normal collection. There will not be any data loss after this action.
         All existing references would be removed automatically.
@@ -1414,7 +1414,7 @@ paths:
   "/api/v2/collections/{collection}/children":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get all children of a collection
       operationId: getChildren
       parameters:
@@ -1483,7 +1483,7 @@ paths:
   /api/v2/collections/children:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get all children of the root collection
       operationId: getRootChildren
       parameters:
@@ -1546,7 +1546,7 @@ paths:
   /api/v2/collections:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get all collections
       operationId: getCollections
       parameters:
@@ -1601,7 +1601,7 @@ paths:
           description: Resource does not exists
     post:
       tags:
-        - v2
+        - core.v2
       summary: Create a new collection in root
       operationId: createRootCollection
       parameters:
@@ -1627,7 +1627,7 @@ paths:
   "/api/v2/collections/{collection}":
     post:
       tags:
-        - v2
+        - core.v2
       summary: Create a new collection
       operationId: createCollection
       parameters:
@@ -1653,7 +1653,7 @@ paths:
   /api/v2/files:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get all files
       operationId: getFiles
       parameters:
@@ -1715,7 +1715,7 @@ paths:
           description: Resource does not exists
     put:
       tags:
-        - v2
+        - core.v2
       summary: Upload an entire file in one-shot. Use this endpoint only for small
         files, for bigger files use the chunking endpoint.
       operationId: uploadFile
@@ -1739,7 +1739,7 @@ paths:
   "/api/v2/files/{file}/history":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get a full change history of a file
       operationId: getFileHistory
       parameters:
@@ -1763,7 +1763,7 @@ paths:
   "/api/v2/files/{file}/restore":
     post:
       tags:
-        - v2
+        - core.v2
       summary: Rollback to a recent version from history. Use the version number from
         history.
       operationId: rollbackFile
@@ -1788,7 +1788,7 @@ paths:
   /api/v2/files/chunk:
     put:
       tags:
-        - v2
+        - core.v2
       summary: Upload a file chunk. You have to manually splitt the binary data into
         multiple chunks and upload them successively! using this method. Once
         uploading the last chunk, the server will automatically create or update
@@ -1828,7 +1828,7 @@ paths:
   /api/v2/nodes:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get all nodes
       operationId: getNodes
       parameters:
@@ -1891,7 +1891,7 @@ paths:
   "/api/v2/nodes/{node}":
     delete:
       tags:
-        - v2
+        - core.v2
       summary: Delete node
       operationId: deleteNode
       parameters:
@@ -1931,7 +1931,7 @@ paths:
           description: Resource does not exists
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get single node
       operationId: getNode
       parameters:
@@ -1962,7 +1962,7 @@ paths:
           description: Resource does not exists
     patch:
       tags:
-        - v2
+        - core.v2
       summary: Change attributes
       operationId: updateNode
       parameters:
@@ -1993,7 +1993,7 @@ paths:
   "/api/v2/nodes/{node}/share-link":
     delete:
       tags:
-        - balloon_app_sharelink_v2
+        - balloon.app.sharelink.v2
       summary: Delete an existing sharing link
       operationId: deleteLink
       parameters:
@@ -2012,7 +2012,7 @@ paths:
           description: Resource does not exists
     post:
       tags:
-        - balloon_app_sharelink_v2
+        - balloon.app.sharelink.v2
       summary: "Create a unique sharing link of a node (global accessible): a possible
         existing link will be deleted if this method will be called."
       operationId: createLink
@@ -2051,7 +2051,7 @@ paths:
   /api/v2/nodes/last-cursor:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Use this method to request the latest cursor if you only need to now if
         there are changes on the server. This method will not return any other
         data than the newest cursor. To request a feed with all deltas request
@@ -2067,9 +2067,9 @@ paths:
   "/api/v2/nodes/{node}/content":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Download node contents. Note that collections are zipped on-the-fly.
-      operationId: downloadNode
+      operationId: getContent
       parameters:
         - name: node
           in: path
@@ -2108,7 +2108,7 @@ paths:
   /api/v2/nodes/delta:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Delta stream with cursor support.
       operationId: getDelta
       parameters:
@@ -2147,7 +2147,7 @@ paths:
   /api/v2/nodes/event-log:
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get event log containing all operations which are made by the user
         himself or share members
       operationId: getEventLog
@@ -2204,7 +2204,7 @@ paths:
   "/api/v2/nodes/{node}/event-log":
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get event log containing all operations which are made by the user
         himself or share members on a given node
       operationId: getNodeEventLog
@@ -2267,7 +2267,7 @@ paths:
   "/api/v2/nodes/{node}/parents":
     get:
       tags:
-        - v2
+        - core.v2
       summary: The hirarchy of all parent nodes is ordered in a single level array
         beginning with the collection on the highest level.
       operationId: getParentNodes
@@ -2307,7 +2307,7 @@ paths:
   "/api/v2/files/{file}/preview":
     get:
       tags:
-        - ballon_app_preview_v2
+        - ballon.app.preview.v2
       summary: Get a preview of the files content. The body either contains an encoded
         string or a jpeg binary.
       operationId: getPreview
@@ -2381,7 +2381,7 @@ components:
       properties:
         href:
           type: string
-    List:
+    ResourceList:
       type: object
       properties:
         _links:
@@ -2415,7 +2415,7 @@ components:
     Users:
       description: A list of users.
       allOf:
-        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/ResourceList"
         - type: object
           properties:
             data:
@@ -2477,7 +2477,7 @@ components:
     Groups:
       description: A list of groups.
       allOf:
-        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/ResourceList"
         - type: object
           properties:
             data:
@@ -2507,7 +2507,7 @@ components:
     Nodes:
       description: A list of nodes.
       allOf:
-        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/ResourceList"
         - type: object
           properties:
             data:
@@ -2624,7 +2624,7 @@ components:
     Collections:
       description: A list of collections.
       allOf:
-        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/ResourceList"
         - type: object
           properties:
             data:
@@ -2638,7 +2638,7 @@ components:
     Files:
       description: A list of files.
       allOf:
-        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/ResourceList"
         - type: object
           properties:
             data:
@@ -2773,7 +2773,7 @@ components:
     EventLogs:
       description: A list of events.
       allOf:
-        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/ResourceList"
         - type: object
           properties:
             data:
@@ -2878,7 +2878,7 @@ components:
             hostname:
               description: The hostname of the client.
               type: string
-    BalloonAppOfficeSession:
+    Balloon.App.Office.Session:
       description: Office session
       type: object
       properties:
@@ -2894,7 +2894,7 @@ components:
         access_token_ttl:
           description: Token life time
           type: number
-    BalloonAppOfficeDocument:
+    Balloon.App.Office.Document:
       description: Office document
       type: object
       properties:
@@ -2904,7 +2904,7 @@ components:
           type: array
           items:
             type: object
-    BalloonAppOfficeWopiDocument:
+    Balloon.App.Office.WopiDocument:
       description: WOPI document
         https://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html
       type: object
@@ -2925,7 +2925,7 @@ components:
           type: boolean
         PostMessageOrigin:
           type: string
-    BalloonAppNotfificationMail:
+    Balloon.App.Notfification.Mail:
       description: Mail
       type: object
       properties:
@@ -2938,17 +2938,17 @@ components:
           type: string
         body:
           type: string
-    BalloonAppNotfificationNotifications:
+    Balloon.App.Notfification.Notifications:
       description: A list of notifications.
       allOf:
-        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/BalloonAppNotfificationNotification"
-    BalloonAppNotfificationNotification:
+                $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
+    Balloon.App.Notfification.Notification:
       description: A notification
       allOf:
         - $ref: "#/components/schemas/Resource"
@@ -2987,17 +2987,17 @@ components:
                 name:
                   description: The name of the node.
                   type: string
-    BalloonAppConvertSlaves:
+    Balloon.App.Convert.Slaves:
       description: A list of convert slaves.
       allOf:
-        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/BalloonAppConvertSlave"
-    BalloonAppConvertSlave:
+                $ref: "#/components/schemas/Balloon.App.Convert.Slave"
+    Balloon.App.Convert.Slave:
       description: A convert slave
       allOf:
         - $ref: "#/components/schemas/Resource"

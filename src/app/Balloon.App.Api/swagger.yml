@@ -1,11 +1,11 @@
 swagger: "2.0"
 info:
-  description: ""
+  description: "balloon API"
   version: "1.0.0"
   title: "balloon API"
   license:
     name: "MIT"
-    url: "https://opensource.org/licenses/GPL-3.0"
+    url: "https://opensource.org/licenses/MIT"
 basePath: "/"
 schemes:
 - "https"
@@ -13,7 +13,7 @@ paths:
   /api:
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get server status'
       operationId: getApi
       produces:
@@ -26,7 +26,7 @@ paths:
   /api/v2:
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get server status'
       operationId: getV2
       produces:
@@ -39,7 +39,7 @@ paths:
   '/api/v2/groups':
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get groups
       description: A group is a colletion of users
       operationId: getGroups
@@ -88,7 +88,7 @@ paths:
             $ref: "#/definitions/Groups"
     post:
       tags:
-        - v2
+        - core.v2
       summary: Add new group
       operationId: addGroup
       produces:
@@ -108,7 +108,7 @@ paths:
   '/api/v2/groups/{group}':
     get:
       tags:
-        - v2
+        - core.v2
       operationId: getGroup
       summary: 'Get single group'
       produces:
@@ -137,7 +137,7 @@ paths:
           description: "Access denied"
     patch:
       tags:
-        - v2
+        - core.v2
       summary: 'Set attributes for group'
       operationId: patchGroup
       consumes:
@@ -167,7 +167,7 @@ paths:
           description: "Access denied"
     delete:
       tags:
-        - v2
+        - core.v2
       summary: 'Delete group'
       operationId: deleteGroup
       produces:
@@ -193,7 +193,7 @@ paths:
   '/api/v2/groups/{group}/members':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Request all member of a group'
       operationId: getGroupMembers
       produces:
@@ -218,7 +218,7 @@ paths:
   '/api/v2/groups/{group}/undelete':
     post:
       tags:
-        - v2
+        - core.v2
       summary: 'Restore deleted group'
       operationId: undeleteGroup
       produces:
@@ -241,7 +241,7 @@ paths:
   '/api/v2/users':
     get:
       tags:
-        - v2
+        - core.v2
       summary: Get users
       description: A user is a colletion of users
       operationId: getUsers
@@ -294,7 +294,7 @@ paths:
           description: "Access denied"
     post:
       tags:
-        - v2
+        - core.v2
       summary: Add new user
       operationId: addUser
       produces:
@@ -314,7 +314,7 @@ paths:
   '/api/v2/users/{user}':
     get:
       tags:
-        - v2
+        - core.v2
       operationId: getUser
       summary: 'Get single user'
       produces:
@@ -343,7 +343,7 @@ paths:
           description: "Access denied"
     patch:
       tags:
-        - v2
+        - core.v2
       summary: 'Set attributes for user'
       operationId: patchUser
       consumes:
@@ -373,7 +373,7 @@ paths:
           description: "Access denied"
     delete:
       tags:
-        - v2
+        - core.v2
       summary: 'Delete user'
       operationId: deleteUser
       produces:
@@ -399,7 +399,7 @@ paths:
   '/api/v2/users/{user}/node-attribute-summary':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get summary of node usage.'
       operationId: getNodeAttributeSummary
       produces:
@@ -422,7 +422,7 @@ paths:
   '/api/v2/users/{user}/groups':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Request all groups of a user'
       operationId: getUserGroups
       produces:
@@ -478,7 +478,7 @@ paths:
   '/api/v2/users/{user}/undelete':
     post:
       tags:
-        - v2
+        - core.v2
       summary: 'Restore deleted user'
       operationId: undeleteUser
       produces:
@@ -501,7 +501,7 @@ paths:
   /api/v2/users/whoami:
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get user object of the current authenticated user'
       operationId: getCurrentUser
       produces:
@@ -522,7 +522,7 @@ paths:
   '/api/v2/users/{user}/avatar':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get user avatar'
       operationId: getUserAvatar
       produces:
@@ -545,7 +545,7 @@ paths:
   /api/v2/nodes/trash:
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Return delete nodes (Excluding sub nodes of deleted collections)'
       operationId: getDeletedNodes
       produces:
@@ -592,7 +592,7 @@ paths:
   /api/v2/nodes/search:
     get:
       tags:
-        - ballon_app_elasticsearch_v2
+        - ballon.app.elasticsearch.v2
       summary: 'Extended search query using elasticsearch'
       operationId: queryElasticsearch
       produces:
@@ -616,7 +616,7 @@ paths:
   /api/v2/notifications:
     get:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: 'Get my nofitifications'
       operationId: getMyNotifications
       produces:
@@ -659,10 +659,10 @@ paths:
         200:
           description: "List of notifications"
           schema:
-            $ref: "#/definitions/BalloonAppNotfificationNotifications"
+            $ref: "#/definitions/Balloon.App.Notfification.Notifications"
     post:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: 'Send notification'
       operationId: postNotification
       consumes:
@@ -673,16 +673,16 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/BalloonAppNotfificationNotification'
+            $ref: '#/definitions/Balloon.App.Notfification.Notification'
       responses:
         202:
           description: "Notification"
           schema:
-            $ref: "#/definitions/BalloonAppNotfificationNotification"
+            $ref: "#/definitions/Balloon.App.Notfification.Notification"
   /api/v2/notifications/{notification}:
     get:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: 'Get a single notification'
       operationId: getNotification
       produces:
@@ -697,14 +697,14 @@ paths:
         200:
           description: "Notification"
           schema:
-            $ref: "#/definitions/BalloonAppNotfificationNotification"
+            $ref: "#/definitions/Balloon.App.Notfification.Notification"
         404:
           description: "Resource does not exists"
         403:
           description: "Access denied"
     delete:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: 'Delete a notification'
       operationId: deleteNotification
       produces:
@@ -725,7 +725,7 @@ paths:
   /api/v2/notifications/broadcast:
     post:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: 'Send notification to all users'
       operationId: sendBroadcast
       consumes:
@@ -737,18 +737,18 @@ paths:
           name: body
           description: 'Notification'
           schema:
-            $ref: "#/definitions/BalloonAppNotfificationNotification"
+            $ref: "#/definitions/Balloon.App.Notfification.Notification"
       responses:
         202:
           description: "Notification"
           schema:
-            $ref: "#/definitions/BalloonAppNotfificationNotification"
+            $ref: "#/definitions/Balloon.App.Notfification.Notification"
         403:
           description: "Access denied"
   /api/v2/notifications/mail:
     post:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: 'Send mail'
       operationId: sendMail
       consumes:
@@ -758,7 +758,7 @@ paths:
           name: body
           description: 'Mail'
           schema:
-            $ref: "#/definitions/BalloonAppNotfificationMail"
+            $ref: "#/definitions/Balloon.App.Notfification.Mail"
       responses:
         202:
           description: "Mail"
@@ -767,7 +767,7 @@ paths:
   /api/v2/nodes/{node}/subscription:
     post:
       tags:
-        - balloon_app_notifications_v2
+        - balloon.app.notifications.v2
       summary: 'Receive node updates'
       operationId: subscribeNode
       produces:
@@ -805,7 +805,7 @@ paths:
   '/api/v2/files/{file}/convert/slaves':
     get:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: 'Get existing convert slaves'
       operationId: getSlaves
       produces:
@@ -820,14 +820,14 @@ paths:
         200:
           description: "Slaves"
           schema:
-            $ref: "#/definitions/BalloonAppConvertSlaves"
+            $ref: "#/definitions/Balloon.App.Convert.Slaves"
         404:
           description: "Resource does not exists"
         403:
           description: "Access denied"
     post:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: 'Add new convert slave'
       operationId: addSlave
       consumes:
@@ -845,12 +845,12 @@ paths:
           description: 'Add new conversion slave '
           required: true
           schema:
-            $ref: '#/definitions/BalloonAppConvertSlave'
+            $ref: '#/definitions/Balloon.App.Convert.Slave'
       responses:
         202:
           description: "Slave"
           schema:
-            $ref: "#/definitions/BalloonAppConvertSlave"
+            $ref: "#/definitions/Balloon.App.Convert.Slave"
         404:
           description: "Resource does not exists"
         403:
@@ -858,7 +858,7 @@ paths:
   '/api/v2/files/{file}/convert/slaves/{slave}':
     get:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: 'Get single slave'
       operationId: getSlave
       produces:
@@ -878,14 +878,14 @@ paths:
         200:
           description: "Slave"
           schema:
-            $ref: "#/definitions/BalloonAppConvertSlave"
+            $ref: "#/definitions/Balloon.App.Convert.Slave"
         404:
           description: "Resource does not exists"
         403:
           description: "Access denied"
     delete:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: 'Delete slave'
       operationId: deleteSlave
       consumes:
@@ -913,7 +913,7 @@ paths:
   '/api/v2/files/{file}/convert/supported-formats':
     get:
       tags:
-        - balloon_app_convert_v2
+        - balloon.app.convert.v2
       summary: 'Get supported file formats to convert to (formats do vary between files)'
       operationId: getSupportedFormats
       produces:
@@ -938,7 +938,7 @@ paths:
   '/api/v2/desktop-clients/{format}/content':
     get:
       tags:
-        - balloon_app_desktop_client_v2
+        - balloon.app.desktopclient.v2
       summary: 'Download balloon desktop client'
       operationId: getDesktopClient
       produces:
@@ -980,7 +980,7 @@ paths:
   /api/v2/office/wopi/document:
     get:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: 'Get document session information including document owner, session user and document size'
       operationId: getWopiDocument
       produces:
@@ -1000,7 +1000,7 @@ paths:
         200:
           description: "WOPI document information"
           schema:
-            $ref: "#/definitions/BalloonAppOfficeWopiDocument"
+            $ref: "#/definitions/Balloon.App.Office.WopiDocument"
         404:
           description: "Resource does not exists"
         403:
@@ -1008,7 +1008,7 @@ paths:
   '/api/v2/office/documents/{document}':
     get:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: 'Retreive office document'
       operationId: getDocument
       produces:
@@ -1023,7 +1023,7 @@ paths:
         200:
           description: "Document session"
           schema:
-            $ref: "#/definitions/BalloonAppOfficeDocument"
+            $ref: "#/definitions/Balloon.App.Office.Document"
         404:
           description: "Resource does not exists"
         403:
@@ -1031,7 +1031,7 @@ paths:
   /api/v2/office/wopi/document/contents:
     get:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: 'Get document contents'
       operationId: getWopiDocumentContent
       parameters:
@@ -1083,7 +1083,7 @@ paths:
   /api/v2/office/documents:
     post:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       description: 'Create new document from an existing office document template'
       operationId: createDocument
       consumes:
@@ -1108,7 +1108,7 @@ paths:
   /api/v2/office/sessions:
     post:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: 'Create new session for a document'
       operationId: createSession
       produces:
@@ -1123,7 +1123,7 @@ paths:
         201:
           description: "Office session"
           schema:
-            $ref: "#/definitions/BalloonAppOfficeSession"
+            $ref: "#/definitions/Balloon.App.Office.Session"
         404:
           description: "Resource does not exists"
         403:
@@ -1131,7 +1131,7 @@ paths:
   '/api/v2/office/sessions/{session}/join':
     post:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: 'Join running session'
       operationId: joinSession
       produces:
@@ -1146,7 +1146,7 @@ paths:
         200:
           description: "Office session"
           schema:
-            $ref: "#/definitions/BalloonAppOfficeSession"
+            $ref: "#/definitions/Balloon.App.Office.Session"
         404:
           description: "Resource does not exists"
         403:
@@ -1154,7 +1154,7 @@ paths:
   '/api/v2/nodes/{node}/clone':
     post:
       tags:
-        - v2
+        - core.v2
       summary: Clone existing node
       operationId: cloneNode
       produces:
@@ -1194,7 +1194,7 @@ paths:
   '/api/v2/nodes/{node}/move':
     post:
       tags:
-        - v2
+        - core.v2
       summary: 'Move node (Change parent collection), single or multiple ones'
       operationId: moveNode
       produces:
@@ -1234,7 +1234,7 @@ paths:
   '/api/v2/nodes/{node}/undelete':
     post:
       tags:
-        - v2
+        - core.v2
       summary: 'Undelete (Restore from trash) a single node or multiple ones.'
       operationId: undeleteNode
       consumes:
@@ -1282,7 +1282,7 @@ paths:
   '/api/v2/collections/{collection}/share':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get share acl and share name'
       operationId: getShare
       produces:
@@ -1304,7 +1304,7 @@ paths:
           description: "Access denied"
     post:
       tags:
-        - v2
+        - core.v2
       summary: 'Create a new share from an existing collection'
       operationId: shareCollection
       consumes:
@@ -1334,7 +1334,7 @@ paths:
           description: "Access denied"
     delete:
       tags:
-        - v2
+        - core.v2
       summary: 'Does only remove sharing options and transform a share back into a normal collection. There will not be any data loss after this action. All existing references would be removed automatically.'
       operationId: deleteShare
       parameters:
@@ -1353,7 +1353,7 @@ paths:
   '/api/v2/collections/{collection}/children':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get all children of a collection'
       operationId: getChildren
       produces:
@@ -1415,7 +1415,7 @@ paths:
   '/api/v2/collections/children':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get all children of the root collection'
       operationId: getRootChildren
       produces:
@@ -1472,7 +1472,7 @@ paths:
   '/api/v2/collections':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get all collections'
       operationId: getCollections
       produces:
@@ -1522,7 +1522,7 @@ paths:
           description: "Access denied"
     post:
       tags:
-        - v2
+        - core.v2
       summary: 'Create a new collection in root'
       operationId: createRootCollection
       consumes:
@@ -1552,7 +1552,7 @@ paths:
   '/api/v2/collections/{collection}':
     post:
       tags:
-        - v2
+        - core.v2
       summary: 'Create a new collection'
       operationId: createCollection
       consumes:
@@ -1582,7 +1582,7 @@ paths:
   '/api/v2/files':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get all files'
       operationId: getFiles
       produces:
@@ -1637,7 +1637,7 @@ paths:
           description: "Access denied"
     put:
       tags:
-        - v2
+        - core.v2
       summary: 'Upload an entire file in one-shot. Use this endpoint only for small files, for bigger files use the chunking endpoint.'
       operationId: uploadFile
       produces:
@@ -1660,7 +1660,7 @@ paths:
   '/api/v2/files/{file}/history':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get a full change history of a file'
       operationId: getFileHistory
       produces:
@@ -1683,7 +1683,7 @@ paths:
   '/api/v2/files/{file}/restore':
     post:
       tags:
-        - v2
+        - core.v2
       summary: 'Rollback to a recent version from history. Use the version number from history.'
       operationId: rollbackFile
       produces:
@@ -1706,7 +1706,7 @@ paths:
   /api/v2/files/chunk:
     put:
       tags:
-        - v2
+        - core.v2
       summary: 'Upload a file chunk. You have to manually splitt the binary data into multiple chunks and upload them successively! using this method. Once uploading the last chunk, the server will automatically create or update the file node. You may set the parent collection, name and or custom attributes only with the last request to save traffic.'
       operationId: uploadChunk
       produces:
@@ -1738,7 +1738,7 @@ paths:
   '/api/v2/nodes':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get all nodes'
       operationId: getNodes
       produces:
@@ -1794,7 +1794,7 @@ paths:
   '/api/v2/nodes/{node}':
     delete:
       tags:
-        - v2
+        - core.v2
       summary: 'Delete node'
       operationId: deleteNode
       parameters:
@@ -1827,7 +1827,7 @@ paths:
           description: "Access denied"
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get single node'
       operationId: getNode
       produces:
@@ -1856,7 +1856,7 @@ paths:
           description: "Access denied"
     patch:
       tags:
-        - v2
+        - core.v2
       summary: 'Change attributes'
       operationId: updateNode
       consumes:
@@ -1887,7 +1887,7 @@ paths:
   '/api/v2/nodes/{node}/share-link':
     delete:
       tags:
-        - balloon_app_sharelink_v2
+        - balloon.app.sharelink.v2
       summary: 'Delete an existing sharing link'
       operationId: deleteLink
       produces:
@@ -1907,7 +1907,7 @@ paths:
           description: "Access denied"
     post:
       tags:
-        - balloon_app_sharelink_v2
+        - balloon.app.sharelink.v2
       summary: 'Create a unique sharing link of a node (global accessible): a possible existing link will be deleted if this method will be called.'
       operationId: createLink
       produces:
@@ -1941,7 +1941,7 @@ paths:
   /api/v2/nodes/last-cursor:
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Use this method to request the latest cursor if you only need to now if there are changes on the server. This method will not return any other data than the newest cursor. To request a feed with all deltas request /delta.'
       operationId: getLastCursor
       produces:
@@ -1954,9 +1954,9 @@ paths:
   '/api/v2/nodes/{node}/content':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Download node contents. Note that collections are zipped on-the-fly.'
-      operationId: downloadNode
+      operationId: getContent
       produces:
         - octet/stream
       parameters:
@@ -1986,6 +1986,9 @@ paths:
       responses:
         200:
           description: "Content"
+          schema:
+            type: string
+            format: binary
         404:
           description: "Resource does not exists"
         403:
@@ -1993,7 +1996,7 @@ paths:
   /api/v2/nodes/delta:
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Delta stream with cursor support.'
       operationId: getDelta
       produces:
@@ -2028,7 +2031,7 @@ paths:
   '/api/v2/nodes/event-log':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get event log containing all operations which are made by the user himself or share members'
       operationId: getEventLog
       produces:
@@ -2079,7 +2082,7 @@ paths:
   '/api/v2/nodes/{node}/event-log':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'Get event log containing all operations which are made by the user himself or share members on a given node'
       operationId: getNodeEventLog
       produces:
@@ -2135,7 +2138,7 @@ paths:
   '/api/v2/nodes/{node}/parents':
     get:
       tags:
-        - v2
+        - core.v2
       summary: 'The hirarchy of all parent nodes is ordered in a single level array beginning with the collection on the highest level.'
       operationId: getParentNodes
       produces:
@@ -2170,7 +2173,7 @@ paths:
   '/api/v2/files/{file}/preview':
     get:
       tags:
-        - ballon_app_preview_v2
+        - ballon.app.preview.v2
       summary: 'Get a preview of the files content. The body either contains an encoded string or a jpeg binary.'
       operationId: getPreview
       produces:
@@ -2232,7 +2235,7 @@ definitions:
     properties:
       href:
         type: "string"
-  List:
+  ResourceList:
     type: "object"
     properties:
       _links:
@@ -2262,7 +2265,7 @@ definitions:
   Users:
     description: "A list of users."
     allOf:
-      - $ref: '#/definitions/List'
+      - $ref: '#/definitions/ResourceList'
       - type: object
         properties:
           data:
@@ -2321,7 +2324,7 @@ definitions:
   Groups:
     description: "A list of groups."
     allOf:
-      - $ref: '#/definitions/List'
+      - $ref: '#/definitions/ResourceList'
       - type: object
         properties:
           data:
@@ -2351,7 +2354,7 @@ definitions:
   Nodes:
     description: "A list of nodes."
     allOf:
-      - $ref: '#/definitions/List'
+      - $ref: '#/definitions/ResourceList'
       - type: object
         properties:
           data:
@@ -2462,7 +2465,7 @@ definitions:
   Collections:
     description: "A list of collections."
     allOf:
-      - $ref: '#/definitions/List'
+      - $ref: '#/definitions/ResourceList'
       - type: object
         properties:
           data:
@@ -2476,7 +2479,7 @@ definitions:
   Files:
     description: "A list of files."
     allOf:
-      - $ref: '#/definitions/List'
+      - $ref: '#/definitions/ResourceList'
       - type: object
         properties:
           data:
@@ -2608,7 +2611,7 @@ definitions:
   EventLogs:
     description: "A list of events."
     allOf:
-      - $ref: '#/definitions/List'
+      - $ref: '#/definitions/ResourceList'
       - type: object
         properties:
           data:
@@ -2708,7 +2711,7 @@ definitions:
           hostname:
             description: "The hostname of the client."
             type: "string"
-  BalloonAppOfficeSession:
+  Balloon.App.Office.Session:
     description: "Office session"
     type: object
     properties:
@@ -2724,7 +2727,7 @@ definitions:
       access_token_ttl:
         description: Token life time
         type: number
-  BalloonAppOfficeDocument:
+  Balloon.App.Office.Document:
     description: "Office document"
     type: object
     properties:
@@ -2734,7 +2737,7 @@ definitions:
         type: "array"
         items:
           type: object
-  BalloonAppOfficeWopiDocument:
+  Balloon.App.Office.WopiDocument:
     description: "WOPI document https://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html"
     type: object
     properties:
@@ -2754,7 +2757,7 @@ definitions:
         type: "boolean"
       PostMessageOrigin:
         type: "string"
-  BalloonAppNotfificationMail:
+  Balloon.App.Notfification.Mail:
     description: "Mail"
     type: object
     properties:
@@ -2767,17 +2770,17 @@ definitions:
         type: string
       body:
         type: string
-  BalloonAppNotfificationNotifications:
+  Balloon.App.Notfification.Notifications:
     description: "A list of notifications."
     allOf:
-      - $ref: '#/definitions/List'
+      - $ref: '#/definitions/ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/BalloonAppNotfificationNotification"
-  BalloonAppNotfificationNotification:
+              $ref: "#/definitions/Balloon.App.Notfification.Notification"
+  Balloon.App.Notfification.Notification:
     description: "A notification"
     allOf:
       - $ref: '#/definitions/Resource'
@@ -2813,17 +2816,17 @@ definitions:
               name:
                 description: "The name of the node."
                 type: "string"
-  BalloonAppConvertSlaves:
+  Balloon.App.Convert.Slaves:
     description: "A list of convert slaves."
     allOf:
-      - $ref: '#/definitions/List'
+      - $ref: '#/definitions/ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/BalloonAppConvertSlave"
-  BalloonAppConvertSlave:
+              $ref: "#/definitions/Balloon.App.Convert.Slave"
+  Balloon.App.Convert.Slave:
     description: "A convert slave"
     allOf:
       - $ref: '#/definitions/Resource'

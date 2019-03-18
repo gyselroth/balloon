@@ -39,5 +39,4 @@ ENV BALLOON_PATH /usr/share/balloon
 ENV BALLOON_DIR_CONFIG /etc/balloon
 
 EXPOSE 443 9000
-CMD sleep 300
-#CMD nohup ballooncli jobs listen -vv && service nginx start && php-fpm;
+CMD nohup ballooncli jobs listen -vv && service nginx start && php-fpm;
