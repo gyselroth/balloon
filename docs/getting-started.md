@@ -5,12 +5,121 @@ This tutorial includes the web interface, of course you may also just install th
 
 There are multiple supported ways to deploy balloon:
 
-* Classic way as deb package via apt
-* Manually as tar archive
-* Docker (docker-compose or via a orchestration plattform like [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/))
+* Docker (docker-compose)
+* Container orchestration plattform like [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/)
+* Classic way from debian package via apt
+* Manually from tar archive
 * Compile manually from scratch
 
-The docker deployment is the **recommended** way to deploy balloon. And it is also the simplest way.
+The docker/kubernetes deployment is the **recommended** way to deploy balloon. And it is also the simplest way.
+
+## Docker (docker-compose)
+
+The easiest, fastest and recommended way to deploy a balloon environment is to spin it up using docker and docker-compose.
+Since the installation is not the same for different host os and docker can be started on Linux, Windows and Mac please visit 
+the docker documentation on how to install [docker](https://docs.docker.com/install) and [docker-compose](https://docs.docker.com/compose/install).
+
+Now a docker-compose file is required with all required containers by balloon.
+Create a file named `balloon-stable.yaml` with this content:
+
+**Requirements**:
+* docker
+* docker-compose
+
+
+```yaml
+web:
+    image: gyselroth/balloon-web:latest
+    ports:
+        - "443:443"
+    links:
+        - balloon
+mongodb:
+    image: mongo:3.6.0
+libreoffice:
+    image: collabora/code:4.0.1.1
+    ports:
+        - "9980:9980"
+    links:
+        - balloon
+    environment:
+        - domain=balloon
+    entrypoint:
+        - sh
+        - -c
+        - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
+elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    entrypoint:
+        - /bin/sh
+        - -c
+        - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && docker-entrypoint.sh"
+clamav:
+    image: dinkel/clamavd:latest
+postfix:
+    image: webuni/postfix
+browserless:
+    image: browserless/chrome
+balloon:
+    image: gyselroth/balloon:latest
+    links:
+        - clamav
+        - mongodb
+        - elasticsearch
+        - postfix
+        - browserless
+    entrypoint: php-fpm
+    environment:
+        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+        - BALLOON_CLAMAV_URI=tcp://clamav:3310
+        - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
+        - BALLOON_WOPI_URL=https://balloon
+        - BALLOON_SMTP_HOST=postfix
+        - BALLOON_URL=http://localhost:8080
+        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+balloon-jobs:
+    image: gyselroth/balloon:latest
+    links:
+        - clamav
+        - mongodb
+        - elasticsearch
+        - postfix
+        - browserless
+        - libreoffice
+    entrypoint: ballooncli jobs
+    environment:
+        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+        - BALLOON_CLAMAV_URI=tcp://clamav:3310
+        - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
+        - BALLOON_WOPI_URL=https://balloon
+        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+        - BALLOON_SMTP_HOST=postfix
+        - BALLOON_URL=http://localhost:8080
+        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+```
+
+The balloon server can now be started using:
+```
+docker-compose -f balloon-stable.yaml up
+```
+
+You need to initialize balloon once (You do not need to execute this everytime you start the server via docker-compose, it is just a one time call):
+```
+docker exec balloon-stable-balloon_1 ballooncli upgrade -i -vvv
+```
+
+>**Note**: All balloon containers provide a version tag besides `latest`. It is best practice to use an exact version of a service instead the latest tag in production environment.
+The containers provide a `latest-unstable` tag for the balloon-jobs, balloon and balloon-web container. It is in no way reccomened to use pre-releases in production environments! 
+
+>**Note**: If you want to install beta and alpha versions replace `latest` with `latest-unstable` or specify an exact version tag. Pre-releases are only ment for testing purposes and are in **no** way recommended in production environements!
+
+
+The balloon web interface is now reachable at `https://localhost`.
+
+Username: admin \
+Password: admin \
+
+## Deploy on kubernetes
 
 ## Debian based distribution
 
@@ -87,114 +196,6 @@ The installation will create a default admin account:
 
 Username: admin \
 Password: admin \
-
-## Docker (docker-compose)
-
-The easiest, fastest and recommended way to deploy a balloon environment is to spin it up using docker and docker-compose.
-Since the installation is not the same for different host os and docker can be started on Linux, Windows and Mac please visit 
-the docker documentation on how to install [docker](https://docs.docker.com/install) and [docker-compose](https://docs.docker.com/compose/install).
-
-Now a docker-compose file is required with all required containers by balloon.
-Create a file named `balloon-stable.yaml` with this content:
-
-**Requirements**:
-* docker
-* docker-compose
-
-
-```yaml
-web:
-    image: gyselroth/balloon-web:latest
-    ports:
-        - "443:443"
-    links:
-        - balloon
-mongodb:
-    image: mongo:3.6.0
-libreoffice:
-    image: collabora/code:4.0.1.1
-    ports:
-        - "9980:9980"
-    links:
-        - balloon
-    environment:
-        - domain=balloon
-    entrypoint:
-        - sh
-        - -c
-        - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
-    entrypoint:
-        - /bin/sh
-        - -c
-        - "elasticsearch-plugin install --batch ingest-attachment && docker-entrypoint.sh"
-clamav:
-    image: dinkel/clamavd:latest
-postfix:
-    image: webuni/postfix
-browserless:
-    image: browserless/chrome
-balloon:
-    image: gyselroth/balloon:latest
-    links:
-        - clamav
-        - mongodb
-        - elasticsearch
-        - postfix
-        - browserless
-    entrypoint: php-fpm
-    environment:
-        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-        - BALLOON_CLAMAV_URI=tcp://clamav:3310
-        - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-        - BALLOON_WOPI_URL=https://balloon
-        - BALLOON_SMTP_HOST=postfix
-        - BALLOON_URL=http://localhost:8080
-        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
-balloon-jobs:
-    image: gyselroth/balloon:latest
-    links:
-        - clamav
-        - mongodb
-        - elasticsearch
-        - postfix
-        - browserless
-        - libreoffice
-    entrypoint: ballooncli jobs
-    environment:
-        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-        - BALLOON_CLAMAV_URI=tcp://clamav:3310
-        - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-        - BALLOON_WOPI_URL=https://balloon
-        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
-        - BALLOON_SMTP_HOST=postfix
-        - BALLOON_URL=http://localhost:8080
-        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
-```
-
-The balloon server can now be started using:
-```
-docker-compose -f balloon-stable.yaml up
-```
-
-You need to initialize balloon once (You do not need to execute this everytime you start the server via docker-compose, it is just a one time call):
-```
-docker exec balloon-stable-balloon_1 ballooncli upgrade -i -vvv
-```
-
->**Note**: All balloon containers provide a version tag besides `latest`. It is best practice to use an exact version of a service instead the latest tag in production environment.
-The containers provide a `latest-unstable` tag for the balloon-jobs, balloon and balloon-web container. It is in no way reccomened to use pre-releases in production environments! 
-
->**Note**: If you want to install beta and alpha versions replace `latest` with `latest-unstable` or specify an exact version tag. Pre-releases are only ment for testing purposes and are in **no** way recommended in production environements!
-
-
-The balloon web interface is now reachable at `https://localhost`.
-
-Username: admin \
-Password: admin \
-
-## Deploy on kubernetes
 
 ## Using the tar archive
 

@@ -1,0 +1,12 @@
+blockquote {
+  background-color: #E7F2FA;
+  padding: 1px 5px;
+  border: solid 1px #6AB0DE;
+}
+
+blockquote strong {
+  background-color: #6AB0DE;
+  display: block;
+  padding: 5px;
+  margin: -5px -5px 5px -5px;
+}

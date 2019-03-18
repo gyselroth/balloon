@@ -1,0 +1,16 @@
+site_name: balloon
+theme: readthedocs
+extra_css:
+- css/extra.css
+markdown_extensions:
+- markdown_include.include:
+    base_path: .
+nav:
+- Home: index.md
+- Getting started: getting-started.md
+- Desktop client: desktop-client.md
+- Development:
+  - Server: development/server.md
+   # - Web client: development/web-client.md
+   # - Desktop client: development/desktop-client.md
+   # - 3rd party & SDK: development/3rdparty.md

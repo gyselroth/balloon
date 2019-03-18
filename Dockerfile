@@ -36,7 +36,7 @@ COPY config/config.yaml.docker.dist /etc/balloon/config.docker.yaml
 RUN ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
 
 ENV BALLOON_PATH /usr/share/balloon
-ENV BALLOON_DIR_CONFIG /etc/balloon
+ENV BALLOON_CONFIG_DIR /etc/balloon
 
 EXPOSE 443 9000
 CMD nohup ballooncli jobs listen -vv && service nginx start && php-fpm;
