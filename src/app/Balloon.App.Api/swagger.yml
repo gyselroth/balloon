@@ -958,10 +958,12 @@ paths:
       responses:
         200:
           description: "Desktop client (binary)"
+          schema:
+            type: file
   '/api/v2/office/session/{session}':
     delete:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: 'Delete a running session. If more members are active in the requested session than only the membership gets removed. The session gets completely removed if only one member exists.'
       operationId: deleteSession
       parameters:
@@ -1054,7 +1056,7 @@ paths:
           description: "Access denied"
     post:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: 'Save document contents'
       operationId: updateWopiDocuemntContent
       parameters:
@@ -1987,8 +1989,7 @@ paths:
         200:
           description: "Content"
           schema:
-            type: string
-            format: binary
+            type: file
         404:
           description: "Resource does not exists"
         403:

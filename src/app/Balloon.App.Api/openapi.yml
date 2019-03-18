@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  description: "balloon API"
+  description: balloon API
   version: 1.0.0
   title: balloon API
   license:
@@ -977,7 +977,7 @@ paths:
     get:
       tags:
         - balloon.app.desktopclient.v2
-      summary: Fad balloon desktop client
+      summary: Download balloon desktop client
       operationId: getDesktopClient
       parameters:
         - name: format
@@ -995,10 +995,15 @@ paths:
       responses:
         "200":
           description: Desktop client (binary)
+          content:
+            octet/stream:
+              schema:
+                type: string
+                format: binary
   "/api/v2/office/session/{session}":
     delete:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: Delete a running session. If more members are active in the requested
         session than only the membership gets removed. The session gets
         completely removed if only one member exists.
@@ -1100,7 +1105,7 @@ paths:
           description: Resource does not exists
     post:
       tags:
-        - balloon_app_office_v2
+        - balloon.app.office.v2
       summary: Save document contents
       operationId: updateWopiDocuemntContent
       parameters:
@@ -2101,6 +2106,11 @@ paths:
       responses:
         "200":
           description: Content
+          content:
+            octet/stream:
+              schema:
+                type: string
+                format: binary
         "403":
           description: Access denied
         "404":
