@@ -111,18 +111,26 @@ web:
         - balloon
 mongodb:
     image: mongo:3.6.0
-clamav:
-    image: dinkel/clamavd:latest
 libreoffice:
-    image: collabora/code
+    image: collabora/code:4.0.1.1
     ports:
         - "9980:9980"
     links:
         - balloon
     environment:
         - domain=balloon
+    entrypoint:
+        - sh
+        - -c
+        - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
 elasticsearch:
-    image: gyselroth/balloon-elasticsearch:latest
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    entrypoint:
+        - /bin/sh
+        - -c
+        - "elasticsearch-plugin install --batch ingest-attachment && docker-entrypoint.sh"
+clamav:
+    image: dinkel/clamavd:latest
 postfix:
     image: webuni/postfix
 browserless:
@@ -152,12 +160,14 @@ balloon-jobs:
         - elasticsearch
         - postfix
         - browserless
+        - libreoffice
     entrypoint: ballooncli jobs
     environment:
         - BALLOON_MONGODB_URI=mongodb://mongodb:27017
         - BALLOON_CLAMAV_URI=tcp://clamav:3310
         - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
         - BALLOON_WOPI_URL=https://balloon
+        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
         - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
@@ -197,7 +207,6 @@ If you are a developer please also continue reading [this](https://github.com/gy
 * posix based operating system (Basically every linux/unix)
 * make
 * [comoser](https://getcomposer.org/download/)
-* [npm >= v5](https://nodejs.org/en/)
 * git
 * php >= 7.2
 * php ext-mongodb
