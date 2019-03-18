@@ -54,7 +54,8 @@
         "icewind/smb": "^3.1.0",
         "paragonie/halite": "^4",
         "bshaffer/oauth2-server-php": "^1.11",
-        "dolondro/google-authenticator": "^2.0"
+        "dolondro/google-authenticator": "^2.0",
+        "erusev/parsedown": "^1.7"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
