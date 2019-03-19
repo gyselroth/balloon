@@ -23,6 +23,7 @@ Now a docker-compose file is required with all required containers by balloon.
 Create a file named `balloon-stable.yaml` with this content:
 
 **Requirements**:
+
 * docker
 * docker-compose
 
@@ -126,6 +127,7 @@ Password: admin \
 Both the server and the web ui get distributed as .deb packages to make it easy to install and upgrade.
 
 **Requirements**:
+
 * Debian based linux distribution
 
 You need a running debian based linux distribution. This can be [debian](https://www.debian.org) itself or debian based distribution like [Ubuntu](https://www.ubuntu.com). You may also convert the package using `alien` to rpm and other package formats. 
@@ -199,12 +201,17 @@ Password: admin \
 
 ## Using the tar archive
 
+The tar archive contains a builded version of the balloon server.
+You need to install all server components manually. Note that using the deb packages is the preferred way while not using docker.
+
+
 ## Manually install from source
 
 This topic is only for advanced users or developers and describes how to deploy balloon by installing from source.
 If you are a developer please also continue reading [this](https://github.com/gyselroth/balloon/blob/master/CONTRIBUTING.md) article.
 
 **Requirements**:
+
 * posix based operating system (Basically every linux/unix)
 * make
 * [comoser](https://getcomposer.org/download/)

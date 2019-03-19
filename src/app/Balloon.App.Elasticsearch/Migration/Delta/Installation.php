@@ -43,7 +43,7 @@ class Installation implements DeltaInterface
     /**
      * Construct.
      */
-    public function __construct(Client $client, LoggerInterface $logger, Iterable $config = null)
+    public function __construct(Client $client, LoggerInterface $logger, array $config = [])
     {
         $this->client = $client;
         $this->logger = $logger;
@@ -52,17 +52,9 @@ class Installation implements DeltaInterface
 
     /**
      * Set options.
-     *
-     * @param iterable $config
-     *
-     * @return Installation
      */
-    public function setOptions(Iterable $config = null)
+    public function setOptions(array $config = [])
     {
-        if ($config === null) {
-            return $this;
-        }
-
         foreach ($config as $key => $value) {
             switch ($key) {
                 case 'index_configuration':
@@ -82,9 +74,9 @@ class Installation implements DeltaInterface
      */
     public function start(): bool
     {
-        /*$this->logger->info('create elasticsearch index ['.$this->es->getIndex().']', [
+        $this->logger->info('create elasticsearch indices blobs and nodes', [
             'category' => get_class($this),
-        ]);*/
+        ]);
 
         $this->logger->debug('read index configuration from ['.$this->index_configuration.']', [
             'category' => get_class($this),
@@ -99,27 +91,29 @@ class Installation implements DeltaInterface
             throw new Exception\InvalidIndexConfiguration('invalid elasticsearch index configuration json given');
         }
 
-        /*$index = [
-            'index' => $this->es->getIndex(),
-            'body' => $index,
-        ];
+        foreach ($index as $name => $settings) {
+            $this->logger->info('create elasticsearch index ['.$name.']', [
+                'category' => get_class($this),
+                'settings' => $settings,
+            ]);
 
-        $this->client->indices()->create($index);*/
+            $this->client->indices()->create([
+                'index' => $name,
+                'body' => $settings,
+            ]);
+        }
+
         $this->client->ingest()->putPipeline([
-            'name' => 'attachments',
-            'description' => 'Document attachment pipeline',
-            'processors' => [
-            [
-              'attachment' => [
-                'field' => 'content',
-                'target_field' => 'attachment',
-              ],
-            ],
-            [
-              'remove' => [
-                'field' => 'content',
-              ],
-            ],
+            'id' => 'attachments',
+            'body' => [
+                'processors' => [
+                    [
+                        'attachment' => [
+                            'field' => 'content',
+                            'indexed_chars' => -1,
+                        ],
+                    ],
+                ],
             ],
         ]);
 

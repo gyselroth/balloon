@@ -1,41 +1,65 @@
 {
+  "blobs" : {
+    "settings": {},
     "mappings" : {
-      "fs" : {
+      "_doc" : {
         "properties" : {
-          "content" : {
-            "type" : "attachment",
-            "fields" : {
+          "attachment" : {
+            "properties" : {
+              "author" : {
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+                }
+              },
               "content" : {
                 "type" : "text",
-                "analyzer" : "decomp"
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+                }
               },
-              "author" : {
-                "type" : "text"
+              "content_length" : {
+                "type" : "long"
               },
-              "title" : {
-                "type" : "text"
-              },
-              "name" : {
-                "type" : "text"
+              "content_type" : {
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+                }
               },
               "date" : {
                 "type" : "date"
               },
-              "keywords" : {
-                "type" : "text"
-              },
-              "content_type" : {
-                "type" : "text"
-              },
-              "content_length" : {
-                "type" : "integer"
-              },
               "language" : {
-                "type" : "text"
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+                }
+              },
+              "title" : {
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+                }
               }
             }
           },
-          "filename" : {
+          "content" : {
             "type" : "text",
             "fields" : {
               "keyword" : {
@@ -55,54 +79,6 @@
           },
           "metadata" : {
             "properties" : {
-              "metadata" : {
-                "properties" : {
-                  "ref" : {
-                    "properties" : {
-                      "id" : {
-                        "type" : "text",
-                        "fields" : {
-                          "keyword" : {
-                            "type" : "keyword",
-                            "ignore_above" : 256
-                          }
-                        }
-                      },
-                      "owner" : {
-                        "type" : "text",
-                        "fields" : {
-                          "keyword" : {
-                            "type" : "keyword",
-                            "ignore_above" : 256
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "share_ref" : {
-                    "properties" : {
-                      "id" : {
-                        "type" : "text",
-                        "fields" : {
-                          "keyword" : {
-                            "type" : "keyword",
-                            "ignore_above" : 256
-                          }
-                        }
-                      },
-                      "share" : {
-                        "type" : "text",
-                        "fields" : {
-                          "keyword" : {
-                            "type" : "keyword",
-                            "ignore_above" : 256
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
               "ref" : {
                 "properties" : {
                   "id" : {
@@ -124,37 +100,17 @@
                     }
                   }
                 }
-              },
-              "share_ref" : {
-                "properties" : {
-                  "id" : {
-                    "type" : "text",
-                    "fields" : {
-                      "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                      }
-                    }
-                  },
-                  "share" : {
-                    "type" : "text",
-                    "fields" : {
-                      "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                      }
-                    }
-                  }
-                }
               }
             }
-          },
-          "upload_date" : {
-            "type" : "date"
           }
         }
-      },
-      "storage" : {
+      }
+    }
+  },
+  "nodes" : {
+    "settings": {},
+    "mappings" : {
+      "_doc" : {
         "properties" : {
           "changed" : {
             "type" : "date"
@@ -162,7 +118,7 @@
           "created" : {
             "type" : "date"
           },
-          "destroy" : {
+          "deleted" : {
             "type" : "date"
           },
           "directory" : {
@@ -179,52 +135,7 @@
           },
           "meta" : {
             "properties" : {
-              "author" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
-                }
-              },
               "color" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
-                }
-              },
-              "coordinate" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
-                }
-              },
-              "copyright" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
-                }
-              },
-              "description" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
-                }
-              },
-              "license" : {
                 "type" : "text",
                 "fields" : {
                   "keyword" : {
@@ -246,7 +157,6 @@
           },
           "mime" : {
             "type" : "text",
-            "index": false,
             "fields" : {
               "keyword" : {
                 "type" : "keyword",
@@ -255,16 +165,6 @@
             }
           },
           "name" : {
-            "type" : "text",
-            "analyzer" : "decomp",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
-            }
-          },
-          "node" : {
             "type" : "text",
             "fields" : {
               "keyword" : {
@@ -295,6 +195,12 @@
             "type" : "boolean"
           },
           "reference" : {
+            "type" : "boolean"
+          },
+          "share" : {
+            "type" : "boolean"
+          },
+          "shared" : {
             "type" : "text",
             "fields" : {
               "keyword" : {
@@ -302,9 +208,6 @@
                 "ignore_above" : 256
               }
             }
-          },
-          "shared" : {
-            "type" : "boolean"
           },
           "size" : {
             "type" : "long"
@@ -314,27 +217,6 @@
           }
         }
       }
-    },
-    "settings": {
-        "analysis": {
-           "filter": {
-               "decomp":{
-                  "type" : "decompound"
-              }
-          },
-           "analyzer": {
-               "decomp": {
-                   "type": "custom",
-                   "tokenizer" : "standard",
-                   "filter" : [
-                       "decomp",
-                        "unique",
-                        "german_normalization",
-                        "lowercase",
-                        "word_delimiter"
-                   ]
-               }
-           }
-        }
     }
+  }
 }

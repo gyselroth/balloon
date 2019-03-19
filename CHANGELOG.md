@@ -3,21 +3,22 @@
 **Date**: 
 
 * CORE: [CHANGE] Support for elasticsearch 6.x #197
-* API: [FEATURE] Move from apidoc to swagger/openapi #86 
 * CORE: [CHANGE] Upgrade smbclient to 3.1.0 #275
-* API: [CHANGE] PATCH /api/v2/users/{id} must allow own id #280
-* API: [CHANGE] Remove deprecated api endpoints/changes in v2.5 #284
-* API: [FEATURE] Provide new attribute `auth` internal/external in GET /api/v2/users/{id} for the current user #282
 * CORE: [FIX] share_name must get validated as node name before creating #278
 * CORE: [FEATURE] Internal auth adapter allow login using mail address #261
 * CORE: [CHANGE] Remove the possibilty to combine filtered collection and a manual tree #269
-* API: [FEATURE] Add recursive=1/0 to GET /api/v2/collections/:id/children #265
 * CORE: [FEATURE] Implement idp Balloon.App.Idp #285
+* CORE: [CHANGE] Use loolwsd to convert office documents and previews #296
+* API: [FEATURE] Move from apidoc to swagger/openapi #86 
+* API: [CHANGE] PATCH /api/v2/users/{id} must allow own id #280
+* API: [CHANGE] Remove deprecated api endpoints/changes in v2.5 #284
+* API: [FEATURE] Provide new attribute `auth` internal/external in GET /api/v2/users/{id} for the current user #282
+* API: [FEATURE] Add recursive=1/0 to GET /api/v2/collections/:id/children #265
 * API: [FEATURE] two factor authentication (google authenticator) #242
 * API: [CHANGE] Remove the ability to do operations by path #287
 * API: [FIX]  Delta endpoint may return 0 nodes but has_more is true. #295
-* CORE: [CHANGE] Use loolwsd to convert office documents and previews #296
 * PACKAGING: [CHANGE] Dockerfile needs to get distributed directly along source code #297
+* DOCS: [CHANGE] Use mkdocs and publish docs to balloons.readthedocs.io
 
 
 ## 2.4.4

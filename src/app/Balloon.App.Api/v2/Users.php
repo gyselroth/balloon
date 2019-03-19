@@ -86,9 +86,9 @@ class Users
     /**
      * Node attribute summary.
      */
-    public function getNodeAttributeSummary(string $id, array $attributes = [], int $limit = 25): Response
+    public function getNodeAttributeSummary(array $attributes = [], int $limit = 25): Response
     {
-        $result = $this->_getUser($id)->getNodeAttributeSummary($attributes, $limit);
+        $result = $this->user->getNodeAttributeSummary($attributes, $limit);
 
         return (new Response())->setCode(200)->setBody($result);
     }

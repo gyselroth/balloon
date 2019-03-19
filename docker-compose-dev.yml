@@ -28,7 +28,6 @@ balloon-dev-jobs:
     image: gyselroth/balloon-development:latest
     volumes:
         - .:/srv/www/balloon
-    entrypoint: php /srv/www/balloon/src/cgi-bin/cli.php jobs -vvvv -f
     links:
         - clamav
         - mongodb

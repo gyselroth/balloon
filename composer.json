@@ -29,7 +29,7 @@
         "gyselroth/micro-auth": "^0.0.10",
         "gyselroth/micro-container": "^2.1.0",
         "gyselroth/micro-http": "^0.0.6",
-        "elasticsearch/elasticsearch": "5.*",
+        "elasticsearch/elasticsearch": "^6.1.0",
         "xenolope/quahog": "2.*",
         "sabre/dav" : "^3.2.0",
         "psr/log": "^1.0.0",
