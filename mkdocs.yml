@@ -9,6 +9,8 @@ nav:
 - Home: index.md
 - Getting started: getting-started.md
 - Desktop client: desktop-client.md
+- Apps:
+  - Elasticsearch: apps/elasticsearch.md
 - Development:
   - Server: development/server.md
    # - Web client: development/web-client.md
