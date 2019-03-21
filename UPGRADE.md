@@ -1,6 +1,21 @@
+## 2.x -> 2.5.x
+
+### Elasticsearch
+balloon v2.5 requires elasticsearch 6.x and the newer elasticsearch ingest-attachment instead of mapper-attachment.
+This requires a full reindex of elasticsearch:
+
+>**Note**: The reindex process makes use of the async functionality of balloon, be sure that you have enaugh workers and a big enaugh \TaskScheduler queue.
+This may take while to fully index all documents.
+
+```
+ballooncli elasticsearch reindex -vvv
+```
+
+>**Note**: v2.5 creates new elasticsearch indices (`blobs` and `nodes`). You may drop the previously indices (default name: balloon).
+i
+
 ## 2.x -> 2.4.x
 
-<<<<<<< HEAD
 balloon v2.4.x comes with the stable version v3.0.0 of [\TaskScheduler](https://github.com/gyselroth/mongodb-php-task-scheduler) which requires the sysvmsg dependency
 built into php. Note: This only affects you if you built php from scratch. The balloon docker image comes already with this dependency and if you are using the balloon deb package, most 
 linux flavors already ship php with this dependency.
@@ -16,6 +31,8 @@ ballon v2.4.x comes with micro PSR-11 container v.2.1.0 in which any selects sta
 (selects statements just get ignored, upgrade to calls for required settings.)
 
 For example, the MongoDB database name may be changed from:
+
+>**Note** This only requried if you have another database name than `balloon`.
 
 ```
 selects:
@@ -41,24 +58,7 @@ Run upgrade is required to upgrade all nodes to 2.3.x:
 ```sh
 ballooncli upgrade -vvvv
 ```
-=======
-### Dependencies
 
-balloon v2.2.x comes with the stable version v3.0.0 of [\TaskScheduler](https://github.com/gyselroth/mongodb-php-task-scheduler) which requires the sysvmsg dependency
-built into php. Note: This only affects you if you built php from scratch. The balloon docker image comes already with this dependency and if you are using the balloon deb package, most 
-linux flavors already ship php with this dependency.
-
-### Elasticsearch
-balloon v2.2 comes with support for elasticsearch 6.x and the newer elasticsearch ingest-attachment instead of mapper-attachment.
-This requires a full reindex of elasticsearch:
-
->**Note**: The reindex process makes use of the async functionality of balloon, be sure that you have enaugh workers or a big enaugh \TaskScheduler queue.
-
-```
-ballooncli elasticsearch reindex -vvv
-```
-
->>>>>>> b94aa4bc... Partially implemented #197
 
 ## 2.x -> 2.1.x
 

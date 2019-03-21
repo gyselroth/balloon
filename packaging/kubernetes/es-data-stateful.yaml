@@ -40,6 +40,10 @@ spec:
           privileged: true
       containers:
       - name: es-data
+        command:
+        - sh
+        - -c
+        - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && docker-entrypoint.sh"
         image: elasticsearch:6.6.1
         env:
         - name: NAMESPACE

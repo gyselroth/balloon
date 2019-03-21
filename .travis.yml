@@ -19,7 +19,7 @@ notifications:
   email: false
 before_deploy:
 - if [[ "$version" == *"-"* ]]; then export deb_distribution=unstable; docker_tag=latest-unstable; else export
-  deb_distribution=stable; docker_tag=latest_unstable; fi;
+  deb_distribution=stable; docker_tag=latest; fi;
 - if [[ "$TRAVIS_BRANCH" == "master" ]]; then export deb_distribution=nightly; fi;
 - export date=$(date +%Y-%m-%d)
 - cp packaging/debian/bintray.json bintray.json

@@ -8,6 +8,7 @@ markdown_extensions:
 nav:
 - Home: index.md
 - Getting started: getting-started.md
+- Upgrade: upgrade.md
 - Desktop client: desktop-client.md
 - Apps:
   - Elasticsearch: apps/elasticsearch.md

@@ -43,7 +43,7 @@ spec:
         command:
         - sh
         - -c
-        - "echo xpack.security.enabled: false >> /usr/share/elasticsearch/config/elasticsearch.yml; elasticsearch-plugin install --batch https://balloon.gyselroth.net/share/b7a9451cbb7731ed283a1b9c4b41c0b3; /usr/local/bin/docker-entrypoint.sh elasticsearch"
+        - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && docker-entrypoint.sh"
         env:
         - name: NAMESPACE
           valueFrom:

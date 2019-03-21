@@ -297,9 +297,9 @@ ballooncli elasticsearch reindex -vvv
 Note that this plugin depends on the elasticsearch version which usually lacks behind, v6.2.2 is supported by now (March 2019):
 ```yaml
 elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     entrypoint:
         - /bin/sh
         - -c
-        - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && elasticsearch-plugin list | grep elasticsearch-analysis-decompound || elasticsearch-plugin install http://xbib.org/repository/org    /xbib/elasticsearch/plugin/elasticsearch-analysis-decompound/6.2.2.0/elasticsearch-analysis-decompound-6.2.2.0.zip --batch && docker-entrypoint.sh"
+        - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && elasticsearch-plugin list | grep elasticsearch-analysis-decompound || elasticsearch-plugin install http://xbib.org/repository/org    /xbib/elasticsearch/plugin/elasticsearch-analysis-decompound/6.3.2.0/elasticsearch-analysis-decompound-6.3.2.0.zip --batch && docker-entrypoint.sh"
 ```

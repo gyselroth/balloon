@@ -64,7 +64,7 @@ class MultiFactorAuth extends AbstractHook
     public function preUpdateUser(User $user, array &$attributes = []): void
     {
         $existing = $user->getAttributes();
-        if ($attributes['multi_factor_auth'] === true) {
+        if (isset($attributes['multi_factor_auth']) && $attributes['multi_factor_auth'] === true) {
             $secret = $this->secret_factory->create(self::ISSUER, $user->getUsername());
             $attributes['google_auth_secret'] = $secret->getSecretKey();
             $this->secret = $secret;
