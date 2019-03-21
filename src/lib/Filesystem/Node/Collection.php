@@ -451,12 +451,21 @@ class Collection extends AbstractNode implements IQuota
             ],
         ];
 
-        $toset = $this->getChildrenRecursive($this->getRealId(), $shares);
+        $query = [
+            '$or' => [
+                ['reference' => ['exists' => true]],
+                ['shared' => true],
+            ],
+        ];
 
-        if (!empty($shares)) {
-            throw new Exception('child folder contains a shared folder');
+        if (iterator_count($this->_fs->findNodesByFilterRecursive($this, $query, 0, 1)) !== 0) {
+            throw new Exception\Conflict(
+                'folder contains a shared folder',
+                Exception\Conflict::NODE_CONTAINS_SHARED_NODE
+            );
         }
 
+        $toset = $this->_fs->findNodesByFilterRecursiveToArray($this);
         $this->_db->storage->updateMany([
             '_id' => [
                 '$in' => $toset,
@@ -517,8 +526,7 @@ class Collection extends AbstractNode implements IQuota
             ],
         ];
 
-        $toset = $this->getChildrenRecursive($this->getRealId(), $shares);
-
+        $toset = $this->_fs->findNodesByFilterRecursiveToArray($this);
         $this->_db->storage->updateMany([
             '_id' => [
                 '$in' => $toset,
@@ -528,38 +536,6 @@ class Collection extends AbstractNode implements IQuota
         $result = $this->save(['shared'], ['acl', 'share_name']);
 
         return true;
-    }
-
-    /**
-     * Get children.
-     */
-    public function getChildrenRecursive(?ObjectId $id = null, ?array &$shares = []): array
-    {
-        $list = [];
-        $result = $this->_db->storage->find([
-            'parent' => $id,
-        ], [
-            '_id' => 1,
-            'directory' => 1,
-            'reference' => 1,
-            'shared' => 1,
-        ]);
-
-        foreach ($result as $node) {
-            $list[] = $node['_id'];
-
-            if ($node['directory'] === true) {
-                if (isset($node['reference']) || isset($node['shared']) && true === $node['shared']) {
-                    $shares[] = $node['_id'];
-                }
-
-                if (true === $node['directory'] && !isset($node['reference'])) {
-                    $list = array_merge($list, $this->getChildrenRecursive($node['_id'], $shares));
-                }
-            }
-        }
-
-        return $list;
     }
 
     /**

@@ -1,6 +1,6 @@
 ## 2.5.0
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: 
+**Date**: Tue Mar 21 15:25:48 CET 2019 
 
 * CORE: [CHANGE] Support for elasticsearch 6.x #197
 * CORE: [CHANGE] Upgrade smbclient to 3.1.0 #275
@@ -9,6 +9,8 @@
 * CORE: [CHANGE] Remove the possibilty to combine filtered collection and a manual tree #269
 * CORE: [FEATURE] Implement idp Balloon.App.Idp #285
 * CORE: [CHANGE] Use loolwsd to convert office documents and previews #296
+* CORE: [FEATURE] Markdown preview generator/converter #279
+* CORE: [CHANGE] Replace Collection::getChildrenRecursive() with a graphLookup #273
 * API: [FEATURE] Move from apidoc to swagger/openapi #86 
 * API: [CHANGE] PATCH /api/v2/users/{id} must allow own id #280
 * API: [CHANGE] Remove deprecated api endpoints/changes in v2.5 #284
@@ -16,7 +18,7 @@
 * API: [FEATURE] Add recursive=1/0 to GET /api/v2/collections/:id/children #265
 * API: [FEATURE] two factor authentication (google authenticator) #242
 * API: [CHANGE] Remove the ability to do operations by path #287
-* API: [FIX]  Delta endpoint may return 0 nodes but has_more is true. #295
+* API: [FIX] Delta endpoint may return 0 nodes but has_more is true. #295
 * PACKAGING: [CHANGE] Dockerfile needs to get distributed directly along source code #297
 * DOCS: [CHANGE] Use mkdocs and publish docs to balloons.readthedocs.io
 

@@ -17,6 +17,7 @@ use Balloon\Server;
 use Balloon\Server\User;
 use Micro\Auth\Adapter\Basic\BasicInterface;
 use Micro\Auth\Auth;
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use OAuth2\Storage\MongoDB as OAuthMongoDB;
 use Psr\Log\LoggerInterface;
@@ -128,5 +129,85 @@ class Db extends OAuthMongoDB
 
             return false;
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setAccessToken($access_token, $client_id, $user_id, $expires, $scope = null)
+    {
+        $expires = new UTCDateTime($expires * 1000);
+
+        return parent::setAccessToken($access_token, $client_id, $user_id, $expires, $scope);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setAuthorizationCode($code, $client_id, $user_id, $redirect_uri, $expires, $scope = null, $id_token = null)
+    {
+        $expires = new UTCDateTime($expires * 1000);
+
+        return parent::setAuthorizationCode($code, $client_id, $user_id, $redirect_uri, $expires, $scope, $id_token);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setRefreshToken($refresh_token, $client_id, $user_id, $expires, $scope = null)
+    {
+        $expires = new UTCDateTime($expires * 1000);
+
+        return parent::setRefreshToken($refresh_token, $client_id, $user_id, $expires, $scope);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAccessToken($access_token)
+    {
+        $token = $this->collection('access_token_table')->findOne(['access_token' => $access_token]);
+
+        if ($token === null) {
+            return false;
+        }
+
+        $token['expires'] = $token['expires']->toDateTime()->format('U');
+
+        return $token;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAuthorizationCode($code)
+    {
+        $code = $this->collection('code_table')->findOne([
+            'authorization_code' => $code,
+        ]);
+
+        if ($code === null) {
+            return false;
+        }
+
+        $code['expires'] = $code['expires']->toDateTime()->format('U');
+
+        return $code;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRefreshToken($refresh_token)
+    {
+        $token = $this->collection('refresh_token_table')->findOne(['refresh_token' => $refresh_token]);
+
+        if ($token === null) {
+            return false;
+        }
+
+        $token['expires'] = $token['expires']->toDateTime()->format('U');
+
+        return $token;
     }
 }

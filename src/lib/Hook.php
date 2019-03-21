@@ -79,9 +79,6 @@ class Hook
 
     /**
      * Get hooks.
-     *
-     *
-     * @return HookInterface[]
      */
     public function getHooks(array $hooks = []): array
     {

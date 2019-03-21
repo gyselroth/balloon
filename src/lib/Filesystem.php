@@ -386,18 +386,52 @@ class Filesystem
     /**
      * Find nodes with custom filter recursive.
      */
-    public function findNodesByFilterRecursive(Collection $collection, array $filter, ?int $offset = null, ?int $limit = null): Generator
+    public function findNodesByFilterRecursiveToArray(Collection $collection, array $filter = []): array
     {
+        $graph = [
+            'from' => 'storage',
+            'startWith' => '$pointer',
+            'connectFromField' => 'pointer',
+            'connectToField' => 'parent',
+            'as' => 'children',
+        ];
+
+        if (count($filter) > 0) {
+            $graph['restrictSearchWithMatch'] = $filter;
+        }
+
         $query = [
             ['$match' => ['_id' => $collection->getId()]],
-            ['$graphLookup' => [
-                'from' => 'storage',
-                'startWith' => '$pointer',
-                'connectFromField' => 'pointer',
-                'connectToField' => 'parent',
-                'as' => 'children',
-                'restrictSearchWithMatch' => $filter,
-            ]],
+            ['$graphLookup' => $graph],
+            ['$unwind' => '$children'],
+            ['$project' => ['id' => '$children._id']],
+        ];
+
+        $result = $this->db->storage->aggregate($query);
+
+        return array_column(iterator_to_array($result), 'id');
+    }
+
+    /**
+     * Find nodes with custom filter recursive.
+     */
+    public function findNodesByFilterRecursive(Collection $collection, array $filter = [], ?int $offset = null, ?int $limit = null): Generator
+    {
+        $graph = [
+            'from' => 'storage',
+            'startWith' => '$pointer',
+            'connectFromField' => 'pointer',
+            'connectToField' => 'parent',
+            'as' => 'children',
+        ];
+
+        if (count($filter) > 0) {
+            $graph['restrictSearchWithMatch'] = $filter;
+        }
+
+        $query = [
+            ['$match' => ['_id' => $collection->getId()]],
+            ['$graphLookup' => $graph],
             ['$unwind' => '$children'],
             ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
         ];

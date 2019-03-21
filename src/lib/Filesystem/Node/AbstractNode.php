@@ -331,9 +331,14 @@ abstract class AbstractNode implements NodeInterface
         }
 
         if ($this instanceof Collection) {
-            $this->getChildrenRecursive($this->getRealId(), $shares);
+            $query = [
+                '$or' => [
+                    ['reference' => ['exists' => true]],
+                    ['shared' => true],
+                ],
+            ];
 
-            if (!empty($shares) && $parent->isShared()) {
+            if ($parent->isShared() && iterator_count($this->_fs->findNodesByFilterRecursive($this, $query, 0, 1)) !== 0) {
                 throw new Exception\Conflict(
                     'folder contains a shared folder',
                     Exception\Conflict::NODE_CONTAINS_SHARED_NODE
@@ -669,8 +674,6 @@ abstract class AbstractNode implements NodeInterface
 
     /**
      * Get unique id.
-     *
-     * @return ObjectId
      */
     public function getId(): ?ObjectId
     {

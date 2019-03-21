@@ -226,7 +226,7 @@ class Delta extends AbstractHook
      */
     protected function updateExistingDeltaShareMember(NodeInterface $node): bool
     {
-        $toset = $node->getChildrenRecursive($node->getRealId());
+        $toset = $node->getFilesystem()->findNodesByFilterRecursiveToArray($node);
         $action = [
             '$set' => [
                 'share' => $node->getRealId(),
