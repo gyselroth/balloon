@@ -7,11 +7,6 @@ use Balloon\Converter\Adapter\Office;
 use Balloon\Bootstrap\AbstractBootstrap;
 
 return [
-    Markdown::class => [
-        'arguments' => [
-            'officeConverter' => '{'.Office::class.'}',
-        ],
-    ],
     AbstractBootstrap::class => [
         'calls' => [
             'Balloon.App.Markdown' => [

@@ -1,24 +1,26 @@
-FROM php:7.2-fpm
+FROM php:7.3-fpm-alpine
 
-RUN apt-get update && apt-get install -y \
-  libldb-dev \
-  libldap2-dev \
+RUN apk update && apk add --no-cache \
+  ldb-dev \
+  openldap-dev \
   libxml2-dev \
-  libcurl4-openssl-dev \
-  libssl-dev \
+  curl-dev \
+  openssl-dev \
   libzip-dev \
-  libicu-dev \
-  libsmbclient-dev \
-  gnupg \
+  curl-dev \
+  icu-dev \
+  samba-dev \
+  samba-client \
+  autoconf \
   nginx \
+  g++ \
   git \
   make \
-  rsync \
   curl \
-  libmagickwand-dev \
-  && rm -rf /var/lib/apt/lists/*
+  freetype-dev libpng-dev libjpeg-turbo-dev \
+  imagemagick \
+  imagemagick-dev
 
-RUN ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so
 RUN docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg
 
 RUN pecl install mongodb \
@@ -36,20 +38,8 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
   && php composer-setup.php --filename=composer --install-dir=/usr/bin \
   && php -r "unlink('composer-setup.php');"
 
-RUN mkdir /etc/ssl/balloon \
-  && openssl genrsa -des3 -passout pass:x12345 -out server.pass.key 2048 \
-  && openssl rsa -passin pass:x12345 -in server.pass.key -out key.pem \
-  && rm server.pass.key \
-  && openssl req -new -key key.pem -out server.csr -subj "/C=CH//L=Zurich/O=Balloon/CN=balloon.local" \
-  && openssl x509 -req -days 365 -in server.csr -signkey key.pem -out chain.pem \
-  && rm server.csr \
-  && mv key.pem /etc/ssl/balloon/ \
-  && mv chain.pem /etc/ssl/balloon/
-
-COPY packaging/docker-dev/nginx.conf /etc/nginx/conf.d
-
 EXPOSE 80 443
 
 CMD make -C /srv/www/balloon deps; \
   php /srv/www/balloon/src/cgi-bin/cli.php upgrade start -i; \
-  service nginx start && php-fpm
+  php-fpm

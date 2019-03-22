@@ -20,6 +20,7 @@
 * API: [CHANGE] Remove the ability to do operations by path #287
 * API: [FIX] Delta endpoint may return 0 nodes but has_more is true. #295
 * PACKAGING: [CHANGE] Dockerfile needs to get distributed directly along source code #297
+* PACKAGING: [CHANGE] docker image gets packed with builded code directly instead deb packages, using alpine base image now
 * DOCS: [CHANGE] Use mkdocs and publish docs to balloons.readthedocs.io
 
 

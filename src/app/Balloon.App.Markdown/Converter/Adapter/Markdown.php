@@ -11,12 +11,14 @@ declare(strict_types=1);
 
 namespace Balloon\App\Markdown\Converter\Adapter;
 
-use Balloon\Converter\Adapter\AbstractOffice;
+use Balloon\App\Office\Converter\Adapter\Office;
 use Balloon\Converter\Exception;
 use Balloon\Filesystem\Node\File;
+use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
+use Parsedown;
 use Psr\Log\LoggerInterface;
 
-class Markdown extends AbstractOffice
+class Markdown extends Office
 {
     /**
      * Parsedown.
@@ -24,13 +26,6 @@ class Markdown extends AbstractOffice
      * @var \Parsedown
      */
     protected $parser;
-
-    /**
-     * AbstractOffice.
-     *
-     * @var AbstractOffice
-     */
-    protected $officeConverter;
 
     /**
      * Formats.
@@ -43,20 +38,12 @@ class Markdown extends AbstractOffice
 
     /**
      * Initialize.
-     *
-     * @param Parsedown       $parser          markdown parser
-     * @param AbstractOffice  $officeConverter office converter
-     * @param LoggerInterface $logger          PSR-3 Logger
      */
-    public function __construct(
-        \Parsedown $parser,
-        AbstractOffice $officeConverter,
-        LoggerInterface $logger
-    ) {
-        parent::__construct($logger);
+    public function __construct(Parsedown $parser, GuzzleHttpClientInterface $client, LoggerInterface $logger, array $config = [])
+    {
+        parent::__construct($client, $logger, $config);
         $this->parser = $parser;
         $this->parser->setSafeMode(true);
-        $this->officeConverter = $officeConverter;
     }
 
     /**
@@ -71,22 +58,6 @@ class Markdown extends AbstractOffice
         }
 
         return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function matchPreview(File $file): bool
-    {
-        return $this->match($file);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSupportedFormats(File $file): array
-    {
-        return array_keys($this->formats['text']);
     }
 
     /**
@@ -116,30 +87,6 @@ class Markdown extends AbstractOffice
         }
 
         return $this->convertFromStream($tmpHtmlFile, $format);
-    }
-
-    /**
-     * Create preview from stream.
-     *
-     * @param resource $stream
-     *
-     * @return resource
-     */
-    protected function createPreviewFromStream($stream)
-    {
-        $this->officeConverter->createPreviewFromStream($stream);
-    }
-
-    /**
-     * Convert from stream.
-     *
-     * @param resource $stream
-     *
-     * @return resource
-     */
-    protected function convertFromStream($stream, string $format)
-    {
-        return $this->officeConverter->convertFromStream($stream, $format);
     }
 
     /**

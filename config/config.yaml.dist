@@ -7,7 +7,7 @@ MongoDB\Database:
     - method: selectDatabase
       select: true
       arguments:
-        databaseName: 'balloon'
+        databaseName: '{ENV(BALLOON_MONGODB_DATABASE,balloon)}'
 Balloon\Bootstrap\Cli:
   calls:
     Balloon.App.Cli: {method: inject, arguments:{object: '{Balloon\App\Cli\Constructor\Cli}'}}
@@ -56,13 +56,8 @@ Balloon\App\Notification\TemplateHandler:
 Balloon\Async\Mail:
   arguments:
     config:
-      sender_address: "no-reply@localhost"
-      sender_name: "balloon"
-Balloon\App\Elasticsearch\Elasticsearch:
-  arguments:
-    config:
-      server: "{ENV(BALLOON_ELASTICSEARCH_URI,http://localhost:9200)}"
-      index: "balloon"
+      sender_address: "{ENV(BALLOON_SENDER_ADDRESS,noreply@localhost)}"
+      sender_name: "{ENV(BALLOON_SENDER_NAME,balloon)}"
 Balloon\App\Elasticsearch\Job:
   arguments:
     config:
@@ -170,10 +165,6 @@ Balloon\Converter:
       method: injectAdapter
       arguments:
         adapter: '{Balloon\Converter\Adapter\ImagickImage}'
-    Balloon\Converter\Adapter\Office:
-      method: injectAdapter
-      arguments:
-        adapter: '{Balloon\Converter\Adapter\Office}'
     Balloon\App\Office\Converter\Adapter\Office:
       method: injectAdapter
       arguments:
@@ -182,34 +173,31 @@ Balloon\Converter:
       method: injectAdapter
       arguments:
         adapter: '{Balloon\App\Burl\Converter\Adapter\Burl}'
+    Balloon\App\Markdown\Converter\Adapter\Markdown:
+      method: injectAdapter
+      arguments:
+        adapter: '{Balloon\App\Markdown\Converter\Adapter\Markdown}'
   services:
     Balloon\Converter\Adapter\ImagickImage:
       arguments:
         config:
-          preview_max_size: 500
-    Balloon\Converter\Adapter\Office:
-      arguments:
-        config:
-          preview_max_size: 500
-          timeout: 10
-          tmp: "/tmp"
-          soffice: "/usr/bin/soffice"
+          preview_max_size: 1000
     Balloon\App\Office\Converter\Adapter\Office:
       arguments:
         config:
-          preview_max_size: 500
+          preview_max_size: 1000
       services:
         GuzzleHttp\ClientInterface:
           arguments:
             config:
-              base_uri: {ENV(BALLOON_LIBREOFFICE_URL,https://libreoffice:9980)}
+              base_uri: {ENV(BALLOON_LIBREOFFICE_URL,https://localhost:9980)}
               connect_timeout: 3
               timeout: 10
               verify: false
     Balloon\App\Burl\Converter\Adapter\Burl:
       arguments:
         config:
-          preview_max_size: 500
+          preview_max_size: 1000
       services:
         GuzzleHttp\ClientInterface:
           arguments:
@@ -223,10 +211,6 @@ Psr\Log\LoggerInterface:
   arguments:
     name: default
   calls:
-    file:
-      method: pushHandler
-      arguments:
-        handler: '{file}'
     stderr:
       method: pushHandler
       arguments:
@@ -243,14 +227,6 @@ Psr\Log\LoggerInterface:
         format: "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
       calls:
         - method: includeStacktraces
-    file:
-      use: Monolog\Handler\StreamHandler
-      arguments:
-        stream: '{ENV(BALLOON_LOG_DIR,/tmp)}/out.log'
-        level: 100
-      calls:
-        formatter:
-          method: setFormatter
     stderr:
       use: Monolog\Handler\StreamHandler
       arguments:

@@ -25,7 +25,7 @@ postfix:
 browserless:
     image: browserless/chrome
 balloon-dev-jobs:
-    image: gyselroth/balloon-development:latest
+    image: gyselroth/balloon:dev
     volumes:
         - .:/srv/www/balloon
     links:
@@ -44,10 +44,16 @@ balloon-dev-jobs:
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
         - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
-balloon-dev:
-    image: gyselroth/balloon-development:latest
+balloon-web:
+    image: gyselroth/balloon-web:latest
     ports:
         - "8081:443"
+    links:
+        - balloon-dev
+    volumes:
+        - ${PWD}/packaging/docker-dev/:/etc/nginx/conf.d
+balloon-dev:
+    image: gyselroth/balloon:dev
     volumes:
         - .:/srv/www/balloon
     links:
@@ -65,3 +71,4 @@ balloon-dev:
         - BALLOON_SMTP_HOST=postfix
         - BALLOON_URL=http://localhost:8080
         - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+

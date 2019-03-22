@@ -185,10 +185,17 @@ echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee 
 sudo apt-get update
 ```
 
+#### Libreoffice online
+
+```sh
+sudo echo 'deb https://www.collaboraoffice.com/repos/CollaboraOnline/CODE-debian9 ./' >> /etc/apt/sources.list
+sudo apt-get update
+```
+
 ### Install balloon
 Now balloon and its components can be installed.
 ```
-apt-get install mongodb-org elasticsearch libreoffice clamav balloon balloon-web
+apt-get install mongodb-org elasticsearch libreoffice clamav loolwsd code-brand balloon balloon-web
 ```
 
 >**Note**: ClamAV, Elasticsearch and LibreOffice are optional balloon components and are used in the core apps Balloon.App.ClamAV, Balloon.App.Elasticsearch and Balloon.App.Preview.

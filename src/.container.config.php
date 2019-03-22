@@ -95,10 +95,6 @@ return [
             'name' => 'default'
         ],
         'calls' => [
-            'file' => [
-                'method' => 'pushHandler',
-                'arguments' => ['handler' => '{file}']
-            ],
             'stderr' => [
                 'method' => 'pushHandler',
                 'arguments' => ['handler' => '{stderr}']
@@ -117,18 +113,6 @@ return [
                 ],
                 'calls' => [
                     ['method' => 'includeStacktraces']
-                ]
-            ],
-            'file' => [
-                'use' => 'Monolog\Handler\StreamHandler',
-                'arguments' => [
-                    'stream' => '{ENV(BALLOON_LOG_DIR,/tmp)}/out.log',
-                    'level' => 100
-                 ],
-                'calls' => [
-                    'formatter' => [
-                        'method' => 'setFormatter'
-                    ]
                 ]
             ],
             'stderr' => [

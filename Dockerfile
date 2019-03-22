@@ -1,21 +1,26 @@
-FROM php:7.2-fpm
+FROM php:7.3-fpm-alpine
 
-RUN apt-get update && apt-get install -y \
-  libldb-dev \
-  libldap2-dev \
+RUN apk update && apk add --no-cache \
+  ldb-dev \
+  openldap-dev \
   libxml2-dev \
-  libcurl4-openssl-dev \
-  libssl-dev \
+  curl-dev \
+  openssl-dev \
   libzip-dev \
-  libicu-dev \
-  libmagickwand-dev \
-  wget \
-  gnupg \
-  smbclient \
-  libsmbclient-dev \
-  && rm -rf /var/lib/apt/lists/*
+  curl-dev \
+  icu-dev \
+  samba-dev \
+  samba-client \
+  autoconf \
+  nginx \
+  g++ \
+  git \
+  make \
+  curl \
+  freetype-dev libpng-dev libjpeg-turbo-dev \
+  imagemagick \
+  imagemagick-dev
 
-RUN ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so
 RUN docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg
 
 RUN pecl install mongodb \
@@ -32,7 +37,6 @@ COPY src/.container.config.php /usr/share/balloon/src
 COPY src/cgi-bin/cli.php /usr/share/balloon/bin/console/ballooncli
 COPY src/httpdocs /usr/share/balloon/bin/httpdocs
 COPY config/config.yaml.dist /etc/balloon/
-COPY config/config.yaml.docker.dist /etc/balloon/config.docker.yaml
 RUN ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
 
 ENV BALLOON_PATH /usr/share/balloon
