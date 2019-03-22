@@ -213,7 +213,7 @@ class File extends AbstractNode implements IFile
             'origin' => $this->history[$v]['version'],
             'storage' => $this->history[$v]['storage'],
             'size' => $this->history[$v]['size'],
-            'mime' => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null,
+            'mime' => isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : $this->mime,
         ];
 
         try {
@@ -221,7 +221,7 @@ class File extends AbstractNode implements IFile
             $this->storage = $this->history[$v]['storage'];
 
             $this->hash = null === $file ? self::EMPTY_CONTENT : $this->history[$v]['hash'];
-            $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : null;
+            $this->mime = isset($this->history[$v]['mime']) ? $this->history[$v]['mime'] : $this->mime;
             $this->size = $this->history[$v]['size'];
             $this->changed = $this->history[$v]['changed'];
             $new = $this->increaseVersion();

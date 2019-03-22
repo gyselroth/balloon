@@ -11,6 +11,7 @@
 * CORE: [CHANGE] Use loolwsd to convert office documents and previews #296
 * CORE: [FEATURE] Markdown preview generator/converter #279
 * CORE: [CHANGE] Replace Collection::getChildrenRecursive() with a graphLookup #273
+* CORE: [FIX] Do not set mime to NULL if mime can not be fetched from a previous version #302
 * API: [FEATURE] Move from apidoc to swagger/openapi #86 
 * API: [CHANGE] PATCH /api/v2/users/{id} must allow own id #280
 * API: [CHANGE] Remove deprecated api endpoints/changes in v2.5 #284
@@ -21,6 +22,7 @@
 * API: [FIX] Delta endpoint may return 0 nodes but has_more is true. #295
 * PACKAGING: [CHANGE] Dockerfile needs to get distributed directly along source code #297
 * PACKAGING: [CHANGE] docker image gets packed with builded code directly instead deb packages, using alpine base image now
+* PACKAGING: [CHANGE] docker image is now packaged from php7.3-alpine
 * DOCS: [CHANGE] Use mkdocs and publish docs to balloons.readthedocs.io
 
 
