@@ -15,6 +15,7 @@ RUN apk update && apk add --no-cache \
   nginx \
   g++ \
   git \
+  bash \
   make \
   curl \
   freetype-dev libpng-dev libjpeg-turbo-dev \

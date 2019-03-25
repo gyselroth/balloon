@@ -1,4 +1,4 @@
-SHELL=/bin/ash
+SHELL=/bin/bash
 
 # DIRECTORIES
 BASE_DIR = .
