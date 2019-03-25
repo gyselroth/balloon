@@ -1,6 +1,6 @@
-## 2.5.0
+## 2.5.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Tue Mar 21 15:25:48 CET 2019 
+**Date**: Mon Mar 25 15:25:48 CET 2019 
 
 * CORE: [CHANGE] Support for elasticsearch 6.x #197
 * CORE: [CHANGE] Upgrade smbclient to 3.1.0 #275
