@@ -12,22 +12,43 @@ RUN apk update && apk add --no-cache \
   samba-dev \
   samba-client \
   autoconf \
-  nginx \
+  libzip \
+  icu-libs \
+  libstdc++ \
   g++ \
   git \
   make \
   curl \
-  freetype-dev libpng-dev libjpeg-turbo-dev \
+  freetype-dev \
+  libpng-dev \
+  libjpeg-turbo-dev \
   imagemagick \
+  imagemagick-dev \
+  && docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg \
+  && pecl install mongodb \
+  && pecl install apcu \
+  && pecl install imagick \
+  && pecl install smbclient \
+  && docker-php-ext-enable mongodb apcu imagick smbclient \
+  && apk del \
+  ldb-dev \
+  openldap-dev \
+  libxml2-dev \
+  curl-dev \
+  openssl-dev \
+  libzip-dev \
+  curl-dev \
+  icu-dev \
+  samba-dev \
+  autoconf \
+  g++ \
+  autoconf \
+  git \
+  make \
+  freetype-dev \
+  libpng-dev \
+  libjpeg-turbo-dev \
   imagemagick-dev
-
-RUN docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg
-
-RUN pecl install mongodb \
-    && pecl install apcu \
-    && pecl install imagick \
-    && pecl install smbclient \
-    && docker-php-ext-enable mongodb apcu imagick smbclient
 
 RUN mkdir /usr/share/balloon && mkdir /usr/share/balloon/bin/console -p && mkdir /etc/balloon
 COPY src/lib /usr/share/balloon/src/lib
@@ -42,5 +63,5 @@ RUN ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
 ENV BALLOON_PATH /usr/share/balloon
 ENV BALLOON_CONFIG_DIR /etc/balloon
 
-EXPOSE 443 9000
-CMD nohup ballooncli jobs listen -vv && service nginx start && php-fpm;
+EXPOSE 9000
+CMD ballooncli jobs listen -vv && php-fpm;

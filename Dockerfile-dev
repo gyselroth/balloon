@@ -38,7 +38,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
   && php composer-setup.php --filename=composer --install-dir=/usr/bin \
   && php -r "unlink('composer-setup.php');"
 
-EXPOSE 80 443
+EXPOSE 9000
 
 CMD make -C /srv/www/balloon deps; \
   php /srv/www/balloon/src/cgi-bin/cli.php upgrade start -i; \
