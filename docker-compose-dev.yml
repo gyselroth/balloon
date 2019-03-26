@@ -53,7 +53,7 @@ balloon-web:
     volumes:
         - ${PWD}/packaging/docker-dev/:/etc/nginx/conf.d
 balloon-dev:
-    image: gyselroth/balloon:dev
+    image: gyselroth/balloon:latest-dev
     volumes:
         - .:/srv/www/balloon
     links:

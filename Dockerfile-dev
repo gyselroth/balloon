@@ -12,7 +12,9 @@ RUN apk update && apk add --no-cache \
   samba-dev \
   samba-client \
   autoconf \
-  nginx \
+  libzip \
+  icu-libs \
+  libstdc++ \
   g++ \
   git \
   bash \
