@@ -91,12 +91,8 @@ class ExternalStorage extends AbstractHook
     /**
      * Set options.
      */
-    public function setOptions(?Iterable $config = null): HookInterface
+    public function setOptions(array $config = []): HookInterface
     {
-        if (null === $config) {
-            return $this;
-        }
-
         foreach ($config as $option => $value) {
             switch ($option) {
                 case 'interval':

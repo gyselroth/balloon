@@ -1,3 +1,11 @@
+## 2.5.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Mar 28 15:09:48 CET 2019 
+
+* CORE: [FIX] Whitespace in smb share name results in invalid hostname exception #304
+* CORE: [FIX] Icewind\\SMB\\Exception\\DependencyException stdbuf is required #303
+
+
 ## 2.5.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Mar 25 15:25:48 CET 2019 

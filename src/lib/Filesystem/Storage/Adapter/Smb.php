@@ -342,9 +342,7 @@ class Smb implements AdapterInterface
      */
     public function test(): bool
     {
-        $test = $this->share->notify($this->root);
-        $changes = $test->getChanges();
-        $test->stop();
+        $this->share->dir($this->root);
 
         return true;
     }

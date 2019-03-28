@@ -25,7 +25,7 @@ postfix:
 browserless:
     image: browserless/chrome
 balloon-dev-jobs:
-    image: gyselroth/balloon:dev
+    image: gyselroth/balloon:latest-dev
     volumes:
         - .:/srv/www/balloon
     links:

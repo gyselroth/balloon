@@ -20,6 +20,10 @@
         {
             "type": "git",
             "url": "https://github.com/raffis/php-mongomock"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/raffis/SMB"
         }
     ],
     "minimum-stability": "dev",
@@ -42,7 +46,7 @@
         "ext-intl": "*",
         "ulrichsg/getopt-php": "^3.2.0",
         "zendframework/zend-mail": "2.9.*",
-        "gyselroth/mongodb-php-task-scheduler": "^3.0.2",
+        "gyselroth/mongodb-php-task-scheduler": "^3.1.0",
         "hassankhan/config": "^1.1.0",
         "symfony/yaml": "^4.0",
         "monolog/monolog": "^1.23",
@@ -51,7 +55,7 @@
         "maennchen/zipstream-php": "^0.5.1",
         "katzien/php-mime-type": "^2.1",
         "guzzlehttp/guzzle": "^6.3",
-        "icewind/smb": "^3.1.0",
+        "icewind/smb": "dev-both",
         "paragonie/halite": "^4",
         "bshaffer/oauth2-server-php": "^1.11",
         "dolondro/google-authenticator": "^2.0",

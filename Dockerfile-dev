@@ -17,6 +17,7 @@ RUN apk update && apk add --no-cache \
   libstdc++ \
   g++ \
   git \
+  coreutils \
   bash \
   make \
   curl \
@@ -40,6 +41,8 @@ RUN pecl install xdebug \
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
   && php composer-setup.php --filename=composer --install-dir=/usr/bin \
   && php -r "unlink('composer-setup.php');"
+
+RUN mkdir /var/cache/samba/msg.lock
 
 EXPOSE 9000
 

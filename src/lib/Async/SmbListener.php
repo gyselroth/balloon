@@ -114,7 +114,7 @@ class SmbListener extends AbstractJob
 
                 if ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
                     //do nothing
-                } elseif ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_NEW && $last->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
+                } elseif ($change->getCode() === INotifyHandler::NOTIFY_RENAMED_NEW && $last !== null && $last->getCode() === INotifyHandler::NOTIFY_RENAMED_OLD) {
                     $this->renameNode($mount, $dummy, $last->getPath(), $change->getPath());
                 } else {
                     $this->syncNode($mount, $change->getPath(), $change->getCode());

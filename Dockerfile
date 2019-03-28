@@ -18,6 +18,7 @@ RUN apk update && apk add --no-cache \
   g++ \
   git \
   make \
+  coreutils \
   curl \
   freetype-dev \
   libpng-dev \
@@ -59,6 +60,7 @@ COPY src/cgi-bin/cli.php /usr/share/balloon/bin/console/ballooncli
 COPY src/httpdocs /usr/share/balloon/bin/httpdocs
 COPY config/config.yaml.dist /etc/balloon/
 RUN ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
+RUN mkdir /var/cache/samba/msg.lock
 
 ENV BALLOON_PATH /usr/share/balloon
 ENV BALLOON_CONFIG_DIR /etc/balloon

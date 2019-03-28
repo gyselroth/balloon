@@ -89,7 +89,7 @@ TaskScheduler\Scheduler:
     config:
       job_queue_size: 1000000
       event_queue_size: 5000000
-TaskScheduler\Queue:
+TaskScheduler\WorkerManager:
   arguments:
     config:
       pm: dynamic
