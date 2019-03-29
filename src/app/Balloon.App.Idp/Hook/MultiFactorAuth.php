@@ -97,7 +97,7 @@ class MultiFactorAuth extends AbstractHook
             throw new Exception\MultiFactorAuthenticationRequired('multi-factor authentication required');
         }
 
-        $this->logger->debug('multi-factor authenticatoin is not required for user ['.$user->getId().']', [
+        $this->logger->debug('multi-factor authentication is not required for user ['.$user->getId().']', [
             'category' => get_class($this),
         ]);
     }

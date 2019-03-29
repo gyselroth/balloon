@@ -185,7 +185,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
                 }
 
                 if ($identity->getAdapter() instanceof InternalAuthInterface) {
-                    return 'internal';
+                    return $identity->getAdapter()->isInternal() ? 'internal' : 'external';
                 }
 
                 return 'external';

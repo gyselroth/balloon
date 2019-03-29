@@ -12,7 +12,20 @@ ballooncli elasticsearch reindex -vvv
 ```
 
 >**Note**: v2.5 creates new elasticsearch indices (`blobs` and `nodes`). You may drop the previously indices (default name: balloon).
-i
+
+### ConfigMap
+
+If you had a custom config mapped in the docker image this was previously mapped in `/usr/share/balloon/config`.
+Using v2.5 you need to map the config to `/etc/balloon`.
+
+### Upgrade
+
+Upgrading to v2.5 requires an execution of: 
+```
+ballooncli upgrade -vvvv
+```
+(Mostly because of [#285](https://github.com/gyselroth/balloon/issues/285))
+
 
 ## 2.x -> 2.4.x
 

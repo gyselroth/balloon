@@ -13,6 +13,7 @@ namespace Balloon\App\Idp\Auth;
 
 use Balloon\Auth\InternalAuthInterface;
 use Micro\Auth\Adapter\AbstractAdapter;
+use Micro\Auth\Auth;
 use MongoDB\Database;
 use OAuth2\Request;
 use OAuth2\Server as OAuth2Server;
@@ -41,12 +42,27 @@ class Token extends AbstractAdapter implements InternalAuthInterface
     protected $attributes = [];
 
     /**
+     * Internal.
+     *
+     * @var bool
+     */
+    protected $internal = true;
+
+    /**
+     * Auth.
+     *
+     * @var Auth
+     */
+    protected $auth;
+
+    /**
      * Set options.
      */
-    public function __construct(OAuth2Server $server, Database $db)
+    public function __construct(OAuth2Server $server, Database $db, Auth $auth)
     {
         $this->server = $server;
         $this->db = $db;
+        $this->auth = $auth;
     }
 
     /**
@@ -65,11 +81,27 @@ class Token extends AbstractAdapter implements InternalAuthInterface
     /**
      * {@inheritdoc}
      */
+    public function isInternal(): bool
+    {
+        return $this->internal;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function authenticate(): bool
     {
         $request = Request::createFromGlobals();
         if ($this->server->verifyResourceRequest($request)) {
             $data = $this->server->getAccessTokenData($request);
+
+            try {
+                $adapter = $this->auth->getAdapter($data['adapter']);
+                $this->internal = $adapter instanceof InternalAuthInterface;
+            } catch (\Exception $e) {
+                $this->internal = true;
+            }
+
             $this->identifier = $data['user_id'];
             $this->attributes = $this->findIdentity($this->identifier);
 

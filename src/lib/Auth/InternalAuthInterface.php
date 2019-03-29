@@ -13,4 +13,8 @@ namespace Balloon\Auth;
 
 interface InternalAuthInterface
 {
+    /**
+     * Is internal auth adapter.
+     */
+    public function isInternal(): bool;
 }

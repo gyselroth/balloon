@@ -53,6 +53,13 @@ class Db extends OAuthMongoDB
     protected $server;
 
     /**
+     * Last adapter.
+     *
+     * @var string
+     */
+    protected $adapter;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct(Database $db, Auth $auth, Hook $hook, Server $server, LoggerInterface $logger, array $config = [])
@@ -70,7 +77,7 @@ class Db extends OAuthMongoDB
      */
     public function checkUserCredentials($username, $password)
     {
-        foreach ($this->auth->getAdapters() as $adapter) {
+        foreach ($this->auth->getAdapters() as $name => $adapter) {
             if ($adapter instanceof BasicInterface) {
                 try {
                     if ($adapter->plainAuth($username, $password) === true) {
@@ -97,6 +104,8 @@ class Db extends OAuthMongoDB
                                 User\Exception\NotAuthenticated::USER_DELETED
                             );
                         }
+
+                        $this->adapter = $name;
 
                         return true;
                     }
@@ -136,9 +145,27 @@ class Db extends OAuthMongoDB
      */
     public function setAccessToken($access_token, $client_id, $user_id, $expires, $scope = null)
     {
-        $expires = new UTCDateTime($expires * 1000);
+        $token = [
+            'access_token' => $access_token,
+            'client_id' => $client_id,
+            'expires' => new UTCDateTime($expires * 1000),
+            'user_id' => $user_id,
+            'scope' => $scope,
+            'adapter' => $this->adapter,
+        ];
 
-        return parent::setAccessToken($access_token, $client_id, $user_id, $expires, $scope);
+        if ($this->getAccessToken($access_token)) {
+            $result = $this->collection('access_token_table')->updateOne(
+                ['access_token' => $access_token],
+                ['$set' => $token]
+            );
+
+            return $result->getMatchedCount() > 0;
+        }
+
+        $result = $this->collection('access_token_table')->insertOne($token);
+
+        return $result->getInsertedCount() > 0;
     }
 
     /**

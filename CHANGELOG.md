@@ -4,6 +4,7 @@
 
 * CORE: [FIX] Whitespace in smb share name results in invalid hostname exception #304
 * CORE: [FIX] Icewind\\SMB\\Exception\\DependencyException stdbuf is required #303
+* CORE: [FIX] Balloon.App.Idp now stores the authentication adapter to later determine if the user was internally authenticated
 
 
 ## 2.5.0-beta1

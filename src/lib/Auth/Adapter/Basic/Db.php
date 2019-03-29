@@ -36,6 +36,14 @@ class Db extends AbstractBasic implements InternalAuthInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function isInternal(): bool
+    {
+        return true;
+    }
+
+    /**
      * Find identity.
      */
     public function findIdentity(string $username): ?array
