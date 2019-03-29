@@ -32,9 +32,7 @@ $composer = require 'vendor/autoload.php';
 try {
     $dic = ContainerBuilder::get($composer);
     $http = $dic->get(Http::class);
-} catch (\Exception $e) {
-    error_log((string) $e);
-
+} catch (\Throwable $e) {
     (new Response())
         ->setCode(500)
         ->setBody([
@@ -42,6 +40,7 @@ try {
             'message' => $e->getMessage(),
         ])->send();
 
+    error_log((string) $e);
     exit();
 }
 

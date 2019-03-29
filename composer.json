@@ -59,7 +59,8 @@
         "paragonie/halite": "^4",
         "bshaffer/oauth2-server-php": "^1.11",
         "dolondro/google-authenticator": "^2.0",
-        "erusev/parsedown": "^1.7"
+        "erusev/parsedown": "^1.7",
+        "google/recaptcha": "^1.2"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",
