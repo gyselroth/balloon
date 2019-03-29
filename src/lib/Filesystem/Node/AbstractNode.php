@@ -330,6 +330,13 @@ abstract class AbstractNode implements NodeInterface
             $this->raw_attributes['name'] = $this->name;
         }
 
+        if ($parent->isFiltered()) {
+            throw new Exception\Conflict(
+                'can not move node into a filtered parent collection',
+                Exception\Conflict::DYNAMIC_PARENT
+            );
+        }
+
         if ($this instanceof Collection) {
             $query = [
                 '$or' => [

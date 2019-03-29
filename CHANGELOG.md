@@ -1,10 +1,11 @@
 ## 2.5.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Thu Mar 28 15:09:48 CET 2019 
+**Date**: Fri Mar 29 16:31:48 CET 2019 
 
 * CORE: [FIX] Whitespace in smb share name results in invalid hostname exception #304
 * CORE: [FIX] Icewind\\SMB\\Exception\\DependencyException stdbuf is required #303
 * CORE: [FIX] Balloon.App.Idp now stores the authentication adapter to later determine if the user was internally authenticated
+* CORE: [FIX] Throw Filesystem\Exception\Conflict if parent collection is filtered
 
 
 ## 2.5.0-beta1
