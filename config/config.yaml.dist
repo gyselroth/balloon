@@ -58,6 +58,10 @@ Balloon\Async\Mail:
     config:
       sender_address: "{ENV(BALLOON_SENDER_ADDRESS,noreply@localhost)}"
       sender_name: "{ENV(BALLOON_SENDER_NAME,balloon)}"
+Balloon\App\Elasticsearch\Console\Elasticsearch:
+  arguments:
+    config:
+      bulk: 200
 Balloon\App\Elasticsearch\Job:
   arguments:
     config:

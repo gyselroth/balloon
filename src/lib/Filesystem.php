@@ -358,6 +358,14 @@ class Filesystem
     }
 
     /**
+     * Count.
+     */
+    public function countNodes(array $filter = []): int
+    {
+        return $this->db->storage->count($filter);
+    }
+
+    /**
      * Find nodes with custom filters.
      */
     public function findNodesByFilter(array $filter, ?int $offset = null, ?int $limit = null): Generator
@@ -367,7 +375,7 @@ class Filesystem
             'limit' => $limit,
         ]);
 
-        $count = $this->db->storage->count($filter);
+        $count = $this->countNodes($filter);
 
         foreach ($result as $node) {
             try {

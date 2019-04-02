@@ -13,6 +13,11 @@ ballooncli elasticsearch reindex -vvv
 
 >**Note**: v2.5 creates new elasticsearch indices (`blobs` and `nodes`). You may drop the previously indices (default name: balloon).
 
+### Libreoffice
+balloon v2.5 requires loolwsd for office previews. Previously libreoffice (soffice.bin) has been shipped with balloon or has been declared as optional requirement.
+Such previews are now generated via loolwsd. loolwsd may either be deployed via docker image or as debian packages. See the docs.
+You may need to configure the new env variable `BALLOON_LIBREOFFICE_URL`.
+
 ### ConfigMap
 
 If you had a custom config mapped in the docker image this was previously mapped in `/usr/share/balloon/config`.

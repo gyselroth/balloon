@@ -78,7 +78,7 @@ class ExternalStorage extends AbstractHook
     /**
      * Constructor.
      */
-    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory, EncryptionKey $key, LoggerInterface $logger, ?array $config = null)
+    public function __construct(Server $server, Scheduler $scheduler, StorageFactory $factory, EncryptionKey $key, LoggerInterface $logger, array $config = [])
     {
         $this->server = $server;
         $this->scheduler = $scheduler;

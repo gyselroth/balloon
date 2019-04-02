@@ -1,3 +1,13 @@
+## 2.5.0-beta3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Mar 29 16:31:48 CET 2019 
+
+* CORE: [FIX] fixed Balloon\Hook\ExternalStorage setOptions() requires array, null provided (workaround for v2.5.0-beta2 via config required)
+* CORE: [CHANGE] do not remove refresh_tokens after usage
+* CORE: [CHANGE] refresh_tokens do not expire
+* CORE: [CHANGE] Add elasticsearch reindex bulk and progress #305
+
+
 ## 2.5.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Mar 29 16:31:48 CET 2019 

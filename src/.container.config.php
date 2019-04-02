@@ -3,7 +3,6 @@ use Balloon\App;
 use Balloon\Auth\Adapter\Basic\Db;
 use Balloon\Converter;
 use Balloon\Converter\Adapter\ImagickImage;
-use Balloon\Converter\Adapter\Office;
 use Balloon\Exception;
 use Balloon\Filesystem\Storage\Adapter\Gridfs;
 use Composer\Autoload\ClassLoader as Composer;
@@ -14,6 +13,7 @@ use MongoDB\Client;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use Monolog\Logger;
+use Monolog\Processor;
 use Balloon\App\Notification\Notification;
 use Balloon\Migration;
 use Balloon\Migration\Delta;
@@ -92,7 +92,10 @@ return [
     LoggerInterface::class => [
         'use' => Logger::class,
         'arguments' => [
-            'name' => 'default'
+            'name' => 'default',
+            'processors' => [
+                '{'.Processor\PsrLogMessageProcessor::class.'}',
+            ]
         ],
         'calls' => [
             'stderr' => [
@@ -157,10 +160,6 @@ return [
                     'method' => 'injectAdapter',
                 'arguments' => ['adapter' => '{'.ImagickImage::class.'}']
             ],
-            /*Office::class => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Office::class.'}']
-            ],*/
         ]
     ],
     Hook::class => [
