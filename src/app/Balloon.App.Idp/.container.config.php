@@ -26,7 +26,8 @@ return [
                 'enforce_state' => true,
                 'allow_implicit' => true,
                 'use_openid_connect' => true,
-                'issuer' => 'balloon'
+                'issuer' => 'balloon',
+                'refresh_token_lifetime' => 0,
             ],
             'grantTypes' => [
                 'user_credentials' => '{'.UserCredentials::class.'}',
@@ -41,6 +42,13 @@ return [
             UserCredentials::class => [
                 'arguments' => [
                     'storage' => '{'.DbStorage::class.'}'
+                ]
+            ],
+            RefreshToken::class => [
+                'arguments' => [
+                    'config' => [
+                        'unset_refresh_token_after_use' => false,
+                    ]
                 ]
             ],
             UserCredentialsMultiFactor::class => [

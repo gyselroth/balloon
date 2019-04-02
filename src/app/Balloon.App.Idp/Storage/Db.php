@@ -173,7 +173,11 @@ class Db extends OAuthMongoDB
      */
     public function setAuthorizationCode($code, $client_id, $user_id, $redirect_uri, $expires, $scope = null, $id_token = null)
     {
-        $expires = new UTCDateTime($expires * 1000);
+        if ($expires === 0) {
+            $expires = null;
+        } else {
+            $expires = new UTCDateTime($expires * 1000);
+        }
 
         return parent::setAuthorizationCode($code, $client_id, $user_id, $redirect_uri, $expires, $scope, $id_token);
     }
@@ -183,7 +187,11 @@ class Db extends OAuthMongoDB
      */
     public function setRefreshToken($refresh_token, $client_id, $user_id, $expires, $scope = null)
     {
-        $expires = new UTCDateTime($expires * 1000);
+        if ($expires === 0) {
+            $expires = null;
+        } else {
+            $expires = new UTCDateTime($expires * 1000);
+        }
 
         return parent::setRefreshToken($refresh_token, $client_id, $user_id, $expires, $scope);
     }
@@ -217,7 +225,9 @@ class Db extends OAuthMongoDB
             return false;
         }
 
-        $code['expires'] = $code['expires']->toDateTime()->format('U');
+        if ($code['expires'] !== null) {
+            $code['expires'] = $code['expires']->toDateTime()->format('U');
+        }
 
         return $code;
     }
@@ -233,7 +243,9 @@ class Db extends OAuthMongoDB
             return false;
         }
 
-        $token['expires'] = $token['expires']->toDateTime()->format('U');
+        if ($code['expires'] !== null) {
+            $token['expires'] = $token['expires']->toDateTime()->format('U');
+        }
 
         return $token;
     }
