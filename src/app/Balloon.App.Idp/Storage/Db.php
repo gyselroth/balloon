@@ -145,10 +145,16 @@ class Db extends OAuthMongoDB
      */
     public function setAccessToken($access_token, $client_id, $user_id, $expires, $scope = null)
     {
+        if ($expires === 0) {
+            $expires = null;
+        } else {
+            $expires = new UTCDateTime($expires * 1000);
+        }
+
         $token = [
             'access_token' => $access_token,
             'client_id' => $client_id,
-            'expires' => new UTCDateTime($expires * 1000),
+            'expires' => $expires,
             'user_id' => $user_id,
             'scope' => $scope,
             'adapter' => $this->adapter,
@@ -207,7 +213,9 @@ class Db extends OAuthMongoDB
             return false;
         }
 
-        $token['expires'] = $token['expires']->toDateTime()->format('U');
+        if ($token['expires'] !== null) {
+            $token['expires'] = $token['expires']->toDateTime()->format('U');
+        }
 
         return $token;
     }
@@ -243,7 +251,7 @@ class Db extends OAuthMongoDB
             return false;
         }
 
-        if ($code['expires'] !== null) {
+        if ($token['expires'] !== null) {
             $token['expires'] = $token['expires']->toDateTime()->format('U');
         }
 

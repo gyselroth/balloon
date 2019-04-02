@@ -15,6 +15,7 @@ use Balloon\App\Elasticsearch\Job;
 use Balloon\Filesystem;
 use Balloon\Server;
 use GetOpt\GetOpt;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Scheduler;
 

@@ -1,6 +1,6 @@
 ## 2.5.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Fri Mar 29 16:31:48 CET 2019 
+**Date**: Tue Apr 02 15:26:48 CEST 2019 
 
 * CORE: [FIX] fixed Balloon\Hook\ExternalStorage setOptions() requires array, null provided (workaround for v2.5.0-beta2 via config required)
 * CORE: [CHANGE] do not remove refresh_tokens after usage
