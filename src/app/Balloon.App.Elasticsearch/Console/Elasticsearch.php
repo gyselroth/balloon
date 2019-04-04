@@ -16,6 +16,7 @@ use Balloon\Filesystem;
 use Balloon\Server;
 use GetOpt\GetOpt;
 use InvalidArgumentException;
+use MongoDB\Driver\Exception\ServerException;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Scheduler;
 
@@ -87,28 +88,21 @@ class Elasticsearch
 
         $stack = [];
         $done = 0;
+        $result = false;
+        $skip = 0;
 
-        foreach ($this->fs->findNodesByFilter([]) as $node) {
-            $stack[] = $this->scheduler->addJob(Job::class, [
-                'id' => $node->getId(),
-                'action' => Job::ACTION_CREATE,
-            ]);
+        while ($result === false) {
+            try {
+                $this->index($total, $skip);
+                $result = true;
+            } catch (ServerException $e) {
+                $skip -= $this->bulk;
 
-            if (count($stack) >= $this->bulk) {
-                $this->logger->info('waiting for ['.$this->bulk.'] jobs to be finished', [
+                $this->logger->error('cursor timeout captchered, restart from {skip}', [
                     'category' => get_class($this),
+                    'exception' => $e,
+                    'skip' => $skip,
                 ]);
-
-                $done += $this->bulk;
-                $this->logger->info('reindex elasticsearch {percent}, nodes left: {done}/{total}', [
-                    'category' => get_class($this),
-                    'percent' => round($done / $total * 100, 1).'%',
-                    'total' => $total,
-                    'done' => $done,
-                ]);
-
-                $this->scheduler->waitFor($stack);
-                $stack = [];
             }
         }
 
@@ -150,5 +144,39 @@ class Elasticsearch
     public static function getOptions(): array
     {
         return [];
+    }
+
+    /**
+     * Index.
+     */
+    protected function index(int $total = 0, int &$done = 0): bool
+    {
+        $stack = [];
+
+        foreach ($this->fs->findNodesByFilter([], $done) as $node) {
+            $stack[] = $this->scheduler->addJob(Job::class, [
+                'id' => $node->getId(),
+                'action' => Job::ACTION_CREATE,
+            ]);
+
+            if (count($stack) >= $this->bulk) {
+                $this->logger->info('waiting for ['.$this->bulk.'] jobs to be finished', [
+                    'category' => get_class($this),
+                ]);
+
+                $done += $this->bulk;
+                $this->logger->info('reindex elasticsearch {percent}, nodes left: {done}/{total}', [
+                    'category' => get_class($this),
+                    'percent' => round($done / $total * 100, 1).'%',
+                    'total' => $total,
+                    'done' => $done,
+                ]);
+
+                $this->scheduler->waitFor($stack);
+                $stack = [];
+            }
+        }
+
+        return true;
     }
 }

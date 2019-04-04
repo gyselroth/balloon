@@ -1,3 +1,10 @@
+## 2.5.0-beta4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Apr 04 16:33:48 CEST 2019 
+
+* CORE: [FIX] elasticsearch reindex cursor does not die on bug databases #305
+
+
 ## 2.5.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Apr 02 15:26:48 CEST 2019 
