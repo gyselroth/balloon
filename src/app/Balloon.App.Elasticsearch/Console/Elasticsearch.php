@@ -81,6 +81,17 @@ class Elasticsearch
         }
 
         $total = $this->fs->countNodes();
+        $stack = [];
+        $done = 0;
+        $result = false;
+        $skip = $this->getopt->getOption('skip') | 0;
+        $this->bulk = $this->getopt->getOption('bulk') ? (int) $this->getopt->getOption('bulk') : $this->bulk;
+        $total -= $skip;
+
+        if ($total < 0) {
+            $total = 0;
+        }
+
         $this->logger->info('reindex elasticsearch, nodes left: {total}/{total}', [
             'category' => get_class($this),
             'total' => $total,
@@ -88,8 +99,6 @@ class Elasticsearch
 
         $stack = [];
         $done = 0;
-        $result = false;
-        $skip = 0;
 
         while ($result === false) {
             try {
@@ -143,7 +152,10 @@ class Elasticsearch
      */
     public static function getOptions(): array
     {
-        return [];
+        return [
+            \GetOpt\Option::create('b', 'bulk', \GetOpt\GetOpt::REQUIRED_ARGUMENT)->setDescription('Specify the bulk size [Default: 200]'),
+            \GetOpt\Option::create('s', 'skip', \GetOpt\GetOpt::REQUIRED_ARGUMENT)->setDescription('Instead start from node 0, you may skip nodes by specifing a different start index'),
+        ];
     }
 
     /**

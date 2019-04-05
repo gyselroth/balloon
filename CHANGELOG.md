@@ -1,3 +1,10 @@
+## 2.5.0-beta5
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**:
+
+* CORE: [CHANGE] Added --skip and --bulk as elasticsearch reindex options
+
+
 ## 2.5.0-beta4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Apr 04 16:33:48 CEST 2019 
