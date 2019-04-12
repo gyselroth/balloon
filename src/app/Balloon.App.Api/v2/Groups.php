@@ -132,7 +132,7 @@ class Groups
     /**
      * Change group attributes.
      */
-    public function patch(string $id, ?array $member = null, ?string $namespace = null): Response
+    public function patch(string $id, ?string $name = null, ?array $member = null, ?string $namespace = null): Response
     {
         $attributes = compact('namespace', 'name', 'member');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });

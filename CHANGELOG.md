@@ -2,7 +2,8 @@
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Apr 12 16:27:31 CEST 2019
 
-* CORE: [FIX] server must not respond with 401 if a connection to an ldap server could not be established #309
+* API: [FIX] server must not respond with 401 if a connection to an ldap server could not be established #309
+* API: [FIX] patching a group name ends in uncaught exception compact() #310
 
 
 ## 2.5.0
