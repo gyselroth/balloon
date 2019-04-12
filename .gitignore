@@ -1,6 +1,8 @@
 vendor
 config/config.yaml
 config/php.ini
+config/index.json
+site
 build
 dist
 log
