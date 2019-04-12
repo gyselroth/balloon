@@ -4,7 +4,7 @@
 balloon v2.5 requires elasticsearch 6.x and the newer elasticsearch ingest-attachment instead of mapper-attachment.
 This requires a full reindex of elasticsearch:
 
->**Note**: The reindex process makes use of the async functionality of balloon, be sure that you have enaugh workers and a big enaugh \TaskScheduler queue.
+>**Note**: The reindex process makes use of the async functionality of balloon, the more worker you have the faster it will index.
 This may take while to fully index all documents.
 
 ```
