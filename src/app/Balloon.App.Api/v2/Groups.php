@@ -114,7 +114,7 @@ class Groups
     /**
      * Create group.
      */
-    public function post(string $name, ?array $member = null, ?string $namespace = null): Response
+    public function post(string $name, array $member = [], ?string $namespace = null): Response
     {
         if (!$this->user->isAdmin()) {
             throw new Exception\NotAdmin('submitted parameters require admin privileges');

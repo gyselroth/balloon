@@ -76,6 +76,10 @@ class MultiFactorAuth extends AbstractHook
      */
     public function preDecorateRole(RoleInterface $role, array &$attributes = []): void
     {
+        if (!($role instanceof User)) {
+            return;
+        }
+
         $mfa = $role->getAttributes()['multi_factor_auth'];
         $attributes['multi_factor_auth'] = $mfa;
 
