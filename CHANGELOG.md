@@ -1,3 +1,10 @@
+## 2.5.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Sun Apr 14 15:22:31 CEST 2019
+
+* API: [FIX] add new group with empty member results in Argument 2 passed to Balloon\\Server::addGroup() must be of the type array, null given #312
+
+
 ## 2.5.1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Apr 12 16:27:31 CEST 2019
