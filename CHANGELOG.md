@@ -3,6 +3,7 @@
 **Date**: Sun Apr 14 15:22:31 CEST 2019
 
 * API: [FIX] add new group with empty member results in Argument 2 passed to Balloon\\Server::addGroup() must be of the type array, null given #312
+* API: [FIX] Get groups results in undefined index: multi_factor_auth #311
 
 
 ## 2.5.1
