@@ -111,7 +111,7 @@ return [
             'Monolog\Formatter\FormatterInterface' => [
                 'use' => 'Monolog\Formatter\LineFormatter',
                 'arguments' => [
-                    'dateFormat' => 'Y-d-m H:i:s',
+                    'dateFormat' => 'Y-m-d H:i:s',
                     'format' => "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
                 ],
                 'calls' => [
