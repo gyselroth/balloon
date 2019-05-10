@@ -44,6 +44,13 @@ return [
             ]
         ],
     ],
+    WopiHostManager::class => [
+        'arguments' => [
+            'hosts' => [
+
+            ]
+        ]
+    ],
     NodeFactory::class => [
         'services' => [
             StorageAdapterInterface::class => [

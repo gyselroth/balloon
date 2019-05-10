@@ -43,7 +43,7 @@ class Document
     /**
      * Get running sessions for document.
      */
-    public function getSessions(): Iterable
+    public function getSessions(): iterable
     {
         $result = $this->db->app_office_session->find([
             'node' => $this->node->getId(),

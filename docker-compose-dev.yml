@@ -1,75 +1,101 @@
-mongodb:
-    image: mongo:3.6
-clamav:
-    image: dinkel/clamavd:latest
-libreoffice:
-    image: collabora/code:4.0.1.1
-    ports:
-        - "9980:9980"
-    links:
-        - balloon-dev
-    environment:
-        - domain=balloon-dev
-    entrypoint:
-        - sh
-        - -c
-        - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
-    entrypoint:
-        - /bin/sh
-        - -c
-        - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && docker-entrypoint.sh"
-postfix:
-    image: webuni/postfix
-browserless:
-    image: browserless/chrome
-balloon-dev-jobs:
-    image: gyselroth/balloon:latest-dev
-    volumes:
-        - .:/srv/www/balloon
-    links:
-        - clamav
-        - mongodb
-        - elasticsearch
-        - postfix
-        - browserless
-        - libreoffice
-    environment:
-        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-        - BALLOON_CLAMAV_URI=tcp://clamav:3310
-        - BALLOON_ELASTICSEARCH_URI=http://192.168.100.192:30911
-        - BALLOON_WOPI_URL=https://balloon-dev
-        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
-        - BALLOON_SMTP_HOST=postfix
-        - BALLOON_URL=http://localhost:8080
-        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
-balloon-web:
-    image: gyselroth/balloon-web:latest
-    ports:
-        - "8081:443"
-    links:
-        - balloon-dev
-    volumes:
-        - ${PWD}/packaging/docker-dev/:/etc/nginx/conf.d
-balloon-dev:
-    image: gyselroth/balloon:latest-dev
-    volumes:
-        - .:/srv/www/balloon
-    links:
-        - clamav
-        - mongodb
-        - elasticsearch
-        - postfix
-        - browserless
-    environment:
-        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-        - BALLOON_CLAMAV_URI=tcp://clamav:3310
-        - BALLOON_ELASTICSEARCH_URI=http://192.168.100.192:30911
-          #- BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-        - BALLOON_WOPI_URL=https://balloon-dev
-        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
-        - BALLOON_SMTP_HOST=postfix
-        - BALLOON_URL=http://localhost:8080
-        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+version: '2'
+networks:
+    backend:
+    frontend:
 
+services:
+    mongodb:
+        image: mongo:3.6
+        networks:
+        - backend
+    clamav:
+        image: dinkel/clamavd:latest
+        networks:
+        - backend
+    libreoffice:
+        image: collabora/code:4.0.1.1
+        ports:
+            - "9980:9980"
+        #links:
+        #    - balloon-dev
+        environment:
+            - domain=balloon-dev
+        entrypoint:
+            - sh
+            - -c
+            - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
+        networks:
+        - backend
+        - frontend
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+        entrypoint:
+            - /bin/sh
+            - -c
+            - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && docker-entrypoint.sh"
+        networks:
+        - backend
+    postfix:
+        image: webuni/postfix
+        networks:
+        - backend
+    browserless:
+        image: browserless/chrome
+        networks:
+        - backend
+    balloon-dev-jobs:
+        image: gyselroth/balloon:latest-dev
+        volumes:
+            - .:/srv/www/balloon
+        #links:
+        #    - clamav
+        #    - mongodb
+        #    - elasticsearch
+        #    - postfix
+        #    - browserless
+        #    - libreoffice
+        networks:
+        - backend
+        environment:
+            - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+            - BALLOON_CLAMAV_URI=tcp://clamav:3310
+            - BALLOON_ELASTICSEARCH_URI=http://192.168.100.192:30911
+            - BALLOON_WOPI_URL=https://balloon-dev
+            - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+            - BALLOON_SMTP_HOST=postfix
+            - BALLOON_URL=http://localhost:8080
+            - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+    balloon-web:
+        image: gyselroth/balloon-web:latest
+        ports:
+            - "8081:443"
+            - "8084:80"
+        links:
+            - balloon-dev
+        volumes:
+            - ${PWD}/packaging/docker-dev/:/etc/nginx/conf.d
+        networks:
+        - backend
+        - frontend
+    balloon-dev:
+        image: gyselroth/balloon:latest-dev
+        volumes:
+            - .:/srv/www/balloon
+        #links:
+        #    - clamav
+        #    - mongodb
+        #    - elasticsearch
+        #    - postfix
+        #    - browserless
+        networks:
+        - backend
+        environment:
+            - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+            - BALLOON_CLAMAV_URI=tcp://clamav:3310
+            - BALLOON_ELASTICSEARCH_URI=http://192.168.100.192:30911
+              #- BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
+            - BALLOON_WOPI_URL=https://balloon-dev
+            - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+            - BALLOON_SMTP_HOST=postfix
+            - BALLOON_URL=http://localhost:8080
+            - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000

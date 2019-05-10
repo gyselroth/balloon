@@ -69,7 +69,7 @@ class Pager
      *
      * @param int $total
      */
-    public function __construct(AttributeDecoratorInterface $decorator, Iterable $data, array $attributes, int $offset, int $limit, string $uri, ?int $total = null)
+    public function __construct(AttributeDecoratorInterface $decorator, iterable $data, array $attributes, int $offset, int $limit, string $uri, ?int $total = null)
     {
         $this->decorator = $decorator;
         $this->data = $data;

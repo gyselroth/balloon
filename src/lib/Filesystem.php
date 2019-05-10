@@ -578,6 +578,49 @@ class Filesystem
     }
 
     /**
+     * Find node with path.
+     */
+    public function findNodeByPath(string $path = '', ?string $class = null): NodeInterface
+    {
+        if (empty($path) || '/' !== $path[0]) {
+            $path = '/'.$path;
+        }
+        $last = strlen($path) - 1;
+        if ('/' === $path[$last]) {
+            $path = substr($path, 0, -1);
+        }
+        $parts = explode('/', $path);
+        $parent = $this->getRoot();
+        array_shift($parts);
+        $count = count($parts);
+        $i = 0;
+        $filter = [];
+        foreach ($parts as $node) {
+            ++$i;
+            if ($count === $i && $class !== null) {
+                $filter = [
+                    'directory' => ($class === Collection::class),
+                ];
+            }
+
+            try {
+                $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE, $filter);
+            } catch (Exception\NotFound $e) {
+                if ($count == $i) {
+                    $parent = $parent->getChild($node, NodeInterface::DELETED_INCLUDE, $filter);
+                } else {
+                    throw $e;
+                }
+            }
+        }
+        if (null !== $class && !($parent instanceof $class)) {
+            throw new Exception('node is not instance of '.$class);
+        }
+
+        return $parent;
+    }
+
+    /**
      * Resolve shared node to reference or share depending who requested.
      */
     protected function findReferenceNode(array $node): array

@@ -93,6 +93,12 @@ TaskScheduler\WorkerManager:
       pm: dynamic
       max_children: 4
       min_children: 2
+GuzzleHttp\ClientInterface:
+  arguments:
+    config:
+      connect_timeout: 3
+      timeout: 10
+      verify: false
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:
