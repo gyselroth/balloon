@@ -328,7 +328,7 @@ class Delta
     /**
      * Get event log.
      */
-    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): Iterable
+    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): iterable
     {
         $filter = $this->getEventFilter();
 

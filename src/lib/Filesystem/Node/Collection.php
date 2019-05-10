@@ -192,6 +192,7 @@ class Collection extends AbstractNode implements IQuota
             'shared' => $this->shared,
             'share_name' => $this->share_name,
             'acl' => $this->acl,
+            'lock' => $this->lock,
             'directory' => true,
             'reference' => $this->reference,
             'parent' => $this->parent,
@@ -554,6 +555,10 @@ class Collection extends AbstractNode implements IQuota
         $name = $this->validateInsert($name, $conflict, Collection::class);
         $id = new ObjectId();
 
+        if (isset($attributes['lock'])) {
+            $attributes['lock'] = $this->prepareLock($attributes['lock']);
+        }
+
         try {
             $meta = [
                 '_id' => $id,
@@ -621,6 +626,10 @@ class Collection extends AbstractNode implements IQuota
         $this->_hook->run('preCreateFile', [$this, &$name, &$attributes, &$clone]);
         $name = $this->validateInsert($name, $conflict, File::class);
         $id = new ObjectId();
+
+        if (isset($attributes['lock'])) {
+            $attributes['lock'] = $this->prepareLock($attributes['lock']);
+        }
 
         try {
             $meta = [

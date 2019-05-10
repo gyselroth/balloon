@@ -145,6 +145,31 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
                 return null;
             },
+            'lock' => function ($node) use ($server, $decorator, $attributes) {
+                if (!$node->isLocked()) {
+                    return null;
+                }
+
+                $lock = $attributes['lock'];
+
+                try {
+                    $user = $decorator->decorate(
+                        $server->getUserById($lock['user']),
+                        ['id', 'name', '_links']
+                    );
+                } catch (\Exception $e) {
+                    $user = null;
+                }
+
+                $lock = $attributes['lock'];
+
+                return [
+                    'user' => $user,
+                    'created' => $lock['created']->toDateTime()->format('c'),
+                    'expire' => $lock['expire']->toDateTime()->format('c'),
+                    'id' => $lock['id'],
+                ];
+            },
             'share' => function ($node) use ($fs) {
                 if ($node->isShared() || !$node->isSpecial()) {
                     return null;

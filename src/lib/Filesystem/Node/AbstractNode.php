@@ -216,6 +216,13 @@ abstract class AbstractNode implements NodeInterface
     protected $mount = [];
 
     /**
+     * Lock.
+     *
+     * @var array
+     */
+    protected $lock;
+
+    /**
      * Parent collection.
      *
      * @var Collection
@@ -381,6 +388,71 @@ abstract class AbstractNode implements NodeInterface
         $this->owner = $this->_user->getId();
 
         $this->save(['parent', 'shared', 'owner', 'storage']);
+
+        return $this;
+    }
+
+    /**
+     * Lock file.
+     */
+    public function lock(string $identifier): NodeInterface
+    {
+        if ($this->isLocked()) {
+            throw new Exception\Locked('node is already locked');
+        }
+
+        $this->lock = $this->prepareLock($identifier);
+        $this->save(['lock']);
+
+        return $this;
+    }
+
+    /**
+     * Get lock.
+     */
+    public function getLock(): array
+    {
+        if (!$this->isLocked()) {
+            throw new Exception\NotLocked('node is not locked');
+        }
+
+        return $this->lock;
+    }
+
+    /**
+     * Is locked?
+     */
+    public function isLocked(): bool
+    {
+        if ($this->lock === null) {
+            return false;
+        }
+        if ($this->lock['expire'] <= new UTCDateTime()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Unlock.
+     */
+    public function unlock(?string $identifier = null): NodeInterface
+    {
+        if (!$this->isLocked()) {
+            throw new Exception\NotLocked('node is not locked');
+        }
+
+        if ($this->lock['user'] != $this->_user->getId()) {
+            throw new Exception\Forbidden('node is locked by another user');
+        }
+
+        if ($identifier !== null && $this->lock['id'] !== $identifier) {
+            throw new Exception\LockIdMissmatch('the unlock id must match the current lock id');
+        }
+
+        $this->lock = null;
+        $this->save(['lock']);
 
         return $this;
     }
@@ -1033,9 +1105,22 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
+     * Prepare lock.
+     */
+    protected function prepareLock(string $identifier): array
+    {
+        return [
+            'user' => $this->_user->getId(),
+            'created' => new UTCDateTime(),
+            'id' => $identifier,
+            'expire' => new UTCDateTime((time() + 1800) * 1000),
+        ];
+    }
+
+    /**
      * Get array value via string path.
      */
-    protected function getArrayValue(Iterable $array, string $path, string $separator = '.')
+    protected function getArrayValue(iterable $array, string $path, string $separator = '.')
     {
         if (isset($array[$path])) {
             return $array[$path];
