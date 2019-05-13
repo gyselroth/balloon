@@ -94,7 +94,7 @@ class Notifier
     /**
      * Send notification.
      */
-    public function notify(Iterable $receiver, ?User $sender, MessageInterface $message): bool
+    public function notify(iterable $receiver, ?User $sender, MessageInterface $message): bool
     {
         if (0 === count($this->adapter)) {
             $this->logger->warning('there are no notification adapter enabled, notification can not be sent', [
@@ -207,7 +207,7 @@ class Notifier
     /**
      * Get notifications.
      */
-    public function getNotifications(User $user, ?int $offset = null, ?int $limit = null, ?int &$total = null): Iterable
+    public function getNotifications(User $user, ?int $offset = null, ?int $limit = null, ?int &$total = null): iterable
     {
         $total = $this->db->{$this->collection_name}->count(['receiver' => $user->getId()]);
         $result = $this->db->{$this->collection_name}->find(['receiver' => $this->server->getIdentity()->getId()], [
@@ -292,7 +292,7 @@ class Notifier
     /**
      * Get subscriptions.
      */
-    public function getSubscriptions(NodeInterface $node): Iterable
+    public function getSubscriptions(NodeInterface $node): iterable
     {
         $node_id = $node->isReference() ? $node->getShareId() : $node->getId();
 

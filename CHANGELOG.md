@@ -1,3 +1,12 @@
+## 2.5.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Apr 13 13:54:30 CEST 2019
+
+* CORE: [FIX] Share can not be removed from share manager member #322
+* API: [FIX] file preview /api/v1/file/preview?id=XXX #319
+* CORE: [FIX] Subscription mentions path from change issuer instead receiver #276
+
+
 ## 2.5.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Sun Apr 14 15:22:31 CEST 2019

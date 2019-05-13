@@ -81,7 +81,7 @@ class Preview extends Controller
      */
     public function get(?string $id = null, ?string $p = null, ?string $encode = null): Response
     {
-        $node = $this->fs->getNode($id, $p, File::class);
+        $node = $this->getNode($id, $p, File::class);
         $data = $this->preview->getPreview($node);
         $response = (new Response())
             ->setHeader('Content-Type', 'image/png')

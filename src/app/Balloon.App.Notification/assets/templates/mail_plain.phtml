@@ -8,9 +8,9 @@ endif;
 echo $this->body."\n\n";
 
 if ($this->node && $this->type === 'new_share_added'):
-     echo sprintf($this->translate('link'), $this->server_url.'?menu=cloud&selected[]='.$this->node->getId().'&view=preview')."\n\n";
+     echo sprintf($this->translate('link'), $this->server_url.'/#shared_for_me/root/preview/'.$this->node->getId())."\n\n";
 elseif($this->node):
-     echo sprintf($this->translate('link'), $this->server_url.'?menu=cloud&collection='.$this->node->getParent()->getId().'&selected[]='.$this->node->getId().'&view=preview')."\n\n";
+     echo sprintf($this->translate('link'), $this->server_url.'/#cloud/'.$this->node->getParent()->getId().'/preview/'.$this->node->getId())."\n\n";
 endif;
 
 echo $this->translate('no_reply')."\n";

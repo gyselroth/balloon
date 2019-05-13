@@ -72,7 +72,7 @@ class Job extends AbstractJob
     /**
      * Constructor.
      */
-    public function __construct(Client $client, Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, Iterable $config = null)
+    public function __construct(Client $client, Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, iterable $config = null)
     {
         $this->client = $client;
         $this->fs = $server->getFilesystem();

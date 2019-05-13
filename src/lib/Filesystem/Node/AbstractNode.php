@@ -447,6 +447,14 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
+     * Get reference.
+     */
+    public function getReference(): ?ObjectId
+    {
+        return $this->reference;
+    }
+
+    /**
      * Get share node.
      */
     public function getShareNode(): ?Collection
@@ -1035,7 +1043,7 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Get array value via string path.
      */
-    protected function getArrayValue(Iterable $array, string $path, string $separator = '.')
+    protected function getArrayValue(iterable $array, string $path, string $separator = '.')
     {
         if (isset($array[$path])) {
             return $array[$path];

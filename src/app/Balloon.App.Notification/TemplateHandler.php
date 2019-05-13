@@ -244,7 +244,7 @@ class TemplateHandler
     /**
      * Get array value via string path.
      */
-    protected function getArrayValue(Iterable $array, string $path, string $separator = '.')
+    protected function getArrayValue(iterable $array, string $path, string $separator = '.')
     {
         if (isset($array[$path])) {
             return $array[$path];

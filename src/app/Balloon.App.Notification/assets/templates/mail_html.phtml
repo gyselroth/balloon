@@ -308,9 +308,9 @@
                                       <tbody>
                                         <tr>
                                         <?php if ($this->type === 'new_share_added'):
-                                             echo '<td><a href="'.$this->server_url.'?menu=cloud&selected[]='.$this->node->getId().'&view=preview'.'" target="_blank">'.$this->translate('open_in_browser').'</a></td>';
+                                             echo '<td><a href="'.$this->server_url.'/#shared_for_me/root/preview/'.$this->node->getId().'" target="_blank">'.$this->translate('open_in_browser').'</a></td>';
                                         else:
-                                             echo '<td><a href="'.$this->server_url.'?menu=cloud&collection='.$this->node->getParent()->getId().'&selected[]='.$this->node->getId().'&view=preview'.'" target="_blank">'.$this->translate('open_in_browser').'</a></td>';
+                                             echo '<td><a href="'.$this->server_url.'/#cloud/'.$this->node->getParent()->getId().'/preview/'.$this->node->getId().'" target="_blank">'.$this->translate('open_in_browser').'</a></td>';
                                         endif; ?>
                                         </tr>
                                       </tbody>
