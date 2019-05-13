@@ -55,10 +55,19 @@ class HostManager
         $result = [];
 
         foreach ($this->hosts as $url) {
+            if (!isset($url['url']) || !isset($url['name'])) {
+                $this->logger->error('skip wopi host entry, either name or url not set', [
+                    'category' => get_class($this),
+                ]);
+
+                continue;
+            }
+
             try {
                 $result[] = [
-                    'url' => $url,
-                    'discovery' => $this->fetchDiscovery($url),
+                    'url' => $url['url'],
+                    'name' => $url['name'],
+                    'discovery' => $this->fetchDiscovery($url['url']),
                 ];
             } catch (\Exception $e) {
                 $this->logger->error('failed to fetch wopi discovery document [{url}]', [

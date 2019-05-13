@@ -26,7 +26,7 @@ class SessionManager
      *
      * @var int
      */
-    protected $ttl = 3600;
+    protected $access_token_ttl = 3600;
 
     /**
      * Database.
@@ -42,6 +42,26 @@ class SessionManager
     {
         $this->db = $db;
         $this->server = $server;
+        $this->setOptions($config);
+    }
+
+    /**
+     * Set options.
+     */
+    public function setOptions(array $config = []): SessionManager
+    {
+        foreach ($config as $option => $value) {
+            switch ($option) {
+                case 'access_token_ttl':
+                    $this->access_token_ttl = (int) $value;
+
+                    break;
+                default:
+                    throw new InvalidArgumentexception('invalid option '.$option.' given');
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -72,7 +92,7 @@ class SessionManager
     {
         $data = [
             'token' => $this->createToken(),
-            'ttl' => new UTCDateTime((time() + $this->ttl) * 1000),
+            'ttl' => new UTCDateTime((time() + $this->access_token_ttl) * 1000),
             'user' => $user->getId(),
             'node' => $file->getId(),
         ];
