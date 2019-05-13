@@ -67,8 +67,6 @@ class Http extends AbstractBootstrap
 
     /**
      * Process.
-     *
-     * @return Http
      */
     public function process()
     {
@@ -79,7 +77,10 @@ class Http extends AbstractBootstrap
         $this->hook->run('preAuthentication', [$this->auth]);
 
         if ($this->auth->requireOne()) {
-            if (!($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
+            $this->hook->run('postAuthentication', [$this->auth, $this->auth->getIdentity()]);
+
+            if (
+                !($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
                 $this->auth->getIdentity()->getAttributeMap()->addMapper('binary', function ($value) {
                     return new Binary($value, Binary::TYPE_GENERIC);
                 });
@@ -100,6 +101,8 @@ class Http extends AbstractBootstrap
      */
     protected function invalidAuthentication(): void
     {
+        $this->hook->run('postAuthentication', [$this->auth, null]);
+
         if (isset($_SERVER['PHP_AUTH_USER']) && '_logout' === $_SERVER['PHP_AUTH_USER']) {
             (new Response())
                 ->setCode(401)
@@ -128,8 +131,6 @@ class Http extends AbstractBootstrap
 
     /**
      * Set exception handler.
-     *
-     * @return Http
      */
     protected function setExceptionHandler(): self
     {

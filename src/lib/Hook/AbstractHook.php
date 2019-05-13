@@ -53,6 +53,13 @@ abstract class AbstractHook implements HookInterface
     /**
      * {@inheritdoc}
      */
+    public function postAuthentication(Auth $auth, ?Identity $identity): void
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function preAuthentication(Auth $auth): void
     {
     }

@@ -4,6 +4,7 @@
 
 * CORE: [FEATURE] Introduce node locks #320
 * API: [FEATURE]  Implement propper WOPI support Balloon.App.Wopi #154
+* CORE: [FIX] error_log now prints container fatal error after http response has been sent
 
 
 ## 2.5.2
