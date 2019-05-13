@@ -4,6 +4,7 @@
 
 * CORE: [FIX] Share can not be removed from share manager member #322
 * API: [FIX] file preview /api/v1/file/preview?id=XXX #319
+* CORE: [FIX] Subscription mentions path from change issuer instead receiver #276
 
 
 ## 2.5.2
