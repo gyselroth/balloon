@@ -94,7 +94,7 @@ class Converter
      * @param int $limit
      * @param int $total
      */
-    public function getSlaves(File $node, ?int $offset = null, ?int $limit = null, ?int &$total = null): Iterable
+    public function getSlaves(File $node, ?int $offset = null, ?int $limit = null, ?int &$total = null): iterable
     {
         $total = $this->db->{$this->collection_name}->count([
             'master' => $node->getId(),

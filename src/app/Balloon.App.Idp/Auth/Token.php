@@ -98,7 +98,7 @@ class Token extends AbstractAdapter implements InternalAuthInterface
             try {
                 $adapter = $this->auth->getAdapter($data['adapter']);
                 $this->internal = $adapter instanceof InternalAuthInterface;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->internal = true;
             }
 

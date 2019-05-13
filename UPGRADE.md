@@ -4,7 +4,7 @@
 balloon v2.5 requires elasticsearch 6.x and the newer elasticsearch ingest-attachment instead of mapper-attachment.
 This requires a full reindex of elasticsearch:
 
->**Note**: The reindex process makes use of the async functionality of balloon, be sure that you have enaugh workers and a big enaugh \TaskScheduler queue.
+>**Note**: The reindex process makes use of the async functionality of balloon, the more worker you have the faster it will index.
 This may take while to fully index all documents.
 
 ```
@@ -12,6 +12,11 @@ ballooncli elasticsearch reindex -vvv
 ```
 
 >**Note**: v2.5 creates new elasticsearch indices (`blobs` and `nodes`). You may drop the previously indices (default name: balloon).
+
+### Libreoffice
+balloon v2.5 requires loolwsd for office previews. Previously libreoffice (soffice.bin) has been shipped with balloon or has been declared as optional requirement.
+Such previews are now generated via loolwsd. loolwsd may either be deployed via docker image or as debian packages. See the docs.
+You may need to configure the new env variable `BALLOON_LIBREOFFICE_URL`.
 
 ### ConfigMap
 

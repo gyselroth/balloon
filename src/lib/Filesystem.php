@@ -358,6 +358,14 @@ class Filesystem
     }
 
     /**
+     * Count.
+     */
+    public function countNodes(array $filter = []): int
+    {
+        return $this->db->storage->count($filter);
+    }
+
+    /**
      * Find nodes with custom filters.
      */
     public function findNodesByFilter(array $filter, ?int $offset = null, ?int $limit = null): Generator
@@ -367,7 +375,7 @@ class Filesystem
             'limit' => $limit,
         ]);
 
-        $count = $this->db->storage->count($filter);
+        $count = $this->countNodes($filter);
 
         foreach ($result as $node) {
             try {
@@ -567,6 +575,49 @@ class Filesystem
         }
 
         return $instance;
+    }
+
+    /**
+     * Find node with path.
+     */
+    public function findNodeByPath(string $path = '', ?string $class = null): NodeInterface
+    {
+        if (empty($path) || '/' !== $path[0]) {
+            $path = '/'.$path;
+        }
+        $last = strlen($path) - 1;
+        if ('/' === $path[$last]) {
+            $path = substr($path, 0, -1);
+        }
+        $parts = explode('/', $path);
+        $parent = $this->getRoot();
+        array_shift($parts);
+        $count = count($parts);
+        $i = 0;
+        $filter = [];
+        foreach ($parts as $node) {
+            ++$i;
+            if ($count === $i && $class !== null) {
+                $filter = [
+                    'directory' => ($class === Collection::class),
+                ];
+            }
+
+            try {
+                $parent = $parent->getChild($node, NodeInterface::DELETED_EXCLUDE, $filter);
+            } catch (Exception\NotFound $e) {
+                if ($count == $i) {
+                    $parent = $parent->getChild($node, NodeInterface::DELETED_INCLUDE, $filter);
+                } else {
+                    throw $e;
+                }
+            }
+        }
+        if (null !== $class && !($parent instanceof $class)) {
+            throw new Exception('node is not instance of '.$class);
+        }
+
+        return $parent;
     }
 
     /**

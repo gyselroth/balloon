@@ -58,6 +58,10 @@ Balloon\Async\Mail:
     config:
       sender_address: "{ENV(BALLOON_SENDER_ADDRESS,noreply@localhost)}"
       sender_name: "{ENV(BALLOON_SENDER_NAME,balloon)}"
+Balloon\App\Elasticsearch\Console\Elasticsearch:
+  arguments:
+    config:
+      bulk: 200
 Balloon\App\Elasticsearch\Job:
   arguments:
     config:
@@ -70,12 +74,6 @@ Balloon\App\Elasticsearch\Migration\Delta\Installation:
   arguments:
     config:
       #index_configuration: "/path/to/index.json"
-Balloon\App\Office\Constructor\Http:
-  arguments:
-    config:
-      loleaflet: "{ENV(BALLOON_OFFICE_URI,https://localhost:9980/loleaflet)}/dist/loleaflet.html"
-      wopi_url: "{ENV(BALLOON_WOPI_URL,https://localhost)}"
-      token_ttl: 3600
 Balloon\App\DesktopClient\Constructor\Http:
   arguments:
     config:
@@ -95,6 +93,12 @@ TaskScheduler\WorkerManager:
       pm: dynamic
       max_children: 4
       min_children: 2
+GuzzleHttp\ClientInterface:
+  arguments:
+    config:
+      connect_timeout: 3
+      timeout: 10
+      verify: false
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:
@@ -223,7 +227,7 @@ Psr\Log\LoggerInterface:
     Monolog\Formatter\FormatterInterface:
       use: Monolog\Formatter\LineFormatter
       arguments:
-        dateFormat: "Y-d-m H:i:s"
+        dateFormat: "Y-m-d H:i:s"
         format: "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
       calls:
         - method: includeStacktraces

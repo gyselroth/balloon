@@ -206,10 +206,12 @@ class Nodes extends Controller
 
     /**
      * Change attributes.
+     *
+     * @param null|mixed $lock
      */
-    public function patch(string $id, ?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null): Response
+    public function patch(string $id, ?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null, $lock = null): Response
     {
-        $attributes = compact('name', 'meta', 'readonly', 'filter', 'acl');
+        $attributes = compact('name', 'meta', 'readonly', 'filter', 'acl', 'lock');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         return $this->bulk($id, function ($node) use ($attributes) {
@@ -235,6 +237,14 @@ class Nodes extends Controller
                     break;
                     case 'acl':
                         $node->setAcl($value);
+
+                    break;
+                    case 'lock':
+                        if ($value === false) {
+                            $node->unlock();
+                        } else {
+                            $node->lock($value);
+                        }
 
                     break;
                 }
@@ -468,6 +478,7 @@ class Nodes extends Controller
             'meta',
             'readonly',
             'acl',
+            'lock',
         ];
 
         if ($this instanceof ApiCollection) {
@@ -476,11 +487,11 @@ class Nodes extends Controller
 
         $check = array_merge(array_flip($valid_attributes), $attributes);
 
-        if ($this instanceof ApiCollection && count($check) > 8) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, filter, mount, readonly and/or meta attributes may be overwritten');
+        if ($this instanceof ApiCollection && count($check) > 9) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, lock, filter, mount, readonly and/or meta attributes may be overwritten');
         }
-        if ($this instanceof ApiFile && count($check) > 6) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, readonly and/or meta attributes may be overwritten');
+        if ($this instanceof ApiFile && count($check) > 7) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, lock, readonly and/or meta attributes may be overwritten');
         }
 
         foreach ($attributes as $attribute => $value) {

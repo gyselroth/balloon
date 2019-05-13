@@ -114,7 +114,7 @@ class Groups
     /**
      * Create group.
      */
-    public function post(string $name, ?array $member = null, ?string $namespace = null): Response
+    public function post(string $name, array $member = [], ?string $namespace = null): Response
     {
         if (!$this->user->isAdmin()) {
             throw new Exception\NotAdmin('submitted parameters require admin privileges');
@@ -132,7 +132,7 @@ class Groups
     /**
      * Change group attributes.
      */
-    public function patch(string $id, ?array $member = null, ?string $namespace = null): Response
+    public function patch(string $id, ?string $name = null, ?array $member = null, ?string $namespace = null): Response
     {
         $attributes = compact('namespace', 'name', 'member');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });

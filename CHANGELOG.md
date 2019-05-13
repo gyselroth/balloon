@@ -1,11 +1,60 @@
+## 2.6.0-beta1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**:
+
+* CORE: [FEATURE] Introduce node locks #320
+* API: [FEATURE]  Implement propper WOPI support Balloon.App.Wopi #154
+* CORE: [FIX] error_log now prints container fatal error after http response has been sent
+
+
+## 2.5.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Sun Apr 14 15:22:31 CEST 2019
+
+* API: [FIX] add new group with empty member results in Argument 2 passed to Balloon\\Server::addGroup() must be of the type array, null given #312
+* API: [FIX] Get groups results in undefined index: multi_factor_auth #311
+
+
+## 2.5.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Apr 12 16:27:31 CEST 2019
+
+* API: [FIX] server must not respond with 401 if a connection to an ldap server could not be established #309
+* API: [FIX] patching a group name ends in uncaught exception compact() #310
+
+
+## 2.5.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Apr 12 09:44:32 CEST 2019
+
+* CORE: [CHANGE] Added --skip and --bulk as elasticsearch reindex options #305
+
+
+## 2.5.0-beta4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Apr 04 16:33:48 CEST 2019 
+
+* CORE: [FIX] elasticsearch reindex cursor does not die on bug databases #305
+
+
+## 2.5.0-beta3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Apr 02 15:26:48 CEST 2019 
+
+* CORE: [FIX] fixed Balloon\Hook\ExternalStorage setOptions() requires array, null provided (workaround for v2.5.0-beta2 via config required)
+* CORE: [CHANGE] do not remove refresh_tokens after usage
+* CORE: [CHANGE] refresh_tokens do not expire
+* CORE: [CHANGE] Add elasticsearch reindex bulk and progress #305
+
+
 ## 2.5.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Thu Mar 28 15:09:48 CET 2019 
+**Date**: Fri Mar 29 16:31:48 CET 2019 
 
 * CORE: [FIX] Whitespace in smb share name results in invalid hostname exception #304
 * CORE: [FIX] Icewind\\SMB\\Exception\\DependencyException stdbuf is required #303
 * CORE: [FIX] Balloon.App.Idp now stores the authentication adapter to later determine if the user was internally authenticated
-* CORE: [FIX] error_log now prints container fatal error after http response has been sent
+* CORE: [FIX] Throw Filesystem\Exception\Conflict if parent collection is filtered
 
 
 ## 2.5.0-beta1

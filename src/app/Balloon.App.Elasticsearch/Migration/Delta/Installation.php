@@ -97,10 +97,23 @@ class Installation implements DeltaInterface
                 'settings' => $settings,
             ]);
 
-            $this->client->indices()->create([
-                'index' => $name,
-                'body' => $settings,
-            ]);
+            try {
+                $this->client->indices()->create([
+                    'index' => $name,
+                    'body' => $settings,
+                ]);
+            } catch (\Exception $e) {
+                $this->logger->error('can not create index, try to update existing index', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+
+                $this->client->indices()->putMapping([
+                    'index' => $name,
+                    'type' => '_doc',
+                    'body' => $settings->mappings,
+                ]);
+            }
         }
 
         $this->client->ingest()->putPipeline([
