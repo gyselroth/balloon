@@ -1,3 +1,10 @@
+## 2.5.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Apr 13 13:54:30 CEST 2019
+
+* CORE: [FIX] Share can not be removed from share manager member #322
+
+
 ## 2.5.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Sun Apr 14 15:22:31 CEST 2019

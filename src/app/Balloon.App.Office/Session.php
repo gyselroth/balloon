@@ -110,7 +110,7 @@ class Session
      *
      * @retrun Iterable
      */
-    public function getMember(): Iterable
+    public function getMember(): iterable
     {
         return $this->member;
     }
