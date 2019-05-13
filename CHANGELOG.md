@@ -3,6 +3,7 @@
 **Date**: Mon Apr 13 13:54:30 CEST 2019
 
 * CORE: [FIX] Share can not be removed from share manager member #322
+* API: [FIX] file preview /api/v1/file/preview?id=XXX #319
 
 
 ## 2.5.2
