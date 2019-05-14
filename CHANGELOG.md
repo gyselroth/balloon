@@ -1,6 +1,13 @@
+## 2.5.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue May 14 17:00:30 CEST 2019
+
+* CORE: [CHANGE] Do not clone node if unshare as manager #322
+
+
 ## 2.5.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Mon Apr 13 13:54:30 CEST 2019
+**Date**: Mon May 13 13:54:30 CEST 2019
 
 * CORE: [FIX] Share can not be removed from share manager member #322
 * API: [FIX] file preview /api/v1/file/preview?id=XXX #319
