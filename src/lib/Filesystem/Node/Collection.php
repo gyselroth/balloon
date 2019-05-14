@@ -748,18 +748,10 @@ class Collection extends AbstractNode implements IQuota
             );
         }
 
-        $name = $this->checkName($name);
-
-        if ($this->childExists($name)) {
-            if (NodeInterface::CONFLICT_NOACTION === $conflict) {
-                throw new Exception\Conflict(
-                    'a node called '.$name.' does already exists in this collection',
-                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                );
-            }
-            if (NodeInterface::CONFLICT_RENAME === $conflict) {
-                $name = $this->getDuplicateName($name, $type);
-            }
+        if($this->isLocked()) {
+            throw new Exception\Locked(
+                'node is write locked, it is not possible to add new sub nodes',
+            );
         }
 
         if ($this->isFiltered()) {
@@ -774,6 +766,20 @@ class Collection extends AbstractNode implements IQuota
                 'could not add node '.$name.' into a deleted parent collection',
                 Exception\Conflict::DELETED_PARENT
             );
+        }
+
+        $name = $this->checkName($name);
+
+        if ($this->childExists($name)) {
+            if (NodeInterface::CONFLICT_NOACTION === $conflict) {
+                throw new Exception\Conflict(
+                    'a node called '.$name.' does already exists in this collection',
+                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
+                );
+            }
+            if (NodeInterface::CONFLICT_RENAME === $conflict) {
+                $name = $this->getDuplicateName($name, $type);
+            }
         }
 
         return $name;

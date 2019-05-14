@@ -49,7 +49,6 @@ class Http
     public function start(): bool
     {
         $root = $this->server->getFilesystem()->getRoot();
-
         $server = new DAV\Server($root);
         $server->setBaseUri('/webdav/');
 

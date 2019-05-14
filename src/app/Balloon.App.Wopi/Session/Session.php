@@ -94,7 +94,7 @@ class Session implements SessionInterface
             'BreadcrumbDocUrl' => null,
             'BreadcrumbFolderName' => null,
             'BreadcrumbFolderUrl' => null,
-            'ClientUrl' => 'https://localhost:8084/webdav',
+            'ClientUrl' => null,
             'CloseButtonClosesWindow' => false,
             'CloseUrl' => null,
             'DisableBrowserCachingOfUserContent' => false,

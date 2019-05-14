@@ -1109,8 +1109,9 @@ abstract class AbstractNode implements NodeInterface
      */
     protected function prepareLock(string $identifier): array
     {
+        //var_dump($this->_user);
         return [
-            'user' => $this->_user->getId(),
+            //'user' => $this->_user->getId(),
             'created' => new UTCDateTime(),
             'id' => $identifier,
             'expire' => new UTCDateTime((time() + 1800) * 1000),
