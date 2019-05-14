@@ -27,19 +27,11 @@ class Http
     protected $server;
 
     /**
-     * Lock backend.
-     *
-     * @var LockBackend
-     */
-    protected $backend;
-
-    /**
      * Constructor.
      */
-    public function __construct(Router $router, Server $server, LockBackend $backend)
+    public function __construct(Router $router, Server $server)
     {
         $this->server = $server;
-        $this->backend = $backend;
         $router->appendRoute(new Route('/webdav', $this, 'start'));
     }
 
@@ -52,7 +44,7 @@ class Http
         $server = new DAV\Server($root);
         $server->setBaseUri('/webdav/');
 
-        $plugin = new DAV\Locks\Plugin($this->backend);
+        $plugin = new DAV\Locks\Plugin(new LockBackend($this->server));
         $server->addPlugin($plugin);
 
         $lock = new DAV\Browser\Plugin();

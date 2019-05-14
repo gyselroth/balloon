@@ -13,11 +13,10 @@ namespace Balloon\App\Wopi\Api\v2;
 
 use Balloon\App\Wopi\SessionManager;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Micro\Http\Response;
 
-class Sessions
+class Tokens
 {
     /**
      * Session manager.
@@ -47,11 +46,11 @@ class Sessions
      */
     public function post(string $id): Response
     {
-        $node = $this->fs->getNode($id, File::class);
+        $node = $this->fs->getNode($id);
         $session = $this->manager->create($node, $this->fs->getUser());
 
         return (new Response())->setCode(201)->setBody([
-            'file' => (string) $node->getId(),
+            'node' => (string) $node->getId(),
             'access_token' => $session->getAccessToken(),
             'ttl' => $session->getAccessTokenTTL(),
         ]);

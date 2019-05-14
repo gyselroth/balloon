@@ -128,6 +128,10 @@ Balloon\Hook:
       method: injectHook
       arguments:
         hook: '{Balloon\Hook\CleanTempStorage}'
+    Balloon\App\Api\Hook\Lock:
+      method: injectHook
+      arguments:
+        hook: '{Balloon\App\Api\Hook\Lock}'
   services:
     Balloon\Hook\Delta:
     Balloon\Hook\AutoCreateUser:
@@ -228,7 +232,7 @@ Psr\Log\LoggerInterface:
       use: Monolog\Formatter\LineFormatter
       arguments:
         dateFormat: "Y-m-d H:i:s"
-        format: "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
+        format: "%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n"
       calls:
         - method: includeStacktraces
     stderr:

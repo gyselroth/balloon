@@ -214,7 +214,9 @@ class Nodes extends Controller
         $attributes = compact('name', 'meta', 'readonly', 'filter', 'acl', 'lock');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
-        return $this->bulk($id, function ($node) use ($attributes) {
+        $lock = $_SERVER['HTTP_LOCK_TOKEN'] ?? null;
+
+        return $this->bulk($id, function ($node) use ($attributes, $lock) {
             foreach ($attributes as $attribute => $value) {
                 switch ($attribute) {
                     case 'name':
@@ -241,9 +243,9 @@ class Nodes extends Controller
                     break;
                     case 'lock':
                         if ($value === false) {
-                            $node->unlock();
+                            $node->unlock($lock);
                         } else {
-                            $node->lock($value);
+                            $node->lock($lock);
                         }
 
                     break;

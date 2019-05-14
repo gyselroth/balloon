@@ -65,6 +65,25 @@ class SessionManager
     }
 
     /**
+     * Authenticate.
+     */
+    public function authenticate(string $token): User
+    {
+        $result = $this->db->wopi->findOne([
+            'token' => $token,
+            'ttl' => [
+                '$gte' => new UTCDateTime(),
+            ],
+        ]);
+
+        if (null === $result) {
+            throw new Exception\Forbidden('token is not valid for the requested node');
+        }
+
+        return $this->server->getUserById($result['user']);
+    }
+
+    /**
      * Get session by id.
      */
     public function getByToken(File $file, string $token): SessionInterface
@@ -107,6 +126,6 @@ class SessionManager
      */
     protected function createToken(): string
     {
-        return bin2hex(random_bytes(16));
+        return bin2hex(random_bytes(32));
     }
 }

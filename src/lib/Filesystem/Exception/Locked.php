@@ -20,6 +20,6 @@ class Locked extends \Balloon\Exception implements ExceptionInterface
      */
     public function getStatusCode(): int
     {
-        return 423;
+        return 409;
     }
 }

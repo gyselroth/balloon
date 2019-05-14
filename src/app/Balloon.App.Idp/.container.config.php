@@ -80,9 +80,9 @@ return [
     ],
     Auth::class => [
         'calls' => [
-            'token' => [
+            Token::class => [
                 'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Token::class.'}', 'name' => 'token']
+                'arguments' => ['adapter' => '{'.Token::class.'}']
             ],
         ],
     ],

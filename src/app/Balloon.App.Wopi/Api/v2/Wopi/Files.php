@@ -21,6 +21,11 @@ use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Implements the full WOPI protocol.
+ *
+ * @see https://wopi.readthedocs.io/projects/wopirest/en/latest
+ */
 class Files
 {
     /**
@@ -30,6 +35,11 @@ class Files
     const WOPI_LOCK = 'LOCK';
     const WOPI_REFRESH_LOCK = 'REFRESH_LOCK';
     const WOPI_UNLOCK = 'UNLOCK';
+    const WOPI_PUT = 'PUT';
+    const WOPI_PUT_RELATIVE = 'PUT_RELATIVE';
+    const WOPI_RENAME_FILE = 'RENAME_FILE';
+    const WOPI_DELETE = 'DELETE';
+    const WOPI_PUT_USERINFO = 'PUT_USERINFO';
 
     /**
      * Server.
@@ -88,17 +98,17 @@ class Files
     {
         $file = $this->server->getFilesystem()->getNode($id, File::class);
         $session = $this->manager->getByToken($file, $access_token);
-        $fs = $this->server->getFilesystem($session->getUser());
-        $file->setFilesystem($fs);
 
         $op = $_SERVER['HTTP_X_WOPI_OVERRIDE'] ?? null;
         $identifier = $_SERVER['HTTP_X_WOPI_LOCK'] ?? null;
         $previous = $_SERVER['HTTP_X_WOPI_OLDLOCK'] ?? null;
+        $_SERVER['HTTP_LOCK_TOKEN'] = $identifier;
 
-        $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]'.json_encode($_SERVER), [
+        $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]', [
             'category' => get_class($this),
             'operation' => $op,
             'identifier' => $identifier,
+            'previous' => $previous,
         ]);
 
         $response = (new Response())->setCode(200);
@@ -128,6 +138,18 @@ class Files
                     $file->unlock($identifier);
 
                 break;
+                case self::WOPI_RENAME_FILE:
+                    return $this->renameFile($file, $response);
+
+                break;
+                case self::WOPI_DELETE:
+                    $file->delete();
+
+                break;
+                case self::WOPI_PUT_RELATIVE:
+                    return $this->putRelative($file, $response);
+
+                break;
                 case null:
                     throw new MissingWopiOperationException('no wopi operation provided');
 
@@ -140,7 +162,7 @@ class Files
                 ->setCode(200)
                 ->setHeader('X-WOPI-Lock', '')
                 ->setBody($e);
-        } catch (Exception\Locked | Exception\LockIdMismatch | Exception\Forbidden $e) {
+        } catch (Exception\Locked | Exception\LockIdMissmatch | Exception\Forbidden $e) {
             $lock = $file->getLock();
 
             return (new Response())
@@ -159,37 +181,40 @@ class Files
      */
     public function postContents(ObjectId $id, string $access_token): Response
     {
-        /**
-         * X-WOPI-Override – The string PUT. Required.
-         * X-WOPI-Lock – A string provided by the WOPI client in a previous Lock request. Note that this header will not be included during document creation.
-         *
-         *
-         * clone:
-         * X-WOPI-Override – The string PUT_RELATIVE. Required.
-         *
-         *
-         * rename:.
-         * X-WOPI-Override – The string RENAME_FILE. Required.
-         * X-WOPI-Lock – A string provided by the WOPI client that the host must use to identify the lock on the file.
-         * X-WOPI-RequestedName – A UTF-7 encoded string that is a file name, not including the file extension.
-         *
-         *delete:
-         * X-WOPI-Override – The string DELETE. Required.
-         *
-         *
-         * put user info
-         * X-WOPI-Override – The string PUT_USER_INFO. Required.
-         */
+        $op = $_SERVER['HTTP_X_WOPI_OVERRIDE'] ?? null;
+        $identifier = $_SERVER['HTTP_X_WOPI_LOCK'] ?? null;
+        $previous = $_SERVER['HTTP_X_WOPI_OLDLOCK'] ?? null;
+        $_SERVER['HTTP_LOCK_TOKEN'] = $identifier;
+
+        $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]'.json_encode($_SERVER), [
+            'category' => get_class($this),
+            'operation' => $op,
+            'identifier' => $identifier,
+        ]);
+
         $file = $this->server->getFilesystem()->getNode($id, File::class);
         $session = $this->manager->getByToken($file, $access_token);
-        $fs = $this->server->getFilesystem($session->getUser());
-        $file->setFilesystem($fs);
 
-        ini_set('auto_detect_line_endings', '1');
-        $content = fopen('php://input', 'rb');
-        $result = $file->put($content, false);
+        if (!$file->isLocked() && $file->getSize() > 0) {
+            return (new Response())
+                ->setCode(409)
+                ->setBody(new Exception\NotLocked('file needs to be locked first'));
+        }
 
-        return (new Response())->setCode(200)->setBody($result);
+        try {
+            $content = fopen('php://input', 'rb');
+            $result = $file->put($content, false);
+
+            return (new Response())->setCode(200)->setBody($result);
+        } catch (Exception\Locked | Exception\LockIdMissmatch $e) {
+            $lock = $file->getLock();
+
+            return (new Response())
+                ->setCode(409)
+                ->setHeader('X-WOPI-Lock', $lock['id'])
+                ->setHeader('X-WOPI-LockFailureReason', $e->getMessage())
+                ->setBody($e);
+        }
     }
 
     /**
@@ -201,10 +226,110 @@ class Files
         $session = $this->manager->getByToken($file, $access_token);
         $stream = $file->get();
 
+        if ($stream === null) {
+            exit();
+        }
+
         while (!feof($stream)) {
             echo fread($stream, 8192);
         }
 
         exit();
+    }
+
+    /**
+     * Put relative file.
+     */
+    protected function putRelative(File $file, Response $response): Response
+    {
+        $suggested = $_SERVER['HTTP_X_WOPI_SUGGESTEDTARGET'] ?? null;
+        $relative = $_SERVER['HTTP_X_WOPI_RELATIVETARGET'] ?? null;
+        $conversion = $_SERVER['HTTP_X_WOPI_FILECONVERSION'] ?? null;
+        $overwrite = (bool) ($_SERVER['HTTP_X_WOPI_OVERWRITERELATIVETARGET'] ?? false);
+        $size = $_SERVER['HTTP_X_WOPI_SIZE'] ?? null;
+
+        $parent = $file->getParent();
+        $content = fopen('php://input', 'rb');
+
+        $this->logger->debug('wopi PutRelative request', [
+            'category' => get_class($this),
+            'X-Wopi-SuggestedTarget' => $suggested,
+            'X-Wopi-RelativeTarget' => $relative,
+            'X-Wopi-OverwriteRelativeTarget' => $overwrite,
+            'X-Wopi-FileConversion' => $conversion,
+        ]);
+
+        if ($suggested !== null && $relative !== null) {
+            return $response
+                ->setCode(400)
+                ->setBody(new \Balloon\Exception('X-WOPI-RelativeTarget and X-WOPI-SuggestedTarget must not both be present'));
+        }
+        if ($suggested !== null) {
+            if ($suggested[0] === '.') {
+                $suggested = $file->getName().$suggested;
+            }
+
+            try {
+                $name = $suggested;
+                $new = $parent->addFile($name);
+                $new->put($content, false);
+            } catch (Exception\Conflict $e) {
+                $name = $parent->getDuplicateName($name);
+                $new = $parent->addFile($name);
+                $new->put($content, false);
+            }
+        } elseif ($relative !== null) {
+            try {
+                $new = $parent->addFile($relative);
+                $new->put($content, false);
+            } catch (Exception\Conflict $e) {
+                if ($e->getCode() === Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS && $overwrite === true) {
+                    $new = $parent->getChild($relative);
+                    $new->put($content, false);
+                } else {
+                    return $response
+                        ->setCode(409)
+                        ->setBody($e);
+                }
+            }
+        } else {
+            return $response
+                ->setCode(400)
+                ->setBody(new \Balloon\Exception('One of X-WOPI-RelativeTarget or X-WOPI-SuggestedTarget must be present'));
+        }
+
+        $session = $this->manager->create($new, $this->server->getUserById($new->getOwner()));
+
+        $response->setBody([
+            'Name' => $new->getName(),
+            'Url' => $session->getWopiUrl(),
+        ]);
+
+        return $response;
+    }
+
+    /**
+     * Rename file.
+     */
+    protected function renameFile(File $file, Response $response): Response
+    {
+        $name = $_SERVER['HTTP_X_WOPI_REQUESTEDNAME'] ?? null;
+
+        try {
+            $ext = $file->getExtension();
+            $name = $name.'.'.$ext;
+        } catch (\Exception $e) {
+        }
+
+        try {
+            $file->setName($name);
+        } catch (Exception\Conflict $e) {
+            return (new Response())
+                ->setCode(400)
+                ->setHeader('X-WOPI-InvalidFileNameError', (string) $e->getMessage())
+                ->setBody($e);
+        }
+
+        return $response;
     }
 }

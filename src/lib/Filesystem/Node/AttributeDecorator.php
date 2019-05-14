@@ -154,7 +154,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
                 try {
                     $user = $decorator->decorate(
-                        $server->getUserById($lock['user']),
+                        $server->getUserById($lock['owner']),
                         ['id', 'name', '_links']
                     );
                 } catch (\Exception $e) {
@@ -164,7 +164,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
                 $lock = $attributes['lock'];
 
                 return [
-                    'user' => $user,
+                    'owner' => $user,
                     'created' => $lock['created']->toDateTime()->format('c'),
                     'expire' => $lock['expire']->toDateTime()->format('c'),
                     'id' => $lock['id'],

@@ -190,12 +190,6 @@ class File extends AbstractNode implements IFile
             );
         }
 
-        if($this->isLocked()) {
-            throw new Exception\Locked(
-                'node is write locked, it is not possible to change any content',
-            );
-        }
-
         if ($this->version === $version) {
             throw new Exception('file is already version '.$version);
         }
@@ -601,12 +595,6 @@ class File extends AbstractNode implements IFile
             throw new Exception\Conflict(
                 'node is marked as readonly, it is not possible to change any content',
                 Exception\Conflict::READONLY
-            );
-        }
-
-        if($this->isLocked()) {
-            throw new Exception\Locked(
-                'node is write locked, it is not possible to change any content',
             );
         }
 

@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Webdav;
 
 use Balloon\Server;
-use Psr\Log\LoggerInterface;
 use Sabre\DAV\Locks\Backend\BackendInterface;
 use Sabre\DAV\Locks\LockInfo;
 
@@ -28,10 +27,9 @@ class LockBackend implements BackendInterface
     /**
      * Constructor.
      */
-    public function __construct(Server $server, LoggerInterface $logger)
+    public function __construct(Server $server)
     {
         $this->fs = $server->getFilesystem();
-        $this->logger = $logger;
     }
 
     /**
@@ -39,28 +37,38 @@ class LockBackend implements BackendInterface
      */
     public function getLocks($uri, $returnChildLocks)
     {
-        $this->logger->debug('test- '.$uri);
         $node = $this->fs->findNodeByPath($uri);
 
-        return [];
+        if (!$node->isLocked()) {
+            return [];
+        }
+
+        $lock = $node->getLock();
+        $info = new LockInfo();
+        $info->owner = (string) $lock['owner'];
+        $info->token = $lock['id'];
+        $info->timeout = $lock['expire']->toDateTime()->format('U') - time();
+        $info->created = $lock['created']->toDateTime()->format('U');
+        $info->uri = $uri;
+
+        return [$info];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function lock($uri, LockInfo $lockInfo)
+    public function lock($uri, LockInfo $lock)
     {
         $node = $this->fs->findNodeByPath($uri);
-        $this->logger->debug('test- '.$uri.' - '.json_encode($lockInfo));
-        $node->lock('1234');
+        $node->lock($lock->token, $lock->timeout);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function unlock($uri, LockInfo $lockInfo)
+    public function unlock($uri, LockInfo $lock)
     {
         $node = $this->fs->findNodeByPath($uri);
-        $node->unlock();
+        $node->unlock($lock->token);
     }
 }

@@ -312,36 +312,18 @@ abstract class AbstractNode implements NodeInterface
             );
         }
 
-        $exists = $parent->childExists($this->name);
-        if (true === $exists && NodeInterface::CONFLICT_NOACTION === $conflict) {
-            throw new Exception\Conflict(
-                'a node called '.$this->name.' does already exists in this collection',
-                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-            );
-        }
+        $new_name = $parent->validateInsert($this->name, $conflict, get_class($this));
+
         if ($this->isShared() && $this instanceof Collection && $parent->isShared()) {
             throw new Exception\Conflict(
                 'a shared folder can not be a child of a shared folder',
                 Exception\Conflict::SHARED_NODE_CANT_BE_CHILD_OF_SHARE
             );
         }
-        if ($parent->isDeleted()) {
-            throw new Exception\Conflict(
-                'cannot move node into a deleted collction',
-                Exception\Conflict::DELETED_PARENT
-            );
-        }
 
-        if (true === $exists && NodeInterface::CONFLICT_RENAME === $conflict) {
-            $this->setName($this->getDuplicateName());
+        if (NodeInterface::CONFLICT_RENAME === $conflict && $new_name !== $this->name) {
+            $this->setName($new_name);
             $this->raw_attributes['name'] = $this->name;
-        }
-
-        if ($parent->isFiltered()) {
-            throw new Exception\Conflict(
-                'can not move node into a filtered parent collection',
-                Exception\Conflict::DYNAMIC_PARENT
-            );
         }
 
         if ($this instanceof Collection) {
@@ -395,13 +377,17 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Lock file.
      */
-    public function lock(string $identifier): NodeInterface
+    public function lock(string $identifier, ?int $ttl = 1800): NodeInterface
     {
         if ($this->isLocked()) {
+            if ($identifier !== $this->lock['id']) {
+                throw new Exception\LockIdMissmatch('the unlock id must match the current lock id');
+            }
+
             throw new Exception\Locked('node is already locked');
         }
 
-        $this->lock = $this->prepareLock($identifier);
+        $this->lock = $this->prepareLock($identifier, $ttl ?? 1800);
         $this->save(['lock']);
 
         return $this;
@@ -443,7 +429,7 @@ abstract class AbstractNode implements NodeInterface
             throw new Exception\NotLocked('node is not locked');
         }
 
-        if ($this->lock['user'] != $this->_user->getId()) {
+        if ($this->lock['owner'] != $this->_user->getId()) {
             throw new Exception\Forbidden('node is locked by another user');
         }
 
@@ -540,6 +526,14 @@ abstract class AbstractNode implements NodeInterface
     public function isReadonly(): bool
     {
         return $this->readonly;
+    }
+
+    /**
+     * May write.
+     */
+    public function mayWrite(): bool
+    {
+        return $this->isReadonly() || Acl::PRIVILEGES_WEIGHT[$this->_acl->getAclPrivilege($this)] <= Acl::PRIVILEGE_READ;
     }
 
     /**
@@ -1107,14 +1101,14 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Prepare lock.
      */
-    protected function prepareLock(string $identifier): array
+    protected function prepareLock(string $identifier, int $ttl = 1800): array
     {
         //var_dump($this->_user);
         return [
-            //'user' => $this->_user->getId(),
+             'owner' => $this->_user->getId(),
             'created' => new UTCDateTime(),
             'id' => $identifier,
-            'expire' => new UTCDateTime((time() + 1800) * 1000),
+            'expire' => new UTCDateTime((time() + $ttl) * 1000),
         ];
     }
 

@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Wopi\Session;
 
+use Balloon\Filesystem\Node\AbstractNode;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server\User;
 
@@ -80,6 +81,14 @@ class Session implements SessionInterface
     }
 
     /**
+     * Get wopi url.
+     */
+    public function getWopiUrl(): string
+    {
+        return '/api/v2/office/wopi/files/'.$this->file->getId().'?access_token='.$this->getAccessToken().'&access_token_ttl='.$this->getAccessTokenTTl();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getAttributes(): array
@@ -118,7 +127,7 @@ class Session implements SessionInterface
             'PresenceUserId' => null,
             'PrivacyUrl' => null,
             'ProtectInClient' => false,
-            'ReadOnly' => false,
+            //'ReadOnly' => $this->file->mayWrite(),
             'RestrictedWebViewOnly' => false,
             'SHA256' => null,
             'SignoutUrl' => null,
@@ -127,19 +136,24 @@ class Session implements SessionInterface
             'SupportsCobalt' => false,
             'SupportsFolders' => true,
             'SupportsLocks' => true,
+            'SupportsGetLock' => true,
             'SupportsScenarioLinks' => false,
             'SupportsSecureStore' => false,
             'SupportsUpdate' => true,
+            'SupportsRename' => true,
+            'FileNameMaxLength' => AbstractNode::MAX_NAME_LENGTH,
             'TenantId' => null,
             'TermsOfUseUrl' => null,
             'TimeZone' => null,
             'UserCanAttend' => false,
             'UserCanNotWriteRelative' => false,
             'UserCanPresent' => false,
+            'UserCanRename' => true,
             'UserCanWrite' => true,
+            //'UserCanWrite' => $this->file->mayWrite(),
             'UserFriendlyName' => $this->user->getUsername(),
             'UserId' => (string) $this->user->getId(),
-            'Version' => $this->file->getVersion(),
+            'Version' => (string) $this->file->getVersion(),
             'WebEditingDisabled' => false,
         ];
 

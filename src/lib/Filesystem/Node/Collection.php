@@ -739,18 +739,12 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Validate insert.
      */
-    protected function validateInsert(string $name, int $conflict = NodeInterface::CONFLICT_NOACTION, string $type = Collection::class): string
+    public function validateInsert(string $name, int $conflict = NodeInterface::CONFLICT_NOACTION, string $type = Collection::class): string
     {
         if ($this->readonly) {
             throw new Exception\Conflict(
                 'node is set as readonly, it is not possible to add new sub nodes',
                 Exception\Conflict::READONLY
-            );
-        }
-
-        if($this->isLocked()) {
-            throw new Exception\Locked(
-                'node is write locked, it is not possible to add new sub nodes',
             );
         }
 

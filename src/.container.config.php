@@ -119,7 +119,7 @@ return [
                 'use' => 'Monolog\Formatter\LineFormatter',
                 'arguments' => [
                     'dateFormat' => 'Y-m-d H:i:s',
-                    'format' => "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
+                    'format' => "%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n"
                 ],
                 'calls' => [
                     ['method' => 'includeStacktraces']
