@@ -517,11 +517,6 @@ class Collection extends AbstractNode implements IQuota
         }
 
         $real = $this->getRealId();
-        $copy = null;
-
-        if ($real !== $this->_id) {
-            $copy = $this->copyTo($this->getParent(), NodeInterface::CONFLICT_RENAME);
-        }
 
         $action = [
             '$set' => [
@@ -555,9 +550,6 @@ class Collection extends AbstractNode implements IQuota
             ]);
 
             $this->delete();
-            $copy->setName($this->getName());
-
-            return $copy;
         }
 
         return $this;
