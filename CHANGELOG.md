@@ -4,6 +4,7 @@
 
 * CORE: [FEATURE] Introduce node locks #320
 * API: [FEATURE]  Implement propper WOPI support Balloon.App.Wopi #154
+* API: [CHANGE] Dropped WOPI support for api v1 #154
 * CORE: [FIX] error_log now prints container fatal error after http response has been sent
 * CORE: [FEATURE] Implement new security app which can lock ip addrs, prevent brute forcing, ... #12
 
