@@ -111,7 +111,9 @@ class Files
             'previous' => $previous,
         ]);
 
-        $response = (new Response())->setCode(200);
+        $response = (new Response())
+            ->setCode(200)
+            ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion());
 
         try {
             switch ($op) {
@@ -135,6 +137,13 @@ class Files
 
                 break;
                 case self::WOPI_UNLOCK:
+                    if (!$file->isLocked()) {
+                        $response->setCode(409)
+                            ->setHeader('X-WOPI-Lock', '');
+
+                        return $response;
+                    }
+
                     $file->unlock($identifier);
 
                 break;
@@ -194,9 +203,11 @@ class Files
 
         $file = $this->server->getFilesystem()->getNode($id, File::class);
         $session = $this->manager->getByToken($file, $access_token);
+        $response = (new Response())
+            ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion());
 
         if (!$file->isLocked() && $file->getSize() > 0) {
-            return (new Response())
+            return $response
                 ->setCode(409)
                 ->setBody(new Exception\NotLocked('file needs to be locked first'));
         }
@@ -205,11 +216,11 @@ class Files
             $content = fopen('php://input', 'rb');
             $result = $file->put($content, false);
 
-            return (new Response())->setCode(200)->setBody($result);
+            return $response->setCode(200)->setBody($result);
         } catch (Exception\Locked | Exception\LockIdMissmatch $e) {
             $lock = $file->getLock();
 
-            return (new Response())
+            return $response
                 ->setCode(409)
                 ->setHeader('X-WOPI-Lock', $lock['id'])
                 ->setHeader('X-WOPI-LockFailureReason', $e->getMessage())
@@ -220,21 +231,28 @@ class Files
     /**
      * Get document contents.
      */
-    public function getContents(ObjectId $id, string $access_token): void
+    public function getContents(ObjectId $id, string $access_token): Response
     {
         $file = $this->server->getFilesystem()->getNode($id, File::class);
         $session = $this->manager->getByToken($file, $access_token);
         $stream = $file->get();
 
-        if ($stream === null) {
-            exit();
-        }
+        $response = (new Response())
+            ->setCode(200)
+            ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion())
+            ->setBody(function () use ($stream) {
+                if ($stream === null) {
+                    echo '';
 
-        while (!feof($stream)) {
-            echo fread($stream, 8192);
-        }
+                    return;
+                }
 
-        exit();
+                while (!feof($stream)) {
+                    echo fread($stream, 8192);
+                }
+            });
+
+        return $response;
     }
 
     /**
@@ -317,18 +335,22 @@ class Files
 
         try {
             $ext = $file->getExtension();
-            $name = $name.'.'.$ext;
+            $full = $name.'.'.$ext;
         } catch (\Exception $e) {
         }
 
         try {
-            $file->setName($name);
+            $file->setName($full);
         } catch (Exception\Conflict $e) {
             return (new Response())
                 ->setCode(400)
                 ->setHeader('X-WOPI-InvalidFileNameError', (string) $e->getMessage())
                 ->setBody($e);
         }
+
+        $response->setBody([
+            'Name' => $name,
+        ]);
 
         return $response;
     }

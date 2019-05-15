@@ -13,6 +13,7 @@ namespace Balloon\App\Wopi;
 
 use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
 use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 
 class HostManager
 {
@@ -24,6 +25,13 @@ class HostManager
     protected $hosts = [];
 
     /**
+     * Client url.
+     *
+     * @var string
+     */
+    protected $client;
+
+    /**
      * Logger.
      *
      * @var LoggerInterface
@@ -33,18 +41,50 @@ class HostManager
     /**
      * Cache.
      *
-     * @var array
+     * @var CacheInterface
      */
     protected $cache;
 
     /**
      * Hosts.
      */
-    public function __construct(GuzzleHttpClientInterface $client, LoggerInterface $logger, array $hosts = [])
+    public function __construct(GuzzleHttpClientInterface $client, CacheInterface $cache, LoggerInterface $logger, array $hosts = [])
     {
         $this->client = $client;
         $this->hosts = $hosts;
+        $this->cache = $cache;
         $this->logger = $logger;
+    }
+
+    /**
+     * Set options.
+     */
+    public function setOptions(array $config = []): SessionManager
+    {
+        foreach ($config as $option => $value) {
+            switch ($option) {
+                case 'hosts':
+                    $this->hosts = (array) $value;
+
+                    break;
+                case 'client':
+                    $this->client = (string) $value;
+
+                break;
+                default:
+                    throw new InvalidArgumentexception('invalid option '.$option.' given');
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get client url.
+     */
+    public function getClientUrl(): ?string
+    {
+        return $this->client;
     }
 
     /**
@@ -82,10 +122,21 @@ class HostManager
     }
 
     /**
+     * Verify wopi proof key.
+     */
+    public function verifyWopiProof(string $key): bool
+    {
+    }
+
+    /**
      * Fetch discovery.
      */
     protected function fetchDiscovery(string $url): object
     {
+        if ($result = $this->cache->get($url)) {
+            return $result;
+        }
+
         $this->logger->debug('fetch wopi discovery [{url}]', [
             'category' => get_class($this),
             'url' => $url,

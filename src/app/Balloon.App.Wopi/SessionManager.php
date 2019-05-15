@@ -13,6 +13,7 @@ namespace Balloon\App\Wopi;
 
 use Balloon\App\Wopi\Session\Session;
 use Balloon\App\Wopi\Session\SessionInterface;
+use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -36,12 +37,20 @@ class SessionManager
     protected $db;
 
     /**
+     * Host manager.
+     *
+     * @var HostManager
+     */
+    protected $manager;
+
+    /**
      * Session.
      */
-    public function __construct(Database $db, Server $server, array $config = [])
+    public function __construct(Database $db, Server $server, HostManager $manager, array $config = [])
     {
         $this->db = $db;
         $this->server = $server;
+        $this->manager = $manager;
         $this->setOptions($config);
     }
 
@@ -99,6 +108,7 @@ class SessionManager
             throw new Exception\Forbidden('session does not exists');
         }
 
+        $result['client'] = $this->manager->getClientUrl();
         $user = $this->server->getUserById($result['user']);
 
         return new Session($file, $user, $result);
@@ -117,6 +127,8 @@ class SessionManager
         ];
 
         $this->db->wopi->insertOne($data);
+
+        $data['client'] = $this->manager->getClientUrl();
 
         return new Session($file, $user, $data);
     }

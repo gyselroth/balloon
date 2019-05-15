@@ -383,8 +383,6 @@ abstract class AbstractNode implements NodeInterface
             if ($identifier !== $this->lock['id']) {
                 throw new Exception\LockIdMissmatch('the unlock id must match the current lock id');
             }
-
-            throw new Exception\Locked('node is already locked');
         }
 
         $this->lock = $this->prepareLock($identifier, $ttl ?? 1800);
@@ -533,7 +531,7 @@ abstract class AbstractNode implements NodeInterface
      */
     public function mayWrite(): bool
     {
-        return $this->isReadonly() || Acl::PRIVILEGES_WEIGHT[$this->_acl->getAclPrivilege($this)] <= Acl::PRIVILEGE_READ;
+        return Acl::PRIVILEGES_WEIGHT[$this->_acl->getAclPrivilege($this)] > Acl::PRIVILEGE_READ;
     }
 
     /**

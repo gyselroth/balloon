@@ -30,6 +30,8 @@ use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterfa
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\HiddenString;
+use Cache\Adapter\Apcu\ApcuCachePool;
+use Psr\SimpleCache\CacheInterface;
 
 return [
     Client::class => [
@@ -50,6 +52,9 @@ return [
 
             ]
         ]
+    ],
+    CacheInterface::class => [
+        'use' => ApcuCachePool::class
     ],
     NodeFactory::class => [
         'services' => [
