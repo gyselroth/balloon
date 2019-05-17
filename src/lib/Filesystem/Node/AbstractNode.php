@@ -1097,6 +1097,33 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
+     * Duplicate name with a uniqid within name.
+     */
+    public function getDuplicateName(?string $name = null, ?string $class = null): string
+    {
+        if (null === $name) {
+            $name = $this->name;
+        }
+
+        if (null === $class) {
+            $class = get_class($this);
+        }
+
+        if ($class === Collection::class) {
+            return $name.' ('.substr(uniqid('', true), -4).')';
+        }
+
+        $ext = substr(strrchr($name, '.'), 1);
+        if (false === $ext) {
+            return $name.' ('.substr(uniqid('', true), -4).')';
+        }
+
+        $name = substr($name, 0, -(strlen($ext) + 1));
+
+        return $name.' ('.substr(uniqid('', true), -4).')'.'.'.$ext;
+    }
+
+    /**
      * Prepare lock.
      */
     protected function prepareLock(string $identifier, int $ttl = 1800): array
@@ -1152,33 +1179,6 @@ abstract class AbstractNode implements NodeInterface
         }
 
         return $attributes;
-    }
-
-    /**
-     * Duplicate name with a uniqid within name.
-     */
-    protected function getDuplicateName(?string $name = null, ?string $class = null): string
-    {
-        if (null === $name) {
-            $name = $this->name;
-        }
-
-        if (null === $class) {
-            $class = get_class($this);
-        }
-
-        if ($class === Collection::class) {
-            return $name.' ('.substr(uniqid('', true), -4).')';
-        }
-
-        $ext = substr(strrchr($name, '.'), 1);
-        if (false === $ext) {
-            return $name.' ('.substr(uniqid('', true), -4).')';
-        }
-
-        $name = substr($name, 0, -(strlen($ext) + 1));
-
-        return $name.' ('.substr(uniqid('', true), -4).')'.'.'.$ext;
     }
 
     /**

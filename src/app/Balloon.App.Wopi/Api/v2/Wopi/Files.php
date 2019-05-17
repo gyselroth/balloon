@@ -13,6 +13,7 @@ namespace Balloon\App\Wopi\Api\v2\Wopi;
 
 use Balloon\App\Wopi\Exception\UnknownWopiOperation as UnknownWopiOperationException;
 use Balloon\App\Wopi\HostManager;
+use Balloon\App\Wopi\Session\SessionInterface;
 use Balloon\App\Wopi\SessionManager;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\AttributeDecorator;
@@ -94,13 +95,11 @@ class Files
      */
     public function get(ObjectId $id, string $access_token): Response
     {
-        $file = $this->server->getFilesystem()->getNode($id, File::class);
+        $file = $this->server->getFilesystem()->findNodeById($id, File::class);
         $session = $this->session_manager->getByToken($file, $access_token);
 
-        $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]', [
+        $this->logger->info('incoming GET wopi operation', [
             'category' => get_class($this),
-            'operation' => $session->getAttributes(),
-            'test' => $_SERVER,
         ]);
 
         $this->validateProof();
@@ -113,7 +112,7 @@ class Files
      */
     public function post(ObjectId $id, string $access_token): Response
     {
-        $file = $this->server->getFilesystem()->getNode($id, File::class);
+        $file = $this->server->getFilesystem()->findNodeById($id, File::class);
         $session = $this->session_manager->getByToken($file, $access_token);
 
         $op = $_SERVER['HTTP_X_WOPI_OVERRIDE'] ?? null;
@@ -124,7 +123,6 @@ class Files
         $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]', [
             'category' => get_class($this),
             'operation' => $op,
-            'test' => $_SERVER,
             'identifier' => $identifier,
             'previous' => $previous,
         ]);
@@ -175,7 +173,7 @@ class Files
 
                 break;
                 case self::WOPI_PUT_RELATIVE:
-                    return $this->putRelative($file, $response);
+                    return $this->putRelative($file, $response, $session);
 
                 break;
                 case null:
@@ -214,17 +212,16 @@ class Files
         $previous = $_SERVER['HTTP_X_WOPI_OLDLOCK'] ?? null;
         $_SERVER['HTTP_LOCK_TOKEN'] = $identifier;
 
-        $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]'.json_encode($_SERVER), [
+        $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]', [
             'category' => get_class($this),
             'operation' => $op,
             'identifier' => $identifier,
         ]);
 
         $this->validateProof();
-        $file = $this->server->getFilesystem()->getNode($id, File::class);
+        $file = $this->server->getFilesystem()->findNodeById($id, File::class);
         $session = $this->session_manager->getByToken($file, $access_token);
-        $response = (new Response())
-            ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion());
+        $response = new Response();
 
         if (!$file->isLocked() && $file->getSize() > 0) {
             return $response
@@ -236,7 +233,10 @@ class Files
             $content = fopen('php://input', 'rb');
             $result = $file->put($content, false);
 
-            return $response->setCode(200)->setBody($result);
+            return $response
+                ->setCode(200)
+                ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion())
+                ->setBody($result);
         } catch (Exception\Locked | Exception\LockIdMissmatch $e) {
             $lock = $file->getLock();
 
@@ -244,6 +244,7 @@ class Files
                 ->setCode(409)
                 ->setHeader('X-WOPI-Lock', $lock['id'])
                 ->setHeader('X-WOPI-LockFailureReason', $e->getMessage())
+                ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion())
                 ->setBody($e);
         }
     }
@@ -253,7 +254,7 @@ class Files
      */
     public function getContents(ObjectId $id, string $access_token): Response
     {
-        $file = $this->server->getFilesystem()->getNode($id, File::class);
+        $file = $this->server->getFilesystem()->findNodeById($id, File::class);
         $session = $this->session_manager->getByToken($file, $access_token);
         $this->validateProof();
         $stream = $file->get();
@@ -299,13 +300,15 @@ class Files
     /**
      * Put relative file.
      */
-    protected function putRelative(File $file, Response $response): Response
+    protected function putRelative(File $file, Response $response, SessionInterface $session): Response
     {
         $suggested = $_SERVER['HTTP_X_WOPI_SUGGESTEDTARGET'] ?? null;
         $relative = $_SERVER['HTTP_X_WOPI_RELATIVETARGET'] ?? null;
         $conversion = $_SERVER['HTTP_X_WOPI_FILECONVERSION'] ?? null;
-        $overwrite = (bool) ($_SERVER['HTTP_X_WOPI_OVERWRITERELATIVETARGET'] ?? false);
+        $overwrite = $_SERVER['HTTP_X_WOPI_OVERWRITERELATIVETARGET'] ?? false;
+        $overwrite = ($overwrite === 'False' || $overwrite === false) ? false : true;
         $size = $_SERVER['HTTP_X_WOPI_SIZE'] ?? null;
+        $new = null;
 
         $parent = $file->getParent();
         $content = fopen('php://input', 'rb');
@@ -321,44 +324,72 @@ class Files
         if ($suggested !== null && $relative !== null) {
             return $response
                 ->setCode(400)
-                ->setBody(new \Balloon\Exception('X-WOPI-RelativeTarget and X-WOPI-SuggestedTarget must not both be present'));
+                ->setBody([
+                    'Name' => $file->getName(),
+                    'Url' => $session->getWopiUrl(),
+                ]);
         }
-        if ($suggested !== null) {
-            if ($suggested[0] === '.') {
-                $suggested = $file->getName().$suggested;
-            }
 
-            try {
-                $name = $suggested;
-                $new = $parent->addFile($name);
-                $new->put($content, false);
-            } catch (Exception\Conflict $e) {
-                $name = $parent->getDuplicateName($name);
-                $new = $parent->addFile($name);
-                $new->put($content, false);
-            }
-        } elseif ($relative !== null) {
-            try {
-                $new = $parent->addFile($relative);
-                $new->put($content, false);
-            } catch (Exception\Conflict $e) {
-                if ($e->getCode() === Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS && $overwrite === true) {
-                    $new = $parent->getChild($relative);
-                    $new->put($content, false);
-                } else {
-                    return $response
-                        ->setCode(409)
-                        ->setBody($e);
+        try {
+            if ($suggested !== null) {
+                if ($suggested[0] === '.') {
+                    $suggested = substr($file->getName(), 0, strpos($file->getName(), '.')).$suggested;
                 }
+
+                try {
+                    $name = mb_convert_encoding($suggested, 'UTF-8', 'UTF-7');
+                    $new = $parent->addFile($name);
+                    $new->put($content, false);
+                } catch (Exception\Conflict $e) {
+                    $name = $file->getDuplicateName($name);
+                    $new = $parent->addFile($name);
+                    $new->put($content, false);
+                }
+            } elseif ($relative !== null) {
+                try {
+                    $name = mb_convert_encoding($relative, 'UTF-8', 'UTF-7');
+                    $new = $parent->addFile($name);
+                    $new->put($content, false);
+                } catch (Exception\Conflict $e) {
+                    if ($e->getCode() === Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS && $overwrite === true) {
+                        $new = $parent->getChild($name);
+                        $new->put($content, false);
+                    } else {
+                        return $response
+                            ->setCode(409)
+                            ->setBody([
+                                'Name' => $name,
+                                'Url' => $session->getWopiUrl(),
+                            ]);
+                    }
+                }
+            } else {
+                return $response
+                    ->setCode(400)
+                    ->setBody([
+                        'Name' => $name,
+                        'Url' => $session->getWopiUrl(),
+                    ]);
             }
-        } else {
+        } catch (Exception\InvalidArgument $e) {
             return $response
                 ->setCode(400)
-                ->setBody(new \Balloon\Exception('One of X-WOPI-RelativeTarget or X-WOPI-SuggestedTarget must be present'));
+                ->setBody([
+                    'Name' => $name,
+                    'Url' => $session->getWopiUrl(),
+                ]);
+        } catch (Exception\Locked $e) {
+            return $response
+                ->setCode(409)
+                ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion())
+                ->setHeader('X-WOPI-LockFailureReason', $e->getMessage())
+                ->setBody([
+                    'Name' => $name,
+                    'Url' => $session->getWopiUrl(),
+                ]);
         }
 
         $session = $this->session_manager->create($new, $this->server->getUserById($new->getOwner()));
-
         $response->setBody([
             'Name' => $new->getName(),
             'Url' => $session->getWopiUrl(),
@@ -372,7 +403,8 @@ class Files
      */
     protected function renameFile(File $file, Response $response): Response
     {
-        $name = $_SERVER['HTTP_X_WOPI_REQUESTEDNAME'] ?? null;
+        $name = $_SERVER['HTTP_X_WOPI_REQUESTEDNAME'] ?? '';
+        $name = mb_convert_encoding($name, 'UTF-8', 'UTF-7');
 
         try {
             $ext = $file->getExtension();

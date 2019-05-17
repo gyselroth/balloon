@@ -85,7 +85,7 @@ class Session implements SessionInterface
      */
     public function getWopiUrl(): string
     {
-        return '/api/v2/office/wopi/files/'.$this->file->getId().'?access_token='.$this->getAccessToken().'&access_token_ttl='.$this->getAccessTokenTTl();
+        return $this->session['client'].'/api/v2/office/wopi/files/'.$this->file->getId().'?access_token='.$this->getAccessToken().'&access_token_ttl='.$this->getAccessTokenTTl();
     }
 
     /**

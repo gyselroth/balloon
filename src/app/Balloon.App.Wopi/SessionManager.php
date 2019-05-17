@@ -41,16 +41,16 @@ class SessionManager
      *
      * @var HostManager
      */
-    protected $manager;
+    protected $host_manager;
 
     /**
      * Session.
      */
-    public function __construct(Database $db, Server $server, HostManager $manager, array $config = [])
+    public function __construct(Database $db, Server $server, HostManager $host_manager, array $config = [])
     {
         $this->db = $db;
         $this->server = $server;
-        $this->manager = $manager;
+        $this->host_manager = $host_manager;
         $this->setOptions($config);
     }
 
@@ -108,7 +108,7 @@ class SessionManager
             throw new Exception\Forbidden('session does not exists');
         }
 
-        $result['client'] = $this->manager->getClientUrl();
+        $result['client'] = $this->host_manager->getClientUrl();
         $user = $this->server->getUserById($result['user']);
 
         return new Session($file, $user, $result);
@@ -127,8 +127,7 @@ class SessionManager
         ];
 
         $this->db->wopi->insertOne($data);
-
-        $data['client'] = $this->manager->getClientUrl();
+        $data['client'] = $this->host_manager->getClientUrl();
 
         return new Session($file, $user, $data);
     }

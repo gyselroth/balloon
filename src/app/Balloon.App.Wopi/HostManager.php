@@ -225,10 +225,10 @@ class HostManager
                 $timestamp_bytes,
             ]);
 
-            if ($pub_key->verify($expected, base64_decode($data['proof'])) ||
-              $pub_key->verify($expected, base64_decode($data['proof-old'])) ||
-              $pub_key_old->verify($expected, base64_decode($data['proof']))) {
-                $this->logger->debug('wopi proof signature matches', [
+            if ($a = $pub_key->verify($expected, base64_decode($data['proof'])) ||
+              $b = $pub_key->verify($expected, base64_decode($data['proof-old'])) ||
+              $c = $pub_key_old->verify($expected, base64_decode($data['proof']))) {
+                $this->logger->debug('wopi proof signature matches'.json_encode([$a, $b, $c]), [
                     'category' => get_class($this),
                 ]);
 

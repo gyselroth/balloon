@@ -38,6 +38,21 @@ Balloon\App\ClamAv\Scanner:
       max_stream_size: 26214400
       aggressiveness: 2
       timeout: 30
+ReCaptcha\ReCaptcha:
+  arguments:
+    secret: ""
+Balloon\App\Wopi\HostManager:
+  arguments:
+    config:
+      hosts:
+      - name: LibreOffice Online
+        url: '{ENV(BALLOON_LIBREOFFICE_URL, https://libreoffice:9980)}/hosting/discovery'
+      client_url: 'http://localhost:8080'
+      cache_ttl: 1
+      validate_proof: true
+Balloon\App\Wopi\SessionManager:
+  arguments:
+    access_token_ttl: 1800
 Balloon\App\Notification\Notifier:
   calls:
     Balloon\App\Notification\Adapter\Db:
