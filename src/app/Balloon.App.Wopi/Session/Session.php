@@ -104,7 +104,7 @@ class Session implements SessionInterface
             //'FileUrl' => null,
             'FileVersionPostMessage' => true,
             'FileSharingPostMessage' => true,
-            'PostMessageOrigin' => 'http://localhost:8080',
+            'PostMessageOrigin' => $this->session['client'],
             'OwnerId' => (string) $this->file->getOwner(),
             'ReadOnly' => $this->file->isReadonly(),
             'RestrictedWebViewOnly' => false,
