@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Wopi\Api\v2\Wopi;
 
 use Balloon\App\Wopi\Exception\UnknownWopiOperation as UnknownWopiOperationException;
+use Balloon\App\Wopi\HostManager;
 use Balloon\App\Wopi\SessionManager;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\AttributeDecorator;
@@ -53,7 +54,14 @@ class Files
      *
      * @var SessionManager
      */
-    protected $manager;
+    protected $session_manager;
+
+    /**
+     * Host manager.
+     *
+     * @var HostManager
+     */
+    protected $host_manager;
 
     /**
      * Attribute decorator.
@@ -72,9 +80,10 @@ class Files
     /**
      * Constructor.
      */
-    public function __construct(SessionManager $manager, Server $server, AttributeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(SessionManager $session_manager, HostManager $host_manager, Server $server, AttributeDecorator $decorator, LoggerInterface $logger)
     {
-        $this->manager = $manager;
+        $this->session_manager = $session_manager;
+        $this->host_manager = $host_manager;
         $this->server = $server;
         $this->decorator = $decorator;
         $this->logger = $logger;
@@ -86,7 +95,15 @@ class Files
     public function get(ObjectId $id, string $access_token): Response
     {
         $file = $this->server->getFilesystem()->getNode($id, File::class);
-        $session = $this->manager->getByToken($file, $access_token);
+        $session = $this->session_manager->getByToken($file, $access_token);
+
+        $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]', [
+            'category' => get_class($this),
+            'operation' => $session->getAttributes(),
+            'test' => $_SERVER,
+        ]);
+
+        $this->validateProof();
 
         return (new Response())->setCode(200)->setBody($session->getAttributes(), true);
     }
@@ -97,7 +114,7 @@ class Files
     public function post(ObjectId $id, string $access_token): Response
     {
         $file = $this->server->getFilesystem()->getNode($id, File::class);
-        $session = $this->manager->getByToken($file, $access_token);
+        $session = $this->session_manager->getByToken($file, $access_token);
 
         $op = $_SERVER['HTTP_X_WOPI_OVERRIDE'] ?? null;
         $identifier = $_SERVER['HTTP_X_WOPI_LOCK'] ?? null;
@@ -107,10 +124,12 @@ class Files
         $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]', [
             'category' => get_class($this),
             'operation' => $op,
+            'test' => $_SERVER,
             'identifier' => $identifier,
             'previous' => $previous,
         ]);
 
+        $this->validateProof();
         $response = (new Response())
             ->setCode(200)
             ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion());
@@ -201,8 +220,9 @@ class Files
             'identifier' => $identifier,
         ]);
 
+        $this->validateProof();
         $file = $this->server->getFilesystem()->getNode($id, File::class);
-        $session = $this->manager->getByToken($file, $access_token);
+        $session = $this->session_manager->getByToken($file, $access_token);
         $response = (new Response())
             ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion());
 
@@ -234,7 +254,8 @@ class Files
     public function getContents(ObjectId $id, string $access_token): Response
     {
         $file = $this->server->getFilesystem()->getNode($id, File::class);
-        $session = $this->manager->getByToken($file, $access_token);
+        $session = $this->session_manager->getByToken($file, $access_token);
+        $this->validateProof();
         $stream = $file->get();
 
         $response = (new Response())
@@ -253,6 +274,26 @@ class Files
             });
 
         return $response;
+    }
+
+    /**
+     * Validate proof.
+     */
+    protected function validateProof(): bool
+    {
+        if (isset($_SERVER['HTTP_X_WOPI_PROOF'])) {
+            $data = [
+                'proof' => $_SERVER['HTTP_X_WOPI_PROOF'],
+                'proof-old' => $_SERVER['HTTP_X_WOPI_PROOFOLD'] ?? '',
+                'access-token' => $access_token,
+                'host-url' => 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],
+                'timestamp' => $_SERVER['HTTP_X_WOPI_TIMESTAMP'] ?? '',
+            ];
+
+            return $this->host_manager->verifyWopiProof($data);
+        }
+
+        return false;
     }
 
     /**
@@ -316,7 +357,7 @@ class Files
                 ->setBody(new \Balloon\Exception('One of X-WOPI-RelativeTarget or X-WOPI-SuggestedTarget must be present'));
         }
 
-        $session = $this->manager->create($new, $this->server->getUserById($new->getOwner()));
+        $session = $this->session_manager->create($new, $this->server->getUserById($new->getOwner()));
 
         $response->setBody([
             'Name' => $new->getName(),

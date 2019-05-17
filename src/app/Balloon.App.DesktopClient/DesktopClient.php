@@ -151,7 +151,7 @@ class DesktopClient
                 ->setStatusCode($code);
         }
 
-        $data = json_decode($data, true);
+        $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
 
         if (!is_array($data) || !isset($data['assets']) || 0 === count($data['assets'])) {
             throw new Exception\GithubAssetNotFound('no github release assets found');

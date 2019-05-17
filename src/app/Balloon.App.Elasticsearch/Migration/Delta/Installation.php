@@ -86,10 +86,7 @@ class Installation implements DeltaInterface
             throw new Exception\IndexConfigurationNotFound('index configuration '.$this->index_configuration.' not found');
         }
 
-        $index = json_decode(file_get_contents($this->index_configuration));
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception\InvalidIndexConfiguration('invalid elasticsearch index configuration json given');
-        }
+        $index = json_decode(file_get_contents($this->index_configuration), false, 512, JSON_THROW_ON_ERROR);
 
         foreach ($index as $name => $settings) {
             $this->logger->info('create elasticsearch index ['.$name.']', [

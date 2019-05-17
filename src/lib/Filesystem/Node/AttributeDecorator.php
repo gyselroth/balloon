@@ -273,7 +273,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
 
-                return json_decode($attributes['filter'], true);
+                return json_decode($attributes['filter'], true, 512, JSON_THROW_ON_ERROR);
             },
             'mount' => function ($node) use ($fs, $attributes) {
                 $mount = $node->getAttributes()['mount'];
