@@ -48,7 +48,7 @@ Balloon\App\Wopi\HostManager:
       - name: LibreOffice Online
         url: '{ENV(BALLOON_LIBREOFFICE_URL, https://libreoffice:9980)}/hosting/discovery'
       client_url: 'http://localhost:8080'
-      cache_ttl: 1
+      cache_ttl: 86400
       validate_proof: true
 Balloon\App\Wopi\SessionManager:
   arguments:

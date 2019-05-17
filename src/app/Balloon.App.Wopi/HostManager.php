@@ -225,10 +225,10 @@ class HostManager
                 $timestamp_bytes,
             ]);
 
-            if ($a = $pub_key->verify($expected, base64_decode($data['proof'])) ||
-              $b = $pub_key->verify($expected, base64_decode($data['proof-old'])) ||
-              $c = $pub_key_old->verify($expected, base64_decode($data['proof']))) {
-                $this->logger->debug('wopi proof signature matches'.json_encode([$a, $b, $c]), [
+            if ($pub_key->verify($expected, base64_decode($data['proof'])) ||
+              $pub_key->verify($expected, base64_decode($data['proof-old'])) ||
+              $pub_key_old->verify($expected, base64_decode($data['proof']))) {
+                $this->logger->debug('wopi proof signature matches', [
                     'category' => get_class($this),
                 ]);
 
@@ -244,11 +244,13 @@ class HostManager
      */
     protected function fetchDiscovery(string $url): array
     {
-        if ($result = $this->cache->get(md5($url))) {
-            //    return $result;
+        $key = md5($url);
+
+        if ($this->cache->has($key)) {
+            return $this->cache->get($key);
         }
 
-        $this->logger->debug('fetch wopi discovery [{url}]', [
+        $this->logger->debug('wopi discovery not found in cache, fetch wopi discovery [{url}]', [
             'category' => get_class($this),
             'url' => $url,
         ]);
@@ -260,7 +262,15 @@ class HostManager
 
         $body = $response->getBody()->getContents();
         $body = json_decode(json_encode(simplexml_load_string($body), JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY);
-        $this->cache->set(md5($url), $body, $this->cache_ttl);
+
+        $result = $this->cache->set($key, $body, $this->cache_ttl);
+
+        $this->logger->debug('stored wopi discovery [{url}] in cache for [{ttl}]s', [
+            'category' => get_class($this),
+            'url' => $url,
+            'ttl' => $this->cache_ttl,
+            'result' => $result,
+        ]);
 
         return $body;
     }

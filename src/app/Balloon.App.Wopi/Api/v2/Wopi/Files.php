@@ -102,7 +102,7 @@ class Files
             'category' => get_class($this),
         ]);
 
-        $this->validateProof();
+        $this->validateProof($access_token);
 
         return (new Response())->setCode(200)->setBody($session->getAttributes(), true);
     }
@@ -127,7 +127,7 @@ class Files
             'previous' => $previous,
         ]);
 
-        $this->validateProof();
+        $this->validateProof($access_token);
         $response = (new Response())
             ->setCode(200)
             ->setHeader('X-WOPI-ItemVersion', (string) $file->getVersion());
@@ -218,7 +218,7 @@ class Files
             'identifier' => $identifier,
         ]);
 
-        $this->validateProof();
+        $this->validateProof($access_token);
         $file = $this->server->getFilesystem()->findNodeById($id, File::class);
         $session = $this->session_manager->getByToken($file, $access_token);
         $response = new Response();
@@ -256,7 +256,7 @@ class Files
     {
         $file = $this->server->getFilesystem()->findNodeById($id, File::class);
         $session = $this->session_manager->getByToken($file, $access_token);
-        $this->validateProof();
+        $this->validateProof($access_token);
         $stream = $file->get();
 
         $response = (new Response())
@@ -280,7 +280,7 @@ class Files
     /**
      * Validate proof.
      */
-    protected function validateProof(): bool
+    protected function validateProof(string $access_token): bool
     {
         if (isset($_SERVER['HTTP_X_WOPI_PROOF'])) {
             $data = [
