@@ -1,3 +1,10 @@
+## 2.5.5
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri May 17 12:04:22 CEST 2019
+
+* CORE: [FIX] authentication via token endpoint does not work using mail adress #328
+
+
 ## 2.5.4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue May 14 17:00:30 CEST 2019

@@ -505,7 +505,11 @@ class Server
     public function getUserByName(string $name): User
     {
         $aggregation = $this->getUserAggregationPipes();
-        array_unshift($aggregation, ['$match' => ['username' => $name]]);
+        array_unshift($aggregation, ['$match' => ['$or' => [
+            ['username' => $name],
+            ['mail' => $name],
+        ]]]);
+
         $users = $this->db->user->aggregate($aggregation)->toArray();
 
         if (count($users) > 1) {
