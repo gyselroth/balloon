@@ -18,9 +18,9 @@ use Micro\Http\Response;
 class CreationChallenges
 {
     /**
-     * ChallengeFactory.
+     * CreationChallengeFactory.
      *
-     * @var ChallengeFactory
+     * @var CreationChallengeFactory
      */
     protected $creation_challenge_factory;
 

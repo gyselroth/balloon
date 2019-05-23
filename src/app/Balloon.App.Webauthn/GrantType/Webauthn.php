@@ -11,85 +11,67 @@ declare(strict_types=1);
 
 namespace Balloon\App\Webauthn\GrantType;
 
+use Balloon\App\Webauthn\RequestChallenge\RequestChallengeFactory;
+use Balloon\Hook;
+use Balloon\Server;
+use Micro\Auth\Adapter\None as AdapterNone;
+use Micro\Auth\Auth;
+use MongoDB\BSON\ObjectId;
 use OAuth2\GrantType\GrantTypeInterface;
 use OAuth2\RequestInterface;
 use OAuth2\ResponseInterface;
 use OAuth2\ResponseType\AccessTokenInterface;
-use CBOR\Decoder;
-use CBOR\OtherObject\OtherObjectManager;
-use CBOR\Tag\TagObjectManager;
-use Cose\Algorithm\Manager;
-use Cose\Algorithm\Signature\ECDSA;
-use Cose\Algorithm\Signature\EdDSA;
-use Cose\Algorithm\Signature\RSA;
-use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
-use Symfony\Component\HttpFoundation\Request;
+use Psr\Log\LoggerInterface;
 use Webauthn\AuthenticatorAssertionResponse;
-use Webauthn\AttestationStatement\AttestationObjectLoader;
-use Webauthn\AttestationStatement\AttestationStatementSupportManager;
-use Webauthn\AttestationStatement\FidoU2FAttestationStatementSupport;
-use Webauthn\AttestationStatement\NoneAttestationStatementSupport;
-use Webauthn\AttestationStatement\PackedAttestationStatementSupport;
-use Webauthn\AuthenticationExtensions\ExtensionOutputCheckerHandler;
 use Webauthn\AuthenticatorAssertionResponseValidator;
 use Webauthn\PublicKeyCredentialLoader;
-use Webauthn\TokenBinding\TokenBindingNotSupportedHandler;
-use Balloon\App\Webauthn\RequestChallenge\RequestChallengeFactory;
-use Psr\Log\LoggerInterface;
-use MongoDB\BSON\ObjectId;
-use MongoDB\Database;
-use Balloon\App\Webauthn\CredentialRepository;
-use Balloon\Server;
-use Micro\Auth\Auth;
-use Micro\Auth\Adapter\None as AdapterNone;
-use Balloon\Hook;
 
 class Webauthn implements GrantTypeInterface
 {
     /**
-     * Challenge factory
+     * Challenge factory.
      *
      * @var RequestChallengeFactory
      */
     protected $request_challenge_factory;
 
     /**
-     * Server
+     * Server.
      *
      * @var Server
      */
     protected $server;
 
     /**
-     * Validator
+     * Validator.
      *
      * @var AuthenticatorAssertionResponseValidator
      */
     protected $validator;
 
     /**
-     * Publickey load
+     * Publickey load.
      *
      * @var PublicKeyCredentialLoader
      */
     protected $loader;
 
     /**
-     * Hook
+     * Hook.
      *
      * @var Hook
      */
     protected $hook;
 
     /**
-     * Logger
+     * Logger.
      *
      * @var LoggerInterface
      */
     protected $logger;
 
     /**
-     * Auth
+     * Auth.
      *
      * @var Auth
      */
@@ -158,9 +140,9 @@ class Webauthn implements GrantTypeInterface
                 $publicKeyCredential->getResponse(),
                 $publicKeyCredentialRequestOptions,
                 $psr7Request,
-                $user,
+                $user
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('failed to authenticate device', [
                 'category' => get_class($this),
                 'exception' => $e,

@@ -358,7 +358,7 @@ abstract class AbstractNode implements NodeInterface
             return $new;
         }
 
-        if (true === $exists && NodeInterface::CONFLICT_MERGE === $conflict) {
+        if ($parent->childExists($this->name) && NodeInterface::CONFLICT_MERGE === $conflict) {
             $new = $this->copyTo($parent, $conflict);
             $this->delete(true);
 

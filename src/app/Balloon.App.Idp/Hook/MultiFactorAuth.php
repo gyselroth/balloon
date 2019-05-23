@@ -93,11 +93,11 @@ class MultiFactorAuth extends AbstractHook
      */
     public function preServerIdentity(Identity $identity, ?User &$user): void
     {
-        if (null === $user || ('/index.php/api/v2/tokens' === $_SERVER['ORIG_SCRIPT_NAME'] && isset($_POST['grant_type']) && (preg_match('#_mfa$#', $_POST['grant_type']) || $_POST['grant_type'] === 'refresh_token'))) {
+        if (null === $user || (preg_match('#^/index.php/api/v2/tokens#', $_SERVER['ORIG_SCRIPT_NAME']) && isset($_POST['grant_type']) && (preg_match('#_mfa$#', $_POST['grant_type']) || $_POST['grant_type'] === 'refresh_token'))) {
             return;
         }
 
-        if (($identity->getAdapter() instanceof BasicInterface || '/index.php/api/v2/tokens' === $_SERVER['ORIG_SCRIPT_NAME']) && $user->getAttributes()['multi_factor_auth'] === true) {
+        if (($identity->getAdapter() instanceof BasicInterface || preg_match('#^/index.php/api/v2/tokens#', $_SERVER['ORIG_SCRIPT_NAME'])) && $user->getAttributes()['multi_factor_auth'] === true) {
             throw new Exception\MultiFactorAuthenticationRequired('multi-factor authentication required');
         }
 

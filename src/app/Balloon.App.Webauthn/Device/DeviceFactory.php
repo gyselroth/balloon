@@ -40,7 +40,7 @@ class DeviceFactory
      *
      * @var AuthenticatorAttestationResponseValidator
      */
-    protected $validaror;
+    protected $validator;
 
     /**
      * Initialize.

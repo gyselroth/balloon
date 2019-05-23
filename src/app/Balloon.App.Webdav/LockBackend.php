@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Webdav;
 
+use Balloon\Filesystem;
 use Balloon\Server;
 use Sabre\DAV\Locks\Backend\BackendInterface;
 use Sabre\DAV\Locks\LockInfo;

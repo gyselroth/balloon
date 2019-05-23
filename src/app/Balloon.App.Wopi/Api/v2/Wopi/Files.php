@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Wopi\Api\v2\Wopi;
 
+use Balloon\App\Wopi\Exception\MissingWopiOperation as MissingWopiOperationException;
 use Balloon\App\Wopi\Exception\UnknownWopiOperation as UnknownWopiOperationException;
 use Balloon\App\Wopi\HostManager;
 use Balloon\App\Wopi\Session\SessionInterface;
@@ -309,6 +310,7 @@ class Files
         $overwrite = ($overwrite === 'False' || $overwrite === false) ? false : true;
         $size = $_SERVER['HTTP_X_WOPI_SIZE'] ?? null;
         $new = null;
+        $name = null;
 
         $parent = $file->getParent();
         $content = fopen('php://input', 'rb');
@@ -405,6 +407,7 @@ class Files
     {
         $name = $_SERVER['HTTP_X_WOPI_REQUESTEDNAME'] ?? '';
         $name = mb_convert_encoding($name, 'UTF-8', 'UTF-7');
+        $full = $name;
 
         try {
             $ext = $file->getExtension();

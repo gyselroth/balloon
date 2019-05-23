@@ -40,11 +40,11 @@ class CreationChallengeFactory
     protected $auth_extensions;
 
     /**
-     * CredentialRepository.
+     * AuthenticatorSelectionCriteria.
      *
-     * @var CredentialRepository
+     * @var AuthenticatorSelectionCriteria
      */
-    protected $repository;
+    protected $auth_criteria;
 
     /**
      * Initialize.

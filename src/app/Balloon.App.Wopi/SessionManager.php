@@ -17,6 +17,7 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Balloon\Server\User;
+use InvalidArgumentException;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 
@@ -44,6 +45,11 @@ class SessionManager
     protected $host_manager;
 
     /**
+     * Server.
+     */
+    protected $server;
+
+    /**
      * Session.
      */
     public function __construct(Database $db, Server $server, HostManager $host_manager, array $config = [])
@@ -66,7 +72,7 @@ class SessionManager
 
                     break;
                 default:
-                    throw new InvalidArgumentexception('invalid option '.$option.' given');
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
             }
         }
 

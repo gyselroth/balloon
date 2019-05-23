@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Wopi;
 
 use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
+use InvalidArgumentException;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use Psr\Log\LoggerInterface;

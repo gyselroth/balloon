@@ -61,7 +61,7 @@ class Session implements SessionInterface
      */
     public function getFile(): File
     {
-        return $this->File;
+        return $this->file;
     }
 
     /**
@@ -125,7 +125,6 @@ class Session implements SessionInterface
             'UserCanNotWriteRelative' => false,
             'UserCanPresent' => false,
             'UserCanRename' => true,
-            'UserCanWrite' => true,
             'UserCanWrite' => $this->file->mayWrite(),
             'UserFriendlyName' => $this->user->getUsername(),
             'UserId' => (string) $this->user->getId(),

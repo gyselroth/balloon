@@ -62,9 +62,7 @@ class CredentialRepository implements PublicKeyCredentialSourceRepository
      */
     public function findAllForUserEntity(PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): array
     {
-        $result = $this->db->devices->find($publicKeyCredentialSource);
-
-        return [$result];
+        return [];
     }
 
     /**

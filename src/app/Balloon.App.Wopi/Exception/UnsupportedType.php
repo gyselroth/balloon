@@ -9,17 +9,17 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\App\Idp\Exception;
+namespace Balloon\App\Wopi\Exception;
 
 use Micro\Http\ExceptionInterface;
 
-class MultiFactorAuthenticationRequired extends \Balloon\Exception implements ExceptionInterface
+class UnsupportedType extends \Balloon\Exception implements ExceptionInterface
 {
     /**
      * {@inheritdoc}
      */
     public function getStatusCode(): int
     {
-        return 403;
+        return 400;
     }
 }

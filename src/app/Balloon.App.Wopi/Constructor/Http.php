@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Wopi\Constructor;
 
 use Balloon\App\Wopi\Api\v2;
-use Balloon\Hook;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
@@ -21,7 +20,7 @@ class Http
     /**
      * Constructor.
      */
-    public function __construct(Hook $hook, Router $router)
+    public function __construct(Router $router)
     {
         $router
             ->prependRoute(new Route('/api/v2/office/documents', v2\Documents::class))

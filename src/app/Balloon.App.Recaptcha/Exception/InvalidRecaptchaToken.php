@@ -13,7 +13,7 @@ namespace Balloon\App\Recaptcha\Exception;
 
 use Micro\Http\ExceptionInterface;
 
-class InvalidRecaptchaCode extends \Balloon\Exception implements ExceptionInterface
+class InvalidRecaptchaToken extends \Balloon\Exception implements ExceptionInterface
 {
     /**
      * {@inheritdoc}

@@ -19,9 +19,9 @@ use MongoDB\BSON\ObjectId;
 class RequestChallenges
 {
     /**
-     * ChallengeFactory.
+     * RequestChallengeFactory.
      *
-     * @var ChallengeFactory
+     * @var RequestChallengeFactory
      */
     protected $request_challenge_factory;
 
