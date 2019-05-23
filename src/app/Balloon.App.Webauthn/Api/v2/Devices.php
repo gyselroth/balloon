@@ -27,6 +27,20 @@ class Devices
     protected $device_factory;
 
     /**
+     * CreationChallengeFactory.
+     *
+     * @var CreationChallengeFactory
+     */
+    protected $creation_challenge_factory;
+
+    /**
+     * Server.
+     *
+     * @var Server
+     */
+    protected $server;
+
+    /**
      * Initialize.
      */
     public function __construct(DeviceFactory $device_factory, CreationChallengeFactory $creation_challenge_factory, Server $server)

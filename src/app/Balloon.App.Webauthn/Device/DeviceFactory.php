@@ -12,10 +12,8 @@ declare(strict_types=1);
 namespace Balloon\App\Webauthn\Device;
 
 use Balloon\App\Webauthn\CredentialRepository;
-use Balloon\Server;
 use Micro\Http\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Webauthn\AttestationStatement\AttestationStatementSupportManager;
 use Webauthn\AuthenticatorAttestationResponse;
 use Webauthn\AuthenticatorAttestationResponseValidator;
 use Webauthn\PublicKeyCredentialCreationOptions;
@@ -24,16 +22,30 @@ use Webauthn\PublicKeyCredentialLoader;
 class DeviceFactory
 {
     /**
-     * Server.
+     * CredentialRepository.
      *
-     * @var OAuth2Server
+     * @var CredentialRepository
      */
-    protected $server;
+    protected $repository;
+
+    /**
+     * PublicKeyCredentialLoader.
+     *
+     * @var PublicKeyCredentialLoader
+     */
+    protected $loader;
+
+    /**
+     * AuthenticatorAttestationResponseValidator.
+     *
+     * @var AuthenticatorAttestationResponseValidator
+     */
+    protected $validaror;
 
     /**
      * Initialize.
      */
-    public function __construct(CredentialRepository $repository, AttestationStatementSupportManager $test, PublicKeyCredentialLoader $loader, AuthenticatorAttestationResponseValidator $validator)
+    public function __construct(CredentialRepository $repository, PublicKeyCredentialLoader $loader, AuthenticatorAttestationResponseValidator $validator)
     {
         $this->repository = $repository;
         $this->validator = $validator;

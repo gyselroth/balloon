@@ -15,8 +15,6 @@ use OAuth2\GrantType\GrantTypeInterface;
 use OAuth2\RequestInterface;
 use OAuth2\ResponseInterface;
 use OAuth2\ResponseType\AccessTokenInterface;
-use OAuth2\Storage\UserCredentialsInterface;
-
 use CBOR\Decoder;
 use CBOR\OtherObject\OtherObjectManager;
 use CBOR\Tag\TagObjectManager;
@@ -42,40 +40,80 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Balloon\App\Webauthn\CredentialRepository;
 use Balloon\Server;
+use Micro\Auth\Auth;
+use Micro\Auth\Adapter\None as AdapterNone;
+use Balloon\Hook;
 
 class Webauthn implements GrantTypeInterface
 {
     /**
-     * Storage.
+     * Challenge factory
      *
-     * @var UserCredentialsInterface
+     * @var RequestChallengeFactory
      */
-    protected $storage;
+    protected $request_challenge_factory;
 
     /**
-     * Google authenticator.
+     * Server
      *
-     * @var GoogleAuthenticator
+     * @var Server
      */
-    protected $authenticator;
+    protected $server;
+
+    /**
+     * Validator
+     *
+     * @var AuthenticatorAssertionResponseValidator
+     */
+    protected $validator;
+
+    /**
+     * Publickey load
+     *
+     * @var PublicKeyCredentialLoader
+     */
+    protected $loader;
+
+    /**
+     * Hook
+     *
+     * @var Hook
+     */
+    protected $hook;
+
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Auth
+     *
+     * @var Auth
+     */
+    protected $auth;
 
     /**
      * User details.
      *
      * @var array
      */
-    private $user = [];
+    protected $user = [];
 
     /**
      * Init.
      */
-    public function __construct(UserCredentialsInterface $storage, RequestChallengeFactory $request_challenge_factory, Server $server, PublicKeyCredentialLoader $loader, AuthenticatorAssertionResponseValidator $validator)
+    public function __construct(RequestChallengeFactory $request_challenge_factory, Server $server, Auth $auth, PublicKeyCredentialLoader $loader, AuthenticatorAssertionResponseValidator $validator, Hook $hook, LoggerInterface $logger)
     {
-        $this->storage = $storage;
         $this->request_challenge_factory = $request_challenge_factory;
         $this->server = $server;
         $this->validator = $validator;
         $this->loader = $loader;
+        $this->auth = $auth;
+        $this->hook = $hook;
+        $this->logger = $logger;
     }
 
     /**
@@ -131,7 +169,11 @@ class Webauthn implements GrantTypeInterface
             $response->setError(401, 'invalid_grant', 'device could not be authenticated: '.$e->getMessage());
         }
 
-        $user = $this->server->getUserById(new ObjectId($request->request('user')))->getAttributes();
+        $identity = $this->auth->createIdentity(new AdapterNone());
+        $user = $this->server->getUserById(new ObjectId($request->request('user')));
+        $this->hook->run('preServerIdentity', [$identity, &$user]);
+
+        $user = $user->getAttributes();
         $user['user_id'] = $user['username'];
         $this->user = $user;
 

@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Webauthn\CreationChallenge;
 
-use Balloon\Server;
 use Balloon\Server\User;
 use Cose\Algorithms;
 use MongoDB\BSON\ObjectIdInterface;
@@ -27,11 +26,25 @@ use Webauthn\PublicKeyCredentialUserEntity;
 class CreationChallengeFactory
 {
     /**
-     * Server.
+     * Database.
      *
-     * @var OAuth2Server
+     * @var Database
      */
-    protected $server;
+    protected $db;
+
+    /**
+     * AuthenticationExtensionsClientInputs.
+     *
+     * @var AuthenticationExtensionsClientInputs
+     */
+    protected $auth_extensions;
+
+    /**
+     * CredentialRepository.
+     *
+     * @var CredentialRepository
+     */
+    protected $repository;
 
     /**
      * Initialize.

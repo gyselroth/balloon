@@ -7,6 +7,7 @@ use Balloon\App\Webauthn\Storage\MongoDB;
 use OAuth2\Server as OAuth2Server;
 use OAuth2\OpenID\GrantType\AuthorizationCode;
 use Balloon\App\Webauthn\GrantType\Webauthn;
+use Balloon\App\Webauthn\GrantType\WebauthnMfa;
 use OAuth2\Storage\UserCredentialsInterface;
 use OAuth2\Storage\RefreshTokenInterface;
 use OAuth2\GrantType\RefreshToken;
@@ -66,6 +67,7 @@ return [
         'arguments' => [
             'grantTypes' => [
                 'user_credentials_webauthn' => '{'.Webauthn::class.'}',
+                'user_credentials_webauthn_mfa' => '{'.WebauthnMfa::class.'}',
             ]
         ],
     ],

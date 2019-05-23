@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Balloon\App\Webauthn\RequestChallenge;
 
 use Balloon\App\Webauthn\CredentialRepository;
-use Balloon\Server;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectIdInterface;
 use MongoDB\BSON\UTCDateTime;
@@ -24,11 +23,25 @@ use Webauthn\PublicKeyCredentialRequestOptions;
 class RequestChallengeFactory
 {
     /**
-     * Server.
+     * Database.
      *
-     * @var OAuth2Server
+     * @var Database
      */
-    protected $server;
+    protected $db;
+
+    /**
+     * AuthenticationExtensionsClientInputs.
+     *
+     * @var AuthenticationExtensionsClientInputs
+     */
+    protected $auth_extensions;
+
+    /**
+     * CredentialRepository.
+     *
+     * @var CredentialRepository
+     */
+    protected $repository;
 
     /**
      * Initialize.
