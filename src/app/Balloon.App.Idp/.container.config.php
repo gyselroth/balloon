@@ -36,6 +36,9 @@ return [
             ]
         ],
         'services' => [
+            UserCredentialsInterface::class => [
+                'use' => DbStorage::class,
+            ],
             RefreshTokenInterface::class => [
                 'use' => DbStorage::class,
             ],
