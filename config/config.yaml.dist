@@ -41,6 +41,11 @@ Balloon\App\ClamAv\Scanner:
 ReCaptcha\ReCaptcha:
   arguments:
     secret: ""
+Balloon\App\Recaptcha\Hook\Recaptcha:
+  arguments:
+    config:
+      recaptcha_threshold: 30
+      hostname: null
 Balloon\App\Wopi\HostManager:
   arguments:
     config:
