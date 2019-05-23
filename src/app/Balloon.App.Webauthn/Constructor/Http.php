@@ -48,7 +48,7 @@ class Http
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
-                if (preg_match('#^/index.php/api/v2/users/5c752ccdf01e6900d84cdcf4/request-challenges#', $_SERVER['ORIG_SCRIPT_NAME'])) {
+                if (preg_match('#^/index.php/api/v2/users/([0-9a-z]{24})/request-challenges#', $_SERVER['ORIG_SCRIPT_NAME'])) {
                     $auth->injectAdapter(new AuthNone());
                 }
             }
