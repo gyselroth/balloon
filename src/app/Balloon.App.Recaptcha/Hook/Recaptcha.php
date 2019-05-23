@@ -159,7 +159,7 @@ class Recaptcha extends AbstractHook
 
             $resp = $this->recaptcha
                 ->setExpectedHostname($this->hostname)
-                ->verify($_GET['g-recaptcha-response'], $_SERVER['REMOTE_ADDRESS']);
+                ->verify($_GET['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
             if ($resp->isSuccess()) {
                 $this->logger->info('recaptcha token validation for ['.$username.'] succeeded', [

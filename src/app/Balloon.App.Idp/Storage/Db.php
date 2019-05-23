@@ -105,7 +105,7 @@ class Db extends OAuthMongoDB
                             );
                         }
 
-                        $this->hook->run('postAuthentication', [$identity, &$user]);
+                        $this->hook->run('postAuthentication', [$this->auth, $identity]);
                         $this->adapter = $name;
 
                         return true;
