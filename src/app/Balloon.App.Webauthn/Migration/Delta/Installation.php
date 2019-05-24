@@ -47,9 +47,8 @@ class Installation implements DeltaInterface
     {
         $this->storage->setClientDetails('balloon-client-web', null, null, 'password refresh_token password_mfa webauthn webauthn_mfa');
         $this->storage->setClientDetails('balloon-client-desktop', null, null, 'password refresh_token password_mfa webauthn webauthn_mfa');
-
-        $this->db->oauth_refresh_tokens->createIndex(['refresh_token' => 1]);
-        $this->db->oauth_refresh_tokens->createIndex(['expires' => 1], ['expireAfterSeconds' => 0]);
+        $this->db->creation_challenges->createIndex(['created' => 1], ['expireAfterSeconds' => 60]);
+        $this->db->request_challenges->createIndex(['created' => 1], ['expireAfterSeconds' => 60]);
 
         return true;
     }
