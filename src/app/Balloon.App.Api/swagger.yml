@@ -2500,6 +2500,9 @@ definitions:
           hash:
             description: "MD5 content checksum."
             type: "string"
+          preview:
+            description: "Is true if there is a preview"
+            type: "boolean"
   FileHistory:
     description: "File history."
     type: object

@@ -8,6 +8,7 @@
 * CORE: [FIX] error_log now prints container fatal error after http response has been sent
 * CORE: [FEATURE] Implement new security app which can lock ip addrs, prevent brute forcing, ... #12
 * CORE: [FEATURE] Support for webauthn #307
+* API: [FEATURE] Add flag has_preview to node resource #333
 
 
 ## 2.5.2
