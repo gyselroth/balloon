@@ -124,7 +124,8 @@ class Nodes extends Controller
     public function getContent(
         $id = null,
         bool $download = false,
-        string $name = 'selected'
+        string $name = 'selected',
+        ?string $encoding = null
     ): ?Response {
         if (is_array($id)) {
             return $this->combine($id, $name);
