@@ -10,6 +10,7 @@
 * CORE: [FEATURE] Support for webauthn #307
 * API: [FEATURE] Add flag has_preview to node resource #333
 * API: [FEATURE] Add query to all get api endpoints #315
+* CORE: [CHANGE] Users mail address must be unique #262
 
 
 ## 2.5.2

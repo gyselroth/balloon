@@ -200,6 +200,10 @@ return [
     ],
     Migration::class => [
         'calls' => [
+            Delta\CreateUniqueUserMailIndex::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\CreateUniqueUserMailIndex::class.'}']
+            ],
             Delta\LdapGroupsToLocalGroups::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\LdapGroupsToLocalGroups::class.'}']
