@@ -51,8 +51,6 @@ use Webauthn\TokenBinding\TokenBindingNotSupportedHandler;
 use Webauthn\CredentialRepository;
 use Balloon\App\Webauthn\CredentialRepository as BalloonCredentialRepository;
 use Webauthn\TokenBinding\TokenBindingHandler;
-use Http\Client\HttpClient;
-use Http\Adapter\Guzzle6\Client;
 
 return [
     AbstractBootstrap::class => [
@@ -78,9 +76,6 @@ return [
                 'arguments' => ['delta' => '{'.Installation::class.'}']
             ],
         ]
-    ],
-    HttpClient::class => [
-        'use' => Client::class
     ],
     AuthenticationExtensionsClientInputs::class => [
         'calls' => [
@@ -142,7 +137,6 @@ return [
     ],
     AttestationStatementSupportManager::class => [
         'singleton' => false,
-
         'calls' => [
             NoneAttestationStatementSupport::class => [
                 'method' => 'add',
@@ -179,7 +173,7 @@ return [
             AndroidSafetyNetAttestationStatementSupport::class => [
                 'arguments' => [
                     'apiKey' => 'xxx'
-                ]
+                ],
             ]
         ]
     ],

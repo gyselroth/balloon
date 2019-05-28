@@ -74,7 +74,7 @@ class Recaptcha extends AbstractHook
 
                 break;
                 case 'hostname':
-                    $this->recaptcha->setExpectedHostname($this->hostname);
+                    $this->recaptcha->setExpectedHostname($value);
 
                 break;
                 default:

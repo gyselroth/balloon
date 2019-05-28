@@ -32,6 +32,8 @@ use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\HiddenString;
 use Cache\Adapter\Apcu\ApcuCachePool;
 use Psr\SimpleCache\CacheInterface;
+use Psr\Http\Client\ClientInterface;
+use Mjelamanov\GuzzlePsr18\Client as GuzzleAdapter;
 
 return [
     Client::class => [
@@ -46,12 +48,8 @@ return [
             ]
         ],
     ],
-    WopiHostManager::class => [
-        'arguments' => [
-            'hosts' => [
-
-            ]
-        ]
+    ClientInterface::class => [
+        'use' => GuzzleAdapter::class
     ],
     CacheInterface::class => [
         'use' => ApcuCachePool::class

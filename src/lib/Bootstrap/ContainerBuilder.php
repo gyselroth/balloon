@@ -23,7 +23,7 @@ class ContainerBuilder
      */
     public static function get(Composer $composer): ContainerInterface
     {
-        $config = self::loadConfig($configs);
+        $config = self::loadConfig();
         $config = self::detectApps($config, $composer);
         $container = new Container($config);
 
@@ -58,10 +58,11 @@ class ContainerBuilder
             $ns = str_replace('.', '\\', $name).'\\';
             $composer->addPsr4($ns, $app);
 
-            if (file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
-                $file = $app.DIRECTORY_SEPARATOR.'.container.config.php';
+            if (!file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
+                continue;
             }
 
+            $file = $app.DIRECTORY_SEPARATOR.'.container.config.php';
             $load_master = isset($master['Apps'][$name]['enabled']) ? $master['Apps'][$name]['enabled'] : null;
 
             if ($load_master === false) {

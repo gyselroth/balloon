@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Balloon\Migration\Delta;
 
 use MongoDB\Database;
+use MongoDB\Driver\Exception\CommandException;
+use MongoDB\Driver\Exception\RuntimeException;
 
 class CreateUniqueUserMailIndex implements DeltaInterface
 {
