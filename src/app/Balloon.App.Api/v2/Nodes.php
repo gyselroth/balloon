@@ -150,15 +150,7 @@ class Nodes extends Controller
     public function get($id = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if ($id === null) {
-            if ($query === null) {
-                $query = [];
-            } elseif (is_string($query)) {
-                $query = toPHP(fromJSON($query), [
-                    'root' => 'array',
-                    'document' => 'array',
-                    'array' => 'array',
-                ]);
-            }
+            $query = $this->parseQuery($query);
 
             if ($this instanceof ApiFile) {
                 $query['directory'] = false;
@@ -347,11 +339,23 @@ class Nodes extends Controller
 
     /**
      * Get trash.
+     *
+     * @param null|mixed $query
      */
-    public function getTrash(array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function getTrash($query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         $children = [];
-        $nodes = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_ONLY, ['deleted' => ['$type' => 9]], $offset, $limit);
+        $query = $this->parseQuery($query);
+        $filter = ['deleted' => ['$type' => 9]];
+
+        if (!empty($query)) {
+            $filter = [
+                $filter,
+                $query,
+            ];
+        }
+
+        $nodes = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_ONLY, $filter, $offset, $limit);
 
         foreach ($nodes as $node) {
             try {
@@ -412,8 +416,10 @@ class Nodes extends Controller
 
     /**
      * Event log.
+     *
+     * @param null|mixed $query
      */
-    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, $query = null, ?string $sort = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if (null !== $id) {
             $node = $this->_getNode($id);
@@ -423,7 +429,8 @@ class Nodes extends Controller
             $uri = '/api/v2/nodes/event-log';
         }
 
-        $result = $this->fs->getDelta()->getEventLog($limit, $offset, $node, $total);
+        $query = $this->parseQuery($query);
+        $result = $this->fs->getDelta()->getEventLog($query, $limit, $offset, $node, $total);
         $pager = new Pager($event_decorator, $result, $attributes, $offset, $limit, $uri, $total);
 
         return (new Response())->setCode(200)->setBody($pager->paging());
@@ -443,6 +450,24 @@ class Nodes extends Controller
         $result = $this->fs->getDelta()->getLastCursor();
 
         return (new Response())->setCode(200)->setBody($result);
+    }
+
+    /**
+     * Parse query.
+     */
+    protected function parseQuery($query): array
+    {
+        if ($query === null) {
+            $query = [];
+        } elseif (is_string($query)) {
+            $query = toPHP(fromJSON($query), [
+                'root' => 'array',
+                'document' => 'array',
+                'array' => 'array',
+            ]);
+        }
+
+        return (array) $query;
     }
 
     /**

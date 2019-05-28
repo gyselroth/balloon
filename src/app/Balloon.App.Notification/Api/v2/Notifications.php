@@ -22,7 +22,9 @@ use Balloon\Server;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Server\User;
 use Micro\Http\Response;
+use function MongoDB\BSON\fromJSON;
 use MongoDB\BSON\ObjectId;
+use function MongoDB\BSON\toPHP;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Scheduler;
 use Zend\Mail\Message;
@@ -112,8 +114,10 @@ class Notifications
 
     /**
      * Get notifications.
+     *
+     * @param null|mixed $query
      */
-    public function get(?ObjectId $id = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function get(?ObjectId $id = null, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if ($id !== null) {
             $message = $this->notifier->getNotification($id);
@@ -122,7 +126,7 @@ class Notifications
             return (new Response())->setCode(200)->setBody($result);
         }
 
-        $result = $this->notifier->getNotifications($this->user, $offset, $limit, $total);
+        $result = $this->notifier->getNotifications($this->user, $this->parseQuery($query), $offset, $limit, $total);
         $uri = '/api/v2/notifications';
         $pager = new Pager($this->notification_decorator, $result, $attributes, $offset, $limit, $uri, $total);
         $result = $pager->paging();
@@ -214,5 +218,23 @@ class Notifications
         }
 
         return (new Response())->setCode(202);
+    }
+
+    /**
+     * Parse query.
+     */
+    protected function parseQuery($query): array
+    {
+        if ($query === null) {
+            $query = [];
+        } elseif (is_string($query)) {
+            $query = toPHP(fromJSON($query), [
+                'root' => 'array',
+                'document' => 'array',
+                'array' => 'array',
+            ]);
+        }
+
+        return (array) $query;
     }
 }

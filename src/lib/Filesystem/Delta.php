@@ -328,9 +328,18 @@ class Delta
     /**
      * Get event log.
      */
-    public function getEventLog(int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): iterable
+    public function getEventLog(array $query = [], int $limit = 100, int $skip = 0, ?NodeInterface $node = null, ?int &$total = null): iterable
     {
         $filter = $this->getEventFilter();
+
+        if (!empty($query)) {
+            $filter = [
+                '$and' => [
+                    $filter,
+                    $query,
+                ],
+            ];
+        }
 
         if (null !== $node) {
             $old = $filter;

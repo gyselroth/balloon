@@ -103,7 +103,7 @@ class Session implements SessionInterface
             //'FileSharingUrl' => null,
             //'FileUrl' => null,
             'FileVersionPostMessage' => true,
-            'FileSharingPostMessage' => true,
+           // 'FileSharingPostMessage' => null,
             'PostMessageOrigin' => $this->session['client'],
             'OwnerId' => (string) $this->file->getOwner(),
             'ReadOnly' => $this->file->isReadonly(),

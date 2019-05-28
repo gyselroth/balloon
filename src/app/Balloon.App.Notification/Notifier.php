@@ -207,10 +207,20 @@ class Notifier
     /**
      * Get notifications.
      */
-    public function getNotifications(User $user, ?int $offset = null, ?int $limit = null, ?int &$total = null): iterable
+    public function getNotifications(User $user, array $query = [], ?int $offset = null, ?int $limit = null, ?int &$total = null): iterable
     {
-        $total = $this->db->{$this->collection_name}->count(['receiver' => $user->getId()]);
-        $result = $this->db->{$this->collection_name}->find(['receiver' => $this->server->getIdentity()->getId()], [
+        $filter = ['receiver' => $user->getId()];
+        if (!empty($query)) {
+            $filter = [
+                '$and' => [
+                    $filter,
+                    $query,
+                ],
+            ];
+        }
+
+        $total = $this->db->{$this->collection_name}->count($filter);
+        $result = $this->db->{$this->collection_name}->find($filter, [
             'skip' => $offset,
             'limit' => $limit,
         ]);
