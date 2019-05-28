@@ -52,13 +52,6 @@ class Recaptcha extends AbstractHook
     protected $recaptcha_threshold = 30;
 
     /**
-     * Hostname.
-     *
-     * @var string
-     */
-    protected $hostname;
-
-    /**
      * Constructor.
      */
     public function __construct(LoggerInterface $logger, CaptchaService $recaptcha, Database $db, array $config = [])
@@ -81,7 +74,7 @@ class Recaptcha extends AbstractHook
 
                 break;
                 case 'hostname':
-                    $this->{$option} = (string) $value;
+                    $this->recaptcha->setExpectedHostname($this->hostname);
 
                 break;
                 default:
@@ -157,9 +150,7 @@ class Recaptcha extends AbstractHook
                 throw new Exception\InvalidRecaptchaToken('valid recaptcha token `g-recaptcha-response` is required');
             }
 
-            $resp = $this->recaptcha
-                ->setExpectedHostname($this->hostname)
-                ->verify($_GET['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+            $resp = $this->recaptcha->verify($_GET['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
             if ($resp->isSuccess()) {
                 $this->logger->info('recaptcha token validation for ['.$username.'] succeeded', [
@@ -171,9 +162,7 @@ class Recaptcha extends AbstractHook
                     'errors' => $resp->getErrorCodes(),
                 ]);
 
-                if (!isset($_GET['g-recaptcha-response'])) {
-                    throw new Exception\InvalidRecaptchaToken('Valid recaptcha token `g-recaptcha-response` is required');
-                }
+                throw new Exception\InvalidRecaptchaToken('Valid recaptcha token `g-recaptcha-response` is required');
             }
         }
     }

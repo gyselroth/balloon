@@ -182,6 +182,7 @@ class HostManager
             $this->logger->debug('start wopi proof validation for host [{host}]', [
                 'category' => get_class($this),
                 'host' => $host['url'],
+                'data' => $data,
             ]);
 
             $keys = $host['discovery']['proof-key']['@attributes'];

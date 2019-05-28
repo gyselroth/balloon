@@ -11,6 +11,7 @@
 * API: [FEATURE] Add flag has_preview to node resource #333
 * API: [FEATURE] Add query to all get api endpoints #315
 * CORE: [CHANGE] Users mail address must be unique #262
+* CORE: [CHANGE] Better disable/enable of apps #336
 
 
 ## 2.5.2

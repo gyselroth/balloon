@@ -4,6 +4,11 @@ use Balloon\App\Recaptcha\Hook\Recaptcha;
 use ReCaptcha\ReCaptcha as CaptchaService;
 
 return [
+    'Apps' => [
+        'Balloon.App.Recaptcha' => [
+            'enabled' => false
+        ]
+    ],
     Hook::class => [
         'calls' => [
             Recaptcha::class => [
@@ -11,5 +16,10 @@ return [
                 'arguments' => ['hook' => '{'.Recaptcha::class.'}']
             ],
         ],
+    ],
+    CaptchaService::class => [
+        'arguments' => [
+            'secret' => '{ENV(BALLOON_RECAPTCHA_SECRET)}'
+        ]
     ]
 ];
