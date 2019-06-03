@@ -33,6 +33,12 @@ class Helper
             $response->setHeader('Content-Type', $file->getContentType());
         }
 
+        $response->setHeader('ETag', $file->getETag());
+
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && ($file->getETag() === $_SERVER['HTTP_IF_NONE_MATCH'] || $_SERVER['HTTP_IF_NONE_MATCH'] === '"*"')) {
+            return $response->setCode(304);
+        }
+
         return $response
           ->setOutputFormat(null)
           ->setBody(function () use ($file) {

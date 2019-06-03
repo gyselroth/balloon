@@ -12,6 +12,7 @@
 * API: [FEATURE] Add query to all get api endpoints #315
 * CORE: [CHANGE] Users mail address must be unique #262
 * CORE: [CHANGE] Better disable/enable of apps #336
+* API: [FEATURE] ETag for GET `api/v2/files/content/` #339
 
 
 ## 2.5.2

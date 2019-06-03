@@ -415,7 +415,7 @@ class File extends AbstractNode implements IFile
      */
     public function getETag(): string
     {
-        return "'".$this->hash."'";
+        return '"'.$this->hash.'"';
     }
 
     /**
