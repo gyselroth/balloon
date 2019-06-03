@@ -15,6 +15,7 @@ use Balloon\App\Api\v1;
 use Balloon\App\Api\v2;
 use Balloon\Hook;
 use Balloon\Hook\AbstractHook;
+use FastRoute\RouteCollector;
 use Micro\Auth\Adapter\None as AuthNone;
 use Micro\Auth\Auth;
 use Micro\Http\Router;
@@ -39,8 +40,10 @@ class Http
     /**
      * Constructor.
      */
-    public function __construct(Router $router, Hook $hook)
+    public function __construct(Router $router, Hook $hook, RouteCollector $collector)
     {
+        $collector->addRoute('GET', '/api/v3', [Specifications::class, 'getApiv1']);
+
         $router
             ->appendRoute(new Route('/api/v2/users/{id:#([0-9a-z]{24})#}(/|\z)', v2\Users::class))
             ->appendRoute(new Route('/api/v2/users(/|\z)', v2\Users::class))

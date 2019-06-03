@@ -34,6 +34,21 @@ use Cache\Adapter\Apcu\ApcuCachePool;
 use Psr\SimpleCache\CacheInterface;
 use Psr\Http\Client\ClientInterface;
 use Mjelamanov\GuzzlePsr18\Client as GuzzleAdapter;
+use mindplay\middleman\Dispatcher;
+use mindplay\middleman\ContainerResolver;
+use Balloon\Rest\Middlewares\ExceptionHandler;
+use Balloon\Rest\Middlewares\QueryDecoder;
+use Balloon\Rest\Middlewares\Acl as AclMiddleware;
+use Balloon\Rest\Middlewares\Auth as AuthMiddleware;
+use Balloon\Rest\Middlewares\RequestHandler;
+use Lcobucci\ContentNegotiation\ContentTypeMiddleware;
+use Lcobucci\ContentNegotiation\Formatter\Json;
+use Middlewares\JsonPayload;
+use Middlewares\FastRoute;
+use Middlewares\AccessLog;
+use Middlewares\TrailingSlash;
+use FastRoute\Dispatcher as FastRouteDispatcher;
+use FastRoute\Dispatcher\GroupCountBased as FastRouteRoutes;
 
 return [
     Client::class => [
@@ -47,6 +62,51 @@ return [
                 ]
             ]
         ],
+    ],
+    Dispatcher::class => [
+        'arguments' => [
+            'stack' => [
+                '{'.ContentTypeMiddleware::class.'}',
+                '{'.AccessLog::class.'}',
+                '{'.ExceptionHandler::class.'}',
+                '{'.JsonPayload::class.'}',
+                '{'.QueryDecoder::class.'}',
+                '{'.FastRoute::class.'}',
+                '{'.AuthMiddleware::class.'}',
+                '{'.AclMiddleware::class.'}',
+                '{'.TrailingSlash::class.'}',
+                '{'.RequestHandler::class.'}',
+            ],
+            'resolver' => '{'.ContainerResolver::class.'}'
+        ],
+        'services' => [
+            FastRouteDispatcher::class => [
+                'use' => FastRouteRoutes::class
+            ],
+            /*Routes::class => [
+                'factory' => 'collect',
+            ],
+            FastRoute::class => [
+                'arguments' => [
+                    'router' => '{'.Routes::class.'}'
+                ]
+            ],*/
+            ContentTypeMiddleware::class => [
+                'factory' => 'fromRecommendedSettings',
+                'arguments' => [
+                    'formats' => [
+                        'json' => [
+                            'extension' => ['json'],
+                            'mime-type' => ['application/json', 'text/json', 'application/x-json'],
+                            'charset' => true,
+                        ],
+                    ],
+                    'formatters' => [
+                       'application/json' => '{'.Json::class.'}',
+                    ],
+                ],
+            ]
+        ]
     ],
     ClientInterface::class => [
         'use' => GuzzleAdapter::class

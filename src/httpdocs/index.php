@@ -10,8 +10,6 @@ declare(strict_types=1);
  */
 
 use Balloon\Bootstrap\ContainerBuilder;
-use Balloon\Bootstrap\Http;
-use Micro\Http\Response;
 
 define('BALLOON_PATH', (getenv('BALLOON_PATH') ? getenv('BALLOON_PATH') : realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..')));
 
@@ -29,19 +27,21 @@ set_include_path(implode(PATH_SEPARATOR, [
 
 $composer = require 'vendor/autoload.php';
 
-try {
-    $dic = ContainerBuilder::get($composer);
-    $http = $dic->get(Http::class);
-} catch (\Throwable $e) {
-    (new Response())
-        ->setCode(500)
-        ->setBody([
-            'error' => get_class($e),
-            'message' => $e->getMessage(),
-        ])->send();
+$dic = ContainerBuilder::get($composer);
+$request = Zend\Diactoros\ServerRequestFactory::fromGlobals();
+$logger = $dic->get(Psr\Log\LoggerInterface::class);
 
-    error_log((string) $e);
-    exit();
-}
+set_exception_handler(function ($e) use ($logger) {
+    http_response_code(500);
+    $logger->emergency('uncaught exception: '.$e->getMessage(), [
+        'category' => 'Http',
+        'exception' => $e,
+    ]);
+});
 
-$http->process();
+$//dic->get(Balloon\Rest\Routes::class);
+$dispatcher = $dic->get(\mindplay\middleman\Dispatcher::class);
+$response = $dispatcher->dispatch($request);
+
+$emitter = new \Zend\Diactoros\Response\SapiEmitter();
+$emitter->emit($response);
