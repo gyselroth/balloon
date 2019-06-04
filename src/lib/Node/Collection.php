@@ -9,15 +9,15 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Filesystem\Node;
+namespace Balloon\Node;
 
+use Balloon\Acl;
+use Balloon\Acl\Exception\Forbidden as ForbiddenException;
+use Balloon\Exception;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
-use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Hook;
 use Balloon\Server\User;
+use Balloon\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Generator;
 use MimeType\MimeType;
 use function MongoDB\BSON\fromJSON;
@@ -28,7 +28,7 @@ use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IQuota;
 
-class Collection extends AbstractNode implements IQuota
+class Collection extends AbstractNode implements CollectionInterface, IQuota
 {
     /**
      * Root folder.

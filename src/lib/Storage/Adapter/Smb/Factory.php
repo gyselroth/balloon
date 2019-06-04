@@ -9,10 +9,10 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Filesystem\Storage\Adapter\Smb;
+namespace Balloon\Storage\Adapter\Smb;
 
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface;
-use Balloon\Filesystem\Storage\Adapter\Smb;
+use Balloon\Storage\Adapter\AdapterInterface;
+use Balloon\Storage\Adapter\Smb;
 use Icewind\SMB\AnonymousAuth;
 use Icewind\SMB\BasicAuth;
 use Icewind\SMB\ServerFactory;

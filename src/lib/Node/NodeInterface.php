@@ -9,13 +9,13 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Filesystem\Node;
+namespace Balloon\Node;
 
-use Balloon\Filesystem;
+use Balloon\Resource\ResourceInterface;
 use MongoDB\BSON\ObjectId;
 use Sabre\DAV;
 
-interface NodeInterface extends DAV\INode
+interface NodeInterface extends ResourceInterface, DAV\INode
 {
     /**
      * Deleted node options.
@@ -49,16 +49,6 @@ interface NodeInterface extends DAV\INode
      * delete finally
      */
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool;
-
-    /**
-     * Set filesystem.
-     */
-    public function setFilesystem(Filesystem $fs): self;
-
-    /**
-     * Get filesystem.
-     */
-    public function getFilesystem(): Filesystem;
 
     /**
      * Check if $node is a sub node of any parent nodes of this node.

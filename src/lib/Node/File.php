@@ -9,20 +9,20 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Filesystem\Node;
+namespace Balloon\Node;
 
+use Balloon\Acl;
+use Balloon\Acl\Exception as AclException;
+use Balloon\Exception;
 use Balloon\Filesystem;
-use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\Acl\Exception as AclException;
-use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
+use Balloon\Storage\Exception as StorageException;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IFile;
 
-class File extends AbstractNode implements IFile
+class File extends AbstractNode implements FileInterface, IFile
 {
     /**
      * History types.

@@ -35,7 +35,7 @@ class ContainerBuilder
      */
     protected static function loadConfig(): Config
     {
-        $configs[] = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'.container.config.php';
+        $configs[] = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'app.php';
 
         foreach (glob(constant('BALLOON_CONFIG_DIR').DIRECTORY_SEPARATOR.'*.yaml') as $path) {
             clearstatcache(true, $path);
@@ -58,11 +58,11 @@ class ContainerBuilder
             $ns = str_replace('.', '\\', $name).'\\';
             $composer->addPsr4($ns, $app);
 
-            if (!file_exists($app.DIRECTORY_SEPARATOR.'.container.config.php')) {
+            if (!file_exists($app.DIRECTORY_SEPARATOR.'app.php')) {
                 continue;
             }
 
-            $file = $app.DIRECTORY_SEPARATOR.'.container.config.php';
+            $file = $app.DIRECTORY_SEPARATOR.'app.php';
             $load_master = isset($master['Apps'][$name]['enabled']) ? $master['Apps'][$name]['enabled'] : null;
 
             if ($load_master === false) {

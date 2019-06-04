@@ -9,17 +9,17 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\User\Exception;
+namespace Tubee\Acl\Exception;
 
-use Balloon\Rest\Exception\ExceptionInterface;
+use Tubee\Rest\Exception\ExceptionInterface;
 
-class NotUnique extends \Balloon\Exception implements ExceptionInterface
+class NotAllowed extends \Tubee\Exception implements ExceptionInterface
 {
     /**
      * {@inheritdoc}
      */
     public function getStatusCode(): int
     {
-        return 422;
+        return 401;
     }
 }

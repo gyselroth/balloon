@@ -9,12 +9,11 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Filesystem\Node;
+namespace Balloon\Node;
 
-use Balloon\Filesystem;
-use Balloon\Filesystem\Acl;
-use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
-use Balloon\Filesystem\Exception;
+use Balloon\Acl;
+use Balloon\Acl\Exception\Forbidden as ForbiddenException;
+use Balloon\Exception;
 use Balloon\Hook;
 use Balloon\Server;
 use Balloon\Server\User;
@@ -26,7 +25,7 @@ use Normalizer;
 use Psr\Log\LoggerInterface;
 use ZipStream\ZipStream;
 
-abstract class AbstractNode implements NodeInterface
+abstract class AbstractNode extends AbstractResource implements NodeInterface
 {
     /**
      * name max lenght.
@@ -245,25 +244,6 @@ abstract class AbstractNode implements NodeInterface
     public function getOwner(): ObjectId
     {
         return $this->owner;
-    }
-
-    /**
-     * Set filesystem.
-     */
-    public function setFilesystem(Filesystem $fs): NodeInterface
-    {
-        $this->_fs = $fs;
-        $this->_user = $fs->getUser();
-
-        return $this;
-    }
-
-    /**
-     * Get filesystem.
-     */
-    public function getFilesystem(): Filesystem
-    {
-        return $this->_fs;
     }
 
     /**

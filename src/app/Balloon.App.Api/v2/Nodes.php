@@ -23,11 +23,10 @@ use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
+use Balloon\Node\Factory as NodeFactory;
 use Balloon\Server;
-use Balloon\Server\User;
+use Balloon\User;
 use Micro\Http\Response;
-use function MongoDB\BSON\fromJSON;
-use function MongoDB\BSON\toPHP;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
 use ZipStream\ZipStream;
@@ -70,14 +69,22 @@ class Nodes extends Controller
     protected $node_decorator;
 
     /**
+     * Node factory.
+     *
+     * @var NodeFactory
+     */
+    protected $node_factory;
+
+    /**
      * Initialize.
      */
-    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(Server $server, NodeAttributeDecorator $decorator, NodeFactory $node_factory, LoggerInterface $logger)
     {
-        $this->fs = $server->getFilesystem();
+        /*$this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
-        $this->node_decorator = $decorator;
+        $this->node_decorator = $decorator;*/
+        $this->node_factory = $node_factory;
         $this->logger = $logger;
     }
 
@@ -147,7 +154,7 @@ class Nodes extends Controller
      * @param null|mixed $id
      * @param null|mixed $query
      */
-    public function get($id = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function get(/*ServerRequestInterface $request, User $user,*/ $id = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if ($id === null) {
             $query = $this->parseQuery($query);
@@ -162,9 +169,10 @@ class Nodes extends Controller
                 $uri = '/api/v2/nodes';
             }
 
-            $nodes = $this->fs->findNodesByFilterUser($deleted, $query, $offset, $limit);
-            $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
-            $result = $pager->paging();
+            $nodes = $this->node_factory->findNodesByFilterUser($deleted, $query, $offset, $limit);
+            /*$pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
+            $result = $pager->paging();*/
+            $result = Helper::getAll($nodes, $request);
 
             return (new Response())->setCode(200)->setBody($result);
         }

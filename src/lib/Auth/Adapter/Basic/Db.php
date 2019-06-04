@@ -13,6 +13,7 @@ namespace Balloon\Auth\Adapter\Basic;
 
 use Balloon\Auth\InternalAuthInterface;
 use Micro\Auth\Adapter\Basic\AbstractBasic;
+use Micro\Auth\IdentityInterface;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 
@@ -28,10 +29,11 @@ class Db extends AbstractBasic implements InternalAuthInterface
     /**
      * Set options.
      */
-    public function __construct(LoggerInterface $logger, Database $db, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger, Database $db, array $config = [])
     {
         parent::__construct($logger);
         $this->db = $db;
+        $this->identity_attribute = 'name';
         $this->setOptions($config);
     }
 
@@ -48,10 +50,10 @@ class Db extends AbstractBasic implements InternalAuthInterface
      */
     public function findIdentity(string $username): ?array
     {
-        return $this->db->user->findOne([
+        return $this->db->users->findOne([
             '$or' => [
-                ['username' => $username],
-                ['mail' => $username],
+                ['data.username' => $username],
+                ['data.mail' => $username],
             ],
         ]);
     }
@@ -59,15 +61,15 @@ class Db extends AbstractBasic implements InternalAuthInterface
     /**
      * Get attributes.
      */
-    public function getAttributes(): array
+    public function getAttributes(IdentityInterface $identity): array
     {
-        return $this->attributes;
+        return [];
     }
 
     /**
      * Auth.
      */
-    public function plainAuth(string $username, string $password): bool
+    public function plainAuth(string $username, string $password): ?array
     {
         $result = $this->findIdentity($username);
 
@@ -76,28 +78,25 @@ class Db extends AbstractBasic implements InternalAuthInterface
                 'category' => get_class($this),
             ]);
 
-            return false;
+            return null;
         }
 
-        if (!isset($result['password']) || empty($result['password'])) {
+        if (!isset($result['hash']) || empty($result['hash'])) {
             $this->logger->info('found no password for ['.$username.'] in database', [
                 'category' => get_class($this),
             ]);
 
-            return false;
+            return null;
         }
 
-        if (!password_verify($password, $result['password'])) {
+        if (!password_verify($password, $result['hash'])) {
             $this->logger->info('failed match given password for ['.$username.'] with stored hash in database', [
                 'category' => get_class($this),
             ]);
 
-            return false;
+            return null;
         }
 
-        $this->attributes = $result;
-        $this->identifier = $result['username'];
-
-        return true;
+        return $result;
     }
 }

@@ -9,42 +9,38 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon;
+namespace Tubee;
 
-use Balloon\Resource\AbstractResource;
-use Balloon\Resource\AttributeResolver;
-use Balloon\User\UserInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Tubee\AccessRole\AccessRoleInterface;
+use Tubee\Resource\AbstractResource;
+use Tubee\Resource\AttributeResolver;
 
-class User extends AbstractResource implements UserInterface
+class AccessRole extends AbstractResource implements AccessRoleInterface
 {
     /**
      * Kind.
      */
-    public const KIND = 'User';
+    public const KIND = 'AccessRole';
 
     /**
-     * Initialize.
+     * Data object.
      */
-    public function __construct(array $resource = [])
+    public function __construct(array $resource)
     {
         $this->resource = $resource;
     }
 
     /**
-     * Validate password.
-     */
-    public function validatePassword(string $password): bool
-    {
-        return password_verify($password, $this->resource['hash']);
-    }
-
-    /**
-     * Decorate.
+     * {@inheritdoc}
      */
     public function decorate(ServerRequestInterface $request): array
     {
         $resource = [
+            '_links' => [
+                'self' => ['href' => (string) $request->getUri()],
+            ],
+            'kind' => 'AccessRole',
             'data' => $this->getData(),
         ];
 

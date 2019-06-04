@@ -11,13 +11,38 @@ declare(strict_types=1);
 
 namespace Balloon\Rest\Middlewares;
 
-use Micro\Auth\Middleware\Auth as MicroAuth;
+use Balloon\User\Factory as UserFactory;
+use Micro\Auth\Auth as CoreAuth;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class Auth extends MicroAuth
+class Auth implements MiddlewareInterface
 {
+    /**
+     * Auth.
+     *
+     * @var CoreAuth
+     */
+    protected $auth;
+
+    /**
+     * User factory.
+     *
+     * @var UserFactory
+     */
+    protected $user_factory;
+
+    /**
+     * Init.
+     */
+    public function __construct(CoreAuth $auth, UserFactory $user_factory)
+    {
+        $this->auth = $auth;
+        $this->user_factory = $user_factory;
+    }
+
     /**
      * Process a server request and return a response.
      */
@@ -29,6 +54,11 @@ class Auth extends MicroAuth
             return $handler->handle($request);
         }
 
-        return parent::process($request, $handler);
+        if ($identity = $this->auth->requireOne($request)) {
+            $request->withAttribute('identity', $identity);
+            $request->withAttribute('user', $this->user_factory->build($identity->getRawAttributes()));
+        }
+
+        return $handler->handle($request);
     }
 }

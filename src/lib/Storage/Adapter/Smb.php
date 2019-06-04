@@ -9,13 +9,13 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Filesystem\Storage\Adapter;
+namespace Balloon\Storage\Adapter;
 
-use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Storage\Exception;
+use Balloon\Node\Collection;
+use Balloon\Node\File;
+use Balloon\Node\NodeInterface;
 use Balloon\Server\User;
+use Balloon\Storage\Exception;
 use Icewind\SMB\Exception as SMBException;
 use Icewind\SMB\IFileInfo;
 use Icewind\SMB\IShare;
@@ -175,7 +175,7 @@ class Smb implements AdapterInterface
         $path = $this->getSystemPath(self::SYSTEM_TEMP).DIRECTORY_SEPARATOR.$session;
 
         $current = $file->getPath();
-        $mount = $file->getFilesystem()->findNodeById($file->getMount())->getPath();
+        $mount = $file->get()->findNodeById($file->getMount())->getPath();
         $dest = substr($current, strlen($mount));
 
         $this->logger->debug('copy file from session ['.$session.'] in ['.$path.'] to ['.$dest.']', [
@@ -298,7 +298,7 @@ class Smb implements AdapterInterface
         }
 
         $current = $node->getPath();
-        $mount = $node->getFilesystem()->findNodeById($node->getMount())->getPath();
+        $mount = $node->get()->findNodeById($node->getMount())->getPath();
         $restore = substr($current, strlen($mount));
 
         $this->share->rename($this->getPath($node), $restore);

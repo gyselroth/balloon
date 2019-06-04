@@ -9,11 +9,11 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Filesystem\Storage\Adapter;
+namespace Balloon\Storage\Adapter;
 
-use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\NodeInterface;
+use Balloon\Node\Collection;
+use Balloon\Node\File;
+use Balloon\Node\NodeInterface;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
 

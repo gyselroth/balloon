@@ -13,7 +13,7 @@ namespace Balloon;
 
 use Balloon\Converter\Adapter\AdapterInterface;
 use Balloon\Converter\Exception;
-use Balloon\Filesystem\Node\File;
+use Balloon\\Node\File;
 use Psr\Log\LoggerInterface;
 
 class Converter
