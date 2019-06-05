@@ -1,6 +1,6 @@
 ## 2.6.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**:
+**Date**: Wed Jun 05 14:50:43 CEST 2019
 
 * CORE: [FEATURE] Introduce node locks #320
 * API: [FEATURE]  Implement propper WOPI support Balloon.App.Wopi #154
