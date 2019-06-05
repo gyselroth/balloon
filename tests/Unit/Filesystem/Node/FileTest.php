@@ -43,7 +43,7 @@ class FileTest extends Test
 
     public function testGetETag()
     {
-        $this->assertSame("'".md5('')."'", $this->file->getETag());
+        $this->assertSame('"'.md5('').'"', $this->file->getETag());
     }
 
     public function testGetHash()
