@@ -1,3 +1,10 @@
+## 2.6.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Jun 05 14:50:43 CEST 2019
+
+* CORE: [CHANGE] Do not send WWW-Authenticate header if Basic was not requested via Authorization header #342
+
+
 ## 2.6.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Jun 05 14:50:43 CEST 2019
