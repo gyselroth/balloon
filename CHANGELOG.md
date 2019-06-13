@@ -1,3 +1,11 @@
+## 2.5.6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jun 13 11:43:31 CEST 2019
+
+* CORE: [CHANGE] Slow performance in GET nodes #343 
+* CORE: [FIX] Not all nodes are returned if a nodes have a custom acl within a shared folder #344
+
+
 ## 2.5.5
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri May 17 12:04:22 CEST 2019
@@ -19,13 +27,6 @@
 * CORE: [FIX] Share can not be removed from share manager member #322
 * API: [FIX] file preview /api/v1/file/preview?id=XXX #319
 * CORE: [FIX] Subscription mentions path from change issuer instead receiver #276
-
-## 2.5.6
-**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Thu Jun 13 11:43:31 CEST 2019
-
-* CORE: [CHANGE] Slow performance in GET nodes #343 
-* CORE: [FIX] Not all nodes are returned if a nodes have a custom acl within a shared folder #344
 
 
 ## 2.5.2
