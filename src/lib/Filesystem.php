@@ -423,6 +423,84 @@ class Filesystem
     /**
      * Find nodes with custom filter recursive.
      */
+    public function findNodesByFilterRecursiveChildren(array $parent_filter, int $deleted, ?int $offset = null, ?int $limit = null): Generator
+    {
+        $deleted_filter = [];
+        if (NodeInterface::DELETED_EXCLUDE === $deleted) {
+            $deleted_filter['deleted'] = false;
+        } elseif (NodeInterface::DELETED_ONLY === $deleted) {
+            $deleted_filter['deleted'] = ['$type' => 9];
+        }
+
+        $query = [
+            '$or' => [
+                [
+                    'acl' => ['$exists' => false],
+                ], [
+                    'acl.id' => (string) $this->user->getId(),
+                ],
+            ],
+        ];
+
+        if (count($deleted_filter) > 0) {
+            $query = ['$and' => [$deleted_filter, $query]];
+        }
+
+        $query = [
+            ['$match' => $parent_filter],
+            ['$graphLookup' => [
+                'from' => 'storage',
+                'startWith' => '$pointer',
+                'connectFromField' => 'pointer',
+                'connectToField' => 'parent',
+                'as' => 'children',
+                'maxDepth' => 0,
+                'restrictSearchWithMatch' => $query,
+            ]],
+            ['$addFields' => [
+                'size' => [
+                    '$cond' => [
+                        'if' => ['$eq' => ['$directory', true]],
+                        'then' => ['$size' => '$children'],
+                        'else' => '$size',
+                    ],
+                ],
+            ]],
+            ['$project' => ['children' => 0]],
+            ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
+        ];
+
+        $result = $this->db->storage->aggregate($query);
+
+        $total = 0;
+        $result = iterator_to_array($result);
+        if (count($result) > 0) {
+            $total = $result[0]['total'];
+        }
+
+        array_pop($query);
+
+        $offset !== null ? $query[] = ['$skip' => $offset] : false;
+        $limit !== null ? $query[] = ['$limit' => $limit] : false;
+        $result = $this->db->storage->aggregate($query);
+
+        foreach ($result as $node) {
+            try {
+                yield $this->initNode($node);
+            } catch (\Exception $e) {
+                $this->logger->error('remove node from result list, failed load node', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        return $total;
+    }
+
+    /**
+     * Find nodes with custom filter recursive.
+     */
     public function findNodesByFilterRecursive(Collection $collection, array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
         $graph = [
@@ -453,8 +531,9 @@ class Filesystem
         }
 
         array_pop($query);
-        $query[] = ['$skip' => $offset];
-        $query[] = ['$limit' => $limit];
+
+        $offset !== null ? $query[] = ['$skip' => $offset] : false;
+        $limit !== null ? $query[] = ['$limit' => $limit] : false;
         $result = $this->db->storage->aggregate($query);
 
         foreach ($result as $node) {
@@ -497,25 +576,7 @@ class Filesystem
 
         $stored_filter['$and'][0] = array_merge($filter, $stored_filter['$and'][0]);
 
-        $result = $this->db->storage->find($stored_filter, [
-            'skip' => $offset,
-            'limit' => $limit,
-        ]);
-
-        $count = $this->db->storage->count($stored_filter);
-
-        foreach ($result as $node) {
-            try {
-                yield $this->initNode($node);
-            } catch (\Exception $e) {
-                $this->logger->error('remove node from result list, failed load node', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-            }
-        }
-
-        return $count;
+        return $this->findNodesByFilterRecursiveChildren($stored_filter, $deleted, $offset, $limit);
     }
 
     /**

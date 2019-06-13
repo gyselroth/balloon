@@ -242,7 +242,7 @@ class Collection extends AbstractNode implements IQuota
         $filter = $this->getChildrenFilter($deleted, $filter);
 
         if ($recursive === false) {
-            return $this->_fs->findNodesByFilter($filter, $offset, $limit);
+            return $this->_fs->findNodesByFilterRecursiveChildren($filter, $deleted, $offset, $limit);
         }
 
         unset($filter['parent']);
@@ -276,7 +276,11 @@ class Collection extends AbstractNode implements IQuota
      */
     public function getSize(): int
     {
-        return count($this->getChildren());
+        if ($this->isFiltered()) {
+            return count($this->getChildren());
+        }
+
+        return $this->size;
     }
 
     /**
@@ -844,8 +848,6 @@ class Collection extends AbstractNode implements IQuota
             $search['deleted'] = ['$type' => 9];
         }
 
-        $search = array_merge($filter, $search);
-
         if ($this->shared) {
             $search = [
                 '$and' => [
@@ -855,6 +857,16 @@ class Collection extends AbstractNode implements IQuota
                             ['shared' => $this->reference],
                             ['shared' => $this->shared],
                             ['shared' => $this->_id],
+                        ],
+                    ],
+                    [
+                        '$or' => [
+                            [
+                                'acl' => ['$exists' => false],
+                            ], [
+                                'acl.id' => (string) $this->_user->getId(),
+                                'acl.privilege' => ['$in' => ['m', 'rw', 'r', 'w', 'w+']],
+                            ],
                         ],
                     ],
                 ],
