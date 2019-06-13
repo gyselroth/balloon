@@ -202,7 +202,7 @@ abstract class AbstractNode implements NodeInterface
     protected $storage;
 
     /**
-     * File size for files, number of children for directories
+     * File size for files, number of children for directories.
      *
      * @var int
      */

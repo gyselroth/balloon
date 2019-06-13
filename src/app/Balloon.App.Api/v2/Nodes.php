@@ -118,6 +118,8 @@ class Nodes extends Controller
 
     /**
      * Download stream.
+     *
+     * @param null|mixed $id
      */
     public function getContent(
         $id = null,
@@ -141,6 +143,9 @@ class Nodes extends Controller
 
     /**
      * Get attributes.
+     *
+     * @param null|mixed $id
+     * @param null|mixed $query
      */
     public function get($id = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -194,6 +199,8 @@ class Nodes extends Controller
 
     /**
      * Change attributes.
+     *
+     * @param null|mixed $lock
      */
     public function patch(string $id, ?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null, $lock = null): Response
     {
@@ -332,6 +339,8 @@ class Nodes extends Controller
 
     /**
      * Get trash.
+     *
+     * @param null|mixed $query
      */
     public function getTrash($query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -407,6 +416,8 @@ class Nodes extends Controller
 
     /**
      * Event log.
+     *
+     * @param null|mixed $query
      */
     public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, $query = null, ?string $sort = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -461,6 +472,8 @@ class Nodes extends Controller
 
     /**
      * Merge multiple nodes into one zip archive.
+     *
+     * @param null|mixed $id
      */
     protected function combine($id = null, string $name = 'selected')
     {

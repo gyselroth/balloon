@@ -125,7 +125,7 @@ class Http extends AbstractBootstrap
                     'message' => 'authentication failed',
                 ]);
 
-            if(!isset($_SERVER['HTTP_AUTHORIZATION']) || substr($_SERVER['HTTP_AUTHORIZATION'], 0, 5) === 'Basic') {
+            if (!isset($_SERVER['HTTP_AUTHORIZATION']) || substr($_SERVER['HTTP_AUTHORIZATION'], 0, 5) === 'Basic') {
                 $response->setHeader('WWW-Authenticate', 'Basic realm="balloon"');
             }
 
