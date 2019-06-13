@@ -306,6 +306,8 @@ class Filesystem
 
     /**
      * Load nodes by id.
+     *
+     * @param null|mixed $class
      */
     public function getNodes(?array $id = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
     {
@@ -314,6 +316,9 @@ class Filesystem
 
     /**
      * Load node.
+     *
+     * @param null|mixed $id
+     * @param null|mixed $class
      */
     public function getNode($id = null, $class = null, bool $multiple = false, bool $allow_root = false, ?int $deleted = null): NodeInterface
     {
@@ -418,7 +423,7 @@ class Filesystem
     /**
      * Find nodes with custom filter recursive.
      */
-    public function findNodesByFilterRecursiveChildren(array $parent_filter=[], int $deleted, ?int $offset = null, ?int $limit = null): Generator
+    public function findNodesByFilterRecursiveChildren(array $parent_filter, int $deleted, ?int $offset = null, ?int $limit = null): Generator
     {
         $deleted_filter = [];
         if (NodeInterface::DELETED_EXCLUDE === $deleted) {
@@ -432,12 +437,12 @@ class Filesystem
                 [
                     'acl' => ['$exists' => false],
                 ], [
-                    'acl.id' => (string)$this->user->getId(),
-                ]
-            ]
+                    'acl.id' => (string) $this->user->getId(),
+                ],
+            ],
         ];
 
-        if(count($deleted_filter) > 0) {
+        if (count($deleted_filter) > 0) {
             $query = ['$and' => [$deleted_filter, $query]];
         }
 
@@ -458,8 +463,8 @@ class Filesystem
                         'if' => ['$eq' => ['$directory', true]],
                         'then' => ['$size' => '$children'],
                         'else' => '$size',
-                    ]
-                ]
+                    ],
+                ],
             ]],
             ['$project' => ['children' => 0]],
             ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
@@ -476,7 +481,7 @@ class Filesystem
         array_pop($query);
 
         $offset !== null ? $query[] = ['$skip' => $offset] : false;
-        $limit !== null ? $query[] = ['$limit' => $limit]: false;
+        $limit !== null ? $query[] = ['$limit' => $limit] : false;
         $result = $this->db->storage->aggregate($query);
 
         foreach ($result as $node) {

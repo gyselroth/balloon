@@ -276,7 +276,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function getSize(): int
     {
-        if($this->isFiltered()) {
+        if ($this->isFiltered()) {
             return count($this->getChildren());
         }
 
@@ -839,7 +839,7 @@ class Collection extends AbstractNode implements IQuota
     protected function getChildrenFilter(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
     {
         $search = [
-            'parent' => $this->getRealId()
+            'parent' => $this->getRealId(),
         ];
 
         if (NodeInterface::DELETED_EXCLUDE === $deleted) {
@@ -864,11 +864,11 @@ class Collection extends AbstractNode implements IQuota
                             [
                                 'acl' => ['$exists' => false],
                             ], [
-                                'acl.id' => (string)$this->_user->getId(),
-                                'acl.privilege' => ['$in' => ['m','rw','r','w','w+']]
-                            ]
-                        ]
-                    ]
+                                'acl.id' => (string) $this->_user->getId(),
+                                'acl.privilege' => ['$in' => ['m', 'rw', 'r', 'w', 'w+']],
+                            ],
+                        ],
+                    ],
                 ],
             ];
         } elseif (null !== $this->_user) {

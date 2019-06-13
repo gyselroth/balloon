@@ -23,6 +23,8 @@ class Collections extends Nodes
 {
     /**
      * Get children.
+     *
+     * @param null|mixed $query
      */
     public function getChildren(
         ?string $id = null,

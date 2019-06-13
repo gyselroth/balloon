@@ -118,6 +118,8 @@ class Nodes extends Controller
 
     /**
      * Download stream.
+     *
+     * @param null|mixed $id
      */
     public function getContent(
         $id = null,
@@ -140,6 +142,9 @@ class Nodes extends Controller
 
     /**
      * Get attributes.
+     *
+     * @param null|mixed $id
+     * @param null|mixed $query
      */
     public function get($id = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
@@ -429,6 +434,8 @@ class Nodes extends Controller
 
     /**
      * Merge multiple nodes into one zip archive.
+     *
+     * @param null|mixed $id
      */
     protected function combine($id = null, string $name = 'selected')
     {
