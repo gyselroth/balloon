@@ -510,6 +510,14 @@ abstract class AbstractNode implements NodeInterface
     }
 
     /**
+     * Get reference.
+     */
+    public function getReference(): ?ObjectId
+    {
+        return $this->reference;
+    }
+
+    /**
      * Get share node.
      */
     public function getShareNode(): ?Collection

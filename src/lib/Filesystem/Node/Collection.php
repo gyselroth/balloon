@@ -505,7 +505,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Unshare collection.
      */
-    public function unshare(): bool
+    public function unshare(): Collection
     {
         if (!$this->_acl->isAllowed($this, 'm')) {
             throw new ForbiddenException(
@@ -521,15 +521,18 @@ class Collection extends AbstractNode implements IQuota
             );
         }
 
-        $this->shared = false;
-        $this->share_name = null;
-        $this->acl = [];
+        $real = $this->getRealId();
+
         $action = [
             '$set' => [
-                'owner' => $this->_user->getId(),
+                'owner' => $this->_fs->findRawNode($real)['owner'],
                 'shared' => false,
             ],
         ];
+
+        $this->shared = false;
+        $this->share_name = null;
+        $this->acl = [];
 
         $toset = $this->_fs->findNodesByFilterRecursiveToArray($this);
         $this->_db->storage->updateMany([
@@ -538,9 +541,23 @@ class Collection extends AbstractNode implements IQuota
             ],
         ], $action);
 
-        $result = $this->save(['shared'], ['acl', 'share_name']);
+        if ($real === $this->_id) {
+            $result = $this->save(['shared'], ['acl', 'share_name']);
+        } else {
+            $this->_db->storage->updateOne([
+                '_id' => $real,
+            ], [
+                '$set' => [
+                    'share_name' => null,
+                    'acl' => [],
+                    'shared' => false,
+                ],
+            ]);
 
-        return true;
+            $this->delete();
+        }
+
+        return $this;
     }
 
     /**

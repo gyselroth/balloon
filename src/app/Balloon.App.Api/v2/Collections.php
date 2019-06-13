@@ -102,7 +102,13 @@ class Collections extends Nodes
         $node = $this->fs->getNode($id, Collection::class);
         $result = $node->unshare();
 
-        return (new Response())->setCode(204);
+        if ($result === $node) {
+            return (new Response())->setCode(204);
+        }
+
+        $result = $this->node_decorator->decorate($result);
+
+        return (new Response())->setCode(200)->setBody($result);
     }
 
     /**
