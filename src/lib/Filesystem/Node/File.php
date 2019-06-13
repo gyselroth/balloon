@@ -68,13 +68,6 @@ class File extends AbstractNode implements IFile
     protected $version = 0;
 
     /**
-     * File size.
-     *
-     * @var int
-     */
-    protected $size = 0;
-
-    /**
      * History.
      *
      * @var array

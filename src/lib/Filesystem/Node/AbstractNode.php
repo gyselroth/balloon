@@ -202,6 +202,13 @@ abstract class AbstractNode implements NodeInterface
     protected $storage;
 
     /**
+     * File size for files, number of children for directories
+     *
+     * @var int
+     */
+    protected $size = 0;
+
+    /**
      * Acl.
      *
      * @var array
@@ -1128,7 +1135,6 @@ abstract class AbstractNode implements NodeInterface
      */
     protected function prepareLock(string $identifier, int $ttl = 1800): array
     {
-        //var_dump($this->_user);
         return [
              'owner' => $this->_user->getId(),
             'created' => new UTCDateTime(),
