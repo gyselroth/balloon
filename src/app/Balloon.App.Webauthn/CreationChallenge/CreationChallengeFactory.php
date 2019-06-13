@@ -85,7 +85,7 @@ class CreationChallengeFactory
         ];
 
         // Timeout
-        $timeout = 20000;
+        $timeout = 60000;
 
         $key = new PublicKeyCredentialCreationOptions(
             $rpEntity,
