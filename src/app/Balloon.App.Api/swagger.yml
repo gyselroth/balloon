@@ -1286,6 +1286,15 @@ paths:
           required: false
           type: string
         - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
           name: attributes
           description: Filter attributes
           required: false
@@ -1343,6 +1352,15 @@ paths:
           required: false
           type: string
         - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
           name: attributes
           description: Filter attributes
           required: false
@@ -1399,6 +1417,15 @@ paths:
             JSON (For example: {\"name\": {$regex: 'foo.*'}})."
           required: false
           type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1510,6 +1537,15 @@ paths:
           required: false
           type: string
         - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
           name: attributes
           description: Filter attributes
           required: false
@@ -1535,11 +1571,6 @@ paths:
             using JSON (For example: {"name": -1}).'
           required: false
           type: string
-        - name: deleted
-          in: query
-          required: false
-          type: number
-          description: 'Wheter include deleted nodes or not, possible values:  0 Exclude deleted 1 Only deleted 2 Include deleted  '
       responses:
         200:
           description: "List of files"
@@ -1666,6 +1697,15 @@ paths:
           required: false
           type: string
         - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
           name: attributes
           description: Filter attributes
           required: false
@@ -1691,11 +1731,6 @@ paths:
             using JSON (For example: {"name": -1}).'
           required: false
           type: string
-        - name: deleted
-          in: query
-          required: false
-          type: number
-          description: 'Wheter include deleted nodes or not, possible values:  0 Exclude deleted 1 Only deleted 2 Include deleted  '
       responses:
         200:
           description: "List of nodes"
@@ -2151,7 +2186,7 @@ definitions:
   core.v2.ResourceList:
     type: "object"
     properties:
-      _links:notfification
+      _links:
         description: "Holds a list of links rfc1738 to other resources."
         $ref: "#/definitions/core.v2.ListLinks"
       kind:
@@ -2218,6 +2253,10 @@ definitions:
             enum:
             - internal
             - external
+          has_password:
+            description: "Is true if the user has a local password set."
+            type: boolean
+            default: false  
           hard_quota:
             description: "Hard quota in bytes (Max. limit of storage usage). Note that external storage is not part of the quota. The default is no limit."
             type: "number"
@@ -2669,7 +2708,7 @@ definitions:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/Notification.v2.Notification"
+              $ref: "#/definitions/notification.v2.Notification"
   notification.v2.Notification:
     description: "A notification"
     allOf:
@@ -2715,7 +2754,7 @@ definitions:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/Convert.v2.Slave"
+              $ref: "#/definitions/convert.v2.Slave"
   convert.v2.Slave:
     description: "A convert slave"
     allOf:

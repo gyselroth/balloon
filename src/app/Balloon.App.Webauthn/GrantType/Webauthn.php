@@ -127,10 +127,10 @@ class Webauthn implements GrantTypeInterface
 
         // Load the data
         $publicKeyCredential = $this->loader->load(json_encode($data));
-        $response = $publicKeyCredential->getResponse();
+        $result = $publicKeyCredential->getResponse();
 
         // Check if the response is an Authenticator Assertion Response
-        if (!$response instanceof AuthenticatorAssertionResponse) {
+        if (!$result instanceof AuthenticatorAssertionResponse) {
             throw new \RuntimeException('Not an authenticator assertion response');
         }
 

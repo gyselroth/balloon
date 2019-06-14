@@ -847,9 +847,8 @@ class Collection extends AbstractNode implements IQuota
      */
     protected function getChildrenFilter(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
     {
-        $search = [
-            'parent' => $this->getRealId(),
-        ];
+        $search = $filter;
+        $search['parent'] = $this->getRealId();
 
         if (NodeInterface::DELETED_EXCLUDE === $deleted) {
             $search['deleted'] = false;

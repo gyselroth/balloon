@@ -19,7 +19,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiRoot"
+                $ref: "#/components/schemas/core.v2.ApiRoot"
   /api/v2:
     get:
       tags:
@@ -32,7 +32,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiRoot"
+                $ref: "#/components/schemas/core.v2.ApiRoot"
   /api/v2/groups:
     get:
       tags:
@@ -43,9 +43,10 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -59,7 +60,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -73,9 +75,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -85,7 +88,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Groups"
+                $ref: "#/components/schemas/core.v2.Groups"
         "403":
           description: Access denied
     post:
@@ -97,14 +100,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Group"
+              $ref: "#/components/schemas/core.v2.Group"
       responses:
         "201":
           description: If successful the server will respond with 201 Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Group"
+                $ref: "#/components/schemas/core.v2.Group"
         "403":
           description: Access denied
   "/api/v2/groups/{group}":
@@ -134,7 +137,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Group"
+                $ref: "#/components/schemas/core.v2.Group"
         "403":
           description: Access denied
         "404":
@@ -155,7 +158,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Group"
+              $ref: "#/components/schemas/core.v2.Group"
         description: Set attributes for group
         required: true
       responses:
@@ -164,7 +167,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Group"
+                $ref: "#/components/schemas/core.v2.Group"
         "403":
           description: Access denied
         "404":
@@ -216,7 +219,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/User"
+                  $ref: "#/components/schemas/core.v2.User"
         "403":
           description: Access denied
         "404":
@@ -240,7 +243,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Group"
+                $ref: "#/components/schemas/core.v2.Group"
         "403":
           description: Access denied
         "404":
@@ -255,9 +258,10 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -271,7 +275,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -285,9 +290,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -299,7 +305,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Users"
+                  $ref: "#/components/schemas/core.v2.Users"
         "403":
           description: Access denied
         "404":
@@ -313,14 +319,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/core.v2.User"
       responses:
         "201":
           description: If successful the server will respond with 201 Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/core.v2.User"
         "403":
           description: Access denied
   "/api/v2/users/{user}":
@@ -350,7 +356,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/core.v2.User"
         "403":
           description: Access denied
         "404":
@@ -371,7 +377,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/core.v2.User"
         description: Set attributes for user
         required: true
       responses:
@@ -380,7 +386,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/core.v2.User"
         "403":
           description: Access denied
         "404":
@@ -430,7 +436,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserNodeAttributeSummary"
+                $ref: "#/components/schemas/core.v2.UserNodeAttributeSummary"
         "403":
           description: Access denied
         "404":
@@ -450,9 +456,10 @@ paths:
             type: string
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -466,7 +473,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -480,9 +488,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -492,7 +501,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Groups"
+                $ref: "#/components/schemas/core.v2.Groups"
         "403":
           description: Access denied
         "404":
@@ -516,7 +525,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/core.v2.User"
         "403":
           description: Access denied
         "404":
@@ -542,7 +551,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/core.v2.User"
   "/api/v2/users/{user}/avatar":
     get:
       tags:
@@ -562,7 +571,7 @@ paths:
           content:
             octet/stream:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/core.v2.User"
         "403":
           description: Access denied
         "404":
@@ -576,9 +585,10 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -592,7 +602,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -606,9 +617,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -618,7 +630,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Nodes"
+                $ref: "#/components/schemas/core.v2.Nodes"
   /api/v2/nodes/search:
     get:
       tags:
@@ -645,19 +657,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Nodes"
+                $ref: "#/components/schemas/core.v2.Nodes"
   /api/v2/notifications:
     get:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: Get my nofitifications
       operationId: getMyNotifications
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -671,7 +684,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -685,9 +699,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -697,28 +712,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Balloon.App.Notfification.Notifications"
+                $ref: "#/components/schemas/notification.v2.Notifications"
     post:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: Send notification
       operationId: postNotification
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
+              $ref: "#/components/schemas/notification.v2.Notification"
       responses:
         "202":
           description: Notification
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
+                $ref: "#/components/schemas/notification.v2.Notification"
   "/api/v2/notifications/{notification}":
     get:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: Get a single notification
       operationId: getNotification
       parameters:
@@ -734,14 +749,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
+                $ref: "#/components/schemas/notification.v2.Notification"
         "403":
           description: Access denied
         "404":
           description: Resource does not exists
     delete:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: Delete a notification
       operationId: deleteNotification
       parameters:
@@ -761,14 +776,14 @@ paths:
   /api/v2/notifications/broadcast:
     post:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: Send notification to all users
       operationId: sendBroadcast
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
+              $ref: "#/components/schemas/notification.v2.Notification"
         description: Notification
       responses:
         "202":
@@ -776,20 +791,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
+                $ref: "#/components/schemas/notification.v2.Notification"
         "403":
           description: Access denied
   /api/v2/notifications/mail:
     post:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: Send mail
       operationId: sendMail
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Balloon.App.Notfification.Mail"
+              $ref: "#/components/schemas/notification.v2.Mail"
         description: Mail
       responses:
         "202":
@@ -799,7 +814,7 @@ paths:
   "/api/v2/nodes/{node}/subscription":
     post:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: Receive node updates
       operationId: subscribeNode
       parameters:
@@ -833,7 +848,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Node"
+                $ref: "#/components/schemas/core.v2.Node"
         "403":
           description: Access denied
         "404":
@@ -841,7 +856,7 @@ paths:
   "/api/v2/files/{file}/convert/slaves":
     get:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: Get existing convert slaves
       operationId: getSlaves
       parameters:
@@ -857,14 +872,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Balloon.App.Convert.Slaves"
+                $ref: "#/components/schemas/convert.v2.Slaves"
         "403":
           description: Access denied
         "404":
           description: Resource does not exists
     post:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: Add new convert slave
       operationId: addSlave
       parameters:
@@ -878,7 +893,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Balloon.App.Convert.Slave"
+              $ref: "#/components/schemas/convert.v2.Slave"
         description: "Add new conversion slave "
         required: true
       responses:
@@ -887,7 +902,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Balloon.App.Convert.Slave"
+                $ref: "#/components/schemas/convert.v2.Slave"
         "403":
           description: Access denied
         "404":
@@ -895,7 +910,7 @@ paths:
   "/api/v2/files/{file}/convert/slaves/{slave}":
     get:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: Get single slave
       operationId: getSlave
       parameters:
@@ -917,14 +932,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Balloon.App.Convert.Slave"
+                $ref: "#/components/schemas/convert.v2.Slave"
         "403":
           description: Access denied
         "404":
           description: Resource does not exists
     delete:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: Delete slave
       operationId: deleteSlave
       parameters:
@@ -950,7 +965,7 @@ paths:
   "/api/v2/files/{file}/convert/supported-formats":
     get:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: Get supported file formats to convert to (formats do vary between files)
       operationId: getSupportedFormats
       parameters:
@@ -976,7 +991,7 @@ paths:
   "/api/v2/desktop-clients/{format}/content":
     get:
       tags:
-        - balloon.app.desktopclient.v2
+        - desktopclient.v2
       summary: Download balloon desktop client
       operationId: getDesktopClient
       parameters:
@@ -1000,37 +1015,15 @@ paths:
               schema:
                 type: string
                 format: binary
-  "/api/v2/office/session/{session}":
-    delete:
-      tags:
-        - balloon.app.office.v2
-      summary: Delete a running session. If more members are active in the requested
-        session than only the membership gets removed. The session gets
-        completely removed if only one member exists.
-      operationId: deleteSession
-      parameters:
-        - name: session
-          in: path
-          required: true
-          description: "The session id to delete "
-          schema:
-            type: string
-      responses:
-        "204":
-          description: The server responds with 204 if the operation was successful.
-        "403":
-          description: Access denied
-        "404":
-          description: Resource does not exists
-  /api/v2/office/wopi/document:
+  "/api/v2/office/wopi/document/{document}":
     get:
       tags:
-        - balloon.app.office.v2
+        - wopi.v2
       summary: Get document session information including document owner, session user
         and document size
       operationId: getWopiDocument
       parameters:
-        - name: id
+        - name: document
           in: query
           required: true
           description: The document id
@@ -1048,43 +1041,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Balloon.App.Office.WopiDocument"
+                $ref: "#/components/schemas/office.v2.WopiDocument"
         "403":
           description: Access denied
         "404":
           description: Resource does not exists
-  "/api/v2/office/documents/{document}":
+  "/api/v2/office/wopi/document/{document}/contents":
     get:
       tags:
-        - balloon.app.office.v2
-      summary: Retreive office document
-      operationId: getDocument
-      parameters:
-        - name: document
-          in: path
-          required: true
-          description: Document identifier
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Document session
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Balloon.App.Office.Document"
-        "403":
-          description: Access denied
-        "404":
-          description: Resource does not exists
-  /api/v2/office/wopi/document/contents:
-    get:
-      tags:
-        - balloon.app.office.v2
+        - wopi.v2
       summary: Get document contents
       operationId: getWopiDocumentContent
       parameters:
-        - name: id
+        - name: document
           in: query
           required: true
           description: "The document id "
@@ -1105,11 +1074,11 @@ paths:
           description: Resource does not exists
     post:
       tags:
-        - balloon.app.office.v2
+        - wopi.v2
       summary: Save document contents
       operationId: updateWopiDocuemntContent
       parameters:
-        - name: id
+        - name: document
           in: query
           required: true
           description: "The document id "
@@ -1137,14 +1106,14 @@ paths:
   /api/v2/office/documents:
     post:
       tags:
-        - balloon.app.office.v2
+        - wopi.v2
       description: Create new document from an existing office document template
       operationId: createDocument
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/File"
+              $ref: "#/components/schemas/core.v2.File"
         required: true
       responses:
         "201":
@@ -1152,55 +1121,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/File"
-        "403":
-          description: Access denied
-        "404":
-          description: Resource does not exists
-  /api/v2/office/sessions:
-    post:
-      tags:
-        - balloon.app.office.v2
-      summary: Create new session for a document
-      operationId: createSession
-      parameters:
-        - in: query
-          name: id
-          description: Create new session for a document
-          required: true
-          schema:
-            type: string
-      responses:
-        "201":
-          description: Office session
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Balloon.App.Office.Session"
-        "403":
-          description: Access denied
-        "404":
-          description: Resource does not exists
-  "/api/v2/office/sessions/{session}/join":
-    post:
-      tags:
-        - balloon.app.office.v2
-      summary: Join running session
-      operationId: joinSession
-      parameters:
-        - name: session
-          in: path
-          required: true
-          description: "The session id to delete "
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Office session
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Balloon.App.Office.Session"
+                $ref: "#/components/schemas/core.v2.File"
         "403":
           description: Access denied
         "404":
@@ -1241,7 +1162,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Node"
+                $ref: "#/components/schemas/core.v2.Node"
         "207":
           description: Multi status if batch request
         "403":
@@ -1284,7 +1205,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Node"
+                $ref: "#/components/schemas/core.v2.Node"
         "207":
           description: Multi status if batch request
         "403":
@@ -1334,7 +1255,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Node"
+                $ref: "#/components/schemas/core.v2.Node"
         "207":
           description: Multi status if batch request
         "403":
@@ -1360,7 +1281,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Share"
+                $ref: "#/components/schemas/core.v2.Share"
         "403":
           description: Access denied
         "404":
@@ -1381,7 +1302,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Share"
+              $ref: "#/components/schemas/core.v2.Share"
         description: "Create a new share from an existing collection "
         required: true
       responses:
@@ -1390,7 +1311,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Collection"
+                $ref: "#/components/schemas/core.v2.Collection"
         "403":
           description: Access denied
         "404":
@@ -1431,12 +1352,23 @@ paths:
             type: string
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          schema:
+            type: number
+            enum:
+              - 0
+              - 1
+              - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1447,7 +1379,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -1461,9 +1394,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -1480,7 +1414,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Nodes"
+                $ref: "#/components/schemas/core.v2.Nodes"
         "403":
           description: Access denied
         "404":
@@ -1494,12 +1428,23 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          schema:
+            type: number
+            enum:
+              - 0
+              - 1
+              - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1510,7 +1455,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -1524,9 +1470,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -1543,7 +1490,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Nodes"
+                $ref: "#/components/schemas/core.v2.Nodes"
         "403":
           description: Access denied
         "404":
@@ -1557,12 +1504,23 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          schema:
+            type: number
+            enum:
+              - 0
+              - 1
+              - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1573,7 +1531,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -1587,9 +1546,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -1599,7 +1559,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Collections"
+                $ref: "#/components/schemas/core.v2.Collections"
         "403":
           description: Access denied
         "404":
@@ -1617,14 +1577,14 @@ paths:
           schema:
             type: string
       requestBody:
-        $ref: "#/components/requestBodies/Collection"
+        $ref: "#/components/requestBodies/core.v2.Collection"
       responses:
         "201":
           description: Collection
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Collection"
+                $ref: "#/components/schemas/core.v2.Collection"
         "403":
           description: Access denied
         "404":
@@ -1643,14 +1603,14 @@ paths:
           schema:
             type: string
       requestBody:
-        $ref: "#/components/requestBodies/Collection"
+        $ref: "#/components/requestBodies/core.v2.Collection"
       responses:
         "201":
           description: Collection
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Collection"
+                $ref: "#/components/schemas/core.v2.Collection"
         "403":
           description: Access denied
         "404":
@@ -1664,12 +1624,23 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          schema:
+            type: number
+            enum:
+              - 0
+              - 1
+              - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1680,7 +1651,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -1694,26 +1666,20 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
-        - name: deleted
-          in: query
-          required: false
-          description: "Wheter include deleted nodes or not, possible values:  0 Exclude
-            deleted 1 Only deleted 2 Include deleted  "
-          schema:
-            type: number
       responses:
         "200":
           description: List of files
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Files"
+                $ref: "#/components/schemas/core.v2.Files"
         "403":
           description: Access denied
         "404":
@@ -1736,7 +1702,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/File"
+                $ref: "#/components/schemas/core.v2.File"
         "403":
           description: Access denied
         "404":
@@ -1760,7 +1726,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileHistory"
+                $ref: "#/components/schemas/core.v2.FileHistory"
         "403":
           description: Access denied
         "404":
@@ -1785,7 +1751,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/File"
+                $ref: "#/components/schemas/core.v2.File"
         "403":
           description: Access denied
         "404":
@@ -1813,19 +1779,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/File"
+                $ref: "#/components/schemas/core.v2.File"
         "201":
           description: File newly created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/File"
+                $ref: "#/components/schemas/core.v2.File"
         "206":
           description: Chunk uploaded
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ChunkSession"
+                $ref: "#/components/schemas/core.v2.ChunkSession"
         "403":
           description: Access denied
         "404":
@@ -1839,12 +1805,23 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          schema:
+            type: number
+            enum:
+              - 0
+              - 1
+              - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1855,7 +1832,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -1869,26 +1847,20 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
-        - name: deleted
-          in: query
-          required: false
-          description: "Wheter include deleted nodes or not, possible values:  0 Exclude
-            deleted 1 Only deleted 2 Include deleted  "
-          schema:
-            type: number
       responses:
         "200":
           description: List of nodes
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Nodes"
+                $ref: "#/components/schemas/core.v2.Nodes"
         "403":
           description: Access denied
         "404":
@@ -1960,7 +1932,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Node"
+                $ref: "#/components/schemas/core.v2.Node"
         "403":
           description: Access denied
         "404":
@@ -1981,7 +1953,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Node"
+              $ref: "#/components/schemas/core.v2.Node"
         description: "Change attributes "
         required: true
       responses:
@@ -1990,7 +1962,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Node"
+                $ref: "#/components/schemas/core.v2.Node"
         "403":
           description: Access denied
         "404":
@@ -1998,7 +1970,7 @@ paths:
   "/api/v2/nodes/{node}/share-link":
     delete:
       tags:
-        - balloon.app.sharelink.v2
+        - sharelink.v2
       summary: Delete an existing sharing link
       operationId: deleteLink
       parameters:
@@ -2017,7 +1989,7 @@ paths:
           description: Resource does not exists
     post:
       tags:
-        - balloon.app.sharelink.v2
+        - sharelink.v2
       summary: "Create a unique sharing link of a node (global accessible): a possible
         existing link will be deleted if this method will be called."
       operationId: createLink
@@ -2048,7 +2020,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Node"
+                $ref: "#/components/schemas/core.v2.Node"
         "403":
           description: Access denied
         "404":
@@ -2149,7 +2121,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Delta"
+                $ref: "#/components/schemas/core.v2.Delta"
         "403":
           description: Access denied
         "404":
@@ -2164,9 +2136,10 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -2180,7 +2153,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -2194,9 +2168,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -2206,7 +2181,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/EventLogs"
+                $ref: "#/components/schemas/core.v2.EventLogs"
         "403":
           description: Access denied
         "404":
@@ -2227,9 +2202,10 @@ paths:
             type: string
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -2243,7 +2219,8 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
@@ -2257,9 +2234,10 @@ paths:
             type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -2269,7 +2247,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/EventLogs"
+                $ref: "#/components/schemas/core.v2.EventLogs"
         "403":
           description: Access denied
         "404":
@@ -2309,7 +2287,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Nodes"
+                $ref: "#/components/schemas/core.v2.Nodes"
         "403":
           description: Access denied
         "404":
@@ -2317,7 +2295,7 @@ paths:
   "/api/v2/files/{file}/preview":
     get:
       tags:
-        - ballon.app.preview.v2
+        - preview.v2
       summary: Get a preview of the files content. The body either contains an encoded
         string or a jpeg binary.
       operationId: getPreview
@@ -2346,14 +2324,14 @@ servers:
   - url: /
 components:
   requestBodies:
-    Collection:
+    core.v2.Collection:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Collection"
+            $ref: "#/components/schemas/core.v2.Collection"
       required: true
   schemas:
-    JsonPatch:
+    core.v2.JsonPatch:
       description: A JSON Patch according rfc6902.
       type: object
       properties:
@@ -2363,7 +2341,7 @@ components:
           type: string
         value:
           type: string
-    ApiRoot:
+    core.v2.ApiRoot:
       description: Describes the api root.
       type: object
       properties:
@@ -2371,31 +2349,31 @@ components:
           type: string
         api:
           type: number
-    Links:
+    core.v2.Links:
       description: Contains resource links (URL) to other resources.
       type: object
       properties:
         self:
-          $ref: "#/components/schemas/Link"
-    ListLinks:
+          $ref: "#/components/schemas/core.v2.Link"
+    core.v2.ListLinks:
       type: object
       properties:
         self:
-          $ref: "#/components/schemas/Link"
+          $ref: "#/components/schemas/core.v2.Link"
         prev:
-          $ref: "#/components/schemas/Link"
+          $ref: "#/components/schemas/core.v2.Link"
         next:
-          $ref: "#/components/schemas/Link"
-    Link:
+          $ref: "#/components/schemas/core.v2.Link"
+    core.v2.Link:
       type: object
       properties:
         href:
           type: string
-    ResourceList:
+    core.v2.ResourceList:
       type: object
       properties:
         _links:
-          $ref: "#/components/schemas/ListLinks"
+          $ref: "#/components/schemas/core.v2.ListLinks"
         kind:
           description: The resource type, always List.
           type: string
@@ -2408,11 +2386,11 @@ components:
             List resource is always paged. You need to traverse with offset and
             limit to request further resources in the list.
           type: number
-    Resource:
+    core.v2.Resource:
       type: object
       properties:
         _links:
-          $ref: "#/components/schemas/Links"
+          $ref: "#/components/schemas/core.v2.Links"
         id:
           description: Unique 12-byte resource identifier. Note this is a MongoDB ObjectId.
             The name is the standard resource identifier, the id only useful to
@@ -2422,20 +2400,20 @@ components:
         created:
           description: ISO 8601 timestamp when the resource was created.
           type: string
-    Users:
+    core.v2.Users:
       description: A list of users.
       allOf:
-        - $ref: "#/components/schemas/ResourceList"
+        - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/User"
-    User:
+                $ref: "#/components/schemas/core.v2.User"
+    core.v2.User:
       description: A user is used to access the server.
       allOf:
-        - $ref: "#/components/schemas/Resource"
+        - $ref: "#/components/schemas/core.v2.Resource"
         - type: object
           properties:
             changed:
@@ -2465,6 +2443,10 @@ components:
               enum:
                 - internal
                 - external
+            has_password:
+              description: Is true if the user has a local password set.
+              type: boolean
+              default: false
             hard_quota:
               description: Hard quota in bytes (Max. limit of storage usage). Note that
                 external storage is not part of the quota. The default is no
@@ -2484,20 +2466,20 @@ components:
               description: Used storage in bytes.
               type: number
               default: 0
-    Groups:
+    core.v2.Groups:
       description: A list of groups.
       allOf:
-        - $ref: "#/components/schemas/ResourceList"
+        - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/Group"
-    Group:
+                $ref: "#/components/schemas/core.v2.Group"
+    core.v2.Group:
       description: A group contains user resources.
       allOf:
-        - $ref: "#/components/schemas/Resource"
+        - $ref: "#/components/schemas/core.v2.Resource"
         - type: object
           properties:
             changed:
@@ -2514,17 +2496,17 @@ components:
               type: array
               items:
                 type: string
-    Nodes:
+    core.v2.Nodes:
       description: A list of nodes.
       allOf:
-        - $ref: "#/components/schemas/ResourceList"
+        - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/Node"
-    NodeMeta:
+                $ref: "#/components/schemas/core.v2.Node"
+    core.v2.NodeMeta:
       description: Node meta data.
       type: object
       properties:
@@ -2542,10 +2524,10 @@ components:
         color:
           description: A color tag.
           type: string
-    Node:
+    core.v2.Node:
       description: A Node.
       allOf:
-        - $ref: "#/components/schemas/Resource"
+        - $ref: "#/components/schemas/core.v2.Resource"
         - type: object
           properties:
             changed:
@@ -2566,7 +2548,7 @@ components:
               type: boolean
               default: false
             meta:
-              $ref: "#/components/schemas/NodeMeta"
+              $ref: "#/components/schemas/core.v2.NodeMeta"
             size:
               description: The size in bytes. If the node is of type collection the size is
                 the number of child nodes.
@@ -2631,34 +2613,34 @@ components:
               description: Is true if the node has a protected public sharelink.
               type: boolean
               default: false
-    Collections:
+    core.v2.Collections:
       description: A list of collections.
       allOf:
-        - $ref: "#/components/schemas/ResourceList"
+        - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/Collection"
-    Collection:
+                $ref: "#/components/schemas/core.v2.Collection"
+    core.v2.Collection:
       description: A collection can hold an unlimited number of child nodes.
       allOf:
-        - $ref: "#/components/schemas/Node"
-    Files:
+        - $ref: "#/components/schemas/core.v2.Node"
+    core.v2.Files:
       description: A list of files.
       allOf:
-        - $ref: "#/components/schemas/ResourceList"
+        - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/File"
-    File:
+                $ref: "#/components/schemas/core.v2.File"
+    core.v2.File:
       description: A collection can hold an unlimited number of child nodes.
       allOf:
-        - $ref: "#/components/schemas/Node"
+        - $ref: "#/components/schemas/core.v2.Node"
         - type: object
           properties:
             version:
@@ -2671,8 +2653,7 @@ components:
             preview:
               description: Is true if there is a preview
               type: boolean
-              default: false
-    FileHistory:
+    core.v2.FileHistory:
       description: File history.
       type: object
       properties:
@@ -2696,7 +2677,7 @@ components:
             name:
               description: The username of the share owner.
               type: string
-    Delta:
+    core.v2.Delta:
       description: The delta is a differential feed to get changes since the last delta
         call.
       type: object
@@ -2716,8 +2697,8 @@ components:
         nodes:
           type: array
           items:
-            $ref: "#/components/schemas/Node"
-    Share:
+            $ref: "#/components/schemas/core.v2.Node"
+    core.v2.Share:
       description: Node share.
       type: object
       properties:
@@ -2728,8 +2709,8 @@ components:
           description: ACL rules.
           type: array
           items:
-            $ref: "#/components/schemas/AclRule"
-    AclRule:
+            $ref: "#/components/schemas/core.v2.AclRule"
+    core.v2.AclRule:
       description: ACL rule.
       type: object
       properties:
@@ -2762,7 +2743,7 @@ components:
             name:
               description: The name of role resource.
               type: string
-    UserNodeAttributeSummary:
+    core.v2.UserNodeAttributeSummary:
       description: Request node fiel statistics.
       type: object
       additionalProperties:
@@ -2774,7 +2755,7 @@ components:
               type: string
             sum:
               type: number
-    ChunkSession:
+    core.v2.ChunkSession:
       description: Chunking upload session.
       type: object
       properties:
@@ -2784,17 +2765,17 @@ components:
         chunks_left:
           description: Tells how many chunks are left to upload.
           type: number
-    EventLogs:
+    core.v2.EventLogs:
       description: A list of events.
       allOf:
-        - $ref: "#/components/schemas/ResourceList"
+        - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/EventLog"
-    EventLog:
+                $ref: "#/components/schemas/core.v2.EventLog"
+    core.v2.EventLog:
       description: Event log entry. Each event represents an executed operation on the
         server.
       type: object
@@ -2892,33 +2873,7 @@ components:
             hostname:
               description: The hostname of the client.
               type: string
-    Balloon.App.Office.Session:
-      description: Office session
-      type: object
-      properties:
-        id:
-          description: Session id
-          type: string
-        wopi_url:
-          description: WOPI url
-          type: string
-        access_token:
-          description: Access token (time limited)
-          type: string
-        access_token_ttl:
-          description: Token life time
-          type: number
-    Balloon.App.Office.Document:
-      description: Office document
-      type: object
-      properties:
-        loleaflet:
-          type: string
-        sessions:
-          type: array
-          items:
-            type: object
-    Balloon.App.Office.WopiDocument:
+    office.v2.WopiDocument:
       description: WOPI document
         https://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html
       type: object
@@ -2939,7 +2894,7 @@ components:
           type: boolean
         PostMessageOrigin:
           type: string
-    Balloon.App.Notfification.Mail:
+    notification.v2.Mail:
       description: Mail
       type: object
       properties:
@@ -2952,20 +2907,20 @@ components:
           type: string
         body:
           type: string
-    Balloon.App.Notfification.Notifications:
+    notification.v2.Notifications:
       description: A list of notifications.
       allOf:
-        - $ref: "#/components/schemas/ResourceList"
+        - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/Balloon.App.Notfification.Notification"
-    Balloon.App.Notfification.Notification:
+                $ref: "#/components/schemas/notification.v2.Notification"
+    notification.v2.Notification:
       description: A notification
       allOf:
-        - $ref: "#/components/schemas/Resource"
+        - $ref: "#/components/schemas/core.v2.Resource"
         - type: object
           properties:
             locale:
@@ -3001,20 +2956,20 @@ components:
                 name:
                   description: The name of the node.
                   type: string
-    Balloon.App.Convert.Slaves:
+    convert.v2.Slaves:
       description: A list of convert slaves.
       allOf:
-        - $ref: "#/components/schemas/ResourceList"
+        - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
           properties:
             data:
               type: array
               items:
-                $ref: "#/components/schemas/Balloon.App.Convert.Slave"
-    Balloon.App.Convert.Slave:
+                $ref: "#/components/schemas/convert.v2.Slave"
+    convert.v2.Slave:
       description: A convert slave
       allOf:
-        - $ref: "#/components/schemas/Resource"
+        - $ref: "#/components/schemas/core.v2.Resource"
         - type: object
           properties:
             format:
