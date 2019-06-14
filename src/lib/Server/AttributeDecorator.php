@@ -178,6 +178,13 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
                 return null;
             },
+            'has_password' => function ($role) use ($user, $attributes) {
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+                    return $role->hasPassword();
+                }
+
+                return null;
+            },
             'auth' => function () use ($user) {
                 $identity = $user->getIdentity();
                 if ($identity === null) {

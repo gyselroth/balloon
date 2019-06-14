@@ -666,6 +666,14 @@ class User implements RoleInterface
     }
 
     /**
+     * Has password.
+     */
+    public function hasPassword(): bool
+    {
+        return $this->password !== null;
+    }
+
+    /**
      * Undelete user.
      */
     public function undelete(): bool

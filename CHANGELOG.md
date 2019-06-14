@@ -1,3 +1,13 @@
+## 2.6.0-beta3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Jun 05 14:50:43 CEST 2019
+
+* CORE: [CHANGE] Merge v2.5.x releases (v2.5.3 - v2.5.6)
+* API: [CHANGE] added v1 prefix to all openapi resources
+* CORE: [CHANGE] Incresed device creation challenge timeout from 20s to 60s #307
+* API: [FEATURE] Add has_password flag to users #347
+
+
 ## 2.6.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Jun 05 14:50:43 CEST 2019
