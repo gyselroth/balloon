@@ -311,6 +311,10 @@ class Server
                         );
                     }
 
+                    if ($this->mailExists($value)) {
+                        throw new User\Exception\NotUnique('mail address does already exists');
+                    }
+
                 break;
                 case 'google_auth_secret':
                 break;
@@ -374,6 +378,14 @@ class Server
     public function usernameExists(string $username): bool
     {
         return  1 === $this->db->user->count(['username' => $username]);
+    }
+
+    /**
+     * Check if mail address exists.
+     */
+    public function mailExists(string $mail): bool
+    {
+        return  1 === $this->db->user->count(['mail' => $mail]);
     }
 
     /**

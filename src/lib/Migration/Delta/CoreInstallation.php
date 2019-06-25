@@ -50,6 +50,7 @@ class CoreInstallation implements DeltaInterface
         }
 
         $this->db->user->createIndex(['username' => 1], ['unique' => true]);
+        $this->db->user->createIndex(['mail' => 1], ['unique' => true]);
         $this->db->group->createIndex(['member' => 1]);
 
         $this->db->selectCollection('fs.files')->createIndex(['md5' => 1], [

@@ -8,22 +8,24 @@ MongoDB\Database:
       select: true
       arguments:
         databaseName: '{ENV(BALLOON_MONGODB_DATABASE,balloon)}'
-Balloon\Bootstrap\Cli:
-  calls:
-    Balloon.App.Cli: {method: inject, arguments:{object: '{Balloon\App\Cli\Constructor\Cli}'}}
-Balloon\Bootstrap\AbstractBootstrap:
-  calls:
-    Balloon.App.Api: {method: inject, arguments:{object: '{Balloon\App\Api\Constructor\Http}'}}
-    Balloon.App.Burl: {method: inject, arguments:{object: '{Balloon\App\Burl\Constructor\Http}'}}
-    Balloon.App.Webdav: {method: inject, arguments:{object: '{Balloon\App\Webdav\Constructor\Http}'}}
-    Balloon.App.Sharelink: {method: inject, arguments:{object: '{Balloon\App\Sharelink\Constructor\Http}'}}
-    Balloon.App.Convert: {method: inject, arguments:{object: '{Balloon\App\Convert\Constructor\Http}'}}
-    Balloon.App.DesktopClient: {method: inject, arguments:{object: '{Balloon\App\DesktopClient\Constructor\Http}'}}
-    Balloon.App.Preview: {method: inject, arguments:{object: '{Balloon\App\Preview\Constructor\Http}'}}
-    Balloon.App.ClamAv: {method: inject, arguments:{object: '{Balloon\App\ClamAv\Constructor\Http}'}}
-    Balloon.App.Elasticsearch: {method: inject, arguments:{object: '{Balloon\App\Elasticsearch\Constructor\Http}'}}
-    Balloon.App.Notification: {method: inject, arguments:{object: '{Balloon\App\Notification\Constructor\Http}'}}
-    Balloon.App.Office: {method: inject, arguments:{object: '{Balloon\App\Office\Constructor\Http}'}}
+Apps:
+  Balloon.App.Api: {enabled: true}
+  Balloon.App.Recaptcha: {enabled: false}
+  Balloon.App.Burl: {enabled: true}
+  Balloon.App.Cli: {enabled: true}
+  Balloon.App.Webauthn: {enabled: true}
+  Balloon.App.Idp: {enabled: true}
+  Balloon.App.ClamAv: {enabled: true}
+  Balloon.App.Elasticsearch: {enabled: true}
+  Balloon.App.Notification: {enabled: true}
+  Balloon.App.DesktopClient: {enabled: true}
+  Balloon.App.Office: {enabled: true}
+  Balloon.App.Wopi: {enabled: true}
+  Balloon.App.Webdav: {enabled: true}
+  Balloon.App.Markdown: {enabled: true}
+  Balloon.App.Sharelink: {enabled: true}
+  Balloon.App.Preview: {enabled: true}
+  Balloon.App.Convert: {enabled: true}
 Balloon\Server:
   arguments:
     config:
@@ -38,6 +40,26 @@ Balloon\App\ClamAv\Scanner:
       max_stream_size: 26214400
       aggressiveness: 2
       timeout: 30
+ReCaptcha\ReCaptcha:
+  arguments:
+    secret: '{ENV(BALLOON_RECAPTCHA_SECRET)}'
+Balloon\App\Recaptcha\Hook\Recaptcha:
+  arguments:
+    config:
+      recaptcha_threshold: 30
+      hostname: null
+Balloon\App\Wopi\HostManager:
+  arguments:
+    config:
+      hosts:
+      - name: LibreOffice Online
+        url: '{ENV(BALLOON_LIBREOFFICE_URL,https://libreoffice:9980)}/hosting/discovery'
+      client_url: '{ENV(BALLOON_URL,https://localhost)}'
+      cache_ttl: 86400
+      validate_proof: true
+Balloon\App\Wopi\SessionManager:
+  arguments:
+    access_token_ttl: 1800
 Balloon\App\Notification\Notifier:
   calls:
     Balloon\App\Notification\Adapter\Db:
@@ -74,12 +96,6 @@ Balloon\App\Elasticsearch\Migration\Delta\Installation:
   arguments:
     config:
       #index_configuration: "/path/to/index.json"
-Balloon\App\Office\Constructor\Http:
-  arguments:
-    config:
-      loleaflet: "{ENV(BALLOON_OFFICE_URI,https://localhost:9980/loleaflet)}/dist/loleaflet.html"
-      wopi_url: "{ENV(BALLOON_WOPI_URL,https://localhost)}"
-      token_ttl: 3600
 Balloon\App\DesktopClient\Constructor\Http:
   arguments:
     config:
@@ -99,6 +115,12 @@ TaskScheduler\WorkerManager:
       pm: dynamic
       max_children: 4
       min_children: 2
+GuzzleHttp\ClientInterface:
+  arguments:
+    config:
+      connect_timeout: 3
+      timeout: 10
+      verify: false
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:
@@ -128,6 +150,10 @@ Balloon\Hook:
       method: injectHook
       arguments:
         hook: '{Balloon\Hook\CleanTempStorage}'
+    Balloon\App\Api\Hook\Lock:
+      method: injectHook
+      arguments:
+        hook: '{Balloon\App\Api\Hook\Lock}'
   services:
     Balloon\Hook\Delta:
     Balloon\Hook\AutoCreateUser:
@@ -185,11 +211,11 @@ Balloon\Converter:
     Balloon\Converter\Adapter\ImagickImage:
       arguments:
         config:
-          preview_max_size: 1000
+          preview_max_size: 2000
     Balloon\App\Office\Converter\Adapter\Office:
       arguments:
         config:
-          preview_max_size: 1000
+          preview_max_size: 2000
       services:
         GuzzleHttp\ClientInterface:
           arguments:
@@ -201,7 +227,7 @@ Balloon\Converter:
     Balloon\App\Burl\Converter\Adapter\Burl:
       arguments:
         config:
-          preview_max_size: 1000
+          preview_max_size: 2000
       services:
         GuzzleHttp\ClientInterface:
           arguments:
@@ -227,8 +253,8 @@ Psr\Log\LoggerInterface:
     Monolog\Formatter\FormatterInterface:
       use: Monolog\Formatter\LineFormatter
       arguments:
-        dateFormat: "Y-d-m H:i:s"
-        format: "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
+        dateFormat: "Y-m-d H:i:s"
+        format: "%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n"
       calls:
         - method: includeStacktraces
     stderr:

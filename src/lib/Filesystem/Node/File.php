@@ -364,6 +364,7 @@ class File extends AbstractNode implements IFile
             'version' => $this->version,
             'parent' => $this->parent,
             'acl' => $this->acl,
+            'lock' => $this->lock,
             'app' => $this->app,
             'meta' => $this->meta,
             'mime' => $this->mime,
@@ -407,7 +408,7 @@ class File extends AbstractNode implements IFile
      */
     public function getETag(): string
     {
-        return "'".$this->hash."'";
+        return '"'.$this->hash.'"';
     }
 
     /**

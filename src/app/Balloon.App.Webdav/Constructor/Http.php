@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Webdav\Constructor;
 
+use Balloon\App\Webdav\LockBackend;
 use Balloon\Server;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
@@ -40,20 +41,18 @@ class Http
     public function start(): bool
     {
         $root = $this->server->getFilesystem()->getRoot();
-
         $server = new DAV\Server($root);
         $server->setBaseUri('/webdav/');
 
-        $lockBackend = new DAV\Locks\Backend\File('/tmp/locks');
-        $lockPlugin = new DAV\Locks\Plugin($lockBackend);
-        $server->addPlugin($lockPlugin);
-
-        $plugin = new DAV\Browser\Plugin();
+        $plugin = new DAV\Locks\Plugin(new LockBackend($this->server));
         $server->addPlugin($plugin);
 
-        $authBackend = new DAV\Auth\Backend\Apache();
-        $authPlugin = new DAV\Auth\Plugin($authBackend);
-        $server->addPlugin($authPlugin);
+        $lock = new DAV\Browser\Plugin();
+        $server->addPlugin($lock);
+
+        $backend = new DAV\Auth\Backend\Apache();
+        $auth = new DAV\Auth\Plugin($backend);
+        $server->addPlugin($auth);
 
         $server->exec();
 

@@ -36,7 +36,6 @@ class Collections extends Nodes
         ?bool $recursive = false
     ): Response {
         $children = [];
-
         $node = $this->fs->getNode($id, Collection::class, false, true);
         if ($node->isRoot()) {
             $uri = '/api/v2/collections/children';
@@ -53,6 +52,7 @@ class Collections extends Nodes
                 'array' => 'array',
             ]);
         }
+        $this->logger->debug(json_encode($query));
 
         $nodes = $this->fs->getNode($id, Collection::class, false, true)->getChildNodes($deleted, $query, $offset, $limit, $recursive);
         $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);

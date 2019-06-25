@@ -30,6 +30,10 @@ use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterfa
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\HiddenString;
+use Cache\Adapter\Apcu\ApcuCachePool;
+use Psr\SimpleCache\CacheInterface;
+use Psr\Http\Client\ClientInterface;
+use Mjelamanov\GuzzlePsr18\Client as GuzzleAdapter;
 
 return [
     Client::class => [
@@ -43,6 +47,12 @@ return [
                 ]
             ]
         ],
+    ],
+    ClientInterface::class => [
+        'use' => GuzzleAdapter::class
+    ],
+    CacheInterface::class => [
+        'use' => ApcuCachePool::class
     ],
     NodeFactory::class => [
         'services' => [
@@ -111,8 +121,8 @@ return [
             'Monolog\Formatter\FormatterInterface' => [
                 'use' => 'Monolog\Formatter\LineFormatter',
                 'arguments' => [
-                    'dateFormat' => 'Y-d-m H:i:s',
-                    'format' => "%datetime% [%context.category%,%level_name%]: %message% %context.params% %context.exception%\n"
+                    'dateFormat' => 'Y-m-d H:i:s',
+                    'format' => "%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n"
                 ],
                 'calls' => [
                     ['method' => 'includeStacktraces']
@@ -188,6 +198,10 @@ return [
     ],
     Migration::class => [
         'calls' => [
+            Delta\CreateUniqueUserMailIndex::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\CreateUniqueUserMailIndex::class.'}']
+            ],
             Delta\LdapGroupsToLocalGroups::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\LdapGroupsToLocalGroups::class.'}']

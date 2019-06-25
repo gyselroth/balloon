@@ -18,14 +18,13 @@
 * Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
 * Comes with cloud native support and deploy ready kubernetes resources
 * Deployable out of the box for debian (deb), tar archive, docker images, kubernetes and more
-* User quotas
 * App system for 3rd party apps
 * The core is shipped with various core apps pre-installed
 * File previews for various formats (including office documents, pdf, text, images, markdown, html and more)
 * Notification system (including mail notifications)
 * Full text search using [Elasticsearch](https://github.com/elastic/elasticsearch)
 * Malware scanning using [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
-* WOPI support for libre office online and Office 365 (ongoing)
+* Full WOPI support for libre office online and Microsoft office online
 * Automatically convert files (shadow nodes) to other file formats (for example keep an automatic pdf file for a word file)
 * Automatically destroy files/folders at a certain time
 * Mount external storage (Currently only SMB/CIFS is supported since v2.1.0)
@@ -37,6 +36,7 @@
 * Multiple types of authentication, basic auth (MongoDB), basic auth LDAP, OpenID-Connect
 * Integrated OpenID-connect server and also supports OpenID-connect for any external OpenID-Connect providers (including google, microsoft, github and more)
 * REST API (OpenAPI v3 specs)
+* User quotas
 * [Official Web UI](https://github.com/gyselroth/balloon-client-web)
 * [Official Desktop client](https://github.com/gyselroth/balloon-client-desktop) for Windows, Linux and OS X
 * Rich eco system (including various sdk's)

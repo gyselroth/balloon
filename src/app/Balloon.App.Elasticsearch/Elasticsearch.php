@@ -65,7 +65,6 @@ class Elasticsearch
      */
     public function search(array $query, int $deleted = NodeInterface::DELETED_INCLUDE, ?int $skip = null, ?int $limit = null, ?int &$total = null): Generator
     {
-        unset($query['body']['query']['bool']['must']);
         $result = $this->executeQuery($query, $skip, $limit);
 
         $this->logger->debug('elasticsearch query executed with ['.$result['hits']['total'].'] hits', [
@@ -105,9 +104,6 @@ class Elasticsearch
 
     /**
      * Search.
-     *
-     * @param int $skip
-     * @param int $limit
      */
     protected function executeQuery(array $query, ?int $skip = null, ?int $limit = null): array
     {

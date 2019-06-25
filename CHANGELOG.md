@@ -1,3 +1,40 @@
+## 2.6.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Jun 25 08:15:43 CEST 2019
+
+* API: [CHANGE] Added token endpoint to openapi/swagger specs
+* CORE: [FIX] Fatal error: Allowed memory size of 134217728 bytes exhausted bug #349
+
+
+## 2.6.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Jun 14 16:19:43 CEST 2019
+
+* CORE: [CHANGE] Do not send WWW-Authenticate header if Basic was not requested via Authorization header #342
+* CORE: [CHANGE] Merge v2.5.x releases (v2.5.3 - v2.5.6)
+* API: [CHANGE] added v1 prefix to all openapi resources
+* API: [CHANGE] removed deprecated wopi endopoints from openapi schema
+* CORE: [CHANGE] Incresed device creation challenge timeout from 20s to 60s #307
+* API: [FEATURE] Add has_password flag to users #347
+
+
+## 2.6.0-beta1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Jun 05 14:50:43 CEST 2019
+
+* CORE: [FEATURE] Introduce node locks #320
+* API: [FEATURE]  Implement propper WOPI support Balloon.App.Wopi #154
+* API: [CHANGE] Dropped WOPI support for api v1 #154
+* CORE: [FIX] error_log now prints container fatal error after http response has been sent
+* CORE: [FEATURE] Implement new security app which can lock ip addrs, prevent brute forcing, ... #12
+* CORE: [FEATURE] Support for webauthn #307
+* API: [FEATURE] Add flag has_preview to node resource #333
+* API: [FEATURE] Add query to all get api endpoints #315
+* CORE: [CHANGE] Users mail address must be unique #262
+* CORE: [CHANGE] Better disable/enable of apps #336
+* API: [FEATURE] ETag for GET `api/v2/files/content/` #339
+
+
 ## 2.5.6
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Jun 13 11:43:31 CEST 2019

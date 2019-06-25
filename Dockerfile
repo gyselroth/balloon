@@ -14,6 +14,7 @@ RUN apk update && apk add --no-cache \
   autoconf \
   libzip \
   icu-libs \
+  gmp-dev \
   libstdc++ \
   g++ \
   git \
@@ -25,7 +26,7 @@ RUN apk update && apk add --no-cache \
   libjpeg-turbo-dev \
   imagemagick \
   imagemagick-dev \
-  && docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg \
+  && docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg gmp \
   && pecl install mongodb \
   && pecl install apcu \
   && pecl install imagick \

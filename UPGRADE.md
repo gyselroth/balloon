@@ -1,3 +1,13 @@
+## 2.x -> 2.6.x
+
+### Upgrade
+
+Upgrading to v2.6 requires an execution of: 
+```
+ballooncli upgrade -vvvv
+```
+
+
 ## 2.x -> 2.5.x
 
 ### Elasticsearch

@@ -51,6 +51,13 @@ interface HookInterface
     public function preAuthentication(Auth $auth): void;
 
     /**
+     * Run: postAuthentication.
+     *
+     * Executed post authentication
+     */
+    public function postAuthentication(Auth $auth, ?Identity $identity): void;
+
+    /**
      * Run: preServerIdentity.
      *
      * Executed after authentication but before the identity gets authenticated with the server

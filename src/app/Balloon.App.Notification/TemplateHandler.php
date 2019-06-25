@@ -148,13 +148,7 @@ class TemplateHandler
 
         $path = $this->asset_dir.DIRECTORY_SEPARATOR.'locales'.DIRECTORY_SEPARATOR.$locale.'.json';
         if (is_readable($path)) {
-            $i18n = json_decode(file_get_contents($path));
-
-            if (json_last_error() !== 0) {
-                throw new Exception\TemplateInvalidLocale('locale '.$locale.' is invalid json');
-            }
-
-            return $this->locales[$locale] = json_decode(file_get_contents($path), true);
+            return $this->locales[$locale] = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
         }
 
         return null;

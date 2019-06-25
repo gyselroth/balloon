@@ -67,8 +67,6 @@ class Http extends AbstractBootstrap
 
     /**
      * Process.
-     *
-     * @return Http
      */
     public function process()
     {
@@ -79,7 +77,10 @@ class Http extends AbstractBootstrap
         $this->hook->run('preAuthentication', [$this->auth]);
 
         if ($this->auth->requireOne()) {
-            if (!($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
+            $this->hook->run('postAuthentication', [$this->auth, $this->auth->getIdentity()]);
+
+            if (
+                !($this->auth->getIdentity()->getAdapter() instanceof AuthNone)) {
                 $this->auth->getIdentity()->getAttributeMap()->addMapper('binary', function ($value) {
                     return new Binary($value, Binary::TYPE_GENERIC);
                 });
@@ -100,6 +101,8 @@ class Http extends AbstractBootstrap
      */
     protected function invalidAuthentication(): void
     {
+        $this->hook->run('postAuthentication', [$this->auth, null]);
+
         if (isset($_SERVER['PHP_AUTH_USER']) && '_logout' === $_SERVER['PHP_AUTH_USER']) {
             (new Response())
                 ->setCode(401)
@@ -115,21 +118,23 @@ class Http extends AbstractBootstrap
                 $code = 401;
             }
 
-            (new Response())
-                ->setHeader('WWW-Authenticate', 'Basic realm="balloon"')
+            $response = (new Response())
                 ->setCode($code)
                 ->setBody([
                     'error' => 'Unauthorized',
                     'message' => 'authentication failed',
-                ])
-                ->send();
+                ]);
+
+            if (!isset($_SERVER['HTTP_AUTHORIZATION']) || substr($_SERVER['HTTP_AUTHORIZATION'], 0, 5) === 'Basic') {
+                $response->setHeader('WWW-Authenticate', 'Basic realm="balloon"');
+            }
+
+            $response->send();
         }
     }
 
     /**
      * Set exception handler.
-     *
-     * @return Http
      */
     protected function setExceptionHandler(): self
     {

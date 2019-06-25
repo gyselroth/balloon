@@ -36,6 +36,9 @@ return [
             ]
         ],
         'services' => [
+            UserCredentialsInterface::class => [
+                'use' => DbStorage::class,
+            ],
             RefreshTokenInterface::class => [
                 'use' => DbStorage::class,
             ],
@@ -80,9 +83,9 @@ return [
     ],
     Auth::class => [
         'calls' => [
-            'token' => [
+            Token::class => [
                 'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Token::class.'}', 'name' => 'token']
+                'arguments' => ['adapter' => '{'.Token::class.'}']
             ],
         ],
     ],

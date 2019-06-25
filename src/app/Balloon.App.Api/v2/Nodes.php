@@ -124,7 +124,8 @@ class Nodes extends Controller
     public function getContent(
         $id = null,
         bool $download = false,
-        string $name = 'selected'
+        string $name = 'selected',
+        ?string $encoding = null
     ): ?Response {
         if (is_array($id)) {
             return $this->combine($id, $name);
@@ -149,15 +150,7 @@ class Nodes extends Controller
     public function get($id = null, int $deleted = 0, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if ($id === null) {
-            if ($query === null) {
-                $query = [];
-            } elseif (is_string($query)) {
-                $query = toPHP(fromJSON($query), [
-                    'root' => 'array',
-                    'document' => 'array',
-                    'array' => 'array',
-                ]);
-            }
+            $query = $this->parseQuery($query);
 
             if ($this instanceof ApiFile) {
                 $query['directory'] = false;
@@ -206,13 +199,17 @@ class Nodes extends Controller
 
     /**
      * Change attributes.
+     *
+     * @param null|mixed $lock
      */
-    public function patch(string $id, ?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null): Response
+    public function patch(string $id, ?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null, $lock = null): Response
     {
-        $attributes = compact('name', 'meta', 'readonly', 'filter', 'acl');
+        $attributes = compact('name', 'meta', 'readonly', 'filter', 'acl', 'lock');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
-        return $this->bulk($id, function ($node) use ($attributes) {
+        $lock = $_SERVER['HTTP_LOCK_TOKEN'] ?? null;
+
+        return $this->bulk($id, function ($node) use ($attributes, $lock) {
             foreach ($attributes as $attribute => $value) {
                 switch ($attribute) {
                     case 'name':
@@ -235,6 +232,14 @@ class Nodes extends Controller
                     break;
                     case 'acl':
                         $node->setAcl($value);
+
+                    break;
+                    case 'lock':
+                        if ($value === false) {
+                            $node->unlock($lock);
+                        } else {
+                            $node->lock($lock);
+                        }
 
                     break;
                 }
@@ -334,11 +339,23 @@ class Nodes extends Controller
 
     /**
      * Get trash.
+     *
+     * @param null|mixed $query
      */
-    public function getTrash(array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function getTrash($query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         $children = [];
-        $nodes = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_ONLY, ['deleted' => ['$type' => 9]], $offset, $limit);
+        $query = $this->parseQuery($query);
+        $filter = ['deleted' => ['$type' => 9]];
+
+        if (!empty($query)) {
+            $filter = [
+                $filter,
+                $query,
+            ];
+        }
+
+        $nodes = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_ONLY, $filter, $offset, $limit);
 
         foreach ($nodes as $node) {
             try {
@@ -399,8 +416,10 @@ class Nodes extends Controller
 
     /**
      * Event log.
+     *
+     * @param null|mixed $query
      */
-    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
+    public function getEventLog(EventAttributeDecorator $event_decorator, ?string $id = null, $query = null, ?string $sort = null, ?array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
         if (null !== $id) {
             $node = $this->_getNode($id);
@@ -410,7 +429,8 @@ class Nodes extends Controller
             $uri = '/api/v2/nodes/event-log';
         }
 
-        $result = $this->fs->getDelta()->getEventLog($limit, $offset, $node, $total);
+        $query = $this->parseQuery($query);
+        $result = $this->fs->getDelta()->getEventLog($query, $limit, $offset, $node, $total);
         $pager = new Pager($event_decorator, $result, $attributes, $offset, $limit, $uri, $total);
 
         return (new Response())->setCode(200)->setBody($pager->paging());
@@ -433,6 +453,24 @@ class Nodes extends Controller
     }
 
     /**
+     * Parse query.
+     */
+    protected function parseQuery($query): array
+    {
+        if ($query === null) {
+            $query = [];
+        } elseif (is_string($query)) {
+            $query = toPHP(fromJSON($query), [
+                'root' => 'array',
+                'document' => 'array',
+                'array' => 'array',
+            ]);
+        }
+
+        return (array) $query;
+    }
+
+    /**
      * Merge multiple nodes into one zip archive.
      *
      * @param null|mixed $id
@@ -444,7 +482,6 @@ class Nodes extends Controller
         foreach ($this->_getNodes($id) as $node) {
             try {
                 $node->zip($archive);
-                //json_decode($stored, true),
             } catch (\Exception $e) {
                 $this->logger->debug('failed zip node in multi node request ['.$node->getId().']', [
                    'category' => get_class($this),
@@ -468,6 +505,7 @@ class Nodes extends Controller
             'meta',
             'readonly',
             'acl',
+            'lock',
         ];
 
         if ($this instanceof ApiCollection) {
@@ -476,11 +514,11 @@ class Nodes extends Controller
 
         $check = array_merge(array_flip($valid_attributes), $attributes);
 
-        if ($this instanceof ApiCollection && count($check) > 8) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, filter, mount, readonly and/or meta attributes may be overwritten');
+        if ($this instanceof ApiCollection && count($check) > 9) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, lock, filter, mount, readonly and/or meta attributes may be overwritten');
         }
-        if ($this instanceof ApiFile && count($check) > 6) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, readonly and/or meta attributes may be overwritten');
+        if ($this instanceof ApiFile && count($check) > 7) {
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, lock, readonly and/or meta attributes may be overwritten');
         }
 
         foreach ($attributes as $attribute => $value) {

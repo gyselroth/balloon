@@ -105,6 +105,7 @@ class Db extends OAuthMongoDB
                             );
                         }
 
+                        $this->hook->run('postAuthentication', [$this->auth, $identity]);
                         $this->adapter = $name;
 
                         return true;
@@ -119,6 +120,8 @@ class Db extends OAuthMongoDB
                 }
             }
         }
+
+        $this->hook->run('postAuthentication', [$this->auth, null]);
 
         return false;
     }

@@ -16,6 +16,7 @@ use Balloon\Filesystem;
 use Balloon\Server;
 use GetOpt\GetOpt;
 use InvalidArgumentException;
+use MongoDB\Database;
 use MongoDB\Driver\Exception\ServerException;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Scheduler;
@@ -51,6 +52,13 @@ class Elasticsearch
     protected $fs;
 
     /**
+     * Database.
+     *
+     * @var Database
+     */
+    protected $db;
+
+    /**
      * Bulk.
      *
      * @var int
@@ -60,11 +68,12 @@ class Elasticsearch
     /**
      * Constructor.
      */
-    public function __construct(GetOpt $getopt, Server $server, Scheduler $scheduler, LoggerInterface $logger, array $config = [])
+    public function __construct(GetOpt $getopt, Server $server, Database $db, Scheduler $scheduler, LoggerInterface $logger, array $config = [])
     {
         $this->logger = $logger;
         $this->getopt = $getopt;
         $this->fs = $server->getFilesystem();
+        $this->db = $db;
         $this->scheduler = $scheduler;
         $this->setOptions($config);
     }
@@ -165,9 +174,9 @@ class Elasticsearch
     {
         $stack = [];
 
-        foreach ($this->fs->findNodesByFilter([], $done) as $node) {
+        foreach ($this->db->storage->find([], ['skip' => $done]) as $node) {
             $stack[] = $this->scheduler->addJob(Job::class, [
-                'id' => $node->getId(),
+                'id' => $node['_id'],
                 'action' => Job::ACTION_CREATE,
             ]);
 

@@ -89,20 +89,25 @@ class Converter
 
     /**
      * Get slaves.
-     *
-     * @param int $offset
-     * @param int $limit
-     * @param int $total
      */
-    public function getSlaves(File $node, ?int $offset = null, ?int $limit = null, ?int &$total = null): iterable
+    public function getSlaves(File $node, array $query = [], ?int $offset = null, ?int $limit = null, ?int &$total = null): iterable
     {
-        $total = $this->db->{$this->collection_name}->count([
+        $filter = [
             'master' => $node->getId(),
-        ]);
+        ];
 
-        return $this->db->{$this->collection_name}->find([
-            'master' => $node->getId(),
-        ], [
+        if (!empty($query)) {
+            $filter = [
+                '$and' => [
+                    $filter,
+                    $query,
+                ],
+            ];
+        }
+
+        $total = $this->db->{$this->collection_name}->count($filter);
+
+        return $this->db->{$this->collection_name}->find($filter, [
             'skip' => $offset,
             'limit' => $limit,
         ]);

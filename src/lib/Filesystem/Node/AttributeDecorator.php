@@ -145,6 +145,31 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
                 return null;
             },
+            'lock' => function ($node) use ($server, $decorator, $attributes) {
+                if (!$node->isLocked()) {
+                    return null;
+                }
+
+                $lock = $attributes['lock'];
+
+                try {
+                    $user = $decorator->decorate(
+                        $server->getUserById($lock['owner']),
+                        ['id', 'name', '_links']
+                    );
+                } catch (\Exception $e) {
+                    $user = null;
+                }
+
+                $lock = $attributes['lock'];
+
+                return [
+                    'owner' => $user,
+                    'created' => $lock['created']->toDateTime()->format('c'),
+                    'expire' => $lock['expire']->toDateTime()->format('c'),
+                    'id' => $lock['id'],
+                ];
+            },
             'share' => function ($node) use ($fs) {
                 if ($node->isShared() || !$node->isSpecial()) {
                     return null;
@@ -248,7 +273,7 @@ class AttributeDecorator implements AttributeDecoratorInterface
                     return null;
                 }
 
-                return json_decode($attributes['filter'], true);
+                return json_decode($attributes['filter'], true, 512, JSON_THROW_ON_ERROR);
             },
             'mount' => function ($node) use ($fs, $attributes) {
                 $mount = $node->getAttributes()['mount'];

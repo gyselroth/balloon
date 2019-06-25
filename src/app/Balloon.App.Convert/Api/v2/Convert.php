@@ -18,7 +18,9 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Micro\Http\Response;
+use function MongoDB\BSON\fromJSON;
 use MongoDB\BSON\ObjectId;
+use function MongoDB\BSON\toPHP;
 
 class Convert
 {
@@ -66,11 +68,13 @@ class Convert
 
     /**
      * Get slaves.
+     *
+     * @param null|mixed $query
      */
-    public function getSlaves(string $id, array $attributes = [], ?int $offset = 0, ?int $limit = 20): Response
+    public function getSlaves(string $id, $query = null, array $attributes = [], ?int $offset = 0, ?int $limit = 20): Response
     {
         $file = $this->fs->getNode($id, File::class);
-        $result = $this->converter->getSlaves($file, $offset, $limit, $total);
+        $result = $this->converter->getSlaves($file, $this->parseQuery($query), $offset, $limit, $total);
         $uri = '/api/v2/files/'.$file->getId().'/convert/slaves';
         $pager = new Pager($this->convert_decorator, $result, $attributes, $offset, $limit, $uri, $total);
         $result = $pager->paging();
@@ -98,5 +102,23 @@ class Convert
         $this->converter->deleteSlave($slave, $node);
 
         return (new Response())->setCode(204);
+    }
+
+    /**
+     * Parse query.
+     */
+    protected function parseQuery($query): array
+    {
+        if ($query === null) {
+            $query = [];
+        } elseif (is_string($query)) {
+            $query = toPHP(fromJSON($query), [
+                'root' => 'array',
+                'document' => 'array',
+                'array' => 'array',
+            ]);
+        }
+
+        return (array) $query;
     }
 }

@@ -11,6 +11,7 @@ RUN apk update && apk add --no-cache \
   icu-dev \
   samba-dev \
   samba-client \
+  gmp-dev \
   autoconf \
   libzip \
   icu-libs \
@@ -25,7 +26,7 @@ RUN apk update && apk add --no-cache \
   imagemagick \
   imagemagick-dev
 
-RUN docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg
+RUN docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg gmp
 
 RUN pecl install mongodb \
     && pecl install apcu \

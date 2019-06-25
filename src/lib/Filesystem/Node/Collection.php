@@ -192,6 +192,7 @@ class Collection extends AbstractNode implements IQuota
             'shared' => $this->shared,
             'share_name' => $this->share_name,
             'acl' => $this->acl,
+            'lock' => $this->lock,
             'directory' => true,
             'reference' => $this->reference,
             'parent' => $this->parent,
@@ -216,7 +217,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function setFilter(?array $filter = null): bool
     {
-        $this->filter = json_encode($filter);
+        $this->filter = json_encode($filter, JSON_THROW_ON_ERROR);
 
         return $this->save('filter');
     }
@@ -575,6 +576,10 @@ class Collection extends AbstractNode implements IQuota
         $name = $this->validateInsert($name, $conflict, Collection::class);
         $id = new ObjectId();
 
+        if (isset($attributes['lock'])) {
+            $attributes['lock'] = $this->prepareLock($attributes['lock']);
+        }
+
         try {
             $meta = [
                 '_id' => $id,
@@ -642,6 +647,10 @@ class Collection extends AbstractNode implements IQuota
         $this->_hook->run('preCreateFile', [$this, &$name, &$attributes, &$clone]);
         $name = $this->validateInsert($name, $conflict, File::class);
         $id = new ObjectId();
+
+        if (isset($attributes['lock'])) {
+            $attributes['lock'] = $this->prepareLock($attributes['lock']);
+        }
 
         try {
             $meta = [
@@ -751,12 +760,26 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Validate insert.
      */
-    protected function validateInsert(string $name, int $conflict = NodeInterface::CONFLICT_NOACTION, string $type = Collection::class): string
+    public function validateInsert(string $name, int $conflict = NodeInterface::CONFLICT_NOACTION, string $type = Collection::class): string
     {
         if ($this->readonly) {
             throw new Exception\Conflict(
                 'node is set as readonly, it is not possible to add new sub nodes',
                 Exception\Conflict::READONLY
+            );
+        }
+
+        if ($this->isFiltered()) {
+            throw new Exception\Conflict(
+                'could not add node '.$name.' into a filtered parent collection',
+                Exception\Conflict::DYNAMIC_PARENT
+            );
+        }
+
+        if ($this->isDeleted()) {
+            throw new Exception\Conflict(
+                'could not add node '.$name.' into a deleted parent collection',
+                Exception\Conflict::DELETED_PARENT
             );
         }
 
@@ -772,20 +795,6 @@ class Collection extends AbstractNode implements IQuota
             if (NodeInterface::CONFLICT_RENAME === $conflict) {
                 $name = $this->getDuplicateName($name, $type);
             }
-        }
-
-        if ($this->isFiltered()) {
-            throw new Exception\Conflict(
-                'could not add node '.$name.' into a filtered parent collection',
-                Exception\Conflict::DYNAMIC_PARENT
-            );
-        }
-
-        if ($this->isDeleted()) {
-            throw new Exception\Conflict(
-                'could not add node '.$name.' into a deleted parent collection',
-                Exception\Conflict::DELETED_PARENT
-            );
         }
 
         return $name;
@@ -838,9 +847,8 @@ class Collection extends AbstractNode implements IQuota
      */
     protected function getChildrenFilter(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
     {
-        $search = [
-            'parent' => $this->getRealId(),
-        ];
+        $search = $filter;
+        $search['parent'] = $this->getRealId();
 
         if (NodeInterface::DELETED_EXCLUDE === $deleted) {
             $search['deleted'] = false;

@@ -22,7 +22,7 @@ paths:
         200:
           description: "API root"
           schema:
-            $ref: '#/definitions/ApiRoot'
+            $ref: '#/definitions/core.v2.ApiRoot'
   /api/v2:
     get:
       tags:
@@ -35,7 +35,18 @@ paths:
         200:
           description: "API root"
           schema:
-            $ref: '#/definitions/ApiRoot'
+            $ref: '#/definitions/core.v2.ApiRoot'
+  /api/v2/tokens:
+    post:
+      tags:
+        - core.v2
+      summary: OAUTH2/OIDC token endpoint
+      operationId: createToken
+      responses:
+        "200":
+          description: Oauth2 token
+          schema:
+            $ref: "#/definitions/core.v2.OAuth2Token"
   '/api/v2/groups':
     get:
       tags:
@@ -85,7 +96,7 @@ paths:
         200:
           description: "List of groups"
           schema:
-            $ref: "#/definitions/Groups"
+            $ref: "#/definitions/core.v2.Groups"
     post:
       tags:
         - core.v2
@@ -97,12 +108,12 @@ paths:
       - in: body
         name: data
         schema:
-          $ref: "#/definitions/Group"
+          $ref: "#/definitions/core.v2.Group"
       responses:
         201:
           description: "If successful the server will respond with 201 Created"
           schema:
-            $ref: "#/definitions/Group"
+            $ref: "#/definitions/core.v2.Group"
         403:
           description: "Access denied"
   '/api/v2/groups/{group}':
@@ -130,7 +141,7 @@ paths:
         200:
           description: "Group"
           schema:
-            $ref: "#/definitions/Group"
+            $ref: "#/definitions/core.v2.Group"
         404:
           description: "Resource does not exists"
         403:
@@ -155,12 +166,12 @@ paths:
           description: 'Set attributes for group'
           required: true
           schema:
-            $ref: "#/definitions/Group"
+            $ref: "#/definitions/core.v2.Group"
       responses:
         200:
           description: "Group"
           schema:
-            $ref: "#/definitions/Group"
+            $ref: "#/definitions/core.v2.Group"
         404:
           description: "Resource does not exists"
         403:
@@ -210,7 +221,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/User'
+              $ref: '#/definitions/core.v2.User'
         404:
           description: "Resource does not exists"
         403:
@@ -233,7 +244,7 @@ paths:
         200:
           description: "Group"
           schema:
-            $ref: "#/definitions/Group"
+            $ref: "#/definitions/core.v2.Group"
         404:
           description: "Resource does not exists"
         403:
@@ -287,7 +298,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Users'
+              $ref: '#/definitions/core.v2.Users'
         404:
           description: "Resource does not exists"
         403:
@@ -303,12 +314,12 @@ paths:
       - in: body
         name: data
         schema:
-          $ref: "#/definitions/User"
+          $ref: "#/definitions/core.v2.User"
       responses:
         201:
           description: "If successful the server will respond with 201 Created"
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/core.v2.User"
         403:
           description: "Access denied"
   '/api/v2/users/{user}':
@@ -336,7 +347,7 @@ paths:
         200:
           description: "User"
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/core.v2.User"
         404:
           description: "Resource does not exists"
         403:
@@ -361,12 +372,12 @@ paths:
           description: 'Set attributes for user'
           required: true
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/core.v2.User"
       responses:
         200:
           description: "User"
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/core.v2.User"
         404:
           description: "Resource does not exists"
         403:
@@ -414,7 +425,7 @@ paths:
         200:
           description: "User"
           schema:
-            $ref: "#/definitions/UserNodeAttributeSummary"
+            $ref: "#/definitions/core.v2.UserNodeAttributeSummary"
         404:
           description: "Resource does not exists"
         403:
@@ -470,7 +481,7 @@ paths:
         200:
           description: "Groups"
           schema:
-            $ref: "#/definitions/Groups"
+            $ref: "#/definitions/core.v2.Groups"
         404:
           description: "Resource does not exists"
         403:
@@ -493,7 +504,7 @@ paths:
         200:
           description: "User"
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/core.v2.User"
         404:
           description: "Resource does not exists"
         403:
@@ -518,7 +529,7 @@ paths:
         200:
           description: "User"
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/core.v2.User"
   '/api/v2/users/{user}/avatar':
     get:
       tags:
@@ -537,7 +548,7 @@ paths:
         200:
           description: "Binaray user avatar"
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/core.v2.User"
         404:
           description: "Resource does not exists"
         403:
@@ -588,7 +599,7 @@ paths:
         200:
          description: Nodes
          schema:
-           $ref: '#/definitions/Nodes'
+           $ref: '#/definitions/core.v2.Nodes'
   /api/v2/nodes/search:
     get:
       tags:
@@ -612,11 +623,11 @@ paths:
         200:
          description: Nodes
          schema:
-           $ref: '#/definitions/Nodes'
+           $ref: '#/definitions/core.v2.Nodes'
   /api/v2/notifications:
     get:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: 'Get my nofitifications'
       operationId: getMyNotifications
       produces:
@@ -659,10 +670,10 @@ paths:
         200:
           description: "List of notifications"
           schema:
-            $ref: "#/definitions/Balloon.App.Notfification.Notifications"
+            $ref: "#/definitions/notification.v2.Notifications"
     post:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: 'Send notification'
       operationId: postNotification
       consumes:
@@ -673,16 +684,16 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/Balloon.App.Notfification.Notification'
+            $ref: '#/definitions/notification.v2.Notification'
       responses:
         202:
           description: "Notification"
           schema:
-            $ref: "#/definitions/Balloon.App.Notfification.Notification"
+            $ref: "#/definitions/notification.v2.Notification"
   /api/v2/notifications/{notification}:
     get:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: 'Get a single notification'
       operationId: getNotification
       produces:
@@ -697,14 +708,14 @@ paths:
         200:
           description: "Notification"
           schema:
-            $ref: "#/definitions/Balloon.App.Notfification.Notification"
+            $ref: "#/definitions/notification.v2.Notification"
         404:
           description: "Resource does not exists"
         403:
           description: "Access denied"
     delete:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: 'Delete a notification'
       operationId: deleteNotification
       produces:
@@ -725,7 +736,7 @@ paths:
   /api/v2/notifications/broadcast:
     post:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: 'Send notification to all users'
       operationId: sendBroadcast
       consumes:
@@ -737,18 +748,18 @@ paths:
           name: body
           description: 'Notification'
           schema:
-            $ref: "#/definitions/Balloon.App.Notfification.Notification"
+            $ref: "#/definitions/notification.v2.Notification"
       responses:
         202:
           description: "Notification"
           schema:
-            $ref: "#/definitions/Balloon.App.Notfification.Notification"
+            $ref: "#/definitions/notification.v2.Notification"
         403:
           description: "Access denied"
   /api/v2/notifications/mail:
     post:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: 'Send mail'
       operationId: sendMail
       consumes:
@@ -758,7 +769,7 @@ paths:
           name: body
           description: 'Mail'
           schema:
-            $ref: "#/definitions/Balloon.App.Notfification.Mail"
+            $ref: "#/definitions/notification.v2.Mail"
       responses:
         202:
           description: "Mail"
@@ -767,7 +778,7 @@ paths:
   /api/v2/nodes/{node}/subscription:
     post:
       tags:
-        - balloon.app.notifications.v2
+        - notification.v2
       summary: 'Receive node updates'
       operationId: subscribeNode
       produces:
@@ -797,7 +808,7 @@ paths:
         202:
           description: "Node"
           schema:
-            $ref: "#/definitions/Node"
+            $ref: "#/definitions/core.v2.Node"
         403:
           description: "Access denied"
         404:
@@ -805,7 +816,7 @@ paths:
   '/api/v2/files/{file}/convert/slaves':
     get:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: 'Get existing convert slaves'
       operationId: getSlaves
       produces:
@@ -820,14 +831,14 @@ paths:
         200:
           description: "Slaves"
           schema:
-            $ref: "#/definitions/Balloon.App.Convert.Slaves"
+            $ref: "#/definitions/convert.v2.Slaves"
         404:
           description: "Resource does not exists"
         403:
           description: "Access denied"
     post:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: 'Add new convert slave'
       operationId: addSlave
       consumes:
@@ -845,12 +856,12 @@ paths:
           description: 'Add new conversion slave '
           required: true
           schema:
-            $ref: '#/definitions/Balloon.App.Convert.Slave'
+            $ref: '#/definitions/convert.v2.Slave'
       responses:
         202:
           description: "Slave"
           schema:
-            $ref: "#/definitions/Balloon.App.Convert.Slave"
+            $ref: "#/definitions/convert.v2.Slave"
         404:
           description: "Resource does not exists"
         403:
@@ -858,7 +869,7 @@ paths:
   '/api/v2/files/{file}/convert/slaves/{slave}':
     get:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: 'Get single slave'
       operationId: getSlave
       produces:
@@ -878,14 +889,14 @@ paths:
         200:
           description: "Slave"
           schema:
-            $ref: "#/definitions/Balloon.App.Convert.Slave"
+            $ref: "#/definitions/convert.v2.Slave"
         404:
           description: "Resource does not exists"
         403:
           description: "Access denied"
     delete:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: 'Delete slave'
       operationId: deleteSlave
       consumes:
@@ -913,7 +924,7 @@ paths:
   '/api/v2/files/{file}/convert/supported-formats':
     get:
       tags:
-        - balloon.app.convert.v2
+        - convert.v2
       summary: 'Get supported file formats to convert to (formats do vary between files)'
       operationId: getSupportedFormats
       produces:
@@ -938,7 +949,7 @@ paths:
   '/api/v2/desktop-clients/{format}/content':
     get:
       tags:
-        - balloon.app.desktopclient.v2
+        - desktopclient.v2
       summary: 'Download balloon desktop client'
       operationId: getDesktopClient
       produces:
@@ -960,36 +971,17 @@ paths:
           description: "Desktop client (binary)"
           schema:
             type: file
-  '/api/v2/office/session/{session}':
-    delete:
-      tags:
-        - balloon.app.office.v2
-      summary: 'Delete a running session. If more members are active in the requested session than only the membership gets removed. The session gets completely removed if only one member exists.'
-      operationId: deleteSession
-      parameters:
-        - name: session
-          in: path
-          required: true
-          type: string
-          description: 'The session id to delete '
-      responses:
-        204:
-          description: "The server responds with 204 if the operation was successful."
-        404:
-          description: "Resource does not exists"
-        403:
-          description: "Access denied"
-  /api/v2/office/wopi/document:
+  /api/v2/office/wopi/document/{document}:
     get:
       tags:
-        - balloon.app.office.v2
+        - wopi.v2
       summary: 'Get document session information including document owner, session user and document size'
       operationId: getWopiDocument
       produces:
         - application/json
       parameters:
-        - name: id
-          in: query
+        - name: document
+          in: path
           required: true
           type: string
           description: 'The document id'
@@ -1002,43 +994,20 @@ paths:
         200:
           description: "WOPI document information"
           schema:
-            $ref: "#/definitions/Balloon.App.Office.WopiDocument"
+            $ref: "#/definitions/office.v2.WopiDocument"
         404:
           description: "Resource does not exists"
         403:
           description: "Access denied"
-  '/api/v2/office/documents/{document}':
+  /api/v2/office/wopi/document/{document}/contents:
     get:
       tags:
-        - balloon.app.office.v2
-      summary: 'Retreive office document'
-      operationId: getDocument
-      produces:
-        - application/json
-      parameters:
-        - name: document
-          in: path
-          required: true
-          type: string
-          description: 'Document identifier'
-      responses:
-        200:
-          description: "Document session"
-          schema:
-            $ref: "#/definitions/Balloon.App.Office.Document"
-        404:
-          description: "Resource does not exists"
-        403:
-          description: "Access denied"
-  /api/v2/office/wopi/document/contents:
-    get:
-      tags:
-        - balloon.app.office.v2
+        - wopi.v2
       summary: 'Get document contents'
       operationId: getWopiDocumentContent
       parameters:
-        - name: id
-          in: query
+        - name: document
+          in: path
           required: true
           type: string
           description: 'The document id '
@@ -1056,12 +1025,12 @@ paths:
           description: "Access denied"
     post:
       tags:
-        - balloon.app.office.v2
+        - wopi.v2
       summary: 'Save document contents'
       operationId: updateWopiDocuemntContent
       parameters:
-        - name: id
-          in: query
+        - name: document
+          in: path
           required: true
           type: string
           description: 'The document id '
@@ -1085,7 +1054,7 @@ paths:
   /api/v2/office/documents:
     post:
       tags:
-        - balloon.app.office.v2
+        - wopi.v2
       description: 'Create new document from an existing office document template'
       operationId: createDocument
       consumes:
@@ -1097,58 +1066,12 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/File'
+            $ref: '#/definitions/core.v2.File'
       responses:
         201:
           description: "File"
           schema:
-            $ref: "#/definitions/File"
-        404:
-          description: "Resource does not exists"
-        403:
-          description: "Access denied"
-  /api/v2/office/sessions:
-    post:
-      tags:
-        - balloon.app.office.v2
-      summary: 'Create new session for a document'
-      operationId: createSession
-      produces:
-        - application/json
-      parameters:
-        - in: query
-          name: id
-          description: 'Create new session for a document'
-          required: true
-          type: string
-      responses:
-        201:
-          description: "Office session"
-          schema:
-            $ref: "#/definitions/Balloon.App.Office.Session"
-        404:
-          description: "Resource does not exists"
-        403:
-          description: "Access denied"
-  '/api/v2/office/sessions/{session}/join':
-    post:
-      tags:
-        - balloon.app.office.v2
-      summary: 'Join running session'
-      operationId: joinSession
-      produces:
-        - application/json
-      parameters:
-        - name: session
-          in: path
-          required: true
-          type: string
-          description: 'The session id to delete '
-      responses:
-        200:
-          description: "Office session"
-          schema:
-            $ref: "#/definitions/Balloon.App.Office.Session"
+            $ref: "#/definitions/core.v2.File"
         404:
           description: "Resource does not exists"
         403:
@@ -1186,7 +1109,7 @@ paths:
         201:
           description: "Node"
           schema:
-            $ref: "#/definitions/Node"
+            $ref: "#/definitions/core.v2.Node"
         207:
           description: "Multi status if batch request"
         404:
@@ -1226,7 +1149,7 @@ paths:
         200:
           description: "Node"
           schema:
-            $ref: "#/definitions/Node"
+            $ref: "#/definitions/core.v2.Node"
         207:
           description: "Multi status if batch request"
         404:
@@ -1274,7 +1197,7 @@ paths:
         200:
           description: "Node"
           schema:
-            $ref: "#/definitions/Node"
+            $ref: "#/definitions/core.v2.Node"
         207:
           description: "Multi status if batch request"
         404:
@@ -1299,7 +1222,7 @@ paths:
         200:
           description: "Share"
           schema:
-            $ref: "#/definitions/Share"
+            $ref: "#/definitions/core.v2.Share"
         404:
           description: "Resource does not exists"
         403:
@@ -1324,12 +1247,12 @@ paths:
           description: 'Create a new share from an existing collection '
           required: true
           schema:
-            $ref: '#/definitions/Share'
+            $ref: '#/definitions/core.v2.Share'
       responses:
         200:
           description: "Collection"
           schema:
-            $ref: "#/definitions/Collection"
+            $ref: "#/definitions/core.v2.Collection"
         404:
           description: "Resource does not exists"
         403:
@@ -1374,6 +1297,15 @@ paths:
           required: false
           type: string
         - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
           name: attributes
           description: Filter attributes
           required: false
@@ -1409,7 +1341,7 @@ paths:
         200:
           description: "List of children"
           schema:
-            $ref: "#/definitions/Nodes"
+            $ref: "#/definitions/core.v2.Nodes"
         404:
           description: "Resource does not exists"
         403:
@@ -1431,6 +1363,15 @@ paths:
           required: false
           type: string
         - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
           name: attributes
           description: Filter attributes
           required: false
@@ -1466,7 +1407,7 @@ paths:
         200:
           description: "List of children"
           schema:
-            $ref: "#/definitions/Nodes"
+            $ref: "#/definitions/core.v2.Nodes"
         404:
           description: "Resource does not exists"
         403:
@@ -1487,6 +1428,15 @@ paths:
             JSON (For example: {\"name\": {$regex: 'foo.*'}})."
           required: false
           type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1517,7 +1467,7 @@ paths:
         200:
           description: "List of collections"
           schema:
-            $ref: "#/definitions/Collections"
+            $ref: "#/definitions/core.v2.Collections"
         404:
           description: "Resource does not exists"
         403:
@@ -1532,21 +1482,16 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: collection
-          in: path
-          required: true
-          description: 'Parent collection'
-          type: string
         - in: body
           name: body
           required: true
           schema:
-            $ref: '#/definitions/Collection'
+            $ref: '#/definitions/core.v2.Collection'
       responses:
         201:
           description: "Collection"
           schema:
-            $ref: "#/definitions/Collection"
+            $ref: "#/definitions/core.v2.Collection"
         404:
           description: "Resource does not exists"
         403:
@@ -1571,12 +1516,12 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/Collection'
+            $ref: '#/definitions/core.v2.Collection'
       responses:
         201:
           description: "Collection"
           schema:
-            $ref: "#/definitions/Collection"
+            $ref: "#/definitions/core.v2.Collection"
         404:
           description: "Resource does not exists"
         403:
@@ -1597,6 +1542,15 @@ paths:
             JSON (For example: {\"name\": {$regex: 'foo.*'}})."
           required: false
           type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1623,16 +1577,11 @@ paths:
             using JSON (For example: {"name": -1}).'
           required: false
           type: string
-        - name: deleted
-          in: query
-          required: false
-          type: number
-          description: 'Wheter include deleted nodes or not, possible values:  0 Exclude deleted 1 Only deleted 2 Include deleted  '
       responses:
         200:
           description: "List of files"
           schema:
-            $ref: "#/definitions/Files"
+            $ref: "#/definitions/core.v2.Files"
         404:
           description: "Resource does not exists"
         403:
@@ -1654,7 +1603,7 @@ paths:
         201:
           description: "File created"
           schema:
-            $ref: "#/definitions/File"
+            $ref: "#/definitions/core.v2.File"
         404:
           description: "Resource does not exists"
         403:
@@ -1677,7 +1626,7 @@ paths:
         200:
           description: "File history"
           schema:
-            $ref: "#/definitions/FileHistory"
+            $ref: "#/definitions/core.v2.FileHistory"
         404:
           description: "Resource does not exists"
         403:
@@ -1700,7 +1649,7 @@ paths:
         200:
           description: "File"
           schema:
-            $ref: "#/definitions/File"
+            $ref: "#/definitions/core.v2.File"
         404:
           description: "Resource does not exists"
         403:
@@ -1724,15 +1673,15 @@ paths:
         200:
           description: "File updated"
           schema:
-            $ref: "#/definitions/File"
+            $ref: "#/definitions/core.v2.File"
         201:
           description: "File newly created"
           schema:
-            $ref: "#/definitions/File"
+            $ref: "#/definitions/core.v2.File"
         206:
           description: "Chunk uploaded"
           schema:
-            $ref: "#/definitions/ChunkSession"
+            $ref: "#/definitions/core.v2.ChunkSession"
         404:
           description: "Resource does not exists"
         403:
@@ -1753,6 +1702,15 @@ paths:
             JSON (For example: {\"name\": {$regex: 'foo.*'}})."
           required: false
           type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
         - in: query
           name: attributes
           description: Filter attributes
@@ -1779,16 +1737,11 @@ paths:
             using JSON (For example: {"name": -1}).'
           required: false
           type: string
-        - name: deleted
-          in: query
-          required: false
-          type: number
-          description: 'Wheter include deleted nodes or not, possible values:  0 Exclude deleted 1 Only deleted 2 Include deleted  '
       responses:
         200:
           description: "List of nodes"
           schema:
-            $ref: "#/definitions/Nodes"
+            $ref: "#/definitions/core.v2.Nodes"
         404:
           description: "Resource does not exists"
         403:
@@ -1851,7 +1804,7 @@ paths:
         200:
           description: "Node"
           schema:
-            $ref: "#/definitions/Node"
+            $ref: "#/definitions/core.v2.Node"
         404:
           description: "Resource does not exists"
         403:
@@ -1876,12 +1829,12 @@ paths:
           description: 'Change attributes '
           required: true
           schema:
-            $ref: '#/definitions/Node'
+            $ref: '#/definitions/core.v2.Node'
       responses:
         200:
           description: "Node"
           schema:
-            $ref: "#/definitions/Node"
+            $ref: "#/definitions/core.v2.Node"
         404:
           description: "Resource does not exists"
         403:
@@ -1889,7 +1842,7 @@ paths:
   '/api/v2/nodes/{node}/share-link':
     delete:
       tags:
-        - balloon.app.sharelink.v2
+        - sharelink.v2
       summary: 'Delete an existing sharing link'
       operationId: deleteLink
       produces:
@@ -1909,7 +1862,7 @@ paths:
           description: "Access denied"
     post:
       tags:
-        - balloon.app.sharelink.v2
+        - sharelink.v2
       summary: 'Create a unique sharing link of a node (global accessible): a possible existing link will be deleted if this method will be called.'
       operationId: createLink
       produces:
@@ -1935,7 +1888,7 @@ paths:
         201:
           description: "Node"
           schema:
-            $ref: "#/definitions/Node"
+            $ref: "#/definitions/core.v2.Node"
         404:
           description: "Resource does not exists"
         403:
@@ -2024,7 +1977,7 @@ paths:
         200:
           description: "Delta"
           schema:
-            $ref: "#/definitions/Delta"
+            $ref: "#/definitions/core.v2.Delta"
         404:
           description: "Resource does not exists"
         403:
@@ -2075,7 +2028,7 @@ paths:
         200:
           description: "Event log"
           schema:
-            $ref: "#/definitions/EventLogs"
+            $ref: "#/definitions/core.v2.EventLogs"
         404:
           description: "Resource does not exists"
         403:
@@ -2131,7 +2084,7 @@ paths:
         200:
           description: "Event log"
           schema:
-            $ref: "#/definitions/EventLogs"
+            $ref: "#/definitions/core.v2.EventLogs"
         404:
           description: "Resource does not exists"
         403:
@@ -2166,7 +2119,7 @@ paths:
         200:
           description: "Parent nodes"
           schema:
-            $ref: "#/definitions/Nodes"
+            $ref: "#/definitions/core.v2.Nodes"
         404:
           description: "Resource does not exists"
         403:
@@ -2174,7 +2127,7 @@ paths:
   '/api/v2/files/{file}/preview':
     get:
       tags:
-        - ballon.app.preview.v2
+        - preview.v2
       summary: 'Get a preview of the files content. The body either contains an encoded string or a jpeg binary.'
       operationId: getPreview
       produces:
@@ -2198,7 +2151,7 @@ paths:
         403:
           description: "Access denied"
 definitions:
-  JsonPatch:
+  core.v2.JsonPatch:
     description: "A JSON Patch according rfc6902."
     type: "object"
     properties:
@@ -2208,7 +2161,7 @@ definitions:
         type: "string"
       value:
         type: "string"
-  ApiRoot:
+  core.v2.ApiRoot:
     description: "Describes the api root."
     type: "object"
     properties:
@@ -2216,32 +2169,32 @@ definitions:
         type: string
       api:
         type: number
-  Links:
+  core.v2.Links:
     description: "Contains resource links (URL) to other resources."
     type: "object"
     properties:
       self:
-        $ref: "#/definitions/Link"
-  ListLinks:
+        $ref: "#/definitions/core.v2.Link"
+  core.v2.ListLinks:
     type: "object"
     properties:
       self:
-        $ref: "#/definitions/Link"
+        $ref: "#/definitions/core.v2.Link"
       prev:
-        $ref: "#/definitions/Link"
+        $ref: "#/definitions/core.v2.Link"
       next:
-        $ref: "#/definitions/Link"
-  Link:
+        $ref: "#/definitions/core.v2.Link"
+  core.v2.Link:
     type: "object"
     properties:
       href:
         type: "string"
-  ResourceList:
+  core.v2.ResourceList:
     type: "object"
     properties:
       _links:
         description: "Holds a list of links rfc1738 to other resources."
-        $ref: "#/definitions/ListLinks"
+        $ref: "#/definitions/core.v2.ListLinks"
       kind:
         description: "The resource type, always List."
         type: "string"
@@ -2252,36 +2205,59 @@ definitions:
       total:
         description: "Holds the number of total available items on the server. Note that a List resource is always paged. You need to traverse with offset and limit to request further resources in the list."
         type: "number"
-  Resource:
+  core.v2.Resource:
     type: "object"
     properties:
       _links:
-        $ref: "#/definitions/Links"
+        $ref: "#/definitions/core.v2.Links"
       id:
         description: "Unique 12-byte resource identifier. Note this is a MongoDB ObjectId. The name is the standard resource identifier, the id only useful to verify that a given resource was completely recreated. An ID is immutable and will be created on the server."
         type: "string"
       created:
         description: "ISO 8601 timestamp when the resource was created."
         type: "string"
-  Users:
+        format: date-time
+  core.v2.OAuth2Token:
+    description: "OAUTH2 access token response according RFC6749 https://tools.ietf.org/html/rfc6749#section-4.3.3"
+    type: object
+    properties:
+      access_token:
+        description: Resource access_token.
+        type: string
+      expires_in:
+        description: The number of seconds the issues acceess_token is valid for. This is usually 1hour.
+        type: number
+        default: 3600
+      token_type:
+        description: The type of token. This is usually a Bearer token.
+        type: string
+        default: Bearer
+      scope:
+        description: The scopes.
+        type: string
+      refresh_token:
+        description: An optional refresh token to get new access_tokens via the refresh_token grant type.
+        type: string
+  core.v2.Users:
     description: "A list of users."
     allOf:
-      - $ref: '#/definitions/ResourceList'
+      - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/User"
-  User:
+              $ref: "#/definitions/core.v2.User"
+  core.v2.User:
     description: "A user is used to access the server."
     allOf:
-      - $ref: '#/definitions/Resource'
+      - $ref: '#/definitions/core.v2.Resource'
       - type: object
         properties:
           changed:
             description: "ISO 8601 timestamp when the resource was changed."
             type: "string"
+            format: date-time
           username:
             description: "Unique username."
             type: "string"
@@ -2306,6 +2282,10 @@ definitions:
             enum:
             - internal
             - external
+          has_password:
+            description: "Is true if the user has a local password set."
+            type: boolean
+            default: false
           hard_quota:
             description: "Hard quota in bytes (Max. limit of storage usage). Note that external storage is not part of the quota. The default is no limit."
             type: "number"
@@ -2322,25 +2302,26 @@ definitions:
             description: "Used storage in bytes."
             type: "number"
             default: 0
-  Groups:
+  core.v2.Groups:
     description: "A list of groups."
     allOf:
-      - $ref: '#/definitions/ResourceList'
+      - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/Group"
-  Group:
+              $ref: "#/definitions/core.v2.Group"
+  core.v2.Group:
     description: "A group contains user resources."
     allOf:
-      - $ref: '#/definitions/Resource'
+      - $ref: '#/definitions/core.v2.Resource'
       - type: object
         properties:
           changed:
             description: "ISO 8601 timestamp when the resource was changed."
             type: "string"
+            format: date-time
           name:
             description: "Group name."
             type: "string"
@@ -2352,17 +2333,17 @@ definitions:
             type: "array"
             items:
               type: string
-  Nodes:
+  core.v2.Nodes:
     description: "A list of nodes."
     allOf:
-      - $ref: '#/definitions/ResourceList'
+      - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/Node"
-  NodeMeta:
+              $ref: "#/definitions/core.v2.Node"
+  core.v2.NodeMeta:
     description: "Node meta data."
     type: object
     properties:
@@ -2380,15 +2361,20 @@ definitions:
       color:
         description: "A color tag."
         type: "string"
-  Node:
+  core.v2.Node:
     description: "A Node."
     allOf:
-      - $ref: '#/definitions/Resource'
+      - $ref: '#/definitions/core.v2.Resource'
       - type: object
         properties:
           changed:
             description: "ISO 8601 timestamp when the resource was changed."
             type: "string"
+            format: date-time
+          deleted:
+            description: "ISO 8601 timestamp when the resource was deleted."
+            type: string
+            format: date-time
           name:
             description: "Node name."
             type: "string"
@@ -2404,7 +2390,7 @@ definitions:
             type: "boolean"
             default: false
           meta:
-            $ref: '#/definitions/NodeMeta'
+            $ref: '#/definitions/core.v2.NodeMeta'
           size:
             description: "The size in bytes. If the node is of type collection the size is the number of child nodes."
             type: "number"
@@ -2463,34 +2449,34 @@ definitions:
             description: "Is true if the node has a protected public sharelink."
             type: "boolean"
             default: false
-  Collections:
+  core.v2.Collections:
     description: "A list of collections."
     allOf:
-      - $ref: '#/definitions/ResourceList'
+      - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/Collection"
-  Collection:
+              $ref: "#/definitions/core.v2.Collection"
+  core.v2.Collection:
     description: "A collection can hold an unlimited number of child nodes."
     allOf:
-      - $ref: '#/definitions/Node'
-  Files:
+      - $ref: '#/definitions/core.v2.Node'
+  core.v2.Files:
     description: "A list of files."
     allOf:
-      - $ref: '#/definitions/ResourceList'
+      - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/File"
-  File:
+              $ref: "#/definitions/core.v2.File"
+  core.v2.File:
     description: "A collection can hold an unlimited number of child nodes."
     allOf:
-      - $ref: '#/definitions/Node'
+      - $ref: '#/definitions/core.v2.Node'
       - type: object
         properties:
           version:
@@ -2500,7 +2486,10 @@ definitions:
           hash:
             description: "MD5 content checksum."
             type: "string"
-  FileHistory:
+          preview:
+            description: "Is true if there is a preview"
+            type: "boolean"
+  core.v2.FileHistory:
     description: "File history."
     type: object
     properties:
@@ -2511,6 +2500,7 @@ definitions:
       changed:
         description: "ISO 8601 timestamp when the resource was changed."
         type: "string"
+        format: date-time
       type:
         description: "Type of change."
         type: "number"
@@ -2524,7 +2514,7 @@ definitions:
           name:
             description: "The username of the share owner."
             type: "string"
-  Delta:
+  core.v2.Delta:
     description: "The delta is a differential feed to get changes since the last delta call."
     type: object
     properties:
@@ -2542,8 +2532,8 @@ definitions:
       nodes:
         type: array
         items:
-          $ref: '#/definitions/Node'
-  Share:
+          $ref: '#/definitions/core.v2.Node'
+  core.v2.Share:
     description: "Node share."
     type: object
     properties:
@@ -2554,8 +2544,8 @@ definitions:
         description: "ACL rules."
         type: array
         items:
-          $ref: '#/definitions/AclRule'
-  AclRule:
+          $ref: '#/definitions/core.v2.AclRule'
+  core.v2.AclRule:
     description: "ACL rule."
     type: object
     properties:
@@ -2587,7 +2577,7 @@ definitions:
           name:
             description: "The name of role resource."
             type: "string"
-  UserNodeAttributeSummary:
+  core.v2.UserNodeAttributeSummary:
     description: "Request node fiel statistics."
     type: object
     additionalProperties:
@@ -2599,7 +2589,7 @@ definitions:
             type: string
           sum:
             type: number
-  ChunkSession:
+  core.v2.ChunkSession:
     description: "Chunking upload session."
     type: object
     properties:
@@ -2609,17 +2599,17 @@ definitions:
       chunks_left:
         description: "Tells how many chunks are left to upload."
         type: number
-  EventLogs:
+  core.v2.EventLogs:
     description: "A list of events."
     allOf:
-      - $ref: '#/definitions/ResourceList'
+      - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/EventLog"
-  EventLog:
+              $ref: "#/definitions/core.v2.EventLog"
+  core.v2.EventLog:
     description: "Event log entry. Each event represents an executed operation on the server."
     type: object
     properties:
@@ -2712,33 +2702,7 @@ definitions:
           hostname:
             description: "The hostname of the client."
             type: "string"
-  Balloon.App.Office.Session:
-    description: "Office session"
-    type: object
-    properties:
-      id:
-        description: Session id
-        type: "string"
-      wopi_url:
-        description: WOPI url
-        type: "string"
-      access_token:
-        description: Access token (time limited)
-        type: string
-      access_token_ttl:
-        description: Token life time
-        type: number
-  Balloon.App.Office.Document:
-    description: "Office document"
-    type: object
-    properties:
-      loleaflet:
-        type: "string"
-      sessions:
-        type: "array"
-        items:
-          type: object
-  Balloon.App.Office.WopiDocument:
+  office.v2.WopiDocument:
     description: "WOPI document https://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html"
     type: object
     properties:
@@ -2758,7 +2722,7 @@ definitions:
         type: "boolean"
       PostMessageOrigin:
         type: "string"
-  Balloon.App.Notfification.Mail:
+  notification.v2.Mail:
     description: "Mail"
     type: object
     properties:
@@ -2771,20 +2735,20 @@ definitions:
         type: string
       body:
         type: string
-  Balloon.App.Notfification.Notifications:
+  notification.v2.Notifications:
     description: "A list of notifications."
     allOf:
-      - $ref: '#/definitions/ResourceList'
+      - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/Balloon.App.Notfification.Notification"
-  Balloon.App.Notfification.Notification:
+              $ref: "#/definitions/notification.v2.Notification"
+  notification.v2.Notification:
     description: "A notification"
     allOf:
-      - $ref: '#/definitions/Resource'
+      - $ref: '#/definitions/core.v2.Resource'
       - type: object
         properties:
           locale:
@@ -2817,20 +2781,20 @@ definitions:
               name:
                 description: "The name of the node."
                 type: "string"
-  Balloon.App.Convert.Slaves:
+  convert.v2.Slaves:
     description: "A list of convert slaves."
     allOf:
-      - $ref: '#/definitions/ResourceList'
+      - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/Balloon.App.Convert.Slave"
-  Balloon.App.Convert.Slave:
+              $ref: "#/definitions/convert.v2.Slave"
+  convert.v2.Slave:
     description: "A convert slave"
     allOf:
-      - $ref: '#/definitions/Resource'
+      - $ref: '#/definitions/core.v2.Resource'
       - type: object
         properties:
           format:
