@@ -33,6 +33,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.ApiRoot"
+  /api/v2/tokens:
+    get:
+      tags:
+        - core.v2
+      summary: OAUTH2/OIDC token endpoint
+      operationId: createToken
+      responses:
+        "200":
+          description: Oauth2 token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/core.v2.OAuth2Token"
   /api/v2/groups:
     get:
       tags:
@@ -1024,7 +1037,7 @@ paths:
       operationId: getWopiDocument
       parameters:
         - name: document
-          in: query
+          in: path
           required: true
           description: The document id
           schema:
@@ -1054,7 +1067,7 @@ paths:
       operationId: getWopiDocumentContent
       parameters:
         - name: document
-          in: query
+          in: path
           required: true
           description: "The document id "
           schema:
@@ -1569,13 +1582,6 @@ paths:
         - core.v2
       summary: Create a new collection in root
       operationId: createRootCollection
-      parameters:
-        - name: collection
-          in: path
-          required: true
-          description: Parent collection
-          schema:
-            type: string
       requestBody:
         $ref: "#/components/requestBodies/core.v2.Collection"
       responses:
@@ -2400,6 +2406,28 @@ components:
         created:
           description: ISO 8601 timestamp when the resource was created.
           type: string
+          format: date-time
+    core.v2.OAuth2Token:
+      description: "OAUTH2 access token response according RFC6749 https://tools.ietf.org/html/rfc6749#section-4.3.3"
+      type: object
+      properties:
+        access_token:
+          description: Resource access_token.
+          type: string
+        expires_in:
+          description: The number of seconds the issues acceess_token is valid for. This is usually 1hour.
+          type: number
+          default: 3600
+        token_type:
+          description: The type of token. This is usually a Bearer token.
+          type: string
+          default: Bearer
+        scope:
+          description: The scopes.
+          type: string
+        refresh_token:
+          description: An optional refresh token to get new access_tokens via the refresh_token grant type.
+          type: string
     core.v2.Users:
       description: A list of users.
       allOf:
@@ -2419,6 +2447,7 @@ components:
             changed:
               description: ISO 8601 timestamp when the resource was changed.
               type: string
+              format: date-time
             username:
               description: Unique username.
               type: string
@@ -2485,6 +2514,7 @@ components:
             changed:
               description: ISO 8601 timestamp when the resource was changed.
               type: string
+              format: date-time
             name:
               description: Group name.
               type: string
@@ -2533,6 +2563,11 @@ components:
             changed:
               description: ISO 8601 timestamp when the resource was changed.
               type: string
+              format: date-time
+            deleted:
+              description: ISO 8601 timestamp when the resource was deleted.
+              type: string
+              format: date-time
             name:
               description: Node name.
               type: string
@@ -2664,6 +2699,7 @@ components:
         changed:
           description: ISO 8601 timestamp when the resource was changed.
           type: string
+          format: date-time
         type:
           description: Type of change.
           type: number

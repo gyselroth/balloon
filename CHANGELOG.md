@@ -1,3 +1,11 @@
+## 2.6.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Jun 25 08:15:43 CEST 2019
+
+* API: [CHANGE] Added token endpoint to openapi/swagger specs
+* CORE: [FIX] Fatal error: Allowed memory size of 134217728 bytes exhausted bug #349
+
+
 ## 2.6.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Jun 14 16:19:43 CEST 2019
