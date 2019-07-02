@@ -9,7 +9,7 @@
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/gyselroth/balloon-screenshots/master/src/tree.png"/>
-    (This shows the balloon-client-web since it is more appealing than showing the server :) )
+    (This shows the <a href="https://github.com/gyselroth/balloon-client-web">balloon-client-web</a> since it is more appealing than showing the server :) )
 </p>
 
 * High performance server, horizontally scalable, easy clustering
