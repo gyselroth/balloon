@@ -9,6 +9,7 @@
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/gyselroth/balloon-screenshots/master/src/tree.png"/>
+    (This shows the balloon-client-web since it is more appealing than showing the server :) )
 </p>
 
 * High performance server, horizontally scalable, easy clustering
@@ -24,7 +25,7 @@
 * Notification system (including mail notifications)
 * Full text search using [Elasticsearch](https://github.com/elastic/elasticsearch)
 * Malware scanning using [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
-* Full WOPI support for libre office online and Microsoft office online
+* Full WOPI support (Tested with Libre Office Online and Microsoft Office Online)
 * Automatically convert files (shadow nodes) to other file formats (for example keep an automatic pdf file for a word file)
 * Automatically destroy files/folders at a certain time
 * Mount external storage (Currently only SMB/CIFS is supported since v2.1.0)
@@ -33,8 +34,9 @@
 * Burl (URL file format, including rendered site previews)
 * Globally accessible share links
 * Intelligent collections based on custom rules
-* Multiple types of authentication, basic auth (MongoDB), basic auth LDAP, OpenID-Connect
+* Multiple types of authentication, basic auth (internal users), basic auth LDAP, OpenID-Connect, WebAuthn support
 * Integrated OpenID-connect server and also supports OpenID-connect for any external OpenID-Connect providers (including google, microsoft, github and more)
+* Support for Google reCaptcha v2 (Anti bruteforce account security)
 * REST API (OpenAPI v3 specs)
 * User quotas
 * [Official Web UI](https://github.com/gyselroth/balloon-client-web)
