@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Webdav;
 
 use Balloon\Filesystem;
+use Balloon\Filesystem\Exception;
 use Balloon\Server;
 use Sabre\DAV\Locks\Backend\BackendInterface;
 use Sabre\DAV\Locks\LockInfo;
@@ -38,7 +39,11 @@ class LockBackend implements BackendInterface
      */
     public function getLocks($uri, $returnChildLocks)
     {
-        $node = $this->fs->findNodeByPath($uri);
+        try {
+            $node = $this->fs->findNodeByPath($uri);
+        } catch (Exception\NotFound $e) {
+            return [];
+        }
 
         if (!$node->isLocked()) {
             return [];

@@ -217,35 +217,38 @@ class Filesystem
             '_id' => $id,
         ];
 
-        switch ($deleted) {
-            case NodeInterface::DELETED_INCLUDE:
-                break;
-            case NodeInterface::DELETED_EXCLUDE:
-                $filter['deleted'] = false;
+        $result = iterator_to_array($this->findNodesByFilterRecursiveChildren($filter, $deleted, 0, 1));
 
-                break;
-            case NodeInterface::DELETED_ONLY:
-                $filter['deleted'] = ['$type' => 9];
-
-                break;
-        }
-
-        $node = $this->db->storage->findOne($filter);
-
-        if (null === $node) {
+        if (count($result) === 0) {
             throw new Exception\NotFound(
                 'node ['.$id.'] not found',
                 Exception\NotFound::NODE_NOT_FOUND
             );
         }
 
-        $return = $this->initNode($node);
-
-        if (null !== $class && !($return instanceof $class)) {
-            throw new Exception('node '.get_class($return).' is not instance of '.$class);
+        $node = array_shift($result);
+        if (null !== $class && !($node instanceof $class)) {
+            throw new Exception('node '.get_class($node).' is not instance of '.$class);
         }
 
-        return $return;
+        return $node;
+    }
+
+    /**
+     * Find one.
+     */
+    public function findOne(array $filter, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
+    {
+        $result = iterator_to_array($this->findNodesByFilterRecursiveChildren($filter, $deleted, 0, 1));
+
+        if (count($result) === 0) {
+            throw new Exception\NotFound(
+                'requested node not found',
+                Exception\NotFound::NODE_NOT_FOUND
+            );
+        }
+
+        return array_shift($result);
     }
 
     /**
@@ -432,15 +435,19 @@ class Filesystem
             $deleted_filter['deleted'] = ['$type' => 9];
         }
 
-        $query = [
-            '$or' => [
-                [
-                    'acl' => ['$exists' => false],
-                ], [
-                    'acl.id' => (string) $this->user->getId(),
+        $query = ['_id' => ['$exists' => true]];
+
+        if ($this->user !== null) {
+            $query = [
+                '$or' => [
+                    [
+                        'acl' => ['$exists' => false],
+                    ], [
+                        'acl.id' => (string) $this->user->getId(),
+                    ],
                 ],
-            ],
-        ];
+            ];
+        }
 
         if (count($deleted_filter) > 0) {
             $query = ['$and' => [$deleted_filter, $query]];

@@ -277,7 +277,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function getSize(): int
     {
-        if ($this->isFiltered()) {
+        if ($this->isFiltered() || $this->_acl->getAclPrivilege($this) === Acl::PRIVILEGE_WRITEPLUS) {
             return count($this->getChildren());
         }
 
@@ -319,20 +319,8 @@ class Collection extends AbstractNode implements IQuota
         $name = $this->checkName($name);
         $filter = $this->getChildrenFilter($deleted, $filter);
         $filter['name'] = new Regex('^'.preg_quote($name).'$', 'i');
-        $node = $this->_db->storage->findOne($filter);
 
-        if (null === $node) {
-            throw new Exception\NotFound(
-                'node called '.$name.' does not exists here',
-                Exception\NotFound::NODE_NOT_FOUND
-            );
-        }
-
-        $this->_logger->debug('loaded node ['.$node['_id'].' from parent node ['.$this->getRealId().']', [
-            'category' => get_class($this),
-        ]);
-
-        return $this->_fs->initNode($node);
+        return $this->_fs->findOne($filter);
     }
 
     /**
