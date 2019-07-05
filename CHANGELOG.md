@@ -4,6 +4,7 @@
 
 * CORE: [FIX] Add new file via webdav ends in error #355
 * API: [FIX] apiv1/v2 colletion size is always 0 if the node gets requested directly #353
+* API: [FIX] Node count calculated wrong for mailbox share access #356
 
 
 ## 2.6.0

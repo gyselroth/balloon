@@ -16,8 +16,6 @@ services:
         image: collabora/code:4.0.1.1
         ports:
             - "9980:9980"
-        #links:
-        #    - balloon-dev
         environment:
             - domain=balloon-dev
         entrypoint:
@@ -47,13 +45,6 @@ services:
         image: gyselroth/balloon:latest-dev
         volumes:
             - .:/srv/www/balloon
-        #links:
-        #    - clamav
-        #    - mongodb
-        #    - elasticsearch
-        #    - postfix
-        #    - browserless
-        #    - libreoffice
         networks:
         - backend
         environment:
@@ -81,12 +72,6 @@ services:
         image: gyselroth/balloon:latest-dev
         volumes:
             - .:/srv/www/balloon
-        #links:
-        #    - clamav
-        #    - mongodb
-        #    - elasticsearch
-        #    - postfix
-        #    - browserless
         networks:
         - backend
         environment:

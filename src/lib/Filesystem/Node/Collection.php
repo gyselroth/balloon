@@ -277,7 +277,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function getSize(): int
     {
-        if ($this->isFiltered()) {
+        if ($this->isFiltered() || $this->_acl->getAclPrivilege($this) === Acl::PRIVILEGE_WRITEPLUS) {
             return count($this->getChildren());
         }
 
