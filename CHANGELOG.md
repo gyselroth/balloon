@@ -3,6 +3,7 @@
 **Date**: Fri Jul 05 10:14:42 CEST 2019
 
 * CORE: [FIX] Add new file via webdav ends in error #355
+* API: [FIX] apiv1/v2 colletion size is always 0 if the node gets requested directly #353
 
 
 ## 2.6.0
