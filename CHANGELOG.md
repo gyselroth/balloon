@@ -1,3 +1,10 @@
+## 2.6.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Jul 05 10:14:42 CEST 2019
+
+* CORE: [FIX] Add new file via webdav ends in error #355
+
+
 ## 2.6.0
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Jun 25 08:15:43 CEST 2019
