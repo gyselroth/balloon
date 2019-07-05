@@ -56,7 +56,6 @@ class LockBackend implements BackendInterface
         $info->timeout = $lock['expire']->toDateTime()->format('U') - time();
         $info->created = $lock['created']->toDateTime()->format('U');
         $info->uri = $uri;
-        $this->logger->error('getLocks '.json_encode([$info]));
 
         return [$info];
     }
