@@ -13,7 +13,7 @@ services:
         networks:
         - backend
     libreoffice:
-        image: collabora/code:4.0.1.1
+        image: collabora/code:4.0.4.3
         ports:
             - "9980:9980"
         environment:
@@ -50,12 +50,12 @@ services:
         environment:
             - BALLOON_MONGODB_URI=mongodb://mongodb:27017
             - BALLOON_CLAMAV_URI=tcp://clamav:3310
-            - BALLOON_ELASTICSEARCH_URI=http://192.168.100.192:30911
             - BALLOON_WOPI_URL=https://balloon-dev
             - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
             - BALLOON_SMTP_HOST=postfix
             - BALLOON_URL=http://localhost:8080
             - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+            - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
     balloon-web:
         image: gyselroth/balloon-web:latest
         ports:
@@ -77,7 +77,6 @@ services:
         environment:
             - BALLOON_MONGODB_URI=mongodb://mongodb:27017
             - BALLOON_CLAMAV_URI=tcp://clamav:3310
-            - BALLOON_ELASTICSEARCH_URI=http://192.168.100.192:30911
             - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
             - BALLOON_WOPI_URL=https://balloon-dev
             - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980

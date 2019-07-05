@@ -435,15 +435,19 @@ class Filesystem
             $deleted_filter['deleted'] = ['$type' => 9];
         }
 
-        $query = [
-            '$or' => [
-                [
-                    'acl' => ['$exists' => false],
-                ], [
-                    'acl.id' => (string) $this->user->getId(),
+        $query = ['_id' => ['$exists' => true]];
+
+        if ($this->user !== null) {
+            $query = [
+                '$or' => [
+                    [
+                        'acl' => ['$exists' => false],
+                    ], [
+                        'acl.id' => (string) $this->user->getId(),
+                    ],
                 ],
-            ],
-        ];
+            ];
+        }
 
         if (count($deleted_filter) > 0) {
             $query = ['$and' => [$deleted_filter, $query]];

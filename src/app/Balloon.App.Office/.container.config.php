@@ -16,4 +16,17 @@ return [
             ]
         ],
     ],
+    Office::class => [
+        'services' => [
+            ClientInterface::class => [
+                'arguments' => [
+                    'config' => [
+                        'base_uri' => '{ENV(BALLOON_LIBREOFFICE_URL,https://libreoffice:9980)}',
+                        'connect_timeout' => 3,
+                        'timeout' => 10,
+                    ]
+                ]
+            ]
+        ]
+    ],
 ];
