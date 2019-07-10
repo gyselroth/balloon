@@ -119,6 +119,10 @@ class Acl
     {
         $user = $user === null ? $node->getFilesystem()->getUser() : $user;
 
+        if ($user === null) {
+            return self::PRIVILEGE_MANAGE;
+        }
+
         if ($node->isShareMember()) {
             return $this->processShareMember($node, $user);
         }
