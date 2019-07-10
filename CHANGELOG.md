@@ -3,6 +3,7 @@
 **Date**: Wed Jul 10 15:14:42 CEST 2019
 
 * CORE: [FIX] Argument 2 passed to Balloon\Filesystem\Acl::processShareMember() must be an instance of Balloon\Server\User, null given #362
+* CORE: [FIX] Libreoffice online shows "changed 49 years ago" in the top header #363
 
 
 ## 2.6.1
