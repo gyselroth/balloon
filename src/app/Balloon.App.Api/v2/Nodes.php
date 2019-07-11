@@ -344,31 +344,8 @@ class Nodes extends Controller
      */
     public function getTrash($query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
     {
-        $children = [];
         $query = $this->parseQuery($query);
-        $filter = ['deleted' => ['$type' => 9]];
-
-        if (!empty($query)) {
-            $filter = [
-                $filter,
-                $query,
-            ];
-        }
-
-        $nodes = $this->fs->findNodesByFilterUser(NodeInterface::DELETED_ONLY, $filter, $offset, $limit);
-
-        foreach ($nodes as $node) {
-            try {
-                $parent = $node->getParent();
-                if (null !== $parent && $parent->isDeleted()) {
-                    continue;
-                }
-            } catch (\Exception $e) {
-                //skip exception
-            }
-
-            $children[] = $node;
-        }
+        $nodes = $this->fs->getTrash($query, $offset, $limit);
 
         if ($this instanceof ApiFile) {
             $query['directory'] = false;
@@ -380,7 +357,7 @@ class Nodes extends Controller
             $uri = '/api/v2/nodes';
         }
 
-        $pager = new Pager($this->node_decorator, $children, $attributes, $offset, $limit, $uri, $nodes->getReturn());
+        $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
         $result = $pager->paging();
 
         return (new Response())->setCode(200)->setBody($result);

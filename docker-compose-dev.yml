@@ -17,7 +17,7 @@ services:
         ports:
             - "9980:9980"
         environment:
-            - domain=balloon-dev
+            - domain=balloon-web|balloon-dev|localhost
         entrypoint:
             - sh
             - -c

@@ -212,6 +212,7 @@ class Files
         $identifier = $_SERVER['HTTP_X_WOPI_LOCK'] ?? null;
         $previous = $_SERVER['HTTP_X_WOPI_OLDLOCK'] ?? null;
         $_SERVER['HTTP_LOCK_TOKEN'] = $identifier;
+        $agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
         $this->logger->info('incoming POST wopi operation [{operation}] width id [{identifier}]', [
             'category' => get_class($this),
@@ -224,7 +225,8 @@ class Files
         $session = $this->session_manager->getByToken($file, $access_token);
         $response = new Response();
 
-        if (!$file->isLocked() && $file->getSize() > 0) {
+        //loolwsd does not support locking (unlike the wopi specs require) #359
+        if (!$file->isLocked() && $file->getSize() > 0 && strpos($agent, 'LOOLWSD') === false) {
             return $response
                 ->setCode(409)
                 ->setBody(new Exception\NotLocked('file needs to be locked first'));

@@ -93,23 +93,18 @@ class Session implements SessionInterface
      */
     public function getAttributes(): array
     {
-        $attrs = $this->file->getAttributes(['name', 'version']);
+        $attrs = $this->file->getAttributes(['name', 'version', 'changed']);
         $attributes = [
             'AllowExternalMarketplace' => false,
             'BaseFileName' => $this->file->getName(),
             'DisablePrint' => false,
             'DisableTranslation' => false,
-            //'DownloadUrl' => null,
-            //'FileSharingUrl' => null,
-            //'FileUrl' => null,
             'FileVersionPostMessage' => true,
-           // 'FileSharingPostMessage' => null,
             'PostMessageOrigin' => $this->session['client'],
             'OwnerId' => (string) $this->file->getOwner(),
             'ReadOnly' => $this->file->isReadonly(),
             'RestrictedWebViewOnly' => false,
-            //'SHA256' => null,
-            //'SignoutUrl' => null,
+            'LastModifiedTime' => $attrs['changed']->toDateTime()->format('c'),
             'Size' => $this->file->getSize(),
             'SupportsCobalt' => false,
             'SupportsFolders' => true,
