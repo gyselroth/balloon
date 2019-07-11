@@ -5,6 +5,7 @@
 * CORE: [FIX] Argument 2 passed to Balloon\Filesystem\Acl::processShareMember() must be an instance of Balloon\Server\User, null given #362
 * CORE: [FIX] Libreoffice online shows "changed 49 years ago" in the top header #363
 * CORE: [FIX] wopi loolwsd save does not work, 409 not locked response #359
+* CORE: [FIX] /trash may respond no data but a total nodes higher than limit #361
 
 
 ## 2.6.1

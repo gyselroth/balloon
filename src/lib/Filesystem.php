@@ -253,6 +253,8 @@ class Filesystem
 
     /**
      * Load nodes by id.
+     *
+     * @deprecated
      */
     public function findNodesById(array $id = [], ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): Generator
     {
@@ -311,6 +313,8 @@ class Filesystem
      * Load nodes by id.
      *
      * @param null|mixed $class
+     *
+     * @deprecated
      */
     public function getNodes(?array $id = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
     {
@@ -322,6 +326,8 @@ class Filesystem
      *
      * @param null|mixed $id
      * @param null|mixed $class
+     *
+     * @deprecated
      */
     public function getNode($id = null, $class = null, bool $multiple = false, bool $allow_root = false, ?int $deleted = null): NodeInterface
     {
@@ -424,35 +430,90 @@ class Filesystem
     }
 
     /**
+     * Get deleted nodes.
+     *
+     * Note this query excludes deleted nodes which have a deleted parent
+     */
+    public function getTrash(array $query = [], ?int $offset = null, ?int $limit = null): Generator
+    {
+        $shares = $this->user->getShares();
+        $parent_filter = ['$and' => [
+            ['deleted' => ['$ne' => false]],
+            ['$or' => [
+                ['owner' => $this->user->getId()],
+                ['shared' => ['$in' => $shares]],
+            ]],
+        ]];
+
+        if (count($query) > 0) {
+            $parent_filter = [
+                '$and' => [$parent_filter, $query],
+            ];
+        }
+
+        $query = [
+            ['$match' => $parent_filter],
+            ['$graphLookup' => [
+                'from' => 'storage',
+                'startWith' => '$parent',
+                'connectFromField' => 'parent',
+                'connectToField' => 'pointer',
+                'as' => 'parents',
+                'maxDepth' => 0,
+                'restrictSearchWithMatch' => [
+                    '$or' => [
+                        [
+                            'shared' => true,
+                            'owner' => $this->user->getId(),
+                        ],
+                        [
+                            'shared' => ['$ne' => true],
+                        ],
+                    ],
+                ],
+            ]], [
+                '$addFields' => [
+                    'parents' => [
+                        '$arrayElemAt' => ['$parents', 0],
+                    ],
+                ],
+            ], [
+                '$match' => [
+                    '$or' => [
+                        ['parents' => null],
+                        ['parents.deleted' => false],
+                    ],
+                ],
+            ], ['$graphLookup' => [
+                'from' => 'storage',
+                'startWith' => '$pointer',
+                'connectFromField' => 'pointer',
+                'connectToField' => 'parent',
+                'as' => 'children',
+                'maxDepth' => 0,
+                'restrictSearchWithMatch' => $this->prepareChildrenFilter(NodeInterface::DELETED_ONLY),
+            ]],
+            ['$addFields' => [
+                'size' => [
+                    '$cond' => [
+                        'if' => ['$eq' => ['$directory', true]],
+                        'then' => ['$size' => '$children'],
+                        'else' => '$size',
+                    ],
+                ],
+            ]],
+            ['$project' => ['children' => 0, 'parents' => 0]],
+            ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
+        ];
+
+        return $this->executeAggregation($query, $offset, $limit);
+    }
+
+    /**
      * Find nodes with custom filter recursive.
      */
     public function findNodesByFilterRecursiveChildren(array $parent_filter, int $deleted, ?int $offset = null, ?int $limit = null): Generator
     {
-        $deleted_filter = [];
-        if (NodeInterface::DELETED_EXCLUDE === $deleted) {
-            $deleted_filter['deleted'] = false;
-        } elseif (NodeInterface::DELETED_ONLY === $deleted) {
-            $deleted_filter['deleted'] = ['$type' => 9];
-        }
-
-        $query = ['_id' => ['$exists' => true]];
-
-        if ($this->user !== null) {
-            $query = [
-                '$or' => [
-                    [
-                        'acl' => ['$exists' => false],
-                    ], [
-                        'acl.id' => (string) $this->user->getId(),
-                    ],
-                ],
-            ];
-        }
-
-        if (count($deleted_filter) > 0) {
-            $query = ['$and' => [$deleted_filter, $query]];
-        }
-
         $query = [
             ['$match' => $parent_filter],
             ['$graphLookup' => [
@@ -462,7 +523,7 @@ class Filesystem
                 'connectToField' => 'parent',
                 'as' => 'children',
                 'maxDepth' => 0,
-                'restrictSearchWithMatch' => $query,
+                'restrictSearchWithMatch' => $this->prepareChildrenFilter($deleted),
             ]],
             ['$addFields' => [
                 'size' => [
@@ -477,32 +538,7 @@ class Filesystem
             ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
         ];
 
-        $result = $this->db->storage->aggregate($query);
-
-        $total = 0;
-        $result = iterator_to_array($result);
-        if (count($result) > 0) {
-            $total = $result[0]['total'];
-        }
-
-        array_pop($query);
-
-        $offset !== null ? $query[] = ['$skip' => $offset] : false;
-        $limit !== null ? $query[] = ['$limit' => $limit] : false;
-        $result = $this->db->storage->aggregate($query);
-
-        foreach ($result as $node) {
-            try {
-                yield $this->initNode($node);
-            } catch (\Exception $e) {
-                $this->logger->error('remove node from result list, failed load node', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-            }
-        }
-
-        return $total;
+        return $this->executeAggregation($query, $offset, $limit);
     }
 
     /**
@@ -529,40 +565,13 @@ class Filesystem
             ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
         ];
 
-        $result = $this->db->storage->aggregate($query);
-
-        $total = 0;
-        $result = iterator_to_array($result);
-        if (count($result) > 0) {
-            $total = $result[0]['total'];
-        }
-
-        array_pop($query);
-
-        $offset !== null ? $query[] = ['$skip' => $offset] : false;
-        $limit !== null ? $query[] = ['$limit' => $limit] : false;
-        $result = $this->db->storage->aggregate($query);
-
-        foreach ($result as $node) {
-            try {
-                if (isset($node['children'])) {
-                    $node = $node['children'];
-                }
-
-                yield $this->initNode($node);
-            } catch (\Exception $e) {
-                $this->logger->error('remove node from result list, failed load node', [
-                    'category' => get_class($this),
-                    'exception' => $e,
-                ]);
-            }
-        }
-
-        return $total;
+        return $this->executeAggregation($query, $offset, $limit);
     }
 
     /**
      * Get custom filtered children.
+     *
+     * @deprecated
      */
     public function findNodesByFilterUser(int $deleted, array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
@@ -686,6 +695,72 @@ class Filesystem
         }
 
         return $parent;
+    }
+
+    /**
+     * Prepare children filter.
+     */
+    protected function prepareChildrenFilter(int $deleted)
+    {
+        $deleted_filter = [];
+        if (NodeInterface::DELETED_EXCLUDE === $deleted) {
+            $deleted_filter['deleted'] = false;
+        } elseif (NodeInterface::DELETED_ONLY === $deleted) {
+            $deleted_filter['deleted'] = ['$type' => 9];
+        }
+
+        $query = ['_id' => ['$exists' => true]];
+
+        if ($this->user !== null) {
+            $query = [
+                '$or' => [
+                    [
+                        'acl' => ['$exists' => false],
+                    ], [
+                        'acl.id' => (string) $this->user->getId(),
+                    ],
+                ],
+            ];
+        }
+
+        if (count($deleted_filter) > 0) {
+            $query = ['$and' => [$deleted_filter, $query]];
+        }
+
+        return $query;
+    }
+
+    /**
+     * Execute complex aggregation.
+     */
+    protected function executeAggregation(array $query, ?int $offset = null, ?int $limit = null): Generator
+    {
+        $result = $this->db->storage->aggregate($query);
+
+        $total = 0;
+        $result = iterator_to_array($result);
+        if (count($result) > 0) {
+            $total = $result[0]['total'];
+        }
+
+        array_pop($query);
+
+        $offset !== null ? $query[] = ['$skip' => $offset] : false;
+        $limit !== null ? $query[] = ['$limit' => $limit] : false;
+        $result = $this->db->storage->aggregate($query);
+
+        foreach ($result as $node) {
+            try {
+                yield $this->initNode($node);
+            } catch (\Exception $e) {
+                $this->logger->error('remove node from result list, failed load node', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        return $total;
     }
 
     /**
