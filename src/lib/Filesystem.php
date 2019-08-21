@@ -715,9 +715,18 @@ class Filesystem
             $query = [
                 '$or' => [
                     [
+                        'owner' => $this->user->getId(),
+                    ],
+                    [
                         'acl' => ['$exists' => false],
-                    ], [
+                    ],
+                    [
                         'acl.id' => (string) $this->user->getId(),
+                        'type' => 'user',
+                    ],
+                    [
+                        'acl.id' => ['$in' => array_map('strval', $this->user->getGroups())],
+                        'type' => 'group',
                     ],
                 ],
             ];
