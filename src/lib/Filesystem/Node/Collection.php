@@ -243,7 +243,7 @@ class Collection extends AbstractNode implements IQuota
         $filter = $this->getChildrenFilter($deleted, $filter);
 
         if ($recursive === false) {
-            return $this->_fs->findNodesByFilterRecursiveChildren($filter, $deleted, $offset, $limit);
+            return $this->_fs->findNodesByFilterRecursiveChildren($filter, $deleted, $offset, $limit, $this);
         }
 
         unset($filter['parent']);
@@ -320,7 +320,7 @@ class Collection extends AbstractNode implements IQuota
         $filter = $this->getChildrenFilter($deleted, $filter);
         $filter['name'] = new Regex('^'.preg_quote($name).'$', 'i');
 
-        return $this->_fs->findOne($filter);
+        return $this->_fs->findOne($filter, $deleted, $this);
     }
 
     /**
@@ -606,7 +606,7 @@ class Collection extends AbstractNode implements IQuota
             $this->changed = $save['changed'];
             $this->save('changed');
 
-            $new = $this->_fs->initNode($save);
+            $new = $this->_fs->initNode($save, $this);
             $this->_hook->run('postCreateCollection', [$this, $new, $clone]);
 
             return $new;
@@ -676,7 +676,7 @@ class Collection extends AbstractNode implements IQuota
             $this->changed = $save['changed'];
             $this->save('changed');
 
-            $file = $this->_fs->initNode($save);
+            $file = $this->_fs->initNode($save, $this);
 
             if ($session !== null) {
                 $file->setContent($session, $attributes);

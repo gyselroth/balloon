@@ -1,3 +1,10 @@
+## 2.6.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Aug 21 10:30:42 CEST 2019
+
+* CORE: [FIX] SMB folder does not get synced correctly (failed sync child node) #368
+
+
 ## 2.6.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Jul 11 12:25:42 CEST 2019
