@@ -237,9 +237,9 @@ class Filesystem
     /**
      * Find one.
      */
-    public function findOne(array $filter, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
+    public function findOne(array $filter, int $deleted = NodeInterface::DELETED_INCLUDE, ?Collection $parent = null): NodeInterface
     {
-        $result = iterator_to_array($this->findNodesByFilterRecursiveChildren($filter, $deleted, 0, 1));
+        $result = iterator_to_array($this->findNodesByFilterRecursiveChildren($filter, $deleted, 0, 1, $parent));
 
         if (count($result) === 0) {
             throw new Exception\NotFound(
@@ -512,7 +512,7 @@ class Filesystem
     /**
      * Find nodes with custom filter recursive.
      */
-    public function findNodesByFilterRecursiveChildren(array $parent_filter, int $deleted, ?int $offset = null, ?int $limit = null): Generator
+    public function findNodesByFilterRecursiveChildren(array $parent_filter, int $deleted, ?int $offset = null, ?int $limit = null, ?Collection $parent = null): Generator
     {
         $query = [
             ['$match' => $parent_filter],
@@ -538,7 +538,7 @@ class Filesystem
             ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
         ];
 
-        return $this->executeAggregation($query, $offset, $limit);
+        return $this->executeAggregation($query, $offset, $limit, $parent);
     }
 
     /**
@@ -565,7 +565,7 @@ class Filesystem
             ['$group' => ['_id' => null, 'total' => ['$sum' => 1]]],
         ];
 
-        return $this->executeAggregation($query, $offset, $limit);
+        return $this->executeAggregation($query, $offset, $limit, $collection);
     }
 
     /**
@@ -598,7 +598,7 @@ class Filesystem
     /**
      * Init node.
      */
-    public function initNode(array $node): NodeInterface
+    public function initNode(array $node, ?Collection $parent = null): NodeInterface
     {
         $id = $node['_id'];
 
@@ -607,11 +607,11 @@ class Filesystem
         }
 
         if (isset($node['parent'])) {
-            $parent = $this->findNodeById($node['parent']);
+            if ($parent === null || $parent->getId() != $node['parent']) {
+                $parent = $this->findNodeById($node['parent']);
+            }
         } elseif ($node['_id'] !== null) {
             $parent = $this->getRoot();
-        } else {
-            $parent = null;
         }
 
         if (!array_key_exists('directory', $node)) {
@@ -715,9 +715,18 @@ class Filesystem
             $query = [
                 '$or' => [
                     [
+                        'owner' => $this->user->getId(),
+                    ],
+                    [
                         'acl' => ['$exists' => false],
-                    ], [
+                    ],
+                    [
                         'acl.id' => (string) $this->user->getId(),
+                        'type' => 'user',
+                    ],
+                    [
+                        'acl.id' => ['$in' => array_map('strval', $this->user->getGroups())],
+                        'type' => 'group',
                     ],
                 ],
             ];
@@ -733,7 +742,7 @@ class Filesystem
     /**
      * Execute complex aggregation.
      */
-    protected function executeAggregation(array $query, ?int $offset = null, ?int $limit = null): Generator
+    protected function executeAggregation(array $query, ?int $offset = null, ?int $limit = null, ?Collection $parent = null): Generator
     {
         $result = $this->db->storage->aggregate($query);
 
@@ -751,7 +760,7 @@ class Filesystem
 
         foreach ($result as $node) {
             try {
-                yield $this->initNode($node);
+                yield $this->initNode($node, $parent);
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
                     'category' => get_class($this),

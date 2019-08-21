@@ -13,7 +13,6 @@ namespace Balloon\Async;
 
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
-use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\Blackhole;
 use Balloon\Filesystem\Storage\Adapter\Smb;
 use Balloon\Helper;
@@ -45,12 +44,18 @@ class SmbScanner extends AbstractJob
     protected $logger;
 
     /**
+     * Dummy storage.
+     */
+    protected $dummy;
+
+    /**
      * Constructor.
      */
     public function __construct(Server $server, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->logger = $logger;
+        $this->dummy = new Blackhole();
     }
 
     /**
@@ -58,7 +63,6 @@ class SmbScanner extends AbstractJob
      */
     public function start(): bool
     {
-        $dummy = new Blackhole();
         $fs = $this->server->getFilesystem();
         $mount = $collection = $fs->findNodeById($this->data['id']);
         $user = $this->server->getUserById($collection->getOwner());
@@ -73,7 +77,7 @@ class SmbScanner extends AbstractJob
 
         $collection
             ->setFilesystem($user_fs)
-            ->setStorage($dummy);
+            ->setStorage($this->dummy);
 
         $path = $smb->getRoot();
         if (isset($this->data['path'])) {
@@ -88,7 +92,7 @@ class SmbScanner extends AbstractJob
             $parent_path = dirname($path);
             if ($path !== '.') {
                 $collection = $this->getParent($collection, $share, $parent_path, $action);
-                $collection->setStorage($dummy);
+                $collection->setStorage($this->dummy);
             }
         }
 
@@ -97,7 +101,7 @@ class SmbScanner extends AbstractJob
             $recursive = $this->data['recursive'];
         }
 
-        $this->recursiveIterator($collection, $mount, $share, $dummy, $user, $smb, $path, $recursive, $action);
+        $this->recursiveIterator($collection, $mount, $share, $user, $smb, $path, $recursive, $action);
 
         return true;
     }
@@ -110,7 +114,6 @@ class SmbScanner extends AbstractJob
         $parent = $mount;
         $nodes = explode(DIRECTORY_SEPARATOR, $path);
         $sub = '';
-        $dummy = $mount->getStorage();
 
         foreach ($nodes as $child) {
             if ($child === '.') {
@@ -120,7 +123,7 @@ class SmbScanner extends AbstractJob
             try {
                 $sub .= DIRECTORY_SEPARATOR.$child;
                 $parent = $parent->getChild($child);
-                $parent->setStorage($dummy);
+                $parent->setStorage($this->dummy);
             } catch (\Exception $e) {
                 if ($action === INotifyHandler::NOTIFY_REMOVED) {
                     throw $e;
@@ -139,28 +142,16 @@ class SmbScanner extends AbstractJob
     }
 
     /**
-     * Delete node.
-     */
-    protected function deleteNode(NodeInterface $node, Blackhole $dummy): bool
-    {
-        if ($node instanceof Collection) {
-            $node->doRecursiveAction(function (NodeInterface $node) use ($dummy) {
-                if ($node instanceof Collection) {
-                    $node->setStorage($dummy);
-                }
-            });
-        }
-
-        $node->delete(true);
-
-        return true;
-    }
-
-    /**
      * Iterate recursively through smb share.
      */
-    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, Blackhole $dummy, User $user, Smb $smb, string $path, bool $recursive, int $action): void
+    protected function recursiveIterator(Collection $parent, Collection $mount, IShare $share, User $user, Smb $smb, string $path, bool $recursive, int $action): void
     {
+        $system_path = $path.DIRECTORY_SEPARATOR.$smb->getSystemFolder();
+
+        if ($path === $system_path) {
+            return;
+        }
+
         $this->logger->debug('sync smb path ['.$path.'] in mount ['.$mount->getId().'] from operation ['.$action.']', [
             'category' => get_class($this),
             'recursive' => $recursive,
@@ -177,16 +168,14 @@ class SmbScanner extends AbstractJob
         } catch (NotFoundException $e) {
             if ($action === INotifyHandler::NOTIFY_REMOVED) {
                 $node = $parent->getChild(Helper::mb_basename($path));
-                $node->getParent()->setStorage($dummy);
-                $this->deleteNode($node, $dummy);
+                $node->getParent()->setStorage($this->dummy);
+                $node->delete(true);
             }
 
             return;
         }
 
         if ($node->isDirectory()) {
-            $parent->setStorage($dummy);
-
             if ($path === DIRECTORY_SEPARATOR) {
                 $child = $parent;
             } else {
@@ -198,7 +187,7 @@ class SmbScanner extends AbstractJob
             }
 
             if ($recursive === true) {
-                $child->setStorage($dummy);
+                $child->setStorage($this->dummy);
                 $nodes = [];
 
                 foreach ($share->dir($path) as $node) {
@@ -210,7 +199,7 @@ class SmbScanner extends AbstractJob
                     $child_path = ($path === DIRECTORY_SEPARATOR) ? $path.$node->getName() : $path.DIRECTORY_SEPARATOR.$node->getName();
 
                     try {
-                        $this->recursiveIterator($child, $mount, $share, $dummy, $user, $smb, $child_path, $recursive, $action);
+                        $this->recursiveIterator($child, $mount, $share, $user, $smb, $child_path, $recursive, $action);
                     } catch (\Exception $e) {
                         $this->logger->error('failed sync child node ['.$child_path.'] in smb mount', [
                             'category' => get_class($this),
@@ -219,11 +208,11 @@ class SmbScanner extends AbstractJob
                     }
                 }
 
-                foreach ($child->getChildren() as $sub_child) {
+                foreach ($child->getChildNodes() as $sub_child) {
                     $sub_name = Normalizer::normalize($sub_child->getName());
 
                     if (!in_array($sub_name, $nodes)) {
-                        $this->deleteNode($sub_child, $dummy);
+                        $sub_child->delete(true);
                     }
                 }
             }
