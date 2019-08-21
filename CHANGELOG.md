@@ -1,6 +1,6 @@
 ## 2.6.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Wed Aug 21 10:30:42 CEST 2019
+**Date**: Wed Aug 21 14:31:43 CEST 2019
 
 * CORE: [FIX] SMB folder does not get synced correctly (failed sync child node) #368
 * CORE: [FIX] Node children count does not account groups #351
