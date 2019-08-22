@@ -105,11 +105,9 @@ class Factory
 
         $storage = $this->storage;
 
-        if ($parent !== null) {
+        if ($parent !== null && $parent->getStorage() != $this->storage) {
             $storage = $parent->getStorage();
-        }
-
-        if (isset($node['reference'])) {
+        } elseif (isset($node['reference'])) {
             $share = $fs->findRawNode($node['reference']);
             if (isset($share['mount'])) {
                 $storage = $this->getStorage($share['_id'], $share['mount']);
