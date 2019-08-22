@@ -1,3 +1,10 @@
+## 2.6.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Aug 22 16:13:42 CEST 2019
+
+* CORE: [FIX] SMB folder does not get synced correctly (use parent storage) #368
+
+
 ## 2.6.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Aug 21 14:31:43 CEST 2019
