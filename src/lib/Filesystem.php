@@ -216,7 +216,13 @@ class Filesystem
         $filter = [
             '_id' => $id,
         ];
-
+        /*
+                if (NodeInterface::DELETED_EXCLUDE === $deleted) {
+                    $filter['deleted'] = false;
+                } elseif (NodeInterface::DELETED_ONLY === $deleted) {
+                    $filter['deleted'] = ['$type' => 9];
+                }
+         */
         $result = iterator_to_array($this->findNodesByFilterRecursiveChildren($filter, $deleted, 0, 1));
 
         if (count($result) === 0) {
@@ -619,6 +625,11 @@ class Filesystem
         }
 
         $instance = $this->node_factory->build($this, $node, $parent);
+        $loaded = isset($this->cache[(string) $node['_id']]);
+
+        if ($loaded === false) {
+            $this->cache[(string) $node['_id']] = $instance;
+        }
 
         if (!$this->acl->isAllowed($instance, 'r')) {
             if ($instance->isReference()) {
@@ -629,12 +640,6 @@ class Filesystem
                 'not allowed to access node',
                 ForbiddenException::NOT_ALLOWED_TO_ACCESS
             );
-        }
-
-        $loaded = isset($this->cache[(string) $node['_id']]);
-
-        if ($loaded === false) {
-            $this->cache[(string) $node['_id']] = $instance;
         }
 
         if ($loaded === false && isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
