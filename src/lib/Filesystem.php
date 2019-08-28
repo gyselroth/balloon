@@ -216,13 +216,13 @@ class Filesystem
         $filter = [
             '_id' => $id,
         ];
-        /*
-                if (NodeInterface::DELETED_EXCLUDE === $deleted) {
-                    $filter['deleted'] = false;
-                } elseif (NodeInterface::DELETED_ONLY === $deleted) {
-                    $filter['deleted'] = ['$type' => 9];
-                }
-         */
+
+        if (NodeInterface::DELETED_EXCLUDE === $deleted) {
+            $filter['deleted'] = false;
+        } elseif (NodeInterface::DELETED_ONLY === $deleted) {
+            $filter['deleted'] = ['$type' => 9];
+        }
+
         $result = iterator_to_array($this->findNodesByFilterRecursiveChildren($filter, $deleted, 0, 1));
 
         if (count($result) === 0) {
