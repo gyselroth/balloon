@@ -300,7 +300,7 @@ class Node extends Controller
                       throw new Exception\Conflict(
                           'invalid offset requested',
                           Exception\Conflict::INVALID_OFFSET
-                    );
+                      );
                   }
               }
 

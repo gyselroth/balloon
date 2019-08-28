@@ -7,7 +7,6 @@ build
 dist
 log
 lib_dev
-composer.lock
 .php_cs.cache
 .phpstan.lock
 .phpunit.lock

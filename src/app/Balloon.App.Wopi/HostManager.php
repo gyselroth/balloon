@@ -260,7 +260,7 @@ class HostManager
         $response = $this->client->request(
             'GET',
             $url
-         );
+        );
 
         $body = $response->getBody()->getContents();
         $body = json_decode(json_encode(simplexml_load_string($body), JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY);
