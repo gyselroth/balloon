@@ -1,3 +1,10 @@
+## 2.6.5
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Aug 28 14:15:42 CEST 2019
+
+* CORE: [FIX] Delta extremely slow with many nodes from inbox shares #372
+
+
 ## 2.6.4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Aug 22 16:13:42 CEST 2019
