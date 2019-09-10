@@ -1,3 +1,10 @@
+## 2.6.6
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: 
+
+* CORE: [FIX] Use param $hooks instead of $hook
+
+
 ## 2.6.5
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Aug 28 14:15:42 CEST 2019
