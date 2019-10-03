@@ -1,3 +1,12 @@
+## 2.6.6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Oct 2 15:37:42 CEST 2019
+
+* CORE: [CHANGE] Include nginx deb dependency (does not require balloon-web package anymore)
+* CORE: [FIX] ballooncli returns with an exit code 0 if an exception occured #380
+* CORE: [FIX] Changed packaging/kubernetes resources to the latest tag
+
+
 ## 2.6.5
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Aug 28 14:15:42 CEST 2019
