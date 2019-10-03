@@ -21,7 +21,7 @@ spec:
         k8s-app: balloon-web
     spec:
       containers:
-      - image: gyselroth/balloon-web:3.0.0-beta1
+        - image: gyselroth/balloon-web:latest
         imagePullPolicy: Always
         name: balloon-web
         ports:

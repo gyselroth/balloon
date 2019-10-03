@@ -40,7 +40,7 @@ spec:
           value: https://balloon
         - name: BALLOON_BURL_BROWSERLESS_URL
           value: http://chrome:3000
-        image: gyselroth/balloon:2.1.0-beta3
+        image: gyselroth/balloon:latest
         imagePullPolicy: IfNotPresent
         name: balloon
         ports:

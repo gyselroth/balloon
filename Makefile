@@ -113,6 +113,9 @@ $(DIST_DIR)/balloon-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
 	@cp -Rp $(SRC_DIR)/.container.config.php $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
+	@mkdir -p $(BUILD_DIR)/usr/share/balloon/nginx
+	@cp -Rp $(BASE_DIR)/packaging/debian/nginx.conf $(BUILD_DIR)/usr/share/balloon/nginx
+	@cp -Rp $(BASE_DIR)/packaging/debian/nginx-server.conf $(BUILD_DIR)/usr/share/balloon/nginx
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@dpkg-deb --build $(BUILD_DIR) $@
 	$(COMPOSER_BIN) update
@@ -248,4 +251,6 @@ $(INSTALL_TARGET): $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
 	@cp -Rp $(BUILD_DIR)/* $(INSTALL_PREFIX)
+	@cp -Rp $(BASE_DIR)/packaging/debian/nginx.conf /etc/nginx/conf.d/balloon.conf
+	@cp -Rp $(BASE_DIR)/packaging/debian/nginx-server.conf /etc/nginx/conf.d/balloon/server.conf
 	$(COMPOSER_BIN) update

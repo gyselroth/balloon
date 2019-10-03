@@ -171,6 +171,7 @@ class Cli extends AbstractBootstrap
         });
 
         exit(1);
+
         return $this;
     }
 }
