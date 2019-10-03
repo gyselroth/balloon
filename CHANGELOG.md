@@ -5,6 +5,7 @@
 * CORE: [CHANGE] Include nginx deb dependency (does not require balloon-web package anymore)
 * CORE: [FIX] ballooncli returns with an exit code 0 if an exception occured #380
 * CORE: [FIX] Changed packaging/kubernetes resources to the latest tag
+* CORE: [FIX] Use param $hooks instead of $hook
 
 
 ## 2.6.5
