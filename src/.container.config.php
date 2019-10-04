@@ -80,7 +80,7 @@ return [
         'calls' => [[
             'method' => 'selectDatabase',
             'arguments' => [
-                'databaseName' => 'balloon'
+                'databaseName' => '{ENV(BALLOON_MONGODB_DATABASE,balloon)}'
             ],
             'select' => true
         ]]

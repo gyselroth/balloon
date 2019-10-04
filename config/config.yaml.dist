@@ -53,7 +53,7 @@ Balloon\App\Wopi\HostManager:
     config:
       hosts:
       - name: LibreOffice Online
-        url: '{ENV(BALLOON_LIBREOFFICE_URL,https://libreoffice:9980)}/hosting/discovery'
+        url: '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery'
       client_url: '{ENV(BALLOON_URL,https://localhost)}'
       cache_ttl: 86400
       validate_proof: true
@@ -220,7 +220,7 @@ Balloon\Converter:
         GuzzleHttp\ClientInterface:
           arguments:
             config:
-              base_uri: "{ENV(BALLOON_LIBREOFFICE_URL,https://localhost:9980)}"
+              base_uri: "{ENV(BALLOON_LIBREOFFICE_CONVERT_URL,https://localhost:9980)}"
               connect_timeout: 3
               timeout: 10
               verify: false
