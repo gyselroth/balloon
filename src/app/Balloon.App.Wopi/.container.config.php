@@ -11,14 +11,12 @@ use Balloon\Migration;
 return [
     HostManager::class => [
         'arguments' => [
-            [
-                'hosts' => [
-                    [
+            'hosts' => [
+                [
                         'name' => 'LibreOffice Online',
                         'url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery'
-                    ]
                 ]
-            ],
+            ]
         ],
     ],
     AbstractBootstrap::class => [
