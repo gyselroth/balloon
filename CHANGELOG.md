@@ -6,6 +6,7 @@
 * CORE: [FIX] ballooncli returns with an exit code 0 if an exception occured #380
 * CORE: [FIX] Changed packaging/kubernetes resources to the latest tag
 * CORE: [FIX] Use param $hooks instead of $hook
+* CORE: [FIX] Upgrade command fails #376
 
 
 ## 2.6.5
