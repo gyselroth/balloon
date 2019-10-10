@@ -2143,6 +2143,10 @@ paths:
           required: false
           type: string
           description: 'Set to base64 to return a jpeg encoded preview as base64, else return it as jpeg binary'
+      security:
+        - BasicAuth
+        - ApiKeyAuth
+        - OAuth2
       responses:
         200:
           description: "Binara data"
@@ -2150,6 +2154,25 @@ paths:
           description: "Resource does not exists"
         403:
           description: "Access denied"
+security:
+  - BasicAuth: []
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OpenID: []
+securityDefinitions:
+  BasicAuth:
+    type: http
+    scheme: basic
+  BearerAuth:
+    type: http
+    scheme: bearer
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: X-API-Key
+  OpenID:
+    type: openIdConnect
+    openIdConnectUrl: https://example.com/.well-known/openid-configuration    
 definitions:
   core.v2.JsonPatch:
     description: "A JSON Patch according rfc6902."
