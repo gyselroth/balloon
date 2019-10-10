@@ -1092,7 +1092,7 @@ paths:
       operationId: updateWopiDocuemntContent
       parameters:
         - name: document
-          in: query
+          in: path
           required: true
           description: "The document id "
           schema:
