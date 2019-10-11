@@ -2154,17 +2154,13 @@ paths:
 security:
   - BasicAuth: []
   - BearerAuth: []
-  - OpenID: []
 securityDefinitions:
   BasicAuth:
-    type: http
-    scheme: basic
+    type: basic
   BearerAuth:
-    type: http
-    scheme: bearer
-  OpenID:
-    type: openIdConnect
-    openIdConnectUrl: https://example.com/.well-known/openid-configuration
+    type: apiKey
+    name: Authorization
+    in: header
 definitions:
   core.v2.JsonPatch:
     description: "A JSON Patch according rfc6902."
