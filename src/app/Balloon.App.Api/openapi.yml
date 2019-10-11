@@ -2328,11 +2328,10 @@ paths:
           description: Resource does not exists
 servers:
   - url: /
-security: 
-  - ApiKeyAuth: []
-  - OpenID: []
+security:
   - BasicAuth: []
   - BearerAuth: []
+  - OpenID: []
 components:
   securitySchemes:
     BasicAuth:
@@ -2341,13 +2340,9 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-API-Key
     OpenID:
       type: openIdConnect
-      openIdConnectUrl: https://example.com/.well-known/openid-configuration    
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
   requestBodies:
     core.v2.Collection:
       content:
