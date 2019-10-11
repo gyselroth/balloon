@@ -9,6 +9,7 @@ info:
 basePath: "/"
 schemes:
 - "https"
+- "http"
 paths:
   /api:
     get:
@@ -2172,7 +2173,7 @@ securityDefinitions:
     name: X-API-Key
   OpenID:
     type: openIdConnect
-    openIdConnectUrl: https://example.com/.well-known/openid-configuration    
+    openIdConnectUrl: https://example.com/.well-known/openid-configuration
 definitions:
   core.v2.JsonPatch:
     description: "A JSON Patch according rfc6902."
