@@ -226,13 +226,10 @@ paths:
             type: string
       responses:
         "200":
-          description: List of users
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/core.v2.User"
+                $ref: "#/components/schemas/core.v2.Users"
         "403":
           description: Access denied
         "404":
@@ -312,13 +309,10 @@ paths:
             type: string
       responses:
         "200":
-          description: List of users
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/core.v2.Users"
+                $ref: "#/components/schemas/core.v2.Users"
         "403":
           description: Access denied
         "404":

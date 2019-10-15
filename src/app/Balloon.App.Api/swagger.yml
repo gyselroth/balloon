@@ -218,11 +218,9 @@ paths:
           description: 'Resource identifier'
       responses:
         200:
-          description: List of users
+          description: "List of users"
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/core.v2.User'
+            $ref: '#/definitions/core.v2.Users'
         404:
           description: "Resource does not exists"
         403:
@@ -294,12 +292,10 @@ paths:
           required: false
           type: string
       responses:
-        '200':
-          description: List of users
+        200:
+          description: "List of users"
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/core.v2.Users'
+            $ref: '#/definitions/core.v2.Users'
         404:
           description: "Resource does not exists"
         403:
@@ -480,7 +476,7 @@ paths:
           type: string
       responses:
         200:
-          description: "Groups"
+          description: "List of groups"
           schema:
             $ref: "#/definitions/core.v2.Groups"
         404:
@@ -2251,6 +2247,7 @@ definitions:
         type: string
   core.v2.Users:
     description: "A list of users."
+    type: object
     allOf:
       - $ref: '#/definitions/core.v2.ResourceList'
       - type: object
