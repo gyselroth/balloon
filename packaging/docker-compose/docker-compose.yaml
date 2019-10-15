@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 networks:
   backend:
   frontend:
@@ -43,15 +43,17 @@ services:
     - backend
   balloon-jobs:
     image: gyselroth/balloon:latest
-    volumes:
-      - .:/srv/www/balloon
+    depends_on:
+    - mongodb
+    entrypoint: ballooncli jobs -vvvv
     networks:
     - backend
     environment:
       - BALLOON_MONGODB_URI=mongodb://mongodb:27017
       - BALLOON_CLAMAV_URI=tcp://clamav:3310
       - BALLOON_WOPI_URL=http://balloon
-      - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+      - BALLOON_LIBREOFFICE_COLLAB_URL=https://libreoffice:9980
+      - BALLOON_LIBREOFFICE_CONVERT_URL=https://libreoffice:9980
       - BALLOON_SMTP_HOST=postfix
       - BALLOON_URL=http://localhost:8080
       - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
@@ -60,13 +62,13 @@ services:
     image: gyselroth/balloon-web:latest
     ports:
       - "80:80"
-    links:
-      - balloon
     networks:
     - backend
     - frontend
-  balloon:
+  balloon-upgrade:
     image: gyselroth/balloon:latest
+    restart: on-failure
+    entrypoint: ballooncli upgrade -vvvv
     networks:
     - backend
     environment:
@@ -74,7 +76,23 @@ services:
       - BALLOON_CLAMAV_URI=tcp://clamav:3310
       - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
       - BALLOON_WOPI_URL=http://balloon
-      - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+      - BALLOON_LIBREOFFICE_COLLAB_URL=https://libreoffice:9980
+      - BALLOON_LIBREOFFICE_CONVERT_URL=https://libreoffice:9980
+      - BALLOON_SMTP_HOST=postfix
+      - BALLOON_URL=http://localhost:8080
+      - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+  balloon:
+    image: gyselroth/balloon:latest
+    entrypoint: php-fpm
+    networks:
+    - backend
+    environment:
+      - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+      - BALLOON_CLAMAV_URI=tcp://clamav:3310
+      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
+      - BALLOON_WOPI_URL=http://balloon
+      - BALLOON_LIBREOFFICE_COLLAB_URL=https://libreoffice:9980
+      - BALLOON_LIBREOFFICE_CONVERT_URL=https://libreoffice:9980
       - BALLOON_SMTP_HOST=postfix
       - BALLOON_URL=http://localhost:8080
       - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
