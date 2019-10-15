@@ -4,6 +4,18 @@ networks:
   frontend:
 
 services:
+  traefik:
+    image: traefik:v1.7-alpine
+    command: --web --docker --docker.domain=docker.localhost --logLevel=DEBUG
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+    networks:
+    - backend
+    - frontend
   mongodb:
     image: mongo:3.6
     networks:
@@ -41,6 +53,39 @@ services:
     image: browserless/chrome
     networks:
     - backend
+  balloon-proxy:
+    image: nginx-alpine
+    networks:
+    - backend
+    command: |
+      bash -c 'rm /etc/nginx/conf.d/default.conf && bash -s <<EOF
+        cat > /etc/nginx/conf.d/balloon.conf <<EON
+          server {
+              listen 80;
+              access_log /dev/stdout;
+              error_log /dev/stderr;
+
+              location ~ ^/(api|webdav|share) {
+                  index index.php;
+                  root /usr/share/balloon/bin/httpdocs;
+                  rewrite ^(.+)\\\$$ /index.php\\\$$1 last;
+                  break;
+              }
+
+              location ~ ^/index.php {
+                  root /usr/share/balloon/bin/httpdocs;
+                  fastcgi_pass balloon:9000;
+                  fastcgi_param SCRIPT_FILENAME /usr/share/balloon/bin/httpdocs\\\$$fastcgi_script_name;
+                  fastcgi_param PATH_INFO \\\$$fastcgi_script_name;
+                  include /etc/nginx/fastcgi_params;
+              }
+          }
+      EON
+      nginx -g "daemon off;"
+      EOF'
+    labels:
+    - traefik.backend=server
+    - "traefik.frontend.rule=PathPrefix:/api,/webdav,/share"
   balloon-jobs:
     image: gyselroth/balloon:latest
     depends_on:
@@ -59,14 +104,15 @@ services:
       - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
       - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
   balloon-web:
-    image: gyselroth/balloon-web:latest
-    ports:
-      - "80:80"
+    image: gyselroth/balloon-web:3.2.8-alpha1
     networks:
     - backend
     - frontend
+    labels:
+    - traefik.backend=web
+    - "traefik.frontend.rule=PathPrefix:/"
   balloon-upgrade:
-    image: gyselroth/balloon:latest
+    image: gyselroth/balloon:2.6.6-alpha7
     restart: on-failure
     entrypoint: ballooncli upgrade -vvvv
     networks:
@@ -82,7 +128,7 @@ services:
       - BALLOON_URL=http://localhost:8080
       - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
   balloon:
-    image: gyselroth/balloon:latest
+    image: gyselroth/balloon:2.6.6-alpha7
     entrypoint: php-fpm
     networks:
     - backend
