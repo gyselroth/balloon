@@ -1,0 +1,80 @@
+version: '2'
+networks:
+  backend:
+  frontend:
+
+services:
+  mongodb:
+    image: mongo:3.6
+    networks:
+    - backend
+  clamav:
+    image: dinkel/clamavd:latest
+    networks:
+    - backend
+  libreoffice:
+    image: collabora/code:4.0.1.1
+    ports:
+      - "9980:9980"
+    environment:
+      - domain=balloon
+    entrypoint:
+      - sh
+      - -c
+      - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
+    networks:
+    - backend
+    - frontend
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    entrypoint:
+      - /bin/sh
+      - -c
+      - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && docker-entrypoint.sh"
+    networks:
+    - backend
+  postfix:
+    image: webuni/postfix
+    networks:
+    - backend
+  browserless:
+    image: browserless/chrome
+    networks:
+    - backend
+  balloon-jobs:
+    image: gyselroth/balloon:latest
+    volumes:
+      - .:/srv/www/balloon
+    networks:
+    - backend
+    environment:
+      - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+      - BALLOON_CLAMAV_URI=tcp://clamav:3310
+      - BALLOON_WOPI_URL=http://balloon
+      - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+      - BALLOON_SMTP_HOST=postfix
+      - BALLOON_URL=http://localhost:8080
+      - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
+  balloon-web:
+    image: gyselroth/balloon-web:latest
+    ports:
+      - "80:80"
+    links:
+      - balloon
+    networks:
+    - backend
+    - frontend
+  balloon:
+    image: gyselroth/balloon:latest
+    networks:
+    - backend
+    environment:
+      - BALLOON_MONGODB_URI=mongodb://mongodb:27017
+      - BALLOON_CLAMAV_URI=tcp://clamav:3310
+      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
+      - BALLOON_WOPI_URL=http://balloon
+      - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+      - BALLOON_SMTP_HOST=postfix
+      - BALLOON_URL=http://localhost:8080
+      - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000

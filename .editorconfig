@@ -12,7 +12,7 @@ insert_final_newline = true
 [{Makefile,**.mk}]
 indent_style = tab
 
-[{*.yaml,*.json,*.ym,*.dist}]
+[{*.yaml,*.json,*.yml,*.dist}]
 indent_size = 2
 
 [*.md]

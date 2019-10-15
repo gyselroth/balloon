@@ -1,5 +1,5 @@
 site_name: balloon
-theme: readthedocs
+theme: material
 extra_css:
 - css/extra.css
 markdown_extensions:
@@ -7,13 +7,14 @@ markdown_extensions:
     base_path: .
 nav:
 - Home: index.md
-- Getting started: getting-started.md
-- Upgrade: upgrade.md
+- Server:
+  - Installation: server/installation.md
+  - Changelog: server/changelog.md
+  - Upgrade: server/upgrade.md
+  - Apps:
+    - Elasticsearch: server/apps/elasticsearch.md
+  - Development: server/development.md
+- Web client:
+  - index: web-client.md
+  - Web client: development/web-client.md
 - Desktop client: desktop-client.md
-- Apps:
-  - Elasticsearch: apps/elasticsearch.md
-- Development:
-  - Server: development/server.md
-   # - Web client: development/web-client.md
-   # - Desktop client: development/desktop-client.md
-   # - 3rd party & SDK: development/3rdparty.md
