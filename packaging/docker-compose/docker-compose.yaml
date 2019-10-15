@@ -54,7 +54,7 @@ services:
     networks:
     - backend
   balloon-proxy:
-    image: nginx-alpine
+    image: nginx
     networks:
     - backend
     command: |
