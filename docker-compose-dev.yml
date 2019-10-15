@@ -59,7 +59,6 @@ services:
     balloon-web:
         image: gyselroth/balloon-web:latest
         ports:
-            - "8081:443"
             - "8084:80"
         links:
             - balloon-dev

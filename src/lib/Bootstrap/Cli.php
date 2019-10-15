@@ -168,6 +168,8 @@ class Cli extends AbstractBootstrap
                 'category' => get_class($this),
                 'exception' => $e,
             ]);
+
+            exit(1);
         });
 
         return $this;

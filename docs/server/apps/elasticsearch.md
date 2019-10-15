@@ -2,7 +2,7 @@
 
 Balloon.App.Elasticsearch is a core app and already shipped and enabled by default.
 Elasticsearch gets used to offer fulltext search. Documents are stored by the internal balloon server directly and no additional tools are required.
-The elasticsearch plugin ingest-attachment is required to provide blob indexing, see [balloon server deployment](getting-started).
+The elasticsearch plugin ingest-attachment is required to provide blob indexing, see [balloon server installation](/server/installation).
 
 ## Indexes
 
@@ -26,6 +26,7 @@ Note that you will need to recreate the indices if you want to apply a new index
 ballooncli upgrade -f -i -d 'Balloon\App\Elasticsearch\Migration\Delta\Installation' -vvvv 
 ballooncli elasticsearch reindex -vvv
 ```
+
 
 ```json
 {
@@ -309,3 +310,4 @@ ballooncli elasticsearch reindex -vvv
     }
   }
 }
+```

@@ -25,7 +25,40 @@ if [[ ! -f /etc/init/balloon-jobs.conf && -d /etc/init ]]; then
     cp /usr/share/balloon/scripts/balloon-jobs.service.upstart /etc/init/balloon-jobs.conf
 fi
 
-echo "create admin user"
+if [ ! -d /var/log/balloon ]; then
+  mkdir /var/log/balloon
+fi
+
+chown -R www-data. /var/log/balloon
+
+if [ ! -d /etc/ssl/balloon ]; then
+  mkdir /etc/ssl/balloon
+fi
+
+if [[ ! -f /etc/ssl/balloon/key.pem && ! -f /etc/ssl/balloon/chain.pem ]]; then
+  openssl genrsa -des3 -passout pass:balloon -out server.pass.key 2048
+  openssl rsa -passin pass:balloon -in server.pass.key -out key.pem
+  rm server.pass.key
+  openssl req -new -key key.pem -out server.csr -subj "/C=CH/L=Zurich/O=Balloon/CN=balloon.local"
+  openssl x509 -req -days 365 -in server.csr -signkey key.pem -out chain.pem
+  rm server.csr
+  mv key.pem /etc/ssl/balloon
+  mv chain.pem /etc/ssl/balloon
+fi
+
+if [ ! -d /etc/nginx/conf.d/balloon ]; then
+  mkdir /etc/nginx/conf.d/balloon
+fi
+
+if [ ! -f /etc/nginx/conf.d/balloon.conf ]; then
+  cp /usr/share/balloon-web/nginx/nginx.conf /etc/nginx/conf.d/balloon.conf
+fi
+
+if [ ! -f /etc/nginx/conf.d/balloon/web.conf ]; then
+  cp /usr/share/balloon-web/nginx/nginx-web.conf /etc/nginx/conf.d/balloon/web.conf
+fi
+
+echo "execute balloon upgrade"
 /usr/bin/ballooncli upgrade start -vvv -i
 chown -R www-data. /var/log/balloon
 
@@ -36,3 +69,6 @@ echo "restart balloon-jobs service"
 if service --status-all | grep -Fq 'balloon-jobs'; then
   service balloon-jobs restart
 fi
+
+echo "restart nginx"
+service nginx restart

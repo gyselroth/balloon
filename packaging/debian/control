@@ -2,8 +2,8 @@ Package: balloon
 Version: {version}
 Architecture: all
 Maintainer: Raffael Sahli <sahli@gyselroth.com>
-Depends: php7.3, php7.3-mbstring, php-mongodb, php7.3-opcache, php7.3-curl, php-imagick, php7.3-cli, php7.3-zip, php7.3-intl, php7.3-fpm
+Depends: php7.3, php7.3-mbstring, php-mongodb, php7.3-opcache, php7.3-curl, php-imagick, php7.3-cli, php7.3-zip, php7.3-intl, php7.3-fpm, nginx, openssl
 Recommends: php7.3-apc, php7.3-ldap
-Suggests: nginx, mongodb-org, elasticsearch, clamav, loolwsd, code-brand
+Suggests: mongodb-org, elasticsearch, clamav, loolwsd, code-brand
 Homepage: https://github.com/gyselroth/balloon
-Description: balloon cloud server
+Description: High performance, feature rich document management system written for the cloud

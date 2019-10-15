@@ -82,11 +82,11 @@ class Hook
      */
     public function getHooks(array $hooks = []): array
     {
-        if (empty($hook)) {
+        if (empty($hooks)) {
             return $this->hook;
         }
         $list = [];
-        foreach ($hook as $class) {
+        foreach ($hooks as $class) {
             if (!$this->hasHook($class)) {
                 throw new Exception('hook '.$class.' is not registered');
             }

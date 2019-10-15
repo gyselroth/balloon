@@ -18,14 +18,14 @@ git clone https://github.com/gyselroth/balloon.git
 
 ### Development
 The recomended way to get started in development is to use the available docker images.
-You need (docker)[https://docs.docker.com/engine/installation/linux/docker-ce/debian/] and (docker-compose)[https://docs.docker.com/compose/install/] installed on your local machine.
+You need [docker](https://docs.docker.com/engine/installation/linux/docker-ce/debian/) and [docker-compose](https://docs.docker.com/compose/install/) installed on your local machine.
 
 For starters you cann use the full stack development composing configuration `docker-compose-dev.yml`.
 Start the development stack `docker-compose -f docker-compose-dev.yml up`.
 
 Your balloon dev environment should now be running: 
 ```
-curl -k -u admin:admin https://localhost:8081/api/v2/users/whoami?pretty
+curl -k -u admin:admin http://localhost:8081/api/v2/users/whoami?pretty
 ```
 
 #### Make

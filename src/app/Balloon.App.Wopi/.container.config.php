@@ -2,12 +2,25 @@
 use Balloon\App\Wopi\Constructor\Http;
 use Balloon\Bootstrap\AbstractBootstrap;
 use Micro\Auth\Auth;
+use Balloon\App\Wopi\HostManager;
 use Balloon\App\Wopi\Auth\Token;
 use Balloon\App\Wopi\Migration\Delta\Installation;
 use Balloon\App\Wopi\Migration\Delta\RemoveOldTokenCollection;
 use Balloon\Migration;
 
 return [
+    HostManager::class => [
+        'arguments' => [
+            'config' => [
+                'hosts' => [
+                    [
+                            'name' => 'LibreOffice Online',
+                            'url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery'
+                    ]
+                ]
+            ]
+        ],
+    ],
     AbstractBootstrap::class => [
         'calls' => [
             'Balloon.App.Wopi' => [

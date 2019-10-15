@@ -1,4 +1,4 @@
-# Getting started
+# Installation
 
 This is a step-by-step tutorial how to correctly deploy the balloon server and the [balloon web](github.com/gyselroth/balloon-client-web) based user interface.
 This tutorial includes the web interface, of course you may also just install the server components only. The web ui acts as a balloon client and is completely optional.
@@ -6,7 +6,8 @@ This tutorial includes the web interface, of course you may also just install th
 There are multiple supported ways to deploy balloon:
 
 * Docker (docker-compose)
-* Container orchestration plattform like [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/)
+* [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/) using [helm](https://github.com/gyselroth/balloon-helm)
+* Manually to [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/)
 * Classic way from debian package via apt
 * Manually from tar archive
 * Compile manually from scratch
@@ -15,7 +16,7 @@ The docker/kubernetes deployment is the **recommended** way to deploy balloon. A
 
 ## Docker (docker-compose)
 
-The easiest, fastest and recommended way to deploy a balloon environment is to spin it up using docker and docker-compose.
+The easiest and fastest way to deploy a balloon environment is to spin it up using docker and docker-compose.
 Since the installation is not the same for different host os and docker can be started on Linux, Windows and Mac please visit 
 the docker documentation on how to install [docker](https://docs.docker.com/install) and [docker-compose](https://docs.docker.com/compose/install).
 
@@ -26,101 +27,52 @@ Create a file named `balloon-stable.yaml` with this content:
 
 * docker
 * docker-compose
+* curl
 
-
-```yaml
-web:
-    image: gyselroth/balloon-web:latest
-    ports:
-        - "443:443"
-    links:
-        - balloon
-mongodb:
-    image: mongo:3.6.0
-libreoffice:
-    image: collabora/code:4.0.1.1
-    ports:
-        - "9980:9980"
-    links:
-        - balloon
-    environment:
-        - domain=balloon
-    entrypoint:
-        - sh
-        - -c
-        - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
-    entrypoint:
-        - /bin/sh
-        - -c
-        - "elasticsearch-plugin list | grep ingest-attachment || elasticsearch-plugin install ingest-attachment --batch && docker-entrypoint.sh"
-clamav:
-    image: dinkel/clamavd:latest
-postfix:
-    image: webuni/postfix
-browserless:
-    image: browserless/chrome
-balloon:
-    image: gyselroth/balloon:latest
-    links:
-        - clamav
-        - mongodb
-        - elasticsearch
-        - postfix
-        - browserless
-    entrypoint: php-fpm
-    environment:
-        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-        - BALLOON_CLAMAV_URI=tcp://clamav:3310
-        - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-        - BALLOON_WOPI_URL=https://balloon
-        - BALLOON_SMTP_HOST=postfix
-        - BALLOON_URL=http://localhost:8080
-        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
-balloon-jobs:
-    image: gyselroth/balloon:latest
-    links:
-        - clamav
-        - mongodb
-        - elasticsearch
-        - postfix
-        - browserless
-        - libreoffice
-    entrypoint: ballooncli jobs
-    environment:
-        - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-        - BALLOON_CLAMAV_URI=tcp://clamav:3310
-        - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-        - BALLOON_WOPI_URL=https://balloon
-        - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
-        - BALLOON_SMTP_HOST=postfix
-        - BALLOON_URL=http://localhost:8080
-        - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+```
+mkdir balloon; cd balloon
+curl https://github.com/gyselroth/balloon/blob/master/packaging/docker-compose/docker-compose.yaml > docker-compose.yaml
+docker-compose up
 ```
 
-The balloon server can now be started using:
-```
-docker-compose -f balloon-stable.yaml up
-```
-
-You need to initialize balloon once (You do not need to execute this everytime you start the server via docker-compose, it is just a one time call):
-```
-docker exec balloon-stable-balloon_1 ballooncli upgrade -i -vvv
-```
-
->**Note**: All balloon containers provide a version tag besides `latest`. It is best practice to use an exact version of a service instead the latest tag in production environment.
+>**Note** All balloon containers provide a version tag besides `latest`. It is best practice to use an exact version of a service instead the latest tag in production environment.
 The containers provide a `latest-unstable` tag for the balloon-jobs, balloon and balloon-web container. It is in no way reccomened to use pre-releases in production environments! 
+If you want to install beta and alpha versions replace `latest` with `latest-unstable` or specify an exact version tag. Pre-releases are only ment for testing purposes and are in no way recommended in production environements!
 
->**Note**: If you want to install beta and alpha versions replace `latest` with `latest-unstable` or specify an exact version tag. Pre-releases are only ment for testing purposes and are in **no** way recommended in production environements!
 
+The balloon web interface is now available at `http://localhost`.
 
-The balloon web interface is now reachable at `https://localhost`.
+Username: admin <br/>
+Password: admin <br/>
 
-Username: admin \
-Password: admin \
+## Deploy on kubernetes (helm)
 
-## Deploy on kubernetes
+See the complete documentation for balloon helm [here](https://github.com/gyselroth/balloon-helm).
+
+To install the chart with the release name `my-release`:
+
+```console
+helm repo add balloon https://gyselroth.github.io/balloon-helm/stable
+helm install balloon/balloon --name my-release --namespace mynamespace
+```
+
+Example deployment with ingress/tls enabled:
+
+```console
+helm install balloon/balloon --name my-release --namespace mynamespace \
+    --set balloon-proxy.ingress.enabled=true \ 
+    --set balloon-web.ingress.enabled=true \ 
+    --set balloon-proxy.ingress.host=balloon.local \
+    --set balloon-web.ingress.host=balloon.local \
+    --set balloon-web.ingress.tls[0].secretName=tls-balloon.local \
+    --set balloon-proxy.ingress.tls[0].secretName=tls-balloon.local \
+    --set balloon.url=https://balloon.local
+```
+
+## Deploy on kubernetes (manually)
+
+>**Note** Using helm to deploy balloon on kubernetes is the preferred way.
+
 
 ## Debian based distribution
 
@@ -148,12 +100,11 @@ wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=gyselroth 
 sudo apt-get update
 ```
 
->**Note**: If you want to install beta and alpha versions replace `stable` with `unstable`. Pre-releases are only ment for testing purposes and are in **no** way recommended in production environements!
-
->**Note**: This repository also includes the web client and the [desktop client](github.com/gyselroth/balloon-client-web).
+>**Note** If you want to install beta and alpha versions replace `stable` with `unstable`. Pre-releases are only ment for testing purposes and are in no way recommended in production environements!
+This repository also includes the web client and the [desktop client](github.com/gyselroth/balloon-client-web).
 
 #### PHP
-The balloon server requires PHP 7.2. If your current distribution does not provide 7.2 out of their stable archives (which is most certainly the case) please add the PPA ppa:ondrej/php which will provide the latest PHP 7.2 releases.
+The balloon server requires PHP 7.3. If your current distribution does not provide 7.3 out of their stable archives (which is most certainly the case) please add the PPA ppa:ondrej/php which will provide the latest PHP 7.3 releases.
 
 ```sh
 sudo apt-get install lsb-release ca-certificates
@@ -165,7 +116,7 @@ sudo apt-get update
 #### MongoDB
 balloon uses MongoDB as its main database. At least MongoDB 3.4 is required. If your current distribution does not ship at least this release you will need to add the official MongoDB repository.
 
->**Note**: MongoDB recommends to use the official MongoDB repository anyway since the releases in the debian and or ubuntu repositories are not maintained by them and lack newer minor releases.
+>**Note** MongoDB recommends to use the official MongoDB repository anyway since the releases in the debian and or ubuntu repositories are not maintained by them and lack newer minor releases.
 
 ```sh
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
@@ -173,7 +124,7 @@ echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main" | sudo
 sudo apt-get update
 ``` 
 
->**Note**: This will add the repository for debian jessie, if you need another repository please refer to the [MongoDB installation](https://docs.mongodb.com/manual/administration/install-on-linux/) docs.
+>**Note** This will add the repository for debian jessie, if you need another repository please refer to the [MongoDB installation](https://docs.mongodb.com/manual/administration/install-on-linux/) docs.
 
 #### Elasticsearch
 Elasticsearch is not shipped in any official linux distribution archives therefore it is required to add this repository as well.
@@ -198,13 +149,13 @@ Now balloon and its components can be installed.
 apt-get install mongodb-org elasticsearch libreoffice clamav loolwsd code-brand balloon balloon-web
 ```
 
->**Note**: ClamAV, Elasticsearch and LibreOffice are optional balloon components and are used in the core apps Balloon.App.ClamAV, Balloon.App.Elasticsearch and Balloon.App.Preview.
+>**Note** ClamAV, Elasticsearch and LibreOffice are optional balloon components and are used in the core apps Balloon.App.ClamAV, Balloon.App.Elasticsearch and Balloon.App.Preview.
 
-After all packages have been installed the balloon web interface is reachable at `https://localhost`.
+After all packages have been installed the balloon web interface is reachable at `http://localhost`.
 The installation will create a default admin account:
 
-Username: admin \
-Password: admin \
+Username: admin<br/>
+Password: admin<br/>
 
 ## Using the tar archive
 
@@ -223,7 +174,7 @@ If you are a developer please also continue reading [this](https://github.com/gy
 * make
 * [comoser](https://getcomposer.org/download/)
 * git
-* php >= 7.2
+* php >= 7.3
 * php ext-mongodb
 * php ext-curl
 * php ext-mbstring
@@ -249,7 +200,7 @@ cd balloon
 make install
 ```
 
->**Note**: You can also create .deb or .tar packages using make. Just execute either `make deb` or `make tar` or `make dist` for both.
+>**Note** You can also create .deb or .tar packages using make. Just execute either `make deb` or `make tar` or `make dist` for both.
 
 ### Install balloon web client
 ```sh

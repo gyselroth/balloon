@@ -1,3 +1,16 @@
+## 2.6.6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Oct 2 15:37:42 CEST 2019
+
+* CORE: [CHANGE] Include nginx deb dependency (does not require balloon-web package anymore)
+* CORE: [FIX] ballooncli returns with an exit code 1 if an exception occured #380
+* CORE: [FIX] Changed packaging/kubernetes resources to the latest tag
+* CORE: [FIX] Use param $hooks instead of $hook
+* CORE: [FIX] Upgrade command fails #376
+* CORE: [CHANGE] Env BALLOON_LIBREOFFICE_URL is now splitted into BALLOON_LIBREOFFICE_COLLAB_URL and BALLOON_LIBREOFFICE_CONVERT_URL
+* CORE: [CHANGE] Balloon.App.Wopi now contains a WOPI host BALLOON_LIBREOFFICE_COLLAB_URL by default
+
+
 ## 2.6.5
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Aug 28 14:15:42 CEST 2019

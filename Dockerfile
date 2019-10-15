@@ -65,6 +65,3 @@ RUN mkdir /var/cache/samba/msg.lock
 
 ENV BALLOON_PATH /usr/share/balloon
 ENV BALLOON_CONFIG_DIR /etc/balloon
-
-EXPOSE 9000
-CMD ballooncli jobs listen -vv && php-fpm;
