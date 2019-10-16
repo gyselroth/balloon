@@ -31,7 +31,7 @@ Create a file named `balloon-stable.yaml` with this content:
 
 ```
 mkdir balloon; cd balloon
-curl https://github.com/gyselroth/balloon/blob/master/packaging/docker-compose/docker-compose.yaml > docker-compose.yaml
+curl https://raw.githubusercontent.com/gyselroth/balloon/master/packaging/docker-compose/docker-compose.yaml > docker-compose.yaml
 docker-compose up
 ```
 
@@ -68,6 +68,12 @@ helm install balloon/balloon --name my-release --namespace mynamespace \
     --set balloon-proxy.ingress.tls[0].secretName=tls-balloon.local \
     --set balloon.url=https://balloon.local
 ```
+
+Your balloon server is accessible by using the default admin credentials:
+
+Username: admin <br/>
+Password: admin <br/>
+
 
 ## Deploy on kubernetes (manually)
 
