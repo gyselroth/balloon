@@ -5,7 +5,6 @@
 [ ![Download](https://api.bintray.com/packages/gyselroth/balloon/balloon/images/download.svg) ](https://bintray.com/gyselroth/balloon/balloon/_latestVersion) 
  [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/gyselroth/balloon/badges/quality-score.png)](https://scrutinizer-ci.com/g/gyselroth/balloon)
-[![Documentation Status](https://readthedocs.org/projects/balloons/badge/?version=latest)](https://balloons.readthedocs.io/en/latest/?badge=latest)
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/gyselroth/balloon-screenshots/master/src/tree.png"/>
@@ -45,7 +44,7 @@
 * ... and much more
 
 # Documentation
-Interested? How to deploy? Well please visit the [documentation](https://balloons.readthedocs.io/en/latest).
+Interested? How to deploy? Please visit the [documentation](https://gyselroth.github.io/balloon-docs/).
 
 ## Web UI
 There is a modern web based user interface for balloon! It does support all features and integrates smoothly with the balloon server.
