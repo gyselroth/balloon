@@ -44,7 +44,7 @@
 * ... and much more
 
 # Documentation
-Interested? How to deploy? Well please visit the [documentation](https://gyselroth.github.io/balloon-docs/).
+Interested? How to deploy? Please visit the [documentation](https://gyselroth.github.io/balloon-docs/).
 
 ## Web UI
 There is a modern web based user interface for balloon! It does support all features and integrates smoothly with the balloon server.
