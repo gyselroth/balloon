@@ -1,6 +1,6 @@
 ## 2.6.6
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Wed Oct 2 15:37:42 CEST 2019
+**Date**: Wed Oct 15 15:37:42 CEST 2019
 
 * CORE: [CHANGE] Include nginx deb dependency (does not require balloon-web package anymore)
 * CORE: [FIX] ballooncli returns with an exit code 1 if an exception occured #380
