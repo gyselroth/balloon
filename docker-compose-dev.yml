@@ -17,11 +17,8 @@ services:
         ports:
             - "9980:9980"
         environment:
-            - domain=balloon-web|balloon-dev|localhost
-        entrypoint:
-            - sh
-            - -c
-            - "sed s/::1/::ffff:172.[0-9]+.[0-9]+.[0-9]+/g /etc/loolwsd/loolwsd.xml -i; bash /start-libreoffice.sh"
+         - domain=balloon-web|balloon-dev|localhost
+         - extra_params=--o:ssl.termination=true --o:ssl.enable=false --o:net.post_allow.host[0]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:storage.wopi.host[2]=::ffff:172.[0-9]+.[0-9]+.[0-9]+
         networks:
         - backend
         - frontend
@@ -50,10 +47,10 @@ services:
         environment:
             - BALLOON_MONGODB_URI=mongodb://mongodb:27017
             - BALLOON_CLAMAV_URI=tcp://clamav:3310
-            - BALLOON_WOPI_URL=https://balloon-dev
-            - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+            - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice:9980
+            - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice:9980
             - BALLOON_SMTP_HOST=postfix
-            - BALLOON_URL=http://localhost:8080
+            - BALLOON_URL=http://localhost:8084
             - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
             - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
     balloon-web:
@@ -77,8 +74,8 @@ services:
             - BALLOON_MONGODB_URI=mongodb://mongodb:27017
             - BALLOON_CLAMAV_URI=tcp://clamav:3310
             - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-            - BALLOON_WOPI_URL=https://balloon-dev
-            - BALLOON_LIBREOFFICE_URL=https://libreoffice:9980
+            - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice:9980
+            - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice:9980
             - BALLOON_SMTP_HOST=postfix
-            - BALLOON_URL=http://localhost:8080
+            - BALLOON_URL=http://localhost:8084
             - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
