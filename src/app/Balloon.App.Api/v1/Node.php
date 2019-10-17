@@ -273,6 +273,7 @@ class Node extends Controller
             });
         }
 
+        set_time_limit(0);
         $response = new Response();
 
         if (true === $download) {

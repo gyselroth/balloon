@@ -54,6 +54,7 @@ class Helper
               $start = 0;
               $end = $size - 1;
 
+              set_time_limit(0);
               if (isset($_SERVER['HTTP_RANGE'])) {
                   header('Accept-Ranges: bytes');
                   $c_start = $start;

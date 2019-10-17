@@ -1,3 +1,10 @@
+## 2.6.7
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Oct 15 15:37:42 CEST 2019
+
+* API: [FIX] Download file > ~6GB ends in invalid checksum and partial data #395
+
+
 ## 2.6.6
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Oct 15 15:37:42 CEST 2019
