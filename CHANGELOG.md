@@ -4,6 +4,7 @@
 
 * API: [FIX] Download file > ~6GB ends in invalid checksum and partial data #395
 * API: [FIX] Upload big file (~7GB) ends in 504 Gateway Timeout due slow md5 sum calculation #382
+* API: [FIX] Update user with unchanged username results in exception #394
 
 
 ## 2.6.6

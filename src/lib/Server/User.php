@@ -265,6 +265,10 @@ class User implements RoleInterface
      */
     public function setAttributes(array $attributes = []): bool
     {
+        if (isset($attributes['username']) && $attributes['username'] === $this->username) {
+            unset($attributes['username']);
+        }
+
         $this->hook->run('preUpdateUser', [$this, &$attributes]);
         $attributes = $this->server->validateUserAttributes($attributes);
 
