@@ -797,6 +797,7 @@ abstract class AbstractNode implements NodeInterface
      */
     public function getZip(): void
     {
+        set_time_limit(0);
         $archive = new ZipStream($this->name.'.zip');
         $this->zip($archive, false);
         $archive->finish();

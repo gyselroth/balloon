@@ -73,6 +73,7 @@ services:
               location ~ ^/index.php {
                   root /usr/share/balloon/bin/httpdocs;
                   fastcgi_pass balloon:9000;
+                  fastcgi_read_timeout 300;
                   fastcgi_param SCRIPT_FILENAME /usr/share/balloon/bin/httpdocs\\\$$fastcgi_script_name;
                   fastcgi_param PATH_INFO \\\$$fastcgi_script_name;
                   include /etc/nginx/fastcgi_params;
