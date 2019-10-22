@@ -1,6 +1,6 @@
 ## 2.6.7
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Wed Oct 15 15:37:42 CEST 2019
+**Date**: Tue Oct 22 09:50:42 CEST 2019
 
 * API: [FIX] Download file > ~6GB ends in invalid checksum and partial data #395
 * API: [FIX] Upload big file (~7GB) ends in 504 Gateway Timeout due slow md5 sum calculation #382
