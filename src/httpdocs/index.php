@@ -39,7 +39,7 @@ set_exception_handler(function ($e) use ($logger) {
     ]);
 });
 
-$//dic->get(Balloon\Rest\Routes::class);
+//$dic->get(Balloon\Rest\Routes::class);
 $dispatcher = $dic->get(\mindplay\middleman\Dispatcher::class);
 //var_dump("get - ".gettype($dispatcher));
 $dispatcher = $dic->get(\mindplay\middleman\Dispatcher::class);

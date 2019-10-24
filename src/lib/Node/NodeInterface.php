@@ -144,7 +144,7 @@ interface NodeInterface extends ResourceInterface, DAV\INode
      *
      * @return ObjectId
      */
-    public function getId(): ?ObjectId;
+    //public function getId(): ?ObjectId;
 
     /**
      * Get parent.

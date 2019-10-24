@@ -15,6 +15,7 @@ use Balloon\Acl;
 use Balloon\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Exception;
 use Balloon\Hook;
+use Balloon\Resource\AbstractResource;
 use Balloon\Server;
 use Balloon\Server\User;
 use MimeType\MimeType;
@@ -416,6 +417,8 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
         }
 
         $this->lock = null;
+
+        //TODO:WRONG
         $this->save(['lock']);
 
         return $this;
@@ -439,6 +442,8 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
 
         $this->_acl->validateAcl($this->_server, $acl);
         $this->acl = $acl;
+
+        //TODO:WRONG
         $this->save(['acl']);
 
         return $this;
@@ -602,6 +607,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
             $this->mime = MimeType::getType($this->name);
         }
 
+        //TODO:WRONG
         return $this->save(['name', 'storage', 'mime']);
     }
 
@@ -688,6 +694,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
         $this->storage = $this->_parent->getStorage()->undelete($this);
         $this->deleted = false;
 
+        //TODO:WRONG
         $this->save([
                 'storage',
                 'name',
@@ -726,10 +733,10 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
     /**
      * Get unique id.
      */
-    public function getId(): ?ObjectId
+    /*public function getId(): ?ObjectId
     {
         return $this->_id;
-    }
+    }*/
 
     /**
      * Get parent.
@@ -838,6 +845,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
     public function setAppAttributes(string $namespace, array $attributes): NodeInterface
     {
         $this->app[$namespace] = $attributes;
+        //TODO:WRONG
         $this->save('app.'.$namespace);
 
         return $this;
@@ -853,6 +861,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
         }
 
         $this->app[$namespace][$attribute] = $value;
+        //TODO:WRONG
         $this->save('app.'.$namespace);
 
         return $this;
@@ -865,6 +874,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
     {
         if (isset($this->app[$namespace])) {
             unset($this->app[$namespace]);
+            //TODO:WRONG
             $this->save('app.'.$namespace);
         }
 
@@ -878,6 +888,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
     {
         if (isset($this->app[$namespace][$attribute])) {
             unset($this->app[$namespace][$attribute]);
+            //TODO:WRONG
             $this->save('app'.$namespace);
         }
 
@@ -922,6 +933,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
             }
         }
 
+        //TODO:WRONG
         $this->save('meta');
 
         return $this;
@@ -948,6 +960,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
         $this->readonly = $readonly;
         $this->storage = $this->_parent->getStorage()->readonly($this, $readonly);
 
+        //TODO:WRONG
         return $this->save(['readonly', 'storage']);
     }
 
@@ -962,6 +975,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
             return $this->save([], 'destroy');
         }
 
+        //TODO:WRONG
         return $this->save('destroy');
     }
 
@@ -1011,6 +1025,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
      * @param array|string $remove
      * @param string       $recursion
      */
+    //TODO:WRONG
     public function save($attributes = [], $remove = [], ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
@@ -1141,6 +1156,7 @@ abstract class AbstractNode extends AbstractResource implements NodeInterface
     /**
      * Validate meta attributes.
      */
+    //TODO:WRONG
     protected function validateMetaAttributes(array $attributes): array
     {
         foreach ($attributes as $attribute => $value) {

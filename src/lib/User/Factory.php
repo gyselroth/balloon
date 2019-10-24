@@ -109,12 +109,10 @@ class Factory
     /**
      * Get user.
      */
-    public function getOne(string $name): UserInterface
+    public function getOne(ObjectIdInterface $id): UserInterface
     {
         $result = $this->db->{self::COLLECTION_NAME}->findOne([
-            'name' => $name,
-        ], [
-            'projection' => ['history' => 0],
+            '_id' => $id,
         ]);
 
         if ($result === null) {
@@ -127,9 +125,9 @@ class Factory
     /**
      * Delete by name.
      */
-    public function deleteOne(string $name): bool
+    public function deleteOne(ObjectIdInterface $id): bool
     {
-        $resource = $this->getOne($name);
+        $resource = $this->getOne($id);
 
         return $this->resource_factory->deleteFrom($this->db->{self::COLLECTION_NAME}, $resource->getId());
     }
@@ -141,7 +139,6 @@ class Factory
     {
         $data['name'] = $resource->getName();
         $data['kind'] = $resource->getKind();
-        $data = $this->resource_factory->validate($data);
 
         if (isset($data['data']['password'])) {
             $data = Validator::validatePolicy($data, $this->password_policy);
@@ -158,11 +155,10 @@ class Factory
     public function add(array $resource): ObjectIdInterface
     {
         $resource['kind'] = 'User';
-        $resource = $this->resource_factory->validate($resource);
         Validator::validatePolicy($resource, $this->password_policy);
 
-        if ($this->has($resource['name'])) {
-            throw new Exception\NotUnique('user '.$resource['name'].' does already exists');
+        if ($this->has($resource['username'])) {
+            throw new Exception\NotUnique('user '.$resource['username'].' does already exists');
         }
 
         if (isset($resource['data']['password'])) {

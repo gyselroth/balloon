@@ -13,6 +13,7 @@ namespace Balloon\Rest;
 
 use Balloon\Acl;
 use Balloon\Resource\ResourceInterface;
+use Balloon\User;
 use Balloon\User\UserInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use Lcobucci\ContentNegotiation\UnformattedResponse;
@@ -52,7 +53,7 @@ class Helper
     /**
      * Entrypoint.
      */
-    public static function getOne(ServerRequestInterface $request, Identity $identity, ResourceInterface $resource): ResponseInterface
+    public static function getOne(ServerRequestInterface $request, User $identity, ResourceInterface $resource): ResponseInterface
     {
         $query = $request->getQueryParams();
 

@@ -33,7 +33,7 @@ class Db extends AbstractBasic implements InternalAuthInterface
     {
         parent::__construct($logger);
         $this->db = $db;
-        $this->identity_attribute = 'name';
+        $this->identity_attribute = 'username';
         $this->setOptions($config);
     }
 
@@ -50,8 +50,11 @@ class Db extends AbstractBasic implements InternalAuthInterface
      */
     public function findIdentity(string $username): ?array
     {
-        return $this->db->users->findOne([
+        //TODO: v3
+
+        return $this->db->user->findOne([
             '$or' => [
+                ['username' => $username],
                 ['data.username' => $username],
                 ['data.mail' => $username],
             ],
@@ -81,7 +84,7 @@ class Db extends AbstractBasic implements InternalAuthInterface
             return null;
         }
 
-        if (!isset($result['hash']) || empty($result['hash'])) {
+        if (!isset($result['password']) || empty($result['password'])) {
             $this->logger->info('found no password for ['.$username.'] in database', [
                 'category' => get_class($this),
             ]);
@@ -89,8 +92,8 @@ class Db extends AbstractBasic implements InternalAuthInterface
             return null;
         }
 
-        if (!password_verify($password, $result['hash'])) {
-            $this->logger->info('failed match given password for ['.$username.'] with stored hash in database', [
+        if (!password_verify($password, $result['password'])) {
+            $this->logger->info('failed match given password for ['.$username.'] with stored password in database', [
                 'category' => get_class($this),
             ]);
 

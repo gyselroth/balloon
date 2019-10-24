@@ -15,6 +15,7 @@ use Balloon\Exception;
 use Balloon\Resource\Factory as ResourceFactory;
 use Balloon\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Storage\Factory as StorageFactory;
+use Balloon\User\UserInterface;
 use Generator;
 use League\Event\Emitter;
 use MongoDB\BSON\ObjectId;
@@ -111,11 +112,11 @@ class Factory
      */
     public function getAll(UserInterface $user, ?array $query = null, ?int $offset = null, ?int $limit = null, ?array $sort = null): Generator
     {
-        $filter = $this->prepareQuery($namespace, $query);
+        $filter = $this->prepareQuery($user, $query);
         $that = $this;
 
-        return $this->resource_factory->getAllFrom($this->db->{self::COLLECTION_NAME}, $filter, $offset, $limit, $sort, function (array $resource) use ($namespace, $that) {
-            return $that->build($resource, $namespace);
+        return $this->resource_factory->getAllFrom($this->db->{self::COLLECTION_NAME}, $filter, $offset, $limit, $sort, function (array $resource) use ($user, $that) {
+            return $that->build($resource, $user);
         });
     }
 
@@ -196,21 +197,38 @@ class Factory
     /**
      * Build instance.
      */
-    public function build(array $resource, UserInterface $user): CollectionInterface
+    /*public function build(array $resource, UserInterface $user): CollectionInterface
     {
-        $schema = new Schema($resource['data']['schema'], $this->logger);
+        //$schema = new Schema($resource['data']['schema'], $this->logger);
 
         return $this->resource_factory->initResource(new Collection($resource['name'], $namespace, $this->endpoint_factory, $this->object_factory, $schema, $this->logger, $resource));
-    }
+    }*/
 
     /**
      * Build node instance.
      */
-    public function build(Filesystem $fs, array $node, ?Collection $parent): NodeInterface
+    public function build(/*Filesystem $fs, array $node, ?Collection $parent*/array $node, ?UserInterface $user = null): NodeInterface
     {
-        if (!isset($node['directory'])) {
+        $id = $node['_id'];
+
+        if (isset($node['shared']) && true === $node['shared'] && null !== $this->user && $node['owner'] != $this->user->getId()) {
+            $node = $this->findReferenceNode($node);
+        }
+
+        if (isset($node['parent'])) {
+            $parent = $this->findNodeById($node['parent']);
+        } elseif ($node['_id'] !== null) {
+            $parent = $this->getRoot();
+        } else {
+            $parent = null;
+        }
+
+        /*if (!array_key_exists('directory', $node)) {
             throw new Exception('invalid node ['.$node['_id'].'] found, directory attribute does not exists');
         }
+
+        $instance = $this->node_factory->build($this, $node, $parent);
+         */
 
         $storage = $this->storage;
 
@@ -230,10 +248,10 @@ class Factory
         }
 
         if (true === $node['directory']) {
-            return new Collection($node, $fs, $this->logger, $this->emitter, $this->acl, $parent, $storage);
+            return new Collection($node, /*$fs,*/ $this->logger, $this->emitter, $this->acl, $parent, $storage);
         }
 
-        return new File($node, $fs, $this->logger, $this->emitter, $this->acl, $parent);
+        return new File($node, /*$fs,,*/ $this->logger, $this->emitter, $this->acl, $parent);
     }
 
     /**
@@ -298,6 +316,10 @@ class Factory
 
         $node = $this->db->storage->findOne($filter);
 
+        return $this->build($node);
+        /*
+        $node = $this->db->storage->findOne($filter);
+
         if (null === $node) {
             throw new Exception\NotFound(
                 'node ['.$id.'] not found',
@@ -311,7 +333,7 @@ class Factory
             throw new Exception('node '.get_class($return).' is not instance of '.$class);
         }
 
-        return $return;
+        return $return;*/
     }
 
     /**
@@ -686,13 +708,19 @@ class Factory
         return $parent;
     }
 
+    protected function getRoot()
+    {
+        return new Collection([], /*$fs,*/ $this->logger, $this->emitter, $this->acl, null, $this->storage);
+    }
+
     /**
      * Prepare query.
      */
     protected function prepareQuery(UserInterface $user, ?array $query = null): array
     {
         $filter = [
-            'namespace' => $namespace->getName(),
+            'owner' => new ObjectId('5da6ce797f2ae418634dd703'),
+            //'owner' => $user->getId(),
         ];
 
         if (!empty($query)) {

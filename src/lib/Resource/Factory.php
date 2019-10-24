@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Balloon\Resource;
 
 use Closure;
-use Garden\Schema\ArrayRefLookup;
-use Garden\Schema\Schema;
+/*use Garden\Schema\ArrayRefLookup;
+use Garden\Schema\Schema;*/
 use Generator;
 use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
@@ -30,8 +30,8 @@ class Factory
     /**
      * OpenAPI.
      */
-    const SPEC = __DIR__.'/../Rest/openapiv3.yml';
-    const RESOURCE_VERSION = 'v3';
+    /*const SPEC = __DIR__.'/../Rest/openapiv3.yml';
+    const RESOURCE_VERSION = 'v3';*/
 
     /**
      * Logger.
@@ -57,60 +57,58 @@ class Factory
     /**
      * Initialize.
      */
-    public function __construct(LoggerInterface $logger, CacheInterface $cache)
+    public function __construct(LoggerInterface $logger/*, CacheInterface $cache*/)
     {
         $this->logger = $logger;
-        $this->cache = $cache;
+        //  $this->cache = $cache;
     }
 
     /**
      * Get resource schema.
      */
-    public function getSchema(string $kind): Schema
-    {
-        /*if ($this->cache->has($kind)) {
-            $this->logger->debug('found resource kind ['.$kind.'] in cache', [
-                'category' => get_class($this),
-            ]);
+    /*
+     * public function getSchema(string $kind): Schema
+     {
+         if ($this->cache->has($kind)) {
+             $this->logger->debug('found resource kind ['.$kind.'] in cache', [
+                 'category' => get_class($this),
+             ]);
 
-            return $this->cache->get($kind);
-    }*/
+             return $this->cache->get($kind);
+         }
 
-        $spec = $this->getSpecification();
+         $spec = $this->getSpecification();
 
-        if (!isset($spec['components']['schemas'][$kind])) {
-            throw new InvalidArgumentException('provided resource kind is invalid');
-        }
+         if (!isset($spec['components']['schemas'][$kind])) {
+             throw new InvalidArgumentException('provided resource kind is invalid');
+         }
 
-        $schema = new Schema($spec['components']['schemas'][$kind]);
-        $schema->setRefLookup(new ArrayRefLookup($spec));
-        $schema->setFlags(Schema::VALIDATE_EXTRA_PROPERTY_EXCEPTION);
-        $this->cache->set($kind, $schema);
+         $schema = new Schema($spec['components']['schemas'][$kind]);
+         $schema->setRefLookup(new ArrayRefLookup($spec));
+         $schema->setFlags(Schema::VALIDATE_EXTRA_PROPERTY_EXCEPTION);
+         $this->cache->set($kind, $schema);
 
-        return $schema;
-    }
+         return $schema;
+     }
 
-    /**
-     * Validate resource.
-     */
-    public function validate(array $resource): array
-    {
-        $this->logger->debug('validate resource [{resource}] against schema', [
-            'category' => get_class($this),
-            'resource' => $resource,
-        ]);
+     public function validate(array $resource): array
+     {
+         $this->logger->debug('validate resource [{resource}] against schema', [
+             'category' => get_class($this),
+             'resource' => $resource,
+         ]);
 
-        $resource = $this->getSchema($resource['kind'].'.'.self::RESOURCE_VERSION)->validate($resource, [
-            'request' => true,
-        ]);
+         $resource = $this->getSchema($resource['kind'].'.'.self::RESOURCE_VERSION)->validate($resource, [
+             'request' => true,
+         ]);
 
-        $this->logger->debug('clean resource [{resource}]', [
-            'category' => get_class($this),
-            'resource' => $resource,
-        ]);
+         $this->logger->debug('clean resource [{resource}]', [
+             'category' => get_class($this),
+             'resource' => $resource,
+         ]);
 
-        return $resource;
-    }
+         return $resource;
+     }*/
 
     /**
      * Add resource.
@@ -157,7 +155,7 @@ class Factory
             '$set' => $update,
         ];
 
-        if (!isset($update['data']) || $resource->getData() === $update['data']) {
+        /*if (!isset($update['data']) || $resource->getData() === $update['data']) {
             $this->logger->info('resource ['.$resource->getId().'] version ['.$resource->getVersion().'] in ['.$collection->getCollectionName().'] is already up2date', [
                 'category' => get_class($this),
             ]);
@@ -171,7 +169,7 @@ class Factory
                 '$addToSet' => ['history' => array_intersect_key($resource->toArray(), array_flip(['data', 'version', 'changed', 'description']))],
                 '$inc' => ['version' => 1],
             ];
-        }
+        }*/
 
         if ($simulate === true) {
             return true;
@@ -312,7 +310,7 @@ class Factory
     /**
      * Load openapi specs.
      */
-    public function getSpecification(): array
+    /*public function getSpecification(): array
     {
         if ($this->cache->has('openapi')) {
             //    return $this->cache->get('openapi');
@@ -322,7 +320,7 @@ class Factory
         $this->cache->set('openapi', $data);
 
         return $data;
-    }
+    }*/
 
     /**
      * Remove fullDocument prefix from keys.

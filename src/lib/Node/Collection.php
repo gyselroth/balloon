@@ -11,20 +11,22 @@ declare(strict_types=1);
 
 namespace Balloon\Node;
 
-use Balloon\Acl;
-use Balloon\Acl\Exception\Forbidden as ForbiddenException;
+//use Balloon\Acl;
+//luse Balloon\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Exception;
 use Balloon\Filesystem;
-use Balloon\Hook;
+use Balloon\Resource\AttributeResolver;
 use Balloon\Server\User;
 use Balloon\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Generator;
+use League\Event\Emitter;
 use MimeType\MimeType;
 use function MongoDB\BSON\fromJSON;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use function MongoDB\BSON\toPHP;
 use MongoDB\BSON\UTCDateTime;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IQuota;
 
@@ -66,12 +68,12 @@ class Collection extends AbstractNode implements CollectionInterface, IQuota
     /**
      * Initialize.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage)
+    public function __construct(array $attributes, /*Filesystem $fs,*/ LoggerInterface $logger, Emitter $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage)
     {
         $this->_fs = $fs;
-        $this->_server = $fs->getServer();
-        $this->_db = $fs->getDatabase();
-        $this->_user = $fs->getUser();
+        // $this->_server = $fs->getServer();
+        // $this->_db = $fs->getDatabase();
+        // $this->_user = $fs->getUser();
         $this->_logger = $logger;
         $this->_hook = $hook;
         $this->_acl = $acl;
@@ -84,6 +86,22 @@ class Collection extends AbstractNode implements CollectionInterface, IQuota
 
         $this->mime = 'inode/directory';
         $this->raw_attributes = $attributes;
+        $this->resource = $attributes;
+    }
+
+    /**
+     * Decorate.
+     */
+    public function decorate(ServerRequestInterface $request): array
+    {
+        /*$resource = [
+            'data' => $this->getData(),
+        ];
+
+        //return $this->raw_attributes;
+        return $resource;
+         */
+        return AttributeResolver::resolve($request, $this, []);
     }
 
     /**
@@ -172,6 +190,7 @@ class Collection extends AbstractNode implements CollectionInterface, IQuota
     /**
      * Get Share name.
      */
+    //TODO:WRONG
     public function getShareName(): string
     {
         if ($this->isShare()) {
@@ -184,6 +203,7 @@ class Collection extends AbstractNode implements CollectionInterface, IQuota
     /**
      * Get Attributes.
      */
+    //TODO:WRONG
     public function getAttributes(): array
     {
         return [
@@ -219,6 +239,7 @@ class Collection extends AbstractNode implements CollectionInterface, IQuota
     {
         $this->filter = json_encode($filter, JSON_THROW_ON_ERROR);
 
+        //TODO:WRONG
         return $this->save('filter');
     }
 
@@ -337,6 +358,7 @@ class Collection extends AbstractNode implements CollectionInterface, IQuota
      * Actually the node will not be deleted (Just set a delete flag), set $force=true to
      * delete finally
      */
+    //TODO:WRONG
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->isReference() && !$this->_acl->isAllowed($this, 'w')) {

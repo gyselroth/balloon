@@ -11,116 +11,113 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v2;
 
-use Balloon\AttributeDecorator\Pager;
-use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Node\Collection;
-use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
-use Micro\Http\Response;
-use function MongoDB\BSON\fromJSON;
-use function MongoDB\BSON\toPHP;
+use Balloon\Acl;
+use Balloon\Node;
+use Balloon\Node\Factory as NodeFactory;
+use Balloon\Rest\Helper;
+use Balloon\User;
+use Fig\Http\Message\StatusCodeInterface;
+use Lcobucci\ContentNegotiation\UnformattedResponse;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Rs\Json\Patch;
+use Zend\Diactoros\Response;
 
-class Collections extends Nodes
+class Collections
 {
     /**
-     * Get children.
+     * Node factory.
      *
-     * @param null|mixed $query
+     * @var NodeFactory
      */
-    public function getChildren(
-        ?string $id = null,
-        int $deleted = 0,
-        $query = null,
-        array $attributes = [],
-        ?int $offset = 0,
-        ?int $limit = 20,
-        ?bool $recursive = false
-    ): Response {
-        $children = [];
-
-        $node = $this->fs->getNode($id, Collection::class, false, true);
-        if ($node->isRoot()) {
-            $uri = '/api/v2/collections/children';
-        } else {
-            $uri = '/api/v2/collections/'.$node->getId().'/children';
-        }
-
-        if ($query === null) {
-            $query = [];
-        } elseif (is_string($query)) {
-            $query = toPHP(fromJSON($query), [
-                'root' => 'array',
-                'document' => 'array',
-                'array' => 'array',
-            ]);
-        }
-
-        $nodes = $this->fs->getNode($id, Collection::class, false, true)->getChildNodes($deleted, $query, $offset, $limit, $recursive);
-        $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
-        $result = $pager->paging();
-
-        return (new Response())->setCode(200)->setBody($result);
-    }
+    protected $node_factory;
 
     /**
-     * Get Share ACL.
+     * Init.
      */
-    public function getShare(RoleAttributeDecorator $role_decorator, string $id, array $attributes = []): Response
+    public function __construct(NodeFactory $node_factory, Acl $acl)
     {
-        $node = $this->fs->getNode($id, Collection::class);
+        $this->node_factory = $node_factory;
+        $this->acl = $acl;
+    }
 
-        if (!$node->isShared()) {
-            throw new Exception\Conflict('node is not a share', Exception\Conflict::NOT_SHARED);
+    /**
+     * Entrypoint.
+     */
+    public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
+    {
+        $query = array_merge([
+            'offset' => 0,
+            'limit' => 20,
+        ], $request->getQueryParams());
+
+        if (isset($query['watch'])) {
+            $cursor = $this->node_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
+
+            return Helper::watchAll($request, $identity, $this->acl, $cursor);
         }
 
-        $acl = $node->getAcl();
+        $nodes = $this->node_factory->getAll($identity, $query['query'], $query['offset'], $query['limit'], $query['sort']);
 
-        foreach ($acl as &$rule) {
-            $rule['role'] = $role_decorator->decorate($rule['role'], $attributes);
-        }
-
-        return (new Response())->setCode(200)->setBody([
-            'name' => $node->getShareName(),
-            'acl' => $acl,
-        ]);
+        return Helper::getAll($request, $identity, $this->acl, $nodes);
     }
 
     /**
-     * Create share.
+     * Entrypoint.
      */
-    public function postShare(array $acl, string $name, string $id): Response
+    public function getOne(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
     {
-        $node = $this->fs->getNode($id, Collection::class);
-        $node->share($acl, $name);
-        $result = $this->node_decorator->decorate($node);
+        $resource = $this->node_factory->getOne($identity, $node);
 
-        return (new Response())->setCode(200)->setBody($result);
+        return Helper::getOne($request, $identity, $resource);
     }
 
     /**
-     * Delete share.
+     * Delete node.
      */
-    public function deleteShare(string $id): Response
+    public function delete(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
     {
-        $node = $this->fs->getNode($id, Collection::class);
-        $result = $node->unshare();
+        $this->node_factory->deleteOne($identity, $node);
 
-        return (new Response())->setCode(204);
+        return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
     }
 
     /**
-     * Create collection.
+     * Add new node.
      */
-    public function post(
-        string $name,
-        ?string $id = null,
-        array $attributes = [],
-        int $conflict = 0
-    ): Response {
-        $attributes = $this->_verifyAttributes($attributes);
-        $parent = $this->fs->getNode($id, null, false, true);
-        $result = $parent->addDirectory((string) $name, $attributes, $conflict);
-        $result = $this->node_decorator->decorate($result);
+    public function post(ServerRequestInterface $request, User $identity): ResponseInterface
+    {
+        $body = $request->getParsedBody();
+        $query = $request->getQueryParams();
 
-        return (new Response())->setCode(201)->setBody($result);
+        $id = $this->node_factory->add($identity, $body);
+
+        return new UnformattedResponse(
+            (new Response())->withStatus(StatusCodeInterface::STATUS_CREATED),
+            $this->node_factory->getOne($body['name'])->decorate($request),
+            ['pretty' => isset($query['pretty'])]
+        );
+    }
+
+    /**
+     * Patch.
+     */
+    public function patch(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
+    {
+        $body = $request->getParsedBody();
+        $query = $request->getQueryParams();
+        $node = $this->node_factory->getOne($node);
+        $doc = ['data' => $node->getData()];
+
+        $patch = new Patch(json_encode($doc), json_encode($body));
+        $patched = $patch->apply();
+        $update = json_decode($patched, true);
+        $this->node_factory->update($node, $update);
+
+        return new UnformattedResponse(
+            (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
+            $this->node_factory->getOne($node->getName())->decorate($request),
+            ['pretty' => isset($query['pretty'])]
+        );
     }
 }

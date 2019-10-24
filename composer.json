@@ -87,7 +87,8 @@
         "lcobucci/content-negotiation-middleware": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "zendframework/zend-httphandlerrunner": "^1.1",
-        "league/event": "^2.2"
+        "league/event": "^2.2",
+        "league/openapi-psr7-validator": "^0.3.3"
     },
     "suggest": {
         "ext-apc": "Allows caching configuration which gives more performance",

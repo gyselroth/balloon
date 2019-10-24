@@ -11,14 +11,17 @@ declare(strict_types=1);
 
 namespace Balloon\Node;
 
-use Balloon\Acl;
-use Balloon\Acl\Exception as AclException;
 use Balloon\Exception;
-use Balloon\Filesystem;
-use Balloon\Hook;
+//use Balloon\Acl;
+//use Balloon\Acl\Exception as AclException;
+use Balloon\Resource\AttributeResolver;
+///use Balloon\Filesystem;
+//use Balloon\Hook;
 use Balloon\Storage\Exception as StorageException;
+use League\Event\Emitter;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\IFile;
 
@@ -84,12 +87,12 @@ class File extends AbstractNode implements FileInterface, IFile
     /**
      * Initialize file node.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Collection $parent)
+    public function __construct(array $attributes, /*Filesystem $fs,*/ LoggerInterface $logger, Emitter $hook, /*Hook $hook,*/ Acl $acl, Collection $parent)
     {
-        $this->_fs = $fs;
-        $this->_server = $fs->getServer();
-        $this->_db = $fs->getDatabase();
-        $this->_user = $fs->getUser();
+        //$this->_fs = $fs;
+        //   $this->_server = $fs->getServer();
+        //$this->_db = $fs->getDatabase();
+        //$this->_user = $fs->getUser();
         $this->_logger = $logger;
         $this->_hook = $hook;
         $this->_acl = $acl;
@@ -100,6 +103,19 @@ class File extends AbstractNode implements FileInterface, IFile
         }
 
         $this->raw_attributes = $attributes;
+        $this->resource = $attributes;
+    }
+
+    /**
+     * Decorate.
+     */
+    public function decorate(ServerRequestInterface $request): array
+    {
+        $resource = [
+            'data' => $this->getData(),
+        ];
+
+        return AttributeResolver::resolve($request, $this, []);
     }
 
     /**
@@ -562,7 +578,9 @@ class File extends AbstractNode implements FileInterface, IFile
      */
     protected function increaseVersion(): int
     {
-        $max = $this->_fs->getServer()->getMaxFileVersion();
+        //TODO:v3
+        $max = 9000;
+        //$max = $this->_fs->getServer()->getMaxFileVersion();
         if (count($this->history) >= $max) {
             $del = key($this->history);
             $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$this->history[$del]['version'].'] from file ['.$this->_id.']', [

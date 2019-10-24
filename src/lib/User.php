@@ -44,10 +44,10 @@ class User extends AbstractResource implements UserInterface
      */
     public function decorate(ServerRequestInterface $request): array
     {
-        $resource = [
+        /*$resource = [
             'data' => $this->getData(),
-        ];
+        ];*/
 
-        return AttributeResolver::resolve($request, $this, $resource);
+        return AttributeResolver::resolve($request, $this, []);
     }
 }

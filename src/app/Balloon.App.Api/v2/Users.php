@@ -11,213 +11,113 @@ declare(strict_types=1);
 
 namespace Balloon\App\Api\v2;
 
-use Balloon\AttributeDecorator\Pager;
-use Balloon\Server;
-use Balloon\Server\AttributeDecorator;
-use Balloon\Server\User;
-use Balloon\Server\User\Exception;
-use Micro\Http\Response;
-use MongoDB\BSON\Binary;
-use function MongoDB\BSON\fromJSON;
+use Balloon\Acl;
+use Balloon\Rest\Helper;
+use Balloon\User;
+use Balloon\User\Factory as UserFactory;
+use Fig\Http\Message\StatusCodeInterface;
+use Lcobucci\ContentNegotiation\UnformattedResponse;
 use MongoDB\BSON\ObjectId;
-use function MongoDB\BSON\toPHP;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Rs\Json\Patch;
+use Zend\Diactoros\Response;
 
 class Users
 {
     /**
-     * User.
+     * User factory.
      *
-     * @var User
+     * @var UserFactory
      */
-    protected $user;
+    protected $user_factory;
 
     /**
-     * Server.
-     *
-     * @var Server
+     * Init.
      */
-    protected $server;
-
-    /**
-     * Decorator.
-     *
-     * @var AttributeDecorator
-     */
-    protected $decorator;
-
-    /**
-     * Initialize.
-     */
-    public function __construct(Server $server, AttributeDecorator $decorator)
+    public function __construct(UserFactory $user_factory, Acl $acl)
     {
-        $this->user = $server->getIdentity();
-        $this->server = $server;
-        $this->decorator = $decorator;
+        $this->user_factory = $user_factory;
+        $this->acl = $acl;
     }
 
     /**
-     * Get user instance.
+     * Entrypoint.
      */
-    public function _getUser(string $id, bool $require_admin = true): User
+    public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
     {
-        $user = $this->server->getUserById(new ObjectId($id));
+        $query = array_merge([
+            'offset' => 0,
+            'limit' => 20,
+        ], $request->getQueryParams());
 
-        if ($user->getId() == $this->user->getId() || $require_admin === false) {
-            return $user;
+        if (isset($query['watch'])) {
+            $cursor = $this->user_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
+
+            return Helper::watchAll($request, $identity, $this->acl, $cursor);
         }
 
-        if ($this->user->isAdmin()) {
-            return $user;
-        }
+        $users = $this->user_factory->getAll($query['query'], $query['offset'], $query['limit'], $query['sort']);
 
-        throw new Exception\NotAdmin('submitted parameters require admin privileges');
+        return Helper::getAll($request, $identity, $this->acl, $users);
     }
 
     /**
-     * Who am I?
+     * Entrypoint.
      */
-    public function getWhoami(array $attributes = []): Response
+    public function getOne(ServerRequestInterface $request, User $identity, ObjectId $user): ResponseInterface
     {
-        $result = $this->decorator->decorate($this->user, $attributes);
+        $resource = $this->user_factory->getOne($user);
 
-        return (new Response())->setCode(200)->setBody($result);
-    }
-
-    /**
-     * Node attribute summary.
-     */
-    public function getNodeAttributeSummary(array $attributes = [], int $limit = 25): Response
-    {
-        $result = $this->user->getNodeAttributeSummary($attributes, $limit);
-
-        return (new Response())->setCode(200)->setBody($result);
-    }
-
-    /**
-     * Group membership.
-     */
-    public function getGroups(string $id, array $attributes = [], int $offset = 0, int $limit = 20): Response
-    {
-        $user = $this->_getUser($id);
-        $result = $user->getResolvedGroups($offset, $limit);
-        $uri = '/api/v2/users/'.$user->getId().'/groups';
-        $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, $uri);
-        $result = $pager->paging();
-
-        return (new Response())->setCode(200)->setBody($result);
-    }
-
-    /**
-     * User attributes.
-     *
-     * @param null|mixed $query
-     */
-    public function get(?string $id = null, $query = null, array $attributes = [], int $offset = 0, int $limit = 20): Response
-    {
-        if ($id === null) {
-            if ($query === null) {
-                $query = [];
-            } elseif (is_string($query)) {
-                $query = toPHP(fromJSON($query), [
-                    'root' => 'array',
-                    'document' => 'array',
-                    'array' => 'array',
-                ]);
-            }
-
-            $result = $this->server->getUsers($query, $offset, $limit);
-            $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, '/api/v2/users');
-            $result = $pager->paging();
-        } else {
-            $result = $this->decorator->decorate($this->_getUser($id, false), $attributes);
-        }
-
-        return (new Response())->setCode(200)->setBody($result);
-    }
-
-    /**
-     * Get user avatar.
-     */
-    public function getAvatar(string $id): Response
-    {
-        $avatar = $this->_getUser($id, false)->getAttributes()['avatar'];
-        if ($avatar instanceof Binary) {
-            return (new Response())
-                ->setOutputFormat('text')
-                ->setBody($avatar->getData())
-                ->setHeader('Content-Type', 'image/png');
-        }
-
-        return (new Response())->setCode(404);
-    }
-
-    /**
-     * Create user.
-     */
-    public function post(string $username, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = false, ?string $namespace = null, ?string $locale = null): Response
-    {
-        if (!$this->user->isAdmin()) {
-            throw new Exception\NotAdmin('submitted parameters require admin privileges');
-        }
-
-        $attributes = compact('password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale');
-        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
-
-        if (isset($attributes['avatar'])) {
-            $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);
-        }
-
-        $id = $this->server->addUser($username, $attributes);
-        $result = $this->decorator->decorate($this->server->getUserById($id));
-
-        return (new Response())->setBody($result)->setCode(201);
-    }
-
-    /**
-     * Change attributes.
-     */
-    public function patch(string $id, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null, ?bool $multi_factor_auth = null): Response
-    {
-        $attributes = compact('username', 'password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale', 'multi_factor_auth');
-        $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
-
-        if (isset($attributes['avatar'])) {
-            $attributes['avatar'] = new Binary(base64_decode($attributes['avatar']), Binary::TYPE_GENERIC);
-        }
-
-        $user = $this->_getUser($id);
-        $user->setAttributes($attributes);
-        $result = $this->decorator->decorate($user);
-
-        return (new Response())->setCode(200)->setBody($result);
+        return Helper::getOne($request, $identity, $resource);
     }
 
     /**
      * Delete user.
      */
-    public function delete(string $id, bool $force = false): Response
+    public function delete(ServerRequestInterface $request, User $identity, ObjectId $user): ResponseInterface
     {
-        $user = $this->_getUser($id);
+        $this->user_factory->deleteOne($user);
 
-        if ($user->getId() === $this->user->getId()) {
-            throw new Exception\InvalidArgument(
-                'can not delete yourself',
-                Exception\InvalidArgument::CAN_NOT_DELETE_OWN_ACCOUNT
-            );
-        }
-
-        $user->delete($force);
-
-        return (new Response())->setCode(204);
+        return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
     }
 
     /**
-     * Enable user account.
+     * Add new user.
      */
-    public function postUndelete(string $id): Response
+    public function post(ServerRequestInterface $request, User $identity): ResponseInterface
     {
-        $this->_getUser($id)->undelete();
+        $body = $request->getParsedBody();
+        $query = $request->getQueryParams();
 
-        return (new Response())->setCode(204);
+        $id = $this->user_factory->add($body);
+
+        return new UnformattedResponse(
+            (new Response())->withStatus(StatusCodeInterface::STATUS_CREATED),
+            $this->user_factory->getOne($id)->decorate($request),
+            ['pretty' => isset($query['pretty'])]
+        );
+    }
+
+    /**
+     * Patch.
+     */
+    public function patch(ServerRequestInterface $request, User $identity, ObjectId $user): ResponseInterface
+    {
+        $body = $request->getParsedBody();
+        $query = $request->getQueryParams();
+        $user = $this->user_factory->getOne($user);
+        $doc = ['data' => $user->getData()];
+
+        $patch = new Patch(json_encode($doc), json_encode($body));
+        $patched = $patch->apply();
+        $update = json_decode($patched, true);
+        $this->user_factory->update($user, $update);
+
+        return new UnformattedResponse(
+            (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
+            $this->user_factory->getOne($user->getName())->decorate($request),
+            ['pretty' => isset($query['pretty'])]
+        );
     }
 }
