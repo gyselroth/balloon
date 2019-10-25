@@ -31,7 +31,7 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * {@inheritdoc}
      */
-    public function getId(): ObjectIdInterface
+    public function getId(): ?ObjectIdInterface
     {
         return $this->resource['_id'];
     }

@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Storage\Adapter;
 
-use Balloon\Node\Collection;
-use Balloon\Node\File;
+use Balloon\Collection\CollectionInterface;
+use Balloon\File\FileInterface;
 use Balloon\Node\NodeInterface;
 use Balloon\Server\User;
 use Balloon\Storage\Exception;
@@ -66,15 +66,15 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteCollection(Collection $collection): ?array
+    public function deleteCollection(CollectionInterface $collection): ?array
     {
-        return $collection->getAttributes()['storage'];
+        return $collection->toArray()['storage'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function forceDeleteCollection(Collection $collection): bool
+    public function forceDeleteCollection(CollectionInterface $collection): bool
     {
         return true;
     }
@@ -84,7 +84,7 @@ class Gridfs implements AdapterInterface
      */
     public function undelete(NodeInterface $node): ?array
     {
-        return $node->getAttributes()['storage'];
+        return $node->toArray()['storage'];
     }
 
     /**
@@ -92,7 +92,7 @@ class Gridfs implements AdapterInterface
      */
     public function rename(NodeInterface $node, string $new_name): ?array
     {
-        return $node->getAttributes()['storage'];
+        return $node->toArray()['storage'];
     }
 
     /**
@@ -100,7 +100,7 @@ class Gridfs implements AdapterInterface
      */
     public function readonly(NodeInterface $node, bool $readonly = true): ?array
     {
-        return $node->getAttributes()['storage'];
+        return $node->toArray()['storage'];
     }
 
     /**
@@ -114,7 +114,7 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function forceDeleteFile(File $file, ?int $version = null): bool
+    public function forceDeleteFile(FileInterface $file, ?int $version = null): bool
     {
         try {
             $exists = $this->getFileById($this->getId($file, $version));
@@ -164,15 +164,15 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteFile(File $file, ?int $version = null): ?array
+    public function deleteFile(FileInterface $file, ?int $version = null): ?array
     {
-        return $file->getAttributes()['storage'];
+        return $file->toArray()['storage'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function openReadStream(File $file)
+    public function openReadStream(FileInterface $file)
     {
         return $this->gridfs->openDownloadStream($this->getId($file));
     }
@@ -180,7 +180,7 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeFile(File $file, ObjectId $session): array
+    public function storeFile(FileInterface $file, ObjectId $session): array
     {
         $this->logger->debug('finalize temporary file ['.$session.'] and add file ['.$file->getId().'] as reference', [
             'category' => get_class($this),
@@ -243,7 +243,7 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createCollection(Collection $parent, string $name): array
+    public function createCollection(CollectionInterface $parent, string $name): array
     {
         return [];
     }
@@ -251,9 +251,9 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function move(NodeInterface $node, Collection $parent): ?array
+    public function move(NodeInterface $node, CollectionInterface $parent): ?array
     {
-        return $node->getAttributes()['storage'];
+        return $node->toArray()['storage'];
     }
 
     /**
@@ -297,7 +297,7 @@ class Gridfs implements AdapterInterface
      */
     protected function getId(NodeInterface $node, ?int $version = null): ObjectId
     {
-        $attributes = $node->getAttributes();
+        $attributes = $node->toArray();
 
         if ($version !== null) {
             $history = $node->getHistory();

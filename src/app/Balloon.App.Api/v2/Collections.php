@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v2;
 use Balloon\Acl;
 use Balloon\Node;
 use Balloon\Node\Factory as NodeFactory;
+use Balloon\Collection\Factory as CollectionFactory;
 use Balloon\Rest\Helper;
 use Balloon\User;
 use Fig\Http\Message\StatusCodeInterface;
@@ -22,6 +23,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Rs\Json\Patch;
 use Zend\Diactoros\Response;
+use MongoDB\BSON\ObjectId;
+use Balloon\App\Api\v2\Models\NodeFactory as NodeModelFactory;
 
 class Collections
 {
@@ -30,21 +33,22 @@ class Collections
      *
      * @var NodeFactory
      */
-    protected $node_factory;
+    protected $collection_factory;
 
     /**
      * Init.
      */
-    public function __construct(NodeFactory $node_factory, Acl $acl)
+    public function __construct(CollectionFactory $collection_factory, NodeModelFactory $node_model_factory, Acl $acl)
     {
-        $this->node_factory = $node_factory;
+        $this->collection_factory = $collection_factory;
+        $this->node_model_factory = $node_model_factory;
         $this->acl = $acl;
     }
 
     /**
      * Entrypoint.
      */
-    public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
+    public function getAll(ServerRequestInterface $request, User $user): ResponseInterface
     {
         $query = array_merge([
             'offset' => 0,
@@ -52,32 +56,50 @@ class Collections
         ], $request->getQueryParams());
 
         if (isset($query['watch'])) {
-            $cursor = $this->node_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
+            $cursor = $this->collection_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
 
-            return Helper::watchAll($request, $identity, $this->acl, $cursor);
+            return Helper::watchAll($request, $user, $this->acl, $cursor);
         }
 
-        $nodes = $this->node_factory->getAll($identity, $query['query'], $query['offset'], $query['limit'], $query['sort']);
+        $collections = $this->collection_factory->getAll($user, $query['query'], $query['offset'], $query['limit'], $query['sort']);
 
-        return Helper::getAll($request, $identity, $this->acl, $nodes);
+        return Helper::getAll($request, $user, $this->acl, $collections, $this->node_model_factory);
     }
 
     /**
      * Entrypoint.
      */
-    public function getOne(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
+    public function getChildren(ServerRequestInterface $request, User $user, ObjectId $collection): ResponseInterface
     {
-        $resource = $this->node_factory->getOne($identity, $node);
+        $query = $request->getQueryParams();
+        $resource = $this->collection_factory->getOne($user, $collection);
 
-        return Helper::getOne($request, $identity, $resource);
+        if (isset($query['watch'])) {
+            $cursor = $this->collection_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
+
+            return Helper::watchAll($request, $user, $this->acl, $cursor);
+        }
+
+        $collections = $this->collection_factory->getChildren($user, $resource, $query['query'], $query['offset'], $query['limit'], $query['sort'], (bool)$query['recursive']);
+        return Helper::getAll($request, $user, $this->acl, $collections, $this->node_model_factory);
+    }
+
+    /**
+     * Entrypoint.
+     */
+    public function getOne(ServerRequestInterface $request, User $user, ObjectId $collection): ResponseInterface
+    {
+        $resource = $this->collection_factory->getOne($user, $collection);
+
+        return Helper::getOne($request, $user, $resource, $this->node_model_factory);
     }
 
     /**
      * Delete node.
      */
-    public function delete(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
+    public function delete(ServerRequestInterface $request, User $user, ObjectId $collection): ResponseInterface
     {
-        $this->node_factory->deleteOne($identity, $node);
+        $this->collection_factory->deleteOne($user, $collection);
 
         return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
     }
@@ -85,39 +107,28 @@ class Collections
     /**
      * Add new node.
      */
-    public function post(ServerRequestInterface $request, User $identity): ResponseInterface
+    public function post(ServerRequestInterface $request, User $user): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
 
-        $id = $this->node_factory->add($identity, $body);
-
-        return new UnformattedResponse(
-            (new Response())->withStatus(StatusCodeInterface::STATUS_CREATED),
-            $this->node_factory->getOne($body['name'])->decorate($request),
-            ['pretty' => isset($query['pretty'])]
-        );
+        $resource = $this->collection_factory->add($user, $body);
+        return Helper::getOne($request, $user, $resource, $this->node_model_factory);
     }
 
     /**
      * Patch.
      */
-    public function patch(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
+    public function patch(ServerRequestInterface $request, User $user, ObjectId $collection): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
-        $node = $this->node_factory->getOne($node);
-        $doc = ['data' => $node->getData()];
+        $collection = $this->collection_factory->getOne($user, $collection);
 
-        $patch = new Patch(json_encode($doc), json_encode($body));
+        $patch = new Patch(json_encode($collection->toArray()), json_encode($body));
         $patched = $patch->apply();
         $update = json_decode($patched, true);
-        $this->node_factory->update($node, $update);
-
-        return new UnformattedResponse(
-            (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
-            $this->node_factory->getOne($node->getName())->decorate($request),
-            ['pretty' => isset($query['pretty'])]
-        );
+        $this->collection_factory->update($collection, $update);
+        return Helper::getOne($request, $user, $resource, $this->node_model_factory);
     }
 }

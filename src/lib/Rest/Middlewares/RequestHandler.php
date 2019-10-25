@@ -132,7 +132,7 @@ class RequestHandler implements MiddlewareInterface
 
             return $return;
         } catch (ReflectionException $e) {
-            throw new InvalidArgumentException('misssing or invalid required request parameter');
+            throw new InvalidArgumentException('misssing or invalid required request parameter', 0, $e);
         }
     }
 
@@ -159,7 +159,7 @@ class RequestHandler implements MiddlewareInterface
 
             break;
             default:
-                if (class_exists($type) && !($value instanceof $type)) {
+                if (class_exists($type) && !($value instanceof $type) && !is_object($value)) {
                     return new $type($value);
                 }
 

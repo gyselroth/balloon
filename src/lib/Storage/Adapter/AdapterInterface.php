@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Storage\Adapter;
 
-use Balloon\Node\Collection;
-use Balloon\Node\File;
+use Balloon\Collection\CollectionInterface;
+use Balloon\File\FileInterface;
 use Balloon\Node\NodeInterface;
 use Balloon\Server\User;
 use MongoDB\BSON\ObjectId;
@@ -27,17 +27,17 @@ interface AdapterInterface
     /**
      * Delete file (Move to trash if supported).
      */
-    public function deleteFile(File $file, ?int $version = null): ?array;
+    public function deleteFile(FileInterface $file, ?int $version = null): ?array;
 
     /**
      * Delete file completely.
      */
-    public function forceDeleteFile(File $file, ?int $version = null): bool;
+    public function forceDeleteFile(FileInterface $file, ?int $version = null): bool;
 
     /**
      * Get stored file.
      */
-    public function openReadStream(File $file);
+    public function openReadStream(FileInterface $file);
 
     /**
      * Store temporary file.
@@ -47,22 +47,22 @@ interface AdapterInterface
     /**
      * Store file.
      */
-    public function storeFile(File $file, ObjectId $session): array;
+    public function storeFile(FileInterface $file, ObjectId $session): array;
 
     /**
      * Create collection.
      */
-    public function createCollection(Collection $parent, string $name): array;
+    public function createCollection(CollectionInterface $parent, string $name): array;
 
     /**
      * Delete collection.
      */
-    public function deleteCollection(Collection $collection): ?array;
+    public function deleteCollection(CollectionInterface $collection): ?array;
 
     /**
      * Delete collection.
      */
-    public function forceDeleteCollection(Collection $collection): bool;
+    public function forceDeleteCollection(CollectionInterface $collection): bool;
 
     /**
      * Rename node.
@@ -72,7 +72,7 @@ interface AdapterInterface
     /**
      * Move node.
      */
-    public function move(NodeInterface $node, Collection $parent): ?array;
+    public function move(NodeInterface $node, CollectionInterface $parent): ?array;
 
     /**
      * Undelete node.

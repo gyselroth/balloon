@@ -104,7 +104,7 @@ class Smb implements AdapterInterface
      */
     public function hasNode(NodeInterface $node): bool
     {
-        $attributes = $node->getAttributes();
+        $attributes = $node->toArray();
 
         try {
             if (isset($attributes['storage']['path'])) {
@@ -135,12 +135,12 @@ class Smb implements AdapterInterface
         if ($readonly === true) {
             $this->share->setMode($path, IFileInfo::MODE_READONLY);
 
-            return $node->getAttributes()['storage'];
+            return $node->toArray()['storage'];
         }
 
         $this->share->setMode($path, IFileInfo::MODE_NORMAL);
 
-        return $node->getAttributes()['storage'];
+        return $node->toArray()['storage'];
     }
 
     /**
@@ -257,7 +257,7 @@ class Smb implements AdapterInterface
      */
     public function rename(NodeInterface $node, string $new_name): ?array
     {
-        $reference = $node->getAttributes()['storage'];
+        $reference = $node->toArray()['storage'];
 
         if (!$node->isDeleted()) {
             $path = join('/', [rtrim(dirname($this->getPath($node)), '/'), $new_name]);
@@ -273,7 +273,7 @@ class Smb implements AdapterInterface
      */
     public function move(NodeInterface $node, Collection $parent): ?array
     {
-        $reference = $node->getAttributes()['storage'];
+        $reference = $node->toArray()['storage'];
 
         if (!$node->isDeleted()) {
             $path = join('/', [rtrim($this->getPath($parent), '/'), $node->getName()]);
@@ -294,7 +294,7 @@ class Smb implements AdapterInterface
                 'category' => get_class($this),
             ]);
 
-            return $node->getAttributes()['storage'];
+            return $node->toArray()['storage'];
         }
 
         $current = $node->getPath();
@@ -302,7 +302,7 @@ class Smb implements AdapterInterface
         $restore = substr($current, strlen($mount));
 
         $this->share->rename($this->getPath($node), $restore);
-        $reference = $node->getAttributes()['storage'];
+        $reference = $node->toArray()['storage'];
         $reference['path'] = $restore;
 
         return $reference;
@@ -405,7 +405,7 @@ class Smb implements AdapterInterface
      */
     protected function deleteNode(NodeInterface $node): array
     {
-        $reference = $node->getAttributes()['storage'];
+        $reference = $node->toArray()['storage'];
 
         if ($this->hasNode($node) === false) {
             $this->logger->debug('smb node ['.$this->getPath($node).'] was not found for reference=['.$node->getId().']', [
@@ -427,7 +427,7 @@ class Smb implements AdapterInterface
      */
     protected function getPath(NodeInterface $node): string
     {
-        $attributes = $node->getAttributes();
+        $attributes = $node->toArray();
 
         if (isset($attributes['mount']) && count($attributes['mount']) !== 0) {
             return $this->root;

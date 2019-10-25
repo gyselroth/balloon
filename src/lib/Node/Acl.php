@@ -12,8 +12,7 @@ declare(strict_types=1);
 namespace Balloon\Node;
 
 use Balloon\Node\Acl\Exception;
-use Balloon\Server;
-use Balloon\Server\User;
+use Balloon\User\UserInterface;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
@@ -66,14 +65,11 @@ class Acl
     /**
      * Check acl.
      */
-    public function isAllowed(NodeInterface $node, string $privilege = self::PRIVILEGE_READ, ?User $user = null): bool
+    public function isAllowed(NodeInterface $node, string $privilege = self::PRIVILEGE_READ, ?UserInterface $user=null): bool
     {
-        $this->logger->debug('check acl for ['.$node->getId().'] with privilege ['.$privilege.']', [
+        $this->logger->debug('check acl for ['/*$node->getId()*/.'] with privilege ['.$privilege.']', [
             'category' => get_class($this),
         ]);
-
-        $custom = $user;
-        $user = $user === null ? $node->getFilesystem()->getUser() : $user;
 
         if (null === $user) {
             $this->logger->debug('system acl call, grant full access', [
@@ -114,28 +110,38 @@ class Acl
     /**
      * Get access privilege.
      */
-    public function getAclPrivilege(NodeInterface $node, ?User $user = null): string
+    public function getAclPrivilege(NodeInterface $node, ?UserInterface $user = null): string
     {
-        $user = $user === null ? $node->getFilesystem()->getUser() : $user;
+//        $user = $user === null ? $node->getFilesystem()->getUser() : $user;
 
         if ($node->isShareMember()) {
             return $this->processShareMember($node, $user);
         }
-        if ($node->isReference() && $node->isOwnerRequest()) {
+        if ($node->isReference() && $this->isOwnerRequest($node, $user)) {
             return $this->processShareReference($node, $user);
         }
-        if (!$node->isOwnerRequest()) {
+        if (!$this->isOwnerRequest($node, $user)) {
             $this->logger->warning('user ['.$user.'] not allowed to access non owned node ['.$node->getId().']', [
                 'category' => get_class($this),
             ]);
 
             return self::PRIVILEGE_DENY;
         }
-        if ($node->isOwnerRequest()) {
+        if ($this->isOwnerRequest($node, $user)) {
             return self::PRIVILEGE_MANAGE;
         }
 
         return self::PRIVILEGE_DENY;
+    }
+
+
+    protected function isOwnerRequest(NodeInterface $node, ?UserInterface $user = null): bool
+    {
+        if($user === null) {
+            return false;
+        }
+
+        return $node->getOwner() == $user->getId();
     }
 
     /**
@@ -239,7 +245,7 @@ class Acl
     /**
      * Process share reference.
      */
-    protected function processShareReference(NodeInterface $node, User $user): string
+    protected function processShareReference(NodeInterface $node, UserInterface $user): string
     {
         try {
             $share = $node->getFilesystem()->findRawNode($node->getShareId());
@@ -266,7 +272,7 @@ class Acl
     /**
      * Process ruleset.
      */
-    protected function processRuleset(User $user, array $acl): string
+    protected function processRuleset(UserInterface $user, array $acl): string
     {
         $result = self::PRIVILEGE_DENY;
         $groups = $user->getGroups();

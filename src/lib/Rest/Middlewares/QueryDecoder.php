@@ -67,6 +67,11 @@ class QueryDecoder implements MiddlewareInterface
             $query['sort'] = [];
         }
 
+        $query = array_merge([
+            'offset' => 0,
+            'limit' => 20,
+        ], $query);
+
         $request = $request->withQueryParams($query);
 
         return $handler->handle($request);

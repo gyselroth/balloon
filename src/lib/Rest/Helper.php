@@ -28,7 +28,7 @@ class Helper
     /**
      * Entrypoint.
      */
-    public static function getAll(ServerRequestInterface $request, UserInterface $identity, Acl $acl, iterable $cursor): ResponseInterface
+    public static function getAll(ServerRequestInterface $request, UserInterface $identity, Acl $acl, iterable $cursor, ModelFactoryInterface $model_factory): ResponseInterface
     {
         $query = $request->getQueryParams();
 
@@ -41,7 +41,7 @@ class Helper
         }
 
         $body = $acl->filterOutput($request, $identity, $cursor);
-        $body = Pager::fromRequest($body, $request);
+        $body = Pager::fromRequest($body, $request, $model_factory);
 
         return new UnformattedResponse(
             (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
@@ -53,13 +53,13 @@ class Helper
     /**
      * Entrypoint.
      */
-    public static function getOne(ServerRequestInterface $request, User $identity, ResourceInterface $resource): ResponseInterface
+    public static function getOne(ServerRequestInterface $request, User $identity, ResourceInterface $resource, ModelFactoryInterface $model_factory): ResponseInterface
     {
         $query = $request->getQueryParams();
 
         return new UnformattedResponse(
             (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
-            $resource->decorate($request),
+            $model_factory->decorate($resource, $request),
             ['pretty' => isset($query['pretty'])]
         );
     }

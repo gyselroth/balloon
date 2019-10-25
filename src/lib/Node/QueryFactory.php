@@ -22,10 +22,9 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
 use Balloon\Collection\Factory as CollectionFactory;
-use Balloon\File\Factory as FileFactory;
 use MongoDB\BSON\ObjectIdInterface;
 
-class Factory
+class QueryFactory
 {
     public const COLLECTION_NAME = 'nodes';
 
@@ -81,7 +80,7 @@ class Factory
     /**
      * Initialize.
      */
-    public function __construct(Database $db, Emitter $emitter, ResourceFactory $resource_factory, LoggerInterface $logger, StorageAdapterInterface $storage, Acl $acl, CollectionFactory $collection_factory, FileFactory $file_factory)
+    public function __construct(Database $db, Emitter $emitter, ResourceFactory $resource_factory, LoggerInterface $logger, StorageAdapterInterface $storage, Acl $acl, CollectionFactory $collection_factory)
     {
         $this->db = $db;
         $this->logger = $logger;
@@ -90,7 +89,6 @@ class Factory
         $this->acl = $acl;
         $this->resource_factory = $resource_factory;
         $this->collection_factory = $collection_factory;
-        $this->file_factory = $file_factory;
     }
 
     /**
@@ -113,20 +111,7 @@ class Factory
         $that = $this;
 
         return $this->resource_factory->getAllFrom($this->db->{self::COLLECTION_NAME}, $filter, $offset, $limit, $sort, function (array $resource) use ($user, $that) {
-            return $that->build($resource, $user);
-        });
-    }
-
-    /**
-     * Get all.
-     */
-    public function getAllQuery(UserInterface $user, array $query = [], ?int $offset = null, ?int $limit = null, ?array $sort = null): Generator
-    {
-        //$filter = $this->prepareQuery($user, $query);
-        $that = $this;
-
-        return $this->resource_factory->getAllFrom($this->db->{self::COLLECTION_NAME}, $query, $offset, $limit, $sort, function (array $resource) use ($user, $that) {
-            return $that->build($resource, $user);
+            return $that->build($result, $user);
         });
     }
 
@@ -170,7 +155,7 @@ class Factory
             case 'Collection':
                 return $this->collection_factory->deleteOne($user, $resource);
             case 'File':
-                return $this->file_factory->deleteOne($user, $resource);
+                return $this->collection_factory->deleteOne($user, $resource);
             default:
                 //TODO throw
         }
@@ -425,7 +410,7 @@ class Factory
     /**
      * Find nodes with custom filters.
      */
-    /*public function findNodesByFilter(UserInterface $user, array $filter, ?int $offset = null, ?int $limit = null): Generator
+    public function findNodesByFilter(array $filter, ?int $offset = null, ?int $limit = null): Generator
     {
         $result = $this->db->storage->find($filter, [
             'skip' => $offset,
@@ -436,8 +421,7 @@ class Factory
 
         foreach ($result as $node) {
             try {
-                var_dump($node);
-                yield $this->build($node, $user);
+                yield $this->initNode($node);
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
                     'category' => get_class($this),
@@ -447,7 +431,7 @@ class Factory
         }
 
         return $count;
-    }*/
+    }
 
     /**
      * Find nodes with custom filter recursive.
@@ -564,7 +548,7 @@ class Factory
 
         foreach ($result as $node) {
             try {
-                yield $this->build($node);
+                yield $this->initNode($node);
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
                     'category' => get_class($this),
@@ -579,7 +563,7 @@ class Factory
     /**
      * Init node.
      */
-    /*public function initNode(array $node): NodeInterface
+    public function initNode(array $node): NodeInterface
     {
         $id = $node['_id'];
 
@@ -633,7 +617,7 @@ class Factory
         }
 
         return $instance;
-    }*/
+    }
 
     /**
      * Find node with path.

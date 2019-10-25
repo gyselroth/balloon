@@ -14,6 +14,7 @@ namespace Balloon\App\Api\v2;
 use Balloon\Acl;
 use Balloon\Node;
 use Balloon\Node\Factory as NodeFactory;
+use Balloon\App\Api\v2\Models\NodeFactory as NodeModelFactory;
 use Balloon\Rest\Helper;
 use Balloon\User;
 use Fig\Http\Message\StatusCodeInterface;
@@ -22,6 +23,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Rs\Json\Patch;
 use Zend\Diactoros\Response;
+use MongoDB\BSON\ObjectId;
 
 class Nodes
 {
@@ -35,49 +37,47 @@ class Nodes
     /**
      * Init.
      */
-    public function __construct(NodeFactory $node_factory, Acl $acl)
+    public function __construct(NodeFactory $node_factory, NodeModelFactory $node_model_factory, Acl $acl)
     {
         $this->node_factory = $node_factory;
+        $this->node_model_factory = $node_model_factory;
         $this->acl = $acl;
     }
 
     /**
      * Entrypoint.
      */
-    public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
+    public function getAll(ServerRequestInterface $request, User $user): ResponseInterface
     {
-        $query = array_merge([
-            'offset' => 0,
-            'limit' => 20,
-        ], $request->getQueryParams());
+        $query = $request->getQueryParams();
 
         if (isset($query['watch'])) {
             $cursor = $this->node_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
 
-            return Helper::watchAll($request, $identity, $this->acl, $cursor);
+            return Helper::watchAll($request, $user, $this->acl, $cursor);
         }
 
-        $nodes = $this->node_factory->getAll($identity, $query['query'], $query['offset'], $query['limit'], $query['sort']);
+        $nodes = $this->node_factory->getAll($user, $query['query'], $query['offset'], $query['limit'], $query['sort']);
 
-        return Helper::getAll($request, $identity, $this->acl, $nodes);
+        return Helper::getAll($request, $user, $this->acl, $nodes, $this->node_model_factory);
     }
 
     /**
      * Entrypoint.
      */
-    public function getOne(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
+    public function getOne(ServerRequestInterface $request, User $user, ObjectId $node): ResponseInterface
     {
-        $resource = $this->node_factory->getOne($identity, $node);
+        $resource = $this->node_factory->getOne($user, $node);
 
-        return Helper::getOne($request, $identity, $resource);
+        return Helper::getOne($request, $user, $resource, $this->node_model_factory);
     }
 
     /**
      * Delete node.
      */
-    public function delete(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
+    public function delete(ServerRequestInterface $request, User $user, ObjectId $node): ResponseInterface
     {
-        $this->node_factory->deleteOne($identity, $node);
+        $this->node_factory->deleteOne($user, $node);
 
         return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
     }
@@ -85,12 +85,12 @@ class Nodes
     /**
      * Add new node.
      */
-    /*public function post(ServerRequestInterface $request, User $identity): ResponseInterface
+    /*public function post(ServerRequestInterface $request, User $user): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
 
-        $id = $this->node_factory->add($identity, $body);
+        $id = $this->node_factory->add($user, $body);
 
         return new UnformattedResponse(
             (new Response())->withStatus(StatusCodeInterface::STATUS_CREATED),
@@ -102,7 +102,7 @@ class Nodes
     /**
      * Patch.
      */
-    /*public function patch(ServerRequestInterface $request, User $identity, string $node): ResponseInterface
+    /*public function patch(ServerRequestInterface $request, User $user, ObjectId $node): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();

@@ -21,13 +21,9 @@ class Pager
     /**
      * Pager.
      */
-    public static function fromRequest(iterable $data, ServerRequestInterface $request): array
+    public static function fromRequest(iterable $data, ServerRequestInterface $request, ModelFactoryInterface $model_factory): array
     {
-        $query = array_merge([
-            'offset' => 0,
-            'limit' => 20,
-        ], $request->getQueryParams());
-
+        $query = $request->getQueryParams();
         $nodes = [];
         $count = 0;
 
@@ -35,7 +31,7 @@ class Pager
             ++$count;
 
             if ($resource instanceof ResourceInterface) {
-                $nodes[] = $resource->decorate($request);
+                $nodes[] = $model_factory->decorate($resource, $request);
             } else {
                 $nodes[] = (array) $resource;
             }

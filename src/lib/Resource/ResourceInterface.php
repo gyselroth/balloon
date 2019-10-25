@@ -20,7 +20,7 @@ interface ResourceInterface
     /**
      * Get resource it.
      */
-    public function getId(): ObjectIdInterface;
+    public function getId(): ?ObjectIdInterface;
 
     /**
      * Get name.
@@ -60,5 +60,5 @@ interface ResourceInterface
     /**
      * Decorate resource from server request.
      */
-    public function decorate(ServerRequestInterface $request);
+//    public function decorate(ServerRequestInterface $request);
 }

@@ -23,7 +23,8 @@ class Factory
     /**
      * Collection name.
      */
-    public const COLLECTION_NAME = 'users';
+//    public const COLLECTION_NAME = 'users';
+    public const COLLECTION_NAME = 'user';
 
     /**
      * Database.
