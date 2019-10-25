@@ -52,7 +52,7 @@ class Nodes
         $query = $request->getQueryParams();
 
         if (isset($query['watch'])) {
-            $cursor = $this->node_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
+            $cursor = $this->node_factory->watch($user, null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
 
             return Helper::watchAll($request, $user, $this->acl, $cursor);
         }

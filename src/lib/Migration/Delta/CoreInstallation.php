@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\Migration\Delta;
 
-use Balloon\Server;
+use Balloon\User\Factory as UserFactory;
 use MongoDB\Database;
 
 class CoreInstallation implements DeltaInterface
@@ -33,10 +33,10 @@ class CoreInstallation implements DeltaInterface
     /**
      * Construct.
      */
-    public function __construct(Database $db, Server $server)
+    public function __construct(Database $db, UserFactory $user_factory)
     {
         $this->db = $db;
-        $this->server = $server;
+        $this->user_factory = $user_factory;
     }
 
     /**
@@ -49,9 +49,9 @@ class CoreInstallation implements DeltaInterface
             $collections[] = $collection->getName();
         }
 
-        $this->db->user->createIndex(['username' => 1], ['unique' => true]);
-        $this->db->user->createIndex(['mail' => 1], ['unique' => true]);
-        $this->db->group->createIndex(['member' => 1]);
+        $this->db->users->createIndex(['username' => 1], ['unique' => true]);
+        $this->db->users->createIndex(['mail' => 1], ['unique' => true]);
+        $this->db->groups->createIndex(['member' => 1]);
 
         $this->db->selectCollection('fs.files')->createIndex(['md5' => 1], [
             'unique' => true,
@@ -65,7 +65,7 @@ class CoreInstallation implements DeltaInterface
             ['unique' => true]
         );
 
-        $this->db->storage->createIndexes([
+        $this->db->nodes->createIndexes([
             ['key' => [
                 'name' => 1,
                 'owner' => 1,
@@ -86,7 +86,7 @@ class CoreInstallation implements DeltaInterface
             ]],
         ]);
 
-        $this->db->delta->createIndexes([
+        $this->db->events->createIndexes([
             ['key' => ['owner' => 1]],
             ['key' => ['timestamp' => 1]],
             ['key' => ['node' => 1]],
@@ -102,7 +102,8 @@ class CoreInstallation implements DeltaInterface
             );
         }
 
-        $this->server->addUser('admin', [
+        $this->user_factory->add([
+            'username' => 'admin',
             'password' => 'admin',
             'mail' => 'root@localhost.local',
             'admin' => true,

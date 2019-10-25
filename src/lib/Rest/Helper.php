@@ -28,19 +28,19 @@ class Helper
     /**
      * Entrypoint.
      */
-    public static function getAll(ServerRequestInterface $request, UserInterface $identity, Acl $acl, iterable $cursor, ModelFactoryInterface $model_factory): ResponseInterface
+    public static function getAll(ServerRequestInterface $request, UserInterface $user, Acl $acl, iterable $cursor, ModelFactoryInterface $model_factory): ResponseInterface
     {
         $query = $request->getQueryParams();
 
         if (isset($query['watch']) && $query['watch'] !== 'false' && !empty($query['watch'])) {
-            return self::watchAll($request, $identity, $acl, $cursor);
+            return self::watchAll($request, $user, $acl, $cursor);
         }
 
         if (isset($query['stream']) && $query['stream'] !== 'false' && !empty($query['stream'])) {
-            return self::stream($request, $identity, $acl, $cursor);
+            return self::stream($request, $user, $acl, $cursor);
         }
 
-        $body = $acl->filterOutput($request, $identity, $cursor);
+        $body = $acl->filterOutput($request, $user, $cursor);
         $body = Pager::fromRequest($body, $request, $model_factory);
 
         return new UnformattedResponse(
@@ -53,7 +53,7 @@ class Helper
     /**
      * Entrypoint.
      */
-    public static function getOne(ServerRequestInterface $request, User $identity, ResourceInterface $resource, ModelFactoryInterface $model_factory): ResponseInterface
+    public static function getOne(ServerRequestInterface $request, UserInterface $user, ResourceInterface $resource, ModelFactoryInterface $model_factory): ResponseInterface
     {
         $query = $request->getQueryParams();
 
@@ -67,7 +67,7 @@ class Helper
     /**
      * Watch.
      */
-    public static function stream(ServerRequestInterface $request, Identity $identity, Acl $acl, iterable $cursor): ResponseInterface
+    public static function stream(ServerRequestInterface $request, UserInterface $user, Acl $acl, iterable $cursor): ResponseInterface
     {
         //Stream is valid for 5min, after a new requests needs to be sent
         ini_set('max_execution_time', '300');
@@ -100,7 +100,7 @@ class Helper
     /**
      * Watch.
      */
-    public static function watchAll(ServerRequestInterface $request, Identity $identity, Acl $acl, iterable $cursor): ResponseInterface
+    public static function watchAll(ServerRequestInterface $request, UserInterface $user, Acl $acl, iterable $cursor): ResponseInterface
     {
         //Watcher is valid for 5min, after a new requests needs to be sent
         ini_set('max_execution_time', '300');

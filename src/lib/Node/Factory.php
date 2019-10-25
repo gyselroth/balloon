@@ -130,6 +130,7 @@ class Factory
         });
     }
 
+
     public function build(array $resource, UserInterface $user) {
         switch($resource['kind']) {
             case 'Collection':
@@ -206,22 +207,13 @@ class Factory
      */
     public function watch(UserInterface $user, ?ObjectIdInterface $after = null, bool $existing = true, ?array $query = null, ?int $offset = null, ?int $limit = null, ?array $sort = null): Generator
     {
-        $filter = $this->prepareQuery($namespace, $query);
+        $filter = $this->prepareQuery($user, $query);
         $that = $this;
 
-        return $this->resource_factory->watchFrom($this->db->{self::COLLECTION_NAME}, $after, $existing, $filter, function (array $resource) use ($namespace, $that) {
+        return $this->resource_factory->watchFrom($this->db->{self::COLLECTION_NAME}, $after, $existing, $filter, function (array $resource) use ($user, $that) {
             return $that->build($resource, $namespace);
         }, $offset, $limit, $sort);
     }
-
-
-
-
-
-
-
-
-
 
     /**
      * Find raw node.

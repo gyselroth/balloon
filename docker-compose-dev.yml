@@ -5,7 +5,8 @@ networks:
 
 services:
     mongodb:
-        image: mongo:3.6
+        image: mongo:4.2
+        entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
         networks:
         - backend
     clamav:
