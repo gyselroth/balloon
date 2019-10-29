@@ -47,36 +47,36 @@ class Files
     /**
      * Entrypoint.
      */
-    public function getAll(ServerRequestInterface $request, User $user): ResponseInterface
+    public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
     {
         $query = $request->getQueryParams();
 
         if (isset($query['watch'])) {
             $cursor = $this->file_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
 
-            return Helper::watchAll($request, $user, $this->acl, $cursor);
+            return Helper::watchAll($request, $identity, $this->acl, $cursor);
         }
 
-        $files = $this->file_factory->getAll($user, $query['query'], $query['offset'], $query['limit'], $query['sort']);
+        $files = $this->file_factory->getAll($identity, $query['query'], $query['offset'], $query['limit'], $query['sort']);
 
-        return Helper::getAll($request, $user, $this->acl, $files, $this->node_model_factory);
+        return Helper::getAll($request, $identity, $this->acl, $files, $this->node_model_factory);
     }
 
     /**
      * Entrypoint.
      */
-    public function getOne(ServerRequestInterface $request, User $user, ObjectId $file): ResponseInterface
+    public function getOne(ServerRequestInterface $request, User $identity, ObjectId $file): ResponseInterface
     {
-        $resource = $this->file_factory->getOne($user, $file);
-        return Helper::getOne($request, $user, $resource, $this->node_model_factory);
+        $resource = $this->file_factory->getOne($identity, $file);
+        return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
     }
 
     /**
      * Delete node.
      */
-    public function delete(ServerRequestInterface $request, User $user, ObjectId $file): ResponseInterface
+    public function delete(ServerRequestInterface $request, User $identity, ObjectId $file): ResponseInterface
     {
-        $this->file_factory->deleteOne($user, $file);
+        $this->file_factory->deleteOne($identity, $file);
 
         return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
     }
@@ -84,28 +84,28 @@ class Files
     /**
      * Add new node.
      */
-    public function post(ServerRequestInterface $request, User $user): ResponseInterface
+    public function post(ServerRequestInterface $request, User $identity): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
 
-        $resource = $this->file_factory->add($user, $body);
-        return Helper::getOne($request, $user, $resource, $this->node_model_factory);
+        $resource = $this->file_factory->add($identity, $body);
+        return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
     }
 
     /**
      * Patch.
      */
-    public function patch(ServerRequestInterface $request, User $user, ObjectId $file): ResponseInterface
+    public function patch(ServerRequestInterface $request, User $identity, ObjectId $file): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
-        $file = $this->file_factory->getOne($user, $file);
+        $file = $this->file_factory->getOne($identity, $file);
 
         $patch = new Patch(json_encode($file->toArray()), json_encode($body));
         $patched = $patch->apply();
         $update = json_decode($patched, true);
         $this->file_factory->update($file, $update);
-        return Helper::getOne($request, $user, $resource, $this->node_model_factory);
+        return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
     }
 }

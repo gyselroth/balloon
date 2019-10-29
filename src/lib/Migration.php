@@ -19,6 +19,12 @@ use Psr\Log\LoggerInterface;
 class Migration
 {
     /**
+     * Collection name
+     */
+    public const COLLECTION_NAME = 'deltas';
+
+
+    /**
      * Databse.
      *
      * @var Database
@@ -40,20 +46,12 @@ class Migration
     protected $delta = [];
 
     /**
-     * Delta meta collection name.
-     *
-     * @var string
-     */
-    protected $meta_collection = 'migration';
-
-    /**
      * Construct.
      */
-    public function __construct(Database $db, LoggerInterface $logger, string $meta_collection = 'migration')
+    public function __construct(Database $db, LoggerInterface $logger)
     {
         $this->db = $db;
         $this->logger = $logger;
-        $this->meta_collection = $meta_collection;
     }
 
     /**
@@ -61,7 +59,7 @@ class Migration
      */
     public function isDeltaApplied(string $class): bool
     {
-        return null !== $this->db->{$this->meta_collection}->findOne(['class' => $class]);
+        return null !== $this->db->{self::COLLECTION_NAME}->findOne(['class' => $class]);
     }
 
     /**
@@ -94,10 +92,10 @@ class Migration
                 ]);
 
                 try {
-                    $delta->start();
-                    $this->db->{$this->meta_collection}->insertOne(['class' => get_class($delta)]);
+                    $delta['delta']->start();
+                    $this->db->{self::COLLECTION_NAME}->insertOne(['class' => $name]);
                 } catch (\Exception $e) {
-                    $this->logger->error('failed to apply delta ['.get_class($delta).']', [
+                    $this->logger->error('failed to apply delta ['.$name.']', [
                         'category' => get_class($this),
                         'exception' => $e,
                     ]);
@@ -142,11 +140,8 @@ class Migration
 
     /**
      * Inject delta.
-     *
-     *
-     * @return Migration
      */
-    public function injectDelta(DeltaInterface $delta, ?string $name = null): self
+    public function injectDelta(DeltaInterface $delta, int $priority=0, ?string $name = null): self
     {
         if (null === $name) {
             $name = get_class($delta);
@@ -160,7 +155,10 @@ class Migration
             throw new Exception('delta '.$name.' is already registered');
         }
 
-        $this->delta[$name] = $delta;
+        $this->delta[$name] = [
+            'delta' => $delta,
+            'priority' => $priority
+        ];
 
         return $this;
     }
@@ -179,17 +177,24 @@ class Migration
 
     /**
      * Get deltas.
-     *
-     *
-     * @return DeltaInterface[]
      */
     public function getDeltas(array $deltas = []): array
     {
+        $order = $this->delta;
+        uasort($order, function($a, $b) {
+            if ($a['priority'] == $b['priority']) {
+                return 0;
+            }
+
+            return ($a['priority'] < $b['priority']) ? 1 : -1;
+        });
+
         if (empty($deltas)) {
-            return $this->delta;
+            return $order;
         }
+
         $list = [];
-        foreach ($deltas as $name) {
+        foreach ($order as $name) {
             if (!$this->hasDelta($name)) {
                 throw new Exception('delta '.$name.' is not registered');
             }

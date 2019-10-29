@@ -85,8 +85,7 @@ return [
                 '{'.ContentTypeMiddleware::class.'}',
                 '{'.QueryDecoder::class.'}',
                 '{'.FastRoute::class.'}',
-                //'{'.AuthMiddleware::class.'}',
-                //'{'.AclMiddleware::class.'}',
+                '{'.AclMiddleware::class.'}',
                 '{'.TrailingSlash::class.'}',
                 '{'.RequestHandler::class.'}',
             ],
@@ -382,7 +381,7 @@ return [
             ],
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}'],
+                'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}', 'priority' => 100],
             ],
         ],
     ],

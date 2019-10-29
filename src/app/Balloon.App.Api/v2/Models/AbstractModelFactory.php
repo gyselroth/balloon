@@ -82,7 +82,7 @@ class AbstractModelFactory implements ModelFactoryInterface
                 return $attributes['changed']->toDateTime()->format('c');
             },
             'deleted' => function ($resource) use ($attributes) {
-                if (false === $attributes['deleted']) {
+                if ($attributes['deleted'] === null) {
                     return null;
                 }
 

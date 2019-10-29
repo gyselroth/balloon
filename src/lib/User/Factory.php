@@ -13,6 +13,8 @@ namespace Balloon\User;
 
 use Balloon\Resource\Factory as ResourceFactory;
 use Balloon\User;
+use Balloon\User\UserInterface;
+use Balloon\File\Factory as FileFactory;
 use Generator;
 use InvalidArgumentException;
 use MongoDB\BSON\ObjectIdInterface;
@@ -91,7 +93,7 @@ class Factory
      */
     public function has(string $name): bool
     {
-        return $this->db->{self::COLLECTION_NAME}->count(['name' => $name]) > 0;
+        return $this->db->{self::COLLECTION_NAME}->count(['username' => $name]) > 0;
     }
 
     /**
@@ -140,10 +142,10 @@ class Factory
         $data['name'] = $resource->getName();
         $data['kind'] = $resource->getKind();
 
-        if (isset($data['data']['password'])) {
+        if (isset($data['password'])) {
             $data = Validator::validatePolicy($data, $this->password_policy);
-            $data['hash'] = password_hash($data['data']['password'], $this->password_hash);
-            unset($data['data']['password']);
+            $data['hash'] = password_hash($data['password'], $this->password_hash);
+            unset($data['password']);
         }
 
         return $this->resource_factory->updateIn($this->db->{self::COLLECTION_NAME}, $resource, $data);
@@ -161,9 +163,9 @@ class Factory
             throw new Exception\NotUnique('user '.$resource['username'].' does already exists');
         }
 
-        if (isset($resource['data']['password'])) {
-            $resource['hash'] = password_hash($resource['data']['password'], $this->password_hash);
-            unset($resource['data']['password']);
+        if (isset($resource['password'])) {
+            $resource['hash'] = password_hash($resource['password'], $this->password_hash);
+            unset($resource['password']);
         }
 
         return $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
@@ -187,5 +189,39 @@ class Factory
     public function build(array $resource): UserInterface
     {
         return $this->resource_factory->initResource(new User($resource));
+    }
+
+    /**
+     * Get used qota.
+     */
+    public function getQuotaUsage(UserInterface $user): array
+    {
+        $result = $this->db->{FileFactory::COLLECTION_NAME}->aggregate([
+            [
+                '$match' => [
+                    'owner' => $user->getId(),
+                    'kind' => 'File',
+                    'deleted' => null,
+                    'storage_reference' => null,
+                ],
+            ],
+            [
+                '$group' => [
+                    '_id' => null,
+                    'sum' => ['$sum' => '$size'],
+                ],
+            ],
+        ]);
+        $result = iterator_to_array($result);
+        $sum = 0;
+        if (isset($result[0]['sum'])) {
+            $sum = $result[0]['sum'];
+        }
+        return [
+            'used' => $sum,
+            'available' => ($this->hard_quota - $sum),
+            'hard_quota' => $this->hard_quota,
+            'soft_quota' => $this->soft_quota,
+        ];
     }
 }

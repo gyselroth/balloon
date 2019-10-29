@@ -39,9 +39,9 @@ class Http
     /**
      * Constructor.
      */
-    public function __construct(Router $router, Hook $hook)
+    public function __construct(/*Router $router, Hook $hook*/)
     {
-        $router
+        /*$router
             ->appendRoute(new Route('/api/v2/users/{id:#([0-9a-z]{24})#}(/|\z)', v2\Users::class))
             ->appendRoute(new Route('/api/v2/users(/|\z)', v2\Users::class))
             ->appendRoute(new Route('/api/v2/groups/{id:#([0-9a-z]{24})#}(/|\z)', v2\Groups::class))
@@ -76,7 +76,7 @@ class Http
                 }
             }
         });
-
+         */
         return true;
     }
 }

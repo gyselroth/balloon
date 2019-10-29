@@ -26,14 +26,14 @@ return [
             ],
         ],
     ],
-    Hook::class => [
+    /*Hook::class => [
         'calls' => [
             Lock::class => [
                 'method' => 'injectHook',
                 'arguments' => ['hook' => '{'.Lock::class.'}'],
             ],
         ],
-    ],
+    ],*/
     RouteCollector::class => [
         'calls' => [[
             'method' => 'addRoute',

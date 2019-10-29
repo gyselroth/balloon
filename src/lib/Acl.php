@@ -14,9 +14,8 @@ namespace Balloon;
 use Balloon\AccessRole\Factory as AccessRoleFactory;
 use Balloon\AccessRule\Factory as AccessRuleFactory;
 use Balloon\Acl\Exception;
-use Balloon\User\UserInterface;
 use Generator;
-use Micro\Auth\Identity;
+use Balloon\User\UserInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
@@ -56,15 +55,15 @@ class Acl
     /**
      * Verify request.
      */
-    public function isAllowed(ServerRequestInterface $request, Identity $user): bool
+    public function isAllowed(ServerRequestInterface $request, UserInterface $user): bool
     {
-        $this->logger->debug('verify access for identity ['.$user->getIdentifier().']', [
+        $this->logger->debug('verify access for identity ['.$user->getUsername().']', [
             'category' => get_class($this),
         ]);
 
         $roles = $this->role_factory->getAll([
             '$or' => [
-                ['data.selectors' => $user->getIdentifier()],
+                ['data.selectors' => $user->getUsername()],
                 ['data.selectors' => '*'],
             ],
         ]);
@@ -80,7 +79,7 @@ class Acl
         ]);
 
         if ($names === []) {
-            $this->logger->info('no matching access roles for ['.$user->getIdentifier().']', [
+            $this->logger->info('no matching access roles for ['.$user->getUsername().']', [
                 'category' => get_class($this),
             ]);
 
@@ -127,7 +126,7 @@ class Acl
             }
         }
 
-        $this->logger->info('access denied for user ['.$user->getIdentifier().'], no access rule match', [
+        $this->logger->info('access denied for user ['.$user->getUsername().'], no access rule match', [
             'category' => get_class($this),
             'roles' => $names,
         ]);

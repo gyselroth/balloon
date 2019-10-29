@@ -9,12 +9,12 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Tubee;
+namespace Balloon;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Tubee\AccessRule\AccessRuleInterface;
-use Tubee\Resource\AbstractResource;
-use Tubee\Resource\AttributeResolver;
+use Balloon\AccessRule\AccessRuleInterface;
+use Balloon\Resource\AbstractResource;
+use Balloon\Resource\AttributeResolver;
 
 class AccessRule extends AbstractResource implements AccessRuleInterface
 {

@@ -15,6 +15,7 @@ use Balloon\Acl;
 use Balloon\Rest\Helper;
 use Balloon\User;
 use Balloon\User\Factory as UserFactory;
+use Balloon\App\Api\v2\Models\UserFactory as UserModelFactory;
 use Fig\Http\Message\StatusCodeInterface;
 use Lcobucci\ContentNegotiation\UnformattedResponse;
 use MongoDB\BSON\ObjectId;
@@ -35,9 +36,10 @@ class Users
     /**
      * Init.
      */
-    public function __construct(UserFactory $user_factory, Acl $acl)
+    public function __construct(UserFactory $user_factory, UserModelFactory $user_model_factory, Acl $acl)
     {
         $this->user_factory = $user_factory;
+        $this->user_model_factory = $user_model_factory;
         $this->acl = $acl;
     }
 
@@ -46,20 +48,17 @@ class Users
      */
     public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
     {
-        $query = array_merge([
-            'offset' => 0,
-            'limit' => 20,
-        ], $request->getQueryParams());
+        $query = $request->getQueryParams();
 
         if (isset($query['watch'])) {
             $cursor = $this->user_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
 
-            return Helper::watchAll($request, $identity, $this->acl, $cursor);
+            return Helper::watchAll($request, $identity, $this->acl, $cursor, $this->user_model_factory);
         }
 
         $users = $this->user_factory->getAll($query['query'], $query['offset'], $query['limit'], $query['sort']);
 
-        return Helper::getAll($request, $identity, $this->acl, $users);
+        return Helper::getAll($request, $identity, $this->acl, $users, $this->user_model_factory);
     }
 
     /**
@@ -69,7 +68,7 @@ class Users
     {
         $resource = $this->user_factory->getOne($user);
 
-        return Helper::getOne($request, $identity, $resource);
+        return Helper::getOne($request, $identity, $resource, $this->user_model_factory);
     }
 
     /**
@@ -94,7 +93,7 @@ class Users
 
         return new UnformattedResponse(
             (new Response())->withStatus(StatusCodeInterface::STATUS_CREATED),
-            $this->user_factory->getOne($id)->decorate($request),
+            $this->user_model_factory->decorate($resource, $request),
             ['pretty' => isset($query['pretty'])]
         );
     }
@@ -114,10 +113,6 @@ class Users
         $update = json_decode($patched, true);
         $this->user_factory->update($user, $update);
 
-        return new UnformattedResponse(
-            (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
-            $this->user_factory->getOne($user->getName())->decorate($request),
-            ['pretty' => isset($query['pretty'])]
-        );
+        return Helper::getOne($request, $identity, $update, $this->user_model_factory);
     }
 }

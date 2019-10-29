@@ -9,11 +9,11 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Tubee\Acl\Exception;
+namespace Balloon\Acl\Exception;
 
-use Tubee\Rest\Exception\ExceptionInterface;
+use Balloon\Rest\Exception\ExceptionInterface;
 
-class NotAllowed extends \Tubee\Exception implements ExceptionInterface
+class NotAllowed extends \Balloon\Exception implements ExceptionInterface
 {
     /**
      * {@inheritdoc}

@@ -47,37 +47,37 @@ class Nodes
     /**
      * Entrypoint.
      */
-    public function getAll(ServerRequestInterface $request, User $user): ResponseInterface
+    public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
     {
         $query = $request->getQueryParams();
 
         if (isset($query['watch'])) {
-            $cursor = $this->node_factory->watch($user, null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
+            $cursor = $this->node_factory->watch($identity, null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
 
-            return Helper::watchAll($request, $user, $this->acl, $cursor);
+            return Helper::watchAll($request, $identity, $this->acl, $cursor);
         }
 
-        $nodes = $this->node_factory->getAll($user, $query['query'], $query['offset'], $query['limit'], $query['sort']);
+        $nodes = $this->node_factory->getAll($identity, $query['query'], $query['offset'], $query['limit'], $query['sort']);
 
-        return Helper::getAll($request, $user, $this->acl, $nodes, $this->node_model_factory);
+        return Helper::getAll($request, $identity, $this->acl, $nodes, $this->node_model_factory);
     }
 
     /**
      * Entrypoint.
      */
-    public function getOne(ServerRequestInterface $request, User $user, ObjectId $node): ResponseInterface
+    public function getOne(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
     {
-        $resource = $this->node_factory->getOne($user, $node);
+        $resource = $this->node_factory->getOne($identity, $node);
 
-        return Helper::getOne($request, $user, $resource, $this->node_model_factory);
+        return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
     }
 
     /**
      * Delete node.
      */
-    public function delete(ServerRequestInterface $request, User $user, ObjectId $node): ResponseInterface
+    public function delete(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
     {
-        $this->node_factory->deleteOne($user, $node);
+        $this->node_factory->deleteOne($identity, $node);
 
         return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
     }
@@ -85,12 +85,12 @@ class Nodes
     /**
      * Add new node.
      */
-    /*public function post(ServerRequestInterface $request, User $user): ResponseInterface
+    /*public function post(ServerRequestInterface $request, User $identity): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
 
-        $id = $this->node_factory->add($user, $body);
+        $id = $this->node_factory->add($identity, $body);
 
         return new UnformattedResponse(
             (new Response())->withStatus(StatusCodeInterface::STATUS_CREATED),
@@ -102,7 +102,7 @@ class Nodes
     /**
      * Patch.
      */
-    /*public function patch(ServerRequestInterface $request, User $user, ObjectId $node): ResponseInterface
+    /*public function patch(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();

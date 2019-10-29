@@ -16,6 +16,7 @@ use Micro\Auth\Adapter\Basic\AbstractBasic;
 use Micro\Auth\IdentityInterface;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
+use Balloon\User\Factory as UserFactory;
 
 class Db extends AbstractBasic implements InternalAuthInterface
 {
@@ -50,13 +51,10 @@ class Db extends AbstractBasic implements InternalAuthInterface
      */
     public function findIdentity(string $username): ?array
     {
-        //TODO: v3
-
-        return $this->db->user->findOne([
+        return $this->db->{UserFactory::COLLECTION_NAME}->findOne([
             '$or' => [
                 ['username' => $username],
-                ['data.username' => $username],
-                ['data.mail' => $username],
+                ['mail' => $username],
             ],
         ]);
     }
@@ -84,7 +82,7 @@ class Db extends AbstractBasic implements InternalAuthInterface
             return null;
         }
 
-        if (!isset($result['password']) || empty($result['password'])) {
+        if (!isset($result['hash']) || empty($result['hash'])) {
             $this->logger->info('found no password for ['.$username.'] in database', [
                 'category' => get_class($this),
             ]);
@@ -92,7 +90,7 @@ class Db extends AbstractBasic implements InternalAuthInterface
             return null;
         }
 
-        if (!password_verify($password, $result['password'])) {
+        if (!password_verify($password, $result['hash'])) {
             $this->logger->info('failed match given password for ['.$username.'] with stored password in database', [
                 'category' => get_class($this),
             ]);

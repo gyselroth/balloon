@@ -13,6 +13,10 @@ namespace Balloon\Migration\Delta;
 
 use Balloon\User\Factory as UserFactory;
 use MongoDB\Database;
+use MongoDB\Client;
+use MongoDB\Driver\Exception\CommandException;
+use Balloon\AccessRole\Factory as AccessRoleFactory;
+use Balloon\AccessRule\Factory as AccessRuleFactory;
 
 class CoreInstallation implements DeltaInterface
 {
@@ -33,10 +37,13 @@ class CoreInstallation implements DeltaInterface
     /**
      * Construct.
      */
-    public function __construct(Database $db, UserFactory $user_factory)
+    public function __construct(Client $client, Database $db, UserFactory $user_factory, AccessRoleFactory $role_factory, AccessRuleFactory $rule_factory)
     {
+        $this->client = $client;
         $this->db = $db;
         $this->user_factory = $user_factory;
+        $this->role_factory = $role_factory;
+        $this->rule_factory = $rule_factory;
     }
 
     /**
@@ -44,6 +51,14 @@ class CoreInstallation implements DeltaInterface
      */
     public function start(): bool
     {
+        try {
+            $this->client->selectDatabase('admin')->command(['replSetInitiate' => []]);
+        } catch (CommandException $e) {
+            if ($e->getCode() !== 23) {
+                throw $e;
+            }
+        }
+
         $collections = [];
         foreach ($this->db->listCollections() as $collection) {
             $collections[] = $collection->getName();
@@ -102,12 +117,36 @@ class CoreInstallation implements DeltaInterface
             );
         }
 
-        $this->user_factory->add([
-            'username' => 'admin',
-            'password' => 'admin',
-            'mail' => 'root@localhost.local',
-            'admin' => true,
-        ]);
+        if(!$this->user_factory->has('admin')) {
+            $this->user_factory->add([
+                'username' => 'admin',
+                'password' => 'admin',
+                'mail' => 'root@localhost.local',
+                'admin' => true,
+            ]);
+        }
+
+
+        if (!$this->role_factory->has('admin')) {
+            $this->role_factory->add([
+                'name' => 'admin',
+                'data' => [
+                    'selectors' => ['*'],
+                ],
+            ]);
+        }
+
+        if (!$this->rule_factory->has('full-access')) {
+            $this->rule_factory->add([
+                'name' => 'full-access',
+                'data' => [
+                    'roles' => ['admin'],
+                    'verbs' => ['*'],
+                    'selectors' => ['*'],
+                    'resources' => ['*'],
+                ],
+            ]);
+        }
 
         return true;
     }

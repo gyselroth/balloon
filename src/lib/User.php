@@ -39,6 +39,19 @@ class User extends AbstractResource implements UserInterface
         return password_verify($password, $this->resource['hash']);
     }
 
+    public function getUsername(): string
+    {
+        return $this->resource['username'];
+    }
+
+    /**
+     * Has password.
+     */
+    public function hasPassword(): bool
+    {
+        return $this->resource['hash'] !== null;
+    }
+
     /**
      * Decorate.
      */

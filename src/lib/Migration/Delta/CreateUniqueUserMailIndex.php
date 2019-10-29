@@ -56,7 +56,7 @@ class CreateUniqueUserMailIndex implements DeltaInterface
      */
     protected function createIndex(): string
     {
-        $this->db->user->createIndex([
+        return $this->db->user->createIndex([
             'mail' => 1,
         ], [
             'unique' => true,

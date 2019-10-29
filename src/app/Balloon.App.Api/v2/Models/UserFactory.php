@@ -12,9 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Api\v2\Models;
 
 use Balloon\AttributeDecorator\AttributeDecoratorInterface;
-use Balloon\Filesystem;
-use Balloon\Filesystem\Acl;
-use Balloon\Server;
+use Balloon\User\Factory as UserResourceFactory;
 use Balloon\Resource\ResourceInterface;
 use Balloon\Rest\ModelFactoryInterface;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
@@ -37,14 +35,20 @@ class UserFactory extends AbstractModelFactory
      */
     //protected $hook;
 
+    public function __construct(UserResourceFactory $user_factory)
+    {
+        $this->user_factory = $user_factory;
+    }
+
 
     /**
      * Get user Attributes.
      */
-    protected function getAttributes(ResourceInterface $role, ServerRequestInterface $request): array
+    protected function getAttributes(ResourceInterface $user, ServerRequestInterface $request): array
     {
-        $attributes = $role->toArray();
+        $attributes = $user->toArray();
         $quota = null;
+        $user_factory = $this->user_factory;
 
         $result = [
             'id' => (string) $attributes['_id'],
@@ -52,12 +56,12 @@ class UserFactory extends AbstractModelFactory
             'name' => (string) $attributes['username'],
             'admin' => (bool) $attributes['admin'],
             'namespace' => isset($attributes['namespace']) ? (string) $attributes['namespace'] : null,
-            'mail' => function ($role) use ($attributes, $user) {
+            'mail' => function ($user) use ($attributes) {
                 if (!isset($attributes['mail'])) {
                     return null;
                 }
 
-                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+                if ($attributes['_id'] == $user->getId() /*|| $user->isAdmin()*/) {
                     return (string) $attributes['mail'];
                 }
 
@@ -66,30 +70,30 @@ class UserFactory extends AbstractModelFactory
             'locale' => isset($attributes['locale']) ? (string) $attributes['locale'] : null,
             'hard_quota' => isset($attributes['hard_quota']) ? (int) $attributes['hard_quota'] : null,
             'soft_quota' => isset($attributes['soft_quota']) ? (int) $attributes['soft_quota'] : null,
-            'available' => function ($role) use (&$quota, $attributes, $user) {
-                $quota === null ? $quota = $role->getQuotaUsage() : null;
-                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+            'available' => function ($user) use (&$quota, $user_factory, $attributes/*, $user*/) {
+                $quota === null ? $quota = $user_factory->getQuotaUsage($user) : null;
+                if ($attributes['_id'] == $user->getId()/* || $user->isAdmin()*/) {
                     return $quota['available'];
                 }
 
                 return null;
             },
-            'used' => function ($role) use (&$quota, $attributes, $user) {
-                $quota === null ? $quota = $role->getQuotaUsage() : null;
-                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+            'used' => function ($user) use (&$quota, $user_factory, $attributes/*, $user*/) {
+                $quota === null ? $quota = $user_factory->getQuotaUsage($user) : null;
+                if ($attributes['_id'] == $user->getId()/* || $user->isAdmin()*/) {
                     return $quota['used'];
                 }
 
                 return null;
             },
-            'has_password' => function ($role) use ($user, $attributes) {
-                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
-                    return $role->hasPassword();
+            'has_password' => function ($user) use (/*$user,*/ $attributes) {
+                if ($attributes['_id'] == $user->getId() /*|| $user->isAdmin()*/) {
+                    return $user->hasPassword();
                 }
 
                 return null;
             },
-            'auth' => function () use ($user) {
+            /*'auth' => function () use ($user) {
                 $identity = $user->getIdentity();
                 if ($identity === null) {
                     return null;
@@ -100,7 +104,7 @@ class UserFactory extends AbstractModelFactory
                 }
 
                 return 'external';
-            },
+            },*/
         ];
 
         return $result;

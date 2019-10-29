@@ -55,8 +55,8 @@ class Auth implements MiddlewareInterface
         }
 
         if ($identity = $this->auth->requireOne($request)) {
-            $request = $request->withAttribute('identity', $identity);
-            $request = $request->withAttribute('user', $this->user_factory->build($identity->getRawAttributes()));
+            //$request = $request->withAttribute('identity', $identity);
+            $request = $request->withAttribute('identity', $this->user_factory->build($identity->getRawAttributes()));
         }
 
         return $handler->handle($request);

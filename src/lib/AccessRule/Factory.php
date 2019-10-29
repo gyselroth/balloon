@@ -102,7 +102,6 @@ class Factory
     public function add(array $resource): ObjectIdInterface
     {
         $resource['kind'] = 'AccessRule';
-        $resource = $this->resource_factory->validate($resource);
 
         if ($this->has($resource['name'])) {
             throw new Exception\NotUnique('access rule '.$resource['name'].' does already exists');
@@ -118,7 +117,6 @@ class Factory
     {
         $data['name'] = $resource->getName();
         $data['kind'] = $resource->getKind();
-        $data = $this->resource_factory->validate($data);
 
         return $this->resource_factory->updateIn($this->db->{self::COLLECTION_NAME}, $resource, $data);
     }
