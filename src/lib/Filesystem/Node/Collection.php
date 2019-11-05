@@ -593,10 +593,6 @@ class Collection extends AbstractNode implements IQuota
                 $this->validateFilter($save['filter']);
             }
 
-            if (isset($save['acl'])) {
-                $this->validateAcl($save['acl']);
-            }
-
             $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new collection ['.$save['_id'].'] under parent ['.$this->_id.']', [
@@ -662,11 +658,6 @@ class Collection extends AbstractNode implements IQuota
             }
 
             $save = array_merge($meta, $attributes);
-
-            if (isset($save['acl'])) {
-                $this->validateAcl($save['acl']);
-            }
-
             $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [
@@ -800,27 +791,6 @@ class Collection extends AbstractNode implements IQuota
         ]);
 
         $this->_db->storage->findOne($filter);
-
-        return true;
-    }
-
-    /**
-     * Validate acl.
-     */
-    protected function validateAcl(array $acl): bool
-    {
-        if (!$this->_acl->isAllowed($this, 'm')) {
-            throw new ForbiddenException(
-                'not allowed to set acl',
-                ForbiddenException::NOT_ALLOWED_TO_MANAGE
-            );
-        }
-
-        if (!$this->isSpecial()) {
-            throw new Exception\Conflict('node acl may only be set on share member nodes', Exception\Conflict::NOT_SHARED);
-        }
-
-        $this->_acl->validateAcl($this->_server, $acl);
 
         return true;
     }

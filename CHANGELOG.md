@@ -4,6 +4,7 @@
 
 * CORE: [CHANGE] Balloon\App\Notification\Notifier,WARNING: there are no notification adapter enabled, notification can not be sent [] [] #401
 * CORE: [FIX] POST /api/v2/notifications reads message from attr named body instead message #400
+* CORE: [CHANGE] Drop expiremental feature file based acl #375
 
 
 ## 2.6.7
