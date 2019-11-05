@@ -147,7 +147,7 @@ class Notifications
     /**
      * Post a notification to a group of users.
      */
-    public function post(array $receiver, string $subject, string $body): Response
+    public function post(array $receiver, string $subject, string $message): Response
     {
         $users = $this->server->getUsersById($receiver);
 
@@ -164,7 +164,7 @@ class Notifications
     /**
      * Post a notification to all users.
      */
-    public function postBroadcast(string $subject, string $body): Response
+    public function postBroadcast(string $subject, string $message): Response
     {
         if (!$this->user->isAdmin()) {
             throw new ForbiddenException(
