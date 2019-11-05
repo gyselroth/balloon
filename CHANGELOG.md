@@ -6,6 +6,7 @@
 * CORE: [FIX] POST /api/v2/notifications reads message from attr named body instead message #400
 * CORE: [CHANGE] Drop expiremental feature file based acl #375
 * CORE: [FEATURE] Provide /healthz endpoint #377
+* CORE: [CHANGE] Do not send notification based on temporary file changes #378
 
 
 ## 2.6.7

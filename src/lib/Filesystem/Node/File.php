@@ -51,6 +51,7 @@ class File extends AbstractNode implements IFile
         '/^.(.*).swp$/',   // ViM temporary files
         '/^\.dat(.*)$/',   // Smultron seems to create these
         '/^~lock.(.*)#$/', // Windows 7 lockfiles
+        '/^\~\$/',         // Temporary office files
     ];
 
     /**
