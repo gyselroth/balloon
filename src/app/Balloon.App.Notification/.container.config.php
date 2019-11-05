@@ -15,11 +15,11 @@ return [
         'calls' => [
             Db::class => [
                 'method' => 'injectAdapter',
-                'arguments' => '{'.Db::class.'}'
+                'arguments' => ['adapter' => '{'.Db::class.'}']
             ],
             Mail::class => [
                 'method' => 'injectAdapter',
-                'arguments' => '{'.Mail::class.'}'
+                'arguments' => ['adapter' => '{'.Mail::class.'}']
             ]
         ]
     ],

@@ -1,3 +1,10 @@
+## 2.7.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Oct 22 09:50:42 CEST 2019
+
+* CORE: [CHANGE] Balloon\App\Notification\Notifier,WARNING: there are no notification adapter enabled, notification can not be sent [] [] #401
+
+
 ## 2.6.7
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Oct 22 09:50:42 CEST 2019
