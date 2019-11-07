@@ -27,6 +27,18 @@ class Office implements AdapterInterface
     const PREVIEW_FORMAT = 'png';
 
     /**
+     * Additional destination formats supported by this adapter
+     */
+    const DEST_FORMATS = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'tiff' => 'image/tiff',
+        'gif' => 'image/gif',
+        'pdf' => 'application/pdf',
+    ];
+
+    /**
      * GuzzleHttpClientInterface.
      *
      * @var GuzzleHttpClientInterface
@@ -66,7 +78,6 @@ class Office implements AdapterInterface
             'xlam' => 'application/vnd.ms-excel.addin.macroEnabled.12',
             'xslb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
             'xltm' => 'application/vnd.ms-excel.template.macroEnabled.12',
-            'pdf' => 'application/pdf',
         ],
         'text' => [
             'odt' => 'application/vnd.oasis.opendocument.text',
@@ -83,7 +94,6 @@ class Office implements AdapterInterface
             'dotm' => 'application/vnd.ms-word.template.macroEnabled.12',
             'txt' => 'text/plain',
             'html' => 'text/html',
-            'pdf' => 'application/pdf',
         ],
         'presentation' => [
             'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
@@ -98,18 +108,15 @@ class Office implements AdapterInterface
             'odp' => 'application/vnd.oasis.opendocument.presentation',
             'fodp' => 'application/vnd.oasis.opendocument.presentation-flat-xml',
             'otp' => 'application/vnd.oasis.opendocument.presentation-template',
-            'pdf' => 'application/pdf',
         ],
     ];
 
     /**
-     * One way formats.
+     * Destination formats
      *
      * @param array
      */
-    protected $locked_formats = [
-        'pdf' => 'application/pdf',
-    ];
+    protected $dest_formats = [];
 
     /**
      * Initialize.
@@ -119,6 +126,11 @@ class Office implements AdapterInterface
         $this->client = $client;
         $this->logger = $logger;
         $this->setOptions($config);
+
+        $this->dest_formats = $this->formats;
+        $this->dest_formats['spreadsheet'] = array_merge($this->dest_formats['spreadsheet'], self::DEST_FORMATS);
+        $this->dest_formats['text'] = array_merge($this->dest_formats['text'], self::DEST_FORMATS);
+        $this->dest_formats['presentation'] = array_merge($this->dest_formats['presentation'], self::DEST_FORMATS);
     }
 
     /**
@@ -167,15 +179,9 @@ class Office implements AdapterInterface
      */
     public function getSupportedFormats(File $file): array
     {
-        if (in_array($file->getContentType(), $this->locked_formats, true)) {
-            return [
-                array_search($file->getContentType(), $this->locked_formats, true),
-            ];
-        }
-
         foreach ($this->formats as $type => $formats) {
             if (in_array($file->getContentType(), $formats, true)) {
-                return array_keys($formats);
+                return array_keys($this->dest_formats[$type]);
             }
         }
 

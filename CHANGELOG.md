@@ -7,6 +7,7 @@
 * CORE: [CHANGE] Drop expiremental feature file based acl #375
 * CORE: [FEATURE] Provide /healthz endpoint #377
 * CORE: [CHANGE] Do not send notification based on temporary file changes #378
+* CORE: [FEATURE] Support office docs, pdfs, .. to image as convert shadow #399
 
 
 ## 2.6.7
