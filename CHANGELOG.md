@@ -8,6 +8,7 @@
 * CORE: [FEATURE] Provide /healthz endpoint #377
 * CORE: [CHANGE] Do not send notification based on temporary file changes #378
 * CORE: [FEATURE] Support office docs, pdfs, .. to image as convert shadow #399
+* CORE: [CHANGE] Update to sabredav v4 #354
 
 
 ## 2.6.7

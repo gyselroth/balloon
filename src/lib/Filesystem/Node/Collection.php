@@ -149,7 +149,7 @@ class Collection extends AbstractNode implements IQuota
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        foreach ($this->getChildNodes($deleted) as $child) {
+        foreach ($this->getChildren($deleted) as $child) {
             $child->copyTo($new_parent, $conflict, $recursion, false, $deleted);
         }
 
@@ -238,7 +238,7 @@ class Collection extends AbstractNode implements IQuota
      *  1 - Only deleted
      *  2 - Include deleted
      */
-    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null, bool $recursive = false): Generator
+    public function getChildren(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null, bool $recursive = false): Generator
     {
         $filter = $this->getChildrenFilter($deleted, $filter);
 
@@ -249,19 +249,6 @@ class Collection extends AbstractNode implements IQuota
         unset($filter['parent']);
 
         return $this->_fs->findNodesByFilterRecursive($this, $filter, $offset, $limit);
-    }
-
-    /**
-     * Fetch children items of this collection (as array).
-     *
-     * Deleted:
-     *  0 - Exclude deleted
-     *  1 - Only deleted
-     *  2 - Include deleted
-     */
-    public function getChildren(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
-    {
-        return iterator_to_array($this->getChildNodes($deleted, $filter));
     }
 
     /**
@@ -727,7 +714,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function doRecursiveAction(callable $callable, int $deleted = NodeInterface::DELETED_EXCLUDE): bool
     {
-        $children = $this->getChildNodes($deleted, []);
+        $children = $this->getChildren($deleted, []);
 
         foreach ($children as $child) {
             $callable($child);

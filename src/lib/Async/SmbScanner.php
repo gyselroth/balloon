@@ -208,7 +208,7 @@ class SmbScanner extends AbstractJob
                     }
                 }
 
-                foreach ($child->getChildNodes() as $sub_child) {
+                foreach ($child->getChildren() as $sub_child) {
                     $sub_name = Normalizer::normalize($sub_child->getName());
 
                     if (!in_array($sub_name, $nodes)) {

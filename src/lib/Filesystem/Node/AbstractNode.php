@@ -790,7 +790,7 @@ abstract class AbstractNode implements NodeInterface
         }
 
         if ($parent instanceof Collection) {
-            $children = $parent->getChildNodes();
+            $children = $parent->getChildren();
 
             if (true === $self && 0 === $depth) {
                 $path = $parent->getName().DIRECTORY_SEPARATOR;
