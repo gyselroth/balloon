@@ -10,6 +10,7 @@
 * CORE: [FEATURE] Support office docs, pdfs, .. to image as convert shadow #399
 * CORE: [CHANGE] Update to sabredav v4 #354
 * API: [CHANGE] The wopi protocol should be reachble at /wopi instead /api/v2/office/wopi/ #407
+* API: [CHANGE] Provide WOPI host via api #405
 
 
 ## 2.6.7

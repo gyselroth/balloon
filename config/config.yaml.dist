@@ -30,7 +30,7 @@ Balloon\Server:
   arguments:
     config:
       max_file_version: 16
-      server_url: "{ENV(BALLOON_URL,https://localhost)}"
+      server_url: "{ENV(BALLOON_URL,http://localhost)}"
       password_policy: '#^.*$#'
       password_hash: 1
 Balloon\App\ClamAv\Scanner:
@@ -54,7 +54,8 @@ Balloon\App\Wopi\HostManager:
       hosts:
       - name: LibreOffice Online
         url: '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery'
-      client_url: '{ENV(BALLOON_URL,https://localhost)}'
+        wopi_endpoint: '{ENV(BALLOON_LIBREOFFICE_COLLAB_WOPI_URL,http://localhost/wopi)}'
+      client_url: '{ENV(BALLOON_URL,http://localhost)}'
       cache_ttl: 86400
       validate_proof: true
 Balloon\App\Wopi\SessionManager:

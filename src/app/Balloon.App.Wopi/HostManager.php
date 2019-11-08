@@ -127,8 +127,8 @@ class HostManager
         $result = [];
 
         foreach ($this->hosts as $url) {
-            if (!isset($url['url']) || !isset($url['name'])) {
-                $this->logger->error('skip wopi host entry, either name or url not set', [
+            if (!isset($url['url']) || !isset($url['name']) || !isset($url['wopi_url'])) {
+                $this->logger->error('skip wopi host entry, either name, wopi_url or url not set', [
                     'category' => get_class($this),
                 ]);
 
@@ -139,6 +139,7 @@ class HostManager
                 $result[] = [
                     'url' => $url['url'],
                     'name' => $url['name'],
+                    'wopi_url' => $url['wopi_url'],
                     'discovery' => $this->fetchDiscovery($url['url']),
                 ];
             } catch (\Exception $e) {

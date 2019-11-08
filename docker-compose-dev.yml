@@ -17,8 +17,8 @@ services:
         ports:
             - "9980:9980"
         environment:
-         - domain=balloon-web|balloon-dev|localhost
-         - extra_params=--o:ssl.termination=true --o:ssl.enable=false --o:net.post_allow.host[0]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:storage.wopi.host[2]=::ffff:172.[0-9]+.[0-9]+.[0-9]+
+         - domain=balloon-web\|balloon-dev\|localhost
+         - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:storage.wopi.host[2]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:net.frame_ancestors="localhost:* balloon-web:*"
         networks:
         - backend
         - frontend
@@ -49,6 +49,7 @@ services:
             - BALLOON_CLAMAV_URI=tcp://clamav:3310
             - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice:9980
             - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice:9980
+            - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=http://balloon-web/wopi
             - BALLOON_SMTP_HOST=postfix
             - BALLOON_URL=http://localhost:8084
             - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
@@ -76,6 +77,7 @@ services:
             - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
             - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice:9980
             - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice:9980
+            - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=http://balloon-web/wopi
             - BALLOON_SMTP_HOST=postfix
             - BALLOON_URL=http://localhost:8084
             - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
