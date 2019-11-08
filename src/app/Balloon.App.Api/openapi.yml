@@ -2406,6 +2406,9 @@ components:
       properties:
         _links:
           $ref: "#/components/schemas/core.v2.Links"
+        kind:
+          description: Resource type
+          type: string
         id:
           description: Unique 12-byte resource identifier. Note this is a MongoDB ObjectId.
             The name is the standard resource identifier, the id only useful to

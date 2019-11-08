@@ -89,7 +89,7 @@ Balloon\App\Elasticsearch\Job:
   arguments:
     config:
       size_limit: 52428800
-Balloon\App\Notification\Async\Subscription:
+Balloon\App\Notification\Notifier:
   arguments:
     config:
       notification_throttle: 120

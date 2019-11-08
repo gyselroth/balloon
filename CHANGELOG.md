@@ -12,6 +12,7 @@
 * API: [CHANGE] The wopi protocol should be reachble at /wopi instead /api/v2/office/wopi/ #407
 * API: [CHANGE] Provide WOPI host via api #405
 * CORE: [FIX] Newly added folders from other users within a share get not added to other users descriptions #406
+* API: [FEATURE] Add custom throttle time to subscription #155
 
 
 ## 2.6.7

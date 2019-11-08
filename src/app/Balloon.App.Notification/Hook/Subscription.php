@@ -27,13 +27,6 @@ use Psr\Log\LoggerInterface;
 class Subscription extends AbstractHook
 {
     /**
-     * Notification throttle.
-     *
-     * @var int
-     */
-    protected $notification_throttle = 120;
-
-    /**
      * Notifier.
      *
      * @var Notifier
@@ -64,36 +57,12 @@ class Subscription extends AbstractHook
     /**
      * Constructor.
      */
-    public function __construct(Notifier $notifier, Server $server, Acl $acl, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(Notifier $notifier, Server $server, Acl $acl, LoggerInterface $logger)
     {
         $this->notifier = $notifier;
         $this->server = $server;
-        $this->setOptions($config);
         $this->logger = $logger;
         $this->acl = $acl;
-    }
-
-    /**
-     * Set config.
-     */
-    public function setOptions(?Iterable $config = null): self
-    {
-        if (null === $config) {
-            return $this;
-        }
-
-        foreach ($config as $option => $value) {
-            switch ($option) {
-                case 'notification_throttle':
-                    $this->{$option} = (int) $value;
-
-                break;
-                default:
-                    throw new InvalidArgumentException('invalid option '.$option.' given');
-            }
-        }
-
-        return $this;
     }
 
     /**
@@ -218,9 +187,13 @@ class Subscription extends AbstractHook
             $user_id = $this->server->getIdentity()->getId();
         }
 
+        $subscriptions = [];
+
         foreach ($subs as $key => $subscription) {
-            if (isset($subscription['last_notification']) && ($subscription['last_notification']->toDateTime()->format('U') + $this->notification_throttle) > time()) {
-                $this->logger->debug('skip message for user ['.$subscription['user'].'], message within throttle time range of ['.$this->notification_throttle.'s]', [
+            $throttle = $subscription['throttle'] ?? $this->notifier->getThrottleTime();
+
+            if (isset($subscription['last_notification']) && ($subscription['last_notification']->toDateTime()->format('U') + $throttle) > time()) {
+                $this->logger->debug('skip message for user ['.$subscription['user'].'], message within throttle time range of ['.$throttle.'s]', [
                     'category' => get_class($this),
                 ]);
             } elseif ($subscription['user'] == $user_id && $subscription['exclude_me'] === true) {
@@ -229,10 +202,11 @@ class Subscription extends AbstractHook
                 ]);
             } else {
                 $receiver[] = $subscription['user'];
+                $subscriptions[] = $subscription['_id'];
             }
         }
 
-        $this->notifier->throttleSubscriptions($node, $receiver);
+        $this->notifier->throttleSubscriptions($subscriptions);
 
         return $receiver;
     }
@@ -255,6 +229,6 @@ class Subscription extends AbstractHook
             }
         }
 
-        $this->notifier->throttleSubscriptions($node, $users);
+        //$this->notifier->throttleSubscriptions($node, $users);
     }
 }
