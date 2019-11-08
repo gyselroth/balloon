@@ -307,6 +307,36 @@ class Notifier
         ]);
     }
 
+
+    /**
+     * Get subscriptions.
+     */
+    public function getAllSubscriptions(NodeInterface $node): iterable
+    {
+        $sub_id = $node->isReference() ? $node->getShareId() : $node->getId();
+
+        $ids = [$sub_id];
+        foreach($node->getParents() as $parent) {
+            $ids[] = $parent->isReference() ? $parent->getShareId() : $parent->getId();
+
+            if($parent->isShare()) {
+                break;
+            }
+        }
+
+        return $this->db->subscription->find([
+            '$or' => [
+                [
+                    'node' => ['$in' => $ids],
+                    'recursive' => true,
+                ],
+                [
+                    'node' => ['$in' => [$ids[0],$ids[1]]],
+                ]
+            ]
+        ]);
+    }
+
     /**
      * Subscribe to node updates.
      */
@@ -339,7 +369,7 @@ class Notifier
             ]
             );
 
-            if ($node instanceof Collection && $recursive === true) {
+            /*if ($node instanceof Collection && $recursive === true) {
                 $db = $this->db;
                 $node->doRecursiveAction(function ($child) use ($db, $subscription) {
                     $subscription['node'] = $child->getId();
@@ -354,7 +384,7 @@ class Notifier
                     ]
                     );
                 });
-            }
+            }*/
         } else {
             $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] unsubscribes node ['.$node->getId().']', [
                 'category' => get_class($this),

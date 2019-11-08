@@ -102,16 +102,6 @@ class Subscription extends AbstractHook
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
         $this->notify($node);
-
-        if ($this->server->getIdentity() === null) {
-            return;
-        }
-
-        $subscription = $this->notifier->getSubscription($parent, $this->server->getIdentity());
-
-        if ($subscription !== null && $subscription['recursive'] === true) {
-            $this->notifier->subscribeNode($node, true, $subscription['exclude_me'], $subscription['recursive']);
-        }
     }
 
     /**
@@ -179,15 +169,6 @@ class Subscription extends AbstractHook
         }
 
         $receiver = $this->getReceiver($node);
-        $parent = $node->getParent();
-
-        if ($parent !== null) {
-            $parents = $this->getReceiver($parent);
-            $parents = array_diff($parents, $receiver);
-
-            $this->send($node, $parent, $parents);
-        }
-
         $this->send($node, $node, $receiver);
 
         return true;
@@ -229,7 +210,7 @@ class Subscription extends AbstractHook
      */
     protected function getReceiver(NodeInterface $node): array
     {
-        $subs = $this->notifier->getSubscriptions($node);
+        $subs = $this->notifier->getAllSubscriptions($node);
 
         $receiver = [];
         $user_id = null;
