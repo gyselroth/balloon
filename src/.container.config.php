@@ -34,6 +34,7 @@ use Cache\Adapter\Apcu\ApcuCachePool;
 use Psr\SimpleCache\CacheInterface;
 use Psr\Http\Client\ClientInterface;
 use Mjelamanov\GuzzlePsr18\Client as GuzzleAdapter;
+use MongoDB\GridFS\Bucket as GridFSBucket;
 
 return [
     Client::class => [
@@ -61,6 +62,13 @@ return [
             ]
         ]
     ],
+    GridFSBucket::class => [
+        'use' => '{MongoDB\Database}',
+        'calls' => [[
+            'method' => 'selectGridFSBucket',
+            'select' => true
+        ]]
+    ]
     EncryptionKey::class => [
         'use' => KeyFactory::class,
         'factory' => 'importEncryptionKey',

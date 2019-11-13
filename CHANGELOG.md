@@ -9,6 +9,7 @@
 * Update to sabredav v4 #354
 * The wopi protocol should be reachble at /wopi instead /api/v2/office/wopi/ #407
 * Provide WOPI host via api #405
+* Possibility to provide custom gridfs #410
 
 ### Bugfixes
 * POST /api/v2/notifications reads message from attr named body instead message #400
@@ -20,8 +21,7 @@
 * Add custom throttle time to subscription #155
 
 ### Common
-* Starting with v2.7.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability. Note
-for debian pkg changelog the issues get merged in a single list.
+* Starting with v2.7.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability. Note for debian pkg changelog the issues get merged in a single list.
 
 
 ## 2.6.7

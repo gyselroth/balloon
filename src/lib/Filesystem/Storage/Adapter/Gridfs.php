@@ -53,13 +53,11 @@ class Gridfs implements AdapterInterface
 
     /**
      * GridFS storage.
-     *
-     * @param Database
      */
-    public function __construct(Database $db, LoggerInterface $logger)
+    public function __construct(Database $db, Bucket $gridfs, LoggerInterface $logger)
     {
         $this->db = $db;
-        $this->gridfs = $db->selectGridFSBucket();
+        $this->gridfs = $gridfs;
         $this->logger = $logger;
     }
 
