@@ -88,7 +88,6 @@ class EventDecorator
     /**
      * Add decorator.
      *
-     *
      * @return AttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self
@@ -141,7 +140,6 @@ class EventDecorator
     /**
      * Get Attributes.
      *
-     *
      * @return array
      */
     protected function getPrevious(array $event): ?array
@@ -174,7 +172,6 @@ class EventDecorator
     /**
      * Get Attributes.
      *
-     *
      * @return array
      */
     protected function getNode(array $event): ?array
@@ -190,7 +187,6 @@ class EventDecorator
 
     /**
      * Get Attributes.
-     *
      *
      * @return array
      */
@@ -214,7 +210,6 @@ class EventDecorator
     /**
      * Get Attributes.
      *
-     *
      * @return array
      */
     protected function getUser(array $event): ?array
@@ -230,7 +225,6 @@ class EventDecorator
 
     /**
      * Get Attributes.
-     *
      *
      * @return array
      */

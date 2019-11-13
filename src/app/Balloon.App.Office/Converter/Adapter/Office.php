@@ -27,7 +27,7 @@ class Office implements AdapterInterface
     const PREVIEW_FORMAT = 'png';
 
     /**
-     * Additional destination formats supported by this adapter
+     * Additional destination formats supported by this adapter.
      */
     const DEST_FORMATS = [
         'jpg' => 'image/jpeg',
@@ -112,7 +112,7 @@ class Office implements AdapterInterface
     ];
 
     /**
-     * Destination formats
+     * Destination formats.
      *
      * @param array
      */

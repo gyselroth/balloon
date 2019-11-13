@@ -16,11 +16,11 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
+use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use InvalidArgumentException;
 
 class Notifier
 {
@@ -83,7 +83,7 @@ class Notifier
     /**
      * Constructor.
      */
-    public function __construct(Database $db, Server $server, LoggerInterface $logger, TemplateHandler $template, array $config=[])
+    public function __construct(Database $db, Server $server, LoggerInterface $logger, TemplateHandler $template, array $config = [])
     {
         $this->logger = $logger;
         $this->db = $db;
@@ -112,7 +112,7 @@ class Notifier
     }
 
     /**
-     * Get notification throttle time
+     * Get notification throttle time.
      */
     public function getThrottleTime(): int
     {
@@ -341,7 +341,6 @@ class Notifier
         ]);
     }
 
-
     /**
      * Get subscriptions.
      */
@@ -350,17 +349,17 @@ class Notifier
         $sub_id = $node->isReference() ? $node->getShareId() : $node->getId();
 
         $ids = [$sub_id];
-        foreach($node->getParents() as $parent) {
+        foreach ($node->getParents() as $parent) {
             $ids[] = $parent->isReference() ? $parent->getShareId() : $parent->getId();
 
-            if($parent->isShare()) {
+            if ($parent->isShare()) {
                 break;
             }
         }
 
         $parents = [$ids[0]];
 
-        if(count($ids) > 1) {
+        if (count($ids) > 1) {
             $parents[] = $ids[1];
         }
 
@@ -372,15 +371,15 @@ class Notifier
                 ],
                 [
                     'node' => ['$in' => $parents],
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
     /**
      * Subscribe to node updates.
      */
-    public function subscribeNode(NodeInterface $node, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false, ?int $throttle=null): bool
+    public function subscribeNode(NodeInterface $node, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false, ?int $throttle = null): bool
     {
         $node_id = $node->isReference() ? $node->getShareId() : $node->getId();
         $user_id = $this->server->getIdentity()->getId();

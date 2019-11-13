@@ -99,10 +99,7 @@ class Db extends OAuthMongoDB
                         }
 
                         if ($user->isDeleted()) {
-                            throw new User\Exception\NotAuthenticated(
-                                'user is disabled and can not be used',
-                                User\Exception\NotAuthenticated::USER_DELETED
-                            );
+                            throw new User\Exception\NotAuthenticated('user is disabled and can not be used', User\Exception\NotAuthenticated::USER_DELETED);
                         }
 
                         $this->hook->run('postAuthentication', [$this->auth, $identity]);

@@ -143,7 +143,6 @@ class Migration
     /**
      * Inject delta.
      *
-     *
      * @return Migration
      */
     public function injectDelta(DeltaInterface $delta, ?string $name = null): self
@@ -179,7 +178,6 @@ class Migration
 
     /**
      * Get deltas.
-     *
      *
      * @return DeltaInterface[]
      */

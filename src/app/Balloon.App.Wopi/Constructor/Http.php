@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Wopi\Constructor;
 
-use Balloon\App\Wopi\Wopi;
 use Balloon\App\Wopi\Api\v2;
+use Balloon\App\Wopi\Wopi;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 

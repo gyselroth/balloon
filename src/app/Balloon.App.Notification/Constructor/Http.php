@@ -32,7 +32,6 @@ class Http
             ->prependRoute(new Route('/api/v2/nodes|files|collections/subscription(/|\z)', v2\Subscription::class))
             ->prependRoute(new Route('/api/v2/nodes|files|collections/{id:#([0-9a-z]{24})#}/subscription(/|\z)', v2\Subscription::class));
 
-
         $subscription = null;
 
         $decorator->addDecorator('subscription', function ($node) use ($notifier, $server, &$subscription) {
@@ -68,7 +67,6 @@ class Http
             if ($subscription === null) {
                 return $notifier->getThrottleTime();
             }
-
 
             return $subscription['throttle'] ?? $notifier->getThrottleTime();
         });

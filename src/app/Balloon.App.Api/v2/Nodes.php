@@ -95,10 +95,7 @@ class Nodes extends Controller
             try {
                 $parent = $this->fs->getNode($destid, Collection::class, false, true);
             } catch (Exception\NotFound $e) {
-                throw new Exception\NotFound(
-                    'destination collection was not found or is not a collection',
-                    Exception\NotFound::DESTINATION_NOT_FOUND
-                );
+                throw new Exception\NotFound('destination collection was not found or is not a collection', Exception\NotFound::DESTINATION_NOT_FOUND);
             }
         }
 
@@ -259,10 +256,7 @@ class Nodes extends Controller
         try {
             $parent = $this->fs->getNode($destid, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
-            throw new Exception\NotFound(
-                'destination collection was not found or is not a collection',
-                Exception\NotFound::DESTINATION_NOT_FOUND
-            );
+            throw new Exception\NotFound('destination collection was not found or is not a collection', Exception\NotFound::DESTINATION_NOT_FOUND);
         }
 
         return $this->bulk($id, function ($node) use ($parent, $conflict) {
@@ -286,10 +280,7 @@ class Nodes extends Controller
         try {
             $parent = $this->fs->getNode($destid, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
-            throw new Exception\NotFound(
-                'destination collection was not found or is not a collection',
-                Exception\NotFound::DESTINATION_NOT_FOUND
-            );
+            throw new Exception\NotFound('destination collection was not found or is not a collection', Exception\NotFound::DESTINATION_NOT_FOUND);
         }
 
         return $this->bulk($id, function ($node) use ($parent, $conflict) {

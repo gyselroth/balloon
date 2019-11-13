@@ -301,31 +301,19 @@ abstract class AbstractNode implements NodeInterface
     public function setParent(Collection $parent, int $conflict = NodeInterface::CONFLICT_NOACTION): NodeInterface
     {
         if ($this->parent == $parent->getId()) {
-            throw new Exception\Conflict(
-                'source node '.$this->name.' is already in the requested parent folder',
-                Exception\Conflict::ALREADY_THERE
-            );
+            throw new Exception\Conflict('source node '.$this->name.' is already in the requested parent folder', Exception\Conflict::ALREADY_THERE);
         }
         if ($this->isSubNode($parent)) {
-            throw new Exception\Conflict(
-                'node called '.$this->name.' can not be moved into itself',
-                Exception\Conflict::CANT_BE_CHILD_OF_ITSELF
-            );
+            throw new Exception\Conflict('node called '.$this->name.' can not be moved into itself', Exception\Conflict::CANT_BE_CHILD_OF_ITSELF);
         }
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
-            throw new ForbiddenException(
-                'not allowed to move node '.$this->name,
-                ForbiddenException::NOT_ALLOWED_TO_MOVE
-            );
+            throw new ForbiddenException('not allowed to move node '.$this->name, ForbiddenException::NOT_ALLOWED_TO_MOVE);
         }
 
         $new_name = $parent->validateInsert($this->name, $conflict, get_class($this));
 
         if ($this->isShared() && $this instanceof Collection && $parent->isShared()) {
-            throw new Exception\Conflict(
-                'a shared folder can not be a child of a shared folder',
-                Exception\Conflict::SHARED_NODE_CANT_BE_CHILD_OF_SHARE
-            );
+            throw new Exception\Conflict('a shared folder can not be a child of a shared folder', Exception\Conflict::SHARED_NODE_CANT_BE_CHILD_OF_SHARE);
         }
 
         if (NodeInterface::CONFLICT_RENAME === $conflict && $new_name !== $this->name) {
@@ -342,18 +330,12 @@ abstract class AbstractNode implements NodeInterface
             ];
 
             if ($parent->isShared() && iterator_count($this->_fs->findNodesByFilterRecursive($this, $query, 0, 1)) !== 0) {
-                throw new Exception\Conflict(
-                    'folder contains a shared folder',
-                    Exception\Conflict::NODE_CONTAINS_SHARED_NODE
-                );
+                throw new Exception\Conflict('folder contains a shared folder', Exception\Conflict::NODE_CONTAINS_SHARED_NODE);
             }
         }
 
         if ($this->isShared() && $parent->isSpecial()) {
-            throw new Exception\Conflict(
-                'a shared folder can not be an indirect child of a shared folder',
-                Exception\Conflict::SHARED_NODE_CANT_BE_INDIRECT_CHILD_OF_SHARE
-            );
+            throw new Exception\Conflict('a shared folder can not be an indirect child of a shared folder', Exception\Conflict::SHARED_NODE_CANT_BE_INDIRECT_CHILD_OF_SHARE);
         }
 
         if (($parent->isSpecial() && $this->shared != $parent->getShareId())
@@ -598,10 +580,7 @@ abstract class AbstractNode implements NodeInterface
         try {
             $child = $this->getParent()->getChild($name);
             if ($child->getId() != $this->_id) {
-                throw new Exception\Conflict(
-                    'a node called '.$name.' does already exists in this collection',
-                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                );
+                throw new Exception\Conflict('a node called '.$name.' does already exists in this collection', Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS);
             }
         } catch (Exception\NotFound $e) {
             //child does not exists, we can safely rename
@@ -658,18 +637,12 @@ abstract class AbstractNode implements NodeInterface
     public function undelete(int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
-            throw new ForbiddenException(
-                'not allowed to restore node '.$this->name,
-                ForbiddenException::NOT_ALLOWED_TO_UNDELETE
-            );
+            throw new ForbiddenException('not allowed to restore node '.$this->name, ForbiddenException::NOT_ALLOWED_TO_UNDELETE);
         }
 
         $parent = $this->getParent();
         if ($parent->isDeleted()) {
-            throw new Exception\Conflict(
-                'could not restore node '.$this->name.' into a deleted parent',
-                Exception\Conflict::DELETED_PARENT
-            );
+            throw new Exception\Conflict('could not restore node '.$this->name.' into a deleted parent', Exception\Conflict::DELETED_PARENT);
         }
 
         if ($parent->childExists($this->name)) {
@@ -683,10 +656,7 @@ abstract class AbstractNode implements NodeInterface
                 $this->setName($this->getDuplicateName());
                 $this->raw_attributes['name'] = $this->name;
             } else {
-                throw new Exception\Conflict(
-                    'a node called '.$this->name.' does already exists in this collection',
-                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                );
+                throw new Exception\Conflict('a node called '.$this->name.' does already exists in this collection', Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS);
             }
         }
 
@@ -1027,10 +997,7 @@ abstract class AbstractNode implements NodeInterface
     public function save($attributes = [], $remove = [], ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w') && !$this->isReference()) {
-            throw new ForbiddenException(
-                'not allowed to modify node '.$this->name,
-                ForbiddenException::NOT_ALLOWED_TO_MODIFY
-            );
+            throw new ForbiddenException('not allowed to modify node '.$this->name, ForbiddenException::NOT_ALLOWED_TO_MODIFY);
         }
 
         if ($this instanceof Collection && $this->isRoot()) {

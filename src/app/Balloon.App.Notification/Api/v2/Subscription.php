@@ -53,7 +53,7 @@ class Subscription extends Controller
     /**
      * Subscribe to node updates.
      */
-    public function post($id, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false, ?int $throttle=null)
+    public function post($id, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false, ?int $throttle = null)
     {
         $node_decorator = $this->node_decorator;
         $notifier = $this->notifier;

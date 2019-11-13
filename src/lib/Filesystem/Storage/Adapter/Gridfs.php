@@ -449,10 +449,7 @@ class Gridfs implements AdapterInterface
 
             $this->gridfs->delete($session);
 
-            throw new Exception\InsufficientStorage(
-                'user quota is full',
-                Exception\InsufficientStorage::USER_QUOTA_FULL
-            );
+            throw new Exception\InsufficientStorage('user quota is full', Exception\InsufficientStorage::USER_QUOTA_FULL);
         }
 
         return true;

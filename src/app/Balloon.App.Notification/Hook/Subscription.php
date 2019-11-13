@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
-use Balloon\App\Notification\Notifier;
 use Balloon\App\Notification\Exception;
+use Balloon\App\Notification\Notifier;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
@@ -21,7 +21,6 @@ use Balloon\Hook\AbstractHook;
 use Balloon\Server;
 use Balloon\Server\User;
 use Generator;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 class Subscription extends AbstractHook
@@ -129,7 +128,7 @@ class Subscription extends AbstractHook
      */
     protected function notify(NodeInterface $node): bool
     {
-        if($node instanceof File && $node->isTemporaryFile()) {
+        if ($node instanceof File && $node->isTemporaryFile()) {
             $this->logger->debug('skip subscription notification for node temporary file ['.$node->getId().'] (matches temporary file pattern)', [
                 'category' => get_class($this),
             ]);
@@ -166,10 +165,10 @@ class Subscription extends AbstractHook
 
         try {
             return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
-        } catch(Exception\NoAdapterAvailable $e) {
+        } catch (Exception\NoAdapterAvailable $e) {
             $this->logger->error('subscription notification could not be sent', [
                 'category' => get_class($this),
-                'exception' => $e
+                'exception' => $e,
             ]);
         }
     }
