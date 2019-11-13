@@ -1,6 +1,6 @@
 FROM php:7.3-fpm-alpine
 
-RUN apk update && apk add --no-cache \
+RUN apk update && apk add --virtual .build-deps --no-cache \
   ldb-dev \
   openldap-dev \
   libxml2-dev \
@@ -10,47 +10,29 @@ RUN apk update && apk add --no-cache \
   curl-dev \
   icu-dev \
   samba-dev \
-  samba-client \
   autoconf \
-  libzip \
-  icu-libs \
   gmp-dev \
-  libstdc++ \
   g++ \
   git \
   make \
-  coreutils \
-  curl \
   freetype-dev \
   libpng-dev \
   libjpeg-turbo-dev \
-  imagemagick \
   imagemagick-dev \
+  && apk add --no-cache libstdc++ \
+  libzip \
+  icu-libs \
+  imagemagick \
+  coreutils \
+  curl \
+  samba-client \
   && docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg gmp \
   && pecl install mongodb \
   && pecl install apcu \
   && pecl install imagick \
   && pecl install smbclient \
   && docker-php-ext-enable mongodb apcu imagick smbclient \
-  && apk del \
-  ldb-dev \
-  openldap-dev \
-  libxml2-dev \
-  curl-dev \
-  openssl-dev \
-  libzip-dev \
-  curl-dev \
-  icu-dev \
-  samba-dev \
-  autoconf \
-  g++ \
-  autoconf \
-  git \
-  make \
-  freetype-dev \
-  libpng-dev \
-  libjpeg-turbo-dev \
-  imagemagick-dev
+  && apk del .build-deps
 
 RUN mkdir /usr/share/balloon && mkdir /usr/share/balloon/bin/console -p && mkdir /etc/balloon
 COPY src/lib /usr/share/balloon/src/lib
