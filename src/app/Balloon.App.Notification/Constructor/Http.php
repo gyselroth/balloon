@@ -44,7 +44,7 @@ class Http
             return true;
         });
 
-        $decorator->addDecorator('subscription_exclude_me', function ($node) use ($notifier, $server, &$subscription) {
+        $decorator->addDecorator('subscription_exclude_me', function ($node) use (&$subscription) {
             if ($subscription === null) {
                 return false;
             }
@@ -52,7 +52,7 @@ class Http
             return $subscription['exclude_me'];
         });
 
-        $decorator->addDecorator('subscription_recursive', function ($node) use ($notifier, $server, &$subscription) {
+        $decorator->addDecorator('subscription_recursive', function ($node) use (&$subscription) {
             if (!($node instanceof Collection)) {
                 return null;
             }
@@ -64,7 +64,7 @@ class Http
             return $subscription['recursive'];
         });
 
-        $decorator->addDecorator('subscription_throttle', function ($node) use ($notifier, $server, &$subscription) {
+        $decorator->addDecorator('subscription_throttle', function ($node) use ($notifier, &$subscription) {
             if ($subscription === null) {
                 return $notifier->getThrottleTime();
             }

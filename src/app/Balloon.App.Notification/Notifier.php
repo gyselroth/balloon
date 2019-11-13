@@ -133,7 +133,7 @@ class Notifier
     public function notify(iterable $receiver, ?User $sender, MessageInterface $message): bool
     {
         if (0 === count($this->adapter)) {
-            throw new Exception\NotAdapterAvailable('there are no notification adapter enabled, notification can not be sent');
+            throw new Exception\NoAdapterAvailable('there are no notification adapter enabled, notification can not be sent');
         }
 
         foreach ($receiver as $user) {

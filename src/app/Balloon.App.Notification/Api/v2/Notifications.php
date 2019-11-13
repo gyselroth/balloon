@@ -153,7 +153,7 @@ class Notifications
 
         $message = $this->notifier->compose('user_message', [
             'user_subject' => $subject,
-            'user_body' => $body,
+            'user_body' => $message,
         ]);
 
         $this->notifier->notify($users, $this->user, $message);
@@ -176,7 +176,7 @@ class Notifications
         $users = $this->server->getUsers();
         $message = $this->notifier->compose('user_message', [
             'user_subject' => $subject,
-            'user_body' => $body,
+            'user_body' => $message,
         ]);
 
         $this->notifier->notify($users, $this->user, $message);
