@@ -150,12 +150,16 @@ $(CHANGELOG_TARGET): CHANGELOG.md
 	@stable="stable"
 	@author=""
 	@date=""
+	@category=""
 	@changes=""
 	@-test ! -f $@ || rm $@
 
 	@while read l; \
 	do \
-		if [ "$${l:0:2}" == "##" ]; \
+		if [ "$${l:0:3}" == "###" ]; \
+		then \
+			category=$${l:4}; \
+		elif [ "$${l:0:2}" == "##" ]; \
 		then \
 	 		if [ "$$v" != "" ]; \
 	 		then \

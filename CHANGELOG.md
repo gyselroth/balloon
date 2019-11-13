@@ -2,17 +2,26 @@
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Oct 22 09:50:42 CEST 2019
 
-* CORE: [CHANGE] Balloon\App\Notification\Notifier,WARNING: there are no notification adapter enabled, notification can not be sent [] [] #401
-* CORE: [FIX] POST /api/v2/notifications reads message from attr named body instead message #400
-* CORE: [CHANGE] Drop expiremental feature file based acl #375
-* CORE: [FEATURE] Provide /healthz endpoint #377
-* CORE: [CHANGE] Do not send notification based on temporary file changes #378
-* CORE: [FEATURE] Support office docs, pdfs, .. to image as convert shadow #399
-* CORE: [CHANGE] Update to sabredav v4 #354
-* API: [CHANGE] The wopi protocol should be reachble at /wopi instead /api/v2/office/wopi/ #407
-* API: [CHANGE] Provide WOPI host via api #405
-* CORE: [FIX] Newly added folders from other users within a share get not added to other users descriptions #406
-* API: [FEATURE] Add custom throttle time to subscription #155
+### Changes
+* Balloon\App\Notification\Notifier,WARNING: there are no notification adapter enabled, notification can not be sent [] [] #401
+* Drop expiremental feature file based acl #375
+* Do not send notification based on temporary file changes #378
+* Update to sabredav v4 #354
+* The wopi protocol should be reachble at /wopi instead /api/v2/office/wopi/ #407
+* Provide WOPI host via api #405
+
+### Bugfixes
+* POST /api/v2/notifications reads message from attr named body instead message #400
+* Newly added folders from other users within a share get not added to other users descriptions #406
+
+### Features
+* Provide /healthz endpoint #377
+* Support office docs, pdfs, .. to image as convert shadow #399
+* Add custom throttle time to subscription #155
+
+### Common
+* Starting with v2.7.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability. Note
+for debian pkg changelog the issues get merged in a single list.
 
 
 ## 2.6.7
