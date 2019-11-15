@@ -10,6 +10,7 @@
 * The wopi protocol should be reachble at /wopi instead /api/v2/office/wopi/ #407
 * Provide WOPI host via api #405
 * Possibility to provide custom gridfs #410
+* Converter now only uses the first matched adapter and does not continue with others if that one failed
 
 ### Bugfixes
 * POST /api/v2/notifications reads message from attr named body instead message #400
