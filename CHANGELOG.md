@@ -11,6 +11,7 @@
 * Provide WOPI host via api #405
 * Possibility to provide custom gridfs #410
 * Converter now only uses the first matched adapter and does not continue with others if that one failed
+* Added various new default env variables
 
 ### Bugfixes
 * POST /api/v2/notifications reads message from attr named body instead message #400

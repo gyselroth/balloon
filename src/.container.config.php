@@ -35,6 +35,7 @@ use Psr\SimpleCache\CacheInterface;
 use Psr\Http\Client\ClientInterface;
 use Mjelamanov\GuzzlePsr18\Client as GuzzleAdapter;
 use MongoDB\GridFS\Bucket as GridFSBucket;
+use Zend\Mail\Transport\SmtpOptions;
 
 return [
     Client::class => [
@@ -68,7 +69,7 @@ return [
             'method' => 'selectGridFSBucket',
             'select' => true
         ]]
-    ]
+    ],
     EncryptionKey::class => [
         'use' => KeyFactory::class,
         'factory' => 'importEncryptionKey',
@@ -88,7 +89,7 @@ return [
         'calls' => [[
             'method' => 'selectDatabase',
             'arguments' => [
-                'databaseName' => '{ENV(BALLOON_MONGODB_DATABASE,balloon)}'
+                'databaseName' => 'balloon',//'{ENV(BALLOON_MONGODB_DATABASE,balloon)}'
             ],
             'select' => true
         ]]
@@ -101,6 +102,13 @@ return [
         ]
     ],
     WorkerManager::class => [
+        'arguments' => [
+            'config' => [
+                'pm' => '{ENV(BALLOON_TASK_WORKER_PM,dynamic)}',
+                'max_children' => '{ENV(BALLOON_TASK_WORKER_MAX_CHILDREN,4)(int)}',
+                'min_children' => '{ENV(BALLOON_TASK_WORKER_MIN_CHILDREN,2)(int)}',
+            ]
+        ],
         'services' => [
             WorkerFactoryInterface::class => [
                 'use' => WorkerFactory::class
@@ -129,8 +137,8 @@ return [
             'Monolog\Formatter\FormatterInterface' => [
                 'use' => 'Monolog\Formatter\LineFormatter',
                 'arguments' => [
-                    'dateFormat' => 'Y-m-d H:i:s',
-                    'format' => "%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n"
+                    'dateFormat' => '{ENV(BALLOON_LOG_DATE_FORMAT,Y-m-d H:i:s)}',
+                    'format' => "{ENV(BALLOON_LOG_FORMAT,%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n)}"
                 ],
                 'calls' => [
                     ['method' => 'includeStacktraces']
@@ -152,7 +160,7 @@ return [
                 'use' => 'Monolog\Handler\FilterHandler',
                 'arguments' => [
                     'handler' => '{output}',
-                    'minLevelOrList' => 100,
+                    'minLevelOrList' => '{ENV(BALLOON_LOG_LEVEL,300)(int)}',
                     'maxLevel' => 550
                 ],
                 'services' => [
@@ -175,7 +183,7 @@ return [
     Converter::class => [
         'calls' => [
             ImagickImage::class => [
-                    'method' => 'injectAdapter',
+                'method' => 'injectAdapter',
                 'arguments' => ['adapter' => '{'.ImagickImage::class.'}']
             ],
         ]
@@ -298,5 +306,13 @@ return [
     ],
     TransportInterface::class => [
         'use' => Smtp::class
+    ],
+    SmtpOptions::class => [
+        'arguments' => [
+            'options' => [
+                'host' => '{ENV(BALLOON_SMTP_HOST,127.0.0.1)}',
+                'port' => '{ENV(BALLOON_SMTP_PORT,25)(int)}',
+            ]
+        ]
     ],
 ];

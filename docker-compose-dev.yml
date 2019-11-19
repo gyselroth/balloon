@@ -53,6 +53,8 @@ services:
             - BALLOON_SMTP_HOST=postfix
             - BALLOON_URL=http://localhost:8084
             - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+            - BALLOON_LOG_LEVEL=100
+            - BALLOON_TASK_WORKER_PM=ondemand
             - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
     balloon-web:
         image: gyselroth/balloon-web:latest
@@ -80,4 +82,6 @@ services:
             - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=http://balloon-web/wopi
             - BALLOON_SMTP_HOST=postfix
             - BALLOON_URL=http://localhost:8084
+            - BALLOON_LOG_LEVEL=100
+            - BALLOON_TASK_WORKER_PM=ondemand
             - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
