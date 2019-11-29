@@ -2722,7 +2722,69 @@ paths:
           description: 'Set to base64 to return a jpeg encoded preview as base64, else return it as jpeg binary'
       responses:
         200:
-          description: "Binara data"
+          description: "Binary data"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+    patch:
+      tags:
+        - preview.v2
+      description: 'Create preview'
+      summary: 'Create or replace preview of a file. A preview may be a maximum of 2MB'
+      operationId: setPreview
+      produces:
+        - application/json
+      consumes:
+        - octet/stream
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "File"
+          schema:
+            $ref: "#/definitions/core.v2.File"
+        400:
+          $ref: '#/responses/BadRequest'
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+    delete:
+      tags:
+        - preview.v2
+      description: 'Delete preview'
+      summary: 'Delete an existing preview'
+      operationId: deletePreview
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        204:
+          description: "Preview deleted"
         400:
           $ref: '#/responses/BadRequest'
         401:

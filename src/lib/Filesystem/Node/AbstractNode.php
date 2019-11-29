@@ -861,7 +861,7 @@ abstract class AbstractNode implements NodeInterface
     {
         if (isset($this->app[$namespace][$attribute])) {
             unset($this->app[$namespace][$attribute]);
-            $this->save('app'.$namespace);
+            $this->save([], ['app.'.$namespace.'.'.$attribute]);
         }
 
         return $this;

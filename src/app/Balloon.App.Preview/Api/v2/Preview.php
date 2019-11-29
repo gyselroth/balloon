@@ -13,6 +13,7 @@ namespace Balloon\App\Preview\Api\v2;
 
 use Balloon\App\Preview\Preview as PreviewGetter;
 use Balloon\Filesystem;
+use Balloon\Filesystem\Node\AttributeDecorator as NodeAttributeDecorator;
 use Balloon\Filesystem\Node\File;
 use Balloon\Server;
 use Micro\Http\Response;
@@ -34,12 +35,45 @@ class Preview
     protected $fs;
 
     /**
+     * Node attribute decorator.
+     *
+     * @var NodeAttributeDecorator
+     */
+    protected $node_decorator;
+
+    /**
      * Constructor.
      */
-    public function __construct(PreviewGetter $preview, Server $server)
+    public function __construct(PreviewGetter $preview, Server $server, NodeAttributeDecorator $decorator)
     {
         $this->fs = $server->getFilesystem();
         $this->preview = $preview;
+        $this->node_decorator = $decorator;
+    }
+
+    /**
+     * Update Preview.
+     */
+    public function patch(string $id): Response
+    {
+        $node = $this->fs->getNode($id, File::class);
+        $data = $this->preview->setPreview($node, fopen('php://input', 'r'));
+
+        return (new Response())->setBody(
+            $this->node_decorator->decorate($node)
+        )->setCode(200);
+    }
+
+    /**
+     * Delete Preview.
+     */
+    public function delete(string $id): Response
+    {
+        $node = $this->fs->getNode($id, File::class);
+        $this->preview->getPreview($node);
+        $data = $this->preview->deletePreview($node);
+
+        return (new Response())->setCode(204);
     }
 
     /**

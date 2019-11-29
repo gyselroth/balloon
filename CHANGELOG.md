@@ -1,4 +1,4 @@
-## 2.7.0
+## 2.7.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Oct 22 09:50:42 CEST 2019
 
@@ -22,6 +22,7 @@
 * Provide /healthz endpoint #377
 * Support office docs, pdfs, .. to image as convert shadow #399
 * Add custom throttle time to subscription #155
+* Possibility to manually provide/delete a preview #393
 
 ### Common
 * Starting with v2.7.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability. Note for debian pkg changelog the issues get merged in a single list.
