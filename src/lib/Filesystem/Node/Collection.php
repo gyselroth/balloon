@@ -18,6 +18,7 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Hook;
 use Balloon\Server\User;
+use Balloon\Session\SessionInterface;
 use Generator;
 use MimeType\MimeType;
 use function MongoDB\BSON\fromJSON;
@@ -588,7 +589,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Create new file as a child from this collection.
      */
-    public function addFile($name, ?ObjectId $session = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
+    public function addFile($name, ?SessionInterface $session = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
             throw new ForbiddenException('not allowed to create new node here', ForbiddenException::NOT_ALLOWED_TO_CREATE);

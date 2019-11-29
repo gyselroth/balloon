@@ -45,6 +45,7 @@
         "ext-mbstring": "*",
         "ext-zip": "*",
         "ext-intl": "*",
+        "ext-smd5": "*",
         "ulrichsg/getopt-php": "^3.2.0",
         "zendframework/zend-mail": "2.9.*",
         "gyselroth/mongodb-php-task-scheduler": "^3.1.0",

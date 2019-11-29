@@ -16,6 +16,7 @@
 ### Bugfixes
 * POST /api/v2/notifications reads message from attr named body instead message #400
 * Newly added folders from other users within a share get not added to other users descriptions #406
+* Upload big file (~7GB) ends in 504 Gateway Timeout due slow md5 sum calculation #382
 
 ### Features
 * Provide /healthz endpoint #377

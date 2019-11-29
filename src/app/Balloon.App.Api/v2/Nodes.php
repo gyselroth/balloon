@@ -25,6 +25,7 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\User;
+use Balloon\Session\Factory as SessionFactory;
 use Micro\Http\Response;
 use function MongoDB\BSON\fromJSON;
 use function MongoDB\BSON\toPHP;
@@ -72,13 +73,14 @@ class Nodes extends Controller
     /**
      * Initialize.
      */
-    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, SessionFactory $session_factory)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
         $this->node_decorator = $decorator;
         $this->logger = $logger;
+        $this->session_factory = $session_factory;
     }
 
     /**

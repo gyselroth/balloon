@@ -32,6 +32,15 @@ RUN apk update && apk add --virtual .build-deps --no-cache \
   && pecl install imagick \
   && pecl install smbclient \
   && docker-php-ext-enable mongodb apcu imagick smbclient \
+  && git clone https://github.com/gyselroth/php-serializable-md5 \
+  && docker-php-source extract \
+  && cd php-serializable-md5 \
+  && phpize \
+  && ./configure \
+  && make install \
+  && echo "extension=smd5.so" > /usr/local/etc/php/conf.d/docker-php-ext-smd5.ini \
+  && cd .. \
+  && rm -rfv php-serializable-md5
   && apk del .build-deps
 
 RUN mkdir /usr/share/balloon && mkdir /usr/share/balloon/bin/console -p && mkdir /etc/balloon

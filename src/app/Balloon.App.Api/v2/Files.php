@@ -18,6 +18,7 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
+use Balloon\Session\SessionInterface;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
@@ -86,12 +87,13 @@ class Files extends Nodes
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
-        $storage = $this->getStorage($id, $collection);
+        $parent = $this->getParent($id, $collection);
 
         if ($session === null) {
-            $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
+            $session = $this->session_factory->add($this->server->getIdentity(), $parent, $input);
         } else {
-            $storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
+            $session = $this->session_factory->getOne($this->server->getIdentity(), $session);
+            $this->session_factory->update($this->server->getIdentity(), $session, $parent, $input);
         }
 
         if ($index === $chunks) {
@@ -103,7 +105,7 @@ class Files extends Nodes
         }
 
         return (new Response())->setCode(206)->setBody([
-                'session' => (string) $session,
+                'session' => (string) $session->getId(),
                 'chunks_left' => $chunks - $index,
             ]);
     }
@@ -135,6 +137,18 @@ class Files extends Nodes
     }
 
     /**
+     * Get parent.
+     */
+    protected function getParent($id, $collection): Collection
+    {
+        if ($id !== null) {
+            return $this->_getNode($id)->getParent();
+        }
+
+        return $this->server->getFilesystem()->getRoot();
+    }
+
+    /**
      * Get storage.
      */
     protected function getStorage($id, $collection): StorageAdapterInterface
@@ -154,7 +168,7 @@ class Files extends Nodes
      * Add or update file.
      */
     protected function _put(
-        ObjectId $session,
+        SessionInterface $session,
         ?string $id = null,
         ?string $collection = null,
         ?string $name = null,
