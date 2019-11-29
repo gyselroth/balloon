@@ -265,7 +265,7 @@ class SmbScanner extends AbstractJob
     {
         $storage = $parent->getStorage();
         $stream = $share->read($node->getPath());
-        $session = $this->session->add($user, $parent, $stream);
+        $session = $this->session_factory->add($user, $parent, $stream);
         $file->setContent($session, $attributes);
 
         fclose($stream);

@@ -23,6 +23,13 @@ class Session implements SessionInterface
     public const KIND = 'Session';
 
     /**
+     * Resource.
+     *
+     * @var array
+     */
+    protected $resource = [];
+
+    /**
      * Session.
      */
     public function __construct(array $resource)

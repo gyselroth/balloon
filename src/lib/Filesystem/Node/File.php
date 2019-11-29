@@ -82,7 +82,7 @@ class File extends AbstractNode implements IFile
      *
      * @var SessionFactory
      */
-    protected $session_factory;
+    protected $_session_factory;
 
     /**
      * Initialize file node.

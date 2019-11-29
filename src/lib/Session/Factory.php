@@ -69,7 +69,7 @@ class Factory
         ]);
 
         if ($result === null) {
-            throw new Exception\NotFound('session '.$name.' is not registered');
+            throw new Exception\NotFound('session '.$id.' is not registered');
         }
 
         return $this->build($result);

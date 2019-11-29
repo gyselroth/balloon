@@ -71,6 +71,13 @@ class Nodes extends Controller
     protected $node_decorator;
 
     /**
+     * Session factory.
+     *
+     * @var SessionFactory
+     */
+    protected $session_factory;
+
+    /**
      * Initialize.
      */
     public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, SessionFactory $session_factory)

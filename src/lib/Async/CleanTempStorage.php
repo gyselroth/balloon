@@ -85,7 +85,7 @@ class CleanTempStorage extends AbstractJob
         $count = 0;
         foreach ($result as $session) {
             $this->session_factory->deleteOne($session['_id']);
-            $this->bucket->delete($blob['_id']);
+            $this->bucket->delete($session['_id']);
             ++$count;
         }
 
