@@ -82,6 +82,6 @@
         "phpunit/phpunit": "^5.7.0",
         "friendsofphp/php-cs-fixer": "*",
         "helmich/mongomock": "dev-master#1ee4147",
-        "phpstan/phpstan": "*"
+        "phpstan/phpstan": "^0.11.19"
     }
 }
