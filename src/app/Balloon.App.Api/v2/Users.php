@@ -200,10 +200,7 @@ class Users
         $user = $this->_getUser($id);
 
         if ($user->getId() === $this->user->getId()) {
-            throw new Exception\InvalidArgument(
-                'can not delete yourself',
-                Exception\InvalidArgument::CAN_NOT_DELETE_OWN_ACCOUNT
-            );
+            throw new Exception\InvalidArgument('can not delete yourself', Exception\InvalidArgument::CAN_NOT_DELETE_OWN_ACCOUNT);
         }
 
         $user->delete($force);

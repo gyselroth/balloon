@@ -66,7 +66,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
     /**
      * Add decorator.
      *
-     *
      * @return AttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self

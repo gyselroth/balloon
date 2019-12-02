@@ -166,7 +166,6 @@ class File extends Node
      * @apiParam (GET Parameter) {number} [attributes.created] Set specific created timestamp (UNIX timestamp format)
      * @apiParam (GET Parameter) {number} [attributes.changed] Set specific changed timestamp (UNIX timestamp format)
      *
-     *
      * @apiSuccess (200 OK) {number} status Status Code
      * @apiSuccess (200 OK) {number} data Increased version number if the last chunk was uploaded and existing node was updated.
      * It will return the old version if the submited file content was equal to the existing one.
@@ -493,10 +492,7 @@ class File extends Node
                 ]);
             }
         } catch (ForbiddenException $e) {
-            throw new Exception\Conflict(
-                'a node called '.$name.' does already exists in this collection',
-                Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-            );
+            throw new Exception\Conflict('a node called '.$name.' does already exists in this collection', Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS);
         } catch (Exception\NotFound $e) {
             if (null !== $p && null === $id) {
                 if (!is_string($p) || empty($p)) {

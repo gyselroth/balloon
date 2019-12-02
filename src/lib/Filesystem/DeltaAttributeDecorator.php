@@ -40,7 +40,6 @@ class DeltaAttributeDecorator implements AttributeDecoratorInterface
     /**
      * Add decorator.
      *
-     *
      * @return DeltaAttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self

@@ -147,8 +147,7 @@ class DesktopClient
         ]);
 
         if (200 !== $code) {
-            throw (new Exception\GithubRequestFailed('failed query github releases api'))
-                ->setStatusCode($code);
+            throw (new Exception\GithubRequestFailed('failed query github releases api'))->setStatusCode($code);
         }
 
         $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);

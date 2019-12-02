@@ -128,10 +128,7 @@ class Collection extends AbstractNode implements IQuota
         }
 
         if ($this->_id === $parent->getId()) {
-            throw new Exception\Conflict(
-                'can not copy node into itself',
-                Exception\Conflict::CANT_COPY_INTO_ITSELF
-            );
+            throw new Exception\Conflict('can not copy node into itself', Exception\Conflict::CANT_COPY_INTO_ITSELF);
         }
 
         if (NodeInterface::CONFLICT_MERGE === $conflict && $parent->childExists($this->name)) {
@@ -332,10 +329,7 @@ class Collection extends AbstractNode implements IQuota
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->isReference() && !$this->_acl->isAllowed($this, 'w')) {
-            throw new ForbiddenException(
-                'not allowed to delete node '.$this->name,
-                ForbiddenException::NOT_ALLOWED_TO_DELETE
-            );
+            throw new ForbiddenException('not allowed to delete node '.$this->name, ForbiddenException::NOT_ALLOWED_TO_DELETE);
         }
 
         if (null === $recursion) {
@@ -452,10 +446,7 @@ class Collection extends AbstractNode implements IQuota
         ];
 
         if (iterator_count($this->_fs->findNodesByFilterRecursive($this, $query, 0, 1)) !== 0) {
-            throw new Exception\Conflict(
-                'folder contains a shared folder',
-                Exception\Conflict::NODE_CONTAINS_SHARED_NODE
-            );
+            throw new Exception\Conflict('folder contains a shared folder', Exception\Conflict::NODE_CONTAINS_SHARED_NODE);
         }
 
         $toset = $this->_fs->findNodesByFilterRecursiveToArray($this);
@@ -496,17 +487,11 @@ class Collection extends AbstractNode implements IQuota
     public function unshare(): Collection
     {
         if (!$this->_acl->isAllowed($this, 'm')) {
-            throw new ForbiddenException(
-                'not allowed to share node',
-                ForbiddenException::NOT_ALLOWED_TO_MANAGE
-            );
+            throw new ForbiddenException('not allowed to share node', ForbiddenException::NOT_ALLOWED_TO_MANAGE);
         }
 
         if (true !== $this->shared) {
-            throw new Exception\Conflict(
-                'Can not unshare a none shared collection',
-                Exception\Conflict::NOT_SHARED
-            );
+            throw new Exception\Conflict('Can not unshare a none shared collection', Exception\Conflict::NOT_SHARED);
         }
 
         $real = $this->getRealId();
@@ -554,10 +539,7 @@ class Collection extends AbstractNode implements IQuota
     public function addDirectory($name, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): self
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new ForbiddenException(
-                'not allowed to create new node here',
-                ForbiddenException::NOT_ALLOWED_TO_CREATE
-            );
+            throw new ForbiddenException('not allowed to create new node here', ForbiddenException::NOT_ALLOWED_TO_CREATE);
         }
 
         $this->_hook->run('preCreateCollection', [$this, &$name, &$attributes, &$clone]);
@@ -626,10 +608,7 @@ class Collection extends AbstractNode implements IQuota
     public function addFile($name, ?ObjectId $session = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new ForbiddenException(
-                'not allowed to create new node here',
-                ForbiddenException::NOT_ALLOWED_TO_CREATE
-            );
+            throw new ForbiddenException('not allowed to create new node here', ForbiddenException::NOT_ALLOWED_TO_CREATE);
         }
 
         $this->_hook->run('preCreateFile', [$this, &$name, &$attributes, &$clone]);
@@ -751,34 +730,22 @@ class Collection extends AbstractNode implements IQuota
     public function validateInsert(string $name, int $conflict = NodeInterface::CONFLICT_NOACTION, string $type = Collection::class): string
     {
         if ($this->readonly) {
-            throw new Exception\Conflict(
-                'node is set as readonly, it is not possible to add new sub nodes',
-                Exception\Conflict::READONLY
-            );
+            throw new Exception\Conflict('node is set as readonly, it is not possible to add new sub nodes', Exception\Conflict::READONLY);
         }
 
         if ($this->isFiltered()) {
-            throw new Exception\Conflict(
-                'could not add node '.$name.' into a filtered parent collection',
-                Exception\Conflict::DYNAMIC_PARENT
-            );
+            throw new Exception\Conflict('could not add node '.$name.' into a filtered parent collection', Exception\Conflict::DYNAMIC_PARENT);
         }
 
         if ($this->isDeleted()) {
-            throw new Exception\Conflict(
-                'could not add node '.$name.' into a deleted parent collection',
-                Exception\Conflict::DELETED_PARENT
-            );
+            throw new Exception\Conflict('could not add node '.$name.' into a deleted parent collection', Exception\Conflict::DELETED_PARENT);
         }
 
         $name = $this->checkName($name);
 
         if ($this->childExists($name)) {
             if (NodeInterface::CONFLICT_NOACTION === $conflict) {
-                throw new Exception\Conflict(
-                    'a node called '.$name.' does already exists in this collection',
-                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                );
+                throw new Exception\Conflict('a node called '.$name.' does already exists in this collection', Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS);
             }
             if (NodeInterface::CONFLICT_RENAME === $conflict) {
                 $name = $this->getDuplicateName($name, $type);
@@ -810,10 +777,7 @@ class Collection extends AbstractNode implements IQuota
     protected function validateAcl(array $acl): bool
     {
         if (!$this->_acl->isAllowed($this, 'm')) {
-            throw new ForbiddenException(
-                'not allowed to set acl',
-                ForbiddenException::NOT_ALLOWED_TO_MANAGE
-            );
+            throw new ForbiddenException('not allowed to set acl', ForbiddenException::NOT_ALLOWED_TO_MANAGE);
         }
 
         if (!$this->isSpecial()) {
