@@ -23,6 +23,7 @@
 * Support office docs, pdfs, .. to image as convert shadow #399
 * Add custom throttle time to subscription #155
 * Possibility to manually provide/delete a preview #393
+* New api endpoint to submit error reports to developers #412
 
 ### Common
 * Starting with v2.7.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability. Note for debian pkg changelog the issues get merged in a single list.

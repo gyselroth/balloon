@@ -2700,6 +2700,22 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
+  /api/v2/feedbacks:
+    post:
+      tags:
+        - feedback.v2
+      description: 'Submit feedback'
+      summary: 'Submit a feedback to the developers of balloon (or another destination). You may submit some metadata and a zipped collection of debug information.'
+      operationId: submitFeedback
+      consumes:
+      - multipart/mixed
+      responses:
+        201:
+          description: "Feedback submited"
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
   '/api/v2/files/{file}/preview':
     get:
       tags:
@@ -2756,8 +2772,6 @@ paths:
           description: "File"
           schema:
             $ref: "#/definitions/core.v2.File"
-        400:
-          $ref: '#/responses/BadRequest'
         400:
           $ref: '#/responses/BadRequest'
         401:

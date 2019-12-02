@@ -11,6 +11,7 @@ MongoDB\Database:
 Apps:
   Balloon.App.Api: {enabled: true}
   Balloon.App.Recaptcha: {enabled: false}
+  Balloon.App.Feedback: {enabled: true}
   Balloon.App.Burl: {enabled: true}
   Balloon.App.Cli: {enabled: true}
   Balloon.App.Webauthn: {enabled: true}
@@ -48,6 +49,14 @@ Balloon\App\Recaptcha\Hook\Recaptcha:
     config:
       recaptcha_threshold: 30
       hostname: null
+Balloon\App\Feedback\Feedback:
+  services:
+    GuzzleHttp\ClientInterface:
+      arguments:
+        config:
+          base_uri: '{ENV(BALLOON_FEEDBACK_REMOTE_URL,https://support.gyselroth.net/balloon)}'
+          connect_timeout: 3
+          timeout: 60
 Balloon\App\Wopi\HostManager:
   arguments:
     config:
