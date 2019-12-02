@@ -167,10 +167,7 @@ class Notifications
     public function postBroadcast(string $subject, string $body): Response
     {
         if (!$this->user->isAdmin()) {
-            throw new ForbiddenException(
-                'submitted parameters require to have admin privileges',
-                ForbiddenException::ADMIN_PRIV_REQUIRED
-            );
+            throw new ForbiddenException('submitted parameters require to have admin privileges', ForbiddenException::ADMIN_PRIV_REQUIRED);
         }
 
         $users = $this->server->getUsers();

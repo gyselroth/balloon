@@ -186,19 +186,13 @@ class Server
             switch ($attribute) {
                 case 'namespace':
                     if (!is_string($value)) {
-                        throw new Group\Exception\InvalidArgument(
-                            $attribute.' must be a valid string',
-                            Group\Exception\InvalidArgument::INVALID_NAMESPACE
-                        );
+                        throw new Group\Exception\InvalidArgument($attribute.' must be a valid string', Group\Exception\InvalidArgument::INVALID_NAMESPACE);
                     }
 
                 break;
                 case 'name':
                     if (!is_string($value)) {
-                        throw new Group\Exception\InvalidArgument(
-                            $attribute.' must be a valid string',
-                            Group\Exception\InvalidArgument::INVALID_NAME
-                        );
+                        throw new Group\Exception\InvalidArgument($attribute.' must be a valid string', Group\Exception\InvalidArgument::INVALID_NAME);
                     }
 
                     if ($this->groupNameExists($value)) {
@@ -208,19 +202,13 @@ class Server
                 break;
                 case 'optional':
                     if (!is_array($value)) {
-                        throw new Group\Exception\InvalidArgument(
-                            'optional group attributes must be an array',
-                            Group\Exception\InvalidArgument::INVALID_OPTIONAL
-                        );
+                        throw new Group\Exception\InvalidArgument('optional group attributes must be an array', Group\Exception\InvalidArgument::INVALID_OPTIONAL);
                     }
 
                 break;
                 case 'member':
                     if (!is_array($value)) {
-                        throw new Group\Exception\InvalidArgument(
-                            'member must be an array of user',
-                            Group\Exception\InvalidArgument::INVALID_MEMBER
-                        );
+                        throw new Group\Exception\InvalidArgument('member must be an array of user', Group\Exception\InvalidArgument::INVALID_MEMBER);
                     }
 
                     $valid = [];
@@ -243,10 +231,7 @@ class Server
 
                 break;
                 default:
-                    throw new Group\Exception\InvalidArgument(
-                        'invalid attribute '.$attribute.' given',
-                        Group\Exception\InvalidArgument::INVALID_ATTRIBUTE
-                    );
+                    throw new Group\Exception\InvalidArgument('invalid attribute '.$attribute.' given', Group\Exception\InvalidArgument::INVALID_ATTRIBUTE);
             }
         }
 
@@ -262,10 +247,7 @@ class Server
             switch ($attribute) {
                 case 'username':
                     if (!preg_match('/^[A-Za-z0-9\.-_\@]+$/', $value)) {
-                        throw new User\Exception\InvalidArgument(
-                            'username does not match required regex /^[A-Za-z0-9\.-_\@]+$/',
-                            User\Exception\InvalidArgument::INVALID_USERNAME
-                        );
+                        throw new User\Exception\InvalidArgument('username does not match required regex /^[A-Za-z0-9\.-_\@]+$/', User\Exception\InvalidArgument::INVALID_USERNAME);
                     }
 
                     if ($this->usernameExists($value)) {
@@ -275,10 +257,7 @@ class Server
                 break;
                 case 'password':
                     if (!preg_match($this->password_policy, $value)) {
-                        throw new User\Exception\InvalidArgument(
-                            'password does not follow password policy '.$this->password_policy,
-                            User\Exception\InvalidArgument::INVALID_PASSWORD
-                        );
+                        throw new User\Exception\InvalidArgument('password does not follow password policy '.$this->password_policy, User\Exception\InvalidArgument::INVALID_PASSWORD);
                     }
 
                     $value = password_hash($value, $this->password_hash);
@@ -287,28 +266,19 @@ class Server
                 case 'soft_quota':
                 case 'hard_quota':
                     if (!is_numeric($value)) {
-                        throw new User\Exception\InvalidArgument(
-                            $attribute.' must be numeric',
-                            User\Exception\InvalidArgument::INVALID_QUOTA
-                        );
+                        throw new User\Exception\InvalidArgument($attribute.' must be numeric', User\Exception\InvalidArgument::INVALID_QUOTA);
                     }
 
                 break;
                 case 'avatar':
                     if (!$value instanceof Binary) {
-                        throw new User\Exception\InvalidArgument(
-                            'avatar must be an instance of Binary',
-                            User\Exception\InvalidArgument::INVALID_AVATAR
-                        );
+                        throw new User\Exception\InvalidArgument('avatar must be an instance of Binary', User\Exception\InvalidArgument::INVALID_AVATAR);
                     }
 
                 break;
                 case 'mail':
                     if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                        throw new User\Exception\InvalidArgument(
-                            'mail address given is invalid',
-                            User\Exception\InvalidArgument::INVALID_MAIL
-                        );
+                        throw new User\Exception\InvalidArgument('mail address given is invalid', User\Exception\InvalidArgument::INVALID_MAIL);
                     }
 
                     if ($this->mailExists($value)) {
@@ -325,27 +295,18 @@ class Server
                 break;
                 case 'locale':
                     if (!preg_match('#^[a-z]{2}_[A-Z]{2}$#', $value)) {
-                        throw new User\Exception\InvalidArgument(
-                            'invalid locale given, must be according to format a-z_A-Z',
-                            User\Exception\InvalidArgument::INVALID_LOCALE
-                        );
+                        throw new User\Exception\InvalidArgument('invalid locale given, must be according to format a-z_A-Z', User\Exception\InvalidArgument::INVALID_LOCALE);
                     }
 
                 break;
                 case 'namespace':
                     if (!is_string($value)) {
-                        throw new User\Exception\InvalidArgument(
-                            'namespace must be a valid string',
-                            User\Exception\InvalidArgument::INVALID_NAMESPACE
-                        );
+                        throw new User\Exception\InvalidArgument('namespace must be a valid string', User\Exception\InvalidArgument::INVALID_NAMESPACE);
                     }
 
                 break;
                 default:
-                    throw new User\Exception\InvalidArgument(
-                        'invalid attribute '.$attribute.' given',
-                        User\Exception\InvalidArgument::INVALID_ATTRIBUTE
-                    );
+                    throw new User\Exception\InvalidArgument('invalid attribute '.$attribute.' given', User\Exception\InvalidArgument::INVALID_ATTRIBUTE);
             }
         }
 
@@ -489,10 +450,7 @@ class Server
         }
 
         if ($user->isDeleted()) {
-            throw new User\Exception\NotAuthenticated(
-                'user is disabled and can not be used',
-                User\Exception\NotAuthenticated::USER_DELETED
-            );
+            throw new User\Exception\NotAuthenticated('user is disabled and can not be used', User\Exception\NotAuthenticated::USER_DELETED);
         }
 
         $this->identity = $user;

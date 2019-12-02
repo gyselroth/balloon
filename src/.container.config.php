@@ -32,8 +32,10 @@ use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\HiddenString;
 use Cache\Adapter\Apcu\ApcuCachePool;
 use Psr\SimpleCache\CacheInterface;
-use Psr\Http\Client\ClientInterface;
+use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Mjelamanov\GuzzlePsr18\Client as GuzzleAdapter;
+use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
+use GuzzleHttp\Client as GuzzleHttpClient;
 
 return [
     Client::class => [
@@ -48,7 +50,10 @@ return [
             ]
         ],
     ],
-    ClientInterface::class => [
+    GuzzleHttpClientInterface::class => [
+        'use' => GuzzleHttpClient::class
+    ],
+    HttpClientInterface::class => [
         'use' => GuzzleAdapter::class
     ],
     CacheInterface::class => [

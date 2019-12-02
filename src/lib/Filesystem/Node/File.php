@@ -107,11 +107,7 @@ class File extends AbstractNode implements IFile
         try {
             return $this->_parent->getStorage()->openReadStream($this);
         } catch (\Exception $e) {
-            throw new Exception\NotFound(
-                'storage blob is gone',
-                Exception\NotFound::CONTENTS_NOT_FOUND,
-                $e
-            );
+            throw new Exception\NotFound('storage blob is gone', Exception\NotFound::CONTENTS_NOT_FOUND, $e);
         }
     }
 
@@ -168,19 +164,13 @@ class File extends AbstractNode implements IFile
     public function restore(int $version): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new AclException\Forbidden(
-                'not allowed to restore node '.$this->name,
-                AclException\Forbidden::NOT_ALLOWED_TO_RESTORE
-            );
+            throw new AclException\Forbidden('not allowed to restore node '.$this->name, AclException\Forbidden::NOT_ALLOWED_TO_RESTORE);
         }
 
         $this->_hook->run('preRestoreFile', [$this, &$version]);
 
         if ($this->readonly) {
-            throw new Exception\Conflict(
-                'node is marked as readonly, it is not possible to change any content',
-                Exception\Conflict::READONLY
-            );
+            throw new Exception\Conflict('node is marked as readonly, it is not possible to change any content', Exception\Conflict::READONLY);
         }
 
         if ($this->version === $version) {
@@ -257,10 +247,7 @@ class File extends AbstractNode implements IFile
     public function delete(bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new AclException\Forbidden(
-                'not allowed to delete node '.$this->name,
-                AclException\Forbidden::NOT_ALLOWED_TO_DELETE
-            );
+            throw new AclException\Forbidden('not allowed to delete node '.$this->name, AclException\Forbidden::NOT_ALLOWED_TO_DELETE);
         }
 
         $this->_hook->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
@@ -576,19 +563,13 @@ class File extends AbstractNode implements IFile
     protected function prePutFile(ObjectId $session): bool
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new AclException\Forbidden(
-                'not allowed to modify node',
-                AclException\Forbidden::NOT_ALLOWED_TO_MODIFY
-            );
+            throw new AclException\Forbidden('not allowed to modify node', AclException\Forbidden::NOT_ALLOWED_TO_MODIFY);
         }
 
         $this->_hook->run('prePutFile', [$this, &$session]);
 
         if ($this->readonly) {
-            throw new Exception\Conflict(
-                'node is marked as readonly, it is not possible to change any content',
-                Exception\Conflict::READONLY
-            );
+            throw new Exception\Conflict('node is marked as readonly, it is not possible to change any content', Exception\Conflict::READONLY);
         }
 
         return true;

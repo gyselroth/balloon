@@ -42,7 +42,6 @@ class DeltaDecorator
     /**
      * Add decorator.
      *
-     *
      * @return AttributeDecorator
      */
     public function addDecorator(string $attribute, Closure $decorator): self

@@ -184,10 +184,7 @@ class Node extends Controller
             try {
                 $parent = $this->_getNode($destid, $destp, 'Collection', false, true);
             } catch (Exception\NotFound $e) {
-                throw new Exception\NotFound(
-                    'destination collection was not found or is not a collection',
-                    Exception\NotFound::DESTINATION_NOT_FOUND
-                );
+                throw new Exception\NotFound('destination collection was not found or is not a collection', Exception\NotFound::DESTINATION_NOT_FOUND);
             }
         }
 
@@ -298,10 +295,7 @@ class Node extends Controller
 
               if (0 !== $offset) {
                   if (fseek($stream, $offset) === -1) {
-                      throw new Exception\Conflict(
-                          'invalid offset requested',
-                          Exception\Conflict::INVALID_OFFSET
-                      );
+                      throw new Exception\Conflict('invalid offset requested', Exception\Conflict::INVALID_OFFSET);
                   }
               }
 
@@ -679,10 +673,7 @@ class Node extends Controller
         try {
             $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
-            throw new Exception\NotFound(
-                'destination collection was not found or is not a collection',
-                Exception\NotFound::DESTINATION_NOT_FOUND
-            );
+            throw new Exception\NotFound('destination collection was not found or is not a collection', Exception\NotFound::DESTINATION_NOT_FOUND);
         }
 
         return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {
@@ -740,10 +731,7 @@ class Node extends Controller
         try {
             $parent = $this->_getNode($destid, $destp, Collection::class, false, true);
         } catch (Exception\NotFound $e) {
-            throw new Exception\NotFound(
-                'destination collection was not found or is not a collection',
-                Exception\NotFound::DESTINATION_NOT_FOUND
-            );
+            throw new Exception\NotFound('destination collection was not found or is not a collection', Exception\NotFound::DESTINATION_NOT_FOUND);
         }
 
         return $this->bulk($id, $p, function ($node) use ($parent, $conflict) {

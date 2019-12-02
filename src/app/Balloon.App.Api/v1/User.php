@@ -110,10 +110,7 @@ class User
         if (null !== $id || null !== $uname || true === $require_admin) {
             if ($this->user->isAdmin()) {
                 if (null !== $id && null !== $uname) {
-                    throw new Exception\InvalidArgument(
-                        'provide either id (user id) or uname (username)',
-                        Exception\InvalidArgument::IDENTIFIER_NOT_UNIQUE
-                    );
+                    throw new Exception\InvalidArgument('provide either id (user id) or uname (username)', Exception\InvalidArgument::IDENTIFIER_NOT_UNIQUE);
                 }
 
                 if (null !== $id) {

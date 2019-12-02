@@ -181,10 +181,7 @@ class Filesystem
 
         $node = $this->db->storage->findOne(['_id' => $id]);
         if (null === $node) {
-            throw new Exception\NotFound(
-                'node '.$id.' not found',
-                Exception\NotFound::NODE_NOT_FOUND
-            );
+            throw new Exception\NotFound('node '.$id.' not found', Exception\NotFound::NODE_NOT_FOUND);
         }
 
         $this->raw_cache[(string) $id] = $node;
@@ -226,10 +223,7 @@ class Filesystem
         $result = iterator_to_array($this->findNodesByFilterRecursiveChildren($filter, $deleted, 0, 1));
 
         if (count($result) === 0) {
-            throw new Exception\NotFound(
-                'node ['.$id.'] not found',
-                Exception\NotFound::NODE_NOT_FOUND
-            );
+            throw new Exception\NotFound('node ['.$id.'] not found', Exception\NotFound::NODE_NOT_FOUND);
         }
 
         $node = array_shift($result);
@@ -248,10 +242,7 @@ class Filesystem
         $result = iterator_to_array($this->findNodesByFilterRecursiveChildren($filter, $deleted, 0, 1, $parent));
 
         if (count($result) === 0) {
-            throw new Exception\NotFound(
-                'requested node not found',
-                Exception\NotFound::NODE_NOT_FOUND
-            );
+            throw new Exception\NotFound('requested node not found', Exception\NotFound::NODE_NOT_FOUND);
         }
 
         return array_shift($result);
@@ -363,10 +354,7 @@ class Filesystem
     {
         $result = $this->db->storage->findOne($filter);
         if (null === $result) {
-            throw new Exception\NotFound(
-                'node with custom filter was not found',
-                Exception\NotFound::NODE_NOT_FOUND
-            );
+            throw new Exception\NotFound('node with custom filter was not found', Exception\NotFound::NODE_NOT_FOUND);
         }
 
         return $this->initNode($result);
@@ -636,10 +624,7 @@ class Filesystem
                 $instance->delete(true);
             }
 
-            throw new ForbiddenException(
-                'not allowed to access node',
-                ForbiddenException::NOT_ALLOWED_TO_ACCESS
-            );
+            throw new ForbiddenException('not allowed to access node', ForbiddenException::NOT_ALLOWED_TO_ACCESS);
         }
 
         if ($loaded === false && isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
@@ -794,10 +779,7 @@ class Filesystem
             ]);
 
             if (null === $result) {
-                throw new Exception\NotFound(
-                    'no share node for reference node '.$node['reference'].' found',
-                    Exception\NotFound::SHARE_NOT_FOUND
-                );
+                throw new Exception\NotFound('no share node for reference node '.$node['reference'].' found', Exception\NotFound::SHARE_NOT_FOUND);
             }
         } else {
             $this->logger->debug('share node ['.$node['_id'].'] requested from member, trying to find the reference node', [
@@ -811,10 +793,7 @@ class Filesystem
             ]);
 
             if (null === $result) {
-                throw new Exception\NotFound(
-                    'no share reference for node '.$node['_id'].' found',
-                    Exception\NotFound::REFERENCE_NOT_FOUND
-                );
+                throw new Exception\NotFound('no share reference for node '.$node['_id'].' found', Exception\NotFound::REFERENCE_NOT_FOUND);
             }
         }
 
