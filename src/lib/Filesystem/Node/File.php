@@ -454,6 +454,7 @@ class File extends AbstractNode implements IFile
 
         $result = $this->_parent->getStorage()->storeFile($this, $session);
         $this->storage = $result['reference'];
+
         $hash = $session->getHash();
 
         if ($this->isDeleted() && $this->hash === $hash) {
@@ -472,7 +473,7 @@ class File extends AbstractNode implements IFile
         }
 
         $this->hash = $hash;
-        $this->size = $result['size'];
+        $this->size = $session->getSize();
 
         if ($this->size === 0 && $this->getMount() === null) {
             $this->storage = null;

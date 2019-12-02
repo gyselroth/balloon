@@ -237,6 +237,13 @@ abstract class AbstractNode implements NodeInterface
     protected $_parent;
 
     /**
+     * Session factory.
+     *
+     * @var SessionFactory
+     */
+    protected $_session_factory;
+
+    /**
      * Convert to filename.
      *
      * @return string

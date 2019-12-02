@@ -56,6 +56,14 @@ class Session implements SessionInterface
     }
 
     /**
+     * Get size.
+     */
+    public function getSize(): int
+    {
+        return $this->resource['size'] ?? 0;
+    }
+
+    /**
      * Get ID.
      */
     public function getId(): ObjectIdInterface

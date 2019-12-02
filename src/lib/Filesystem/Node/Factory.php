@@ -132,7 +132,7 @@ class Factory
         }
 
         if (true === $node['directory']) {
-            return new Collection($node, $fs, $this->logger, $this->hook, $this->acl, $parent, $storage);
+            return new Collection($node, $fs, $this->logger, $this->hook, $this->acl, $parent, $storage, $this->session_factory);
         }
 
         return new File($node, $fs, $this->logger, $this->hook, $this->acl, $parent, $this->session_factory);

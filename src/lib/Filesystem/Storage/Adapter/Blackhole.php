@@ -139,13 +139,13 @@ class Blackhole implements AdapterInterface
      */
     public function storeFile(File $file, SessionInterface $session): array
     {
-        /*$hash = hash_init('md5');
+        $hash = hash_init('md5');
 
-        if (!isset($this->streams[(string) $session])) {
-            throw new Exception\BlobNotFound('temporary blob '.$session.' has not been found');
+        if (!isset($this->streams[(string) $session->getId()])) {
+            throw new Exception\BlobNotFound('temporary blob '.$session->getId().' has not been found');
         }
 
-        $stream = $this->streams[(string) $session];
+        $stream = $this->streams[(string) $session->getId()];
         $size = 0;
 
         while (!feof($stream)) {
@@ -159,13 +159,16 @@ class Blackhole implements AdapterInterface
             hash_update($hash, $buffer);
         }
 
-        unset($this->streams[(string) $session]);
-        $md5 = hash_final($hash);*/
+        unset($this->streams[(string) $session->getId()]);
+        $md5 = hash_final($hash);
+
+        $session->set([
+            'size' => $size,
+            'hash' => $md5,
+        ]);
 
         return [
             'reference' => $file->getAttributes()['storage'],
-            //'size' => $size,
-           // 'hash' => $md5,
         ];
     }
 }

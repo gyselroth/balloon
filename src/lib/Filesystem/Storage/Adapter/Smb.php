@@ -189,7 +189,6 @@ class Smb implements AdapterInterface
             'reference' => [
                 'path' => $dest,
             ],
-            'size' => $session->getSize(),
         ];
     }
 

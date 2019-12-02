@@ -18,6 +18,7 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Hook;
 use Balloon\Server\User;
+use Balloon\Session\Factory as SessionFactory;
 use Balloon\Session\SessionInterface;
 use Generator;
 use MimeType\MimeType;
@@ -67,7 +68,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Initialize.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage, SessionFactory $session_factory)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -78,6 +79,7 @@ class Collection extends AbstractNode implements IQuota
         $this->_acl = $acl;
         $this->_storage = $storage;
         $this->_parent = $parent;
+        $this->_session_factory = $session_factory;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -664,7 +666,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function createFile($name, $data = null): string
     {
-        $session = $this->_storage->storeTemporaryFile($data, $this->_user);
+        $session = $this->_session_factory->add($this->_user, $this->getParent(), $data);
 
         if ($this->childExists($name, NodeInterface::DELETED_INCLUDE, ['directory' => false])) {
             $file = $this->getChild($name, NodeInterface::DELETED_INCLUDE, ['directory' => false]);

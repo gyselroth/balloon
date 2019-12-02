@@ -102,10 +102,11 @@ class Factory
 
         $storage = $parent->getStorage();
         $session = $storage->storeTemporaryFile($stream, $user, $resource->getId());
+        $size = $resource->getSize() + $size;
 
         $data = [
-            '$inc' => ['size' => $size],
             '$set' => [
+                'size' => $size,
                 'changed' => new UTCDateTime(),
             ],
         ];

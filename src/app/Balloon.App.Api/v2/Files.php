@@ -16,7 +16,6 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
 use Balloon\Session\SessionInterface;
 use Micro\Http\Response;
@@ -127,8 +126,8 @@ class Files extends Nodes
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
 
-        $storage = $this->getStorage($id, $collection);
-        $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
+        $parent = $this->getParent($id, $collection);
+        $session = $this->session_factory->add($this->server->getIdentity(), $parent, $input);
         $attributes = compact('changed', 'created', 'readonly', 'meta', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);
@@ -145,23 +144,11 @@ class Files extends Nodes
             return $this->_getNode($id)->getParent();
         }
 
-        return $this->server->getFilesystem()->getRoot();
-    }
-
-    /**
-     * Get storage.
-     */
-    protected function getStorage($id, $collection): StorageAdapterInterface
-    {
-        if ($id !== null) {
-            return $this->_getNode($id)->getParent()->getStorage();
-        }
-
         if ($id === null && $collection === null) {
-            return $this->server->getFilesystem()->getRoot()->getStorage();
+            $this->server->getFilesystem()->getRoot();
         }
 
-        return $this->fs->getNode($collection, Collection::class)->getStorage();
+        return $this->fs->getNode($collection, Collection::class);
     }
 
     /**

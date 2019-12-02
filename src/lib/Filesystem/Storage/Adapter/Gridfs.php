@@ -205,7 +205,6 @@ class Gridfs implements AdapterInterface
 
             return [
                 'reference' => ['_id' => $blob['_id']],
-                'size' => $blob['length'],
             ];
         }
 
