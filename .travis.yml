@@ -16,6 +16,7 @@ before_install:
 - make install
 - echo "extension=smd5.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
 - cd ..
+- rm -rfv php-serializable-md5
 - echo "\n" | pecl install -f mongodb
 - echo "\n" | pecl install -f imagick
 - export version=$TRAVIS_TAG
