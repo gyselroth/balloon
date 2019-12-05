@@ -38,6 +38,7 @@ deploy:
     tags: true
 after_deploy:
 - test "$TRAVIS_TAG" != "" && version=${TRAVIS_TAG:1};
+- if [[ "$version" == *"-"* ]]; then export docker_tag=latest-unstable; else export docker_tag=latest; fi;
 - test "$TRAVIS_TAG" != "" && docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 - test "$TRAVIS_TAG" != "" && docker tag gyselroth/balloon:$version gyselroth/balloon:$docker_tag
 - test "$TRAVIS_TAG" != "" && docker push gyselroth/balloon:$version
