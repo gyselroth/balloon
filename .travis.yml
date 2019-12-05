@@ -24,9 +24,7 @@ before_install:
 - if [ "$version" == "" ]; then version=$TRAVIS_BUILD_NUMBER; fi;
 script:
 - make VERSION=$version
-- echo $version
-- echo $TRAVIS_TAG
-- test "$TRAVIS_TAG" != "" && docker build -t gyselroth/balloon:$version .
+- if [ "$TRAVIS_TAG" != "" ]; then docker build -t gyselroth/balloon:$version .; fi
 notifications:
   email: false
 deploy:
