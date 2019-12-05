@@ -55,7 +55,7 @@ class Acl
     /**
      * Verify request.
      */
-    public function isAllowed(ServerRequestInterface $request, UserInterface $user): bool
+    public function isAllowed(ServerRequestInterface $request, UserInterface $user): ServerRequestInterface
     {
         $this->logger->debug('verify access for identity ['.$user->getUsername().']', [
             'category' => get_class($this),
@@ -117,11 +117,13 @@ class Acl
 
             foreach ($data['selectors'] as $selector) {
                 if ($selector === '*') {
-                    return true;
+                    $request = $request->withAttribute('attributes', $data['fields'] ?? []);
+                    return $request;
                 }
 
                 if (isset($attributes[$selector]) && (in_array($attributes[$selector], $data['resources']) || in_array('*', $data['resources']))) {
-                    return true;
+                    $request = $request->withAttribute('attributes', $data['fields'] ?? []);
+                    return $request;
                 }
             }
         }

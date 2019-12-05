@@ -33,6 +33,10 @@ abstract class AbstractResource implements ResourceInterface
      */
     public function getId(): ?ObjectIdInterface
     {
+        if(!isset($this->resource['_id'])) {
+            return null;
+        }
+
         return $this->resource['_id'];
     }
 
@@ -58,6 +62,20 @@ abstract class AbstractResource implements ResourceInterface
         }
 
         return (string) $this->resource['_id'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function set(array $resource): self
+    {
+        unset($resource['_id']);
+        unset($resource['kind']);
+        unset($resource['created']);
+        unset($resource['changed']);
+
+        $this->resource = array_merge($this->resource, $resource);
+        return $this;
     }
 
     /**

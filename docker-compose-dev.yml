@@ -88,6 +88,8 @@ services:
         #    - elasticsearch
         #    - postfix
         #    - browserless
+        ports:
+            - "9501:9501"
         networks:
         - backend
         environment:

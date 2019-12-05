@@ -12,8 +12,6 @@ declare(strict_types=1);
 namespace Balloon\Resource;
 
 use Closure;
-/*use Garden\Schema\ArrayRefLookup;
-use Garden\Schema\Schema;*/
 use Generator;
 use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
@@ -22,8 +20,7 @@ use MongoDB\BSON\UTCDateTime;
 use MongoDB\Collection;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
-use Psr\SimpleCache\CacheInterface;
-use Symfony\Component\Yaml\Yaml;
+use League\Event\Emitter;
 
 class Factory
 {
@@ -51,15 +48,16 @@ class Factory
     /**
      * Initialize.
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(Emitter $emitter, LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $this->emitter = $emitter;
     }
 
     /**
      * Add resource.
      */
-    public function addTo(Collection $collection, array $resource, bool $simulate = false): ObjectIdInterface
+    public function addTo(Collection $collection, array $resource): array
     {
         $ts = new UTCDateTime();
         $resource += [
@@ -73,29 +71,31 @@ class Factory
             'resource' => $resource,
         ]);
 
-        if ($simulate === true) {
-            return new ObjectId();
-        }
+        $this->emitter->emit('resource.factory.preAdd', ...func_get_args());
 
         $result = $collection->insertOne($resource);
         $id = $result->getInsertedId();
+        $resource['_id'] = $id;
 
         $this->logger->info('created new resource ['.$id.'] in ['.$collection->getCollectionName().']', [
             'category' => get_class($this),
         ]);
 
-        return $id;
+        $this->emitter->emit('resource.factory.postAdd', ...func_get_args()+[$id]);
+
+        return $resource;
     }
 
     /**
      * Update resource.
      */
-    public function updateIn(Collection $collection, ResourceInterface $resource, array $update, bool $simulate = false): bool
+    public function updateIn(Collection $collection, ResourceInterface $resource, array $update): bool
     {
         $this->logger->debug('update resource ['.$resource->getId().'] in ['.$collection->getCollectionName().']', [
             'category' => get_class($this),
             'update' => $update,
         ]);
+        $this->emitter->emit('resource.factory.preUpdate', ...func_get_args());
 
         $op = [
             '$set' => $update,
@@ -117,15 +117,13 @@ class Factory
             ];
         }*/
 
-        if ($simulate === true) {
-            return true;
-        }
-
         $result = $collection->updateOne(['_id' => $resource->getId()], $op);
 
         $this->logger->info('updated resource ['.$resource->getId().'] in ['.$collection->getCollectionName().']', [
             'category' => get_class($this),
         ]);
+
+        $this->emitter->emit('resource.factory.postUpdate', ...func_get_args());
 
         return true;
     }
@@ -133,17 +131,15 @@ class Factory
     /**
      * Delete resource.
      */
-    public function deleteFrom(Collection $collection, ObjectIdInterface $id, bool $simulate = false): bool
+    public function deleteFrom(Collection $collection, ObjectIdInterface $id): bool
     {
         $this->logger->info('delete resource ['.$id.'] from ['.$collection->getCollectionName().']', [
             'category' => get_class($this),
         ]);
 
-        if ($simulate === true) {
-            return true;
-        }
-
+        $this->emitter->emit('resource.factory.preDelete', ...func_get_args());
         $result = $collection->deleteOne(['_id' => $id]);
+        $this->emitter->emit('resource.factory.postDelete', ...func_get_args());
 
         return true;
     }
@@ -184,15 +180,15 @@ class Factory
     {
         $pipeline = $query;
         if (!empty($pipeline)) {
-            $pipeline = [['$match' => $query]];
+            $pipeline = [['$match' => $this->prepareQuery($query)]];
         }
 
         $stream = $collection->watch($pipeline, [
             'resumeAfter' => $after,
+            'fullDocument' => 'updateLookup',
         ]);
 
         if ($existing === true) {
-            $query = $this->prepareQuery($query);
             $total = $collection->count($query);
 
             if ($offset !== null && $total === 0) {
@@ -250,28 +246,29 @@ class Factory
             'category' => get_class($this),
         ]);
 
+        $this->emitter->emit('resource.factory.onInit', ...func_get_args());
+
         return $resource;
     }
 
     /**
-     * Remove fullDocument prefix from keys.
+     * Add fullDocument prefix to keys.
      */
     protected function prepareQuery(array $query): array
     {
-        $filter = $query;
-        if (isset($query['$and'])) {
-            $query = $query['$and'][0];
-        }
-
         $new = [];
         foreach ($query as $key => $value) {
-            $new[substr($key, 13)] = $value;
-        }
+            switch ($key) {
+                case '$and':
+                case '$or':
+                    foreach ($value as $sub_key => $sub) {
+                        $new[$key][$sub_key] = $this->prepareQuery($sub);
+                    }
 
-        if (isset($filter['$and'])) {
-            $filter['$and'][0] = $new;
-
-            return $filter;
+                break;
+                default:
+                    $new['fullDocument.'.$key] = $value;
+            }
         }
 
         return $new;

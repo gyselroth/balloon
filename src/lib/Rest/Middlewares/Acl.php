@@ -47,7 +47,7 @@ class Acl implements MiddlewareInterface
 
         $identity = $request->getAttribute('identity');
 
-        if ($identity === null || $this->acl->isAllowed($request, $identity)) {
+        if ($identity === null || $request = $this->acl->isAllowed($request, $identity)) {
             return $handler->handle($request);
         }
     }

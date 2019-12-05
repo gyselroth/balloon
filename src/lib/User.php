@@ -52,15 +52,13 @@ class User extends AbstractResource implements UserInterface
         return $this->resource['hash'] !== null;
     }
 
-    /**
-     * Decorate.
-     */
-    public function decorate(ServerRequestInterface $request): array
+    public function getHardQuota(): ?int
     {
-        /*$resource = [
-            'data' => $this->getData(),
-        ];*/
+        return $this->resource['hard_quota'] ?? null;
+    }
 
-        return AttributeResolver::resolve($request, $this, []);
+    public function getSoftQuota(): ?int
+    {
+        return $this->resource['soft_quota'] ?? null;
     }
 }

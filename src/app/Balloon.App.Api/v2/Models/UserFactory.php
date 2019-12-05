@@ -54,7 +54,7 @@ class UserFactory extends AbstractModelFactory
             'id' => (string) $attributes['_id'],
             'username' => (string) $attributes['username'],
             'name' => (string) $attributes['username'],
-            'admin' => (bool) $attributes['admin'],
+            //'admin' => (bool) $attributes['admin'],
             'namespace' => isset($attributes['namespace']) ? (string) $attributes['namespace'] : null,
             'mail' => function ($user) use ($attributes) {
                 if (!isset($attributes['mail'])) {

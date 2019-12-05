@@ -14,7 +14,9 @@ namespace Balloon\Bootstrap;
 use Composer\Autoload\ClassLoader as Composer;
 use Micro\Container\Container;
 use Noodlehaus\Config;
+use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
+use ErrorException;
 
 class ContainerBuilder
 {
@@ -26,6 +28,7 @@ class ContainerBuilder
         $config = self::loadConfig();
         $config = self::detectApps($config, $composer);
         $container = new Container($config);
+        self::setErrorHandler($container->get(LoggerInterface::class));
 
         return $container;
     }
@@ -43,6 +46,41 @@ class ContainerBuilder
         }
 
         return new Config($configs);
+    }
+
+    /**
+     * Set error handler.
+     */
+    protected static function setErrorHandler(LoggerInterface $logger): void
+    {
+        set_error_handler(function ($severity, $message, $file, $line) use ($logger) {
+            $log = $message.' in '.$file.':'.$line;
+
+            switch ($severity) {
+                case E_ERROR:
+                case E_USER_ERROR:
+                    $logger->error($log, [
+                        'category' => self::class,
+                    ]);
+
+                break;
+                case E_WARNING:
+                case E_USER_WARNING:
+                    $logger->warning($log, [
+                        'category' => self::class,
+                    ]);
+
+                break;
+                default:
+                    $logger->debug($log, [
+                        'category' => self::class,
+                    ]);
+
+                break;
+            }
+
+            throw new ErrorException($message, 0, $severity, $file, $line);
+        });
     }
 
     /**

@@ -58,6 +58,41 @@ class NodeFactory extends AbstractModelFactory
         $this->collection_factory = $collection_factory;
         $this->user_model_factory = $user_model_factory;
         $this->acl = $acl;
+
+        $this->addEmbedded('owner', function($value, $request) use($user_factory, $user_model_factory) {
+            return $user_model_factory->decorate($user_factory->getOne($value), $request);
+        });
+
+        /*
+        $this->addCustomEmbedded('shareowner', function($resource, $request) use($user_factory, $user_model_factory) {
+                return $decorator->decorate(
+                        $server->getUserById($fs->findRawNode($node->getShareId())['owner']),
+                        ['id', 'name', '_links']
+                    );
+            return $user_model_factory->decorate($user_factory->getOne($value), $request);
+        });
+         */
+
+        $this->addEmbedded('lockowner', function($value, $request, $resource) use($user_factory, $user_model_factory) {
+            if (!$resource->isLocked()) {
+                return null;
+            }
+
+            $lock = $resource->getLock();
+            return $user_model_factory->decorate($user_factory->getOne($lock['owner']), $request);
+        });
+
+        $this->addEmbedded('parent', function($value, $request) use($collection_factory) {
+            return $this->decorate($collection_factory->getOne($request->getAttribute('identity'), $value), $request);
+        });
+
+        $this->addEmbedded('share', function($value, $request) use($collection_factory) {
+            if ($resource->isShared() || !$resource->isSpecial()) {
+                return null;
+            }
+
+            return $this->decorate($collection_factory->getOne($resource->getShareId(true)), $request);
+        });
     }
 
     /**
@@ -70,13 +105,14 @@ class NodeFactory extends AbstractModelFactory
         $user_model_factory = $this->user_model_factory;
         $acl = $this->acl;
         $collection_factory = $this->collection_factory;
-        $sub_request = $request->withQueryParams(['attributes' => ['id', 'name', '_links']]);
+
+
 
         return [
             'name' => (string) $attributes['name'],
             'mime' => (string) $attributes['mime'],
-            'readonly' => (bool) $attributes['readonly'],
-            'directory' => $node instanceof Collection,
+            'readonly' => (bool) ($attributes['readonly'] ?? false),
+            //'directory' => $node instanceof Collection,
            /* 'meta' => function ($node) {
                 return (object) $node->getMetaAttributes();
            },*/
@@ -84,21 +120,9 @@ class NodeFactory extends AbstractModelFactory
                 return $node->getSize();
             },
             'path' => function ($node) {
-                try {
-                    return $node->getPath();
-                } catch (\Exception $e) {
-                    return null;
-                }
+                return $node->getPath();
             },
-            'parent' => function ($node) use ($sub_request) {
-                $parent = $node->getParent();
-
-                if (null === $parent || $parent->isRoot()) {
-                    return null;
-                }
-
-                return $this->decorate($node->getParent(), $sub_request);
-            },
+            'parent' => (string)$attributes['parent'] ?? null,
             'access' => function ($node) use ($acl, $request) {
                 return $acl->getAclPrivilege($node, $request->getAttribute('user'));
             },
@@ -109,84 +133,45 @@ class NodeFactory extends AbstractModelFactory
 
                 return null;
             },*/
-            'lock' => function ($node) use ($user_factory, $user_model_factory, $attributes, $sub_request) {
+            'lock' => function ($node) use ($user_factory, $user_model_factory, $attributes) {
                 if (!$node->isLocked()) {
                     return null;
                 }
 
                 $lock = $attributes['lock'];
 
-                try {
-                    $user = $user_model_factory->decorate(
-                        $user_factory->getOne($lock['owner']),
-                        $sub_request
-                    );
-                } catch (\Exception $e) {
-                    $user = null;
-                }
-
-                $lock = $attributes['lock'];
-
                 return [
-                    'owner' => $user,
+                    'owner' => (string)$lock['owner'],
                     'created' => $lock['created']->toDateTime()->format('c'),
                     'expire' => $lock['expire']->toDateTime()->format('c'),
                     'id' => $lock['id'],
                 ];
             },
-            'share' => function ($node) use ($collection_factory, $sub_request) {
-                if ($node->isShared() || !$node->isSpecial()) {
-                    return null;
-                }
-
-                try {
-                    return $this->decorate($collection_factory->getOne($node->getShareId(true)),
-                        $sub_request);
-                } catch (\Exception $e) {
-                    return null;
-                }
-            },
+            'share' => $node->getShareId(true),
             'sharename' => function ($node) {
                 if (!$node->isShared()) {
                     return null;
                 }
 
-                try {
-                    return $node->getShareName();
-                } catch (\Exception $e) {
-                    return null;
-                }
+                return $node->getShareName();
             },
-            'shareowner' => function ($node) use ($user_factory, $user_model_factory, $sub_request) {
+            'shareowner' => function ($node) use ($user_factory, $user_model_factory) {
                 if (!$node->isSpecial()) {
                     return null;
                 }
 
-                try {
-                    return $user_model_factory->decorate(
-                        $user_factory->getOne($node['owner']),
-                        $sub_request
-                    );
-                    /*return $decorator->decorate(
+                /*return $user_model_factory->decorate(
+                    $user_factory->getOne($node['owner']),
+                    $sub_request
+                );*/
+                /*return $decorator->decorate(
                         $server->getUserById($fs->findRawNode($node->getShareId())['owner']),
                         ['id', 'name', '_links']
                     );*/
-                } catch (\Exception $e) {
-                    return null;
-                }
             },
-            'owner' => function ($node) use ($user_factory, $user_model_factory, $sub_request) {
-                try {
-                    return $user_model_factory->decorate(
-                        $user_factory->getOne($node->getOwner()),
-                        $sub_request
-                    );
-                } catch (\Exception $e) {
-                    return null;
-                }
-            },
+            'owner' => (string)$attributes['owner'] ?? null,
             'destroy' => function ($node) use ($attributes) {
-                if (null === $attributes['destroy']) {
+                if (!isset($attributes['destroy'])) {
                     return null;
                 }
 

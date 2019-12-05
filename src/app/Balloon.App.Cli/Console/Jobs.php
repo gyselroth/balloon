@@ -16,6 +16,7 @@ use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Queue;
 use TaskScheduler\Scheduler;
+use League\Event\Emitter;
 
 class Jobs
 {
@@ -57,10 +58,10 @@ class Jobs
     /**
      * Constructor.
      */
-    public function __construct(Hook $hook, Queue $queue, Scheduler $scheduler, LoggerInterface $logger, GetOpt $getopt)
+    public function __construct(Emitter $emitter, Queue $queue, Scheduler $scheduler, LoggerInterface $logger, GetOpt $getopt)
     {
         $this->queue = $queue;
-        $this->hook = $hook;
+        $this->emitter = $emitter;
         $this->logger = $logger;
         $this->getopt = $getopt;
         $this->scheduler = $scheduler;
@@ -79,7 +80,7 @@ class Jobs
             $this->scheduler->flush();
         }
 
-        $this->hook->run('preExecuteAsyncJobs');
+#        $this->hook->run('preExecuteAsyncJobs');
         $this->queue->process();
 
         return true;

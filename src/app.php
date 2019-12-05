@@ -13,7 +13,6 @@ use Balloon\Async\WorkerFactory;
 use Balloon\Auth\Adapter\Basic\Db;
 use Balloon\Converter;
 use Balloon\Converter\Adapter\ImagickImage;
-use Balloon\Hook;
 use Balloon\Migration;
 use Balloon\Migration\Delta;
 use Balloon\Node\Factory as NodeFactory;
@@ -59,6 +58,8 @@ use TaskScheduler\WorkerFactoryInterface;
 use TaskScheduler\WorkerManager;
 use Zend\Mail\Transport\Smtp;
 use Zend\Mail\Transport\TransportInterface;
+use League\Event\Emitter;
+use Balloon\EventListener;
 
 return [
     Client::class => [
@@ -121,6 +122,14 @@ return [
                 ],
             ],
         ],
+    ],
+    Emitter::class => [
+        'calls' => [
+            /*[
+                'method' => 'addListener',
+                'arguments' => ['event' => '*', 'listener' => '{'.EventListener\Event::class.'}'],
+            ],*/
+        ]
     ],
     RouteCollector::class => [
         'services' => [
@@ -277,7 +286,7 @@ return [
             ],
         ],
     ],
-    Hook::class => [
+    /*Hook::class => [
         'calls' => [
             Hook\Delta::class => [
                 'method' => 'injectHook',
@@ -300,7 +309,7 @@ return [
                 'arguments' => ['hook' => '{'.Hook\ExternalStorage::class.'}'],
             ],
         ],
-    ],
+    ],*/
     Migration::class => [
         'calls' => [
             Delta\CreateUniqueUserMailIndex::class => [

@@ -194,7 +194,7 @@ class Factory
     /**
      * Get used qota.
      */
-    public function getQuotaUsage(UserInterface $user): array
+    public function getQuotaUsage(UserInterface $user): int
     {
         $result = $this->db->{FileFactory::COLLECTION_NAME}->aggregate([
             [
@@ -212,16 +212,13 @@ class Factory
                 ],
             ],
         ]);
+
         $result = iterator_to_array($result);
         $sum = 0;
         if (isset($result[0]['sum'])) {
             $sum = $result[0]['sum'];
         }
-        return [
-            'used' => $sum,
-            'available' => ($this->hard_quota - $sum),
-            'hard_quota' => $this->hard_quota,
-            'soft_quota' => $this->soft_quota,
-        ];
+
+        return $sum;
     }
 }

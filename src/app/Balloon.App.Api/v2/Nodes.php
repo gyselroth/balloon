@@ -14,16 +14,18 @@ namespace Balloon\App\Api\v2;
 use Balloon\Acl;
 use Balloon\Node;
 use Balloon\Node\Factory as NodeFactory;
+use Balloon\App\Api\v2\Models\ProcessFactory as ProcessModelFactory;
 use Balloon\App\Api\v2\Models\NodeFactory as NodeModelFactory;
 use Balloon\Rest\Helper;
 use Balloon\User;
 use Fig\Http\Message\StatusCodeInterface;
-use Lcobucci\ContentNegotiation\UnformattedResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Rs\Json\Patch;
 use Zend\Diactoros\Response;
 use MongoDB\BSON\ObjectId;
+use TaskScheduler\Scheduler;
+use Balloon\Async;
+use Balloon\Process\Factory as ProcessFactory;
 
 class Nodes
 {
@@ -37,10 +39,12 @@ class Nodes
     /**
      * Init.
      */
-    public function __construct(NodeFactory $node_factory, NodeModelFactory $node_model_factory, Acl $acl)
+    public function __construct(NodeFactory $node_factory, NodeModelFactory $node_model_factory, ProcessFactory $process_factory, ProcessModelFactory $process_model_factory, Acl $acl)
     {
         $this->node_factory = $node_factory;
         $this->node_model_factory = $node_model_factory;
+        $this->process_factory = $process_factory;
+        $this->process_model_factory = $process_model_factory;
         $this->acl = $acl;
     }
 
@@ -77,47 +81,42 @@ class Nodes
      */
     public function delete(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
     {
-        $this->node_factory->deleteOne($identity, $node);
+         $node = $this->node_factory->getOne($user, $node);
+         $result = $this->scheduler->addJob(Async\DeleteNode::class, [
+             'user' => $identity->getId(),
+             'node' => $node->getId(),
+         ]);
 
-        return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
+         $resource = $this->process_factory->build($result->toArray(), $identity);
+        return Helper::getOne($request, $identity, $resource, $this->process_model_factory, StatusCodeInterface::STATUS_ACCEPTED);
     }
 
     /**
      * Add new node.
      */
-    /*public function post(ServerRequestInterface $request, User $identity): ResponseInterface
+    public function post(ServerRequestInterface $request, User $identity): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
 
-        $id = $this->node_factory->add($identity, $body);
-
-        return new UnformattedResponse(
-            (new Response())->withStatus(StatusCodeInterface::STATUS_CREATED),
-            $this->node_factory->getOne($body['name'])->decorate($request),
-            ['pretty' => isset($query['pretty'])]
-        );
-    }*/
+        $resource = $this->node_factory->add($identity, $body);
+        return Helper::getOne($request, $identity, $resource, $this->node_model_factory, StatusCodeInterface::STATUS_CREATED);
+    }
 
     /**
      * Patch.
      */
-    /*public function patch(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
+    public function patch(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
     {
-        $body = $request->getParsedBody();
-        $query = $request->getQueryParams();
-        $node = $this->node_factory->getOne($node);
-        $doc = ['data' => $node->getData()];
+        $node = $this->node_factory->getOne($identity, $node);
+        $update = Helper::patch($request, $node);
+        $result = $this->node_factory->update($identity, $node, $update);
 
-        $patch = new Patch(json_encode($doc), json_encode($body));
-        $patched = $patch->apply();
-        $update = json_decode($patched, true);
-        $this->node_factory->update($node, $update);
+        if($result === null) {
+            return Helper::getOne($request, $identity, $node, $this->node_model_factory);
+        }
 
-        return new UnformattedResponse(
-            (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
-            $this->node_factory->getOne($node->getName())->decorate($request),
-            ['pretty' => isset($query['pretty'])]
-        );
-    }*/
+         $resource = $this->process_factory->build($result->toArray(), $identity);
+        return Helper::getOne($request, $identity, $resource, $this->process_model_factory, StatusCodeInterface::STATUS_ACCEPTED);
+    }
 }

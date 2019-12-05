@@ -14,7 +14,7 @@ namespace Balloon\Storage\Adapter;
 use Balloon\Node\Collection;
 use Balloon\Node\File;
 use Balloon\Node\NodeInterface;
-use Balloon\Server\User;
+use Balloon\Server\UserInterface;
 use Balloon\Storage\Exception;
 use Icewind\SMB\Exception as SMBException;
 use Icewind\SMB\IFileInfo;
@@ -311,7 +311,7 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeTemporaryFile($stream, User $user, ?ObjectId $session = null): ObjectId
+    public function storeTemporaryFile($stream, UserInterface $user, ?ObjectId $session = null): ObjectId
     {
         $exists = $session;
 

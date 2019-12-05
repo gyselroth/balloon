@@ -34,18 +34,51 @@ abstract class AbstractNode extends AbstractResource /*implements NodeInterface*
      */
     public function isReadonly(): bool
     {
-        return (bool)$this->resource['readonly'];
+        return $this->resource['readonly'] ?? false;
     }
 
 
-     /**
-      * Get the name.
+    /**
+     * Get the name.
      */
      public function getName(): string
     {
          return $this->resource['name'] ?? '';
      }
 
+
+    /**
+     * Mark node as readonly.
+     */
+    public function setReadonly(bool $readonly = true): NodeInterface
+    {
+        $this->resource['readonly'] = $readonly;
+        $this->resource['storage'] = $this->parent->getStorage()->readonly($this, $readonly);
+
+        return $this;
+
+     }
+
+     public function setName(string $name): NodeInterface
+     {
+         $this->resource['name'] = $name;
+         $this->resource['storage'] = $this->parent->getStorage()->rename($this, $name);
+
+         if ($this instanceof FileInterface) {
+             $this->resource['mime'] = MimeType::getType($name);
+         }
+
+         return $this;
+     }
+
+
+     public function setParent(UserInterface $user, CollectionInterface $parent): NodeInterface
+     {
+         $this->resource['storage'] = $this->parent->getStorage()->move($this, $parent);
+         $this->resource['parent'] = $parent->getRealId();
+         $this->resource['owner'] = $user->getId();
+         return $this;
+     }
 
     /**
      * Get parent.
@@ -157,7 +190,7 @@ abstract class AbstractNode extends AbstractResource /*implements NodeInterface*
      */
     public function isLocked(): bool
     {
-        if ($this->resource['lock'] === null) {
+        if (($this->resource['lock'] ?? null) === null) {
             return false;
         }
         if ($this->resource['lock']['expire'] <= new UTCDateTime()) {

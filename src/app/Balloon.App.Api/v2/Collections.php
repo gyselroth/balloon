@@ -50,15 +50,12 @@ class Collections
      */
     public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
     {
-        $query = array_merge([
-            'offset' => 0,
-            'limit' => 20,
-        ], $request->getQueryParams());
+        $query = $request->getQueryParams();
 
         if (isset($query['watch'])) {
-            $cursor = $this->collection_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
+            $cursor = $this->collection_factory->watch($identity, null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
 
-            return Helper::watchAll($request, $identity, $this->acl, $cursor);
+            return Helper::watchAll($request, $identity, $this->acl, $cursor, $this->node_model_factory);
         }
 
         $collections = $this->collection_factory->getAll($identity, $query['query'], $query['offset'], $query['limit'], $query['sort']);
@@ -75,9 +72,9 @@ class Collections
         $resource = $this->collection_factory->getOne($identity, $collection);
 
         if (isset($query['watch'])) {
-            $cursor = $this->collection_factory->watch(null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
+            $cursor = $this->collection_factory->watchChildren($identity, null, true, $query['query'], (int) $query['offset'], (int) $query['limit'], $query['sort']);
 
-            return Helper::watchAll($request, $identity, $this->acl, $cursor);
+            return Helper::watchAll($request, $identity, $this->acl, $cursor, $this->node_model_factory);
         }
 
         $collections = $this->collection_factory->getChildren($identity, $resource, $query['query'], $query['offset'], $query['limit'], $query['sort'], (bool)$query['recursive']);
@@ -97,12 +94,12 @@ class Collections
     /**
      * Delete node.
      */
-    public function delete(ServerRequestInterface $request, User $identity, ObjectId $collection): ResponseInterface
+    /*public function delete(ServerRequestInterface $request, User $identity, ObjectId $collection): ResponseInterface
     {
         $this->collection_factory->deleteOne($identity, $collection);
 
         return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
-    }
+    }*/
 
     /**
      * Add new node.
@@ -119,7 +116,7 @@ class Collections
     /**
      * Patch.
      */
-    public function patch(ServerRequestInterface $request, User $identity, ObjectId $collection): ResponseInterface
+    /*public function patch(ServerRequestInterface $request, User $identity, ObjectId $collection): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
@@ -130,5 +127,5 @@ class Collections
         $update = json_decode($patched, true);
         $this->collection_factory->update($collection, $update);
         return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
-    }
+    }*/
 }

@@ -252,44 +252,6 @@ class File extends AbstractNode implements FileInterface
     }
 
     /**
-     * Set the name.
-     */
-    public function setName($name): bool
-    {
-        $name = $this->checkName($name);
-
-        try {
-            $child = $this->getParent()->getChild($name);
-            if ($child->getId() != $this->id) {
-                throw new Exception\Conflict(
-                    'a node called '.$name.' does already exists in this collection',
-                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                );
-            }
-        } catch (Exception\NotFound $e) {
-            //child does not exists, we can safely rename
-        }
-
-        $this->storage = $this->parent->getStorage()->rename($this, $name);
-        $this->name = $name;
-
-        if ($this instanceof File) {
-            $this->mime = MimeType::getType($this->name);
-        }
-
-        //TODO:WRONG
-        return $this->save(['name', 'storage', 'mime']);
-    }
-
-    /**
-     * Get mount node.
-     */
-    public function getMount(): ?ObjectId
-    {
-        return count($this->resource['mount'] ?? []) > 0 ? $this->resource['_id'] : $this->resource['storage_reference'];
-    }
-
-    /**
      * Is node deleted?
      */
     public function isDeleted(): bool

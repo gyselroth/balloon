@@ -96,7 +96,6 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
     public function __construct(array $resource, ?CollectionInterface $parent, StorageAdapterInterface $storage)
     {
         $this->resource = $resource;
-        $this->resource['mime'] = 'inode/directory';
         $this->parent = $parent;
         $this->storage = $storage;
     }
@@ -227,6 +226,10 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShareMember(): bool
     {
+        if(!isset($this->resource['shared'])) {
+            return false;
+        }
+
         return $this->resource['shared'] instanceof ObjectId && !$this->isReference();
     }
 
@@ -235,6 +238,10 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isMountMember(): bool
     {
+        if(!isset($this->resource['storage_reference'])) {
+            return false;
+        }
+
         return $this->resource['storage_reference'] instanceof ObjectId;
     }
 
@@ -243,6 +250,10 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShare(): bool
     {
+        if(!isset($this->resource['shared'])) {
+            return false;
+        }
+
         return true === $this->resource['shared'] && !$this->isReference();
     }
 
@@ -251,41 +262,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShared(): bool
     {
-        if (true === $this->resource['shared']) {
+        if (true === ($this->resource['shared'] ?? false)) {
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * Set the name.
-     */
-    public function setName($name): bool
-    {
-        $name = $this->checkName($name);
-
-        try {
-            $child = $this->getParent()->getChild($name);
-            if ($child->getId() != $this->id) {
-                throw new Exception\Conflict(
-                    'a node called '.$name.' does already exists in this collection',
-                    Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS
-                );
-            }
-        } catch (Exception\NotFound $e) {
-            //child does not exists, we can safely rename
-        }
-
-        $this->storage = $this->parent->getStorage()->rename($this, $name);
-        $this->name = $name;
-
-        if ($this instanceof File) {
-            $this->mime = MimeType::getType($this->name);
-        }
-
-        //TODO:WRONG
-        return $this->save(['name', 'storage', 'mime']);
     }
 
     public function isRoot(): bool
@@ -298,7 +279,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function getMount(): ?ObjectId
     {
-        return count($this->resource['mount'] ?? []) > 0 ? $this->resource['_id'] : $this->resource['storage_reference'];
+        if(count($this->resource['mount'] ?? []) > 0) {
+            return $this->resource['_id'];
+        }
+
+        return $this->resource['storage_reference'] ?? null;
     }
 
     /**
@@ -306,6 +291,10 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isDeleted(): bool
     {
+        if(!isset($this->resource['deleted'])) {
+            return false;
+        }
+
         return $this->resource['deleted'] instanceof UTCDateTime;
     }
 
@@ -401,6 +390,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isReference(): bool
     {
+        if(!isset($this->resource['reference'])) {
+            return false;
+        }
+
+
         return $this->resource['reference'] instanceof ObjectId;
     }
 
@@ -450,13 +444,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
     /**
      * Set collection filter.
      */
-    /*public function setFilter(?array $filter = null): bool
+    public function setFilter(?array $filter = null)
     {
-        $this->filter = json_encode($filter, JSON_THROW_ON_ERROR);
-
-        //TODO:WRONG
-        return $this->save('filter');
-    }*/
+        $this->resource['filter'] = json_encode($filter, JSON_THROW_ON_ERROR);
+        return $this;
+    }
 
     /**
      * Get collection.
@@ -505,7 +497,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isFiltered(): bool
     {
-        return !empty($this->filter);
+        return !empty($this->resource['filter']);
     }
 
     /**
@@ -515,6 +507,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
     {
         return 0;
         //return count($this->getChildren());
+    }
+
+    public function getFilter(): string
+    {
+        return $this->resource['filter'] ?? '';
     }
 
     /**
@@ -528,7 +525,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
             return $this->resource['reference'];
         }
 
-        return $this->resource['_id'];
+        return $this->resource['_id'] ?? null;
     }
 
     /**

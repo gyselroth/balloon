@@ -74,29 +74,29 @@ class Files
     /**
      * Delete node.
      */
-    public function delete(ServerRequestInterface $request, User $identity, ObjectId $file): ResponseInterface
+    /*public function delete(ServerRequestInterface $request, User $identity, ObjectId $file): ResponseInterface
     {
         $this->file_factory->deleteOne($identity, $file);
 
         return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
-    }
+    }*/
 
     /**
      * Add new node.
      */
-    public function post(ServerRequestInterface $request, User $identity): ResponseInterface
+    /*public function post(ServerRequestInterface $request, User $identity): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
 
         $resource = $this->file_factory->add($identity, $body);
         return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
-    }
+    }*/
 
     /**
      * Patch.
      */
-    public function patch(ServerRequestInterface $request, User $identity, ObjectId $file): ResponseInterface
+    /*public function patch(ServerRequestInterface $request, User $identity, ObjectId $file): ResponseInterface
     {
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
@@ -107,5 +107,5 @@ class Files
         $update = json_decode($patched, true);
         $this->file_factory->update($file, $update);
         return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
-    }
+    }*/
 }

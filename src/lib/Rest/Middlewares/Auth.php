@@ -17,6 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use League\Event\Emitter;
 
 class Auth implements MiddlewareInterface
 {
@@ -37,9 +38,10 @@ class Auth implements MiddlewareInterface
     /**
      * Init.
      */
-    public function __construct(CoreAuth $auth, UserFactory $user_factory)
+    public function __construct(CoreAuth $auth, Emitter $emitter, UserFactory $user_factory)
     {
         $this->auth = $auth;
+        $this->emitter = $emitter;
         $this->user_factory = $user_factory;
     }
 
@@ -50,12 +52,15 @@ class Auth implements MiddlewareInterface
     {
         $target = $request->getRequestTarget();
 
+        $this->emitter->emit('http.stack.preAuth', $request);
+
         if (preg_match('#^/spec/#', $target)) {
             return $handler->handle($request);
         }
 
-        if ($identity = $this->auth->requireOne($request)) {
-            //$request = $request->withAttribute('identity', $identity);
+        $attributes = $request->getAttributes();
+        if (!isset($attributes['identity']) && $identity = $this->auth->requireOne($request)) {
+            $this->emitter->emit('http.stack.postAuth', $request, $identity);
             $request = $request->withAttribute('identity', $this->user_factory->build($identity->getRawAttributes()));
         }
 

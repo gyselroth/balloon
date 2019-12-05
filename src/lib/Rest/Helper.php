@@ -22,9 +22,27 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use StreamIterator\StreamIterator;
 use Zend\Diactoros\Response;
+use Rs\Json\Patch;
+use function MongoDB\BSON\fromJSON;
+use function MongoDB\BSON\toPHP;
 
 class Helper
 {
+    public static function patch(ServerRequestInterface $request, ResourceInterface $resource): array
+    {
+        $type = $request->getHeaders()['content-type'][0] ?? 'application/json';
+        $body = $request->getParsedBody();
+        $doc = $resource->toArray();
+
+        if($type === 'application/json+patch') {
+            $patch = new Patch(json_encode($doc), json_encode($body));
+            $patched = $patch->apply();
+            return (array)toPHP(fromJSON($patched));
+        }
+
+        return array_replace_recursive($doc, $body);
+    }
+
     /**
      * Entrypoint.
      */
@@ -33,11 +51,11 @@ class Helper
         $query = $request->getQueryParams();
 
         if (isset($query['watch']) && $query['watch'] !== 'false' && !empty($query['watch'])) {
-            return self::watchAll($request, $user, $acl, $cursor);
+            return self::watchAll($request, $user, $acl, $cursor, $model_factory);
         }
 
         if (isset($query['stream']) && $query['stream'] !== 'false' && !empty($query['stream'])) {
-            return self::stream($request, $user, $acl, $cursor);
+            return self::stream($request, $user, $acl, $cursor, $model_factory);
         }
 
         $body = $acl->filterOutput($request, $user, $cursor);
@@ -53,12 +71,12 @@ class Helper
     /**
      * Entrypoint.
      */
-    public static function getOne(ServerRequestInterface $request, UserInterface $user, ResourceInterface $resource, ModelFactoryInterface $model_factory): ResponseInterface
+    public static function getOne(ServerRequestInterface $request, UserInterface $user, ResourceInterface $resource, ModelFactoryInterface $model_factory, int $status=StatusCodeInterface::STATUS_OK): ResponseInterface
     {
         $query = $request->getQueryParams();
 
         return new UnformattedResponse(
-            (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
+            (new Response())->withStatus($status),
             $model_factory->decorate($resource, $request),
             ['pretty' => isset($query['pretty'])]
         );
@@ -67,7 +85,7 @@ class Helper
     /**
      * Watch.
      */
-    public static function stream(ServerRequestInterface $request, UserInterface $user, Acl $acl, iterable $cursor): ResponseInterface
+    public static function stream(ServerRequestInterface $request, UserInterface $user, Acl $acl, iterable $cursor, ModelFactoryInterface $model_factory): ResponseInterface
     {
         //Stream is valid for 5min, after a new requests needs to be sent
         ini_set('max_execution_time', '300');
@@ -75,14 +93,14 @@ class Helper
         $query = $request->getQueryParams();
         $options = isset($query['pretty']) ? JSON_PRETTY_PRINT : 0;
 
-        $stream = new StreamIterator($cursor, function ($resource) use ($request, $options) {
+        $stream = new StreamIterator($cursor, function ($resource) use ($model_factory, $request, $options) {
             if ($this->tell() === 0) {
                 echo  '[';
             } else {
                 echo  ',';
             }
 
-            echo json_encode($resource->decorate($request), $options);
+            echo json_encode($model_factory->decorate($resource, $request), $options);
 
             if ($this->eof()) {
                 echo ']';
@@ -100,7 +118,7 @@ class Helper
     /**
      * Watch.
      */
-    public static function watchAll(ServerRequestInterface $request, UserInterface $user, Acl $acl, iterable $cursor): ResponseInterface
+    public static function watchAll(ServerRequestInterface $request, UserInterface $user, Acl $acl, iterable $cursor, ModelFactoryInterface $model_factory): ResponseInterface
     {
         //Watcher is valid for 5min, after a new requests needs to be sent
         ini_set('max_execution_time', '300');
@@ -108,7 +126,7 @@ class Helper
         $query = $request->getQueryParams();
         $options = isset($query['pretty']) ? JSON_PRETTY_PRINT : 0;
 
-        $stream = new StreamIterator($cursor, function ($event) use ($request, $options) {
+        $stream = new StreamIterator($cursor, function ($event) use ($model_factory, $request, $options) {
             if ($this->tell() === 0) {
                 echo  '[';
             } else {
@@ -117,7 +135,7 @@ class Helper
 
             echo json_encode([
                 $event[0],
-                $event[1]->decorate($request),
+                $model_factory->decorate($event[1], $request),
             ], $options);
 
             if ($this->eof()) {

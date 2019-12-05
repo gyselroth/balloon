@@ -29,6 +29,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   /api/v2:
     get:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Get server status (API v2)'
@@ -333,6 +334,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   '/api/v2/groups/{group}/undelete':
     post:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Restore group'
@@ -553,6 +555,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   '/api/v2/users/{user}/node-attribute-summary':
     get:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Get user node summary.'
@@ -648,6 +651,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   '/api/v2/users/{user}/undelete':
     post:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Restore user'
@@ -803,6 +807,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   /api/v2/nodes/search:
     get:
+      deprecated: true
       tags:
         - elasticsearch.v2
       summary: 'Extended search query using elasticsearch'
@@ -1040,6 +1045,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   /api/v2/nodes/{node}/subscription:
     post:
+      deprecated: true
       tags:
         - notification.v2
       summary: 'Subscribe node updates'
@@ -1434,8 +1440,403 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
+  '/api/v2/sessions':
+    get:
+      tags:
+        - core.v2
+      summary: Get sessions
+      description: Upload sessions
+      operationId: getSessions
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of sessions"
+          schema:
+            $ref: "#/definitions/core.v2.Sessions"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+    post:
+      tags:
+        - core.v2
+      summary: Add session
+      operationId: addSession
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: "#/definitions/core.v2.Session"
+      responses:
+        201:
+          description: "If successful the server will respond with 201 Created"
+          schema:
+            $ref: "#/definitions/core.v2.Session"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+  '/api/v2/sessions/{session}':
+    get:
+      tags:
+        - core.v2
+      operationId: getSession
+      summary: 'Get session'
+      produces:
+        - application/json
+      parameters:
+        - name: session
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "Session"
+          schema:
+            $ref: "#/definitions/core.v2.Session"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+    patch:
+      tags:
+        - core.v2
+      summary: 'Change session'
+      operationId: patchSession
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: session
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: body
+          name: body
+          description: 'Set attributes for session'
+          required: true
+          schema:
+            $ref: "#/definitions/core.v2.Session"
+      responses:
+        200:
+          description: "Session"
+          schema:
+            $ref: "#/definitions/core.v2.Session"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+    delete:
+      tags:
+        - core.v2
+      summary: 'Delete session'
+      operationId: deleteSession
+      produces:
+        - application/json
+      parameters:
+        - name: session
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the session gets disabled, if force is set the session gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+  '/api/v2/processes':
+    get:
+      tags:
+        - core.v2
+      summary: Get processes
+      description: Async processes
+      operationId: getProcesses
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of processes"
+          schema:
+            $ref: "#/definitions/core.v2.Processes"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+  '/api/v2/processes/{process}':
+    get:
+      tags:
+        - core.v2
+      operationId: getProcess
+      summary: 'Get process'
+      produces:
+        - application/json
+      parameters:
+        - name: process
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "Process"
+          schema:
+            $ref: "#/definitions/core.v2.Process"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+    delete:
+      tags:
+        - core.v2
+      summary: 'Delete process'
+      operationId: deleteProcess
+      produces:
+        - application/json
+      parameters:
+        - name: process
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the process gets disabled, if force is set the process gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+  '/api/v2/nodes/{node}/processes':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get process'
+      description: 'Get process containing all operations which are made by the user or share members on a given node'
+      operationId: getNodeProcesses
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "Process log"
+          schema:
+            $ref: "#/definitions/core.v2.Processes"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
   '/api/v2/nodes/{node}/clone':
     post:
+      deprecated: true
       tags:
         - core.v2
       summary: Clone node
@@ -1484,6 +1885,7 @@ paths:
           $ref: '#/responses/InternalServerError'  
   '/api/v2/nodes/{node}/move':
     post:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Move node'
@@ -1533,6 +1935,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   '/api/v2/nodes/{node}/undelete':
     post:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Restore node'
@@ -1590,6 +1993,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   '/api/v2/collections/{collection}/share':
     get:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Get share acl and share name'
@@ -1620,6 +2024,7 @@ paths:
         500:
           $ref: '#/responses/InternalServerError'
     post:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Create share'
@@ -1659,6 +2064,7 @@ paths:
         500:
           $ref: '#/responses/InternalServerError'
     delete:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Delete share'
@@ -1899,6 +2305,7 @@ paths:
         500:
           $ref: '#/responses/InternalServerError'
     post:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Create a new collection in root'
@@ -1924,6 +2331,7 @@ paths:
           description: "Access denied"
   '/api/v2/collections/{collection}':
     post:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Create collection'
@@ -2029,6 +2437,7 @@ paths:
         500:
           $ref: '#/responses/InternalServerError'
     put:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Upload file'
@@ -2124,6 +2533,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   /api/v2/files/chunk:
     put:
+      deprecated: true
       tags:
         - core.v2
       summary: Resumeable upload file (chunked)
@@ -2231,6 +2641,43 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
+    post:
+      tags:
+        - core.v2
+      summary: 'Add node'
+      operationId: addNode
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 'Node '
+          required: true
+          schema:
+            $ref: '#/definitions/core.v2.Node'
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v2.Node"
+        202:
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v2.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          schema:
+            $ref: "#/definitions/core.v2.Process"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
   '/api/v2/nodes/{node}':
     delete:
       tags:
@@ -2261,6 +2708,10 @@ paths:
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
+        202:
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v2.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          schema:
+            $ref: "#/definitions/core.v2.Process"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2336,6 +2787,10 @@ paths:
           description: "Node"
           schema:
             $ref: "#/definitions/core.v2.Node"
+        202:
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v2.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          schema:
+            $ref: "#/definitions/core.v2.Process"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2350,6 +2805,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   '/api/v2/nodes/{node}/share-link':
     delete:
+      deprecated: true
       tags:
         - sharelink.v2
       summary: 'Delete share link'
@@ -2378,6 +2834,7 @@ paths:
         500:
           $ref: '#/responses/InternalServerError'
     post:
+      deprecated: true
       tags:
         - sharelink.v2
       summary: Create share link
@@ -2421,6 +2878,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   /api/v2/nodes/last-cursor:
     get:
+      deprecated: true
       tags:
         - core.v2
       summary: Get last cursor
@@ -2485,6 +2943,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   /api/v2/nodes/delta:
     get:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Delta stream with cursor support.'
@@ -2526,8 +2985,166 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
+  '/api/v2/events':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get events'
+      description: 'Get events containing all operations which are made by the user himself or share members'
+      operationId: getEvents
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "Event log"
+          schema:
+            $ref: "#/definitions/core.v2.Events"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+  '/api/v2/events/{event}':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get events'
+      description: 'Get event'
+      operationId: getEvents
+      produces:
+        - application/json
+      parameters:
+        - name: event
+          in: path
+          required: true
+          type: string
+          description: 'Event identifier'
+      responses:
+        200:
+          description: "Event"
+          schema:
+            $ref: "#/definitions/core.v2.Event"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
+  '/api/v2/nodes/{node}/events':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get event'
+      description: 'Get event containing all operations which are made by the user or share members on a given node'
+      operationId: getNodeEvents
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "Event log"
+          schema:
+            $ref: "#/definitions/core.v2.Events"
+        400:
+          $ref: '#/responses/BadRequest'
+        401:
+          $ref: '#/responses/Unauthorized'
+        403:
+          $ref: '#/responses/Forbidden'
+        404:
+          $ref: '#/responses/NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/InternalServerError'
   '/api/v2/nodes/event-log':
     get:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Get events'
@@ -2588,6 +3205,7 @@ paths:
           $ref: '#/responses/InternalServerError'
   '/api/v2/nodes/{node}/event-log':
     get:
+      deprecated: true
       tags:
         - core.v2
       summary: 'Get event'
@@ -2682,7 +3300,7 @@ paths:
         200:
           description: "Parent nodes"
           schema:
-            $ref: "#/definitions/core.v2.Nodes"
+            $ref: "#/definitions/core.v2.Collections"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2934,6 +3552,76 @@ definitions:
             description: "Used storage in bytes."
             type: integer
             default: 0
+  core.v2.Sessions:
+    description: "A list of upload sessions."
+    type: object
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.Session"
+  core.v2.Session:
+    description: "A session defines a temporary, resumable upload session."
+    allOf:
+      - $ref: '#/definitions/core.v2.Resource'
+      - type: object
+        properties:
+          changed:
+            description: "ISO 8601 timestamp when the resource was changed."
+            type: "string"
+            format: date-time
+  core.v2.Processes:
+    description: "A server process."
+    type: object
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.Process"
+  core.v2.Process:
+    description: "A session defines a temporary, resumable upload session."
+    allOf:
+      - $ref: '#/definitions/core.v2.Resource'
+      - type: object
+        properties:
+          kind:
+            description: "The resource type, always Process."
+            type: "string"
+            default: "Process"
+          node:
+            description: "Points to the related node."
+            type: ["object","null"]
+            properties:
+              id:
+                description: "The id of the node"
+                type: "string"
+              name:
+                description: "The name of the node"
+                type: "string"
+          owner:
+            description: "Process owner"
+            type: ["object","null"]
+            properties:
+              id:
+                description: "The id of the process owner."
+                type: "string"
+              name:
+                description: "The username of the process owner."
+                type: "string"
+          status:
+            description: "Holds the status of the process."
+            type: "object"
+            properties:
+              code:
+                description: "The result code of the process."
+                type: "number"
+
   core.v2.Groups:
     description: "A list of groups."
     allOf:
@@ -3258,6 +3946,109 @@ definitions:
             items:
               $ref: "#/definitions/core.v2.EventLog"
   core.v2.EventLog:
+    description: "Event log entry. Each event represents an executed operation on the server."
+    type: object
+    properties:
+      event:
+        description: "The event id."
+        type: "string"
+      timestamp:
+        description: "ISO 8601 timestamp when the event was created."
+        type: "string"
+      operation:
+        description: "The event operation."
+        type: "string"
+        enum:
+        - deleteCollectionReference
+        - deleteCollectionShare
+        - deleteCollection
+        - addCollection
+        - addFile
+        - addCollectionShare
+        - addCollectionReference
+        - undeleteFile
+        - undeleteCollectionReference
+        - undeleteCollectionShare
+        - restoreFile
+        - renameFile
+        - renameCollection
+        - renameCollectionShare
+        - renameCollectionReference
+        - copyFile
+        - copyCollection
+        - copyCollectionShare
+        - copyCollectionRFeference
+        - moveFile
+        - moveCollection
+        - moveCollectionReference
+        - moveCollectionShare
+      node:
+        description: "Resolves to the node involved in the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the node"
+            type: "string"
+          name:
+            description: "The name of the node"
+            type: "string"
+      parent:
+        description: "Points to the parent collection. If the node is in the root this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the parent collection"
+            type: "string"
+          name:
+            description: "The name of the parent collection"
+            type: "string"
+      share:
+        description: "Points to the shared node (or share reference). If the node is not part of any share this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share collection. If the share is a reference (incoming share) it will point to the share reference and not the id of the shared collection itself."
+            type: "string"
+          name:
+            description: "The name of the share (or share reference)."
+            type: "string"
+      user:
+        description: "Resolves to user who executed the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share owner."
+            type: "string"
+          name:
+            description: "The username of the share owner."
+            type: "string"
+      client:
+        description: "Describes the client from which the operation was executed."
+        type: "object"
+        properties:
+          type:
+            description: "The type of the client."
+            type: "string"
+          app:
+            description: "The client app name."
+            type: "string"
+          v:
+            description: "The version of the client app."
+            type: "string"
+          hostname:
+            description: "The hostname of the client."
+            type: "string"
+  core.v2.Events:
+    description: "A list of events."
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.Event"
+  core.v2.Event:
     description: "Event log entry. Each event represents an executed operation on the server."
     type: object
     properties:

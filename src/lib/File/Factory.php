@@ -113,19 +113,9 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
     /**
      * Copy node with children.
      */
-    public function copyTo(NodeInterface $node, CollectionInterface $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true, int $deleted = NodeInterface::DELETED_EXCLUDE): NodeInterface
+    public function copyTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true, int $deleted = NodeInterface::DELETED_EXCLUDE): NodeInterface
     {
-        if (null === $recursion) {
-            $recursion_first = true;
-            $recursion = uniqid();
-        } else {
-            $recursion_first = false;
-        }
-
-        $this->hook->run(
-            'preCopyCollection',
-            [$this, $parent, &$conflict, &$recursion, &$recursion_first]
-        );
+        $this->emitter->emit('file.factory.preCopy', ...func_get_args());
 
         if (NodeInterface::CONFLICT_RENAME === $conflict && $parent->childExists($this->name)) {
             $name = $this->getDuplicateName();
@@ -133,41 +123,112 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             $name = $this->name;
         }
 
-        if ($this->id === $parent->getId()) {
-            throw new Exception\Conflict(
-                'can not copy node into itself',
-                Exception\Conflict::CANT_COPY_INTO_ITSELF
-            );
-        }
-
         if (NodeInterface::CONFLICT_MERGE === $conflict && $parent->childExists($this->name)) {
-            $new_parent = $parent->getChild($this->name);
+            $result = $parent->getChild($this->name);
 
-            if ($new_parent instanceof File) {
-                $new_parent = $this;
+            if ($result instanceof Collection) {
+                $result = $this->copyToCollection($result, $name);
+            } else {
+                $stream = $this->get();
+                if ($stream !== null) {
+                    $result->put($stream);
+                }
             }
         } else {
-            $new_parent = $parent->addDirectory($name, [
-                'created' => $this->created,
-                'changed' => $this->changed,
-                'filter' => $this->filter,
-                'meta' => $this->meta,
-            ], NodeInterface::CONFLICT_NOACTION, true);
+            $result = $this->copyToCollection($parent, $name);
         }
 
-        foreach ($this->getChildNodes($deleted) as $child) {
-            $child->copyTo($new_parent, $conflict, $recursion, false, $deleted);
-        }
-
-        $this->hook->run(
-            'postCopyCollection',
-            [$this, $parent, $new_parent, $conflict, $recursion, $recursion_first]
-        );
-
-        return $new_parent;
+        $this->emitter->emit('collection.factory.postCopy', ...array_merge([$result],func_get_args()));
+        return $result;
     }
 
 
+    /**
+     * Move node.
+     */
+    public function moveTo(UserInterface $user, FileInterface $node, CollectionInterface $parent, int $conflict = NodeInterface::CONFLICT_NOACTION): NodeInterface
+    {
+        if ($node->getParent()->getId() == $parent->getId()) {
+            throw new Exception\Conflict(
+                'source node '.$node->getName().' is already in the requested parent folder',
+                Exception\Conflict::ALREADY_THERE
+            );
+        }
+        if ($node->isSubNode($parent)) {
+            throw new Exception\Conflict(
+                'node called '.$node->getName().' can not be moved into itself',
+                Exception\Conflict::CANT_BE_CHILD_OF_ITSELF
+            );
+        }
+        if (!$this->acl->isAllowed($node, 'w', $user)) {
+            throw new ForbiddenException(
+                'not allowed to move node '.$node->getName(),
+                ForbiddenException::NOT_ALLOWED_TO_MOVE
+            );
+        }
+
+        $new_name = $this->collection_factory->validateInsert($node, $node->getName(), $conflict, get_class($node));
+
+        if (NodeInterface::CONFLICT_RENAME === $conflict && $new_name !== $this->name) {
+            $this->setName($new_name);
+            $this->raw_attributes['name'] = $this->name;
+        }
+
+        if (($parent->isSpecial() && $this->shared != $parent->getShareId())
+          || (!$parent->isSpecial() && $this->isShareMember())
+          || ($parent->getMount() != $this->getParent()->getMount())) {
+            $new = $this->copyTo($parent, $conflict);
+            $this->delete();
+
+            return $new;
+        }
+
+        if ($parent->childExists($this->name) && NodeInterface::CONFLICT_MERGE === $conflict) {
+            $new = $this->copyTo($parent, $conflict);
+            $this->delete(true);
+
+            return $new;
+        }
+
+        $this->storage = $this->_parent->getStorage()->move($this, $parent);
+        $this->parent = $parent->getRealId();
+        $this->owner = $this->_user->getId();
+
+        $this->save(['parent', 'shared', 'owner', 'storage']);
+
+        return $this;
+    }
+
+    /**
+     * Get used qota.
+     */
+    public function getQuotaUsage(UserInterface $user): int
+    {
+        $result = $this->db->{self::COLLECTION_NAME}->aggregate([
+            [
+                '$match' => [
+                    'owner' => $user->getId(),
+                    'kind' => 'File',
+                    'deleted' => null,
+                    'storage_reference' => null,
+                ],
+            ],
+            [
+                '$group' => [
+                    '_id' => null,
+                    'sum' => ['$sum' => '$size'],
+                ],
+            ],
+        ]);
+
+        $result = iterator_to_array($result);
+        $sum = 0;
+        if (isset($result[0]['sum'])) {
+            $sum = $result[0]['sum'];
+        }
+
+        return $sum;
+    }
 
     /**
      * Get Share name.
@@ -204,18 +265,18 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
      */
     public function deleteOne(UserInterface $user, FileInterface $file, bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
-        if (!$this->acl->isAllowed($file, 'w')) {
+        if (!$this->acl->isAllowed($file, 'w', $user)) {
             throw new AclException\Forbidden(
                 'not allowed to delete node '.$this->name,
                 AclException\Forbidden::NOT_ALLOWED_TO_DELETE
             );
         }
 
-        //$this->_hook->run('preDeleteFile', [$this, &$force, &$recursion, &$recursion_first]);
+        $this->emitter->emit('file.factory.preDelete', ...func_get_args());
 
         if (true === $force || $this->isTemporaryFile($file)) {
-            $result = $this->_forceDelete();
-            $this->_hook->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);
+            $result = $this->_forceDelete($user, $file);
+            $this->emitter->emit('file.factory.postDelete', func_get_args());
             return $result;
         }
 
@@ -234,7 +295,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             'history',
         ], [], $recursion, $recursion_first);*/
 
-        //$this->_hook->run('postDeleteFile', [$this, $force, $recursion, $recursion_first]);
+        $this->emitter->emit('file.factory.postDelete', ...func_get_args());
         return $result;
     }
 
@@ -371,16 +432,16 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
      */
     public function add(UserInterface $user, array $attributes, int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
-        $parent = $this->collection_factory->getOne($user, isset($attributes['parent']['id']) ? new ObjectId($attributes['parent']['id']) : null);
+        $parent = $this->collection_factory->getOne($user, isset($attributes['parent']) ? new ObjectId($attributes['parent']) : null);
 
-        if (!$this->acl->isAllowed($parent, 'w')) {
+        if (!$this->acl->isAllowed($parent, 'w', $user)) {
             throw new ForbiddenException(
                 'not allowed to create new node here',
                 ForbiddenException::NOT_ALLOWED_TO_CREATE
             );
         }
 
-//        $this->hook->run('preCreateFile', [$this, &$name, &$attributes, &$clone]);
+        $this->emitter->emit('file.factory.preAdd', ...func_get_args());
         $name = $this->collection_factory->validateInsert($user, $parent, $attributes['name'], $conflict, File::class);
 
         if (isset($attributes['lock'])) {
@@ -393,9 +454,8 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
                 'kind' => 'File',
                 'pointer' => $id,
                 'name' => $name,
-                'deleted' => false,
+                'deleted' => null,
             //    'parent' => $parent->getRealId(),
-                'directory' => false,
                 'hash' => null,
                 'mime' => MimeType::getType($name),
                 'created' => new UTCDateTime(),
@@ -414,6 +474,9 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
                 $meta['owner'] = $this->user->getId();
             }*/
 
+            $session = $attributes['session'] ?? null;
+            unset($attributes['session']);
+
             $save = array_merge($meta, $attributes);
             $save['parent'] = $parent->getRealId();
 
@@ -423,9 +486,9 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
                 'category' => get_class($this),
             ]);
 
-//$this->changed = $save['changed'];
-//$this->save('changed');
-//            $file = $this->fs->initNode($save);
+            //$this->changed = $save['changed'];
+            //$this->save('changed');
+            //            $file = $this->fs->initNode($save);
 
             $file = $this->build($save, $user, $parent);
 
@@ -433,40 +496,28 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
                 $file->setContent($session, $attributes);
             }
 
- //           $this->hook->run('postCreateFile', [$this, $file, $clone]);
-
+            $this->emitter->emit('file.factory.postAdd', ...array_merge([$result],func_get_args()));
             return $file;
-   }
+    }
+
 
     /**
-     * Completely remove node.
+     * Completly remove file.
      */
-    protected function _forceDelete(?string $recursion = null, bool $recursion_first = true): bool
+    protected function _forceDelete(UserInterface $user, FileInterface $file): bool
     {
-        if (!$this->isReference() && !$this->isMounted() && !$this->isFiltered()) {
-            $this->doRecursiveAction(function ($node) use ($recursion) {
-                $node->delete(true, $recursion, false);
-            }, NodeInterface::DELETED_INCLUDE);
-        }
-
         try {
-            $this->parent->getStorage()->forceDeleteCollection($this);
-            $result = $this->db->storage->deleteOne(['_id' => $this->id]);
+            $file->getParent()->getStorage()->forceDeleteFile($file);
+            $this->cleanHistory();
+            $this->resource_factory->delete($file->getId());
 
-            if ($this->isShared()) {
-                $result = $this->db->storage->deleteMany(['reference' => $this->id]);
-            }
-
-            $this->logger->info('force removed collection ['.$this->id.']', [
+            $this->_logger->info('removed file node ['.$file->getId().']', [
                 'category' => get_class($this),
             ]);
 
-            $this->hook->run(
-                'postDeleteCollection',
-                [$this, true, $recursion, $recursion_first]
-            );
+            $this->emitter->emit('file.factory.postDelete', func_get_args());
         } catch (\Exception $e) {
-            $this->logger->error('failed force remove collection ['.$this->id.']', [
+            $this->_logger->error('failed delete file node ['.$file->getId().']', [
                 'category' => get_class($this),
                 'exception' => $e,
             ]);

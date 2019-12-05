@@ -14,7 +14,7 @@ namespace Balloon\Storage\Adapter;
 use Balloon\Collection\CollectionInterface;
 use Balloon\File\FileInterface;
 use Balloon\Node\NodeInterface;
-use Balloon\Server\User;
+use Balloon\User\UserInterface;
 use Balloon\Storage\Exception;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
@@ -22,6 +22,7 @@ use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use MongoDB\GridFS\Bucket;
 use Psr\Log\LoggerInterface;
+use Balloon\User\Factory as UserFactory;
 
 class Gridfs implements AdapterInterface
 {
@@ -56,11 +57,12 @@ class Gridfs implements AdapterInterface
      *
      * @param Database
      */
-    public function __construct(Database $db, LoggerInterface $logger)
+    public function __construct(Database $db, UserFactory $user_factory, LoggerInterface $logger)
     {
         $this->db = $db;
         $this->gridfs = $db->selectGridFSBucket();
         $this->logger = $logger;
+        $this->user_factory = $user_factory;
     }
 
     /**
@@ -259,7 +261,7 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeTemporaryFile($stream, User $user, ?ObjectId $session = null): ObjectId
+    public function storeTemporaryFile($stream, UserInterface $user, ?ObjectId $session = null): ObjectId
     {
         $exists = $session;
 
@@ -338,7 +340,7 @@ class Gridfs implements AdapterInterface
     /**
      * Store stream content.
      */
-    protected function storeStream($stream, User $user, ?ObjectId $exists, array $temp): int
+    protected function storeStream($stream, UserInterface $user, ?ObjectId $exists, array $temp): int
     {
         $data = null;
         $length = $temp['length'];
@@ -440,9 +442,12 @@ class Gridfs implements AdapterInterface
     /**
      * Verify quota.
      */
-    protected function verifyQuota(User $user, int $size, ObjectId $session): bool
+    protected function verifyQuota(UserInterface $user, int $size, ObjectId $session): bool
     {
-        if (!$user->checkQuota($size)) {
+        $used = $this->user_factory->getQuotaUsage($user);
+        $limit = $user->getHardQuota();
+
+        if ($used+$size > $limit && $limit !== null) {
             $this->logger->warning('stop adding chunk, user ['.$user->getId().'] quota is full, remove upload session', [
                 'category' => get_class($this),
             ]);

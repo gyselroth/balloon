@@ -24,6 +24,7 @@ use Psr\Log\LoggerInterface;
 use Balloon\Collection\Factory as CollectionFactory;
 use Balloon\File\Factory as FileFactory;
 use MongoDB\BSON\ObjectIdInterface;
+use TaskScheduler\Process;
 
 class Factory
 {
@@ -141,7 +142,6 @@ class Factory
                 //TODO throw
 
         }
-
     }
 
     /**
@@ -178,28 +178,66 @@ class Factory
     }
 
     /**
+     * Delete by name.
+     */
+    public function copyTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent): bool
+    {
+        switch($node->getKind()) {
+            case 'Collection':
+                return $this->collection_factory->copyTo($user, $node, $parent);
+            case 'File':
+                return $this->file_factory->copyTo($user, $node, $parent);
+            default:
+                //TODO throw
+        }
+    }
+
+    /**
+
+    /**
+     * Delete by name.
+     */
+    public function moveTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent): bool
+    {
+        switch($node->getKind()) {
+            case 'Collection':
+                return $this->collection_factory->moveTo($user, $node, $parent);
+            case 'File':
+                return $this->file_factory->moveTo($user, $node, $parent);
+            default:
+                //TODO throw
+        }
+    }
+
+
+    /**
      * Add namespace.
      */
-    public function add(UserInterface $user, array $resource): ObjectIdInterface
+    public function add(UserInterface $user, array $resource): NodeInterface
     {
-        if ($this->has($namespace, $resource['name'])) {
-            throw new Exception\NotUnique('collection '.$resource['name'].' does already exists');
+        switch($resource['kind'] ?? null) {
+            case 'Collection':
+                return $this->collection_factory->add($user, $resource);
+            case 'File':
+                return $this->file_factory->add($user, $resource);
+            default:
+                //TODO throw
         }
-
-        $resource['namespace'] = $namespace->getName();
-
     }
 
     /**
      * Update.
      */
-    public function update(NodeInterface $resource, array $data): bool
+    public function update(UserInterface $user, NodeInterface $node, array $data): ?Process
     {
-        $data['name'] = $resource->getName();
-        $data['kind'] = 'Collection';
-        $data = $this->resource_factory->validate($data);
-
-        return $this->resource_factory->updateIn($this->db->{self::COLLECTION_NAME}, $resource, $data);
+        switch($node->getKind()) {
+            case 'Collection':
+                return $this->collection_factory->update($user, $node, $data);
+            case 'File':
+                return $this->file_factory->update($user, $node, $data);
+            default:
+                //TODO throw
+        }
     }
 
     /**
@@ -240,7 +278,7 @@ class Factory
     /**
      * Factory loader.
      */
-    public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
+    /*public function findNodeById($id, ?string $class = null, int $deleted = NodeInterface::DELETED_INCLUDE): NodeInterface
     {
         if (isset($this->cache[(string) $id])) {
             return $this->cache[(string) $id];
@@ -278,7 +316,7 @@ class Factory
         $node = $this->db->storage->findOne($filter);
 
         return $this->build($node);
-        /*
+     *//*
         $node = $this->db->storage->findOne($filter);
 
         if (null === $node) {
@@ -294,8 +332,8 @@ class Factory
             throw new Exception('node '.get_class($return).' is not instance of '.$class);
         }
 
-        return $return;*/
-    }
+        return $return;*//*
+}*/
 
     /**
      * Load nodes by id.
@@ -358,10 +396,10 @@ class Factory
      *
      * @param null|mixed $class
      */
-    public function getNodes(?array $id = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
+    /*public function getNodes(?array $id = null, $class = null, int $deleted = NodeInterface::DELETED_EXCLUDE): Generator
     {
         return $this->findNodesById($id, $class, $deleted);
-    }
+    }*/
 
     /**
      * Load node.
@@ -369,7 +407,7 @@ class Factory
      * @param null|mixed $id
      * @param null|mixed $class
      */
-    public function getNode($id = null, $class = null, bool $multiple = false, bool $allow_root = false, ?int $deleted = null): NodeInterface
+   /* public function getNode($id = null, $class = null, bool $multiple = false, bool $allow_root = false, ?int $deleted = null): NodeInterface
     {
         if (empty($id)) {
             if (true === $allow_root) {
@@ -388,7 +426,7 @@ class Factory
         }
 
         return $this->findNodeById($id, $class, $deleted);
-    }
+   }*/
 
     /**
      * Find node with custom filter.

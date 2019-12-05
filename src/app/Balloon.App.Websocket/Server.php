@@ -11,23 +11,27 @@ declare(strict_types=1);
 
 namespace Balloon\App\Websocket;
 
-use Balloon\Hook;
-use GetOpt\GetOpt;
 use Psr\Log\LoggerInterface;
-use TaskScheduler\Queue;
-use TaskScheduler\Scheduler;
 use League\Event\Emitter;
 use MongoDB\Database;
 use Balloon\User\Factory as UserFactory;
 use Closure;
 use Balloon\User\UserInterface;
 use Swoole\Process;
+use Swoole\Timer;
 use Micro\Auth\Auth;
 use Swoole\WebSocket\Server as SwooleServer;
 
 class Server
 {
+    /**
+     * Connection/User mapping
+     *
+     * @var array
+     */
     protected $pool = [];
+
+
     /**
      * Logger.
      *
@@ -84,7 +88,7 @@ class Server
         });
         $process->useQueue(1, Process::IPC_NOWAIT);
 
-        $this->server->on('open', function (\Swoole\Websocket\Server $server, $request) use($process) {
+        $this->server->on('open', function (SwooleServer $server, $request) use($process) {
             $this->logger->info('handshake success with fd [fd]', [
                 'category' => get_class($this),
                 'fd' => $request->fd,
@@ -93,13 +97,14 @@ class Server
             $server->push($request->fd, '{"kind":"Status","message":"Welcome to the balloon WebSocket server. You have 60s to authenticate, otherwise your connection gets closed."}');
 
             $fd = $request->fd;
-            \Swoole\Timer::after(60000, function() use($fd, $process) {
+            Timer::after(60000, function() use($fd, $process) {
                 if(!isset($this->pool[$fd])) {
                     $this->logger->info('connection [fd] auth timeout reached, close connection', [
                         'category' => get_class($this),
                         'fd' => $fd,
                     ]);
 
+                    $this->server->push($fd, '{"kind":"Status","message":"Authentication timeout reached, close connection."}');
                     $this->server->close($fd);
                 }
             });
@@ -114,7 +119,7 @@ class Server
             ]);
 
             $message = json_decode($frame->data, true);
-            if($message === null || !isset($message['op']) || !isset($message['data'])) {
+            if($message === null || !isset($message['op']) || !isset($message['body'])) {
                 return $server->push($frame->fd, '{"kind":"Error","message":"Invalid payload received"}');
             }
 
@@ -152,7 +157,7 @@ class Server
     {
         //create dummy http request with http authorization information
         $request  = new \Zend\Diactoros\ServerRequest();
-        $request = $request->withHeader('Authorization', $auth['data']);
+        $request = $request->withHeader('Authorization', $auth['body']);
 
         try {
             $identity = $this->auth->requireOne($request);
@@ -178,6 +183,7 @@ class Server
         ], [
             'maxAwaitTimeMS' => 1,
             'batchSize' => 100,
+            'fullDocument' => 'updateLookup',
         ]);
 
         $changeStream->rewind();

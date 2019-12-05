@@ -69,6 +69,7 @@ class ExceptionHandler implements MiddlewareInterface
         $class = get_class($exception);
 
         $body = [
+            'kind' => 'Error',
             'error' => $class,
             'message' => $message,
             'code' => $exception->getCode(),

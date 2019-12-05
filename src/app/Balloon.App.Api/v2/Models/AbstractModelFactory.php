@@ -28,6 +28,12 @@ class AbstractModelFactory implements ModelFactoryInterface
      */
     protected $attributes = [];
 
+    /**
+     * Embedded resources.
+     *
+     * @var array
+     */
+    protected $embedded = [];
 
     /**
      * Decorate attributes.
@@ -44,10 +50,19 @@ class AbstractModelFactory implements ModelFactoryInterface
         );
 
         if (0 === count($requested)) {
-            return $this->translateAttributes($resource, $attrs);
+            return $this->translateAttributes($resource, $attrs, $request);
         }
 
-        return $this->translateAttributes($resource, array_intersect_key($attrs, array_flip($requested)));
+        return $this->translateAttributes($resource, array_intersect_key($attrs, array_flip($requested)), $request);
+    }
+
+    /**
+     * Add embedded resource.
+     */
+    public function addEmbedded(string $attribute, Closure $decorator): self
+    {
+        $this->embedded[$attribute] = $decorator;
+        return $this;
     }
 
     /**
@@ -75,14 +90,24 @@ class AbstractModelFactory implements ModelFactoryInterface
         return [
             'id' => (string)$attributes['_id'],
             'kind' => $resource->getKind(),
+            '_links' => [],
+            '_embedded' => [],
+            'meta' => [
+                'annotations' => [],
+                'labels' => [],
+            ],
             'created' => function ($resource) use ($attributes) {
                 return $attributes['created']->toDateTime()->format('c');
             },
             'changed' => function ($resource) use ($attributes) {
+                if (!isset($attributes['changed'])) {
+                    return null;
+                }
+
                 return $attributes['changed']->toDateTime()->format('c');
             },
             'deleted' => function ($resource) use ($attributes) {
-                if ($attributes['deleted'] === null) {
+                if (!isset($attributes['deleted'])) {
                     return null;
                 }
 
@@ -94,11 +119,30 @@ class AbstractModelFactory implements ModelFactoryInterface
     /**
      * Execute closures.
      */
-    protected function translateAttributes(ResourceInterface $resource, array $attributes): array
+    protected function translateAttributes(ResourceInterface $resource, array $attributes, ServerRequestInterface $request): array
     {
         foreach ($attributes as $key => &$value) {
             if ($value instanceof Closure) {
-                $value = $value->call($this, $resource);
+                try {
+                    $value = $value->call($this, $resource);
+                } catch(\Exception $e) {
+                    $value = null;
+                }
+            }
+        }
+
+        $params = $request->getQueryParams();
+        $sub_request = $request->withQueryParams(['attributes' => array_merge(['id', 'name', '_links'], $params['attributes'] ?? [])]);
+        $orig = $resource->toArray();
+
+        foreach($this->embedded as $key => $value) {
+            try {
+                $resolved = $value($orig[$key] ?? null, $sub_request, $resource);
+                if($resolved !== null) {
+                    $attributes['_embedded'][$key] = $resolved;
+                }
+            } catch(\Exception $e) {
+
             }
         }
 
