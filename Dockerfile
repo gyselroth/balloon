@@ -40,7 +40,7 @@ RUN apk update && apk add --virtual .build-deps --no-cache \
   && make install \
   && echo "extension=smd5.so" > /usr/local/etc/php/conf.d/docker-php-ext-smd5.ini \
   && cd .. \
-  && rm -rfv php-serializable-md5
+  && rm -rfv php-serializable-md5 \
   && apk del .build-deps
 
 RUN mkdir /usr/share/balloon && mkdir /usr/share/balloon/bin/console -p && mkdir /etc/balloon
