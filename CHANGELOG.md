@@ -28,6 +28,9 @@
 ### Common
 * Starting with v2.7.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability. Note for debian pkg changelog the issues get merged in a single list.
 
+### Packaging
+* Discontinue distribution of deb packages #415
+
 
 ## 2.6.7
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\

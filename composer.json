@@ -81,8 +81,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7.0",
-        "friendsofphp/php-cs-fixer": "*",
+        "friendsofphp/php-cs-fixer": "^2.16.1",
         "helmich/mongomock": "dev-master#1ee4147",
-        "phpstan/phpstan": "*"
+        "phpstan/phpstan": "^0.11.19"
     }
 }
