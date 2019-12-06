@@ -17,6 +17,7 @@ use Balloon\Node\NodeInterface;
 use Balloon\Server\User;
 use Balloon\Storage\Exception;
 use MongoDB\BSON\ObjectId;
+use Balloon\Session\SessionInterface;
 
 class Blackhole implements AdapterInterface
 {
@@ -140,11 +141,11 @@ class Blackhole implements AdapterInterface
     {
         $hash = hash_init('md5');
 
-        if (!isset($this->streams[(string) $session])) {
-            throw new Exception\BlobNotFound('temporary blob '.$session.' has not been found');
+        if (!isset($this->streams[(string) $session->getId()])) {
+            throw new Exception\BlobNotFound('temporary blob '.$session->getId().' has not been found');
         }
 
-        $stream = $this->streams[(string) $session];
+        $stream = $this->streams[(string) $session->getId()];
         $size = 0;
 
         while (!feof($stream)) {
@@ -158,13 +159,16 @@ class Blackhole implements AdapterInterface
             hash_update($hash, $buffer);
         }
 
-        unset($this->streams[(string) $session]);
+        unset($this->streams[(string) $session->getId()]);
         $md5 = hash_final($hash);
+
+        $session->set([
+            'size' => $size,
+            'hash' => $md5,
+        ]);
 
         return [
             'reference' => $file->getAttributes()['storage'],
-            'size' => $size,
-            'hash' => $md5,
         ];
     }
 }

@@ -15,6 +15,7 @@ use Balloon\Exception;
 use Balloon\Resource\Factory as ResourceFactory;
 use Balloon\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Storage\Factory as StorageFactory;
+use Balloon\Collection\CollectionInterface;
 use Balloon\User\UserInterface;
 use Generator;
 use League\Event\Emitter;
@@ -197,7 +198,7 @@ class Factory
     /**
      * Delete by name.
      */
-    public function moveTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent): bool
+    public function moveTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent): NodeInterface
     {
         switch($node->getKind()) {
             case 'Collection':

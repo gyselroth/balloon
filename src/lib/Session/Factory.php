@@ -127,8 +127,34 @@ class Factory
      */
     public function update(UserInterface $user, SessionInterface $resource, CollectionInterface $parent, $stream): bool
     {
+        if ($resource->isFinalized()) {
+            throw new Exception\Closed('This session has been finalized and can not be updated.');
+        }
+
+        $ctx = $resource->getHashContext();
+        $size = md5_update_stream($ctx, $stream);
+        rewind($stream);
+
         $storage = $parent->getStorage();
         $session = $storage->storeTemporaryFile($stream, $user, $resource->getId());
+        $size = $resource->getSize() + $size;
+
+        $data = [
+            'size' => $size,
+        ];
+
+        if ($size % 64 !== 0) {
+            $data['hash'] = md5_final($ctx);
+        } else {
+            $data['context'] = serialize($ctx);
+        }
+
+        $resource->set($data);
+        /*$this->db->{self::COLLECTION_NAME}->updateOne([
+            '_id' => $resource->getId(),
+            'owner' => $user->getId(),
+        ], $data);*/
+
         return $this->resource_factory->updateIn($this->db->{self::COLLECTION_NAME}, $resource, $data);
     }
 
@@ -137,16 +163,26 @@ class Factory
      */
     public function add(UserInterface $user, CollectionInterface $parent, $stream): SessionInterface
     {
-          $storage = $parent->getStorage();
-          $session = $storage->storeTemporaryFile($stream, $user);
+        $ctx = md5_init();
+        $size = md5_update_stream($ctx, $stream);
+        rewind($stream);
 
-          $resource = [
-              '_id' => $session,
-              'kind' => 'Session',
-              'parent' => $parent->getId(),
-              'size' => 0,
-              'owner' => $user->getId(),
-          ];
+        $storage = $parent->getStorage();
+        $session = $storage->storeTemporaryFile($stream, $user);
+
+        $resource = [
+            '_id' => $session,
+            'kind' => 'Session',
+            'parent' => $parent->getId(),
+            'size' => $size,
+            'owner' => $user->getId(),
+        ];
+
+        if ($size % 64 !== 0) {
+            $resource['hash'] = md5_final($ctx);
+        } else {
+            $resource['context'] = serialize($ctx);
+        }
 
         return $this->build($this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource));
     }

@@ -19,6 +19,7 @@ use OAuth2\Request;
 use OAuth2\Server as OAuth2Server;
 use Psr\Http\Message\ServerRequestInterface;
 use Micro\Auth\IdentityInterface;
+use Balloon\User\Factory as UserFactory;
 
 class Token extends AbstractAdapter implements InternalAuthInterface
 {
@@ -65,6 +66,7 @@ class Token extends AbstractAdapter implements InternalAuthInterface
         $this->server = $server;
         $this->db = $db;
         $this->auth = $auth;
+        $this->identity_attribute = 'username';
     }
 
     /**
@@ -72,7 +74,7 @@ class Token extends AbstractAdapter implements InternalAuthInterface
      */
     public function findIdentity(string $username): ?array
     {
-        return $this->db->users->findOne([
+        return $this->db->{UserFactory::COLLECTION_NAME}->findOne([
             '$or' => [
                 ['username' => $username],
                 ['mail' => $username],
@@ -122,7 +124,7 @@ class Token extends AbstractAdapter implements InternalAuthInterface
                 $this->internal = true;
             }
 
-            return [$data['user_id'], $this->findIdentity($this->identifier)];
+            return $this->findIdentity($data['user_id']);
         }
 
         return null;

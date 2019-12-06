@@ -33,6 +33,7 @@ use Balloon\Resource\AbstractResource;
 use Balloon\File\FileInterface;
 use Balloon\Collection\CollectionInterface;
 use Balloon\Node\AbstractNode;
+use Balloon\File\Factory as FileFactory;
 
 class File extends AbstractNode implements FileInterface
 {
@@ -180,6 +181,18 @@ class File extends AbstractNode implements FileInterface
         return null;
     }
 
+    /**
+     * Check if file is temporary.
+     */
+    public function isTemporary(): bool
+    {
+        foreach (FileFactory::TEMP_FILES as $pattern) {
+            if (preg_match($pattern, $this->getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * May write.
@@ -325,17 +338,38 @@ class File extends AbstractNode implements FileInterface
      */
     public function getContentType(): string
     {
-        return $this->resource['mime'];
+        return $this->resource['mime'] ?? 'octet/stream';
     }
+
+    /**
+     * Get hash.
+     */
+    public function getHash(): string
+    {
+        return $this->resource['hash'] ?? '';
+    }
+
 
     /**
      * Is reference.
      */
     public function isReference(): bool
     {
-        return $this->resource['reference'] instanceof ObjectId;
+        return $this->resource['reference'] ?? null instanceof ObjectId;
     }
 
+    /**
+     * Get filename extension.
+     */
+    public function getExtension(): string
+    {
+        $ext = strrchr($this->name, '.');
+        if (false === $ext) {
+            throw new Exception('file does not have an extension');
+        }
+
+        return substr($ext, 1);
+    }
 
     /**
      * Fetch children items of this collection.
@@ -379,6 +413,35 @@ class File extends AbstractNode implements FileInterface
         return $this->resource['size'] ?? 0;
     }
 
+
+    public function getVersion(): int
+    {
+        return $this->resource['version'] ?? 0;
+    }
+
+    /**
+     * Get history.
+     */
+    public function getHistory(): array
+    {
+        return array_values($this->resource['history'] ?? []);
+    }
+
+    /**
+     * Read content and return ressource.
+     */
+    public function openReadStream()
+    {
+        if (null === $this->resource['storage'] ?? null) {
+            return null;
+        }
+
+        try {
+            return $this->parent->getStorage()->openReadStream($this);
+        } catch (\Exception $e) {
+            throw new Exception\NotFound('storage blob is gone', Exception\NotFound::CONTENTS_NOT_FOUND, $e);
+        }
+    }
 
     /**
      * Get user quota information.

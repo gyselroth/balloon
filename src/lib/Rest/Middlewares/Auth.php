@@ -51,7 +51,6 @@ class Auth implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $target = $request->getRequestTarget();
-
         $this->emitter->emit('http.stack.preAuth', $request);
 
         if (preg_match('#^/spec/#', $target)) {

@@ -109,6 +109,26 @@ class Factory
     }
 
     /**
+     * Get one by name.
+     */
+    public function getOneByName(string $name): UserInterface
+    {
+        $result = $this->db->{self::COLLECTION_NAME}->findOne([
+            '$or' => [
+                ['username' => $name],
+                ['mail' => $name],
+            ],
+        ]);
+
+        if ($result === null) {
+            throw new Exception\NotFound('user '.$name.' is not registered');
+        }
+
+        return $this->build($result);
+    }
+
+
+    /**
      * Get user.
      */
     public function getOne(ObjectIdInterface $id): UserInterface

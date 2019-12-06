@@ -21,6 +21,7 @@ use Swoole\Process;
 use Swoole\Timer;
 use Micro\Auth\Auth;
 use Swoole\WebSocket\Server as SwooleServer;
+use Zend\Diactoros\ServerRequest;
 
 class Server
 {
@@ -30,7 +31,6 @@ class Server
      * @var array
      */
     protected $pool = [];
-
 
     /**
      * Logger.
@@ -94,17 +94,24 @@ class Server
                 'fd' => $request->fd,
             ]);
 
-            $server->push($request->fd, '{"kind":"Status","message":"Welcome to the balloon WebSocket server. You have 60s to authenticate, otherwise your connection gets closed."}');
+            return $this->send($server, $request->fd, [
+                'kind' => 'Status',
+                'message' => "Welcome to the balloon WebSocket server. You have 60s to authenticate, otherwise your connection gets closed.",
+            ]);
 
             $fd = $request->fd;
-            Timer::after(60000, function() use($fd, $process) {
+            Timer::after(60000, function() use($fd, $process, $server) {
                 if(!isset($this->pool[$fd])) {
                     $this->logger->info('connection [fd] auth timeout reached, close connection', [
                         'category' => get_class($this),
                         'fd' => $fd,
                     ]);
 
-                    $this->server->push($fd, '{"kind":"Status","message":"Authentication timeout reached, close connection."}');
+                    return $this->send($server, $fd, [
+                        'kind' => 'Status',
+                        'message' => "Authentication timeout reached, close connection",
+                    ]);
+
                     $this->server->close($fd);
                 }
             });
@@ -118,18 +125,7 @@ class Server
                 'finish' => $frame->finish,
             ]);
 
-            $message = json_decode($frame->data, true);
-            if($message === null || !isset($message['op']) || !isset($message['body'])) {
-                return $server->push($frame->fd, '{"kind":"Error","message":"Invalid payload received"}');
-            }
-
-            switch($message['op']) {
-                case 'auth':
-                    $server->push($frame->fd, $this->authClient($process, $frame->fd, $message));
-                break;
-                default:
-                    $server->push($frame->fd, '{"kind":"Error","message":"Unknown operation received"}');
-            }
+            $this->handleMessage($server, $frame, $process);
         });
 
         $this->server->on('close', function ($ser, $fd) use($process) {
@@ -138,7 +134,7 @@ class Server
                 'fd' => $fd,
             ]);
 
-            $process->push(serialize(['op' => 'del', 'fd' => $fd]));
+            $process->push(serialize(['action' => 'close', 'fd' => $fd]));
             unset($this->pool[$fd]);
         });
 
@@ -150,24 +146,87 @@ class Server
         return true;
     }
 
+
+   /**
+    * Handle message
+    */
+    protected function handleMessage($server, $frame, $process)
+    {
+        $message = json_decode($frame->data, true);
+
+        if($message === null || !isset($message['action']) || !isset($message['payload'])) {
+            return $this->send($server, $frame->fd, [
+                'kind' => 'Error',
+                'message' => "Invalid payload received. `action` and `payload` expected.",
+            ]);
+        }
+
+        switch($message['action']) {
+            case 'auth':
+                return $this->send($server, $frame->fd, $this->actionAuth($process, $frame->fd, $message['payload']));
+            case 'subscribe':
+                return $this->send($server, $frame->fd, $this->actionSubscribe($process, $frame->fd, $message['payload']));
+            default:
+                return $this->send($server, $frame->fd, [
+                    'kind' => 'Error',
+                    'payload' => 'Unknown action received',
+                ]);
+        }
+    }
+
     /**
-     * Auth
+     * Send to client
      */
-    protected function authClient(Process $process, $fd, array $auth): string
+    protected function send($server, $frame, array $payload)
+    {
+        $server->push($frame, json_encode($payload));
+    }
+
+    /**
+     * Action subscribe
+     */
+    protected function actionSubscribe(Process $process, $fd, string $payload): array
+    {
+        $mapping = $this->getChannelMapping();
+        if(!in_array($payload, $mapping)) {
+            return [
+                'kind' => 'Error',
+                'payload' => 'Channel does not exists',
+            ];
+        }
+
+        $process->push(serialize(['action' => 'subscribe', 'fd' => $fd, 'payload' => $payload]));
+
+        return [
+            'kind' => 'Success',
+            'payload' => 'Subscribed to channel',
+        ];
+    }
+
+    /**
+     * Action auth
+     */
+    protected function actionAuth(Process $process, $fd, string $payload): array
     {
         //create dummy http request with http authorization information
         $request  = new \Zend\Diactoros\ServerRequest();
-        $request = $request->withHeader('Authorization', $auth['body']);
+        $request = $request->withHeader('Authorization', $payload);
 
         try {
             $identity = $this->auth->requireOne($request);
             $user = $this->user_factory->build($identity->getRawAttributes());
             $this->pool[$fd] = $user;
-            $process->push(serialize(['op' => 'add', 'fd' => $fd, 'user' => $user]));
+            $process->push(serialize(['action' => 'auth', 'fd' => $fd, 'payload' => $user]));
 
-            return '{"kind":"Sucess","message":"Connection authenticated"}';
+            return [
+                'kind' => 'Success',
+                'payload' => 'Connection authenticated',
+            ];
         } catch(\Exception $e) {
-            return '{"kind":"Error","message":"'.$e->getMessage().'"}';
+            return [
+                'kind' => 'Error',
+                'payload' => $e->getMessage(),
+            ];
         }
     }
 
@@ -192,11 +251,23 @@ class Server
             if($data = $process->pop()) {
                 $data = unserialize($data);
 
-                switch($data['op']) {
-                    case 'add':
-                        $this->pool[$data['fd']] = $data['user'];
+                switch($data['action']) {
+                    case 'auth':
+                        $this->pool[$data['fd']] = [
+                            'user' => $data['payload'],
+                            'subscriptions' => [],
+                        ];
                     break;
-                    case 'del':
+
+                    case 'subscribe':
+                        $this->pool[$data['fd']]['subscriptions'][] = $data['payload'];
+                    break;
+
+                    case 'unsubscribe':
+                        //$this->pool[$data['fd']]['subscriptions'][] = $data['payload'];
+                    break;
+
+                    case 'close':
                     default:
                         unset($this->pool[$data['fd']]);
                     break;
@@ -224,21 +295,27 @@ class Server
     /**
      * Add new resource handler
      */
-    public function addHandler(string $collection, Closure $handler): self
+    public function addHandler(string $channel, string $collection, Closure $handler): self
     {
-        $this->handler[$collection] = $handler;
+        $this->handler[$collection] = [
+            'handler' => $handler,
+            'channel' => $channel,
+        ];
+
         return $this;
     }
 
     /**
      * Decorate event and push to clients
      */
-    public function handle($client, UserInterface $user, $event, $request)
+    public function handle($client, UserInterface $user, string $channel, $event, $request)
     {
         try {
             $body = [
-                $event['operationType'],
-                $this->handler[$event['ns']['coll']]($user, $event['fullDocument'], $request)
+                'kind' => 'Event',
+                'channel' => $channel,
+                'action' => $event['operationType'],
+                'payload' => $this->handler[$event['ns']['coll']]['handler']($user, $event['fullDocument'], $request),
             ];
 
             $this->server->push($client, json_encode($body));
@@ -252,10 +329,24 @@ class Server
     }
 
     /**
+     * Get channel collection mapping
+     */
+    protected function getChannelMapping(): array
+    {
+        $channels = [];
+        foreach($this->handler as $collection => $handler) {
+            $channels[$collection] = $handler['channel'];
+        }
+
+        return $channels;
+    }
+
+    /**
      * Publis event
      */
     protected function publish(array $event)
     {
+        $mapping = $this->getChannelMapping();
         $request  = new \Zend\Diactoros\ServerRequest();
         foreach($this->server->connections as $client) {
             if(!isset($this->pool[$client])) {
@@ -267,9 +358,18 @@ class Server
                 continue;
             }
 
-            $user = $this->pool[$client];
-            $this->handle($client, $user, $event, $request);
-        }
+            if(!in_array($mapping[$event['ns']['coll']], $this->pool[$client]['subscriptions'])) {
+                $this->logger->debug('skip message for unsubscribed channel for connection [{fd}]', [
+                    'category' => get_class($this),
+                    'fd' => $client,
+                ]);
 
+                continue;
+            }
+
+            $user = $this->pool[$client]['user'];
+            $request  = (new ServerRequest())->withAttribute('identity', $user);
+            $this->handle($client, $user, $mapping[$event['ns']['coll']], $event, $request);
+        }
     }
 }

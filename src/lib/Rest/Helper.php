@@ -60,10 +60,19 @@ class Helper
 
         $body = $acl->filterOutput($request, $user, $cursor);
         $body = Pager::fromRequest($body, $request, $model_factory);
+        return self::response($request, $body);
+    }
+
+    /**
+     * Response
+     */
+    public static function response(ServerRequestInterface $request, $payload, int $status=StatusCodeInterface::STATUS_OK)
+    {
+        $query = $request->getQueryParams();
 
         return new UnformattedResponse(
-            (new Response())->withStatus(StatusCodeInterface::STATUS_OK),
-            $body,
+            (new Response())->withStatus($status),
+            $payload,
             ['pretty' => isset($query['pretty'])]
         );
     }
@@ -73,13 +82,7 @@ class Helper
      */
     public static function getOne(ServerRequestInterface $request, UserInterface $user, ResourceInterface $resource, ModelFactoryInterface $model_factory, int $status=StatusCodeInterface::STATUS_OK): ResponseInterface
     {
-        $query = $request->getQueryParams();
-
-        return new UnformattedResponse(
-            (new Response())->withStatus($status),
-            $model_factory->decorate($resource, $request),
-            ['pretty' => isset($query['pretty'])]
-        );
+        return self::response($request, $model_factory->decorate($resource, $request), $status);
     }
 
     /**

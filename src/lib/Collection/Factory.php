@@ -577,7 +577,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             );
         }
 
-        $this->emitter->emit('collection.factory.preAdd', func_get_args());
+        $this->emitter->emit('collection.factory.preAdd', ...func_get_args());
         $name = $this->validateInsert($user, $parent, $attributes['name'], $conflict, Collection::class);
 
         if (isset($attributes['lock'])) {

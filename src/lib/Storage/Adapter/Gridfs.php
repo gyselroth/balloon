@@ -23,6 +23,7 @@ use MongoDB\Database;
 use MongoDB\GridFS\Bucket;
 use Psr\Log\LoggerInterface;
 use Balloon\User\Factory as UserFactory;
+use Balloon\Session\SessionInterface;
 
 class Gridfs implements AdapterInterface
 {
@@ -182,17 +183,13 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeFile(FileInterface $file, ObjectId $session): array
+    public function storeFile(FileInterface $file, SessionInterface $session): array
     {
-        $this->logger->debug('finalize temporary file ['.$session.'] and add file ['.$file->getId().'] as reference', [
+        $this->logger->debug('finalize temporary file ['.$session->getId().'] and add file ['.$file->getId().'] as reference', [
             'category' => get_class($this),
         ]);
 
-        $md5 = $this->db->command([
-            'filemd5' => $session,
-            'root' => 'fs',
-        ])->toArray()[0]['md5'];
-
+        $md5 = $session->getHash();
         $blob = $this->getFileByHash($md5);
 
         if ($blob !== null) {
@@ -212,14 +209,8 @@ class Gridfs implements AdapterInterface
 
             return [
                 'reference' => ['_id' => $blob['_id']],
-                'size' => $blob['length'],
-                'hash' => $md5,
             ];
         }
-
-        $this->logger->debug('calculated hash ['.$md5.'] for temporary file ['.$session.'], remove temporary flag', [
-            'category' => get_class($this),
-        ]);
 
         $this->db->selectCollection('fs.files')->updateOne([
             '_id' => $session,
@@ -233,12 +224,11 @@ class Gridfs implements AdapterInterface
             ],
         ]);
 
-        $blob = $this->getFileById($session);
+        $blob = $this->getFileById($session->getId());
 
         return [
-            'reference' => ['_id' => $session],
+            'reference' => ['_id' => $session->getId()],
             'size' => $blob['length'],
-            'hash' => $md5,
         ];
     }
 
@@ -365,11 +355,13 @@ class Gridfs implements AdapterInterface
                     'n' => $chunks,
                 ]);
 
-                if ($last === null) {
+                if ($last === null && $chunks !== -1) {
                     throw new Exception\ChunkNotFound('Chunk not found, file is corrupt');
                 }
 
-                $data = $last['data']->getData();
+                if($last !== null) {
+                    $data = $last['data']->getData();
+                }
             }
         }
 

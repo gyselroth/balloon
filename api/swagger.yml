@@ -14,7 +14,7 @@ paths:
   /api:
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get server status'
       operationId: getApi
       security: []
@@ -24,30 +24,13 @@ paths:
         200:
           description: "API root"
           schema:
-            $ref: '#/definitions/core.v2.ApiRoot'
-        500:
-          $ref: '#/responses/InternalServerError'
-  /api/v2:
-    get:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Get server status (API v2)'
-      operationId: getV2
-      security: []
-      produces:
-        - application/json
-      responses:
-        200:
-          description: "API root"
-          schema:
-            $ref: '#/definitions/core.v2.ApiRoot'
+            $ref: '#/definitions/core.v3.ApiRoot'
         500:
           $ref: '#/responses/InternalServerError'
   /api/v2/tokens:
     post:
       tags:
-        - core.v2
+        - core.v3
       summary: Get OAUTH2 Bearer token
       operationId: createToken
       consumes:
@@ -90,7 +73,7 @@ paths:
         "200":
           description: Oauth2 token
           schema:
-            $ref: "#/definitions/core.v2.OAuth2Token"
+            $ref: "#/definitions/core.v3.OAuth2Token"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -106,7 +89,7 @@ paths:
   '/api/v2/groups':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: Get groups
       description: A group is a colletion of users
       operationId: getGroups
@@ -150,7 +133,7 @@ paths:
         200:
           description: "List of groups"
           schema:
-            $ref: "#/definitions/core.v2.Groups"
+            $ref: "#/definitions/core.v3.Groups"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -165,7 +148,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     post:
       tags:
-        - core.v2
+        - core.v3
       summary: Add group
       operationId: addGroup
       produces:
@@ -174,12 +157,12 @@ paths:
       - in: body
         name: data
         schema:
-          $ref: "#/definitions/core.v2.Group"
+          $ref: "#/definitions/core.v3.Group"
       responses:
         201:
           description: "If successful the server will respond with 201 Created"
           schema:
-            $ref: "#/definitions/core.v2.Group"
+            $ref: "#/definitions/core.v3.Group"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -195,7 +178,7 @@ paths:
   '/api/v2/groups/{group}':
     get:
       tags:
-        - core.v2
+        - core.v3
       operationId: getGroup
       summary: 'Get group'
       produces:
@@ -217,7 +200,7 @@ paths:
         200:
           description: "Group"
           schema:
-            $ref: "#/definitions/core.v2.Group"
+            $ref: "#/definitions/core.v3.Group"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -232,7 +215,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     patch:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Change group'
       operationId: patchGroup
       consumes:
@@ -250,12 +233,12 @@ paths:
           description: 'Set attributes for group'
           required: true
           schema:
-            $ref: "#/definitions/core.v2.Group"
+            $ref: "#/definitions/core.v3.Group"
       responses:
         200:
           description: "Group"
           schema:
-            $ref: "#/definitions/core.v2.Group"
+            $ref: "#/definitions/core.v3.Group"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -270,7 +253,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     delete:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Delete group'
       operationId: deleteGroup
       produces:
@@ -304,7 +287,7 @@ paths:
   '/api/v2/groups/{group}/members':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get group members'
       operationId: getGroupMembers
       produces:
@@ -319,7 +302,7 @@ paths:
         200:
           description: "List of users"
           schema:
-            $ref: '#/definitions/core.v2.Users'
+            $ref: '#/definitions/core.v3.Users'
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -332,34 +315,10 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
-  '/api/v2/groups/{group}/undelete':
-    post:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Restore group'
-      operationId: undeleteGroup
-      produces:
-        - application/json
-      parameters:
-        - name: group
-          in: path
-          required: true
-          type: 'string'
-          description: 'Resource identifier'
-      responses:
-        200:
-          description: "Group"
-          schema:
-            $ref: "#/definitions/core.v2.Group"
-        404:
-          description: "Resource does not exists"
-        403:
-          description: "Access denied"
   '/api/v2/users':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: Get users
       operationId: getUsers
       produces:
@@ -402,7 +361,7 @@ paths:
         200:
           description: "List of users"
           schema:
-            $ref: '#/definitions/core.v2.Users'
+            $ref: '#/definitions/core.v3.Users'
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -417,7 +376,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     post:
       tags:
-        - core.v2
+        - core.v3
       summary: Add user
       operationId: addUser
       produces:
@@ -426,12 +385,12 @@ paths:
       - in: body
         name: data
         schema:
-          $ref: "#/definitions/core.v2.User"
+          $ref: "#/definitions/core.v3.User"
       responses:
         201:
           description: "If successful the server will respond with 201 Created"
           schema:
-            $ref: "#/definitions/core.v2.User"
+            $ref: "#/definitions/core.v3.User"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -447,7 +406,7 @@ paths:
   '/api/v2/users/{user}':
     get:
       tags:
-        - core.v2
+        - core.v3
       operationId: getUser
       summary: 'Get user'
       produces:
@@ -469,7 +428,7 @@ paths:
         200:
           description: "User"
           schema:
-            $ref: "#/definitions/core.v2.User"
+            $ref: "#/definitions/core.v3.User"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -484,7 +443,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     patch:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Update user'
       operationId: patchUser
       consumes:
@@ -502,12 +461,12 @@ paths:
           description: 'Set attributes for user'
           required: true
           schema:
-            $ref: "#/definitions/core.v2.User"
+            $ref: "#/definitions/core.v3.User"
       responses:
         200:
           description: "User"
           schema:
-            $ref: "#/definitions/core.v2.User"
+            $ref: "#/definitions/core.v3.User"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -522,7 +481,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     delete:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Delete user'
       operationId: deleteUser
       produces:
@@ -553,42 +512,10 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
-  '/api/v2/users/{user}/node-attribute-summary':
-    get:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Get user node summary.'
-      operationId: getNodeAttributeSummary
-      produces:
-        - application/json
-      parameters:
-        - name: user
-          in: path
-          required: true
-          type: 'string'
-          description: 'Resource identifier'
-      responses:
-        200:
-          description: "User"
-          schema:
-            $ref: "#/definitions/core.v2.UserNodeAttributeSummary"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
   '/api/v2/users/{user}/groups':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get all groups of a user'
       operationId: getUserGroups
       produces:
@@ -636,39 +563,7 @@ paths:
         200:
           description: "List of groups"
           schema:
-            $ref: "#/definitions/core.v2.Groups"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  '/api/v2/users/{user}/undelete':
-    post:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Restore user'
-      operationId: undeleteUser
-      produces:
-        - application/json
-      parameters:
-        - name: user
-          in: path
-          required: true
-          type: string
-          description: 'Resource identifier'
-      responses:
-        200:
-          description: "User"
-          schema:
-            $ref: "#/definitions/core.v2.User"
+            $ref: "#/definitions/core.v3.Groups"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -684,7 +579,7 @@ paths:
   /api/v2/users/whoami:
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get current user'
       operationId: getCurrentUser
       produces:
@@ -701,7 +596,7 @@ paths:
         200:
           description: "User"
           schema:
-            $ref: "#/definitions/core.v2.User"
+            $ref: "#/definitions/core.v3.User"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -717,7 +612,7 @@ paths:
   '/api/v2/users/{user}/avatar':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get user avatar'
       operationId: getUserAvatar
       produces:
@@ -732,7 +627,7 @@ paths:
         200:
           description: "Binaray user avatar"
           schema:
-            $ref: "#/definitions/core.v2.User"
+            $ref: "#/definitions/core.v3.User"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -748,7 +643,7 @@ paths:
   /api/v2/nodes/trash:
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get deleted nodes'
       description: 'Return deleted nodes (Excluding sub nodes of deleted collections)'
       operationId: getDeletedNodes
@@ -792,44 +687,7 @@ paths:
         200:
          description: Nodes
          schema:
-           $ref: '#/definitions/core.v2.Nodes'
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  /api/v2/nodes/search:
-    get:
-      deprecated: true
-      tags:
-        - elasticsearch.v2
-      summary: 'Extended search query using elasticsearch'
-      operationId: queryElasticsearch
-      produces:
-        - application/json
-      parameters:
-        - name: query
-          in: query
-          required: true
-          type: string
-          description: 'Elasticsearch query as JSON'
-        - name: deleted
-          in: query
-          required: false
-          type: integer
-          description: 'Wherever include deleted nodes or not, possible values:  0 Exclude deleted 1 Only deleted 2 Include deleted.'
-      responses:
-        200:
-         description: Nodes
-         schema:
-           $ref: '#/definitions/core.v2.Nodes'
+           $ref: '#/definitions/core.v3.Nodes'
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1031,53 +889,6 @@ paths:
       responses:
         202:
           description: "Mail"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  /api/v2/nodes/{node}/subscription:
-    post:
-      deprecated: true
-      tags:
-        - notification.v2
-      summary: 'Subscribe node updates'
-      operationId: subscribeNode
-      produces:
-        - application/json
-      parameters:
-        - name: node
-          in: path
-          required: true
-          type: 'string'
-          description: 'Node identifier'
-        - name: subscribe
-          in: query
-          required: false
-          type: boolean
-          description: 'If true the subscription is active'
-        - name: exclude_me
-          in: query
-          required: false
-          type: boolean
-          description: 'Exclude subscription owner (me) from change notifications'
-        - name: recursive
-          in: query
-          required: false
-          type: boolean
-          description: 'Apply subscription to children (inclusive newly added children)'
-      responses:
-        202:
-          description: "Node"
-          schema:
-            $ref: "#/definitions/core.v2.Node"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1422,12 +1233,12 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/core.v2.File'
+            $ref: '#/definitions/core.v3.File'
       responses:
         201:
           description: "File"
           schema:
-            $ref: "#/definitions/core.v2.File"
+            $ref: "#/definitions/core.v3.File"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1443,7 +1254,7 @@ paths:
   '/api/v2/sessions':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: Get sessions
       description: Upload sessions
       operationId: getSessions
@@ -1487,7 +1298,7 @@ paths:
         200:
           description: "List of sessions"
           schema:
-            $ref: "#/definitions/core.v2.Sessions"
+            $ref: "#/definitions/core.v3.Sessions"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1502,7 +1313,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     post:
       tags:
-        - core.v2
+        - core.v3
       summary: Add session
       operationId: addSession
       produces:
@@ -1511,12 +1322,12 @@ paths:
       - in: body
         name: data
         schema:
-          $ref: "#/definitions/core.v2.Session"
+          $ref: "#/definitions/core.v3.Session"
       responses:
         201:
           description: "If successful the server will respond with 201 Created"
           schema:
-            $ref: "#/definitions/core.v2.Session"
+            $ref: "#/definitions/core.v3.Session"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1532,7 +1343,7 @@ paths:
   '/api/v2/sessions/{session}':
     get:
       tags:
-        - core.v2
+        - core.v3
       operationId: getSession
       summary: 'Get session'
       produces:
@@ -1554,7 +1365,7 @@ paths:
         200:
           description: "Session"
           schema:
-            $ref: "#/definitions/core.v2.Session"
+            $ref: "#/definitions/core.v3.Session"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1569,7 +1380,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     patch:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Change session'
       operationId: patchSession
       consumes:
@@ -1587,12 +1398,12 @@ paths:
           description: 'Set attributes for session'
           required: true
           schema:
-            $ref: "#/definitions/core.v2.Session"
+            $ref: "#/definitions/core.v3.Session"
       responses:
         200:
           description: "Session"
           schema:
-            $ref: "#/definitions/core.v2.Session"
+            $ref: "#/definitions/core.v3.Session"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1607,7 +1418,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     delete:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Delete session'
       operationId: deleteSession
       produces:
@@ -1641,7 +1452,7 @@ paths:
   '/api/v2/processes':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: Get processes
       description: Async processes
       operationId: getProcesses
@@ -1685,7 +1496,7 @@ paths:
         200:
           description: "List of processes"
           schema:
-            $ref: "#/definitions/core.v2.Processes"
+            $ref: "#/definitions/core.v3.Processes"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1701,7 +1512,7 @@ paths:
   '/api/v2/processes/{process}':
     get:
       tags:
-        - core.v2
+        - core.v3
       operationId: getProcess
       summary: 'Get process'
       produces:
@@ -1723,7 +1534,7 @@ paths:
         200:
           description: "Process"
           schema:
-            $ref: "#/definitions/core.v2.Process"
+            $ref: "#/definitions/core.v3.Process"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1738,7 +1549,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     delete:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Delete process'
       operationId: deleteProcess
       produces:
@@ -1772,7 +1583,7 @@ paths:
   '/api/v2/nodes/{node}/processes':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get process'
       description: 'Get process containing all operations which are made by the user or share members on a given node'
       operationId: getNodeProcesses
@@ -1821,7 +1632,7 @@ paths:
         200:
           description: "Process log"
           schema:
-            $ref: "#/definitions/core.v2.Processes"
+            $ref: "#/definitions/core.v3.Processes"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -1834,259 +1645,10 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
-  '/api/v2/nodes/{node}/clone':
-    post:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: Clone node
-      operationId: cloneNode
-      produces:
-        - application/json
-      parameters:
-        - name: node
-          in: path
-          required: true
-          description: 'Node identifier'
-          type: string
-        - name: destid
-          in: query
-          required: false
-          description: 'Destination collection, if this is null root is taken'
-          type: string
-        - name: conflict
-          in: query
-          required: false
-          description: 'Conflict resolution'
-          type: integer
-          default: 0
-          enum:
-          - 0
-          - 1
-          - 2
-      responses:
-        201:
-          description: "Node"
-          schema:
-            $ref: "#/definitions/core.v2.Node"
-        207:
-          description: "Multi status if batch request"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'  
-  '/api/v2/nodes/{node}/move':
-    post:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Move node'
-      description: 'Move node (Change parent collection), single or multiple ones'
-      operationId: moveNode
-      produces:
-        - application/json
-      parameters:
-        - name: node
-          in: path
-          required: true
-          description: 'Node identifier'
-          type: string
-        - name: destid
-          in: query
-          required: false
-          description: 'Destination collection, if this is null root is taken'
-          type: string
-        - name: conflict
-          in: query
-          required: false
-          description: 'Conflict resolution'
-          type: integer
-          default: 0
-          enum:
-          - 0
-          - 1
-          - 2
-      responses:
-        200:
-          description: "Node"
-          schema:
-            $ref: "#/definitions/core.v2.Node"
-        207:
-          description: "Multi status if batch request"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  '/api/v2/nodes/{node}/undelete':
-    post:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Restore node'
-      description: 'Undelete (Restore from trash) a single node or multiple ones.'
-      operationId: undeleteNode
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - name: node
-          in: path
-          required: true
-          description: 'Node identifier'
-          type: string
-        - name: move
-          in: query
-          required: false
-          description: 'If node should also be moved during undelete'
-          type: boolean
-          default: false
-        - name: destid
-          in: query
-          required: false
-          description: 'If node should also be moved during undelete'
-          type: string
-        - name: conflict
-          in: query
-          required: false
-          description: 'Conflict resolution'
-          type: integer
-          default: 0
-          enum:
-          - 0
-          - 1
-          - 2
-      responses:
-        200:
-          description: "Node"
-          schema:
-            $ref: "#/definitions/core.v2.Node"
-        207:
-          description: "Multi status if batch request"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  '/api/v2/collections/{collection}/share':
-    get:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Get share acl and share name'
-      operationId: getShare
-      produces:
-        - application/json
-      parameters:
-        - name: collection
-          in: path
-          required: true
-          description: 'Collection identifier'
-          type: string
-      responses:
-        200:
-          description: "Share"
-          schema:
-            $ref: "#/definitions/core.v2.Share"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-    post:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Create share'
-      description: 'Create a new share from an existing collection'
-      operationId: shareCollection
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - name: collection
-          in: path
-          required: true
-          description: 'Collection identifier'
-          type: string
-        - in: body
-          name: body
-          description: 'Create a new share from an existing collection '
-          required: true
-          schema:
-            $ref: '#/definitions/core.v2.Share'
-      responses:
-        200:
-          description: "Collection"
-          schema:
-            $ref: "#/definitions/core.v2.Collection"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-    delete:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Delete share'
-      description: 'Does only remove sharing options and transform a share back into a normal collection. There will not be any data loss after this action. All existing references would be removed automatically.'
-      operationId: deleteShare
-      parameters:
-        - name: collection
-          in: path
-          required: true
-          description: 'Collection identifier'
-          type: string
-      responses:
-        204:
-          description: "The server responds with 204 if successful."
-        404:
-          description: "Resource does not exists"
-        403:
-          description: "Access denied"
   '/api/v2/collections/{collection}/children':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get collection children'
       operationId: getChildren
       produces:
@@ -2149,7 +1711,7 @@ paths:
         200:
           description: "List of children"
           schema:
-            $ref: "#/definitions/core.v2.Nodes"
+            $ref: "#/definitions/core.v3.Nodes"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2165,7 +1727,7 @@ paths:
   '/api/v2/collections/children':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get root children'
       operationId: getRootChildren
       produces:
@@ -2223,7 +1785,7 @@ paths:
         200:
           description: "List of children"
           schema:
-            $ref: "#/definitions/core.v2.Nodes"
+            $ref: "#/definitions/core.v3.Nodes"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2239,7 +1801,7 @@ paths:
   '/api/v2/collections':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get collections'
       operationId: getCollections
       produces:
@@ -2291,71 +1853,7 @@ paths:
         200:
           description: "List of collections"
           schema:
-            $ref: "#/definitions/core.v2.Collections"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-    post:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Create a new collection in root'
-      operationId: createRootCollection
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/core.v2.Collection'
-      responses:
-        201:
-          description: "Collection"
-          schema:
-            $ref: "#/definitions/core.v2.Collection"
-        404:
-          description: "Resource does not exists"
-        403:
-          description: "Access denied"
-  '/api/v2/collections/{collection}':
-    post:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Create collection'
-      operationId: createCollection
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - name: collection
-          in: path
-          required: true
-          description: 'Parent collection'
-          type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/core.v2.Collection'
-      responses:
-        201:
-          description: "Collection"
-          schema:
-            $ref: "#/definitions/core.v2.Collection"
+            $ref: "#/definitions/core.v3.Collections"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2371,7 +1869,7 @@ paths:
   '/api/v2/files':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get files'
       operationId: getFiles
       produces:
@@ -2423,39 +1921,7 @@ paths:
         200:
           description: "List of files"
           schema:
-            $ref: "#/definitions/core.v2.Files"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-    put:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Upload file'
-      description: 'Upload an entire file in one-shot. Use this endpoint only for small files, for bigger files use the chunking endpoint.'
-      operationId: uploadFile
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: File content
-          schema:
-            type: string
-      responses:
-        201:
-          description: "File created"
-          schema:
-            $ref: "#/definitions/core.v2.File"
+            $ref: "#/definitions/core.v3.Files"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2471,7 +1937,7 @@ paths:
   '/api/v2/files/{file}/history':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get file history'
       operationId: getFileHistory
       produces:
@@ -2486,7 +1952,7 @@ paths:
         200:
           description: "File history"
           schema:
-            $ref: "#/definitions/core.v2.FileHistory"
+            $ref: "#/definitions/core.v3.FileHistory"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2502,7 +1968,7 @@ paths:
   '/api/v2/files/{file}/restore':
     post:
       tags:
-        - core.v2
+        - core.v3
       summary: Rollback file
       description: 'Rollback to a recent version from history. Use the version number from history.'
       operationId: rollbackFile
@@ -2518,49 +1984,7 @@ paths:
         200:
           description: "File"
           schema:
-            $ref: "#/definitions/core.v2.File"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  /api/v2/files/chunk:
-    put:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: Resumeable upload file (chunked)
-      description: 'Upload a file chunk. You have to manually splitt the binary data into multiple chunks and upload them successively using this method. Once uploading the last chunk, the server will automatically create or update the file node. You may set the parent collection, name and or custom attributes only with the last request to save traffic.'
-      operationId: uploadChunk
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: 'File content'
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: "File updated"
-          schema:
-            $ref: "#/definitions/core.v2.File"
-        201:
-          description: "File newly created"
-          schema:
-            $ref: "#/definitions/core.v2.File"
-        206:
-          description: "Chunk uploaded"
-          schema:
-            $ref: "#/definitions/core.v2.ChunkSession"
+            $ref: "#/definitions/core.v3.File"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2576,7 +2000,7 @@ paths:
   '/api/v2/nodes':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get all nodes'
       operationId: getNodes
       produces:
@@ -2628,7 +2052,7 @@ paths:
         200:
           description: "List of nodes"
           schema:
-            $ref: "#/definitions/core.v2.Nodes"
+            $ref: "#/definitions/core.v3.Nodes"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2643,7 +2067,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     post:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Add node'
       operationId: addNode
       consumes:
@@ -2656,16 +2080,16 @@ paths:
           description: 'Node '
           required: true
           schema:
-            $ref: '#/definitions/core.v2.Node'
+            $ref: '#/definitions/core.v3.Node'
       responses:
         200:
           description: "Node"
           schema:
-            $ref: "#/definitions/core.v2.Node"
+            $ref: "#/definitions/core.v3.Node"
         202:
-          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v2.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v3.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
           schema:
-            $ref: "#/definitions/core.v2.Process"
+            $ref: "#/definitions/core.v3.Process"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2681,7 +2105,7 @@ paths:
   '/api/v2/nodes/{node}':
     delete:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Delete node'
       operationId: deleteNode
       parameters:
@@ -2709,9 +2133,9 @@ paths:
         204:
           description: "If successful the server will respond with 204 No Content"
         202:
-          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v2.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v3.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
           schema:
-            $ref: "#/definitions/core.v2.Process"
+            $ref: "#/definitions/core.v3.Process"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2726,7 +2150,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get node'
       operationId: getNode
       produces:
@@ -2748,7 +2172,7 @@ paths:
         200:
           description: "Node"
           schema:
-            $ref: "#/definitions/core.v2.Node"
+            $ref: "#/definitions/core.v3.Node"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2763,7 +2187,7 @@ paths:
           $ref: '#/responses/InternalServerError'
     patch:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Change node'
       operationId: updateNode
       consumes:
@@ -2781,16 +2205,16 @@ paths:
           description: 'Change attributes '
           required: true
           schema:
-            $ref: '#/definitions/core.v2.Node'
+            $ref: '#/definitions/core.v3.Node'
       responses:
         200:
           description: "Node"
           schema:
-            $ref: "#/definitions/core.v2.Node"
+            $ref: "#/definitions/core.v3.Node"
         202:
-          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v2.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v3.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
           schema:
-            $ref: "#/definitions/core.v2.Process"
+            $ref: "#/definitions/core.v3.Process"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -2803,98 +2227,10 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
-  '/api/v2/nodes/{node}/share-link':
-    delete:
-      deprecated: true
-      tags:
-        - sharelink.v2
-      summary: 'Delete share link'
-      operationId: deleteLink
-      produces:
-        - application/json
-      parameters:
-        - name: node
-          in: path
-          required: true
-          type: string
-          description: 'Node identifier'
-      responses:
-        204:
-          description: "The server responds with 204 if operation was successful"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-    post:
-      deprecated: true
-      tags:
-        - sharelink.v2
-      summary: Create share link
-      description: 'Create a unique share link of a node (global accessible). A possible existing link will get deleted if this endpoint gets called.'
-      operationId: createLink
-      produces:
-        - application/json
-      parameters:
-        - name: node
-          in: path
-          required: true
-          type: string
-          description: 'Node identifier'
-        - name: expiration
-          in: query
-          required: false
-          type: integer
-          description: 'Expire timestamp as unix timestap. Tells the server when the public link should expire automatically. The default is to never expire.'
-          default: 0
-        - name: password
-          in: query
-          required: false
-          type: string
-          description: 'Optionally set a password to protect the public link.'
-      responses:
-        201:
-          description: "Node"
-          schema:
-            $ref: "#/definitions/core.v2.Node"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  /api/v2/nodes/last-cursor:
-    get:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: Get last cursor
-      description: 'Use this method to request the latest cursor if you only need to now if there are changes on the server. This method will not return any other data than the newest cursor. To request a feed with all deltas request /delta.'
-      operationId: getLastCursor
-      produces:
-        - application/json
-      responses:
-        200:
-          description: "Cursor"
-          schema:
-            type: string
   '/api/v2/nodes/{node}/content':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Download node content.'
       description: 'Stream node contents. Note that collections are zipped on-the-fly.'
       operationId: getContent
@@ -2941,54 +2277,10 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/InternalServerError'
-  /api/v2/nodes/delta:
-    get:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Delta stream with cursor support.'
-      operationId: getDelta
-      produces:
-        - application/json
-      parameters:
-        - name: limit
-          in: query
-          required: false
-          type: integer
-          description: 'Limit the number of delta entries, if too low you have to call this endpoint more often since has_more would be true more often '
-        - name: attributes
-          in: query
-          required: false
-          type: 'array'
-          description: 'Filter attributes, per default not all attributes would be returned'
-          items:
-            type: string
-        - name: cursor
-          in: query
-          required: false
-          type: string
-          description: 'Set a cursor to rquest next nodes within delta processing '
-      responses:
-        200:
-          description: "Delta"
-          schema:
-            $ref: "#/definitions/core.v2.Delta"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
   '/api/v2/events':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get events'
       description: 'Get events containing all operations which are made by the user himself or share members'
       operationId: getEvents
@@ -3032,7 +2324,7 @@ paths:
         200:
           description: "Event log"
           schema:
-            $ref: "#/definitions/core.v2.Events"
+            $ref: "#/definitions/core.v3.Events"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -3048,7 +2340,7 @@ paths:
   '/api/v2/events/{event}':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get events'
       description: 'Get event'
       operationId: getEvents
@@ -3064,7 +2356,7 @@ paths:
         200:
           description: "Event"
           schema:
-            $ref: "#/definitions/core.v2.Event"
+            $ref: "#/definitions/core.v3.Event"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -3080,7 +2372,7 @@ paths:
   '/api/v2/nodes/{node}/events':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get event'
       description: 'Get event containing all operations which are made by the user or share members on a given node'
       operationId: getNodeEvents
@@ -3129,134 +2421,7 @@ paths:
         200:
           description: "Event log"
           schema:
-            $ref: "#/definitions/core.v2.Events"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  '/api/v2/nodes/event-log':
-    get:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Get events'
-      description: 'Get event log containing all operations which are made by the user himself or share members'
-      operationId: getEventLog
-      produces:
-        - application/json
-      parameters:
-        - in: query
-          name: query
-          description: "Specify a MongoDB based resource query
-            (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
-          required: false
-          type: string
-        - in: query
-          name: attributes
-          description: Filter attributes
-          required: false
-          type: array
-          items:
-            type: string
-        - in: query
-          name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
-            negative offset which will return results from the end [total -
-            offset].
-          required: false
-          type: integer
-        - in: query
-          name: limit
-          description: Objects limit, per default 20 objects will get returned
-          required: false
-          type: integer
-        - in: query
-          name: sort
-          description: 'Specify a MongoDB sort operation
-            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
-          required: false
-          type: string
-      responses:
-        200:
-          description: "Event log"
-          schema:
-            $ref: "#/definitions/core.v2.EventLogs"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  '/api/v2/nodes/{node}/event-log':
-    get:
-      deprecated: true
-      tags:
-        - core.v2
-      summary: 'Get event'
-      description: 'Get event log containing all operations which are made by the user himself or share members on a given node'
-      operationId: getNodeEventLog
-      produces:
-        - application/json
-      parameters:
-        - name: node
-          in: path
-          required: true
-          description: 'Node identifier'
-          type: string
-        - in: query
-          name: query
-          description: "Specify a MongoDB based resource query
-            (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
-          required: false
-          type: string
-        - in: query
-          name: attributes
-          description: Filter attributes
-          required: false
-          type: array
-          items:
-            type: string
-        - in: query
-          name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
-            negative offset which will return results from the end [total -
-            offset].
-          required: false
-          type: integer
-        - in: query
-          name: limit
-          description: Objects limit, per default 20 objects will get returned
-          required: false
-          type: integer
-        - in: query
-          name: sort
-          description: 'Specify a MongoDB sort operation
-            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
-          required: false
-          type: string
-      responses:
-        200:
-          description: "Event log"
-          schema:
-            $ref: "#/definitions/core.v2.EventLogs"
+            $ref: "#/definitions/core.v3.Events"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -3272,7 +2437,7 @@ paths:
   '/api/v2/nodes/{node}/parents':
     get:
       tags:
-        - core.v2
+        - core.v3
       summary: 'Get parent collections'
       description: 'The hirarchy of all parent nodes is ordered in a single level array beginning with the collection on the highest level.'
       operationId: getParentNodes
@@ -3300,7 +2465,7 @@ paths:
         200:
           description: "Parent nodes"
           schema:
-            $ref: "#/definitions/core.v2.Collections"
+            $ref: "#/definitions/core.v3.Collections"
         400:
           $ref: '#/responses/BadRequest'
         401:
@@ -3352,31 +2517,31 @@ responses:
   NotFound:
     description: The specified resource was not found
     schema:
-      $ref: '#/definitions/core.v2.Error'
+      $ref: '#/definitions/core.v3.Error'
   Unauthorized:
     description: Unauthorized
     schema:
-      $ref: '#/definitions/core.v2.Error'
+      $ref: '#/definitions/core.v3.Error'
   UnprocessableEntity:
     description: Unauthorized
     schema:
-      $ref: '#/definitions/core.v2.Error'
+      $ref: '#/definitions/core.v3.Error'
   Conflict:
     description: Conflict
     schema:
-      $ref: '#/definitions/core.v2.Error'
+      $ref: '#/definitions/core.v3.Error'
   Forbidden:
     description: Forbidden
     schema:
-      $ref: '#/definitions/core.v2.Error'
+      $ref: '#/definitions/core.v3.Error'
   BadRequest:
     description: Bad Reqeust
     schema:
-      $ref: '#/definitions/core.v2.Error'
+      $ref: '#/definitions/core.v3.Error'
   InternalServerError:
     description: Internal Server Error
     schema:
-      $ref: '#/definitions/core.v2.Error'
+      $ref: '#/definitions/core.v3.Error'
 security:
   - BasicAuth: []
   - BearerAuth: []
@@ -3388,7 +2553,7 @@ securityDefinitions:
     name: Authorization
     in: header
 definitions:
-  core.v2.Error:
+  core.v3.Error:
     type: object
     properties:
       code:
@@ -3397,7 +2562,7 @@ definitions:
         type: string
       error:
         type: string
-  core.v2.JsonPatch:
+  core.v3.JsonPatch:
     description: "A JSON Patch according rfc6902."
     type: "object"
     properties:
@@ -3407,7 +2572,7 @@ definitions:
         type: "string"
       value:
         type: "string"
-  core.v2.ApiRoot:
+  core.v3.ApiRoot:
     description: "Describes the api root."
     type: "object"
     properties:
@@ -3415,32 +2580,32 @@ definitions:
         type: string
       api:
         type: integer
-  core.v2.Links:
+  core.v3.Links:
     description: "Contains resource links (URL) to other resources."
     type: "object"
     properties:
       self:
-        $ref: "#/definitions/core.v2.Link"
-  core.v2.ListLinks:
+        $ref: "#/definitions/core.v3.Link"
+  core.v3.ListLinks:
     type: "object"
     properties:
       self:
-        $ref: "#/definitions/core.v2.Link"
+        $ref: "#/definitions/core.v3.Link"
       prev:
-        $ref: "#/definitions/core.v2.Link"
+        $ref: "#/definitions/core.v3.Link"
       next:
-        $ref: "#/definitions/core.v2.Link"
-  core.v2.Link:
+        $ref: "#/definitions/core.v3.Link"
+  core.v3.Link:
     type: "object"
     properties:
       href:
         type: "string"
-  core.v2.ResourceList:
+  core.v3.ResourceList:
     type: "object"
     properties:
       _links:
         description: "Holds a list of links rfc1738 to other resources."
-        $ref: "#/definitions/core.v2.ListLinks"
+        $ref: "#/definitions/core.v3.ListLinks"
       kind:
         description: "The resource type, always List."
         type: "string"
@@ -3451,14 +2616,14 @@ definitions:
       total:
         description: "Holds the number of total available items on the server. Note that a List resource is always paged. You need to traverse with offset and limit to request further resources in the list."
         type: integer
-  core.v2.Resource:
+  core.v3.Resource:
     type: "object"
     properties:
       _links:
-        $ref: "#/definitions/core.v2.Links"
+        $ref: "#/definitions/core.v3.Links"
       kind:
         description: Resource type
-        type: string        
+        type: string
       id:
         description: "Unique 12-byte resource identifier. Note this is a MongoDB ObjectId. The name is the standard resource identifier, the id only useful to verify that a given resource was completely recreated. An ID is immutable and will be created on the server."
         type: "string"
@@ -3466,7 +2631,7 @@ definitions:
         description: "ISO 8601 timestamp when the resource was created."
         type: "string"
         format: date-time
-  core.v2.OAuth2Token:
+  core.v3.OAuth2Token:
     description: "OAUTH2 access token response according RFC6749 https://tools.ietf.org/html/rfc6749#section-4.3.3"
     type: object
     properties:
@@ -3487,21 +2652,21 @@ definitions:
       refresh_token:
         description: An optional refresh token to get new access_tokens via the refresh_token grant type.
         type: string
-  core.v2.Users:
+  core.v3.Users:
     description: "A list of users."
     type: object
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.User"
-  core.v2.User:
+              $ref: "#/definitions/core.v3.User"
+  core.v3.User:
     description: "A user is used to access the server."
     allOf:
-      - $ref: '#/definitions/core.v2.Resource'
+      - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
           changed:
@@ -3552,42 +2717,42 @@ definitions:
             description: "Used storage in bytes."
             type: integer
             default: 0
-  core.v2.Sessions:
+  core.v3.Sessions:
     description: "A list of upload sessions."
     type: object
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.Session"
-  core.v2.Session:
+              $ref: "#/definitions/core.v3.Session"
+  core.v3.Session:
     description: "A session defines a temporary, resumable upload session."
     allOf:
-      - $ref: '#/definitions/core.v2.Resource'
+      - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
           changed:
             description: "ISO 8601 timestamp when the resource was changed."
             type: "string"
             format: date-time
-  core.v2.Processes:
+  core.v3.Processes:
     description: "A server process."
     type: object
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.Process"
-  core.v2.Process:
+              $ref: "#/definitions/core.v3.Process"
+  core.v3.Process:
     description: "A session defines a temporary, resumable upload session."
     allOf:
-      - $ref: '#/definitions/core.v2.Resource'
+      - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
           kind:
@@ -3622,20 +2787,20 @@ definitions:
                 description: "The result code of the process."
                 type: "number"
 
-  core.v2.Groups:
+  core.v3.Groups:
     description: "A list of groups."
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.Group"
-  core.v2.Group:
+              $ref: "#/definitions/core.v3.Group"
+  core.v3.Group:
     description: "A group contains user resources."
     allOf:
-      - $ref: '#/definitions/core.v2.Resource'
+      - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
           changed:
@@ -3653,17 +2818,17 @@ definitions:
             type: "array"
             items:
               type: string
-  core.v2.Nodes:
+  core.v3.Nodes:
     description: "A list of nodes."
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.Node"
-  core.v2.NodeMeta:
+              $ref: "#/definitions/core.v3.Node"
+  core.v3.NodeMeta:
     description: "Node meta data."
     type: object
     properties:
@@ -3681,10 +2846,10 @@ definitions:
       color:
         description: "A color tag."
         type: "string"
-  core.v2.Node:
+  core.v3.Node:
     description: "A Node."
     allOf:
-      - $ref: '#/definitions/core.v2.Resource'
+      - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
           changed:
@@ -3710,7 +2875,7 @@ definitions:
             type: "boolean"
             default: false
           meta:
-            $ref: '#/definitions/core.v2.NodeMeta'
+            $ref: '#/definitions/core.v3.NodeMeta'
           size:
             description: "The size in bytes. If the node is of type collection the size is the number of child nodes."
             type: integer
@@ -3785,34 +2950,34 @@ definitions:
             description: "Is true if the node has a protected public sharelink."
             type: "boolean"
             default: false
-  core.v2.Collections:
+  core.v3.Collections:
     description: "A list of collections."
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.Collection"
-  core.v2.Collection:
+              $ref: "#/definitions/core.v3.Collection"
+  core.v3.Collection:
     description: "A collection can hold an unlimited number of child nodes."
     allOf:
-      - $ref: '#/definitions/core.v2.Node'
-  core.v2.Files:
+      - $ref: '#/definitions/core.v3.Node'
+  core.v3.Files:
     description: "A list of files."
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.File"
-  core.v2.File:
+              $ref: "#/definitions/core.v3.File"
+  core.v3.File:
     description: "A collection can hold an unlimited number of child nodes."
     allOf:
-      - $ref: '#/definitions/core.v2.Node'
+      - $ref: '#/definitions/core.v3.Node'
       - type: object
         properties:
           version:
@@ -3825,7 +2990,7 @@ definitions:
           preview:
             description: "Is true if there is a preview"
             type: "boolean"
-  core.v2.FileHistory:
+  core.v3.FileHistory:
     description: "File history."
     type: object
     properties:
@@ -3850,7 +3015,7 @@ definitions:
           name:
             description: "The username of the share owner."
             type: "string"
-  core.v2.Delta:
+  core.v3.Delta:
     description: "The delta is a differential feed to get changes since the last delta call."
     type: object
     properties:
@@ -3868,8 +3033,8 @@ definitions:
       nodes:
         type: array
         items:
-          $ref: '#/definitions/core.v2.Node'
-  core.v2.Share:
+          $ref: '#/definitions/core.v3.Node'
+  core.v3.Share:
     description: "Node share."
     type: object
     properties:
@@ -3880,8 +3045,8 @@ definitions:
         description: "ACL rules."
         type: array
         items:
-          $ref: '#/definitions/core.v2.AclRule'
-  core.v2.AclRule:
+          $ref: '#/definitions/core.v3.AclRule'
+  core.v3.AclRule:
     description: "ACL rule."
     type: object
     properties:
@@ -3913,7 +3078,7 @@ definitions:
           name:
             description: "The name of role resource."
             type: "string"
-  core.v2.UserNodeAttributeSummary:
+  core.v3.UserNodeAttributeSummary:
     description: "Request node fiel statistics."
     type: object
     additionalProperties:
@@ -3925,7 +3090,7 @@ definitions:
             type: string
           sum:
             type: integer
-  core.v2.ChunkSession:
+  core.v3.ChunkSession:
     description: "Chunking upload session."
     type: object
     properties:
@@ -3935,17 +3100,17 @@ definitions:
       chunks_left:
         description: "Tells how many chunks are left to upload."
         type: integer
-  core.v2.EventLogs:
+  core.v3.EventLogs:
     description: "A list of events."
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.EventLog"
-  core.v2.EventLog:
+              $ref: "#/definitions/core.v3.EventLog"
+  core.v3.EventLog:
     description: "Event log entry. Each event represents an executed operation on the server."
     type: object
     properties:
@@ -4038,17 +3203,17 @@ definitions:
           hostname:
             description: "The hostname of the client."
             type: "string"
-  core.v2.Events:
+  core.v3.Events:
     description: "A list of events."
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v2.Event"
-  core.v2.Event:
+              $ref: "#/definitions/core.v3.Event"
+  core.v3.Event:
     description: "Event log entry. Each event represents an executed operation on the server."
     type: object
     properties:
@@ -4177,7 +3342,7 @@ definitions:
   notification.v2.Notifications:
     description: "A list of notifications."
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
@@ -4187,7 +3352,7 @@ definitions:
   notification.v2.Notification:
     description: "A notification"
     allOf:
-      - $ref: '#/definitions/core.v2.Resource'
+      - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
           locale:
@@ -4223,7 +3388,7 @@ definitions:
   convert.v2.Slaves:
     description: "A list of convert slaves."
     allOf:
-      - $ref: '#/definitions/core.v2.ResourceList'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
@@ -4233,7 +3398,7 @@ definitions:
   convert.v2.Slave:
     description: "A convert slave"
     allOf:
-      - $ref: '#/definitions/core.v2.Resource'
+      - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
           format:

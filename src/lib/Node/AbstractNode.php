@@ -37,6 +37,11 @@ abstract class AbstractNode extends AbstractResource /*implements NodeInterface*
         return $this->resource['readonly'] ?? false;
     }
 
+    public function getStorageReference(): array
+    {
+        return $this->resource['storage'] ?? [];
+    }
+
 
     /**
      * Get the name.
@@ -167,17 +172,17 @@ abstract class AbstractNode extends AbstractResource /*implements NodeInterface*
 
     public function isSubNode(NodeInterface $node): bool
     {
-        if ($node->getId() == $this->id) {
+        if ($node->getId() == $this->getId()) {
             return true;
         }
 
         foreach ($node->getParents() as $node) {
-            if ($node->getId() == $this->id) {
+            if ($node->getId() == $this->getId()) {
                 return true;
             }
         }
 
-        if ($this->isRoot()) {
+        if ($this instanceof CollectionInterface && $this->isRoot()) {
             return true;
         }
 

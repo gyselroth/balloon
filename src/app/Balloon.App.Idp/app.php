@@ -18,6 +18,8 @@ use Balloon\Hook;
 use Balloon\App\Idp\Hook\MultiFactorAuth;
 use FastRoute\RouteCollector;
 use League\Event\Emitter;
+use Balloon\App\Idp\Oauth2\Tokens;
+use Balloon\User;
 
 return [
     OAuth2Server::class => [
@@ -71,8 +73,10 @@ return [
             'arguments' => [
                 'event' => 'http.stack.preAuth',
                 'listener' => function($event, &$request) {
-                    if($request->getPath() === '/api/v2/tokens') {
-                        $request = $request->withAttribute('identity', true);
+                    if($request->getRequestTarget() === '/api/v2/tokens') {
+                        $request = $request->withAttribute('identity', new User([
+                            'username' => '',
+                        ]));
                     }
                 }
             ]
@@ -87,7 +91,8 @@ return [
                 'handler',
             ],
             'batch' => [
-                ['GET', '/api/v2', [Specifications::class, 'post']],
+                ['POST', '/tokens', [Tokens::class, 'post']],
+                ['POST', '/api/v2/tokens', [Tokens::class, 'post']],
             ]
         ]]
     ],

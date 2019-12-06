@@ -21,6 +21,7 @@ use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
 use OAuth2\Storage\MongoDB as OAuthMongoDB;
 use Psr\Log\LoggerInterface;
+use Balloon\User\Factory as UserFactory;
 
 class Db extends OAuthMongoDB
 {
@@ -62,11 +63,10 @@ class Db extends OAuthMongoDB
     /**
      * {@inheritdoc}
      */
-    public function __construct(Database $db, Auth $auth, /*Hook $hook, Server $server, */LoggerInterface $logger, array $config = [])
+    public function __construct(Database $db, Auth $auth, UserFactory $user_factory, /*Hook $hook, Server $server, */LoggerInterface $logger, array $config = [])
     {
-        #$this->server = $server;
         $this->auth = $auth;
-        #$this->hook = $hook;
+        $this->user_factory = $user_factory;
         $this->logger = $logger;
 
         parent::__construct($db, $config);
@@ -80,32 +80,36 @@ class Db extends OAuthMongoDB
         foreach ($this->auth->getAdapters() as $name => $adapter) {
             if ($adapter instanceof BasicInterface) {
                 try {
-                    if ($adapter->plainAuth($username, $password) === true) {
+                    $attributes = $adapter->plainAuth($username, $password);
+                    if ($attributes !== null) {
                         $user = null;
-                        $identity = $this->auth->createIdentity($adapter);
 
                         try {
-                            $user = $this->server->getUserByName($username);
+                            $user = $this->user_factory->getOneByName($attributes[$adapter->getIdentityAttribute()] ?? '');
                         } catch (User\Exception\NotFound $e) {
                             $this->logger->warning('failed connect authenticated user, user account does not exists', [
                                 'category' => get_class($this),
                             ]);
                         }
-
 //                        $this->hook->run('preServerIdentity', [$identity, &$user]);
 
-                        if (!($user instanceof User)) {
+                        /*if (!($user instanceof User)) {
                             throw new User\Exception\NotAuthenticated('user does not exists', User\Exception\NotAuthenticated::USER_NOT_FOUND);
                         }
 
                         if ($user->isDeleted()) {
                             throw new User\Exception\NotAuthenticated('user is disabled and can not be used', User\Exception\NotAuthenticated::USER_DELETED);
-                        }
+                        }*/
 
  //                       $this->hook->run('postAuthentication', [$this->auth, $identity]);
                         $this->adapter = $name;
 
                         return true;
+                    } else {
+                        $this->logger->debug('failed authenticate using adapter [{adapter}]', [
+                            'category' => get_class($this),
+                            'adapter' => $name
+                        ]);
                     }
                 } catch (MultiFactorAuthenticationRequired $e) {
                     throw $e;
@@ -129,8 +133,8 @@ class Db extends OAuthMongoDB
     public function getUser($username)
     {
         try {
-            return $this->server->getUserByName($username)
-                ->getAttributes();
+            return $this->user_factory->getOneByName($username)
+                ->toArray();
         } catch (User\Exception\NotFound $e) {
             $this->logger->warning('failed connect authenticated user, user account does not exists', [
                 'category' => get_class($this),
