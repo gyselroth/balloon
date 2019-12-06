@@ -17,7 +17,7 @@
 * Various DMS features like tagging, meta data, sharing, file history and more
 * Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
 * Comes with cloud native support and deploy ready kubernetes resources
-* Deployable out of the box (debian (deb), tar archive, docker-compose, kubernetes, helm package and more)
+* Deployable out of the box using docker-compose, k8s, helm, and more)
 * App system for 3rd party apps
 * The core is shipped with various core apps pre-installed
 * File previews for various formats (including office documents, pdf, text, images, markdown, html and more)
