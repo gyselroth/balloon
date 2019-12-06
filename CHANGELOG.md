@@ -1,6 +1,14 @@
+## 2.7.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dec 04 09:52:42 CET 2019
+
+### Bugfixes
+* Argument 1 passed to Balloon\Filesystem\Node\File::setContent() must be an instance of Balloon\Session\SessionInterface, instance of MongoDB\BSON\ObjectId given, called in /srv/www/balloon/src/lib/Filesystem/Node/File.php on line 520 #382
+
+
 ## 2.7.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Tue Oct 22 09:50:42 CEST 2019
+**Date**: Wed Dec 04 09:52:42 CET 2019
 
 ### Changes
 * Balloon\App\Notification\Notifier,WARNING: there are no notification adapter enabled, notification can not be sent [] [] #401

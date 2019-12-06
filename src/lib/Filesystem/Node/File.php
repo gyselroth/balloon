@@ -516,7 +516,7 @@ class File extends AbstractNode implements IFile
         $stream = $this->get();
 
         if ($stream !== null) {
-            $session = $parent->getStorage()->storeTemporaryFile($stream, $this->_server->getUserById($this->getOwner()));
+            $session = $this->_session_factory->add($this->_server->getUserById($this->getOwner()), $parent, $stream);
             $result->setContent($session);
             fclose($stream);
         }
