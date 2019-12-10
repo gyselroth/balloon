@@ -1,0 +1,3403 @@
+paths:
+  /api:
+    get:
+      tags:
+        - core.v2
+      summary: 'Get server status'
+      operationId: getCoreV2Api
+      security: []
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "API root"
+          schema:
+            $ref: '#/definitions/core.v2.ApiRoot'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2:
+    get:
+      tags:
+        - core.v2
+      summary: 'Get server status (API v2)'
+      operationId: getCoreV2V2
+      security: []
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "API root"
+          schema:
+            $ref: '#/definitions/core.v2.ApiRoot'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/tokens:
+    post:
+      tags:
+        - core.v2
+      summary: Get OAUTH2 Bearer token
+      operationId: addCoreV2Token
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+      - "application/json"
+      parameters:
+        - in: formData
+          name: grant_type
+          description: "OAUTH2 grant_type"
+          required: true
+          type: string
+          enum:
+          - password
+          - password_mfa
+          - refresh_token
+        - in: formData
+          name: username
+          description: "Username"
+          required: false
+          type: string
+        - in: formData
+          name: password
+          description: "Password"
+          required: false
+          type: string
+        - in: formData
+          name: code
+          description: "Multi factor value. This is usually some kind of a code."
+          required: false
+          type: string
+        - in: formData
+          name: refresh_token
+          description: "OAUTH2 refresh_token to retrieve a new access_token."
+          required: false
+          type: string
+      security:
+      - BasicAuth: []
+      responses:
+        "200":
+          description: Oauth2 token
+          schema:
+            $ref: "#/definitions/core.v2.OAuth2Token"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/groups':
+    get:
+      tags:
+        - core.v2
+      summary: Get groups
+      description: A group is a colletion of users
+      operationId: getCoreV2Groups
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of groups"
+          schema:
+            $ref: "#/definitions/core.v2.Groups"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    post:
+      tags:
+        - core.v2
+      summary: Add group
+      operationId: addGroup
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: "#/definitions/core.v2.Group"
+      responses:
+        201:
+          description: "If successful the server will respond with 201 Created"
+          schema:
+            $ref: "#/definitions/core.v2.Group"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/groups/{group}':
+    get:
+      tags:
+        - core.v2
+      operationId: getCoreV2Group
+      summary: 'Get group'
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "Group"
+          schema:
+            $ref: "#/definitions/core.v2.Group"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    patch:
+      tags:
+        - core.v2
+      summary: 'Change group'
+      operationId: patchCoreV2Group
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: body
+          name: body
+          description: 'Set attributes for group'
+          required: true
+          schema:
+            $ref: "#/definitions/core.v2.Group"
+      responses:
+        200:
+          description: "Group"
+          schema:
+            $ref: "#/definitions/core.v2.Group"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    delete:
+      tags:
+        - core.v2
+      summary: 'Delete group'
+      operationId: deleteCoreV2Group
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the group gets disabled, if force is set the group gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/groups/{group}/members':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get group members'
+      operationId: getCoreV2GroupMembers
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "List of users"
+          schema:
+            $ref: '#/definitions/core.v2.Users'
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/groups/{group}/undelete':
+    post:
+      tags:
+        - core.v2
+      summary: 'Restore group'
+      operationId: undeleteGroup
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: 'string'
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "Group"
+          schema:
+            $ref: "#/definitions/core.v2.Group"
+        404:
+          description: "Resource does not exists"
+        403:
+          description: "Access denied"
+  '/api/v2/users':
+    get:
+      tags:
+        - core.v2
+      summary: Get users
+      operationId: getCoreV2Users
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of users"
+          schema:
+            $ref: '#/definitions/core.v2.Users'
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    post:
+      tags:
+        - core.v2
+      summary: Add user
+      operationId: addUser
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: "#/definitions/core.v2.User"
+      responses:
+        201:
+          description: "If successful the server will respond with 201 Created"
+          schema:
+            $ref: "#/definitions/core.v2.User"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/users/{user}':
+    get:
+      tags:
+        - core.v2
+      operationId: getCoreV2User
+      summary: 'Get user'
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "User"
+          schema:
+            $ref: "#/definitions/core.v2.User"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    patch:
+      tags:
+        - core.v2
+      summary: 'Update user'
+      operationId: patchCoreV2User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: body
+          name: body
+          description: 'Set attributes for user'
+          required: true
+          schema:
+            $ref: "#/definitions/core.v2.User"
+      responses:
+        200:
+          description: "User"
+          schema:
+            $ref: "#/definitions/core.v2.User"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    delete:
+      tags:
+        - core.v2
+      summary: 'Delete user'
+      operationId: deleteCoreV2User
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the user gets disabled, if force is set the user gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/users/{user}/node-attribute-summary':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get user node summary.'
+      operationId: getCoreV2NodeAttributeSummary
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: 'string'
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "User"
+          schema:
+            $ref: "#/definitions/core.v2.UserNodeAttributeSummary"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/users/{user}/groups':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get all groups of a user'
+      operationId: getCoreV2UserGroups
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of groups"
+          schema:
+            $ref: "#/definitions/core.v2.Groups"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/users/{user}/undelete':
+    post:
+      tags:
+        - core.v2
+      summary: 'Restore user'
+      operationId: undeleteUser
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "User"
+          schema:
+            $ref: "#/definitions/core.v2.User"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/users/whoami:
+    get:
+      tags:
+        - core.v2
+      summary: 'Get current user'
+      operationId: getCoreV2CurrentUser
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "User"
+          schema:
+            $ref: "#/definitions/core.v2.User"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/users/{user}/avatar':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get user avatar'
+      operationId: getCoreV2UserAvatar
+      produces:
+        - octet/stream
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "Binaray user avatar"
+          schema:
+            $ref: "#/definitions/core.v2.User"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/nodes/trash:
+    get:
+      tags:
+        - core.v2
+      summary: 'Get deleted nodes'
+      description: 'Return deleted nodes (Excluding sub nodes of deleted collections)'
+      operationId: getCoreV2DeletedNodes
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+         description: Nodes
+         schema:
+           $ref: '#/definitions/core.v2.Nodes'
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/nodes/search:
+    get:
+      tags:
+        - elasticsearch.v2
+      summary: 'Extended search query using elasticsearch'
+      operationId: queryElasticsearch
+      produces:
+        - application/json
+      parameters:
+        - name: query
+          in: query
+          required: true
+          type: string
+          description: 'Elasticsearch query as JSON'
+        - name: deleted
+          in: query
+          required: false
+          type: integer
+          description: 'Wherever include deleted nodes or not, possible values:  0 Exclude deleted 1 Only deleted 2 Include deleted.'
+      responses:
+        200:
+         description: Nodes
+         schema:
+           $ref: '#/definitions/core.v2.Nodes'
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/notifications:
+    get:
+      tags:
+        - notification.v2
+      summary: 'Get nofitifications'
+      operationId: getCoreV2Notifications
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of notifications"
+          schema:
+            $ref: "#/definitions/notification.v2.Notifications"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    post:
+      tags:
+        - notification.v2
+      summary: 'Send notification'
+      operationId: postNotification
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/notification.v2.Notification'
+      responses:
+        202:
+          description: "Notification"
+          schema:
+            $ref: "#/definitions/notification.v2.Notification"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/notifications/{notification}:
+    get:
+      tags:
+        - notification.v2
+      summary: 'Get notification'
+      operationId: getCoreV2Notification
+      produces:
+        - application/json
+      parameters:
+        - name: notification
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "Notification"
+          schema:
+            $ref: "#/definitions/notification.v2.Notification"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    delete:
+      tags:
+        - notification.v2
+      summary: 'Delete notification'
+      operationId: deleteCoreV2Notification
+      produces:
+        - application/json
+      parameters:
+        - name: notification
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/notifications/broadcast:
+    post:
+      tags:
+        - notification.v2
+      summary: 'Send broadcast'
+      operationId: sendCoreV2Broadcast
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 'Notification'
+          schema:
+            $ref: "#/definitions/notification.v2.Notification"
+      responses:
+        202:
+          description: "Notification"
+          schema:
+            $ref: "#/definitions/notification.v2.Notification"
+        403:
+          description: "Access denied"
+  /api/v2/notifications/mail:
+    post:
+      tags:
+        - notification.v2
+      summary: 'Send mail'
+      operationId: sendCoreV2Mail
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 'Mail'
+          schema:
+            $ref: "#/definitions/notification.v2.Mail"
+      responses:
+        202:
+          description: "Mail"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/nodes/{node}/subscription:
+    post:
+      tags:
+        - notification.v2
+      summary: 'Subscribe node updates'
+      operationId: subscribeNode
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: 'string'
+          description: 'Node identifier'
+        - name: subscribe
+          in: query
+          required: false
+          type: boolean
+          description: 'If true the subscription is active'
+        - name: exclude_me
+          in: query
+          required: false
+          type: boolean
+          description: 'Exclude subscription owner (me) from change notifications'
+        - name: recursive
+          in: query
+          required: false
+          type: boolean
+          description: 'Apply subscription to children (inclusive newly added children)'
+        - name: throttle
+          in: query
+          required: false
+          type: integer
+          description: 'Set a custom notification throttle interval in seconds'
+      responses:
+        202:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v2.Node"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/files/{file}/convert/slaves':
+    get:
+      tags:
+        - convert.v2
+      summary: 'Get convert slaves'
+      operationId: getCoreV2Slaves
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "Slaves"
+          schema:
+            $ref: "#/definitions/convert.v2.Slaves"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    post:
+      tags:
+        - convert.v2
+      summary: 'Add convert slave'
+      operationId: addSlave
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+        - in: body
+          name: body
+          description: 'Add new conversion slave '
+          required: true
+          schema:
+            $ref: '#/definitions/convert.v2.Slave'
+      responses:
+        202:
+          description: "Slave"
+          schema:
+            $ref: "#/definitions/convert.v2.Slave"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/files/{file}/convert/slaves/{slave}':
+    get:
+      tags:
+        - convert.v2
+      summary: 'Get convert slave'
+      operationId: getCoreV2Slave
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+        - name: slave
+          in: path
+          required: true
+          type: string
+          description: 'Slave identifier'
+      responses:
+        200:
+          description: "Slave"
+          schema:
+            $ref: "#/definitions/convert.v2.Slave"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    delete:
+      tags:
+        - convert.v2
+      summary: 'Delete convert slave'
+      operationId: deleteCoreV2Slave
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+        - name: slave
+          in: path
+          required: true
+          type: string
+          description: 'Slave identifier'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/files/{file}/convert/supported-formats':
+    get:
+      tags:
+        - convert.v2
+      summary: 'Get supported convert file formats'
+      description: 'Get supported file formats to convert to (formats do vary between files)'
+      operationId: getCoreV2SupportedFormats
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "Formats"
+          schema:
+            type: array
+            items:
+              type: 'string'
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/desktop-clients/{format}/content':
+    get:
+      tags:
+        - desktopclient.v2
+      summary: 'Download balloon desktop client'
+      operationId: getCoreV2DesktopClient
+      produces:
+        - octet/stream
+      parameters:
+        - name: format
+          in: path
+          required: true
+          type: string
+          description: 'Request client foramt (deb, rpm, exe, pkg, zip or a custom format)'
+          enum:
+          - deb
+          - rpm
+          - exe
+          - pkg
+          - zip
+      responses:
+        200:
+          description: "Desktop client (binary)"
+          schema:
+            type: file
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/office/documents:
+    post:
+      tags:
+        - wopi.v2
+      summary: 'Create new document'
+      description: 'Create new document from an existing office document template'
+      operationId: addCoreV2Document
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/core.v2.File'
+      responses:
+        201:
+          description: "File"
+          schema:
+            $ref: "#/definitions/core.v2.File"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes/{node}/clone':
+    post:
+      tags:
+        - core.v2
+      summary: Clone node
+      operationId: cloneNode
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - name: destid
+          in: query
+          required: false
+          description: 'Destination collection, if this is null root is taken'
+          type: string
+        - name: conflict
+          in: query
+          required: false
+          description: 'core.v2.Conflict resolution'
+          type: integer
+          default: 0
+          enum:
+          - 0
+          - 1
+          - 2
+      responses:
+        201:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v2.Node"
+        207:
+          description: "Multi status if batch request"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes/{node}/move':
+    post:
+      tags:
+        - core.v2
+      summary: 'Move node'
+      description: 'Move node (Change parent collection), single or multiple ones'
+      operationId: moveNode
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - name: destid
+          in: query
+          required: false
+          description: 'Destination collection, if this is null root is taken'
+          type: string
+        - name: conflict
+          in: query
+          required: false
+          description: 'core.v2.Conflict resolution'
+          type: integer
+          default: 0
+          enum:
+          - 0
+          - 1
+          - 2
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v2.Node"
+        207:
+          description: "Multi status if batch request"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes/{node}/undelete':
+    post:
+      tags:
+        - core.v2
+      summary: 'Restore node'
+      description: 'Undelete (Restore from trash) a single node or multiple ones.'
+      operationId: undeleteNode
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - name: move
+          in: query
+          required: false
+          description: 'If node should also be moved during undelete'
+          type: boolean
+          default: false
+        - name: destid
+          in: query
+          required: false
+          description: 'If node should also be moved during undelete'
+          type: string
+        - name: conflict
+          in: query
+          required: false
+          description: 'core.v2.Conflict resolution'
+          type: integer
+          default: 0
+          enum:
+          - 0
+          - 1
+          - 2
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v2.Node"
+        207:
+          description: "Multi status if batch request"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/collections/{collection}/share':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get share acl and share name'
+      operationId: getCoreV2Share
+      produces:
+        - application/json
+      parameters:
+        - name: collection
+          in: path
+          required: true
+          description: 'Collection identifier'
+          type: string
+      responses:
+        200:
+          description: "Share"
+          schema:
+            $ref: "#/definitions/core.v2.Share"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    post:
+      tags:
+        - core.v2
+      summary: 'Create share'
+      description: 'Create a new share from an existing collection'
+      operationId: shareCollection
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: collection
+          in: path
+          required: true
+          description: 'Collection identifier'
+          type: string
+        - in: body
+          name: body
+          description: 'Create a new share from an existing collection '
+          required: true
+          schema:
+            $ref: '#/definitions/core.v2.Share'
+      responses:
+        200:
+          description: "Collection"
+          schema:
+            $ref: "#/definitions/core.v2.Collection"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    delete:
+      tags:
+        - core.v2
+      summary: 'Delete share'
+      description: 'Does only remove sharing options and transform a share back into a normal collection. There will not be any data loss after this action. All existing references would be removed automatically.'
+      operationId: deleteCoreV2Share
+      parameters:
+        - name: collection
+          in: path
+          required: true
+          description: 'Collection identifier'
+          type: string
+      responses:
+        204:
+          description: "The server responds with 204 if successful."
+        404:
+          description: "Resource does not exists"
+        403:
+          description: "Access denied"
+  '/api/v2/collections/{collection}/children':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get collection children'
+      operationId: getCoreV2Children
+      produces:
+        - application/json
+      parameters:
+        - name: collection
+          in: path
+          required: true
+          description: 'Parent collection'
+          type: string
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+        - in: query
+          name: recursive
+          description: 'Include children recursively.'
+          required: false
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: "List of children"
+          schema:
+            $ref: "#/definitions/core.v2.Nodes"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/collections/children':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get root children'
+      operationId: getCoreV2RootChildren
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+        - in: query
+          name: recursive
+          description: 'Include children recursively.'
+          required: false
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: "List of children"
+          schema:
+            $ref: "#/definitions/core.v2.Nodes"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/collections':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get collections'
+      operationId: getCoreV2Collections
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of collections"
+          schema:
+            $ref: "#/definitions/core.v2.Collections"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    post:
+      tags:
+        - core.v2
+      summary: 'Create a new collection in root'
+      operationId: addCoreV2RootCollection
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/core.v2.Collection'
+      responses:
+        201:
+          description: "Collection"
+          schema:
+            $ref: "#/definitions/core.v2.Collection"
+        404:
+          description: "Resource does not exists"
+        403:
+          description: "Access denied"
+  '/api/v2/collections/{collection}':
+    post:
+      tags:
+        - core.v2
+      summary: 'Create collection'
+      operationId: addCoreV2Collection
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: collection
+          in: path
+          required: true
+          description: 'Parent collection'
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/core.v2.Collection'
+      responses:
+        201:
+          description: "Collection"
+          schema:
+            $ref: "#/definitions/core.v2.Collection"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/files':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get files'
+      operationId: getCoreV2Files
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of files"
+          schema:
+            $ref: "#/definitions/core.v2.Files"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    put:
+      tags:
+        - core.v2
+      summary: 'Upload file'
+      description: 'Upload an entire file in one-shot. Use this endpoint only for small files, for bigger files use the chunking endpoint.'
+      operationId: uploadFile
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: File content
+          schema:
+            type: string
+      responses:
+        201:
+          description: "File created"
+          schema:
+            $ref: "#/definitions/core.v2.File"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/files/{file}/history':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get file history'
+      operationId: getCoreV2FileHistory
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "File history"
+          schema:
+            $ref: "#/definitions/core.v2.FileHistory"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/files/{file}/restore':
+    post:
+      tags:
+        - core.v2
+      summary: Rollback file
+      description: 'Rollback to a recent version from history. Use the version number from history.'
+      operationId: rollbackFile
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "File"
+          schema:
+            $ref: "#/definitions/core.v2.File"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/files/chunk:
+    put:
+      tags:
+        - core.v2
+      summary: Resumeable upload file (chunked)
+      description: 'Upload a file chunk. You have to manually splitt the binary data into multiple chunks and upload them successively using this method. Once uploading the last chunk, the server will automatically create or update the file node. You may set the parent collection, name and or custom attributes only with the last request to save traffic.'
+      operationId: uploadChunk
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 'File content'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "File updated"
+          schema:
+            $ref: "#/definitions/core.v2.File"
+        201:
+          description: "File newly created"
+          schema:
+            $ref: "#/definitions/core.v2.File"
+        206:
+          description: "Chunk uploaded"
+          schema:
+            $ref: "#/definitions/core.v2.ChunkSession"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get all nodes'
+      operationId: getCoreV2Nodes
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of nodes"
+          schema:
+            $ref: "#/definitions/core.v2.Nodes"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes/{node}':
+    delete:
+      tags:
+        - core.v2
+      summary: 'Delete node'
+      operationId: deleteCoreV2Node
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Force flag need to be set to delete a node from trash (node must have the deleted flag) '
+        - name: ignore_flag
+          in: query
+          required: false
+          type: boolean
+          description: 'If both ignore_flag and force_flag were set, the node will be deleted completely '
+        - name: at
+          in: query
+          required: false
+          type: integer
+          description: 'Has to be a valid unix timestamp if so the node will destroy itself at this specified time instead immediatly'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    get:
+      tags:
+        - core.v2
+      summary: 'Get node'
+      operationId: getCoreV2Node
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - name: attributes
+          in: query
+          required: false
+          type: 'array'
+          description: 'Filter attributes'
+          items:
+            type: string
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v2.Node"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    patch:
+      tags:
+        - core.v2
+      summary: 'Change node'
+      operationId: updateNode
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - in: body
+          name: body
+          description: 'Change attributes '
+          required: true
+          schema:
+            $ref: '#/definitions/core.v2.Node'
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v2.Node"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes/{node}/share-link':
+    delete:
+      tags:
+        - sharelink.v2
+      summary: 'Delete share link'
+      operationId: deleteCoreV2Link
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+      responses:
+        204:
+          description: "The server responds with 204 if operation was successful"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    post:
+      tags:
+        - sharelink.v2
+      summary: Create share link
+      description: 'Create a unique share link of a node (global accessible). A possible existing link will get deleted if this endpoint gets called.'
+      operationId: addCoreV2Link
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - name: expiration
+          in: query
+          required: false
+          type: integer
+          description: 'Expire timestamp as unix timestap. Tells the server when the public link should expire automatically. The default is to never expire.'
+          default: 0
+        - name: password
+          in: query
+          required: false
+          type: string
+          description: 'Optionally set a password to protect the public link.'
+      responses:
+        201:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v2.Node"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/nodes/last-cursor:
+    get:
+      tags:
+        - core.v2
+      summary: Get last cursor
+      description: 'Use this method to request the latest cursor if you only need to now if there are changes on the server. This method will not return any other data than the newest cursor. To request a feed with all deltas request /delta.'
+      operationId: getCoreV2LastCursor
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "Cursor"
+          schema:
+            type: string
+  '/api/v2/nodes/{node}/content':
+    get:
+      tags:
+        - core.v2
+      summary: 'Download node content.'
+      description: 'Stream node contents. Note that collections are zipped on-the-fly.'
+      operationId: getCoreV2Content
+      produces:
+        - octet/stream
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - name: Range
+          in: header
+          required: false
+          type: string
+          description: 'Read stream from a specific offset/limit in bytes.'
+        - name: encode
+          in: query
+          required: false
+          type: string
+          description: 'Can be set to base64 to encode content as base64.'
+          enum:
+          - base64
+        - name: download
+          in: query
+          required: false
+          type: boolean
+          description: 'Force download file (Content-Disposition: attachment HTTP header)'
+          default: false
+      responses:
+        200:
+          description: "Content"
+          schema:
+            type: file
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/nodes/delta:
+    get:
+      tags:
+        - core.v2
+      summary: 'Delta stream with cursor support.'
+      operationId: getCoreV2Delta
+      produces:
+        - application/json
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          description: 'Limit the number of delta entries, if too low you have to call this endpoint more often since has_more would be true more often '
+        - name: attributes
+          in: query
+          required: false
+          type: 'array'
+          description: 'Filter attributes, per default not all attributes would be returned'
+          items:
+            type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+          description: 'Set a cursor to rquest next nodes within delta processing '
+      responses:
+        200:
+          description: "Delta"
+          schema:
+            $ref: "#/definitions/core.v2.Delta"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes/event-log':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get events'
+      description: 'Get event log containing all operations which are made by the user himself or share members'
+      operationId: getCoreV2EventLog
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "Event log"
+          schema:
+            $ref: "#/definitions/core.v2.EventLogs"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes/{node}/event-log':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get event'
+      description: 'Get event log containing all operations which are made by the user himself or share members on a given node'
+      operationId: getCoreV2NodeEventLog
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "Event log"
+          schema:
+            $ref: "#/definitions/core.v2.EventLogs"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/nodes/{node}/parents':
+    get:
+      tags:
+        - core.v2
+      summary: 'Get parent collections'
+      description: 'The hirarchy of all parent nodes is ordered in a single level array beginning with the collection on the highest level.'
+      operationId: getCoreV2ParentNodes
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - name: self
+          in: query
+          required: false
+          type: boolean
+          description: 'Include requested collection itself at the end of the list (Will be ignored if the requested node is a file)'
+      responses:
+        200:
+          description: "Parent nodes"
+          schema:
+            $ref: "#/definitions/core.v2.Nodes"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/feedbacks:
+    post:
+      tags:
+        - feedback.v2
+      description: 'Submit feedback'
+      summary: 'Submit a feedback to the developers of balloon (or another destination). You may submit some metadata and a zipped collection of debug information.'
+      operationId: submitFeedback
+      consumes:
+      - multipart/mixed
+      responses:
+        201:
+          description: "Feedback submited"
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+  '/api/v2/files/{file}/preview':
+    get:
+      tags:
+        - preview.v2
+      description: 'Get preview'
+      summary: 'Get a preview of the files content. The body either contains an encoded string or a jpeg binary.'
+      operationId: getCoreV2Preview
+      produces:
+        - octet/stream
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+        - name: encode
+          in: query
+          required: false
+          type: string
+          description: 'Set to base64 to return a jpeg encoded preview as base64, else return it as jpeg binary'
+      responses:
+        200:
+          description: "Binary data"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    patch:
+      tags:
+        - preview.v2
+      description: 'Create preview'
+      summary: 'Create or replace preview of a file. A preview may be a maximum of 2MB'
+      operationId: setPreview
+      produces:
+        - application/json
+      consumes:
+        - octet/stream
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "File"
+          schema:
+            $ref: "#/definitions/core.v2.File"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+    delete:
+      tags:
+        - preview.v2
+      description: 'Delete preview'
+      summary: 'Delete an existing preview'
+      operationId: deleteCoreV2Preview
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        204:
+          description: "Preview deleted"
+        400:
+          $ref: '#/responses/core.v2.BadRequest'
+        401:
+          $ref: '#/responses/core.v2.Unauthorized'
+        403:
+          $ref: '#/responses/core.v2.Forbidden'
+        404:
+          $ref: '#/responses/core.v2.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v2.InternalServerError'
+responses:
+  core.v2.NotFound:
+    description: The specified resource was not found
+    schema:
+      $ref: '#/definitions/core.v2.Error'
+  core.v2.Unauthorized:
+    description: core.v2.Unauthorized
+    schema:
+      $ref: '#/definitions/core.v2.Error'
+  UnprocessableEntity:
+    description: core.v2.Unauthorized
+    schema:
+      $ref: '#/definitions/core.v2.Error'
+  core.v2.Conflict:
+    description: core.v2.Conflict
+    schema:
+      $ref: '#/definitions/core.v2.Error'
+  core.v2.Forbidden:
+    description: core.v2.Forbidden
+    schema:
+      $ref: '#/definitions/core.v2.Error'
+  core.v2.BadRequest:
+    description: Bad Reqeust
+    schema:
+      $ref: '#/definitions/core.v2.Error'
+  core.v2.InternalServerError:
+    description: Internal Server Error
+    schema:
+      $ref: '#/definitions/core.v2.Error'
+definitions:
+  core.v2.Error:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      error:
+        type: string
+  core.v2.ApiRoot:
+    description: "Describes the api root."
+    type: "object"
+    properties:
+      name:
+        type: string
+      api:
+        type: integer
+  core.v2.Links:
+    description: "Contains resource links (URL) to other resources."
+    type: "object"
+    properties:
+      self:
+        $ref: "#/definitions/core.v2.Link"
+  core.v2.ListLinks:
+    type: "object"
+    properties:
+      self:
+        $ref: "#/definitions/core.v2.Link"
+      prev:
+        $ref: "#/definitions/core.v2.Link"
+      next:
+        $ref: "#/definitions/core.v2.Link"
+  core.v2.Link:
+    type: "object"
+    properties:
+      href:
+        type: "string"
+  core.v2.ResourceList:
+    type: "object"
+    properties:
+      _links:
+        description: "Holds a list of links rfc1738 to other resources."
+        $ref: "#/definitions/core.v2.ListLinks"
+      kind:
+        description: "The resource type, always List."
+        type: "string"
+        default: "List"
+      count:
+        description: "Holds the number of items in the current list response."
+        type: integer
+      total:
+        description: "Holds the number of total available items on the server. Note that a List resource is always paged. You need to traverse with offset and limit to request further resources in the list."
+        type: integer
+  core.v2.Resource:
+    type: "object"
+    properties:
+      _links:
+        $ref: "#/definitions/core.v2.Links"
+      kind:
+        description: Resource type
+        type: string
+      id:
+        description: "Unique 12-byte resource identifier. Note this is a MongoDB ObjectId. The name is the standard resource identifier, the id only useful to verify that a given resource was completely recreated. An ID is immutable and will be created on the server."
+        type: "string"
+      created:
+        description: "ISO 8601 timestamp when the resource was created."
+        type: "string"
+        format: date-time
+  core.v2.OAuth2Token:
+    description: "OAUTH2 access token response according RFC6749 https://tools.ietf.org/html/rfc6749#section-4.3.3"
+    type: object
+    properties:
+      access_token:
+        description: Resource access_token.
+        type: string
+      expires_in:
+        description: The number of seconds the issues acceess_token is valid for. This is usually 1hour.
+        type: integer
+        default: 3600
+      token_type:
+        description: The type of token. This is usually a Bearer token.
+        type: string
+        default: Bearer
+      scope:
+        description: The scopes.
+        type: string
+      refresh_token:
+        description: An optional refresh token to get new access_tokens via the refresh_token grant type.
+        type: string
+  core.v2.Users:
+    description: "A list of users."
+    type: object
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.User"
+  core.v2.User:
+    description: "A user is used to access the server."
+    allOf:
+      - $ref: '#/definitions/core.v2.Resource'
+      - type: object
+        properties:
+          changed:
+            description: "ISO 8601 timestamp when the resource was changed."
+            type: "string"
+            format: date-time
+          username:
+            description: "Unique username."
+            type: "string"
+          name:
+            description: "Display name (Usuallly same as username)."
+            type: "string"
+          admin:
+            description: "Admin user flag."
+            type: "boolean"
+            default: false
+          namespace:
+            description: "User namespace."
+            type: "string"
+          locale:
+            description: "User locale."
+            type: "string"
+            default: "en_US"
+          auth:
+            description: "Authentication source."
+            type: "string"
+            default: "internal"
+            enum:
+            - internal
+            - external
+          has_password:
+            description: "Is true if the user has a local password set."
+            type: boolean
+            default: false
+          hard_quota:
+            description: "Hard quota in bytes (Max. limit of storage usage). Note that external storage is not part of the quota. The default is no limit."
+            type: integer
+            default: -1
+          soft_quota:
+            description: "Soft quota in bytes (Warning of high quota usage). The default is no limit."
+            type: integer
+            default: -1
+          available:
+            description: "Available storage in bytes. Is -1 if there is no hard_quota."
+            type: integer
+            default: -1
+          used:
+            description: "Used storage in bytes."
+            type: integer
+            default: 0
+  core.v2.Groups:
+    description: "A list of groups."
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.Group"
+  core.v2.Group:
+    description: "A group contains user resources."
+    allOf:
+      - $ref: '#/definitions/core.v2.Resource'
+      - type: object
+        properties:
+          changed:
+            description: "ISO 8601 timestamp when the resource was changed."
+            type: "string"
+            format: date-time
+          name:
+            description: "Group name."
+            type: "string"
+          namespace:
+            description: "User namespace."
+            type: "string"
+          member:
+            description: "Array of user id's."
+            type: "array"
+            items:
+              type: string
+  core.v2.Nodes:
+    description: "A list of nodes."
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.Node"
+  core.v2.NodeMeta:
+    description: "Node meta data."
+    type: object
+    properties:
+      tags:
+        description: "Node tags. Tags can be freely choosen."
+        type: "array"
+        items:
+          type: string
+      author:
+        description: "Author."
+        type: "string"
+      license:
+        description: "Content license."
+        type: "string"
+      color:
+        description: "A color tag."
+        type: "string"
+  core.v2.Node:
+    description: "A Node."
+    allOf:
+      - $ref: '#/definitions/core.v2.Resource'
+      - type: object
+        properties:
+          changed:
+            description: "ISO 8601 timestamp when the resource was changed."
+            type: "string"
+            format: date-time
+          deleted:
+            description: "ISO 8601 timestamp when the resource was deleted."
+            type: string
+            format: date-time
+          name:
+            description: "Node name."
+            type: "string"
+          mime:
+            description: "Mimetype."
+            type: "string"
+          readonly:
+            description: "Readonly only affects the content of the node but not metadata."
+            type: "boolean"
+            default: false
+          directory:
+            description: "If node is of type Collection this flag is true."
+            type: "boolean"
+            default: false
+          meta:
+            $ref: '#/definitions/core.v2.NodeMeta'
+          size:
+            description: "The size in bytes. If the node is of type collection the size is the number of child nodes."
+            type: integer
+            default: 0
+          path:
+            description: "The path abstraction of the node."
+            type: "string"
+          access:
+            description: "Access level."
+            type: "string"
+            default: rw
+            enum:
+            - rw
+            - w
+            - m
+            - rp
+          parent:
+            description: "Points to the parent collection. If the nodes is in the root this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the parent collection"
+                type: "string"
+              name:
+                description: "The name of the parent collection"
+                type: "string"
+          share:
+            description: "Points to the shared node (or share reference). If the node is not part of any share this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the share collection. If the share is a reference (incoming share) it will point to the share reference and not the id of the shared collection itself."
+                type: "string"
+              name:
+                description: "The name of the share (or share reference)."
+                type: "string"
+          shareowner:
+            description: "Points to the share owner. If the node is not part of any share this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the share owner."
+                type: "string"
+              name:
+                description: "The username of the share owner."
+                type: "string"
+          subscription:
+            description: "Is true if the user has an active subscription on this node."
+            type: "boolean"
+            default: false
+          subscription_exclude_me:
+            description: "Subscription excludes actions from the subscribed user itself."
+            type: "boolean"
+            default: false
+          subscription_throttle:
+            description: "Subscription throttle interval in seconds"
+            type: "integer"
+            default: false
+          sharelink_has_password:
+            description: "Is true if the node has a protected public sharelink."
+            type: "boolean"
+            default: false
+  core.v2.Collections:
+    description: "A list of collections."
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.Collection"
+  core.v2.Collection:
+    description: "A collection can hold an unlimited number of child nodes."
+    allOf:
+      - $ref: '#/definitions/core.v2.Node'
+  core.v2.Files:
+    description: "A list of files."
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.File"
+  core.v2.File:
+    description: "A collection can hold an unlimited number of child nodes."
+    allOf:
+      - $ref: '#/definitions/core.v2.Node'
+      - type: object
+        properties:
+          version:
+            description: "The content version. Does increase if the content gets changed."
+            type: integer
+            default: 1
+          hash:
+            description: "MD5 content checksum."
+            type: "string"
+          preview:
+            description: "Is true if there is a preview"
+            type: "boolean"
+  core.v2.FileHistory:
+    description: "File history."
+    type: object
+    properties:
+      version:
+        description: "The version number."
+        type: integer
+        default: 1
+      changed:
+        description: "ISO 8601 timestamp when the resource was changed."
+        type: "string"
+        format: date-time
+      type:
+        description: "Type of change."
+        type: integer
+      user:
+        description: "Resolves to user who executed the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share owner."
+            type: "string"
+          name:
+            description: "The username of the share owner."
+            type: "string"
+  core.v2.Delta:
+    description: "The delta is a differential feed to get changes since the last delta call."
+    type: object
+    properties:
+      reset:
+        description: "If true the client needs to reset its state."
+        type: "boolean"
+        default: false
+      cursor:
+        description: "ACL rules."
+        type: string
+      has_more:
+        description: "If true the server has more entries and the client must send another request with the latest cursor."
+        type: boolean
+        default: false
+      nodes:
+        type: array
+        items:
+          $ref: '#/definitions/core.v2.Node'
+  core.v2.Share:
+    description: "Node share."
+    type: object
+    properties:
+      share_name:
+        description: "The name of the share. By default the name of the node."
+        type: "string"
+      acl:
+        description: "ACL rules."
+        type: array
+        items:
+          $ref: '#/definitions/core.v2.AclRule'
+  core.v2.AclRule:
+    description: "ACL rule."
+    type: object
+    properties:
+      type:
+        description: "The type of the resource."
+        type: "string"
+        enum:
+        - user
+        - group
+      id:
+        description: "ACL rules."
+        type: string
+      privilege:
+        description: "Privilege."
+        type: string
+        enum:
+        - rw
+        - w
+        - m
+        - rp
+        - d
+      role:
+        description: "Points to the share owner. If the node is not part of any share this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the role resource."
+            type: "string"
+          name:
+            description: "The name of role resource."
+            type: "string"
+  core.v2.UserNodeAttributeSummary:
+    description: "Request node fiel statistics."
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: object
+        properties:
+          _id:
+            type: string
+          sum:
+            type: integer
+  core.v2.ChunkSession:
+    description: "Chunking upload session."
+    type: object
+    properties:
+      session:
+        description: "The upload session id"
+        type: string
+      chunks_left:
+        description: "Tells how many chunks are left to upload."
+        type: integer
+  core.v2.EventLogs:
+    description: "A list of events."
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v2.EventLog"
+  core.v2.EventLog:
+    description: "Event log entry. Each event represents an executed operation on the server."
+    type: object
+    properties:
+      event:
+        description: "The event id."
+        type: "string"
+      timestamp:
+        description: "ISO 8601 timestamp when the event was created."
+        type: "string"
+      operation:
+        description: "The event operation."
+        type: "string"
+        enum:
+        - deleteCollectionReference
+        - deleteCollectionShare
+        - deleteCollection
+        - addCollection
+        - addFile
+        - addCollectionShare
+        - addCollectionReference
+        - undeleteFile
+        - undeleteCollectionReference
+        - undeleteCollectionShare
+        - restoreFile
+        - renameFile
+        - renameCollection
+        - renameCollectionShare
+        - renameCollectionReference
+        - copyFile
+        - copyCollection
+        - copyCollectionShare
+        - copyCollectionRFeference
+        - moveFile
+        - moveCollection
+        - moveCollectionReference
+        - moveCollectionShare
+      node:
+        description: "Resolves to the node involved in the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the node"
+            type: "string"
+          name:
+            description: "The name of the node"
+            type: "string"
+      parent:
+        description: "Points to the parent collection. If the node is in the root this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the parent collection"
+            type: "string"
+          name:
+            description: "The name of the parent collection"
+            type: "string"
+      share:
+        description: "Points to the shared node (or share reference). If the node is not part of any share this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share collection. If the share is a reference (incoming share) it will point to the share reference and not the id of the shared collection itself."
+            type: "string"
+          name:
+            description: "The name of the share (or share reference)."
+            type: "string"
+      user:
+        description: "Resolves to user who executed the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share owner."
+            type: "string"
+          name:
+            description: "The username of the share owner."
+            type: "string"
+      client:
+        description: "Describes the client from which the operation was executed."
+        type: "object"
+        properties:
+          type:
+            description: "The type of the client."
+            type: "string"
+          app:
+            description: "The client app name."
+            type: "string"
+          v:
+            description: "The version of the client app."
+            type: "string"
+          hostname:
+            description: "The hostname of the client."
+            type: "string"
+  office.v2.WopiDocument:
+    description: "WOPI document https://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html"
+    type: object
+    properties:
+      BaseFileName:
+        type: "string"
+      Size:
+        type: "string"
+      Version:
+        type: "string"
+      OwnerId:
+        type: "string"
+      UserId:
+        type: "string"
+      UserFriendlyName:
+        type: "string"
+      UserCanWrite:
+        type: "boolean"
+      PostMessageOrigin:
+        type: "string"
+  notification.v2.Mail:
+    description: "Mail"
+    type: object
+    properties:
+      receiver:
+        type: "array"
+        items:
+          type: string
+          format: mail
+      subject:
+        type: string
+      body:
+        type: string
+  notification.v2.Notifications:
+    description: "A list of notifications."
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/notification.v2.Notification"
+  notification.v2.Notification:
+    description: "A notification"
+    allOf:
+      - $ref: '#/definitions/core.v2.Resource'
+      - type: object
+        properties:
+          locale:
+            description: "Notification locale. A locale contains a static message which is of a given locale."
+            type: "string"
+            default: en_US
+          subject:
+            description: "Subject."
+            type: "string"
+          message:
+            description: "Message."
+            type: "string"
+          sender:
+            description: "Points to the message. If there is no sender (For example the message came from the system itself) this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the sender."
+                type: "string"
+              name:
+                description: "The username of the sender."
+                type: "string"
+          node:
+            description: "A notification may point to a node. If there is no node given this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the node."
+                type: "string"
+              name:
+                description: "The name of the node."
+                type: "string"
+  convert.v2.Slaves:
+    description: "A list of convert slaves."
+    allOf:
+      - $ref: '#/definitions/core.v2.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/convert.v2.Slave"
+  convert.v2.Slave:
+    description: "A convert slave"
+    allOf:
+      - $ref: '#/definitions/core.v2.Resource'
+      - type: object
+        properties:
+          format:
+            description: "Slave format."
+            type: "string"
+          master:
+            description: "Master node from which the slave is from."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the node."
+                type: "string"
+              name:
+                description: "The name of the node."
+                type: "string"
+          slave:
+            description: "The generated slave node. As long as the slave has not yet been created this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the node."
+                type: "string"
+              name:
+                description: "The name of the node."
+                type: "string"
+

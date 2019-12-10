@@ -13,6 +13,7 @@ use Balloon\App\CoreApiv2\Constructor\Http;
 use Balloon\App\CoreApiv2\Hook\Lock;
 use Balloon\App\CoreApiv2\Specifications;
 use Balloon\App\CoreApiv2\v2;
+use Balloon\App\CoreApiv2\Bridge;
 use Balloon\Bootstrap\AbstractBootstrap;
 use Balloon\Hook;
 use FastRoute\RouteCollector;
@@ -43,8 +44,25 @@ return [
                 'handler',
             ],
             'batch' => [
-                ['GET', '/api/v2', [Specifications::class, 'getApi']],
+                ['GET', '/api/v2/{p:.*+}', [Bridge::class, 'handle']],
 
+/*
+ 45             ->appendRoute(new Route('/api/v2/users/{id:#([0-9a-z]{24})#}(/|\z)', v2\Users::class))
+ 46             ->appendRoute(new Route('/api/v2/users(/|\z)', v2\Users::class))
+ 47             ->appendRoute(new Route('/api/v2/groups/{id:#([0-9a-z]{24})#}(/|\z)', v2\Groups::class))
+ 48             ->appendRoute(new Route('/api/v2/groups(/|\z)', v2\Groups::class))
+ 49             ->appendRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}(/|\z)', v2\Files::class))
+ 50             ->appendRoute(new Route('/api/v2/files(/|\z)', v2\Files::class))
+ 51             ->appendRoute(new Route('/api/v2/collections/{id:#([0-9a-z]{24})#}(/|\z)', v2\Collections::class))
+ 52             ->appendRoute(new Route('/api/v2/collections(/|\z)', v2\Collections::class))
+ 53             ->appendRoute(new Route('/api/v2/nodes/{id:#([0-9a-z]{24})#}(/|\z)', v2\Nodes::class))
+ 54             ->appendRoute(new Route('/api/v2/nodes(/|\z)', v2\Nodes::class))
+ 55             ->appendRoute(new Route('/api/v2$', v2\Api::class))
+ 56             ->appendRoute(new Route('/api/v2', v2\Api::class))
+
+ */
+
+                /*
                 ['GET', '/api/v2/users', [v2\Users::class, 'getAll']],
                 ['GET', '/api/v2/users/{user}', [v2\Users::class, 'getOne']],
                 ['POST', '/api/v2/users', [v2\Users::class, 'post']],
@@ -77,7 +95,7 @@ return [
                 ['POST', '/api/v2/files', [v2\Files::class, 'post']],
                 ['PUT', '/api/v2/files/{file}', [v2\Files::class, 'put']],
                 ['PATCH', '/api/v2/files/{file}', [v2\Files::class, 'patch']],
-                ['DELETE', '/api/v2/files/{file}', [v2\Files::class, 'delete']],
+                ['DELETE', '/api/v2/files/{file}', [v2\Files::class, 'delete']],*/
             ],
         ]],
     ],
