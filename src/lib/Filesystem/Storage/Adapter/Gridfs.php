@@ -201,7 +201,7 @@ class Gridfs implements AdapterInterface
                 ],
             ]);
 
-            $this->gridfs->delete($session);
+            $this->gridfs->delete($session->getId());
 
             return [
                 'reference' => ['_id' => $blob['_id']],
@@ -209,7 +209,7 @@ class Gridfs implements AdapterInterface
         }
 
         $this->db->selectCollection('fs.files')->updateOne([
-            '_id' => $session,
+            '_id' => $session->getId(),
         ], [
             '$set' => [
                 'md5' => $md5,

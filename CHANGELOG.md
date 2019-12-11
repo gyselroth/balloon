@@ -5,6 +5,7 @@
 ### Bugfixes
 * Argument 1 passed to Balloon\Filesystem\Node\File::setContent() must be an instance of Balloon\Session\SessionInterface, instance of MongoDB\BSON\ObjectId given, called in /srv/www/balloon/src/lib/Filesystem/Node/File.php on line 520 #382
 * Fixes 422 - invalid id given Balloon\Filesystem\Exception\InvalidArgument while uploading a file into root via PUT /api/v2/files|chunk #382
+* Balloon Image Upload via V1 api failed #416
 
 
 ## 2.7.0-beta1
