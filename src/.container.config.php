@@ -26,6 +26,7 @@ use TaskScheduler\WorkerFactoryInterface;
 use TaskScheduler\WorkerManager;
 use Balloon\Filesystem\Node\Factory as NodeFactory;
 use Balloon\Filesystem\Storage\Adapter\Gridfs as GridfsStorage;
+use Balloon\Filesystem\Storage\Adapter\NamedLocalStorage as NamedLocalStorage;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\KeyFactory;
