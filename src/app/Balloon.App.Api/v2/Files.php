@@ -145,7 +145,7 @@ class Files extends Nodes
         }
 
         if ($id === null && $collection === null) {
-            $this->server->getFilesystem()->getRoot();
+            return $this->server->getFilesystem()->getRoot();
         }
 
         return $this->fs->getNode($collection, Collection::class);
