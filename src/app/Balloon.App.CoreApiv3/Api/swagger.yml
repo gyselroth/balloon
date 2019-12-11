@@ -1,0 +1,3207 @@
+paths:
+  /api:
+    get:
+      tags:
+        - core.v3
+      summary: 'Get server status'
+      operationId: getCoreV3CoreV3Api
+      security: []
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "API root"
+          schema:
+            $ref: '#/definitions/core.v3.ApiRoot'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/groups:
+    get:
+      tags:
+        - core.v3
+      summary: Get groups
+      description: A group is a colletion of users
+      operationId: getCoreV3CoreV3Groups
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of groups"
+          schema:
+            $ref: "#/definitions/core.v3.Groups"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    post:
+      tags:
+        - core.v3
+      summary: Add group
+      operationId: addCoreV3Group
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: "#/definitions/core.v3.Group"
+      responses:
+        201:
+          description: "If successful the server will respond with 201 Created"
+          schema:
+            $ref: "#/definitions/core.v3.Group"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/groups/{group}':
+    get:
+      tags:
+        - core.v3
+      operationId: getCoreV3Group
+      summary: 'Get group'
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "Group"
+          schema:
+            $ref: "#/definitions/core.v3.Group"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    patch:
+      tags:
+        - core.v3
+      summary: 'Change group'
+      operationId: patchCoreV3Group
+      consumes:
+        - application/json-patch+json
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: body
+          name: body
+          description: 'Set attributes for group'
+          required: true
+          schema:
+            $ref: "#/definitions/JsonPatch"
+      responses:
+        200:
+          description: "Group"
+          schema:
+            $ref: "#/definitions/core.v3.Group"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    delete:
+      tags:
+        - core.v3
+      summary: 'Delete group'
+      operationId: deleteCoreV3Group
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the group gets disabled, if force is set the group gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/groups/{group}/members':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get group members'
+      operationId: getCoreV3GroupMembers
+      produces:
+        - application/json
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "List of users"
+          schema:
+            $ref: '#/definitions/core.v3.Users'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/users':
+    get:
+      tags:
+        - core.v3
+      summary: Get users
+      operationId: getCoreV3Users
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of users"
+          schema:
+            $ref: '#/definitions/core.v3.Users'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    post:
+      tags:
+        - core.v3
+      summary: Add user
+      operationId: addCoreV3User
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: "#/definitions/core.v3.User"
+      responses:
+        201:
+          description: "If successful the server will respond with 201 Created"
+          schema:
+            $ref: "#/definitions/core.v3.User"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/users/{user}':
+    get:
+      tags:
+        - core.v3
+      operationId: getCoreV3User
+      summary: 'Get user'
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "User"
+          schema:
+            $ref: "#/definitions/core.v3.User"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    patch:
+      tags:
+        - core.v3
+      summary: 'Update user'
+      operationId: patchCoreV3User
+      consumes:
+        - application/json-patch+json
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: body
+          name: body
+          description: 'Set attributes for user'
+          required: true
+          schema:
+            $ref: "#/definitions/JsonPatch"
+      responses:
+        200:
+          description: "User"
+          schema:
+            $ref: "#/definitions/core.v3.User"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    delete:
+      tags:
+        - core.v3
+      summary: 'Delete user'
+      operationId: deleteCoreV3User
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the user gets disabled, if force is set the user gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/users/{user}/groups':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get all groups of a user'
+      operationId: getCoreV3UserGroups
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of groups"
+          schema:
+            $ref: "#/definitions/core.v3.Groups"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/users/whoami:
+    get:
+      tags:
+        - core.v3
+      summary: 'Get current user'
+      operationId: getCoreV3CurrentUser
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "User"
+          schema:
+            $ref: "#/definitions/core.v3.User"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/users/{user}/avatar':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get user avatar'
+      operationId: getCoreV3UserAvatar
+      produces:
+        - octet/stream
+      parameters:
+        - name: user
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "Binaray user avatar"
+          schema:
+            $ref: "#/definitions/core.v3.User"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/nodes/trash:
+    get:
+      tags:
+        - core.v3
+      summary: 'Get deleted nodes'
+      description: 'Return deleted nodes (Excluding sub nodes of deleted collections)'
+      operationId: getCoreV3DeletedNodes
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+         description: Nodes
+         schema:
+           $ref: '#/definitions/core.v3.Nodes'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/notifications:
+    get:
+      tags:
+        - notification.v3
+      summary: 'Get nofitifications'
+      operationId: getCoreV3Notifications
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of notifications"
+          schema:
+            $ref: "#/definitions/notification.v3.Notifications"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    post:
+      tags:
+        - notification.v3
+      summary: 'Send notification'
+      operationId: addCoreV3Notification
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/notification.v3.Notification'
+      responses:
+        202:
+          description: "Notification"
+          schema:
+            $ref: "#/definitions/notification.v3.Notification"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/notifications/{notification}:
+    get:
+      tags:
+        - notification.v3
+      summary: 'Get notification'
+      operationId: getCoreV3Notification
+      produces:
+        - application/json
+      parameters:
+        - name: notification
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        200:
+          description: "Notification"
+          schema:
+            $ref: "#/definitions/notification.v3.Notification"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    delete:
+      tags:
+        - notification.v3
+      summary: 'Delete notification'
+      operationId: deleteCoreV3Notification
+      produces:
+        - application/json
+      parameters:
+        - name: notification
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/notifications/broadcast:
+    post:
+      tags:
+        - notification.v3
+      summary: 'Send broadcast'
+      operationId: sendCoreV3Broadcast
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 'Notification'
+          schema:
+            $ref: "#/definitions/notification.v3.Notification"
+      responses:
+        202:
+          description: "Notification"
+          schema:
+            $ref: "#/definitions/notification.v3.Notification"
+        403:
+          description: "Access denied"
+  /api/v3/notifications/mail:
+    post:
+      tags:
+        - notification.v3
+      summary: 'Send mail'
+      operationId: sendCoreV3Mail
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 'Mail'
+          schema:
+            $ref: "#/definitions/notification.v3.Mail"
+      responses:
+        202:
+          description: "Mail"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/files/{file}/convert/slaves':
+    get:
+      tags:
+        - convert.v3
+      summary: 'Get convert slaves'
+      operationId: getCoreV3Slaves
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "Slaves"
+          schema:
+            $ref: "#/definitions/convert.v3.Slaves"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    post:
+      tags:
+        - convert.v3
+      summary: 'Add convert slave'
+      operationId: addCoreV3Slave
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+        - in: body
+          name: body
+          description: 'Add new conversion slave '
+          required: true
+          schema:
+            $ref: '#/definitions/convert.v3.Slave'
+      responses:
+        202:
+          description: "Slave"
+          schema:
+            $ref: "#/definitions/convert.v3.Slave"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/files/{file}/convert/slaves/{slave}':
+    get:
+      tags:
+        - convert.v3
+      summary: 'Get convert slave'
+      operationId: getCoreV3Slave
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+        - name: slave
+          in: path
+          required: true
+          type: string
+          description: 'Slave identifier'
+      responses:
+        200:
+          description: "Slave"
+          schema:
+            $ref: "#/definitions/convert.v3.Slave"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    delete:
+      tags:
+        - convert.v3
+      summary: 'Delete convert slave'
+      operationId: deleteCoreV3Slave
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+        - name: slave
+          in: path
+          required: true
+          type: string
+          description: 'Slave identifier'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/files/{file}/convert/supported-formats':
+    get:
+      tags:
+        - convert.v3
+      summary: 'Get supported convert file formats'
+      description: 'Get supported file formats to convert to (formats do vary between files)'
+      operationId: getCoreV3SupportedFormats
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "Formats"
+          schema:
+            type: array
+            items:
+              type: 'string'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/desktop-clients/{format}/content':
+    get:
+      tags:
+        - desktopclient.v3
+      summary: 'Download balloon desktop client'
+      operationId: getCoreV3DesktopClient
+      produces:
+        - octet/stream
+      parameters:
+        - name: format
+          in: path
+          required: true
+          type: string
+          description: 'Request client foramt (deb, rpm, exe, pkg, zip or a custom format)'
+          enum:
+          - deb
+          - rpm
+          - exe
+          - pkg
+          - zip
+      responses:
+        200:
+          description: "Desktop client (binary)"
+          schema:
+            type: file
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/office/documents:
+    post:
+      tags:
+        - wopi.v3
+      summary: 'Create new document'
+      description: 'Create new document from an existing office document template'
+      operationId: addCoreV3Document
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/core.v3.File'
+      responses:
+        201:
+          description: "File"
+          schema:
+            $ref: "#/definitions/core.v3.File"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/sessions':
+    get:
+      tags:
+        - core.v3
+      summary: Get sessions
+      description: Upload sessions
+      operationId: getCoreV3Sessions
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of sessions"
+          schema:
+            $ref: "#/definitions/core.v3.Sessions"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    post:
+      tags:
+        - core.v3
+      summary: Add session
+      operationId: addCoreV3Session
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: "#/definitions/core.v3.Session"
+      responses:
+        201:
+          description: "If successful the server will respond with 201 Created"
+          schema:
+            $ref: "#/definitions/core.v3.Session"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/sessions/{session}':
+    get:
+      tags:
+        - core.v3
+      operationId: getCoreV3Session
+      summary: 'Get session'
+      produces:
+        - application/json
+      parameters:
+        - name: session
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "Session"
+          schema:
+            $ref: "#/definitions/core.v3.Session"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    patch:
+      tags:
+        - core.v3
+      summary: 'Change session'
+      operationId: patchCoreV3Session
+      consumes:
+        - application/json-patch+json
+      produces:
+        - application/json
+      parameters:
+        - name: session
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: body
+          name: body
+          description: 'Set attributes for session'
+          required: true
+          schema:
+            $ref: "#/definitions/JsonPatch"
+      responses:
+        200:
+          description: "Session"
+          schema:
+            $ref: "#/definitions/core.v3.Session"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    delete:
+      tags:
+        - core.v3
+      summary: 'Delete session'
+      operationId: deleteCoreV3Session
+      produces:
+        - application/json
+      parameters:
+        - name: session
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the session gets disabled, if force is set the session gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/processes':
+    get:
+      tags:
+        - core.v3
+      summary: Get processes
+      description: Async processes
+      operationId: getCoreV3Processes
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of processes"
+          schema:
+            $ref: "#/definitions/core.v3.Processes"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/processes/{process}':
+    get:
+      tags:
+        - core.v3
+      operationId: getCoreV3Process
+      summary: 'Get process'
+      produces:
+        - application/json
+      parameters:
+        - name: process
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "Process"
+          schema:
+            $ref: "#/definitions/core.v3.Process"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    delete:
+      tags:
+        - core.v3
+      summary: 'Delete process'
+      operationId: deleteCoreV3Process
+      produces:
+        - application/json
+      parameters:
+        - name: process
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the process gets disabled, if force is set the process gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/nodes/{node}/processes':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get process'
+      description: 'Get process containing all operations which are made by the user or share members on a given node'
+      operationId: getCoreV3NodeProcesses
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "Process log"
+          schema:
+            $ref: "#/definitions/core.v3.Processes"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/collections/{collection}/children':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get collection children'
+      operationId: getCoreV3Children
+      produces:
+        - application/json
+      parameters:
+        - name: collection
+          in: path
+          required: true
+          description: 'Parent collection'
+          type: string
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+        - in: query
+          name: recursive
+          description: 'Include children recursively.'
+          required: false
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: "List of children"
+          schema:
+            $ref: "#/definitions/core.v3.Nodes"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/collections/children':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get root children'
+      operationId: getCoreV3RootChildren
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+        - in: query
+          name: recursive
+          description: 'Include children recursively.'
+          required: false
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: "List of children"
+          schema:
+            $ref: "#/definitions/core.v3.Nodes"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/collections':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get collections'
+      operationId: getCoreV3Collections
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of collections"
+          schema:
+            $ref: "#/definitions/core.v3.Collections"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/files':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get files'
+      operationId: getCoreV3Files
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of files"
+          schema:
+            $ref: "#/definitions/core.v3.Files"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/files/{file}/history':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get file history'
+      operationId: getCoreV3FileHistory
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "File history"
+          schema:
+            $ref: "#/definitions/core.v3.FileHistory"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/files/{file}/restore':
+    post:
+      tags:
+        - core.v3
+      summary: Rollback file
+      description: 'Rollback to a recent version from history. Use the version number from history.'
+      operationId: rollbackFile
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+      responses:
+        200:
+          description: "File"
+          schema:
+            $ref: "#/definitions/core.v3.File"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/nodes':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get all nodes'
+      operationId: getCoreV3Nodes
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: deleted
+          description: Wheter to include deleted or not
+          required: false
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of nodes"
+          schema:
+            $ref: "#/definitions/core.v3.Nodes"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    post:
+      tags:
+        - core.v3
+      summary: 'Add node'
+      operationId: addCoreV3Node
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 'Node '
+          required: true
+          schema:
+            $ref: '#/definitions/core.v3.Node'
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v3.Node"
+        202:
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v3.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          schema:
+            $ref: "#/definitions/core.v3.Process"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/nodes/{node}':
+    delete:
+      tags:
+        - core.v3
+      summary: 'Delete node'
+      operationId: deleteCoreV3Node
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Force flag need to be set to delete a node from trash (node must have the deleted flag) '
+        - name: ignore_flag
+          in: query
+          required: false
+          type: boolean
+          description: 'If both ignore_flag and force_flag were set, the node will be deleted completely '
+        - name: at
+          in: query
+          required: false
+          type: integer
+          description: 'Has to be a valid unix timestamp if so the node will destroy itself at this specified time instead immediatly'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        202:
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v3.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          schema:
+            $ref: "#/definitions/core.v3.Process"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    get:
+      tags:
+        - core.v3
+      summary: 'Get node'
+      operationId: getCoreV3Node
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - name: attributes
+          in: query
+          required: false
+          type: 'array'
+          description: 'Filter attributes'
+          items:
+            type: string
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v3.Node"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    patch:
+      tags:
+        - core.v3
+      summary: 'Change node'
+      operationId: updateNode
+      consumes:
+        - application/json-patch+json
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - in: body
+          name: body
+          description: 'Change attributes '
+          required: true
+          schema:
+            $ref: '#/definitions/JsonPatch'
+      responses:
+        200:
+          description: "Node"
+          schema:
+            $ref: "#/definitions/core.v3.Node"
+        202:
+          description: "202 Status gets returned if the server needs to perform actions afterwards. The result is a core.v3.Process. The client may either long poll (watch stream), short poll or use the websocket api to listen for the process to be finished."
+          schema:
+            $ref: "#/definitions/core.v3.Process"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/nodes/{node}/content':
+    get:
+      tags:
+        - core.v3
+      summary: 'Download node content.'
+      description: 'Stream node contents. Note that collections are zipped on-the-fly.'
+      operationId: getCoreV3Content
+      produces:
+        - octet/stream
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+        - name: Range
+          in: header
+          required: false
+          type: string
+          description: 'Read stream from a specific offset/limit in bytes.'
+        - name: encode
+          in: query
+          required: false
+          type: string
+          description: 'Can be set to base64 to encode content as base64.'
+          enum:
+          - base64
+        - name: download
+          in: query
+          required: false
+          type: boolean
+          description: 'Force download file (Content-Disposition: attachment HTTP header)'
+          default: false
+      responses:
+        200:
+          description: "Content"
+          schema:
+            type: file
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/events':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get events'
+      description: 'Get events containing all operations which are made by the user himself or share members'
+      operationId: getCoreV3Events
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "Event log"
+          schema:
+            $ref: "#/definitions/core.v3.Events"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/events/{event}':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get events'
+      description: 'Get event'
+      operationId: getCoreV3Events
+      produces:
+        - application/json
+      parameters:
+        - name: event
+          in: path
+          required: true
+          type: string
+          description: 'Event identifier'
+      responses:
+        200:
+          description: "Event"
+          schema:
+            $ref: "#/definitions/core.v3.Event"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/nodes/{node}/events':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get event'
+      description: 'Get event containing all operations which are made by the user or share members on a given node'
+      operationId: getCoreV3NodeEvents
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "Event log"
+          schema:
+            $ref: "#/definitions/core.v3.Events"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/nodes/{node}/parents':
+    get:
+      tags:
+        - core.v3
+      summary: 'Get parent collections'
+      description: 'The hirarchy of all parent nodes is ordered in a single level array beginning with the collection on the highest level.'
+      operationId: getCoreV3ParentNodes
+      produces:
+        - application/json
+      parameters:
+        - name: node
+          in: path
+          required: true
+          description: 'Node identifier'
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - name: self
+          in: query
+          required: false
+          type: boolean
+          description: 'Include requested collection itself at the end of the list (Will be ignored if the requested node is a file)'
+      responses:
+        200:
+          description: "Parent nodes"
+          schema:
+            $ref: "#/definitions/core.v3.Collections"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/files/{file}/preview':
+    get:
+      tags:
+        - preview.v3
+      description: 'Get preview'
+      summary: 'Get a preview of the files content. The body either contains an encoded string or a jpeg binary.'
+      operationId: getCoreV3Preview
+      produces:
+        - octet/stream
+      parameters:
+        - name: file
+          in: path
+          required: true
+          type: string
+          description: 'File identifier'
+        - name: encode
+          in: query
+          required: false
+          type: string
+          description: 'Set to base64 to return a jpeg encoded preview as base64, else return it as jpeg binary'
+      responses:
+        200:
+          description: "Binara data"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+responses:
+  core.v3.NotFound:
+    description: The specified resource was not found
+    schema:
+      $ref: '#/definitions/core.v3.Error'
+  core.v3.Unauthorized:
+    description: core.v3.Unauthorized
+    schema:
+      $ref: '#/definitions/core.v3.Error'
+  UnprocessableEntity:
+    description: core.v3.Unauthorized
+    schema:
+      $ref: '#/definitions/core.v3.Error'
+  core.v3.Conflict:
+    description: core.v3.Conflict
+    schema:
+      $ref: '#/definitions/core.v3.Error'
+  core.v3.Forbidden:
+    description: core.v3.Forbidden
+    schema:
+      $ref: '#/definitions/core.v3.Error'
+  core.v3.BadRequest:
+    description: Bad Reqeust
+    schema:
+      $ref: '#/definitions/core.v3.Error'
+  core.v3.InternalServerError:
+    description: Internal Server Error
+    schema:
+      $ref: '#/definitions/core.v3.Error'
+definitions:
+  core.v3.Error:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      error:
+        type: string
+  core.v3.ApiRoot:
+    description: "Describes the api root."
+    type: "object"
+    properties:
+      name:
+        type: string
+      api:
+        type: integer
+  core.v3.Links:
+    description: "Contains resource links (URL) to other resources."
+    type: "object"
+    properties:
+      self:
+        $ref: "#/definitions/core.v3.Link"
+  core.v3.ListLinks:
+    type: "object"
+    properties:
+      self:
+        $ref: "#/definitions/core.v3.Link"
+      prev:
+        $ref: "#/definitions/core.v3.Link"
+      next:
+        $ref: "#/definitions/core.v3.Link"
+  core.v3.Link:
+    type: "object"
+    properties:
+      href:
+        type: "string"
+  core.v3.ResourceList:
+    type: "object"
+    properties:
+      _links:
+        description: "Holds a list of links rfc1738 to other resources."
+        $ref: "#/definitions/core.v3.ListLinks"
+      kind:
+        description: "The resource type, always List."
+        type: "string"
+        default: "List"
+      count:
+        description: "Holds the number of items in the current list response."
+        type: integer
+      total:
+        description: "Holds the number of total available items on the server. Note that a List resource is always paged. You need to traverse with offset and limit to request further resources in the list."
+        type: integer
+  core.v3.Resource:
+    type: "object"
+    properties:
+      _links:
+        $ref: "#/definitions/core.v3.Links"
+      kind:
+        description: Resource type
+        type: string
+      id:
+        description: "Unique 12-byte resource identifier. Note this is a MongoDB ObjectId. The name is the standard resource identifier, the id only useful to verify that a given resource was completely recreated. An ID is immutable and will be created on the server."
+        type: "string"
+      created:
+        description: "ISO 8601 timestamp when the resource was created."
+        type: "string"
+        format: date-time
+  core.v3.OAuth2Token:
+    description: "OAUTH2 access token response according RFC6749 https://tools.ietf.org/html/rfc6749#section-4.3.3"
+    type: object
+    properties:
+      access_token:
+        description: Resource access_token.
+        type: string
+      expires_in:
+        description: The number of seconds the issues acceess_token is valid for. This is usually 1hour.
+        type: integer
+        default: 3600
+      token_type:
+        description: The type of token. This is usually a Bearer token.
+        type: string
+        default: Bearer
+      scope:
+        description: The scopes.
+        type: string
+      refresh_token:
+        description: An optional refresh token to get new access_tokens via the refresh_token grant type.
+        type: string
+  core.v3.Users:
+    description: "A list of users."
+    type: object
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.User"
+  core.v3.User:
+    description: "A user is used to access the server."
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
+        properties:
+          changed:
+            description: "ISO 8601 timestamp when the resource was changed."
+            type: "string"
+            format: date-time
+          username:
+            description: "Unique username."
+            type: "string"
+          name:
+            description: "Display name (Usuallly same as username)."
+            type: "string"
+          admin:
+            description: "Admin user flag."
+            type: "boolean"
+            default: false
+          namespace:
+            description: "User namespace."
+            type: "string"
+          locale:
+            description: "User locale."
+            type: "string"
+            default: "en_US"
+          auth:
+            description: "Authentication source."
+            type: "string"
+            default: "internal"
+            enum:
+            - internal
+            - external
+          has_password:
+            description: "Is true if the user has a local password set."
+            type: boolean
+            default: false
+          hard_quota:
+            description: "Hard quota in bytes (Max. limit of storage usage). Note that external storage is not part of the quota. The default is no limit."
+            type: integer
+            default: -1
+          soft_quota:
+            description: "Soft quota in bytes (Warning of high quota usage). The default is no limit."
+            type: integer
+            default: -1
+          available:
+            description: "Available storage in bytes. Is -1 if there is no hard_quota."
+            type: integer
+            default: -1
+          used:
+            description: "Used storage in bytes."
+            type: integer
+            default: 0
+  core.v3.Sessions:
+    description: "A list of upload sessions."
+    type: object
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.Session"
+  core.v3.Session:
+    description: "A session defines a temporary, resumable upload session."
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
+        properties:
+          changed:
+            description: "ISO 8601 timestamp when the resource was changed."
+            type: "string"
+            format: date-time
+  core.v3.Processes:
+    description: "A server process."
+    type: object
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.Process"
+  core.v3.Process:
+    description: "A session defines a temporary, resumable upload session."
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
+        properties:
+          node:
+            description: "Points to the related node."
+            type: ["object","null"]
+            properties:
+              id:
+                description: "The id of the node"
+                type: "string"
+              name:
+                description: "The name of the node"
+                type: "string"
+          owner:
+            description: "Process owner"
+            type: ["object","null"]
+            properties:
+              id:
+                description: "The id of the process owner."
+                type: "string"
+              name:
+                description: "The username of the process owner."
+                type: "string"
+          status:
+            description: "Holds the status of the process."
+            type: "object"
+            properties:
+              code:
+                description: "The result code of the process."
+                type: "number"
+
+  core.v3.Groups:
+    description: "A list of groups."
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.Group"
+  core.v3.Group:
+    description: "A group contains user resources."
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
+        properties:
+          changed:
+            description: "ISO 8601 timestamp when the resource was changed."
+            type: "string"
+            format: date-time
+          name:
+            description: "Group name."
+            type: "string"
+          namespace:
+            description: "User namespace."
+            type: "string"
+          members:
+            description: "Array of user id's."
+            type: "array"
+            items:
+              type: string
+  core.v3.Nodes:
+    description: "A list of nodes."
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.Node"
+  core.v3.NodeMeta:
+    description: "Node meta data."
+    type: object
+    properties:
+      tags:
+        description: "Node tags. Tags can be freely choosen."
+        type: "array"
+        items:
+          type: string
+      author:
+        description: "Author."
+        type: "string"
+      license:
+        description: "Content license."
+        type: "string"
+      color:
+        description: "A color tag."
+        type: "string"
+  core.v3.Node:
+    description: "A Node."
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
+        properties:
+          changed:
+            description: "ISO 8601 timestamp when the resource was changed."
+            type: "string"
+            format: date-time
+          deleted:
+            description: "ISO 8601 timestamp when the resource was deleted."
+            type: [string,null]
+            format: date-time
+          name:
+            description: "Node name."
+            type: "string"
+          mime:
+            description: "Mimetype."
+            type: "string"
+          readonly:
+            description: "Readonly only affects the content of the node but not metadata."
+            type: "boolean"
+            default: false
+          directory:
+            description: "If node is of type Collection this flag is true."
+            type: "boolean"
+            default: false
+          meta:
+            $ref: '#/definitions/core.v3.NodeMeta'
+          size:
+            description: "The size in bytes. If the node is of type collection the size is the number of child nodes."
+            type: integer
+            default: 0
+          path:
+            description: "The path abstraction of the node."
+            type: "string"
+          destroy:
+            type: null
+          lock:
+            type: null
+          access:
+            description: "Access level."
+            type: "string"
+            default: rw
+            enum:
+            - rw
+            - w
+            - m
+            - rp
+          parent:
+            description: "Points to the parent collection. If the nodes is in the root this is null."
+            type: ["object","null"]
+            properties:
+              id:
+                description: "The id of the parent collection"
+                type: "string"
+              name:
+                description: "The name of the parent collection"
+                type: "string"
+          share:
+            description: "Points to the shared node (or share reference). If the node is not part of any share this is null."
+            type: ["object","null"]
+            properties:
+              id:
+                description: "The id of the share collection. If the share is a reference (incoming share) it will point to the share reference and not the id of the shared collection itself."
+                type: "string"
+              name:
+                description: "The name of the share (or share reference)."
+                type: "string"
+          sharename:
+            type: [string,null]
+          owner:
+            description: "."
+            type: ["object","null"]
+            properties:
+              id:
+                description: "The id of the share owner."
+                type: "string"
+              name:
+                description: "The username of the share owner."
+                type: "string"
+          shareowner:
+            description: "Points to the share owner. If the node is not part of any share this is null."
+            type: ["object","null"]
+            properties:
+              id:
+                description: "The id of the share owner."
+                type: "string"
+              name:
+                description: "The username of the share owner."
+                type: "string"
+          subscription:
+            description: "Is true if the user has an active subscription on this node."
+            type: "boolean"
+            default: false
+          subscription_exclude_me:
+            description: "Subscription excludes actions from the subscribed user itself."
+            type: "boolean"
+            default: false
+          sharelink_has_password:
+            description: "Is true if the node has a protected public sharelink."
+            type: "boolean"
+            default: false
+  core.v3.Collections:
+    description: "A list of collections."
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.Collection"
+  core.v3.Collection:
+    description: "A collection can hold an unlimited number of child nodes."
+    allOf:
+      - $ref: '#/definitions/core.v3.Node'
+  core.v3.Files:
+    description: "A list of files."
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.File"
+  core.v3.File:
+    description: "A collection can hold an unlimited number of child nodes."
+    allOf:
+      - $ref: '#/definitions/core.v3.Node'
+      - type: object
+        properties:
+          version:
+            description: "The content version. Does increase if the content gets changed."
+            type: integer
+            default: 1
+          hash:
+            description: "MD5 content checksum."
+            type: "string"
+          preview:
+            description: "Is true if there is a preview"
+            type: "boolean"
+  core.v3.FileHistory:
+    description: "File history."
+    type: object
+    properties:
+      version:
+        description: "The version number."
+        type: integer
+        default: 1
+      changed:
+        description: "ISO 8601 timestamp when the resource was changed."
+        type: "string"
+        format: date-time
+      type:
+        description: "Type of change."
+        type: integer
+      user:
+        description: "Resolves to user who executed the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share owner."
+            type: "string"
+          name:
+            description: "The username of the share owner."
+            type: "string"
+  core.v3.Delta:
+    description: "The delta is a differential feed to get changes since the last delta call."
+    type: object
+    properties:
+      reset:
+        description: "If true the client needs to reset its state."
+        type: "boolean"
+        default: false
+      cursor:
+        description: "ACL rules."
+        type: string
+      has_more:
+        description: "If true the server has more entries and the client must send another request with the latest cursor."
+        type: boolean
+        default: false
+      nodes:
+        type: array
+        items:
+          $ref: '#/definitions/core.v3.Node'
+  core.v3.Share:
+    description: "Node share."
+    type: object
+    properties:
+      share_name:
+        description: "The name of the share. By default the name of the node."
+        type: "string"
+      acl:
+        description: "ACL rules."
+        type: array
+        items:
+          $ref: '#/definitions/core.v3.AclRule'
+  core.v3.AclRule:
+    description: "ACL rule."
+    type: object
+    properties:
+      type:
+        description: "The type of the resource."
+        type: "string"
+        enum:
+        - user
+        - group
+      id:
+        description: "ACL rules."
+        type: string
+      privilege:
+        description: "Privilege."
+        type: string
+        enum:
+        - rw
+        - w
+        - m
+        - rp
+        - d
+      role:
+        description: "Points to the share owner. If the node is not part of any share this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the role resource."
+            type: "string"
+          name:
+            description: "The name of role resource."
+            type: "string"
+  core.v3.UserNodeAttributeSummary:
+    description: "Request node fiel statistics."
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: object
+        properties:
+          _id:
+            type: string
+          sum:
+            type: integer
+  core.v3.ChunkSession:
+    description: "Chunking upload session."
+    type: object
+    properties:
+      session:
+        description: "The upload session id"
+        type: string
+      chunks_left:
+        description: "Tells how many chunks are left to upload."
+        type: integer
+  core.v3.EventLogs:
+    description: "A list of events."
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.EventLog"
+  core.v3.EventLog:
+    description: "Event log entry. Each event represents an executed operation on the server."
+    type: object
+    properties:
+      event:
+        description: "The event id."
+        type: "string"
+      timestamp:
+        description: "ISO 8601 timestamp when the event was created."
+        type: "string"
+      operation:
+        description: "The event operation."
+        type: "string"
+        enum:
+        - deleteCollectionReference
+        - deleteCollectionShare
+        - deleteCollection
+        - addCollection
+        - addFile
+        - addCollectionShare
+        - addCollectionReference
+        - undeleteFile
+        - undeleteCollectionReference
+        - undeleteCollectionShare
+        - restoreFile
+        - renameFile
+        - renameCollection
+        - renameCollectionShare
+        - renameCollectionReference
+        - copyFile
+        - copyCollection
+        - copyCollectionShare
+        - copyCollectionRFeference
+        - moveFile
+        - moveCollection
+        - moveCollectionReference
+        - moveCollectionShare
+      node:
+        description: "Resolves to the node involved in the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the node"
+            type: "string"
+          name:
+            description: "The name of the node"
+            type: "string"
+      parent:
+        description: "Points to the parent collection. If the node is in the root this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the parent collection"
+            type: "string"
+          name:
+            description: "The name of the parent collection"
+            type: "string"
+      share:
+        description: "Points to the shared node (or share reference). If the node is not part of any share this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share collection. If the share is a reference (incoming share) it will point to the share reference and not the id of the shared collection itself."
+            type: "string"
+          name:
+            description: "The name of the share (or share reference)."
+            type: "string"
+      user:
+        description: "Resolves to user who executed the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share owner."
+            type: "string"
+          name:
+            description: "The username of the share owner."
+            type: "string"
+      client:
+        description: "Describes the client from which the operation was executed."
+        type: "object"
+        properties:
+          type:
+            description: "The type of the client."
+            type: "string"
+          app:
+            description: "The client app name."
+            type: "string"
+          v:
+            description: "The version of the client app."
+            type: "string"
+          hostname:
+            description: "The hostname of the client."
+            type: "string"
+  core.v3.Events:
+    description: "A list of events."
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.Event"
+  core.v3.Event:
+    description: "Event log entry. Each event represents an executed operation on the server."
+    type: object
+    properties:
+      event:
+        description: "The event id."
+        type: "string"
+      timestamp:
+        description: "ISO 8601 timestamp when the event was created."
+        type: "string"
+      operation:
+        description: "The event operation."
+        type: "string"
+        enum:
+        - deleteCollectionReference
+        - deleteCollectionShare
+        - deleteCollection
+        - addCollection
+        - addFile
+        - addCollectionShare
+        - addCollectionReference
+        - undeleteFile
+        - undeleteCollectionReference
+        - undeleteCollectionShare
+        - restoreFile
+        - renameFile
+        - renameCollection
+        - renameCollectionShare
+        - renameCollectionReference
+        - copyFile
+        - copyCollection
+        - copyCollectionShare
+        - copyCollectionRFeference
+        - moveFile
+        - moveCollection
+        - moveCollectionReference
+        - moveCollectionShare
+      node:
+        description: "Resolves to the node involved in the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the node"
+            type: "string"
+          name:
+            description: "The name of the node"
+            type: "string"
+      parent:
+        description: "Points to the parent collection. If the node is in the root this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the parent collection"
+            type: "string"
+          name:
+            description: "The name of the parent collection"
+            type: "string"
+      share:
+        description: "Points to the shared node (or share reference). If the node is not part of any share this is null."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share collection. If the share is a reference (incoming share) it will point to the share reference and not the id of the shared collection itself."
+            type: "string"
+          name:
+            description: "The name of the share (or share reference)."
+            type: "string"
+      user:
+        description: "Resolves to user who executed the operation."
+        type: "object"
+        properties:
+          id:
+            description: "The id of the share owner."
+            type: "string"
+          name:
+            description: "The username of the share owner."
+            type: "string"
+      client:
+        description: "Describes the client from which the operation was executed."
+        type: "object"
+        properties:
+          type:
+            description: "The type of the client."
+            type: "string"
+          app:
+            description: "The client app name."
+            type: "string"
+          v:
+            description: "The version of the client app."
+            type: "string"
+          hostname:
+            description: "The hostname of the client."
+            type: "string"
+  notification.v3.Mail:
+    description: "Mail"
+    type: object
+    properties:
+      receiver:
+        type: "array"
+        items:
+          type: string
+          format: mail
+      subject:
+        type: string
+      body:
+        type: string
+  notification.v3.Notifications:
+    description: "A list of notifications."
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/notification.v3.Notification"
+  notification.v3.Notification:
+    description: "A notification"
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
+        properties:
+          locale:
+            description: "Notification locale. A locale contains a static message which is of a given locale."
+            type: "string"
+            default: en_US
+          subject:
+            description: "Subject."
+            type: "string"
+          message:
+            description: "Message."
+            type: "string"
+          sender:
+            description: "Points to the message. If there is no sender (For example the message came from the system itself) this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the sender."
+                type: "string"
+              name:
+                description: "The username of the sender."
+                type: "string"
+          node:
+            description: "A notification may point to a node. If there is no node given this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the node."
+                type: "string"
+              name:
+                description: "The name of the node."
+                type: "string"
+  convert.v3.Slaves:
+    description: "A list of convert slaves."
+    allOf:
+      - $ref: '#/definitions/core.v3.ResourceList'
+      - type: object
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/convert.v3.Slave"
+  convert.v3.Slave:
+    description: "A convert slave"
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
+        properties:
+          format:
+            description: "Slave format."
+            type: "string"
+          master:
+            description: "Master node from which the slave is from."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the node."
+                type: "string"
+              name:
+                description: "The name of the node."
+                type: "string"
+          slave:
+            description: "The generated slave node. As long as the slave has not yet been created this is null."
+            type: "object"
+            properties:
+              id:
+                description: "The id of the node."
+                type: "string"
+              name:
+                description: "The name of the node."
+                type: "string"
+

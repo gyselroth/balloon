@@ -90,11 +90,11 @@ class AbstractModelFactory implements ModelFactoryInterface
         return [
             'id' => (string)$attributes['_id'],
             'kind' => $resource->getKind(),
-            '_links' => [],
-            '_embedded' => [],
+            '_links' => (object)[],
+            '_embedded' => (object)[],
             'meta' => [
-                'annotations' => [],
-                'labels' => [],
+                'annotations' => (object)[],
+                'labels' => (object)[],
             ],
             'created' => function ($resource) use ($attributes) {
                 return $attributes['created']->toDateTime()->format('c');

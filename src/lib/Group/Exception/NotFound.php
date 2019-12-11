@@ -9,9 +9,9 @@ declare(strict_types=1);
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
-namespace Balloon\Server\Group\Exception;
+namespace Balloon\Group\Exception;
 
-use Micro\Http\ExceptionInterface;
+use Balloon\Rest\Exception\ExceptionInterface;
 
 class NotFound extends \Balloon\Exception implements ExceptionInterface
 {

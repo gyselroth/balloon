@@ -29,6 +29,7 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher as FastRouteDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as FastRouteRoutes;
 use FastRoute\RouteCollector;
+use Balloon\Rest\Openapi;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std;
 use Lcobucci\ContentNegotiation\ContentTypeMiddleware;
@@ -60,6 +61,7 @@ use Zend\Mail\Transport\Smtp;
 use Zend\Mail\Transport\TransportInterface;
 use League\Event\Emitter;
 use Balloon\EventListener;
+use Balloon\User;
 
 return [
     Client::class => [
@@ -124,7 +126,18 @@ return [
         ],
     ],
     Emitter::class => [
-        'calls' => [
+        'calls' => [[
+            'method' => 'addListener',
+            'arguments' => [
+                'event' => 'http.stack.preAuth',
+                'listener' => function($event, &$request) {
+                    if($request->getRequestTarget() === '/openapi/v2') {
+                        $request = $request->withAttribute('identity', new User([
+                            'username' => '',
+                        ]));
+                    }
+                }
+            ]],
             /*[
                 'method' => 'addListener',
                 'arguments' => ['event' => '*', 'listener' => '{'.EventListener\Event::class.'}'],
@@ -132,6 +145,17 @@ return [
         ]
     ],
     RouteCollector::class => [
+        'calls' => [[
+            'method' => 'addRoute',
+            'arguments' => [
+                'httpMethod',
+                'route',
+                'handler',
+            ],
+            'batch' => [
+                ['GET', '/openapi/v2', [Openapi::class, 'getV2']],
+            ]
+        ]],
         'services' => [
             RouteParser::class => [
                 'use' => Std::class,

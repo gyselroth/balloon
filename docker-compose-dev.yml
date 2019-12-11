@@ -71,7 +71,7 @@ services:
               error_log /dev/stderr;
               client_max_body_size 16G;
 
-              location ~ ^/(api|webdav|share) {
+              location ~ ^/(api|webdav|share|oidc|openapi) {
                   index index.php;
                   root /srv/www/balloon/src/httpdocs;
                   rewrite ^(.+)\\\$$ /index.php\\\$$1 last;
@@ -92,7 +92,7 @@ services:
       EOF'
     labels:
     - traefik.backend=balloon-api
-    - "traefik.frontend.rule=PathPrefix:/api,/webdav,/share,/wopi"
+    - "traefik.frontend.rule=PathPrefix:/api,/webdav,/share,/wopi,/oidc,/openapi"
   balloon-web:
     image: gyselroth/balloon-web:3.2.12
     networks:

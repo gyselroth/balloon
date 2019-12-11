@@ -51,7 +51,6 @@ class UserFactory extends AbstractModelFactory
         $user_factory = $this->user_factory;
 
         $result = [
-            'id' => (string) $attributes['_id'],
             'username' => (string) $attributes['username'],
             'name' => (string) $attributes['username'],
             //'admin' => (bool) $attributes['admin'],

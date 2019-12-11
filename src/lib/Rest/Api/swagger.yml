@@ -1,0 +1,50 @@
+swagger: "2.0"
+info:
+  description: "balloon API"
+  version: "1.0.0"
+  title: "balloon API"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+basePath: "/"
+schemes:
+- "https"
+- "http"
+paths:
+  /openapi/v2:
+    get:
+      tags:
+        - openapi
+      summary: 'Get openapi v2 (swagger) specs'
+      operationId: getOpenApiV2
+      security: []
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "openapi v2 (swagger) specs"
+security:
+  - BasicAuth: []
+  - BearerAuth: []
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  BearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  JsonPatch:
+    description: "A JSON Patch according rfc6902."
+    type: array
+    items:
+        $ref: '#/definitions/JsonPatchOperation'
+  JsonPatchOperation:
+    description: "A JSON Patch according rfc6902."
+    type: "object"
+    properties:
+      op:
+        type: "string"
+      path:
+        type: "string"
+      value:

@@ -17,8 +17,10 @@ use Balloon\Group\GroupInterface;
 use Balloon\File\Factory as FileFactory;
 use Generator;
 use InvalidArgumentException;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\ObjectIdInterface;
 use MongoDB\Database;
+use Balloon\User\Factory as UserFactory;
 
 class Factory
 {
@@ -44,10 +46,11 @@ class Factory
     /**
      * Initialize.
      */
-    public function __construct(Database $db, ResourceFactory $resource_factory)
+    public function __construct(Database $db, ResourceFactory $resource_factory, UserFactory $user_factory)
     {
         $this->db = $db;
         $this->resource_factory = $resource_factory;
+        $this->user_factory = $user_factory;
     }
 
     /**
@@ -55,7 +58,7 @@ class Factory
      */
     public function has(string $name): bool
     {
-        return $this->db->{self::COLLECTION_NAME}->count(['groupname' => $name]) > 0;
+        return $this->db->{self::COLLECTION_NAME}->count(['name' => $name]) > 0;
     }
 
     /**
@@ -104,33 +107,50 @@ class Factory
         $data['name'] = $resource->getName();
         $data['kind'] = $resource->getKind();
 
-        if (isset($data['password'])) {
-            $data = Validator::validatePolicy($data, $this->password_policy);
-            $data['hash'] = password_hash($data['password'], $this->password_hash);
-            unset($data['password']);
-        }
+        $resource['members'] = $this->validateMembers($resource['members'] ?? []);
 
         return $this->resource_factory->updateIn($this->db->{self::COLLECTION_NAME}, $resource, $data);
     }
 
     /**
+     * Validate group members
+     *
+     * @return array
+     */
+    protected function validateMembers(array $member): array
+    {
+        $valid = [];
+        foreach ($member as $id) {
+            if (!($id instanceof ObjectIdInterface)) {
+                $id = new ObjectId($id);
+                if (!$this->user_factory->getOne($id)) {
+                    throw new User\Exception\NotFound('user '.$id.' does not exists');
+                }
+            }
+
+            if (!in_array($id, $valid)) {
+                $valid[] = $id;
+            }
+        }
+
+        return $valid;
+    }
+
+    /**
      * Add group.
      */
-    public function add(array $resource): ObjectIdInterface
+    public function add(array $resource): GroupInterface
     {
         $resource['kind'] = 'Group';
-        Validator::validatePolicy($resource, $this->password_policy);
 
-        if ($this->has($resource['groupname'])) {
-            throw new Exception\NotUnique('group '.$resource['groupname'].' does already exists');
+        if ($this->has($resource['name'])) {
+            throw new Exception\NotUnique('group '.$resource['name'].' does already exists');
         }
 
-        if (isset($resource['password'])) {
-            $resource['hash'] = password_hash($resource['password'], $this->password_hash);
-            unset($resource['password']);
-        }
+        $resource['members'] = $this->validateMembers($resource['members'] ?? []);
 
-        return $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        $resource =  $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        return $this->build($resource);
     }
 
     /**

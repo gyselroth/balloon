@@ -73,7 +73,7 @@ return [
             'arguments' => [
                 'event' => 'http.stack.preAuth',
                 'listener' => function($event, &$request) {
-                    if($request->getRequestTarget() === '/api/v2/tokens') {
+                    if($request->getRequestTarget() === '/api/v2/tokens' || $request->getRequestTarget() === '/oidc') {
                         $request = $request->withAttribute('identity', new User([
                             'username' => '',
                         ]));
@@ -91,7 +91,7 @@ return [
                 'handler',
             ],
             'batch' => [
-                ['POST', '/tokens', [Tokens::class, 'post']],
+                ['POST', '/oidc', [Tokens::class, 'post']],
                 ['POST', '/api/v2/tokens', [Tokens::class, 'post']],
             ]
         ]]

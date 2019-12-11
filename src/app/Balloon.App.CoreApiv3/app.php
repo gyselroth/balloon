@@ -35,14 +35,21 @@ return [
                 'handler',
             ],
             'batch' => [
-                ['GET', '/api/v3', [Specifications::class, 'getApi']],
-
                 ['GET', '/api/v3/users', [v3\Users::class, 'getAll']],
                 ['GET', '/api/v3/users/{user}', [v3\Users::class, 'getOne']],
                 ['POST', '/api/v3/users', [v3\Users::class, 'post']],
                 ['PUT', '/api/v3/users/{user}', [v3\Users::class, 'put']],
-                ['PATCH', '/api/v3/users/{users}', [v3\Users::class, 'patch']],
+                ['PATCH', '/api/v3/users/{user}', [v3\Users::class, 'patch']],
                 ['DELETE', '/api/v3/users/{user}', [v3\Users::class, 'delete']],
+                ['GET', '/api/v3/users/{user}/groups', [v3\Users::class, 'getGroups']],
+
+                ['GET', '/api/v3/groups', [v3\Groups::class, 'getAll']],
+                ['GET', '/api/v3/groups/{group}', [v3\Groups::class, 'getOne']],
+                ['POST', '/api/v3/groups', [v3\Groups::class, 'post']],
+                ['PUT', '/api/v3/groups/{group}', [v3\Groups::class, 'put']],
+                ['PATCH', '/api/v3/groups/{group}', [v3\Groups::class, 'patch']],
+                ['DELETE', '/api/v3/groups/{group}', [v3\Groups::class, 'delete']],
+                ['GET', '/api/v3/groups/{group}/members', [v3\Groups::class, 'getMembers']],
 
                 ['GET', '/api/v3/nodes', [v3\Nodes::class, 'getAll']],
                 ['GET', '/api/v3/nodes/{node}', [v3\Nodes::class, 'getOne']],

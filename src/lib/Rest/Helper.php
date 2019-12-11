@@ -28,18 +28,21 @@ use function MongoDB\BSON\toPHP;
 
 class Helper
 {
+    /**
+     * Patcher
+     */
     public static function patch(ServerRequestInterface $request, ResourceInterface $resource): array
     {
         $type = $request->getHeaders()['content-type'][0] ?? 'application/json';
-        $body = $request->getParsedBody();
         $doc = $resource->toArray();
 
-        if($type === 'application/json+patch') {
-            $patch = new Patch(json_encode($doc), json_encode($body));
+        if($type === 'application/json-patch+json') {
+            $patch = new Patch(json_encode($doc), $request->getBody()->getContents());
             $patched = $patch->apply();
             return (array)toPHP(fromJSON($patched));
         }
 
+        $body = $request->getParsedBody();
         return array_replace_recursive($doc, $body);
     }
 

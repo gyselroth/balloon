@@ -46,10 +46,12 @@ PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
 CHANGELOG_TARGET = $(BUILD_DIR)/DEBIAN/changelog
+SWAGGER_TARGET = $(BASE_DIR)/api/swagger.yml
 BUILD_TARGET = $(COMPOSER_TARGET) $(PHPCS_CHECK_TARGET) $(PHPUNIT_TARGET) $(PHPSTAN_TARGET)
 
 # MACROS
 macro_find_phpfiles = $(shell find $(1) -type f -name "*.php")
+macro_find_swaggerfiles = $(shell find $(1) -type f -name "swagger.yml")
 
 # SOURCECODE FILESETS
 PHP_FILES = $(call macro_find_phpfiles,$(SRC_DIR))
@@ -57,6 +59,7 @@ PHP_CORE_FILES = $(call macro_find_phpfiles,$(CORE_DIR))
 PHP_CORE_API_FILES = $(call macro_find_phpfiles,$(CORE_API_DIR))
 PHP_TEST_FILES = $(call macro_find_phpfiles,$(TESTS_DIR))
 PHP_UNITTEST_FILES = $(call macro_find_phpfiles,$(UNITTESTS_DIR))
+SWAGGER_FILES = $(call macro_find_swaggerfiles,$(BASE_DIR)/src)
 
 # TARGETS
 .PHONY: all
@@ -138,64 +141,6 @@ $(TAR): $(BUILD_TARGET)
 	@touch $@
 
 
-.PHONY: changelog
-changelog: $(CHANGELOG_TARGET)
-
-$(CHANGELOG_TARGET): CHANGELOG.md
-	@-test -d $(@D) || mkdir -p $(@D)
-	@v=""
-	@stable="stable"
-	@author=""
-	@date=""
-	@changes=""
-	@-test ! -f $@ || rm $@
-
-	@while read l; \
-	do \
-		if [ "$${l:0:2}" == "##" ]; \
-		then \
-	 		if [ "$$v" != "" ]; \
-	 		then \
-	 			echo "balloon ($$v) $$stable; urgency=low" >> $@; \
-	 			echo -e "$$changes" >> $@; \
-	 			echo >>  $@; \
-	 			echo " -- $$author  $$date" >> $@; \
-	 			echo >>  $@; \
-	 			v=""; \
-	 			stable="stable"; \
-	 			author=";" \
-	 			date=";" \
-	 			changes=""; \
-	 		fi; \
-	 		v=$${l:3}; \
-			if [[ "$$v" == *"RC"* ]]; \
-	 	 	then \
-	 			stable="unstable"; \
-	 		elif [[ "$$v" == *"BETA"* ]]; \
-	 		then \
-	 			stable="unstable"; \
-	 		elif [[ "$$v" == *"ALPHA"* ]]; \
-	 		then \
-	 			stable="unstable"; \
-	 		elif [[ "$$v" == *"dev"* ]]; \
-			then \
-	 			stable="unstable"; \
-	 		fi \
-	 	elif [ "$${l:0:5}" == "**Mai" ]; \
-	 	then \
-	 		p1=`echo $$l | cut -d '>' -f1`; \
-	 		p2=`echo $$l | cut -d '>' -f2`; \
-	 		author="$${p1:16}>"; \
-	 		date=$${p2:13}; \
-	 		date=`date -d"$$date" +'%a, %d %b %Y %H:%M:%S %z'`; \
-	 	elif [ "$${l:0:2}" == "* " ]; \
-	 	then \
-	 		changes="  $$changes\n  $$l"; \
-	 	fi; \
-	done < $<
-	@echo generated $@ from $<
-
-
 .PHONY: composer
 composer: $(COMPOSER_TARGET)
 
@@ -211,6 +156,13 @@ $(PHPCS_CHECK_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
 	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky=yes --stop-on-violation --using-cache=no
 	@touch $@
 
+.PHONY: swagger
+swagger: $(SWAGGER_TARGET)
+
+$(SWAGGER_TARGET): $(SWAGGER_FILES)
+	yq m $(SWAGGER_FILES) > $(SWAGGER_TARGET)
+	sed 's/- null/- \"null\"/g' -i $(SWAGGER_TARGET)
+	@touch $@
 
 .PHONY: test
 test: $(PHPUNIT_TARGET)

@@ -23,6 +23,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Rs\Json\Patch;
 use Zend\Diactoros\Response;
+use Balloon\Group\Factory as GroupFactory;
+use Balloon\App\CoreApiv3\v3\Models\GroupFactory as GroupModelFactory;
 
 class Users
 {
@@ -36,10 +38,12 @@ class Users
     /**
      * Init.
      */
-    public function __construct(UserFactory $user_factory, UserModelFactory $user_model_factory, Acl $acl)
+    public function __construct(UserFactory $user_factory, UserModelFactory $user_model_factory, GroupFactory $group_factory, GroupModelFactory $group_model_factory, Acl $acl)
     {
         $this->user_factory = $user_factory;
         $this->user_model_factory = $user_model_factory;
+        $this->group_factory = $group_factory;
+        $this->group_model_factory = $group_model_factory;
         $this->acl = $acl;
     }
 
@@ -62,6 +66,36 @@ class Users
     }
 
     /**
+     * Get groups
+     */
+    public function getGroups(ServerRequestInterface $request, User $identity, ObjectId $user): ResponseInterface
+    {
+        $query = $request->getQueryParams();
+        $resource = $this->user_factory->getOne($user);
+        $groups = $resource->getGroups();
+
+        $filter = [
+            '_id' => ['$in' => $groups]
+        ];
+
+        if(count($query['query']) > 0) {
+            $filter = [
+                '$and' => [$filter,$query['query']],
+            ];
+        }
+
+        if (isset($query['watch'])) {
+            $cursor = $this->groups_factory->watch(null, true, $filter, (int) $query['offset'], (int) $query['limit'], $query['sort']);
+
+            return Helper::watchAll($request, $identity, $this->acl, $cursor, $this->group_model_factory);
+        }
+
+        $groups = $this->group_factory->getAll($filter, $query['offset'], $query['limit'], $query['sort']);
+
+        return Helper::getAll($request, $identity, $this->acl, $groups, $this->group_model_factory);
+    }
+
+    /**
      * Entrypoint.
      */
     public function getOne(ServerRequestInterface $request, User $identity, ObjectId $user): ResponseInterface
@@ -77,7 +111,6 @@ class Users
     public function delete(ServerRequestInterface $request, User $identity, ObjectId $user): ResponseInterface
     {
         $this->user_factory->deleteOne($user);
-
         return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
     }
 
@@ -89,13 +122,8 @@ class Users
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
 
-        $id = $this->user_factory->add($body);
-
-        return new UnformattedResponse(
-            (new Response())->withStatus(StatusCodeInterface::STATUS_CREATED),
-            $this->user_model_factory->decorate($resource, $request),
-            ['pretty' => isset($query['pretty'])]
-        );
+        $resource = $this->user_factory->add($body);
+        return Helper::getOne($request, $identity, $resource, $this->user_model_factory, StatusCodeInterface::STATUS_CREATED);
     }
 
     /**
@@ -106,13 +134,8 @@ class Users
         $body = $request->getParsedBody();
         $query = $request->getQueryParams();
         $user = $this->user_factory->getOne($user);
-        $doc = ['data' => $user->getData()];
-
-        $patch = new Patch(json_encode($doc), json_encode($body));
-        $patched = $patch->apply();
-        $update = json_decode($patched, true);
+        $update = Helper::patch($request, $user);
         $this->user_factory->update($user, $update);
-
-        return Helper::getOne($request, $identity, $update, $this->user_model_factory);
+        return Helper::getOne($request, $identity, $user, $this->user_model_factory);
     }
 }

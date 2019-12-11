@@ -97,15 +97,62 @@ class Factory
     }
 
     /**
+     * Get user aggregation pipe.
+     */
+    protected function getUserAggregationPipes(?array $query = null, ?int $offset = null, ?int $limit = null, ?array $sort = null): array
+    {
+        $aggregation = [];
+
+        if(!empty($query)) {
+            $aggregation[] = ['$match' => $query];
+        }
+
+        $aggregation[] = ['$lookup' => [
+                'from' => 'groups',
+                'localField' => '_id',
+                'foreignField' => 'members',
+                'as' => 'groups',
+        ]];
+
+        $aggregation[] = ['$addFields' => [
+                'groups' => [
+                    '$map' => [
+                        'input' => '$groups',
+                        'as' => 'groups',
+                        'in' => '$$groups._id',
+                    ],
+        ]]];
+
+        if($limit !== null) {
+            $aggregation[] = ['$limit' => $limit];
+        }
+
+        if($offset !== null) {
+            $aggregation[] = ['$skip' => $offset];
+        }
+
+        if(!empty($sort)) {
+            $aggregation[] = ['$sort' => $sort];
+        }
+
+        return $aggregation;
+    }
+
+    /**
      * Get all.
      */
     public function getAll(?array $query = null, ?int $offset = null, ?int $limit = null, ?array $sort = null): Generator
     {
-        $that = $this;
+        $aggregation = $this->getUserAggregationPipes($query, $offset, $limit, $sort);
+        $cursor = $this->db->{self::COLLECTION_NAME}->aggregate($aggregation);
 
-        return $this->resource_factory->getAllFrom($this->db->{self::COLLECTION_NAME}, $query, $offset, $limit, $sort, function (array $resource) use ($that) {
-            return $that->build($resource);
-        });
+        $i = 0;
+        foreach ($cursor as $resource) {
+            $i++;
+            yield $this->build($resource);
+        }
+
+        return $i;
     }
 
     /**
@@ -113,18 +160,22 @@ class Factory
      */
     public function getOneByName(string $name): UserInterface
     {
-        $result = $this->db->{self::COLLECTION_NAME}->findOne([
+        $query = [
             '$or' => [
                 ['username' => $name],
                 ['mail' => $name],
             ],
-        ]);
+        ];
 
-        if ($result === null) {
+        $aggregation = $this->getUserAggregationPipes($query, null, 1);
+        $cursor = $this->db->{self::COLLECTION_NAME}->aggregate($aggregation);
+        $result = $cursor->current();
+
+        if (count($result) === 0) {
             throw new Exception\NotFound('user '.$name.' is not registered');
         }
 
-        return $this->build($result);
+        return $this->build($result[0]);
     }
 
 
@@ -133,15 +184,19 @@ class Factory
      */
     public function getOne(ObjectIdInterface $id): UserInterface
     {
-        $result = $this->db->{self::COLLECTION_NAME}->findOne([
-            '_id' => $id,
-        ]);
+        $query = [
+            '_id' => $id
+        ];
 
-        if ($result === null) {
-            throw new Exception\NotFound('user '.$name.' is not registered');
+        $aggregation = $this->getUserAggregationPipes($query, null, 1);
+        $cursor = $this->db->{self::COLLECTION_NAME}->aggregate($aggregation);
+        $result = $cursor->toArray();
+
+        if (count($result) === 0) {
+            throw new Exception\NotFound('user '.$id.' is not registered');
         }
 
-        return $this->build($result);
+        return $this->build($result[0]);
     }
 
     /**
@@ -174,7 +229,7 @@ class Factory
     /**
      * Add user.
      */
-    public function add(array $resource): ObjectIdInterface
+    public function add(array $resource): UserInterface
     {
         $resource['kind'] = 'User';
         Validator::validatePolicy($resource, $this->password_policy);
@@ -188,7 +243,8 @@ class Factory
             unset($resource['password']);
         }
 
-        return $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        $resource = $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        return $this->build($resource);
     }
 
     /**

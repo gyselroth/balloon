@@ -14,13 +14,17 @@ namespace Balloon\App\CoreApiv2\v2;
 use Balloon\AttributeDecorator\Pager;
 use Balloon\Server;
 use Balloon\Server\AttributeDecorator;
-use Balloon\Server\User;
-use Balloon\Server\User\Exception;
+use Balloon\User;
 use Micro\Http\Response;
 use MongoDB\BSON\Binary;
 use function MongoDB\BSON\fromJSON;
 use MongoDB\BSON\ObjectId;
 use function MongoDB\BSON\toPHP;
+use Balloon\User\Factory as UserFactory;
+use Balloon\App\CoreApiv2\v2\Models\UserFactory as UserModelFactory;
+use Balloon\Acl;
+use Balloon\Rest\Helper;
+use Zend\Diactoros\ServerRequest;
 
 class Users
 {
@@ -46,13 +50,20 @@ class Users
     protected $decorator;
 
     /**
-     * Initialize.
+     * User factory.
+     *
+     * @var UserFactory
      */
-    public function __construct(Server $server, AttributeDecorator $decorator)
+    protected $user_factory;
+
+    /**
+     * Init.
+     */
+    public function __construct(UserFactory $user_factory, UserModelFactory $user_model_factory, Acl $acl)
     {
-        $this->user = $server->getIdentity();
-        $this->server = $server;
-        $this->decorator = $decorator;
+        $this->user_factory = $user_factory;
+        $this->user_model_factory = $user_model_factory;
+        $this->acl = $acl;
     }
 
     /**
@@ -125,9 +136,11 @@ class Users
                 ]);
             }
 
-            $result = $this->server->getUsers($query, $offset, $limit);
-            $pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, '/api/v2/users');
-            $result = $pager->paging();
+            $users = $this->user_factory->getAll($query, $offset, $limit);
+            Helper::getAll(new ServerRequest(), new User(), $this->acl, $users, $this->user_model_factory);
+
+            //$pager = new Pager($this->decorator, $result, $attributes, $offset, $limit, '/api/v2/users');
+            //$result = $pager->paging();
         } else {
             $result = $this->decorator->decorate($this->_getUser($id, false), $attributes);
         }

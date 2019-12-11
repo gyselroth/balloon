@@ -113,7 +113,6 @@ class Token extends AbstractAdapter implements InternalAuthInterface
     public function authenticate(ServerRequestInterface $request): ?array
     {
         $request = $this->toOAuthRequest($request);
-
         if ($this->server->verifyResourceRequest($request)) {
             $data = $this->server->getAccessTokenData($request);
 

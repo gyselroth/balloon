@@ -45,6 +45,14 @@ class User extends AbstractResource implements UserInterface
     }
 
     /**
+     * Get groups
+     */
+    public function getGroups(): array
+    {
+        return $this->resource['groups'] ?? [];
+    }
+
+    /**
      * Has password.
      */
     public function hasPassword(): bool
