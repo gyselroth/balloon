@@ -1,5 +1,6 @@
 paths:
-  /api:
+
+  /api/v3:
     get:
       tags:
         - core.v3
@@ -232,6 +233,402 @@ paths:
           description: "List of users"
           schema:
             $ref: '#/definitions/core.v3.Users'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/access-roles:
+    get:
+      tags:
+        - core.v3
+      summary: Get access-roles
+      description: A access-role is a colletion of users
+      operationId: getCoreV3CoreV3AccessRoles
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of access-roles"
+          schema:
+            $ref: "#/definitions/core.v3.AccessRoles"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    post:
+      tags:
+        - core.v3
+      summary: Add access-role
+      operationId: addCoreV3AccessRole
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: "#/definitions/core.v3.AccessRole"
+      responses:
+        201:
+          description: "If successful the server will respond with 201 Created"
+          schema:
+            $ref: "#/definitions/core.v3.AccessRole"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/access-roles/{access-role}':
+    get:
+      tags:
+        - core.v3
+      operationId: getCoreV3AccessRole
+      summary: 'Get access-role'
+      produces:
+        - application/json
+      parameters:
+        - name: access-role
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "AccessRole"
+          schema:
+            $ref: "#/definitions/core.v3.AccessRole"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    patch:
+      tags:
+        - core.v3
+      summary: 'Change access-role'
+      operationId: patchCoreV3AccessRole
+      consumes:
+        - application/json-patch+json
+      produces:
+        - application/json
+      parameters:
+        - name: access-role
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: body
+          name: body
+          description: 'Set attributes for access-role'
+          required: true
+          schema:
+            $ref: "#/definitions/JsonPatch"
+      responses:
+        200:
+          description: "AccessRole"
+          schema:
+            $ref: "#/definitions/core.v3.AccessRole"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    delete:
+      tags:
+        - core.v3
+      summary: 'Delete access-role'
+      operationId: deleteCoreV3AccessRole
+      produces:
+        - application/json
+      parameters:
+        - name: access-role
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the access-role gets disabled, if force is set the access-role gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  /api/v3/access-rules:
+    get:
+      tags:
+        - core.v3
+      summary: Get access-rules
+      description: A access-rule is a colletion of users
+      operationId: getCoreV3CoreV3AccessRules
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: query
+          description: "Specify a MongoDB based resource query
+            (https://docs.mongodb.com/manual/tutorial/query-documents) using
+            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+          required: false
+          type: string
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+        - in: query
+          name: offset
+          description: Objects offset, per default it starts from 0. You may also request a
+            negative offset which will return results from the end [total -
+            offset].
+          required: false
+          type: integer
+        - in: query
+          name: limit
+          description: Objects limit, per default 20 objects will get returned
+          required: false
+          type: integer
+        - in: query
+          name: sort
+          description: 'Specify a MongoDB sort operation
+            (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+            using JSON (For example: {"name": -1}).'
+          required: false
+          type: string
+      responses:
+        200:
+          description: "List of access-rules"
+          schema:
+            $ref: "#/definitions/core.v3.AccessRules"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    post:
+      tags:
+        - core.v3
+      summary: Add access-rule
+      operationId: addCoreV3AccessRule
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: "#/definitions/core.v3.AccessRule"
+      responses:
+        201:
+          description: "If successful the server will respond with 201 Created"
+          schema:
+            $ref: "#/definitions/core.v3.AccessRule"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/access-rules/{access-rule}':
+    get:
+      tags:
+        - core.v3
+      operationId: getCoreV3AccessRule
+      summary: 'Get access-rule'
+      produces:
+        - application/json
+      parameters:
+        - name: access-rule
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: query
+          name: attributes
+          description: Filter attributes
+          required: false
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: "AccessRule"
+          schema:
+            $ref: "#/definitions/core.v3.AccessRule"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    patch:
+      tags:
+        - core.v3
+      summary: 'Change access-rule'
+      operationId: patchCoreV3AccessRule
+      consumes:
+        - application/json-patch+json
+      produces:
+        - application/json
+      parameters:
+        - name: access-rule
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - in: body
+          name: body
+          description: 'Set attributes for access-rule'
+          required: true
+          schema:
+            $ref: "#/definitions/JsonPatch"
+      responses:
+        200:
+          description: "AccessRule"
+          schema:
+            $ref: "#/definitions/core.v3.AccessRule"
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+    delete:
+      tags:
+        - core.v3
+      summary: 'Delete access-rule'
+      operationId: deleteCoreV3AccessRule
+      produces:
+        - application/json
+      parameters:
+        - name: access-rule
+          in: path
+          required: true
+          type: string
+          description: 'Resource identifier'
+        - name: force
+          in: query
+          required: false
+          type: boolean
+          description: 'Per default the access-rule gets disabled, if force is set the access-rule gets removed completely.'
+      responses:
+        204:
+          description: "If successful the server will respond with 204 No Content"
         400:
           $ref: '#/responses/core.v3.BadRequest'
         401:
@@ -2878,131 +3275,84 @@ definitions:
           name:
             description: "The name of role resource."
             type: "string"
-  core.v3.UserNodeAttributeSummary:
-    description: "Request node fiel statistics."
-    type: object
-    additionalProperties:
-      type: array
-      items:
-        type: object
-        properties:
-          _id:
-            type: string
-          sum:
-            type: integer
-  core.v3.ChunkSession:
-    description: "Chunking upload session."
-    type: object
-    properties:
-      session:
-        description: "The upload session id"
-        type: string
-      chunks_left:
-        description: "Tells how many chunks are left to upload."
-        type: integer
-  core.v3.EventLogs:
-    description: "A list of events."
+  core.v3.AccessRules:
+    description: "A list of access rules."
     allOf:
-      - $ref: '#/definitions/core.v3.ResourceList'
+      - $ref: '#/definitions/core.v3.List'
       - type: object
         properties:
           data:
             type: "array"
             items:
-              $ref: "#/definitions/core.v3.EventLog"
-  core.v3.EventLog:
-    description: "Event log entry. Each event represents an executed operation on the server."
-    type: object
-    properties:
-      event:
-        description: "The event id."
-        type: "string"
-      timestamp:
-        description: "ISO 8601 timestamp when the event was created."
-        type: "string"
-      operation:
-        description: "The event operation."
-        type: "string"
-        enum:
-        - deleteCollectionReference
-        - deleteCollectionShare
-        - deleteCollection
-        - addCollection
-        - addFile
-        - addCollectionShare
-        - addCollectionReference
-        - undeleteFile
-        - undeleteCollectionReference
-        - undeleteCollectionShare
-        - restoreFile
-        - renameFile
-        - renameCollection
-        - renameCollectionShare
-        - renameCollectionReference
-        - copyFile
-        - copyCollection
-        - copyCollectionShare
-        - copyCollectionRFeference
-        - moveFile
-        - moveCollection
-        - moveCollectionReference
-        - moveCollectionShare
-      node:
-        description: "Resolves to the node involved in the operation."
-        type: "object"
+              $ref: "#/definitions/core.v3.AccessRule"
+  core.v3.AccessRule:
+    description: "An access rule allows to specify what access roles can access which resources."
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
         properties:
-          id:
-            description: "The id of the node"
-            type: "string"
           name:
-            description: "The name of the node"
+            description: "Unique rule name"
             type: "string"
-      parent:
-        description: "Points to the parent collection. If the node is in the root this is null."
-        type: "object"
+          roles:
+            description: "A list of access-role names to match the given rule."
+            type: "array"
+            items:
+              type: "string"
+          verbs:
+            description: "List of allowed HTTP rfc7231 verbs, you may also specify a wildcard to match all verbs."
+            type: "array"
+            items:
+              type: "string"
+              enum:
+                - "*"
+                - GET
+                - POST
+                - PUT
+                - PATCH
+                - DELETE
+                - HEAD
+          resources:
+            description: "A list of selectors to match resources, for example namespace, collection, endpoint, ..."
+            type: "array"
+            items:
+              type: object
+              properties:
+                selector:
+                  description: "The resource type (attribute) to select. Might be `*` to select any."
+                  type: string
+                match:
+                  description: "The resource value to match. Might be `*` to match any."
+                  type: string
+                fields:
+                  description: "A list of accessible fields of a resource. Might contain `*` to include all fields."
+                  type: array
+                  items:
+                    type: string
+  core.v3.AccessRoles:
+    description: "A list of access roles."
+    allOf:
+      - $ref: '#/definitions/core.v3.List'
+      - type: object
         properties:
-          id:
-            description: "The id of the parent collection"
-            type: "string"
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/core.v3.AccessRole"
+  core.v3.AccessRole:
+    description: "An access role is defined list which matches authenticated user identifiers."
+    allOf:
+      - $ref: '#/definitions/core.v3.Resource'
+      - type: object
+        properties:
           name:
-            description: "The name of the parent collection"
+            description: "Unique role name"
             type: "string"
-      share:
-        description: "Points to the shared node (or share reference). If the node is not part of any share this is null."
-        type: "object"
-        properties:
-          id:
-            description: "The id of the share collection. If the share is a reference (incoming share) it will point to the share reference and not the id of the shared collection itself."
-            type: "string"
-          name:
-            description: "The name of the share (or share reference)."
-            type: "string"
-      user:
-        description: "Resolves to user who executed the operation."
-        type: "object"
-        properties:
-          id:
-            description: "The id of the share owner."
-            type: "string"
-          name:
-            description: "The username of the share owner."
-            type: "string"
-      client:
-        description: "Describes the client from which the operation was executed."
-        type: "object"
-        properties:
-          type:
-            description: "The type of the client."
-            type: "string"
-          app:
-            description: "The client app name."
-            type: "string"
-          v:
-            description: "The version of the client app."
-            type: "string"
-          hostname:
-            description: "The hostname of the client."
-            type: "string"
+          selectors:
+            description: "A list of user identifiers which the access role should match. It is also possible to specify a wildcard to match all identifiers."
+            type: "array"
+            items:
+              type: "string"
   core.v3.Events:
     description: "A list of events."
     allOf:

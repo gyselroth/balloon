@@ -141,15 +141,10 @@ class CoreInstallation implements DeltaInterface
                 'verbs' => ['*'],
                 'as' => ['*'],
                 'resources' => [
-                    /*[
-                        'identifier' => '*',
-                        'fields' => '*',
-                        'match' => '*',
-                    ]*/
                     [
                         'selector' => '*',
-                        'fields' => '*',
                         'match' => '*',
+                        'fields' => ['*'],
                     ]
                 ],
             ]);

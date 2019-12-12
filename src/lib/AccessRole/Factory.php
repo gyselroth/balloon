@@ -23,6 +23,7 @@ class Factory
      * Collection name.
      */
     public const COLLECTION_NAME = 'access_roles';
+
     /**
      * Database.
      *
