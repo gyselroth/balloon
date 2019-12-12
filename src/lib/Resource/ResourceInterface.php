@@ -33,11 +33,6 @@ interface ResourceInterface
     public function toArray(): array;
 
     /**
-     * Get data without metadata from a resource.
-     */
-    public function getData(): array;
-
-    /**
      * Get created timestamp.
      */
     public function getCreated(): UTCDateTimeInterface;
@@ -45,7 +40,7 @@ interface ResourceInterface
     /**
      * Get changed timestamp.
      */
-    public function getChanged(): ?UTCDateTimeInterface;
+    public function getChanged(): UTCDateTimeInterface;
 
     /**
      * Get deleted timestamp.

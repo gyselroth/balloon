@@ -138,10 +138,10 @@ return [
                     }
                 }
             ]],
-            /*[
+            [
                 'method' => 'addListener',
                 'arguments' => ['event' => '*', 'listener' => '{'.EventListener\Event::class.'}'],
-            ],*/
+            ],
         ]
     ],
     RouteCollector::class => [

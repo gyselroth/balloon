@@ -63,8 +63,8 @@ class Acl
 
         $roles = $this->role_factory->getAll([
             '$or' => [
-                ['data.selectors' => $user->getUsername()],
-                ['data.selectors' => '*'],
+                ['selectors' => $user->getUsername()],
+                ['selectors' => '*'],
             ],
         ]);
 
@@ -87,11 +87,12 @@ class Acl
         }
 
         $rules = $this->rule_factory->getAll([
-            'data.roles' => ['$in' => $names],
+            'roles' => ['$in' => $names],
         ]);
 
         $method = $request->getMethod();
         $attributes = $request->getAttributes();
+        $query = $request->getQueryParams();
 
         $this->logger->debug('verify access for http request {method}:{uri} using {attributes}', [
             'category' => get_class($this),
@@ -101,7 +102,7 @@ class Acl
         ]);
 
         foreach ($rules as $rule) {
-            $data = $rule->getData();
+            $data = $rule->toArray();
 
             $this->logger->debug('verify access rule ['.$rule->getName().']', [
                 'category' => get_class($this),
@@ -115,14 +116,18 @@ class Acl
                 continue;
             }
 
-            foreach ($data['selectors'] as $selector) {
-                if ($selector === '*') {
-                    $request = $request->withAttribute('attributes', $data['fields'] ?? []);
+            if(isset($query['as']) && !in_array($data['as'], $data['as']) && !in_array('*', $data['as'])) {
+                continue;
+            }
+
+            foreach ($data['resources'] as $resource) {
+                if ($resource['selector'] === '*') {
+                    $request = $request->withAttribute('attributes', $resource['fields'] ?? []);
                     return $request;
                 }
 
-                if (isset($attributes[$selector]) && (in_array($attributes[$selector], $data['resources']) || in_array('*', $data['resources']))) {
-                    $request = $request->withAttribute('attributes', $data['fields'] ?? []);
+                if (isset($attributes[$resource['selector']]) && (in_array($attributes[$resource['selector']], $resource['match']) || in_array('*', $resource['match']))) {
+                    $request = $request->withAttribute('attributes', $resource['fields'] ?? []);
                     return $request;
                 }
             }

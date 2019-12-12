@@ -163,12 +163,12 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
                 'created' => $attrs['created'],
                 'changed' => $attrs['changed'],
                 'filter' => $attrs['filter'],
-                'meta' => $attrs['meta'],
+                'metadata' => $attrs['metadata'],
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
         foreach ($this->getChildren($user, $node, $deleted) as $child) {
-            $child->copyTo($new_parent, $conflict, $recursion, false, $deleted);
+            $child->copyTo($user, $new_parent, $conflict, $recursion, false, $deleted);
         }
 
         $this->emitter->emit('collection.factory.postCopy', ...array_merge([$new_parent], func_get_args()));
@@ -628,7 +628,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
 //$this->changed = $save['changed'];
 //$this->save('changed');
 
-            $new = $this->build($save, $user, $parent);
+            $new = $this->build($result, $user, $parent);
             $this->emitter->emit('collection.factory.postAdd', ...array_merge([$new], func_get_args()));
 
             return $new;
@@ -648,7 +648,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
         return $this->cache[$id] = $this->storage_factory->build($mount);
     }
 
-        /**
+    /**
      * Prepare query.
      */
     public function prepareQuery(UserInterface $user, ?array $query = null): array
@@ -842,8 +842,8 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             return $new;
         }
 
-        if ($parent->childExists($this->name) && NodeInterface::CONFLICT_MERGE === $conflict) {
-            $new = $this->copyTo($parent, $conflict);
+        if ($this->childExists($user, $parent, $node->getName()) && NodeInterface::CONFLICT_MERGE === $conflict) {
+            $new = $this->copyTo($user, $node, $parent, $conflict);
             $this->deleteOne($user, $node, true);
 
             return $new;

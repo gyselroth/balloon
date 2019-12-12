@@ -130,20 +130,27 @@ class CoreInstallation implements DeltaInterface
         if (!$this->role_factory->has('admin')) {
             $this->role_factory->add([
                 'name' => 'admin',
-                'data' => [
-                    'selectors' => ['*'],
-                ],
+                'selectors' => ['*'],
             ]);
         }
 
         if (!$this->rule_factory->has('full-access')) {
             $this->rule_factory->add([
                 'name' => 'full-access',
-                'data' => [
-                    'roles' => ['admin'],
-                    'verbs' => ['*'],
-                    'selectors' => ['*'],
-                    'resources' => ['*'],
+                'roles' => ['admin'],
+                'verbs' => ['*'],
+                'as' => ['*'],
+                'resources' => [
+                    /*[
+                        'identifier' => '*',
+                        'fields' => '*',
+                        'match' => '*',
+                    ]*/
+                    [
+                        'selector' => '*',
+                        'fields' => '*',
+                        'match' => '*',
+                    ]
                 ],
             ]);
         }

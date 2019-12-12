@@ -2764,7 +2764,7 @@ definitions:
   core.v2.ResourceList:
     type: "object"
     properties:
-      _links:
+      links:
         description: "Holds a list of links rfc1738 to other resources."
         $ref: "#/definitions/core.v2.ListLinks"
       kind:
@@ -2780,7 +2780,7 @@ definitions:
   core.v2.Resource:
     type: "object"
     properties:
-      _links:
+      links:
         $ref: "#/definitions/core.v2.Links"
       kind:
         description: Resource type

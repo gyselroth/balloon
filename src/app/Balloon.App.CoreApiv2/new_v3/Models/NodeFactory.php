@@ -67,7 +67,7 @@ class NodeFactory extends AbstractModelFactory
         $this->addCustomEmbedded('shareowner', function($resource, $request) use($user_factory, $user_model_factory) {
                 return $decorator->decorate(
                         $server->getUserById($fs->findRawNode($node->getShareId())['owner']),
-                        ['id', 'name', '_links']
+                        ['id', 'name', 'links']
                     );
             return $user_model_factory->decorate($user_factory->getOne($value), $request);
         });
@@ -166,7 +166,7 @@ class NodeFactory extends AbstractModelFactory
                 );*/
                 /*return $decorator->decorate(
                         $server->getUserById($fs->findRawNode($node->getShareId())['owner']),
-                        ['id', 'name', '_links']
+                        ['id', 'name', 'links']
                     );*/
             },
             'owner' => (string)$attributes['owner'] ?? null,

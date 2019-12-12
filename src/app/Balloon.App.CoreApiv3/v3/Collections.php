@@ -90,42 +90,4 @@ class Collections
 
         return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
     }
-
-    /**
-     * Delete node.
-     */
-    /*public function delete(ServerRequestInterface $request, User $identity, ObjectId $collection): ResponseInterface
-    {
-        $this->collection_factory->deleteOne($identity, $collection);
-
-        return (new Response())->withStatus(StatusCodeInterface::STATUS_NO_CONTENT);
-    }*/
-
-    /**
-     * Add new node.
-     */
-    public function post(ServerRequestInterface $request, User $identity): ResponseInterface
-    {
-        $body = $request->getParsedBody();
-        $query = $request->getQueryParams();
-
-        $resource = $this->collection_factory->add($identity, $body);
-        return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
-    }
-
-    /**
-     * Patch.
-     */
-    /*public function patch(ServerRequestInterface $request, User $identity, ObjectId $collection): ResponseInterface
-    {
-        $body = $request->getParsedBody();
-        $query = $request->getQueryParams();
-        $collection = $this->collection_factory->getOne($identity, $collection);
-
-        $patch = new Patch(json_encode($collection->toArray()), json_encode($body));
-        $patched = $patch->apply();
-        $update = json_decode($patched, true);
-        $this->collection_factory->update($collection, $update);
-        return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
-    }*/
 }

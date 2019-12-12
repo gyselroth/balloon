@@ -35,15 +35,27 @@ class EventFactory extends AbstractModelFactory
         });
 
         $this->addEmbedded('node', function($value, $request) use($collection_factory, $node_model_factory) {
-            return $node_model_factory->decorate($collection_factory->getOne($request->getAttribute('identity'), $value), $request);
+            return $node_model_factory->decorate($collection_factory->getOne($request->getAttribute('identity'), $value['id']), $request);
         });
 
-        $this->addEmbedded('parent', function($value, $request) use($collection_factory, $node_model_factory) {
-            return $node_model_factory->decorate($collection_factory->getOne($request->getAttribute('identity'), $value), $request);
+        $this->addEmbedded('parent', function($value, $request, $resource) use($collection_factory, $node_model_factory) {
+            $node = $resource->toArray()['node']['parent'] ?? null;
+
+            if($node === null) {
+                return null;
+            }
+
+            return $node_model_factory->decorate($collection_factory->getOne($request->getAttribute('identity'), $node), $request);
         });
 
         $this->addEmbedded('share', function($value, $request) use($collection_factory, $node_model_factory) {
-            return $node_model_factory->decorate($collection_factory->getOne($request->getAttribute('identity'), $value), $request);
+            $node = $resource->toArray()['node']['share'] ?? null;
+
+            if($node === null) {
+                return null;
+            }
+
+            return $node_model_factory->decorate($collection_factory->getOne($request->getAttribute('identity'), $node), $request);
         });
     }
 
@@ -56,11 +68,13 @@ class EventFactory extends AbstractModelFactory
         $attributes = $event->toArray();
 
         $result = [
-            'node' => (string)$attributes['node'],
-            'node_name' => $attributes['name'],
-            'owner' => isset($attributes['owner']) ? (string)$attributes['owner'] : null,
-            'parent' => isset($attributes['parent']) ? (string)$attributes['parent'] : null,
-            'share' => isset($attributes['share']) ? (string)$attributes['share'] : null,
+            'node' => [
+                'id' => (string)$attributes['node']['id'],
+                'path' => (string)$attributes['node']['path'],
+                'parent' => isset($attributes['node']['parent']) ? (string)$attributes['node']['parent'] : null,
+                'share' => isset($attributes['node']['share']) ? (string)$attributes['node']['share'] : null,
+                'name' => (string)$attributes['node']['name'],
+            ]
         ];
 
         return $result;

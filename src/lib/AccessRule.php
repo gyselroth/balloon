@@ -30,17 +30,4 @@ class AccessRule extends AbstractResource implements AccessRuleInterface
     {
         $this->resource = $resource;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function decorate(ServerRequestInterface $request): array
-    {
-        $resource = [
-            'kind' => 'AccessRule',
-            'data' => $this->getData(),
-       ];
-
-        return AttributeResolver::resolve($request, $this, $resource);
-    }
 }

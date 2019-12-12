@@ -35,7 +35,7 @@ class Files extends Nodes
                 $user = null;
             } else {
                 $user = $this->server->getUserById($version['user']);
-                $user = $role_decorator->decorate($user, ['id', 'name', '_links']);
+                $user = $role_decorator->decorate($user, ['id', 'name', 'links']);
             }
 
             $body[] = [

@@ -59,8 +59,12 @@ class Factory
      */
     public function addTo(Collection $collection, array $resource): array
     {
+        if(!isset($resource['metadata'])) {
+            $resource['metadata'] = [];
+        }
+
         $ts = new UTCDateTime();
-        $resource += [
+        $resource['metadata'] += [
             'created' => $ts,
             'changed' => $ts,
             'version' => 1,
@@ -95,27 +99,22 @@ class Factory
             'category' => get_class($this),
             'update' => $update,
         ]);
+
+        $version = $resource->getVersion();
+
+        if(isset($update['metadata'])) {
+            $update['metadata']['changed'] = new UTCDateTime();
+            $update['metadata']['version'] = $version;
+        } else {
+            $update['metadata.changed'] = new UTCDateTime();
+            $update['metadata.version'] = $version;
+        }
+
         $this->emitter->emit('resource.factory.preUpdate', ...func_get_args());
 
         $op = [
             '$set' => $update,
         ];
-
-        /*if (!isset($update['data']) || $resource->getData() === $update['data']) {
-            $this->logger->info('resource ['.$resource->getId().'] version ['.$resource->getVersion().'] in ['.$collection->getCollectionName().'] is already up2date', [
-                'category' => get_class($this),
-            ]);
-        } else {
-            $this->logger->info('add new history record for resource ['.$resource->getId().'] in ['.$collection->getCollectionName().']', [
-                'category' => get_class($this),
-            ]);
-
-            $op['$set']['changed'] = new UTCDateTime();
-            $op += [
-                '$addToSet' => ['history' => array_intersect_key($resource->toArray(), array_flip(['data', 'version', 'changed', 'description']))],
-                '$inc' => ['version' => 1],
-            ];
-        }*/
 
         $result = $collection->updateOne(['_id' => $resource->getId()], $op);
 

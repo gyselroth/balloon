@@ -99,7 +99,7 @@ class Factory
     /**
      * Add resource.
      */
-    public function add(array $resource): ObjectIdInterface
+    public function add(array $resource): AccessRuleInterface
     {
         $resource['kind'] = 'AccessRule';
 
@@ -107,7 +107,8 @@ class Factory
             throw new Exception\NotUnique('access rule '.$resource['name'].' does already exists');
         }
 
-        return $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        $result = $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        return $this->build($result);
     }
 
     /**

@@ -84,6 +84,20 @@ return [
                 ['PATCH', '/api/v3/sessions/{session}', [v3\Sessions::class, 'patch']],
                 ['DELETE', '/api/v3/sessions/{session}', [v3\Sessions::class, 'delete']],
 
+                ['GET', '/api/v3/access-roles', [v3\AccessRoles::class, 'getAll']],
+                ['GET', '/api/v3/access-roles/{role}', [v3\AccessRoles::class, 'getOne']],
+                ['POST', '/api/v3/access-roles', [v3\AccessRoles::class, 'post']],
+                ['PUT', '/api/v3/access-roles/{role}', [v3\AccessRoles::class, 'put']],
+                ['PATCH', '/api/v3/access-roles/{role}', [v3\AccessRoles::class, 'patch']],
+                ['DELETE', '/api/v3/access-roles/{role}', [v3\AccessRoles::class, 'delete']],
+
+                ['GET', '/api/v3/access-rules', [v3\AccessRules::class, 'getAll']],
+                ['GET', '/api/v3/access-rules/{rule}', [v3\AccessRules::class, 'getOne']],
+                ['POST', '/api/v3/access-rules', [v3\AccessRules::class, 'post']],
+                ['PUT', '/api/v3/access-rules/{rule}', [v3\AccessRules::class, 'put']],
+                ['PATCH', '/api/v3/access-rules/{rule}', [v3\AccessRules::class, 'patch']],
+                ['DELETE', '/api/v3/access-rules/{rule}', [v3\AccessRules::class, 'delete']],
+
                 ['GET', '/api/v3/events', [v3\Events::class, 'getAll']],
                 ['GET', '/api/v3/events/{event}', [v3\Events::class, 'getOne']],
 

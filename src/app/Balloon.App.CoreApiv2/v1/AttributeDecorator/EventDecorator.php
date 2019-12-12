@@ -161,7 +161,7 @@ class EventDecorator
             } else {
                 try {
                     $node = $this->fs->findNodeById($previous['parent'], null, NodeInterface::DELETED_INCLUDE);
-                    $previous['parent'] = $this->node_decorator->decorate($node, ['id', 'name', '_links']);
+                    $previous['parent'] = $this->node_decorator->decorate($node, ['id', 'name', 'links']);
                 } catch (\Exception $e) {
                     $previous['parent'] = null;
                 }
@@ -182,7 +182,7 @@ class EventDecorator
         try {
             $node = $this->fs->findNodeById($event['node'], null, NodeInterface::DELETED_INCLUDE);
 
-            return $this->node_decorator->decorate($node, ['id', 'name', 'deleted', '_links']);
+            return $this->node_decorator->decorate($node, ['id', 'name', 'deleted', 'links']);
         } catch (\Exception $e) {
             return null;
         }
@@ -205,7 +205,7 @@ class EventDecorator
             }
             $node = $this->fs->findNodeById($event['parent'], null, NodeInterface::DELETED_INCLUDE);
 
-            return $this->node_decorator->decorate($node, ['id', 'name', 'deleted', '_links']);
+            return $this->node_decorator->decorate($node, ['id', 'name', 'deleted', 'links']);
         } catch (\Exception $e) {
             return null;
         }
@@ -222,7 +222,7 @@ class EventDecorator
         try {
             $user = $this->fs->getServer()->getUserById($event['owner']);
 
-            return $this->role_decorator->decorate($user, ['id', 'name', '_links']);
+            return $this->role_decorator->decorate($user, ['id', 'name', 'links']);
         } catch (\Exception $e) {
             return null;
         }

@@ -30,20 +30,4 @@ class AccessRole extends AbstractResource implements AccessRoleInterface
     {
         $this->resource = $resource;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function decorate(ServerRequestInterface $request): array
-    {
-        $resource = [
-            '_links' => [
-                'self' => ['href' => (string) $request->getUri()],
-            ],
-            'kind' => 'AccessRole',
-            'data' => $this->getData(),
-        ];
-
-        return AttributeResolver::resolve($request, $this, $resource);
-    }
 }

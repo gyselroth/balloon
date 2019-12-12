@@ -45,7 +45,7 @@ class Pager
 
         $data = [
             'kind' => 'List',
-            '_links' => self::getLinks((int) $query['offset'], (int) $query['limit'], $request->getUri(), $total),
+            'links' => self::getLinks((int) $query['offset'], (int) $query['limit'], $request->getUri(), $total),
             'count' => $count,
             'total' => $total,
             'data' => $nodes,

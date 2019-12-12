@@ -60,7 +60,10 @@ class ProcessFactory extends AbstractModelFactory
 
         //var_dump($resource);
         return [
-            'changed' => $resource['created'] === 0 ? null : (new DateTime('@'.(string) $resource['created']))->format('c'),
+            'metadata' => [
+                'created' => $resource['created'] === 0 ? null : (new DateTime('@'.(string) $resource['created']))->format('c'),
+                'changed' => $resource['created'] === 0 ? null : (new DateTime('@'.(string) $resource['created']))->format('c'),
+            ],
             'job' => $resource['class'],
             'node' => (string)$resource['data']['node'] ?? null,
             'status' => [

@@ -45,7 +45,7 @@ class AttributeResolver
         $data = $resource->toArray();
 
         return [
-            '_links' => [
+            'links' => [
                 'self' => ['href' => (string) $request->getUri()],
             ],
             'id' => (string) $resource->getId(),

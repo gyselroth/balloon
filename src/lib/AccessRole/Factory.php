@@ -98,7 +98,7 @@ class Factory
     /**
      * Add resource.
      */
-    public function add(array $resource): ObjectIdInterface
+    public function add(array $resource): AccessRoleInterface
     {
         $resource['kind'] = 'AccessRole';
 
@@ -106,7 +106,8 @@ class Factory
             throw new Exception\NotUnique('access role '.$resource['name'].' does already exists');
         }
 
-        return $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        $result = $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        return $this->build($result);
     }
 
     /**

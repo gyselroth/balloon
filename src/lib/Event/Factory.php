@@ -60,7 +60,6 @@ class Factory
         return $this->db->{self::COLLECTION_NAME}->count(['eventname' => $name]) > 0;
     }
 
-
     /**
      * Prepare query.
      */
@@ -106,25 +105,20 @@ class Factory
     /**
      * Add event.
      */
-    public function add(UserInterface $user, NodeInterface $node, array $resource): ObjectIdInterface
+    public function add(UserInterface $user, NodeInterface $node, array $resource): EventInterface
     {
         $resource['kind'] = 'Event';
-       // $resource['operation'] = $event;
         $resource['owner'] = $user->getId();
-        $resource['name'] = $node->getName();
-        $resource['node'] = $node->getId();
-        $resource['parent'] = $node->getParent()->getRealId();
+        $resource['node'] = [
+            'id' => $node->getId(),
+            'path' => $node->getPath(),
+            'name' => $node->getName(),
+            'parent' => $node->getParent()->getRealId(),
+            'share' => $node->isShareMember() ? $node->getShareId() : null,
+        ];
 
-        if ($node->isShareMember()) {
-            $resource['share'] = $node->getShareId();
-        }
-
-
-        /*if ($this->has($resource['eventname'])) {
-            throw new Exception\NotUnique('event '.$resource['eventname'].' does already exists');
-        }*/
-
-        return $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        $result = $this->resource_factory->addTo($this->db->{self::COLLECTION_NAME}, $resource);
+        return $this->build($result);
     }
 
     /**

@@ -43,7 +43,7 @@ class AbstractModelFactory implements ModelFactoryInterface
         $requested = $request->getQueryParams()['attributes'] ?? [];
         $attributes = $resource->toArray();
 
-        $attrs = array_merge(
+        $attrs = array_replace_recursive(
             $this->getMeta($resource, $attributes),
             $this->getAttributes($resource, $request),
             $this->attributes
@@ -88,31 +88,23 @@ class AbstractModelFactory implements ModelFactoryInterface
     protected function getMeta(ResourceInterface $resource, array $attributes): array
     {
         return [
-            'id' => (string)$attributes['_id'],
             'kind' => $resource->getKind(),
-            '_links' => (object)[],
-            '_embedded' => (object)[],
-            'meta' => [
+            'metadata' => [
+                'id' => (string)$attributes['_id'],
                 'annotations' => (object)[],
-                'labels' => (object)[],
+                'version' => $resource->getVersion(),
+                'created' => isset($attributes['metadata']['created']) ? $attributes['metadata']['created']->toDateTime()->format('c') : null,
+                'changed' => isset($attributes['metadata']['changed']) ? $attributes['metadata']['changed']->toDateTime()->format('c') : null,
+                /*'deleted' => function ($resource) use ($attributes) {
+                    if (!isset($attributes['deleted'])) {
+                        return null;
+                    }
+
+                    return $attributes['deleted']->toDateTime()->format('c');
+                }*/
             ],
-            'created' => function ($resource) use ($attributes) {
-                return $attributes['created']->toDateTime()->format('c');
-            },
-            'changed' => function ($resource) use ($attributes) {
-                if (!isset($attributes['changed'])) {
-                    return null;
-                }
-
-                return $attributes['changed']->toDateTime()->format('c');
-            },
-            'deleted' => function ($resource) use ($attributes) {
-                if (!isset($attributes['deleted'])) {
-                    return null;
-                }
-
-                return $attributes['deleted']->toDateTime()->format('c');
-            },
+            'links' => (object)[],
+            'embedded' => count($this->embedded) == 0 ? (object)[] : [],
         ];
     }
 
@@ -132,14 +124,14 @@ class AbstractModelFactory implements ModelFactoryInterface
         }
 
         $params = $request->getQueryParams();
-        $sub_request = $request->withQueryParams(['attributes' => array_merge(['id', 'name', '_links'], $params['attributes'] ?? [])]);
+        $sub_request = $request->withQueryParams(['attributes' => array_merge(['id', 'name', 'links'], $params['attributes'] ?? [])]);
         $orig = $resource->toArray();
 
         foreach($this->embedded as $key => $value) {
             try {
                 $resolved = $value($orig[$key] ?? null, $sub_request, $resource);
                 if($resolved !== null) {
-                    $attributes['_embedded'][$key] = $resolved;
+                    $attributes['embedded'][$key] = $resolved;
                 }
             } catch(\Exception $e) {
 

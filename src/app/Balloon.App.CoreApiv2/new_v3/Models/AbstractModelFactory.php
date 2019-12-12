@@ -90,7 +90,7 @@ class AbstractModelFactory implements ModelFactoryInterface
         return [
             'id' => (string)$attributes['_id'],
             'kind' => $resource->getKind(),
-            '_links' => [],
+            'links' => [],
             '_embedded' => [],
             'meta' => [
                 'annotations' => [],
@@ -132,7 +132,7 @@ class AbstractModelFactory implements ModelFactoryInterface
         }
 
         $params = $request->getQueryParams();
-        $sub_request = $request->withQueryParams(['attributes' => array_merge(['id', 'name', '_links'], $params['attributes'] ?? [])]);
+        $sub_request = $request->withQueryParams(['attributes' => array_merge(['id', 'name', 'links'], $params['attributes'] ?? [])]);
         $orig = $resource->toArray();
 
         foreach($this->embedded as $key => $value) {

@@ -71,8 +71,8 @@ abstract class AbstractResource implements ResourceInterface
     {
         unset($resource['_id']);
         unset($resource['kind']);
-        unset($resource['created']);
-        unset($resource['changed']);
+        unset($resource['metadata']['created']);
+        unset($resource['metadata']['changed']);
 
         $this->resource = array_merge($this->resource, $resource);
         return $this;
@@ -93,29 +93,17 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * {@inheritdoc}
      */
-    public function getData(): array
-    {
-        if (!isset($this->resource['data'])) {
-            return [];
-        }
-
-        return $this->resource['data'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getVersion(): int
     {
-        return $this->resource['version'];
+        return $this->resource['metadata']['version'] ?? 0;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getChanged(): ?UTCDateTimeInterface
+    public function getChanged(): UTCDateTimeInterface
     {
-        return $this->resource['changed'];
+        return $this->resource['metadata']['changed'];
     }
 
     /**
@@ -123,7 +111,7 @@ abstract class AbstractResource implements ResourceInterface
      */
     public function getCreated(): UTCDateTimeInterface
     {
-        return $this->resource['created'];
+        return $this->resource['metadata']['created'];
     }
 
     /**

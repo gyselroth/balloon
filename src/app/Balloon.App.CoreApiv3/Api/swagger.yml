@@ -2407,7 +2407,7 @@ definitions:
   core.v3.ResourceList:
     type: "object"
     properties:
-      _links:
+      links:
         description: "Holds a list of links rfc1738 to other resources."
         $ref: "#/definitions/core.v3.ListLinks"
       kind:
@@ -2420,42 +2420,42 @@ definitions:
       total:
         description: "Holds the number of total available items on the server. Note that a List resource is always paged. You need to traverse with offset and limit to request further resources in the list."
         type: integer
+  core.v3.EmbeddedResources:
+    additionalProperties:
+      $ref: "#/definitions/core.v3.Resource"
   core.v3.Resource:
     type: "object"
     properties:
-      _links:
+      links:
         $ref: "#/definitions/core.v3.Links"
+      embedded:
+        $ref: "#/definitions/core.v3.EmbededResources"
       kind:
         description: Resource type
         type: string
+      metadata:
+        $ref: "#/definitions/core.v3.Metadata"
+  core.v3.Metadata:
+    description: "Generic resource metadata"
+    type: "object"
+    properties:
+      annotations:
+        description: "Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata."
+        additionalProperties: "string"
       id:
-        description: "Unique 12-byte resource identifier. Note this is a MongoDB ObjectId. The name is the standard resource identifier, the id only useful to verify that a given resource was completely recreated. An ID is immutable and will be created on the server."
+        description: "Unique 12-byte resource identifier. Note this is a MongoDB ObjectId. The id only useful to verify that a given resource was completely recreated. An ID is immutable and will be created on the server."
         type: "string"
       created:
         description: "ISO 8601 timestamp when the resource was created."
         type: "string"
         format: date-time
-  core.v3.OAuth2Token:
-    description: "OAUTH2 access token response according RFC6749 https://tools.ietf.org/html/rfc6749#section-4.3.3"
-    type: object
-    properties:
-      access_token:
-        description: Resource access_token.
-        type: string
-      expires_in:
-        description: The number of seconds the issues acceess_token is valid for. This is usually 1hour.
+      changed:
+        description: "ISO 8601 timestamp when the resource was created."
+        type: "string"
+        format: date-time
+      version:
+        description: "Numeric resource version."
         type: integer
-        default: 3600
-      token_type:
-        description: The type of token. This is usually a Bearer token.
-        type: string
-        default: Bearer
-      scope:
-        description: The scopes.
-        type: string
-      refresh_token:
-        description: An optional refresh token to get new access_tokens via the refresh_token grant type.
-        type: string
   core.v3.Users:
     description: "A list of users."
     type: object

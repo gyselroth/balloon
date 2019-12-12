@@ -68,30 +68,6 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     protected $_storage;
 
-    /**
-     * Initialize.
-     */
-  /*  public function __construct(array $attributes,  LoggerInterface $logger, Emitter $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage)
-    {
-        $this->fs = $fs;
-        // $this->server = $fs->getServer();
-        // $this->db = $fs->getDatabase();
-        // $this->user = $fs->getUser();
-        $this->logger = $logger;
-        $this->hook = $hook;
-        $this->acl = $acl;
-        $this->storage = $storage;
-        $this->parent = $parent;
-
-        foreach ($attributes as $attr => $value) {
-            $this->{$attr} = $value;
-        }
-
-        $this->mime = 'inode/directory';
-        $this->raw_attributes = $attributes;
-        $this->resource = $attributes;
-  }*/
-
 
     public function __construct(array $resource, ?CollectionInterface $parent, StorageAdapterInterface $storage)
     {
@@ -226,11 +202,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShareMember(): bool
     {
-        if(!isset($this->resource['shared'])) {
+        if(!isset($this->resource['data']['shared'])) {
             return false;
         }
 
-        return $this->resource['shared'] instanceof ObjectId && !$this->isReference();
+        return $this->resource['data']['shared'] instanceof ObjectId && !$this->isReference();
     }
 
     /**
@@ -238,11 +214,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isMountMember(): bool
     {
-        if(!isset($this->resource['storage_reference'])) {
+        if(!isset($this->resource['data']['storage_reference'])) {
             return false;
         }
 
-        return $this->resource['storage_reference'] instanceof ObjectId;
+        return $this->resource['data']['storage_reference'] instanceof ObjectId;
     }
 
     /**
@@ -250,11 +226,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShare(): bool
     {
-        if(!isset($this->resource['shared'])) {
+        if(!isset($this->resource['data']['shared'])) {
             return false;
         }
 
-        return true === $this->resource['shared'] && !$this->isReference();
+        return true === $this->resource['data']['shared'] && !$this->isReference();
     }
 
     /**
@@ -262,7 +238,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShared(): bool
     {
-        if (true === ($this->resource['shared'] ?? false)) {
+        if (true === ($this->resource['data']['shared'] ?? false)) {
             return true;
         }
 
@@ -279,11 +255,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function getMount(): ?ObjectId
     {
-        if(count($this->resource['mount'] ?? []) > 0) {
+        if(count($this->resource['data']['mount'] ?? []) > 0) {
             return $this->resource['_id'];
         }
 
-        return $this->resource['storage_reference'] ?? null;
+        return $this->resource['data']['storage_reference'] ?? null;
     }
 
     /**
@@ -291,11 +267,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isDeleted(): bool
     {
-        if(!isset($this->resource['deleted'])) {
+        if(!isset($this->resource['data']['deleted'])) {
             return false;
         }
 
-        return $this->resource['deleted'] instanceof UTCDateTime;
+        return $this->resource['data']['deleted'] instanceof UTCDateTime;
     }
 
     /**
@@ -382,7 +358,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function getContentType(): string
     {
-        return $this->resource['mime'];
+        return $this->resource['data']['mime'];
     }
 
     /**
@@ -390,12 +366,12 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isReference(): bool
     {
-        if(!isset($this->resource['reference'])) {
+        if(!isset($this->resource['data']['reference'])) {
             return false;
         }
 
 
-        return $this->resource['reference'] instanceof ObjectId;
+        return $this->resource['data']['reference'] instanceof ObjectId;
     }
 
 
@@ -446,7 +422,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function setFilter(?array $filter = null)
     {
-        $this->resource['filter'] = json_encode($filter, JSON_THROW_ON_ERROR);
+        $this->resource['data']['filter'] = json_encode($filter, JSON_THROW_ON_ERROR);
         return $this;
     }
 
@@ -497,7 +473,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isFiltered(): bool
     {
-        return !empty($this->resource['filter']);
+        return !empty($this->resource['data']['filter']);
     }
 
     /**
@@ -511,7 +487,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
 
     public function getFilter(): string
     {
-        return $this->resource['filter'] ?? '';
+        return $this->resource['data']['filter'] ?? '';
     }
 
     /**
@@ -522,7 +498,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
     public function getRealId(): ?ObjectId
     {
         if ($this->isShared() && $this->isReference()) {
-            return $this->resource['reference'];
+            return $this->resource['data']['reference'];
         }
 
         return $this->resource['_id'] ?? null;
