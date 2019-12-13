@@ -116,8 +116,6 @@ class Acl
      */
     public function getAclPrivilege(NodeInterface $node, ?UserInterface $user = null): string
     {
-//        $user = $user === null ? $node->getFilesystem()->getUser() : $user;
-
         if ($node->isShareMember()) {
             return $this->processShareMember($node, $user);
         }
@@ -125,7 +123,7 @@ class Acl
             return $this->processShareReference($node, $user);
         }
         if (!$this->isOwnerRequest($node, $user)) {
-            $this->logger->warning('user ['.$user.'] not allowed to access non owned node ['.$node->getId().']', [
+            $this->logger->warning('user ['.$user->getId().'] not allowed to access non owned node ['.$node->getId().']', [
                 'category' => get_class($this),
             ]);
 

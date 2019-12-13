@@ -70,4 +70,13 @@ class Files
         $resource = $this->file_factory->getOne($identity, $file);
         return Helper::getOne($request, $identity, $resource, $this->node_model_factory);
     }
+
+    /**
+     * Stream content.
+     */
+    public function getContent(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
+    {
+        $resource = $this->node_factory->getOne($identity, $node);
+        return ApiHelper::streamContent($request, $resource);
+    }
 }

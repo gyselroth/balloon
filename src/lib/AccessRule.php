@@ -30,4 +30,9 @@ class AccessRule extends AbstractResource implements AccessRuleInterface
     {
         $this->resource = $resource;
     }
+
+    public function getRules(): array
+    {
+        return $this->resource['rules'] ?? [];
+    }
 }

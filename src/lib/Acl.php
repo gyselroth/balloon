@@ -87,7 +87,7 @@ class Acl
         }
 
         $rules = $this->rule_factory->getAll([
-            'roles' => ['$in' => $names],
+            'rules.roles' => ['$in' => $names],
         ]);
 
         $method = $request->getMethod();
@@ -101,34 +101,39 @@ class Acl
             'attributes' => $attributes,
         ]);
 
-        foreach ($rules as $rule) {
-            $data = $rule->toArray();
-
-            $this->logger->debug('verify access rule ['.$rule->getName().']', [
+        foreach ($rules as $parent) {
+            $this->logger->debug('verify access rule ['.$parent->getName().']', [
                 'category' => get_class($this),
             ]);
 
-            if (empty(array_intersect($names, $data['roles'])) && !in_array('*', $data['roles'])) {
-                continue;
-            }
+            foreach($parent->getRules() as $key => $rule) {
+                $this->logger->debug('verify rule [{key}] in ['.$parent->getName().']', [
+                    'category' => get_class($this),
+                    'key' => $key,
+                ]);
 
-            if (!in_array($method, $data['verbs']) && !in_array('*', $data['verbs'])) {
-                continue;
-            }
-
-            if(isset($query['as']) && !in_array($data['as'], $data['as']) && !in_array('*', $data['as'])) {
-                continue;
-            }
-
-            foreach ($data['resources'] as $resource) {
-                if ($resource['selector'] === '*') {
-                    $request = $request->withAttribute('attributes', $resource['fields'] ?? []);
-                    return $request;
+                if (empty(array_intersect($names, $rule['roles'])) && !in_array('*', $rule['roles'])) {
+                    continue;
                 }
 
-                if (isset($attributes[$resource['selector']]) && (in_array($attributes[$resource['selector']], $resource['match']) || in_array('*', $resource['match']))) {
-                    $request = $request->withAttribute('attributes', $resource['fields'] ?? []);
-                    return $request;
+                if (!in_array($method, $rule['verbs']) && !in_array('*', $rule['verbs'])) {
+                    continue;
+                }
+
+                if(isset($query['as']) && !in_array($rule['as'], $rule['as']) && !in_array('*', $rule['as'])) {
+                    continue;
+                }
+
+                foreach ($rule['selectors'] as $selector) {
+                    if ($selector === '*') {
+                        $request = $request->withAttribute('attributes', $rule['fields'] ?? []);
+                        return $request;
+                    }
+
+                    if (isset($attributes[$selector]) && (in_array($attributes[$selector], $rule['match']) || in_array('*', $rule['match']))) {
+                        $request = $request->withAttribute('attributes', $rule['fields'] ?? []);
+                        return $request;
+                    }
                 }
             }
         }

@@ -66,7 +66,7 @@ class Collections
     /**
      * Entrypoint.
      */
-    public function getChildren(ServerRequestInterface $request, User $identity, ObjectId $collection): ResponseInterface
+    public function getChildren(ServerRequestInterface $request, User $identity, ?ObjectId $collection=null): ResponseInterface
     {
         $query = $request->getQueryParams();
         $resource = $this->collection_factory->getOne($identity, $collection);
@@ -77,7 +77,8 @@ class Collections
             return Helper::watchAll($request, $identity, $this->acl, $cursor, $this->node_model_factory);
         }
 
-        $collections = $this->collection_factory->getChildren($identity, $resource, $query['query'], $query['offset'], $query['limit'], $query['sort'], (bool)$query['recursive']);
+        $recursive = isset($query['recursive']) && $query['recursive'] !== 'false' ? (bool)$query['recursive'] : false;
+        $collections = $this->collection_factory->getChildren($identity, $resource, $query['query'], $query['offset'], $query['limit'], $query['sort'], $recursive);
         return Helper::getAll($request, $identity, $this->acl, $collections, $this->node_model_factory);
     }
 

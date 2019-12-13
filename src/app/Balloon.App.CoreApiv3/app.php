@@ -57,10 +57,10 @@ return [
                 ['PUT', '/api/v3/nodes/{node}', [v3\Nodes::class, 'put']],
                 ['PATCH', '/api/v3/nodes/{node}', [v3\Nodes::class, 'patch']],
                 ['DELETE', '/api/v3/nodes/{node}', [v3\Nodes::class, 'delete']],
-                ['GET', '/api/v3/nodes/{node}/content', [v3\Nodes::class, 'getContent']],
+                ['GET', '/api/v3/nodes/{node}/zip', [v3\Nodes::class, 'getZip']],
 
                 ['GET', '/api/v3/collections', [v3\Collections::class, 'getAll']],
-                ['GET', '/api/v3/collections/children', [v3\Collections::class, 'getRootChildren']],
+                ['GET', '/api/v3/collections/children', [v3\Collections::class, 'getChildren']],
                 ['GET', '/api/v3/collections/{collection}', [v3\Collections::class, 'getOne']],
                 ['GET', '/api/v3/collections/{collection}/children', [v3\Collections::class, 'getChildren']],
 

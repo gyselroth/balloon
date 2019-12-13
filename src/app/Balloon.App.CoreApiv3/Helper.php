@@ -106,4 +106,58 @@ class Helper
 
           fclose($stream);
     }*/
+
+    /**
+     * Get as zip.
+     */
+    public static function streamZip(ServerRequestInterface $request, NodeInterface $node, UserInterface $user, CollectionFactory $collection_factory): void
+    {
+        $archive = new ZipStream($this->name.'.zip');
+        $this->zip($archive, $collection_factory, false, $node);
+        $archive->finish();
+    }
+
+    /**
+     * Create zip.
+     */
+    protected function zip(ZipStream $archive, UserInterface $user, CollectionFactory $collection_factory, bool $self, NodeInterface $parent, string $path = '', int $depth = 0): bool
+    {
+        if ($parent instanceof CollectionInterface) {
+            $children = $file_factory->getChildNodes($user, $parent);
+
+            if (true === $self && 0 === $depth) {
+                $path = $parent->getName().DIRECTORY_SEPARATOR;
+            } elseif (0 === $depth) {
+                $path = '';
+            } elseif (0 !== $depth) {
+                $path .= DIRECTORY_SEPARATOR.$parent->getName().DIRECTORY_SEPARATOR;
+            }
+
+            foreach ($children as $child) {
+                $name = $path.$child->getName();
+
+                if ($child instanceof CollectionInterface) {
+                    $this->zip($archive, $user, $collection_factory, $self, $child, $name, ++$depth);
+                } elseif ($child instanceof FileInterface) {
+                    try {
+                        $resource = $child->get();
+
+                        if ($resource !== null) {
+                            $archive->addFileFromStream($name, $resource);
+                        }
+                    } catch (\Exception $e) {
+                        //ignore
+                    }
+                }
+            }
+        } elseif ($parent instanceof FileInterface) {
+            $resource = $parent->get();
+
+            if ($resource !== null) {
+                $archive->addFileFromStream($parent->getName(), $resource);
+            }
+        }
+
+        return true;
+    }
 }

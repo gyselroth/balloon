@@ -11,10 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\File;
 
-//use Balloon\Acl;
-//luse Balloon\Acl\Exception\Forbidden as ForbiddenException;
-use Balloon\Collection\Exception;
-use Balloon\Filesystem;
+use Balloon\File\Exception;
 use Balloon\Resource\AttributeResolver;
 use Generator;
 use League\Event\Emitter;
@@ -189,10 +186,7 @@ class Factory
             );
         }
         if (!$this->acl->isAllowed($node, 'w', $user)) {
-            throw new ForbiddenException(
-                'not allowed to move node '.$node->getName(),
-                ForbiddenException::NOT_ALLOWED_TO_MOVE
-            );
+            throw new Exception\Forbidden('not allowed to move node '.$node->getId());
         }
 
         $new_name = $this->collection_factory->validateInsert($user, $parent, $node->getName(), $conflict, get_class($node));
@@ -231,6 +225,57 @@ class Factory
         $this->emitter->emit('file.factory.postMove', ...func_get_args());
         return $node;
     }
+
+    /**
+     * Undelete.
+     */
+    public function undelete(UserInterface $user, FileInterface $node, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
+    {
+        if (!$this->acl->isAllowed($collection, 'w', $user) && !$collection->isReference()) {
+            throw new Exception\Forbidden('not allowed to restore node '.$node->getId());
+        }
+
+        $this->emitter->emit('file.factory.preUndelete', ...func_get_args());
+
+        $parent = $node->getParent();
+        if ($parent->isDeleted()) {
+            throw new Exception\Conflict('could not restore node '.$node->getId().' into a deleted parent', Exception\Conflict::DELETED_PARENT);
+        }
+
+        if ($parent->childExists($node->getName())) {
+            if (NodeInterface::CONFLICT_MERGE === $conflict) {
+                $new = $this->copyTo($user, $node, $parent, $conflict, null, true, NodeInterface::DELETED_INCLUDE);
+
+                if ($new->getId() != $node->getId()) {
+                    $this->delete($user, $node, true);
+                }
+            } elseif (NodeInterface::CONFLICT_RENAME === $conflict) {
+                $this->setName($user, $node, $node->getDuplicateName());
+                //$this->raw_attributes['name'] = $this->name;
+            } else {
+                throw new Exception\Conflict('a node called '.$this->name.' does already exists in this collection', Exception\Conflict::NODE_WITH_SAME_NAME_ALREADY_EXISTS);
+            }
+        }
+
+        if (null === $recursion) {
+            $recursion_first = true;
+            $recursion = uniqid();
+        } else {
+            $recursion_first = false;
+        }
+
+        $update = [
+            'storage' => $parent->getStorage()->undelete($node),
+            'deleted' => null,
+            'name' => $node->geName(),
+        ];
+
+        $this->resource_factory->updateIn($this->db->{self::COLLECTION_NAME}, $node, $update);
+        $this->emitter->emit('file.factory.postUndelete', ...func_get_args());
+
+        return true;
+    }
+
 
     /**
      * Get used qota.
@@ -286,17 +331,14 @@ class Factory
     public function deleteOne(UserInterface $user, FileInterface $file, bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$this->acl->isAllowed($file, 'w', $user)) {
-            throw new AclException\Forbidden(
-                'not allowed to delete node '.$this->name,
-                AclException\Forbidden::NOT_ALLOWED_TO_DELETE
-            );
+            throw new Exception\Forbidden('not allowed to delete node '.$file->getId());
         }
 
         $this->emitter->emit('file.factory.preDelete', ...func_get_args());
 
         if (true === $force || $file->isTemporary()) {
             $result = $this->_forceDelete($user, $file);
-            $this->emitter->emit('file.factory.postDelete', func_get_args());
+            $this->emitter->emit('file.factory.postDelete', ...func_get_args());
             return $result;
         }
 
@@ -371,7 +413,7 @@ class Factory
     /**
      * Update.
      */
-    public function update(UserInterface $user, FileInterface $node, array $data): ?Process
+    public function update(UserInterface $user, FileInterface $node, array $data, int $conflict = NodeInterface::CONFLICT_NOACTION): ?Process
     {
         $data['kind'] = $node->getKind();
         $result = null;
@@ -383,12 +425,20 @@ class Factory
                 continue;
             }
 
-             switch ($attribute) {
+            switch ($attribute) {
+                 case 'deleted':
+                    $result = $this->scheduler->addJob($value === null ? Async\UndeleteNode::class : Async\DeleteNode::class, [
+                        'owner' => $user->getId(),
+                        'node' => $node->getId(),
+                        'conflict' => $conflict,
+                    ]);
+                break;
                 case 'parent':
                     $result = $this->scheduler->addJob(Async\MoveNode::class, [
                         'owner' => $user->getId(),
                         'node' => $node->getId(),
                         'parent' => $value === null ? null : new ObjectId($value),
+                        'conflict' => $conflict,
                     ]);
                 break;
                 case 'name':
@@ -454,10 +504,7 @@ class Factory
         $session = $this->session_factory->getOne($user, isset($attributes['session']) ? new ObjectId($attributes['session']) : null);
 
         if (!$this->acl->isAllowed($parent, 'w', $user)) {
-            throw new ForbiddenException(
-                'not allowed to create new node here',
-                ForbiddenException::NOT_ALLOWED_TO_CREATE
-            );
+            throw new Exception\Forbidden('not allowed to create new node here');
         }
 
         $this->emitter->emit('file.factory.preAdd', ...func_get_args());
@@ -474,11 +521,10 @@ class Factory
                 'pointer' => $id,
                 'name' => $name,
                 'deleted' => null,
-            //    'parent' => $parent->getRealId(),
                 'hash' => null,
                 'mime' => MimeType::getType($name),
-            //    'created' => new UTCDateTime(),
-            //    'changed' => new UTCDateTime(),
+                'created' => new UTCDateTime(),
+                'changed' => new UTCDateTime(),
                 'version' => 0,
 //                'shared' => (true === $this->shared ? $this->getRealId() : $this->shared),
 //                'storage_reference' => $this->getMount(),
@@ -532,7 +578,7 @@ class Factory
                 'category' => get_class($this),
             ]);
 
-            $this->emitter->emit('file.factory.postDelete', func_get_args());
+            $this->emitter->emit('file.factory.postDelete', ...func_get_args());
         } catch (\Exception $e) {
             $this->logger->error('failed delete file node ['.$file->getId().']', [
                 'category' => get_class($this),
@@ -548,10 +594,10 @@ class Factory
     /**
      * Restore content to some older version.
      */
-    public function restore(int $version): bool
+    public function restore(UserInterface $user, FileInterface $file, int $version): bool
     {
-        if (!$this->_acl->isAllowed($this, 'w')) {
-            throw new AclException\Forbidden('not allowed to restore node '.$this->name, AclException\Forbidden::NOT_ALLOWED_TO_RESTORE);
+        if (!$this->_acl->isAllowed($file, 'w', $user)) {
+            throw new Exception\Forbidden('not allowed to restore node '.$file->getId());
         }
 
         $this->_hook->run('preRestoreFile', [$this, &$version]);
@@ -687,7 +733,7 @@ class Factory
         $storage = $file->getParent()->getStorage();
 
         if (!$this->acl->isAllowed($file, 'w')) {
-            throw new AclException\Forbidden('not allowed to modify node', AclException\Forbidden::NOT_ALLOWED_TO_MODIFY);
+            throw new Exception\Forbidden('not allowed to modify node');
         }
 
         $this->emitter->emit('file.factory.preSetContent', ...func_get_args());

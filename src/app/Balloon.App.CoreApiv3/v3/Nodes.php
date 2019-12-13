@@ -13,6 +13,7 @@ namespace Balloon\App\CoreApiv3\v3;
 
 use Balloon\Acl;
 use Balloon\Node;
+use Balloon\Collection\Factory as CollectionFactory;
 use Balloon\Node\Factory as NodeFactory;
 use Balloon\App\CoreApiv3\Helper as ApiHelper;
 use Balloon\App\CoreApiv3\v3\Models\ProcessFactory as ProcessModelFactory;
@@ -40,9 +41,10 @@ class Nodes
     /**
      * Init.
      */
-    public function __construct(NodeFactory $node_factory, NodeModelFactory $node_model_factory, ProcessFactory $process_factory, ProcessModelFactory $process_model_factory, Acl $acl)
+    public function __construct(NodeFactory $node_factory, CollectionFactory $collection_factory, NodeModelFactory $node_model_factory, ProcessFactory $process_factory, ProcessModelFactory $process_model_factory, Acl $acl)
     {
         $this->node_factory = $node_factory;
+        $this->collection_factory = $collection_factory;
         $this->node_model_factory = $node_model_factory;
         $this->process_factory = $process_factory;
         $this->process_model_factory = $process_model_factory;
@@ -78,16 +80,12 @@ class Nodes
     }
 
     /**
-     * Stream content.
+     * Stream node as zip on the fly
      */
-    public function getContent(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
+    public function getZip(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
     {
         $resource = $this->node_factory->getOne($identity, $node);
-        if ($node instanceof CollectionInterface) {
-            return $node->getZip();
-        }
-
-        return ApiHelper::streamContent($request, $resource);
+        return ApiHelper::streamZip($request, $resource, $user, $this->collection_factory);
     }
 
     /**
@@ -97,6 +95,7 @@ class Nodes
     {
          $node = $this->node_factory->getOne($user, $node);
          $result = $this->scheduler->addJob(Async\DeleteNode::class, [
+             'force' => true,
              'user' => $identity->getId(),
              'node' => $node->getId(),
          ]);

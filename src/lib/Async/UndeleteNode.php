@@ -13,18 +13,18 @@ namespace Balloon\Async;
 
 use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
-use Balloon\User\Factory as UserFactory;
 use Balloon\Node\Factory as NodeFactory;
+use Balloon\User\Factory as UserFactory;
 
-class DeleteNode extends AbstractJob
+class UndeleteNode extends AbstractJob
 {
     /**
      * Constructor.
      */
-    public function __construct(UserFactory $user_factory, NodeFactory $node_factory, LoggerInterface $logger)
+    public function __construct(NodeFactory $node_factory, UserFactory $user_factory, LoggerInterface $logger)
     {
-        $this->user_factory = $user_factory;
         $this->node_factory = $node_factory;
+        $this->user_factory = $user_factory;
     }
 
     /**
@@ -32,9 +32,12 @@ class DeleteNode extends AbstractJob
      */
     public function start(): bool
     {
-        $force = isset($this->data['force']) ? (bool)$this->data['force'] : false;
+        $conflict = $this->data['conflict'] ?? 0;
         $user = $this->user_factory->getOne($this->data['owner']);
-        $this->node_factory->deleteOne($user, $this->data['node'], $force);
+        $node = $this->node_factory->getOne($user, $this->data['node']);
+
+
+        $this->node_factory->undelete($user, $node, $conflict);
 
         return true;
     }

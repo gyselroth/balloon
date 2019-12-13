@@ -95,7 +95,7 @@ class File extends AbstractNode implements FileInterface
   }*/
 
 
-    public function __construct(array $resource, ?CollectionInterface $parent)
+    public function __construct(array $resource, ?CollectionInterface $parent=null)
     {
         $this->resource = $resource;
         $this->parent = $parent;

@@ -108,7 +108,7 @@ services:
     entrypoint: /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv
     networks:
     - backend
-    environment:
+    environment: &env
       - BALLOON_MONGODB_URI=mongodb://mongodb:27017
       - BALLOON_CLAMAV_URI=tcp://clamav:3310
       - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
@@ -118,6 +118,11 @@ services:
       - BALLOON_SMTP_HOST=postfix
       - BALLOON_URL=http://localhost:8080
       - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+  balloon-deps:
+    image: gyselroth/balloon:latest-dev
+    volumes:
+    - .:/srv/www/balloon
+    entrypoint: make dep
   balloon-ws:
     image: gyselroth/balloon:latest-dev
     volumes:
@@ -125,16 +130,7 @@ services:
     entrypoint: php-fpm
     networks:
     - backend
-    environment:
-      - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-      - BALLOON_CLAMAV_URI=tcp://clamav:3310
-      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-      - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice-collab:9980
-      - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=http://balloon-proxy/wopi
-      - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice-convert:9980
-      - BALLOON_SMTP_HOST=postfix
-      - BALLOON_URL=http://localhost:8080
-      - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+    environment: *env
     labels:
     - traefik.port=80
     - traefik.backend=balloon-ws
@@ -146,13 +142,4 @@ services:
     entrypoint: php-fpm
     networks:
     - backend
-    environment:
-      - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-      - BALLOON_CLAMAV_URI=tcp://clamav:3310
-      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-      - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice-collab:9980
-      - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=http://balloon-proxy/wopi
-      - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice-convert:9980
-      - BALLOON_SMTP_HOST=postfix
-      - BALLOON_URL=http://localhost:8080
-      - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+    environment: *env

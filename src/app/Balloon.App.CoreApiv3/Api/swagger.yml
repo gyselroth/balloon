@@ -2186,38 +2186,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/core.v3.InternalServerError'
-  '/api/v3/files/{file}/restore':
-    post:
-      tags:
-        - core.v3
-      summary: Rollback file
-      description: 'Rollback to a recent version from history. Use the version number from history.'
-      operationId: rollbackFile
-      produces:
-        - application/json
-      parameters:
-        - name: file
-          in: path
-          required: true
-          type: string
-          description: 'File identifier'
-      responses:
-        200:
-          description: "File"
-          schema:
-            $ref: "#/definitions/core.v3.File"
-        400:
-          $ref: '#/responses/core.v3.BadRequest'
-        401:
-          $ref: '#/responses/core.v3.Unauthorized'
-        403:
-          $ref: '#/responses/core.v3.Forbidden'
-        404:
-          $ref: '#/responses/core.v3.NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/core.v3.InternalServerError'
   '/api/v3/nodes':
     get:
       tags:
@@ -2448,12 +2416,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/core.v3.InternalServerError'
-  '/api/v3/nodes/{node}/content':
+  '/api/v3/nodes/{node}/zip':
     get:
       tags:
         - core.v3
       summary: 'Download node content.'
-      description: 'Stream node contents. Note that collections are zipped on-the-fly.'
+      description: 'Stream file contents.'
+      operationId: getCoreV3Zip
+      produces:
+        - octet/stream
+      parameters:
+        - name: node
+          in: path
+          required: true
+          type: string
+          description: 'Node identifier'
+      responses:
+        200:
+          description: "Content"
+          schema:
+            type: file
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+  '/api/v3/file/{file}/content':
+    get:
+      tags:
+        - core.v3
+      summary: 'Download node content.'
+      description: 'Stream file contents.'
       operationId: getCoreV3Content
       produces:
         - octet/stream
@@ -2826,7 +2826,7 @@ definitions:
       links:
         $ref: "#/definitions/core.v3.Links"
       embedded:
-        $ref: "#/definitions/core.v3.EmbededResources"
+        $ref: "#/definitions/core.v3.EmbeddedResources"
       kind:
         description: Resource type
         type: string
@@ -2838,6 +2838,7 @@ definitions:
     properties:
       annotations:
         description: "Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata."
+        type: object
         additionalProperties: "string"
       id:
         description: "Unique 12-byte resource identifier. Note this is a MongoDB ObjectId. The id only useful to verify that a given resource was completely recreated. An ID is immutable and will be created on the server."
@@ -2870,10 +2871,6 @@ definitions:
       - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
-          changed:
-            description: "ISO 8601 timestamp when the resource was changed."
-            type: "string"
-            format: date-time
           username:
             description: "Unique username."
             type: "string"
@@ -2935,10 +2932,13 @@ definitions:
       - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
-          changed:
-            description: "ISO 8601 timestamp when the resource was changed."
+          size:
+            description: "The size of the uploaded content."
+            type: "integer"
+            default: 0
+          hash:
+            description: "MD5 has of the uploaded content."
             type: "string"
-            format: date-time
   core.v3.Processes:
     description: "A server process."
     type: object
@@ -2958,24 +2958,10 @@ definitions:
         properties:
           node:
             description: "Points to the related node."
-            type: ["object","null"]
-            properties:
-              id:
-                description: "The id of the node"
-                type: "string"
-              name:
-                description: "The name of the node"
-                type: "string"
+            type: string
           owner:
             description: "Process owner"
-            type: ["object","null"]
-            properties:
-              id:
-                description: "The id of the process owner."
-                type: "string"
-              name:
-                description: "The username of the process owner."
-                type: "string"
+            type: "string"
           status:
             description: "Holds the status of the process."
             type: "object"
@@ -2983,7 +2969,6 @@ definitions:
               code:
                 description: "The result code of the process."
                 type: "number"
-
   core.v3.Groups:
     description: "A list of groups."
     allOf:
@@ -3000,10 +2985,6 @@ definitions:
       - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
-          changed:
-            description: "ISO 8601 timestamp when the resource was changed."
-            type: "string"
-            format: date-time
           name:
             description: "Group name."
             type: "string"
@@ -3025,37 +3006,15 @@ definitions:
             type: "array"
             items:
               $ref: "#/definitions/core.v3.Node"
-  core.v3.NodeMeta:
-    description: "Node meta data."
-    type: object
-    properties:
-      tags:
-        description: "Node tags. Tags can be freely choosen."
-        type: "array"
-        items:
-          type: string
-      author:
-        description: "Author."
-        type: "string"
-      license:
-        description: "Content license."
-        type: "string"
-      color:
-        description: "A color tag."
-        type: "string"
   core.v3.Node:
     description: "A Node."
     allOf:
       - $ref: '#/definitions/core.v3.Resource'
       - type: object
         properties:
-          changed:
-            description: "ISO 8601 timestamp when the resource was changed."
-            type: "string"
-            format: date-time
           deleted:
             description: "ISO 8601 timestamp when the resource was deleted."
-            type: [string,null]
+            type: [string,"null"]
             format: date-time
           name:
             description: "Node name."
@@ -3071,8 +3030,6 @@ definitions:
             description: "If node is of type Collection this flag is true."
             type: "boolean"
             default: false
-          meta:
-            $ref: '#/definitions/core.v3.NodeMeta'
           size:
             description: "The size in bytes. If the node is of type collection the size is the number of child nodes."
             type: integer
@@ -3081,9 +3038,11 @@ definitions:
             description: "The path abstraction of the node."
             type: "string"
           destroy:
-            type: null
+            description: "ISO 8601 timestamp when the resource will be automatically destroyed."
+            type: ["string","null"]
+            format: date-time
           lock:
-            type: null
+            type: "null"
           access:
             description: "Access level."
             type: "string"
@@ -3095,14 +3054,7 @@ definitions:
             - rp
           parent:
             description: "Points to the parent collection. If the nodes is in the root this is null."
-            type: ["object","null"]
-            properties:
-              id:
-                description: "The id of the parent collection"
-                type: "string"
-              name:
-                description: "The name of the parent collection"
-                type: "string"
+            type: ["string","null"]
           share:
             description: "Points to the shared node (or share reference). If the node is not part of any share this is null."
             type: ["object","null"]
@@ -3114,7 +3066,7 @@ definitions:
                 description: "The name of the share (or share reference)."
                 type: "string"
           sharename:
-            type: [string,null]
+            type: ["string","null"]
           owner:
             description: "."
             type: ["object","null"]
@@ -3127,14 +3079,15 @@ definitions:
                 type: "string"
           shareowner:
             description: "Points to the share owner. If the node is not part of any share this is null."
-            type: ["object","null"]
-            properties:
-              id:
-                description: "The id of the share owner."
-                type: "string"
-              name:
-                description: "The username of the share owner."
-                type: "string"
+            type: ["string","null"]
+          created:
+            description: "ISO 8601 timestamp when the resource was created."
+            type: "string"
+            format: date-time
+          changed:
+            description: "ISO 8601 timestamp when the resource was created."
+            type: "string"
+            format: date-time
           subscription:
             description: "Is true if the user has an active subscription on this node."
             type: "boolean"
@@ -3212,25 +3165,6 @@ definitions:
           name:
             description: "The username of the share owner."
             type: "string"
-  core.v3.Delta:
-    description: "The delta is a differential feed to get changes since the last delta call."
-    type: object
-    properties:
-      reset:
-        description: "If true the client needs to reset its state."
-        type: "boolean"
-        default: false
-      cursor:
-        description: "ACL rules."
-        type: string
-      has_more:
-        description: "If true the server has more entries and the client must send another request with the latest cursor."
-        type: boolean
-        default: false
-      nodes:
-        type: array
-        items:
-          $ref: '#/definitions/core.v3.Node'
   core.v3.Share:
     description: "Node share."
     type: object
@@ -3294,41 +3228,47 @@ definitions:
           name:
             description: "Unique rule name"
             type: "string"
-          roles:
-            description: "A list of access-role names to match the given rule."
-            type: "array"
+          rules:
+            type: array
             items:
-              type: "string"
-          verbs:
-            description: "List of allowed HTTP rfc7231 verbs, you may also specify a wildcard to match all verbs."
-            type: "array"
-            items:
-              type: "string"
-              enum:
-                - "*"
-                - GET
-                - POST
-                - PUT
-                - PATCH
-                - DELETE
-                - HEAD
-          resources:
-            description: "A list of selectors to match resources, for example namespace, collection, endpoint, ..."
-            type: "array"
-            items:
-              type: object
-              properties:
-                selector:
-                  description: "The resource type (attribute) to select. Might be `*` to select any."
-                  type: string
-                match:
-                  description: "The resource value to match. Might be `*` to match any."
-                  type: string
-                fields:
-                  description: "A list of accessible fields of a resource. Might contain `*` to include all fields."
-                  type: array
-                  items:
-                    type: string
+              $ref: "#/definitions/core.v3.AccessRuleDefinition"
+  core.v3.AccessRuleDefinition:
+    description: "Each access rule may hold multiple rules."
+    type: object
+    properties:
+      roles:
+        description: "A list of access-role names to match the given rule."
+        type: "array"
+        items:
+          type: "string"
+      verbs:
+        description: "List of allowed HTTP rfc7231 verbs, you may also specify a wildcard to match all verbs."
+        type: "array"
+        items:
+          type: "string"
+          enum:
+            - "*"
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - HEAD
+      selector:
+        description: "The resource type (attribute) to select. Might be `*` to select any."
+        type: array
+        items:
+          type: string
+      match:
+        description: "The resource value to match. Might be `*` to match any."
+        type: array
+        items:
+          type: string
+      fields:
+        description: "A list of accessible fields of a resource. Might contain `*` to include all fields."
+        type: array
+        items:
+          type: string
   core.v3.AccessRoles:
     description: "A list of access roles."
     allOf:

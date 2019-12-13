@@ -130,6 +130,13 @@ class CoreInstallation implements DeltaInterface
         if (!$this->role_factory->has('admin')) {
             $this->role_factory->add([
                 'name' => 'admin',
+                'selectors' => ['admin'],
+            ]);
+        }
+
+        if (!$this->role_factory->has('admin')) {
+            $this->role_factory->add([
+                'name' => 'user',
                 'selectors' => ['*'],
             ]);
         }
@@ -137,17 +144,36 @@ class CoreInstallation implements DeltaInterface
         if (!$this->rule_factory->has('full-access')) {
             $this->rule_factory->add([
                 'name' => 'full-access',
-                'roles' => ['admin'],
-                'verbs' => ['*'],
-                'as' => ['*'],
-                'resources' => [
-                    [
-                        'selector' => '*',
-                        'match' => '*',
-                        'fields' => ['*'],
-                    ]
-                ],
+                'rules' => [[
+                    'roles' => ['admin'],
+                    'verbs' => ['*'],
+                    'as' => ['*'],
+                    'selectors' => ['*'],
+                    'match' => ['*'],
+                    'fields' => ['*'],
+                ]],
             ]);
+        }
+
+        if (!$this->rule_factory->has('user-access')) {
+            $this->rule_factory->add([
+                'name' => 'user-access',
+                'rules' => [[
+                    'roles' => ['user'],
+                    'verbs' => ['GET'],
+                    'as' => [],
+                    'selector' => ['users','groups'],
+                    'match' => ['*'],
+                    'fields' => ['id','username','name','member'],
+                ],[
+                    'roles' => ['user'],
+                    'verbs' => ['*'],
+                    'as' => [],
+                    'selectors' => ['nodes','sessions','files','collections','events'],
+                    'match' => ['*'],
+                    'fields' => ['*'],
+                ],
+            ]]);
         }
 
         return true;

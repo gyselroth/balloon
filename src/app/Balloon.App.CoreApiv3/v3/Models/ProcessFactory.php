@@ -49,16 +49,6 @@ class ProcessFactory extends AbstractModelFactory
     {
         $resource = $process->toArray();
 
-
-/*        $quota = null;
-
-        $data = $this->getData();
-        $parent = isset($data['parent']) ? (string) $data['parent'] : null;
-        $job = isset($data['job']) ? $data['job'] : null;
-        unset($data['parent'], $data['namespace'], $data['job']);
- */
-
-        //var_dump($resource);
         return [
             'metadata' => [
                 'created' => $resource['created'] === 0 ? null : (new DateTime('@'.(string) $resource['created']))->format('c'),

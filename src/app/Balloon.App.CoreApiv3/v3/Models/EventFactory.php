@@ -68,6 +68,8 @@ class EventFactory extends AbstractModelFactory
         $attributes = $event->toArray();
 
         $result = [
+            'operation' => $attributes['operation'] ?? '',
+            'owner' => (string)$attributes['owner'],
             'node' => [
                 'id' => (string)$attributes['node']['id'],
                 'path' => (string)$attributes['node']['path'],

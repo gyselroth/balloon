@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\Collection;
 
-//use Balloon\Acl;
-//luse Balloon\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Collection\Exception;
 use Balloon\Filesystem;
 use Balloon\Resource\AttributeResolver;
@@ -134,7 +132,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             $recursion_first = false;
         }
 
-        $this->emitter->emit('collection.factory.preCopy', func_get_args());
+        $this->emitter->emit('collection.factory.preCopy', ...func_get_args());
         $exists = $this->childExists($user, $parent, $this->name);
 
         if (NodeInterface::CONFLICT_RENAME === $conflict && $exists === true) {
@@ -175,6 +173,62 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
         return $new_parent;
     }
 
+    /**
+     * Undelete.
+     */
+    public function undelete(UserInterface $user, CollectionInterface $node, int $conflict = NodeInterface::CONFLICT_NOACTION, ?string $recursion = null, bool $recursion_first = true): bool
+    {
+        if (!$this->acl->isAllowed($node, 'w', $user) && !$node->isReference()) {
+            throw new Exception\Forbidden('not allowed to restore node '.$node->getId());
+        }
+
+        $this->emitter->emit('collection.factory.preUndelete', ...func_get_args());
+
+        $parent = $node->getParent();
+        if ($parent->isDeleted()) {
+            throw new Exception\Conflict('could not restore node '.$node->getId().' into a deleted parent', Exception\Conflict::DELETED_PARENT);
+        }
+
+        if ($this->childExists($user, $parent, $node->getName())) {
+            if (NodeInterface::CONFLICT_MERGE === $conflict) {
+                $new = $this->copyTo($user, $node, $parent, $conflict, null, true, NodeInterface::DELETED_INCLUDE);
+
+                if ($new->getId() != $node->getId()) {
+                    $this->delete($user, $node, true);
+                }
+            } elseif (NodeInterface::CONFLICT_RENAME === $conflict) {
+                $this->setName($user, $node, $node->getDuplicateName());
+                //$this->raw_attributes['name'] = $this->name;
+            } else {
+                throw new Exception\NotUnique('a node called '.$node->getName().' does already exists in this collection');
+            }
+        }
+
+        if (null === $recursion) {
+            $recursion_first = true;
+            $recursion = uniqid();
+        } else {
+            $recursion_first = false;
+        }
+
+        $update = [
+            'storage' => $parent->getStorage()->undelete($node),
+            'deleted' => null,
+            'name' => $node->getName(),
+        ];
+
+        $this->resource_factory->updateIn($this->db->{self::COLLECTION_NAME}, $node, $update);
+        $this->emitter->emit('collection.factory.postUndelete', ...func_get_args());
+
+        if ($node->isReference() || $node->isMounted() || $node->isFiltered()) {
+            return true;
+        }
+
+        return $this->doRecursiveAction($user, $node, function ($node) use ($user, $conflict, $recursion) {
+            $this->undelete($user, $node, $conflict, $recursion, false);
+        }, NodeInterface::DELETED_ONLY);
+    }
+
 
     /**
      * Get Share name.
@@ -205,9 +259,9 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             return $this->node_factory->getAllQuery($user, $query, $offset, $limit);
         }
 
-        unset($filter['parent']);
+        unset($query['parent']);
 
-        return $this->node_factory->findNodesByFilterRecursive($this, $query, $offset, $limit);
+        return $this->node_factory->findNodesByFilterRecursive($user, $collection, $query, $offset, $limit);
     }
 
 
@@ -237,10 +291,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
     public function deleteOne(UserInterface $user, CollectionInterface $collection, bool $force = false, ?string $recursion = null, bool $recursion_first = true): bool
     {
         if (!$collection->isReference() && !$this->acl->isAllowed($collection, 'w', $user)) {
-            throw new ForbiddenException(
-                'not allowed to delete node '.$this->name,
-                ForbiddenException::NOT_ALLOWED_TO_DELETE
-            );
+            throw new Exception\Forbidden('not allowed to delete node '.$collection->getId());
         }
 
         if (null === $recursion) {
@@ -250,11 +301,11 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             $recursion_first = false;
         }
 
-        $this->emitter->emit('collection.factory.preDelete', func_get_args());
+        $this->emitter->emit('collection.factory.preDelete', ...func_get_args());
 
         if (true === $force) {
             $result = $this->_forceDelete($user, $collection, $recursion, $recursion_first);
-            $this->emitter->emit('collection.factory.postDelete', func_get_args());
+            $this->emitter->emit('collection.factory.postDelete', ...func_get_args());
             return $result;
         }
 
@@ -305,11 +356,12 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             'parent' => $parent->getRealId(),
             'name' => new Regex('^'.preg_quote($name).'$', 'i'),
         ];
+
         //if (null !== $this->_user) {
         $find['owner'] = $user->getId();
         //}
 
-        /*switch ($deleted) {
+        switch ($deleted) {
             case NodeInterface::DELETED_EXCLUDE:
                 $find['deleted'] = false;
 
@@ -318,7 +370,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
                 $find['deleted'] = ['$type' => 9];
 
                 break;
-        }*/
+        }
 
         $find = array_merge($filter, $find);
 
@@ -335,8 +387,10 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
     public function share(array $acl, string $name): bool
     {
         if ($this->isShareMember()) {
-            throw new Exception('a sub node of a share can not be shared');
+            throw new Exception\IsShareMember('a sub node of a share can not be shared');
         }
+
+        $this->emitter->emit('collection.factory.preShare', ...func_get_args());
 
         $this->checkName($name);
         $this->acl->validateAcl($this->_server, $acl);
@@ -390,28 +444,24 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             ]);
         }
 
+        $this->emitter->emit('collection.factory.postShare', ...func_get_args());
         return true;
     }
 
     /**
      * Unshare collection.
      */
-    public function unshare(): bool
+    public function unshare(UserInterface $user, CollectionInterface $collection): bool
     {
-        if (!$this->acl->isAllowed($this, 'm')) {
-            throw new ForbiddenException(
-                'not allowed to share node',
-                ForbiddenException::NOT_ALLOWED_TO_MANAGE
-            );
+        if (!$this->acl->isAllowed($collection, 'm', $user)) {
+            throw new Exception\Forbidden('not allowed to unshare node');
         }
 
-        if (true !== $this->shared) {
-            throw new Exception\Conflict(
-                'Can not unshare a none shared collection',
-                Exception\Conflict::NOT_SHARED
-            );
+        if (!$collection->isShared()) {
+            throw new Exception\NotShared('Can not unshare a collection which is not shared');
         }
 
+        $this->emitter->emit('collection.factory.preUnshare', ...func_get_args());
         $this->shared = false;
         $this->share_name = null;
         $this->acl = [];
@@ -431,6 +481,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
 
         $result = $this->save(['shared'], ['acl', 'share_name']);
 
+        $this->emitter->emit('collection.factory.postUnshare', ...func_get_args());
         return true;
     }
 
@@ -489,7 +540,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
     /**
      * Update.
      */
-    public function update(UserInterface $user, CollectionInterface $node, array $data): ?Process
+    public function update(UserInterface $user, CollectionInterface $node, array $data, int $conflict = NodeInterface::CONFLICT_NOACTION): ?Process
     {
         $data['kind'] = $node->getKind();
         $result = null;
@@ -502,11 +553,19 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
             }
 
              switch ($attribute) {
+                case 'deleted':
+                    $result = $this->scheduler->addJob($value === null ? Async\UndeleteNode::class : Async\DeleteNode::class, [
+                        'owner' => $user->getId(),
+                        'node' => $node->getId(),
+                        'conflict' => $conflict,
+                    ]);
+                break;
                 case 'parent':
                     $result = $this->scheduler->addJob(Async\MoveNode::class, [
                         'owner' => $user->getId(),
                         'node' => $node->getId(),
                         'parent' => $value === null ? null : new ObjectId($value),
+                        'conflict' => $conflict,
                     ]);
                 break;
                 case 'name':
@@ -540,6 +599,46 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
     }
 
     /**
+     * Set node acl.
+     */
+    public function setAcl(array $acl): NodeInterface
+    {
+        if (!$this->acl->isAllowed($this, 'm')) {
+            throw new ForbiddenException(
+                'not allowed to update acl',
+                ForbiddenException::NOT_ALLOWED_TO_MANAGE
+            );
+        }
+
+        if (!$this->isShareMember()) {
+            throw new Exception\Conflict('node acl may only be set on share member nodes', Exception\Conflict::NOT_SHARED);
+        }
+
+        $this->acl->validateAcl($this->server, $acl);
+        $this->acl = $acl;
+
+        //TODO:WRONG
+        $this->save(['acl']);
+
+        return $this;
+    }
+
+    /**
+     * Get ACL.
+     */
+    public function getAcl(): array
+    {
+        if ($this->isReference()) {
+            $acl = $this->fs->findRawNode($this->getShareId())['acl'];
+        } else {
+            $acl = $this->acl;
+        }
+
+        return $this->acl->resolveAclTable($this->server, $acl);
+    }
+
+
+    /**
      * Set the name.
      */
     public function setName(UserInterface $user, NodeInterface $node, string $name): NodeInterface
@@ -571,10 +670,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
         $parent = $this->getOne($user, isset($attributes['parent']) ? new ObjectId($attributes['parent']) : null);
 
         if (!$this->acl->isAllowed($parent, 'w', $user)) {
-            throw new ForbiddenException(
-                'not allowed to create new node here',
-                ForbiddenException::NOT_ALLOWED_TO_CREATE
-            );
+            throw new Exception\Forbidden('not allowed to create new node here');
         }
 
         $this->emitter->emit('collection.factory.preAdd', ...func_get_args());
@@ -593,8 +689,6 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
                 'name' => $name,
                 'deleted' => null,
                 'mime' => 'inode/directory',
-              //  'parent' => $parent->getRealId(),
-              //  'directory' => true,
                 'created' => new UTCDateTime(),
                 'changed' => new UTCDateTime(),
                 'shared' => (true === $parent->isShared() ? $parent->getRealId() : /*$parent->getShared()*/false),
@@ -713,15 +807,12 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
 
         $resource = new Collection($node, $parent, $storage);
 
-        if (!$this->acl->isAllowed($resource, 'r')) {
-            if ($instance->isReference()) {
-                $instance->delete(true);
+        if (!$this->acl->isAllowed($resource, 'r', $user)) {
+            if ($resource->isReference()) {
+                $resource->delete(true);
             }
 
-            throw new ForbiddenException(
-                'not allowed to access node',
-                ForbiddenException::NOT_ALLOWED_TO_ACCESS
-            );
+            throw new Exception\Forbidden('not allowed to access node');
         }
 
         return $resource;
@@ -753,10 +844,10 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
     public function checkName(string $name): string
     {
         if (preg_match('/([\\\<\>\:\"\/\|\*\?])|(^$)|(^\.$)|(^\..$)/', $name)) {
-            throw new Exception\InvalidArgument('name contains invalid characters');
+            throw new Exception\InvalidName('name contains invalid characters');
         }
         if (strlen($name) > self::MAX_NAME_LENGTH) {
-            throw new Exception\InvalidArgument('name is longer than '.self::MAX_NAME_LENGTH.' characters');
+            throw new Exception\InvalidName('name is longer than '.self::MAX_NAME_LENGTH.' characters');
         }
 
         if (!Normalizer::isNormalized($name)) {
@@ -788,10 +879,7 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
         }
 
         if (!$this->acl->isAllowed($node, 'w', $user) && !$node->isReference()) {
-            throw new ForbiddenException(
-                'not allowed to move node '.$node->getName(),
-                ForbiddenException::NOT_ALLOWED_TO_MOVE
-            );
+            throw new Exception\Forbidden('not allowed to move node '.$node->getId());
         }
 
         $new_name = $this->validateInsert($user, $node, $node->getName(), $conflict, get_class($node));
@@ -908,14 +996,11 @@ class Factory// extends AbstractNode implements CollectionInterface, IQuota
     protected function validateAcl(UserInterface $user, CollectionInterface $collection, array $acl): bool
     {
         if (!$this->acl->isAllowed($collection, 'm', $user)) {
-            throw new ForbiddenException(
-                'not allowed to set acl',
-                ForbiddenException::NOT_ALLOWED_TO_MANAGE
-            );
+            throw new Exception\Forbidden('not allowed to set acl');
         }
 
         if (!$collection->isSpecial()) {
-            throw new Exception\Conflict('node acl may only be set on share member nodes', Exception\Conflict::NOT_SHARED);
+            throw new Exception\NotShared('node acl may only be set on share member nodes');
         }
 
         $this->acl->validateAcl($acl);

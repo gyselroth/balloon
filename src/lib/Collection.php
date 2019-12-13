@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon;
 
-//use Balloon\Acl;
-//luse Balloon\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Exception;
 use Balloon\Filesystem;
 use Balloon\Resource\AttributeResolver;
@@ -33,7 +31,7 @@ use Balloon\Resource\AbstractResource;
 use Balloon\Collection\CollectionInterface;
 use Balloon\Node\AbstractNode;
 
-class Collection extends AbstractNode implements CollectionInterface //extends AbstractNode implements CollectionInterface, IQuota
+class Collection extends AbstractNode implements CollectionInterface
 {
     /**
      * Root folder.
@@ -74,52 +72,6 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
         $this->resource = $resource;
         $this->parent = $parent;
         $this->storage = $storage;
-    }
-
-
-
-
-
-
-
-
-    /**
-     * Set node acl.
-     */
-    public function setAcl(array $acl): NodeInterface
-    {
-        if (!$this->acl->isAllowed($this, 'm')) {
-            throw new ForbiddenException(
-                'not allowed to update acl',
-                ForbiddenException::NOT_ALLOWED_TO_MANAGE
-            );
-        }
-
-        if (!$this->isShareMember()) {
-            throw new Exception\Conflict('node acl may only be set on share member nodes', Exception\Conflict::NOT_SHARED);
-        }
-
-        $this->acl->validateAcl($this->server, $acl);
-        $this->acl = $acl;
-
-        //TODO:WRONG
-        $this->save(['acl']);
-
-        return $this;
-    }
-
-    /**
-     * Get ACL.
-     */
-    public function getAcl(): array
-    {
-        if ($this->isReference()) {
-            $acl = $this->fs->findRawNode($this->getShareId())['acl'];
-        } else {
-            $acl = $this->acl;
-        }
-
-        return $this->acl->resolveAclTable($this->server, $acl);
     }
 
     /**
@@ -202,11 +154,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShareMember(): bool
     {
-        if(!isset($this->resource['data']['shared'])) {
+        if(!isset($this->resource['shared'])) {
             return false;
         }
 
-        return $this->resource['data']['shared'] instanceof ObjectId && !$this->isReference();
+        return $this->resource['shared'] instanceof ObjectId && !$this->isReference();
     }
 
     /**
@@ -214,11 +166,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isMountMember(): bool
     {
-        if(!isset($this->resource['data']['storage_reference'])) {
+        if(!isset($this->resource['storage_reference'])) {
             return false;
         }
 
-        return $this->resource['data']['storage_reference'] instanceof ObjectId;
+        return $this->resource['storage_reference'] instanceof ObjectId;
     }
 
     /**
@@ -226,11 +178,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShare(): bool
     {
-        if(!isset($this->resource['data']['shared'])) {
+        if(!isset($this->resource['shared'])) {
             return false;
         }
 
-        return true === $this->resource['data']['shared'] && !$this->isReference();
+        return true === $this->resource['shared'] && !$this->isReference();
     }
 
     /**
@@ -238,7 +190,7 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isShared(): bool
     {
-        if (true === ($this->resource['data']['shared'] ?? false)) {
+        if (true === ($this->resource['shared'] ?? false)) {
             return true;
         }
 
@@ -255,11 +207,11 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function getMount(): ?ObjectId
     {
-        if(count($this->resource['data']['mount'] ?? []) > 0) {
+        if(count($this->resource['mount'] ?? []) > 0) {
             return $this->resource['_id'];
         }
 
-        return $this->resource['data']['storage_reference'] ?? null;
+        return $this->resource['storage_reference'] ?? null;
     }
 
     /**
@@ -267,98 +219,20 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isDeleted(): bool
     {
-        if(!isset($this->resource['data']['deleted'])) {
+        if(!isset($this->resource['deleted'])) {
             return false;
         }
 
-        return $this->resource['data']['deleted'] instanceof UTCDateTime;
+        return $this->resource['deleted'] instanceof UTCDateTime;
     }
 
-    /**
-     * Get last modified timestamp.
-     */
-    public function getLastModified(): int
-    {
-        if ($this->changed instanceof UTCDateTime) {
-            return (int) $this->changed->toDateTime()->format('U');
-        }
-
-        return 0;
-    }
-
-    /**
-     * Get unique id.
-     */
-    /*public function getId(): ?ObjectId
-    {
-        return $this->id;
-    }*/
-
-    /**
-     * Get as zip.
-     */
-    public function getZip(): void
-    {
-        $archive = new ZipStream($this->name.'.zip');
-        $this->zip($archive, false);
-        $archive->finish();
-    }
-
-    /**
-     * Create zip.
-     */
-    public function zip(ZipStream $archive, bool $self = true, ?NodeInterface $parent = null, string $path = '', int $depth = 0): bool
-    {
-        if (null === $parent) {
-            $parent = $this;
-        }
-
-        if ($parent instanceof Collection) {
-            $children = $parent->getChildNodes();
-
-            if (true === $self && 0 === $depth) {
-                $path = $parent->getName().DIRECTORY_SEPARATOR;
-            } elseif (0 === $depth) {
-                $path = '';
-            } elseif (0 !== $depth) {
-                $path .= DIRECTORY_SEPARATOR.$parent->getName().DIRECTORY_SEPARATOR;
-            }
-
-            foreach ($children as $child) {
-                $name = $path.$child->getName();
-
-                if ($child instanceof Collection) {
-                    $this->zip($archive, $self, $child, $name, ++$depth);
-                } elseif ($child instanceof File) {
-                    try {
-                        $resource = $child->get();
-                        if ($resource !== null) {
-                            $archive->addFileFromStream($name, $resource);
-                        }
-                    } catch (\Exception $e) {
-                        $this->logger->error('failed add file ['.$child->getId().'] to zip stream', [
-                            'category' => get_class($this),
-                            'exception' => $e,
-                        ]);
-                    }
-                }
-            }
-        } elseif ($parent instanceof File) {
-            $resource = $parent->get();
-            if ($resource !== null) {
-                $archive->addFileFromStream($parent->getName(), $resource);
-            }
-        }
-
-        return true;
-    }
 
     /**
      * Get mime type.
      */
     public function getContentType(): string
     {
-        return $this->resource['data']['mime'];
+        return $this->resource['mime'];
     }
 
     /**
@@ -366,16 +240,13 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function isReference(): bool
     {
-        if(!isset($this->resource['data']['reference'])) {
+        if(!isset($this->resource['reference'])) {
             return false;
         }
 
 
-        return $this->resource['data']['reference'] instanceof ObjectId;
+        return $this->resource['reference'] instanceof ObjectId;
     }
-
-
-
 
 
     /**
@@ -422,58 +293,16 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function setFilter(?array $filter = null)
     {
-        $this->resource['data']['filter'] = json_encode($filter, JSON_THROW_ON_ERROR);
+        $this->resource['filter'] = json_encode($filter, JSON_THROW_ON_ERROR);
         return $this;
     }
-
-    /**
-     * Get collection.
-     */
-    public function get(): void
-    {
-        $this->getZip();
-    }
-
-    /**
-     * Fetch children items of this collection.
-     *
-     * Deleted:
-     *  0 - Exclude deleted
-     *  1 - Only deleted
-     *  2 - Include deleted
-     */
-    /*public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null, bool $recursive = false): Generator
-    {
-        $filter = $this->getChildrenFilter($deleted, $filter);
-
-        if ($recursive === false) {
-            return $this->fs->findNodesByFilter($filter, $offset, $limit);
-        }
-
-        unset($filter['parent']);
-
-        return $this->fs->findNodesByFilterRecursive($this, $filter, $offset, $limit);
-    }*/
-
-    /**
-     * Fetch children items of this collection (as array).
-     *
-     * Deleted:
-     *  0 - Exclude deleted
-     *  1 - Only deleted
-     *  2 - Include deleted
-     */
-    /*public function getChildren(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
-    {
-        return iterator_to_array($this->getChildNodes($deleted, $filter));
-    }*/
 
     /**
      * Is custom filter node.
      */
     public function isFiltered(): bool
     {
-        return !empty($this->resource['data']['filter']);
+        return !empty($this->resource['filter']);
     }
 
     /**
@@ -481,13 +310,12 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
      */
     public function getSize(): int
     {
-        return 0;
-        //return count($this->getChildren());
+        return $this->resource['size'] ?? 0;
     }
 
     public function getFilter(): string
     {
-        return $this->resource['data']['filter'] ?? '';
+        return $this->resource['filter'] ?? '';
     }
 
     /**
@@ -498,109 +326,9 @@ class Collection extends AbstractNode implements CollectionInterface //extends A
     public function getRealId(): ?ObjectId
     {
         if ($this->isShared() && $this->isReference()) {
-            return $this->resource['data']['reference'];
+            return $this->resource['reference'];
         }
 
         return $this->resource['_id'] ?? null;
-    }
-
-    /**
-     * Get user quota information.
-     */
-   /* public function getQuotaInfo(): array
-    {
-        $quota = $this->user->getQuotaUsage();
-
-        return [
-            $quota['used'],
-            $quota['available'],
-        ];
-   }*/
-
-    /**
-     * Fetch children items of this collection.
-     */
-    /*public function getChild($name, int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): NodeInterface
-    {
-        $name = $this->checkName($name);
-        $filter = $this->getChildrenFilter($deleted, $filter);
-        $filter['name'] = new Regex('^'.preg_quote($name).'$', 'i');
-        $node = $this->db->storage->findOne($filter);
-
-        if (null === $node) {
-            throw new Exception\NotFound(
-                'node called '.$name.' does not exists here',
-                Exception\NotFound::NODE_NOT_FOUND
-            );
-        }
-
-        $this->logger->debug('loaded node ['.$node['_id'].' from parent node ['.$this->getRealId().']', [
-            'category' => get_class($this),
-        ]);
-
-        return $this->fs->initNode($node);
-    }*/
-
-    /**
-     * Check if this collection has child named $name.
-     *
-     * deleted:
-     *
-     *  0 - Exclude deleted
-     *  1 - Only deleted
-     *  2 - Include deleted
-     *
-     * @param string $name
-     * @param int    $deleted
-     */
-    /*public function childExists($name, $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): bool
-    {
-        $name = $this->checkName($name);
-
-        $find = [
-            'parent' => $this->getRealId(),
-            'name' => new Regex('^'.preg_quote($name).'$', 'i'),
-        ];
-
-        if (null !== $this->user) {
-            $find['owner'] = $this->user->getId();
-        }
-
-        switch ($deleted) {
-            case NodeInterface::DELETED_EXCLUDE:
-                $find['deleted'] = false;
-
-                break;
-            case NodeInterface::DELETED_ONLY:
-                $find['deleted'] = ['$type' => 9];
-
-                break;
-        }
-
-        $find = array_merge($filter, $find);
-
-        if ($this->isSpecial()) {
-            unset($find['owner']);
-        }
-
-        $node = $this->db->storage->findOne($find);
-
-        return (bool) $node;
-    }*/
-
-    /**
-     * Validate filtered collection query.
-     */
-    protected function validateFilter(string $filter): bool
-    {
-        $filter = toPHP(fromJSON($filter), [
-            'root' => 'array',
-            'document' => 'array',
-            'array' => 'array',
-        ]);
-
-        $this->db->storage->findOne($filter);
-
-        return true;
     }
 }

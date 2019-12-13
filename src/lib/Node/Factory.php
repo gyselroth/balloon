@@ -164,15 +164,15 @@ class Factory
     /**
      * Delete by name.
      */
-    public function deleteOne(UserInterface $user, ObjectIdInterface $node): bool
+    public function deleteOne(UserInterface $user, ObjectIdInterface $node, bool $force=false): bool
     {
         $resource = $this->getOne($user, $node);
 
         switch($resource->getKind()) {
             case 'Collection':
-                return $this->collection_factory->deleteOne($user, $resource);
+                return $this->collection_factory->deleteOne($user, $resource, $force);
             case 'File':
-                return $this->file_factory->deleteOne($user, $resource);
+                return $this->file_factory->deleteOne($user, $resource, $force);
             default:
                 //TODO throw
         }
@@ -181,30 +181,43 @@ class Factory
     /**
      * Delete by name.
      */
-    public function copyTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent): bool
+    public function copyTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent, int $conflict=0): bool
     {
         switch($node->getKind()) {
             case 'Collection':
-                return $this->collection_factory->copyTo($user, $node, $parent);
+                return $this->collection_factory->copyTo($user, $node, $parent, $conflict);
             case 'File':
-                return $this->file_factory->copyTo($user, $node, $parent);
+                return $this->file_factory->copyTo($user, $node, $parent, $conflict);
             default:
                 //TODO throw
         }
     }
 
     /**
+     * Delete by name.
+     */
+    public function undelete(UserInterface $user, NodeInterface $node, int $conflict=0): bool
+    {
+        switch($node->getKind()) {
+            case 'Collection':
+                return $this->collection_factory->undelete($user, $node, $conflict);
+            case 'File':
+                return $this->file_factory->undelete($user, $node, $conflict);
+            default:
+                //TODO throw
+        }
+    }
 
     /**
      * Delete by name.
      */
-    public function moveTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent): NodeInterface
+    public function moveTo(UserInterface $user, NodeInterface $node, CollectionInterface $parent, int $conflict=0): NodeInterface
     {
         switch($node->getKind()) {
             case 'Collection':
-                return $this->collection_factory->moveTo($user, $node, $parent);
+                return $this->collection_factory->moveTo($user, $node, $parent, $conflict);
             case 'File':
-                return $this->file_factory->moveTo($user, $node, $parent);
+                return $this->file_factory->moveTo($user, $node, $parent, $conflict);
             default:
                 //TODO throw
         }
@@ -225,6 +238,8 @@ class Factory
                 //TODO throw
         }
     }
+
+    /**
 
     /**
      * Update.
@@ -483,10 +498,10 @@ class Factory
     /**
      * Find nodes with custom filter recursive.
      */
-    public function findNodesByFilterRecursiveToArray(Collection $collection, array $filter = []): array
+    public function findNodesByFilterRecursiveToArray(UserInterface $user, CollectionInterface $collection, array $filter = []): array
     {
         $graph = [
-            'from' => 'storage',
+            'from' => self::COLLECTION_NAME,
             'startWith' => '$pointer',
             'connectFromField' => 'pointer',
             'connectToField' => 'parent',
@@ -504,7 +519,7 @@ class Factory
             ['$project' => ['id' => '$children._id']],
         ];
 
-        $result = $this->db->storage->aggregate($query);
+        $result = $this->db->{self::COLLECTION_NAME}->aggregate($query);
 
         return array_column(iterator_to_array($result), 'id');
     }
@@ -512,10 +527,10 @@ class Factory
     /**
      * Find nodes with custom filter recursive.
      */
-    public function findNodesByFilterRecursive(Collection $collection, array $filter = [], ?int $offset = null, ?int $limit = null): Generator
+    public function findNodesByFilterRecursive(UserInterface $user, CollectionInterface $collection, array $filter = [], ?int $offset = null, ?int $limit = null): Generator
     {
         $graph = [
-            'from' => 'storage',
+            'from' => self::COLLECTION_NAME,
             'startWith' => '$pointer',
             'connectFromField' => 'pointer',
             'connectToField' => 'parent',
@@ -544,7 +559,7 @@ class Factory
         array_pop($query);
         $query[] = ['$skip' => $offset];
         $query[] = ['$limit' => $limit];
-        $result = $this->db->storage->aggregate($query);
+        $result = $this->db->{self::COLLECTION_NAME}->aggregate($query);
 
         foreach ($result as $node) {
             try {
@@ -552,7 +567,7 @@ class Factory
                     $node = $node['children'];
                 }
 
-                yield $this->initNode($node);
+                yield $this->build($node, $user);
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
                     'category' => get_class($this),

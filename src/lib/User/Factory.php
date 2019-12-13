@@ -169,10 +169,10 @@ class Factory
 
         $aggregation = $this->getUserAggregationPipes($query, null, 1);
         $cursor = $this->db->{self::COLLECTION_NAME}->aggregate($aggregation);
-        $result = $cursor->current();
+        $result = $cursor->toArray();
 
         if (count($result) === 0) {
-            throw new Exception\NotFound('user '.$name.' is not registered');
+            throw new Exception\NotFound('user '.$id.' is not registered');
         }
 
         return $this->build($result[0]);

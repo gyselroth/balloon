@@ -110,10 +110,27 @@ class NodeFactory extends AbstractModelFactory
             'name' => (string) $attributes['name'],
             'mime' => (string) $attributes['mime'],
             'readonly' => (bool) ($attributes['readonly'] ?? false),
-            //'directory' => $node instanceof Collection,
-           /* 'meta' => function ($node) {
-                return (object) $node->getMetaAttributes();
-           },*/
+            'created' => function ($resource) use ($attributes) {
+                if (!isset($attributes['created'])) {
+                    return null;
+                }
+
+                return $attributes['created']->toDateTime()->format('c');
+            },
+            'changed' => function ($resource) use ($attributes) {
+                if (!isset($attributes['changed'])) {
+                    return null;
+                }
+
+                return $attributes['changed']->toDateTime()->format('c');
+            },
+            'deleted' => function ($resource) use ($attributes) {
+                if (!isset($attributes['deleted'])) {
+                    return null;
+                }
+
+                return $attributes['deleted']->toDateTime()->format('c');
+            },
             'size' => function ($node) {
                 return $node->getSize();
             },
@@ -122,7 +139,7 @@ class NodeFactory extends AbstractModelFactory
             },
             'parent' => $attributes['parent'] === null ? null : (string)$attributes['parent'],
             'access' => function ($node) use ($acl, $request) {
-                return $acl->getAclPrivilege($node, $request->getAttribute('user'));
+                return $acl->getAclPrivilege($node, $request->getAttribute('identity'));
             },
             /*'acl' => function ($node) use ($attributes) {
                 if ($node->isShareMember() && count($attributes['acl']) > 0) {

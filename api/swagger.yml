@@ -550,8 +550,6 @@ definitions:
     type: object
   core.v2.Resource:
     properties:
-      _links:
-        $ref: '#/definitions/core.v2.Links'
       created:
         description: ISO 8601 timestamp when the resource was created.
         format: date-time
@@ -565,12 +563,11 @@ definitions:
       kind:
         description: Resource type
         type: string
+      links:
+        $ref: '#/definitions/core.v2.Links'
     type: object
   core.v2.ResourceList:
     properties:
-      _links:
-        $ref: '#/definitions/core.v2.ListLinks'
-        description: Holds a list of links rfc1738 to other resources.
       count:
         description: Holds the number of items in the current list response.
         type: integer
@@ -578,6 +575,9 @@ definitions:
         default: List
         description: The resource type, always List.
         type: string
+      links:
+        $ref: '#/definitions/core.v2.ListLinks'
+        description: Holds a list of links rfc1738 to other resources.
       total:
         description: Holds the number of total available items on the server. Note
           that a List resource is always paged. You need to traverse with offset and
@@ -675,6 +675,95 @@ definitions:
       type: object
     description: A list of users.
     type: object
+  core.v3.AccessRole:
+    allOf:
+    - $ref: '#/definitions/core.v3.Resource'
+    - properties:
+        name:
+          description: Unique role name
+          type: string
+        selectors:
+          description: A list of user identifiers which the access role should match.
+            It is also possible to specify a wildcard to match all identifiers.
+          items:
+            type: string
+          type: array
+      type: object
+    description: An access role is defined list which matches authenticated user identifiers.
+  core.v3.AccessRoles:
+    allOf:
+    - $ref: '#/definitions/core.v3.List'
+    - properties:
+        data:
+          items:
+            $ref: '#/definitions/core.v3.AccessRole'
+          type: array
+      type: object
+    description: A list of access roles.
+  core.v3.AccessRule:
+    allOf:
+    - $ref: '#/definitions/core.v3.Resource'
+    - properties:
+        name:
+          description: Unique rule name
+          type: string
+        rules:
+          items:
+            $ref: '#/definitions/core.v3.AccessRuleDefinition'
+          type: array
+      type: object
+    description: An access rule allows to specify what access roles can access which
+      resources.
+  core.v3.AccessRuleDefinition:
+    description: Each access rule may hold multiple rules.
+    properties:
+      fields:
+        description: A list of accessible fields of a resource. Might contain `*`
+          to include all fields.
+        items:
+          type: string
+        type: array
+      match:
+        description: The resource value to match. Might be `*` to match any.
+        items:
+          type: string
+        type: array
+      roles:
+        description: A list of access-role names to match the given rule.
+        items:
+          type: string
+        type: array
+      selector:
+        description: The resource type (attribute) to select. Might be `*` to select
+          any.
+        items:
+          type: string
+        type: array
+      verbs:
+        description: List of allowed HTTP rfc7231 verbs, you may also specify a wildcard
+          to match all verbs.
+        items:
+          enum:
+          - '*'
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - HEAD
+          type: string
+        type: array
+    type: object
+  core.v3.AccessRules:
+    allOf:
+    - $ref: '#/definitions/core.v3.List'
+    - properties:
+        data:
+          items:
+            $ref: '#/definitions/core.v3.AccessRule'
+          type: array
+      type: object
+    description: A list of access rules.
   core.v3.AclRule:
     description: ACL rule.
     properties:
@@ -716,16 +805,6 @@ definitions:
       name:
         type: string
     type: object
-  core.v3.ChunkSession:
-    description: Chunking upload session.
-    properties:
-      chunks_left:
-        description: Tells how many chunks are left to upload.
-        type: integer
-      session:
-        description: The upload session id
-        type: string
-    type: object
   core.v3.Collection:
     allOf:
     - $ref: '#/definitions/core.v3.Node'
@@ -740,27 +819,9 @@ definitions:
           type: array
       type: object
     description: A list of collections.
-  core.v3.Delta:
-    description: The delta is a differential feed to get changes since the last delta
-      call.
-    properties:
-      cursor:
-        description: ACL rules.
-        type: string
-      has_more:
-        default: false
-        description: If true the server has more entries and the client must send
-          another request with the latest cursor.
-        type: boolean
-      nodes:
-        items:
-          $ref: '#/definitions/core.v3.Node'
-        type: array
-      reset:
-        default: false
-        description: If true the client needs to reset its state.
-        type: boolean
-    type: object
+  core.v3.EmbeddedResources:
+    additionalProperties:
+      $ref: '#/definitions/core.v3.Resource'
   core.v3.Error:
     properties:
       code:
@@ -868,114 +929,6 @@ definitions:
             type: string
         type: object
     type: object
-  core.v3.EventLog:
-    description: Event log entry. Each event represents an executed operation on the
-      server.
-    properties:
-      client:
-        description: Describes the client from which the operation was executed.
-        properties:
-          app:
-            description: The client app name.
-            type: string
-          hostname:
-            description: The hostname of the client.
-            type: string
-          type:
-            description: The type of the client.
-            type: string
-          v:
-            description: The version of the client app.
-            type: string
-        type: object
-      event:
-        description: The event id.
-        type: string
-      node:
-        description: Resolves to the node involved in the operation.
-        properties:
-          id:
-            description: The id of the node
-            type: string
-          name:
-            description: The name of the node
-            type: string
-        type: object
-      operation:
-        description: The event operation.
-        enum:
-        - deleteCollectionReference
-        - deleteCollectionShare
-        - deleteCollection
-        - addCollection
-        - addFile
-        - addCollectionShare
-        - addCollectionReference
-        - undeleteFile
-        - undeleteCollectionReference
-        - undeleteCollectionShare
-        - restoreFile
-        - renameFile
-        - renameCollection
-        - renameCollectionShare
-        - renameCollectionReference
-        - copyFile
-        - copyCollection
-        - copyCollectionShare
-        - copyCollectionRFeference
-        - moveFile
-        - moveCollection
-        - moveCollectionReference
-        - moveCollectionShare
-        type: string
-      parent:
-        description: Points to the parent collection. If the node is in the root this
-          is null.
-        properties:
-          id:
-            description: The id of the parent collection
-            type: string
-          name:
-            description: The name of the parent collection
-            type: string
-        type: object
-      share:
-        description: Points to the shared node (or share reference). If the node is
-          not part of any share this is null.
-        properties:
-          id:
-            description: The id of the share collection. If the share is a reference
-              (incoming share) it will point to the share reference and not the id
-              of the shared collection itself.
-            type: string
-          name:
-            description: The name of the share (or share reference).
-            type: string
-        type: object
-      timestamp:
-        description: ISO 8601 timestamp when the event was created.
-        type: string
-      user:
-        description: Resolves to user who executed the operation.
-        properties:
-          id:
-            description: The id of the share owner.
-            type: string
-          name:
-            description: The username of the share owner.
-            type: string
-        type: object
-    type: object
-  core.v3.EventLogs:
-    allOf:
-    - $ref: '#/definitions/core.v3.ResourceList'
-    - properties:
-        data:
-          items:
-            $ref: '#/definitions/core.v3.EventLog'
-          type: array
-      type: object
-    description: A list of events.
   core.v3.Events:
     allOf:
     - $ref: '#/definitions/core.v3.ResourceList'
@@ -1041,11 +994,7 @@ definitions:
     allOf:
     - $ref: '#/definitions/core.v3.Resource'
     - properties:
-        changed:
-          description: ISO 8601 timestamp when the resource was changed.
-          format: date-time
-          type: string
-        member:
+        members:
           description: Array of user id's.
           items:
             type: string
@@ -1088,6 +1037,31 @@ definitions:
       self:
         $ref: '#/definitions/core.v3.Link'
     type: object
+  core.v3.Metadata:
+    description: Generic resource metadata
+    properties:
+      annotations:
+        additionalProperties: string
+        description: Annotations is an unstructured key value map stored with a resource
+          that may be set by external tools to store and retrieve arbitrary metadata.
+        type: object
+      changed:
+        description: ISO 8601 timestamp when the resource was created.
+        format: date-time
+        type: string
+      created:
+        description: ISO 8601 timestamp when the resource was created.
+        format: date-time
+        type: string
+      id:
+        description: Unique 12-byte resource identifier. Note this is a MongoDB ObjectId.
+          The id only useful to verify that a given resource was completely recreated.
+          An ID is immutable and will be created on the server.
+        type: string
+      version:
+        description: Numeric resource version.
+        type: integer
+    type: object
   core.v3.Node:
     allOf:
     - $ref: '#/definitions/core.v3.Resource'
@@ -1102,7 +1076,11 @@ definitions:
           - rp
           type: string
         changed:
-          description: ISO 8601 timestamp when the resource was changed.
+          description: ISO 8601 timestamp when the resource was created.
+          format: date-time
+          type: string
+        created:
+          description: ISO 8601 timestamp when the resource was created.
           format: date-time
           type: string
         deleted:
@@ -1112,15 +1090,18 @@ definitions:
           - string
           - "null"
         destroy:
-          type: null
+          description: ISO 8601 timestamp when the resource will be automatically
+            destroyed.
+          format: date-time
+          type:
+          - string
+          - "null"
         directory:
           default: false
           description: If node is of type Collection this flag is true.
           type: boolean
         lock:
-          type: null
-        meta:
-          $ref: '#/definitions/core.v3.NodeMeta'
+          type: "null"
         mime:
           description: Mimetype.
           type: string
@@ -1142,15 +1123,8 @@ definitions:
         parent:
           description: Points to the parent collection. If the nodes is in the root
             this is null.
-          properties:
-            id:
-              description: The id of the parent collection
-              type: string
-            name:
-              description: The name of the parent collection
-              type: string
           type:
-          - object
+          - string
           - "null"
         path:
           description: The path abstraction of the node.
@@ -1185,15 +1159,8 @@ definitions:
         shareowner:
           description: Points to the share owner. If the node is not part of any share
             this is null.
-          properties:
-            id:
-              description: The id of the share owner.
-              type: string
-            name:
-              description: The username of the share owner.
-              type: string
           type:
-          - object
+          - string
           - "null"
         size:
           default: 0
@@ -1210,24 +1177,6 @@ definitions:
           type: boolean
       type: object
     description: A Node.
-  core.v3.NodeMeta:
-    description: Node meta data.
-    properties:
-      author:
-        description: Author.
-        type: string
-      color:
-        description: A color tag.
-        type: string
-      license:
-        description: Content license.
-        type: string
-      tags:
-        description: Node tags. Tags can be freely choosen.
-        items:
-          type: string
-        type: array
-    type: object
   core.v3.Nodes:
     allOf:
     - $ref: '#/definitions/core.v3.ResourceList'
@@ -1238,57 +1187,16 @@ definitions:
           type: array
       type: object
     description: A list of nodes.
-  core.v3.OAuth2Token:
-    description: OAUTH2 access token response according RFC6749 https://tools.ietf.org/html/rfc6749#section-4.3.3
-    properties:
-      access_token:
-        description: Resource access_token.
-        type: string
-      expires_in:
-        default: 3600
-        description: The number of seconds the issues acceess_token is valid for.
-          This is usually 1hour.
-        type: integer
-      refresh_token:
-        description: An optional refresh token to get new access_tokens via the refresh_token
-          grant type.
-        type: string
-      scope:
-        description: The scopes.
-        type: string
-      token_type:
-        default: Bearer
-        description: The type of token. This is usually a Bearer token.
-        type: string
-    type: object
   core.v3.Process:
     allOf:
     - $ref: '#/definitions/core.v3.Resource'
     - properties:
         node:
           description: Points to the related node.
-          properties:
-            id:
-              description: The id of the node
-              type: string
-            name:
-              description: The name of the node
-              type: string
-          type:
-          - object
-          - "null"
+          type: string
         owner:
           description: Process owner
-          properties:
-            id:
-              description: The id of the process owner.
-              type: string
-            name:
-              description: The username of the process owner.
-              type: string
-          type:
-          - object
-          - "null"
+          type: string
         status:
           description: Holds the status of the process.
           properties:
@@ -1311,27 +1219,18 @@ definitions:
     type: object
   core.v3.Resource:
     properties:
-      _links:
-        $ref: '#/definitions/core.v3.Links'
-      created:
-        description: ISO 8601 timestamp when the resource was created.
-        format: date-time
-        type: string
-      id:
-        description: Unique 12-byte resource identifier. Note this is a MongoDB ObjectId.
-          The name is the standard resource identifier, the id only useful to verify
-          that a given resource was completely recreated. An ID is immutable and will
-          be created on the server.
-        type: string
+      embedded:
+        $ref: '#/definitions/core.v3.EmbeddedResources'
       kind:
         description: Resource type
         type: string
+      links:
+        $ref: '#/definitions/core.v3.Links'
+      metadata:
+        $ref: '#/definitions/core.v3.Metadata'
     type: object
   core.v3.ResourceList:
     properties:
-      _links:
-        $ref: '#/definitions/core.v3.ListLinks'
-        description: Holds a list of links rfc1738 to other resources.
       count:
         description: Holds the number of items in the current list response.
         type: integer
@@ -1339,6 +1238,9 @@ definitions:
         default: List
         description: The resource type, always List.
         type: string
+      links:
+        $ref: '#/definitions/core.v3.ListLinks'
+        description: Holds a list of links rfc1738 to other resources.
       total:
         description: Holds the number of total available items on the server. Note
           that a List resource is always paged. You need to traverse with offset and
@@ -1349,10 +1251,13 @@ definitions:
     allOf:
     - $ref: '#/definitions/core.v3.Resource'
     - properties:
-        changed:
-          description: ISO 8601 timestamp when the resource was changed.
-          format: date-time
+        hash:
+          description: MD5 has of the uploaded content.
           type: string
+        size:
+          default: 0
+          description: The size of the uploaded content.
+          type: integer
       type: object
     description: A session defines a temporary, resumable upload session.
   core.v3.Sessions:
@@ -1397,10 +1302,6 @@ definitions:
           default: -1
           description: Available storage in bytes. Is -1 if there is no hard_quota.
           type: integer
-        changed:
-          description: ISO 8601 timestamp when the resource was changed.
-          format: date-time
-          type: string
         hard_quota:
           default: -1
           description: Hard quota in bytes (Max. limit of storage usage). Note that
@@ -1434,18 +1335,6 @@ definitions:
           type: string
       type: object
     description: A user is used to access the server.
-  core.v3.UserNodeAttributeSummary:
-    additionalProperties:
-      items:
-        properties:
-          _id:
-            type: string
-          sum:
-            type: integer
-        type: object
-      type: array
-    description: Request node fiel statistics.
-    type: object
   core.v3.Users:
     allOf:
     - $ref: '#/definitions/core.v3.ResourceList'
@@ -1634,20 +1523,20 @@ info:
 paths:
   /api:
     get:
-      operationId: getCoreV3CoreV3Api
+      operationId: getCoreV2Api
       produces:
       - application/json
       responses:
         200:
           description: API root
           schema:
-            $ref: '#/definitions/core.v3.ApiRoot'
+            $ref: '#/definitions/core.v2.ApiRoot'
         500:
-          $ref: '#/responses/core.v3.InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
       security: []
       summary: Get server status
       tags:
-      - core.v3
+      - core.v2
   /api/v2:
     get:
       operationId: getCoreV2V2
@@ -4319,6 +4208,414 @@ paths:
       summary: Get current user
       tags:
       - core.v2
+  /api/v3:
+    get:
+      operationId: getCoreV3CoreV3Api
+      produces:
+      - application/json
+      responses:
+        200:
+          description: API root
+          schema:
+            $ref: '#/definitions/core.v3.ApiRoot'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      security: []
+      summary: Get server status
+      tags:
+      - core.v3
+  /api/v3/access-roles:
+    get:
+      description: A access-role is a colletion of users
+      operationId: getCoreV3CoreV3AccessRoles
+      parameters:
+      - description: 'Specify a MongoDB based resource query (https://docs.mongodb.com/manual/tutorial/query-documents)
+          using JSON (For example: {"name": {$regex: ''foo.*''}}).'
+        in: query
+        name: query
+        required: false
+        type: string
+      - description: Filter attributes
+        in: query
+        items:
+          type: string
+        name: attributes
+        required: false
+        type: array
+      - description: Objects offset, per default it starts from 0. You may also request
+          a negative offset which will return results from the end [total - offset].
+        in: query
+        name: offset
+        required: false
+        type: integer
+      - description: Objects limit, per default 20 objects will get returned
+        in: query
+        name: limit
+        required: false
+        type: integer
+      - description: 'Specify a MongoDB sort operation (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+          using JSON (For example: {"name": -1}).'
+        in: query
+        name: sort
+        required: false
+        type: string
+      produces:
+      - application/json
+      responses:
+        200:
+          description: List of access-roles
+          schema:
+            $ref: '#/definitions/core.v3.AccessRoles'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Get access-roles
+      tags:
+      - core.v3
+    post:
+      operationId: addCoreV3AccessRole
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: '#/definitions/core.v3.AccessRole'
+      produces:
+      - application/json
+      responses:
+        201:
+          description: If successful the server will respond with 201 Created
+          schema:
+            $ref: '#/definitions/core.v3.AccessRole'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Add access-role
+      tags:
+      - core.v3
+  /api/v3/access-roles/{access-role}:
+    delete:
+      operationId: deleteCoreV3AccessRole
+      parameters:
+      - description: Resource identifier
+        in: path
+        name: access-role
+        required: true
+        type: string
+      - description: Per default the access-role gets disabled, if force is set the
+          access-role gets removed completely.
+        in: query
+        name: force
+        required: false
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        204:
+          description: If successful the server will respond with 204 No Content
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Delete access-role
+      tags:
+      - core.v3
+    get:
+      operationId: getCoreV3AccessRole
+      parameters:
+      - description: Resource identifier
+        in: path
+        name: access-role
+        required: true
+        type: string
+      - description: Filter attributes
+        in: query
+        items:
+          type: string
+        name: attributes
+        required: false
+        type: array
+      produces:
+      - application/json
+      responses:
+        200:
+          description: AccessRole
+          schema:
+            $ref: '#/definitions/core.v3.AccessRole'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Get access-role
+      tags:
+      - core.v3
+    patch:
+      consumes:
+      - application/json-patch+json
+      operationId: patchCoreV3AccessRole
+      parameters:
+      - description: Resource identifier
+        in: path
+        name: access-role
+        required: true
+        type: string
+      - description: Set attributes for access-role
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/JsonPatch'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: AccessRole
+          schema:
+            $ref: '#/definitions/core.v3.AccessRole'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Change access-role
+      tags:
+      - core.v3
+  /api/v3/access-rules:
+    get:
+      description: A access-rule is a colletion of users
+      operationId: getCoreV3CoreV3AccessRules
+      parameters:
+      - description: 'Specify a MongoDB based resource query (https://docs.mongodb.com/manual/tutorial/query-documents)
+          using JSON (For example: {"name": {$regex: ''foo.*''}}).'
+        in: query
+        name: query
+        required: false
+        type: string
+      - description: Filter attributes
+        in: query
+        items:
+          type: string
+        name: attributes
+        required: false
+        type: array
+      - description: Objects offset, per default it starts from 0. You may also request
+          a negative offset which will return results from the end [total - offset].
+        in: query
+        name: offset
+        required: false
+        type: integer
+      - description: Objects limit, per default 20 objects will get returned
+        in: query
+        name: limit
+        required: false
+        type: integer
+      - description: 'Specify a MongoDB sort operation (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
+          using JSON (For example: {"name": -1}).'
+        in: query
+        name: sort
+        required: false
+        type: string
+      produces:
+      - application/json
+      responses:
+        200:
+          description: List of access-rules
+          schema:
+            $ref: '#/definitions/core.v3.AccessRules'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Get access-rules
+      tags:
+      - core.v3
+    post:
+      operationId: addCoreV3AccessRule
+      parameters:
+      - in: body
+        name: data
+        schema:
+          $ref: '#/definitions/core.v3.AccessRule'
+      produces:
+      - application/json
+      responses:
+        201:
+          description: If successful the server will respond with 201 Created
+          schema:
+            $ref: '#/definitions/core.v3.AccessRule'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Add access-rule
+      tags:
+      - core.v3
+  /api/v3/access-rules/{access-rule}:
+    delete:
+      operationId: deleteCoreV3AccessRule
+      parameters:
+      - description: Resource identifier
+        in: path
+        name: access-rule
+        required: true
+        type: string
+      - description: Per default the access-rule gets disabled, if force is set the
+          access-rule gets removed completely.
+        in: query
+        name: force
+        required: false
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        204:
+          description: If successful the server will respond with 204 No Content
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Delete access-rule
+      tags:
+      - core.v3
+    get:
+      operationId: getCoreV3AccessRule
+      parameters:
+      - description: Resource identifier
+        in: path
+        name: access-rule
+        required: true
+        type: string
+      - description: Filter attributes
+        in: query
+        items:
+          type: string
+        name: attributes
+        required: false
+        type: array
+      produces:
+      - application/json
+      responses:
+        200:
+          description: AccessRule
+          schema:
+            $ref: '#/definitions/core.v3.AccessRule'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Get access-rule
+      tags:
+      - core.v3
+    patch:
+      consumes:
+      - application/json-patch+json
+      operationId: patchCoreV3AccessRule
+      parameters:
+      - description: Resource identifier
+        in: path
+        name: access-rule
+        required: true
+        type: string
+      - description: Set attributes for access-rule
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/JsonPatch'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: AccessRule
+          schema:
+            $ref: '#/definitions/core.v3.AccessRule'
+        400:
+          $ref: '#/responses/core.v3.BadRequest'
+        401:
+          $ref: '#/responses/core.v3.Unauthorized'
+        403:
+          $ref: '#/responses/core.v3.Forbidden'
+        404:
+          $ref: '#/responses/core.v3.NotFound'
+        422:
+          $ref: '#/responses/UnprocessableEntity'
+        500:
+          $ref: '#/responses/core.v3.InternalServerError'
+      summary: Change access-rule
+      tags:
+      - core.v3
   /api/v3/collections:
     get:
       operationId: getCoreV3Collections
@@ -6672,6 +6969,18 @@ paths:
       summary: Get OAUTH2 Bearer token
       tags:
       - oidc
+  /openapi/v2:
+    get:
+      operationId: getOpenApiV2
+      produces:
+      - application/json
+      responses:
+        200:
+          description: openapi v2 (swagger) specs
+      security: []
+      summary: Get openapi v2 (swagger) specs
+      tags:
+      - openapi
 responses:
   UnprocessableEntity:
     description: core.v3.Unauthorized

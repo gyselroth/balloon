@@ -95,13 +95,6 @@ class AbstractModelFactory implements ModelFactoryInterface
                 'version' => $resource->getVersion(),
                 'created' => isset($attributes['metadata']['created']) ? $attributes['metadata']['created']->toDateTime()->format('c') : null,
                 'changed' => isset($attributes['metadata']['changed']) ? $attributes['metadata']['changed']->toDateTime()->format('c') : null,
-                /*'deleted' => function ($resource) use ($attributes) {
-                    if (!isset($attributes['deleted'])) {
-                        return null;
-                    }
-
-                    return $attributes['deleted']->toDateTime()->format('c');
-                }*/
             ],
             'links' => (object)[],
             'embedded' => count($this->embedded) == 0 ? (object)[] : [],
@@ -126,6 +119,10 @@ class AbstractModelFactory implements ModelFactoryInterface
         $params = $request->getQueryParams();
         $sub_request = $request->withQueryParams(['attributes' => array_merge(['id', 'name', 'links'], $params['attributes'] ?? [])]);
         $orig = $resource->toArray();
+
+        if(!isset($attributes['embedded'])) {
+            return $attributes;
+        }
 
         foreach($this->embedded as $key => $value) {
             try {

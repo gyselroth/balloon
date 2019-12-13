@@ -22,6 +22,7 @@ use Swoole\Timer;
 use Micro\Auth\Auth;
 use Swoole\WebSocket\Server as SwooleServer;
 use Zend\Diactoros\ServerRequest;
+use Balloon\Acl;
 
 class Server
 {
@@ -61,9 +62,14 @@ class Server
     protected $emitter;
 
     /**
+     * Acl
+     */
+    protected $acl;
+
+    /**
      * Constructor.
      */
-    public function __construct(SwooleServer $server, Auth $auth, Database $db, Emitter $emitter, UserFactory $user_factory, LoggerInterface $logger)
+    public function __construct(SwooleServer $server, Auth $auth, Database $db, Emitter $emitter, UserFactory $user_factory, Acl $acl, LoggerInterface $logger)
     {
         $this->auth = $auth;
         $this->server = $server;
@@ -71,6 +77,7 @@ class Server
         $this->db = $db;
         $this->emitter = $emitter;
         $this->logger = $logger;
+        $this->acl = $acl;
         $this->user_factory = $user_factory;
     }
 
@@ -308,17 +315,27 @@ class Server
     /**
      * Decorate event and push to clients
      */
-    public function handle($client, UserInterface $user, string $channel, $event, $request)
+    public function handle($client, UserInterface $user, string $channel, $event, $request): bool
     {
+        if(!$this->acl->isAllowed($request, $user)) {
+            return false;
+        }
+
         try {
+            $result = $this->handler[$event['ns']['coll']]['handler']($user, $event['fullDocument'], $request);
+            if($result === null) {
+                return false;
+            }
+
             $body = [
                 'kind' => 'Event',
                 'channel' => $channel,
                 'action' => $event['operationType'],
-                'payload' => $this->handler[$event['ns']['coll']]['handler']($user, $event['fullDocument'], $request),
+                'payload' => $result,
             ];
 
             $this->server->push($client, json_encode($body));
+            return true;
         } catch(\Exception $e) {
             $this->logger->error('exception occurred during resource handling, skip push client [fd]', [
                 'category' => get_class($this),
@@ -326,6 +343,8 @@ class Server
                 'fd' => $client,
             ]);
         }
+
+        return false;
     }
 
     /**
@@ -347,9 +366,9 @@ class Server
     protected function publish(array $event)
     {
         $mapping = $this->getChannelMapping();
-        $request  = new \Zend\Diactoros\ServerRequest();
+
         foreach($this->server->connections as $client) {
-            if(!isset($this->pool[$client])) {
+            if(!isset($this->pool[$client]['user'])) {
                 $this->logger->debug('skip message for unauthenticated connection [{fd}]', [
                     'category' => get_class($this),
                     'fd' => $client,
@@ -368,7 +387,16 @@ class Server
             }
 
             $user = $this->pool[$client]['user'];
-            $request  = (new ServerRequest())->withAttribute('identity', $user);
+
+            //emulate an http request which then can be used to map resources to an api version and
+            //check acl while this is always a readonly GET request (PUB)
+            $request  = (new ServerRequest(
+                [],
+                [],
+                '/api/v3/'.$mapping[$event['ns']['coll']].'/'.$event['fullDocument']['_id'],
+                'GET'
+            ))->withAttribute('identity', $user);
+
             $this->handle($client, $user, $mapping[$event['ns']['coll']], $event, $request);
         }
     }
