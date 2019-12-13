@@ -11,6 +11,10 @@ declare(strict_types=1);
 
 namespace Balloon\App\CoreApiv3;
 
+use ZipStream\ZipStream;
+use Balloon\Collection\Factory as CollectionFactory;
+use Balloon\User\UserInterface;
+use Balloon\Node\NodeInterface;
 use Balloon\File\FileInterface;
 use Zend\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
@@ -112,15 +116,15 @@ class Helper
      */
     public static function streamZip(ServerRequestInterface $request, NodeInterface $node, UserInterface $user, CollectionFactory $collection_factory): void
     {
-        $archive = new ZipStream($this->name.'.zip');
-        $this->zip($archive, $collection_factory, false, $node);
+        $archive = new ZipStream($node->getName().'.zip');
+        self::zip($archive, $user, $collection_factory, false, $node);
         $archive->finish();
     }
 
     /**
      * Create zip.
      */
-    protected function zip(ZipStream $archive, UserInterface $user, CollectionFactory $collection_factory, bool $self, NodeInterface $parent, string $path = '', int $depth = 0): bool
+    protected static function zip(ZipStream $archive, UserInterface $user, CollectionFactory $collection_factory, bool $self, NodeInterface $parent, string $path = '', int $depth = 0): bool
     {
         if ($parent instanceof CollectionInterface) {
             $children = $file_factory->getChildNodes($user, $parent);

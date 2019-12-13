@@ -85,7 +85,7 @@ class Nodes
     public function getZip(ServerRequestInterface $request, User $identity, ObjectId $node): ResponseInterface
     {
         $resource = $this->node_factory->getOne($identity, $node);
-        return ApiHelper::streamZip($request, $resource, $user, $this->collection_factory);
+        return ApiHelper::streamZip($request, $resource, $identity, $this->collection_factory);
     }
 
     /**
