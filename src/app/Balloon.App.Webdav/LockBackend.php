@@ -13,6 +13,7 @@ namespace Balloon\App\Webdav;
 
 use Balloon\Filesystem;
 use Balloon\Filesystem\Exception;
+use Balloon\Filesystem\Node\Collection;
 use Balloon\Server;
 use Sabre\DAV\Locks\Backend\BackendInterface;
 use Sabre\DAV\Locks\LockInfo;
@@ -45,19 +46,31 @@ class LockBackend implements BackendInterface
             return [];
         }
 
-        if (!$node->isLocked()) {
-            return [];
+        $locks = [];
+        $nodes = $node->getParents();
+        array_unshift($nodes, $node);
+
+        //if($node instanceof Collection && $returnChildLocks === true) {
+        //    $nodes = array_merge($nodes, iterator_to_array($node->getChildren()));
+        //}
+
+        foreach ($nodes as $node) {
+            if (!$node->isLocked()) {
+                continue;
+            }
+
+            $lock = $node->getLock();
+            $info = new LockInfo();
+            $info->owner = $lock['client'] ?? null;
+            $info->token = $lock['id'];
+            $info->timeout = $lock['expire']->toDateTime()->format('U') - time();
+            $info->created = $lock['created']->toDateTime()->format('U');
+            $info->uri = /*$uri*/$node->getPath();
+
+            $locks[] = $info;
         }
 
-        $lock = $node->getLock();
-        $info = new LockInfo();
-        $info->owner = (string) $lock['owner'];
-        $info->token = $lock['id'];
-        $info->timeout = $lock['expire']->toDateTime()->format('U') - time();
-        $info->created = $lock['created']->toDateTime()->format('U');
-        $info->uri = $uri;
-
-        return [$info];
+        return $locks;
     }
 
     /**
@@ -66,7 +79,7 @@ class LockBackend implements BackendInterface
     public function lock($uri, LockInfo $lock)
     {
         $node = $this->fs->findNodeByPath($uri);
-        $node->lock($lock->token, $lock->timeout);
+        $node->lock($lock->token, $lock->timeout, $lock->owner);
     }
 
     /**
@@ -75,6 +88,6 @@ class LockBackend implements BackendInterface
     public function unlock($uri, LockInfo $lock)
     {
         $node = $this->fs->findNodeByPath($uri);
-        $node->unlock($lock->token);
+        $node->unlock($lock->token, $lock->owner);
     }
 }

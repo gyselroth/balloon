@@ -281,7 +281,7 @@ class File extends Node
         if ($session === null) {
             $session = $this->session_factory->add($this->server->getIdentity(), $parent, $input);
             $this->db->selectCollection('fs.files')->updateOne(
-                ['_id' => $session],
+                ['_id' => $session->getId()],
                 ['$set' => [
                     'metadata.chunkgroup' => $this->server->getIdentity()->getId().'_'.$chunkgroup,
                 ]]
