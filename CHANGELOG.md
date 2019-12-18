@@ -1,3 +1,10 @@
+## 2.6.9
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 18 16:24:42 CET 2019
+
+* CORE: [FIX] storage blob is gone with duplicate chunkgroup in api v1 #426
+
+
 ## 2.6.8
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Dez 02 13:56:42 CET 2019
