@@ -465,9 +465,12 @@ class File extends AbstractNode implements IFile
         $this->deleted = false;
 
         if ($this->hash === $hash) {
-            $this->_logger->debug('do not update file version, hash identical to existing version ['.$this->hash.' == '.$hash.']', [
+            $this->_logger->debug('do not add history entry, hash identical to existing version ['.$this->hash.' == '.$hash.']', [
                 'category' => get_class($this),
             ]);
+
+            ++$this->version;
+            $this->save(['version']);
 
             return $this->version;
         }
