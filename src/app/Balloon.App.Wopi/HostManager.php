@@ -91,10 +91,6 @@ class HostManager
                     $this->hosts = (array) $value;
 
                     break;
-                case 'client_url':
-                    $this->client_url = (string) $value;
-
-                break;
                 case 'cache_ttl':
                     $this->cache_ttl = (int) $value;
 
@@ -109,14 +105,6 @@ class HostManager
         }
 
         return $this;
-    }
-
-    /**
-     * Get client url.
-     */
-    public function getClientUrl(): ?string
-    {
-        return $this->client_url;
     }
 
     /**
