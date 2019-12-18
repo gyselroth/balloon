@@ -1,22 +1,10 @@
-swagger: "2.0"
-info:
-  description: "balloon API"
-  version: "1.0.0"
-  title: "balloon API"
-  license:
-    name: "MIT"
-    url: "https://opensource.org/licenses/MIT"
-basePath: "/"
-schemes:
-- "https"
-- "http"
 paths:
   /api:
     get:
       tags:
         - core.v2
       summary: 'Get server status'
-      operationId: getApi
+      operationId: getCoreV2Api
       security: []
       produces:
         - application/json
@@ -26,13 +14,13 @@ paths:
           schema:
             $ref: '#/definitions/core.v2.ApiRoot'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2:
     get:
       tags:
         - core.v2
       summary: 'Get server status (API v2)'
-      operationId: getV2
+      operationId: getCoreV2V2
       security: []
       produces:
         - application/json
@@ -42,13 +30,13 @@ paths:
           schema:
             $ref: '#/definitions/core.v2.ApiRoot'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/tokens:
     post:
       tags:
         - core.v2
       summary: Get OAUTH2 Bearer token
-      operationId: createToken
+      operationId: addCoreV2Token
       consumes:
         - application/x-www-form-urlencoded
       produces:
@@ -91,24 +79,24 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.OAuth2Token"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/groups':
     get:
       tags:
         - core.v2
       summary: Get groups
       description: A group is a colletion of users
-      operationId: getGroups
+      operationId: getCoreV2Groups
       produces:
       - "application/json"
       parameters:
@@ -151,17 +139,17 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Groups"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     post:
       tags:
         - core.v2
@@ -180,22 +168,22 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Group"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/groups/{group}':
     get:
       tags:
         - core.v2
-      operationId: getGroup
+      operationId: getCoreV2Group
       summary: 'Get group'
       produces:
         - application/json
@@ -203,6 +191,7 @@ paths:
         - name: group
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
         - in: query
@@ -218,22 +207,22 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Group"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     patch:
       tags:
         - core.v2
       summary: 'Change group'
-      operationId: patchGroup
+      operationId: patchCoreV2Group
       consumes:
         - application/json
       produces:
@@ -242,6 +231,7 @@ paths:
         - name: group
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
         - in: body
@@ -256,28 +246,29 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Group"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     delete:
       tags:
         - core.v2
       summary: 'Delete group'
-      operationId: deleteGroup
+      operationId: deleteCoreV2Group
       produces:
         - application/json
       parameters:
         - name: group
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
         - name: force
@@ -289,29 +280,30 @@ paths:
         204:
           description: "If successful the server will respond with 204 No Content"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/groups/{group}/members':
     get:
       tags:
         - core.v2
       summary: 'Get group members'
-      operationId: getGroupMembers
+      operationId: getCoreV2GroupMembers
       produces:
         - application/json
       parameters:
         - name: group
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
       responses:
@@ -320,17 +312,17 @@ paths:
           schema:
             $ref: '#/definitions/core.v2.Users'
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/groups/{group}/undelete':
     post:
       tags:
@@ -343,6 +335,7 @@ paths:
         - name: group
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: 'string'
           description: 'Resource identifier'
       responses:
@@ -359,7 +352,7 @@ paths:
       tags:
         - core.v2
       summary: Get users
-      operationId: getUsers
+      operationId: getCoreV2Users
       produces:
       - "application/json"
       parameters:
@@ -402,17 +395,17 @@ paths:
           schema:
             $ref: '#/definitions/core.v2.Users'
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     post:
       tags:
         - core.v2
@@ -431,22 +424,22 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.User"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/users/{user}':
     get:
       tags:
         - core.v2
-      operationId: getUser
+      operationId: getCoreV2User
       summary: 'Get user'
       produces:
         - application/json
@@ -454,6 +447,7 @@ paths:
         - name: user
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
         - in: query
@@ -469,22 +463,22 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.User"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     patch:
       tags:
         - core.v2
       summary: 'Update user'
-      operationId: patchUser
+      operationId: patchCoreV2User
       consumes:
         - application/json
       produces:
@@ -493,6 +487,7 @@ paths:
         - name: user
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
         - in: body
@@ -507,28 +502,29 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.User"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     delete:
       tags:
         - core.v2
       summary: 'Delete user'
-      operationId: deleteUser
+      operationId: deleteCoreV2User
       produces:
         - application/json
       parameters:
         - name: user
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
         - name: force
@@ -540,29 +536,30 @@ paths:
         204:
           description: "If successful the server will respond with 204 No Content"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/users/{user}/node-attribute-summary':
     get:
       tags:
         - core.v2
       summary: 'Get user node summary.'
-      operationId: getNodeAttributeSummary
+      operationId: getCoreV2NodeAttributeSummary
       produces:
         - application/json
       parameters:
         - name: user
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: 'string'
           description: 'Resource identifier'
       responses:
@@ -571,29 +568,30 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.UserNodeAttributeSummary"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/users/{user}/groups':
     get:
       tags:
         - core.v2
       summary: 'Get all groups of a user'
-      operationId: getUserGroups
+      operationId: getCoreV2UserGroups
       produces:
         - application/json
       parameters:
         - name: user
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
         - in: query
@@ -635,17 +633,17 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Groups"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/users/{user}/undelete':
     post:
       tags:
@@ -658,6 +656,7 @@ paths:
         - name: user
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
       responses:
@@ -666,23 +665,23 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.User"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/users/whoami:
     get:
       tags:
         - core.v2
       summary: 'Get current user'
-      operationId: getCurrentUser
+      operationId: getCoreV2CurrentUser
       produces:
         - application/json
       parameters:
@@ -699,29 +698,30 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.User"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/users/{user}/avatar':
     get:
       tags:
         - core.v2
       summary: 'Get user avatar'
-      operationId: getUserAvatar
+      operationId: getCoreV2UserAvatar
       produces:
         - octet/stream
       parameters:
         - name: user
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
       responses:
@@ -730,24 +730,24 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.User"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/nodes/trash:
     get:
       tags:
         - core.v2
       summary: 'Get deleted nodes'
       description: 'Return deleted nodes (Excluding sub nodes of deleted collections)'
-      operationId: getDeletedNodes
+      operationId: getCoreV2DeletedNodes
       produces:
         - application/json
       parameters:
@@ -790,17 +790,17 @@ paths:
          schema:
            $ref: '#/definitions/core.v2.Nodes'
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/nodes/search:
     get:
       tags:
@@ -813,6 +813,7 @@ paths:
         - name: query
           in: query
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Elasticsearch query as JSON'
         - name: deleted
@@ -826,23 +827,23 @@ paths:
          schema:
            $ref: '#/definitions/core.v2.Nodes'
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/notifications:
     get:
       tags:
         - notification.v2
       summary: 'Get nofitifications'
-      operationId: getNotifications
+      operationId: getCoreV2Notifications
       produces:
         - application/json
       parameters:
@@ -885,17 +886,17 @@ paths:
           schema:
             $ref: "#/definitions/notification.v2.Notifications"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     post:
       tags:
         - notification.v2
@@ -916,29 +917,30 @@ paths:
           schema:
             $ref: "#/definitions/notification.v2.Notification"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/notifications/{notification}:
     get:
       tags:
         - notification.v2
       summary: 'Get notification'
-      operationId: getNotification
+      operationId: getCoreV2Notification
       produces:
         - application/json
       parameters:
         - name: notification
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
       responses:
@@ -947,51 +949,52 @@ paths:
           schema:
             $ref: "#/definitions/notification.v2.Notification"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     delete:
       tags:
         - notification.v2
       summary: 'Delete notification'
-      operationId: deleteNotification
+      operationId: deleteCoreV2Notification
       produces:
         - application/json
       parameters:
         - name: notification
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Resource identifier'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/notifications/broadcast:
     post:
       tags:
         - notification.v2
       summary: 'Send broadcast'
-      operationId: sendBroadcast
+      operationId: sendCoreV2Broadcast
       consumes:
         - application/json
       produces:
@@ -1014,7 +1017,7 @@ paths:
       tags:
         - notification.v2
       summary: 'Send mail'
-      operationId: sendMail
+      operationId: sendCoreV2Mail
       consumes:
         - application/json
       parameters:
@@ -1027,17 +1030,17 @@ paths:
         202:
           description: "Mail"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/nodes/{node}/subscription:
     post:
       tags:
@@ -1050,6 +1053,7 @@ paths:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: 'string'
           description: 'Node identifier'
         - name: subscribe
@@ -1078,29 +1082,30 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Node"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/files/{file}/convert/slaves':
     get:
       tags:
         - convert.v2
       summary: 'Get convert slaves'
-      operationId: getSlaves
+      operationId: getCoreV2Slaves
       produces:
         - application/json
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
       responses:
@@ -1109,17 +1114,17 @@ paths:
           schema:
             $ref: "#/definitions/convert.v2.Slaves"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     post:
       tags:
         - convert.v2
@@ -1133,6 +1138,7 @@ paths:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
         - in: body
@@ -1147,34 +1153,36 @@ paths:
           schema:
             $ref: "#/definitions/convert.v2.Slave"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/files/{file}/convert/slaves/{slave}':
     get:
       tags:
         - convert.v2
       summary: 'Get convert slave'
-      operationId: getSlave
+      operationId: getCoreV2Slave
       produces:
         - application/json
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
         - name: slave
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Slave identifier'
       responses:
@@ -1183,22 +1191,22 @@ paths:
           schema:
             $ref: "#/definitions/convert.v2.Slave"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     delete:
       tags:
         - convert.v2
       summary: 'Delete convert slave'
-      operationId: deleteSlave
+      operationId: deleteCoreV2Slave
       consumes:
         - application/json
       produces:
@@ -1207,41 +1215,44 @@ paths:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
         - name: slave
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Slave identifier'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/files/{file}/convert/supported-formats':
     get:
       tags:
         - convert.v2
       summary: 'Get supported convert file formats'
       description: 'Get supported file formats to convert to (formats do vary between files)'
-      operationId: getSupportedFormats
+      operationId: getCoreV2SupportedFormats
       produces:
         - application/json
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
       responses:
@@ -1252,23 +1263,23 @@ paths:
             items:
               type: 'string'
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/desktop-clients/{format}/content':
     get:
       tags:
         - desktopclient.v2
       summary: 'Download balloon desktop client'
-      operationId: getDesktopClient
+      operationId: getCoreV2DesktopClient
       produces:
         - octet/stream
       parameters:
@@ -1289,129 +1300,62 @@ paths:
           schema:
             type: file
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
-  /api/v2/office/wopi/document/{document}:
-    get:
-      tags:
-        - wopi.v2
-      summary: 'Get wopi document'
-      description: 'Get document session information including document owner, session user and document size'
-      operationId: getWopiDocument
-      produces:
-        - application/json
-      parameters:
-        - name: document
-          in: path
-          required: true
-          type: string
-          description: 'The document id'
-        - name: access_token
-          in: query
-          required: true
-          type: string
-          description: 'An access token to access the document'
-      responses:
-        200:
-          description: "WOPI document information"
-          schema:
-            $ref: "#/definitions/office.v2.WopiDocument"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
-  /api/v2/office/wopi/document/{document}/contents:
-    get:
-      tags:
-        - wopi.v2
-      summary: 'Get wopi document contents'
-      operationId: getWopiDocumentContent
-      parameters:
-        - name: document
-          in: path
-          required: true
-          type: string
-          description: 'The document id '
-        - name: access_token
-          in: query
-          required: true
-          type: string
-          description: 'An access token to access the document'
-      responses:
-        200:
-          description: "Contents"
-        400:
-          $ref: '#/responses/BadRequest'
-        401:
-          $ref: '#/responses/Unauthorized'
-        403:
-          $ref: '#/responses/Forbidden'
-        404:
-          $ref: '#/responses/NotFound'
-        422:
-          $ref: '#/responses/UnprocessableEntity'
-        500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
+  /api/v2/files/{file}/tokens:
     post:
       tags:
         - wopi.v2
-      summary: 'Save wopi document contents'
-      operationId: updateWopiDocuemntContent
+      summary: 'Create access token for a file'
+      description: 'Generate access token for a single file which is only valid for a certain time. Usually this is 30min.'
+      operationId: addWopiV2Token
+      produces:
+        - application/json
       parameters:
-        - name: document
+        - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
-          description: 'The document id '
-        - name: access_token
-          in: query
-          required: true
-          type: string
-          description: 'An access token to access the document'
+          description: 'File identifier'
         - in: body
           name: body
-          description: 'Document content'
+          required: true
           schema:
-            type: string
+            $ref: '#/definitions/wopi.v2.Token'
       responses:
-        200:
-          description: "Operation was successful"
+        201:
+          description: "File"
+          schema:
+            $ref: "#/definitions/core.v2.File"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/office/documents:
     post:
       tags:
         - wopi.v2
       summary: 'Create new document'
       description: 'Create new document from an existing office document template'
-      operationId: createDocument
+      operationId: addCoreV2Document
       consumes:
         - application/json
       produces:
@@ -1428,17 +1372,17 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.File"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes/{node}/clone':
     post:
       tags:
@@ -1451,6 +1395,7 @@ paths:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Node identifier'
           type: string
         - name: destid
@@ -1461,7 +1406,7 @@ paths:
         - name: conflict
           in: query
           required: false
-          description: 'Conflict resolution'
+          description: 'core.v2.Conflict resolution'
           type: integer
           default: 0
           enum:
@@ -1476,17 +1421,17 @@ paths:
         207:
           description: "Multi status if batch request"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes/{node}/move':
     post:
       tags:
@@ -1500,6 +1445,7 @@ paths:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Node identifier'
           type: string
         - name: destid
@@ -1510,7 +1456,7 @@ paths:
         - name: conflict
           in: query
           required: false
-          description: 'Conflict resolution'
+          description: 'core.v2.Conflict resolution'
           type: integer
           default: 0
           enum:
@@ -1525,17 +1471,17 @@ paths:
         207:
           description: "Multi status if batch request"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes/{node}/undelete':
     post:
       tags:
@@ -1551,6 +1497,7 @@ paths:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Node identifier'
           type: string
         - name: move
@@ -1567,7 +1514,7 @@ paths:
         - name: conflict
           in: query
           required: false
-          description: 'Conflict resolution'
+          description: 'core.v2.Conflict resolution'
           type: integer
           default: 0
           enum:
@@ -1582,29 +1529,30 @@ paths:
         207:
           description: "Multi status if batch request"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/collections/{collection}/share':
     get:
       tags:
         - core.v2
       summary: 'Get share acl and share name'
-      operationId: getShare
+      operationId: getCoreV2Share
       produces:
         - application/json
       parameters:
         - name: collection
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Collection identifier'
           type: string
       responses:
@@ -1613,17 +1561,17 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Share"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     post:
       tags:
         - core.v2
@@ -1638,6 +1586,7 @@ paths:
         - name: collection
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Collection identifier'
           type: string
         - in: body
@@ -1652,27 +1601,28 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Collection"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     delete:
       tags:
         - core.v2
       summary: 'Delete share'
       description: 'Does only remove sharing options and transform a share back into a normal collection. There will not be any data loss after this action. All existing references would be removed automatically.'
-      operationId: deleteShare
+      operationId: deleteCoreV2Share
       parameters:
         - name: collection
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Collection identifier'
           type: string
       responses:
@@ -1687,13 +1637,14 @@ paths:
       tags:
         - core.v2
       summary: 'Get collection children'
-      operationId: getChildren
+      operationId: getCoreV2Children
       produces:
         - application/json
       parameters:
         - name: collection
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Parent collection'
           type: string
         - in: query
@@ -1750,23 +1701,23 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Nodes"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/collections/children':
     get:
       tags:
         - core.v2
       summary: 'Get root children'
-      operationId: getRootChildren
+      operationId: getCoreV2RootChildren
       produces:
         - application/json
       parameters:
@@ -1824,23 +1775,23 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Nodes"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/collections':
     get:
       tags:
         - core.v2
       summary: 'Get collections'
-      operationId: getCollections
+      operationId: getCoreV2Collections
       produces:
         - application/json
       parameters:
@@ -1892,22 +1843,22 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Collections"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     post:
       tags:
         - core.v2
       summary: 'Create a new collection in root'
-      operationId: createRootCollection
+      operationId: addCoreV2RootCollection
       consumes:
         - application/json
       produces:
@@ -1932,7 +1883,7 @@ paths:
       tags:
         - core.v2
       summary: 'Create collection'
-      operationId: createCollection
+      operationId: addCoreV2Collection
       consumes:
         - application/json
       produces:
@@ -1941,6 +1892,7 @@ paths:
         - name: collection
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Parent collection'
           type: string
         - in: body
@@ -1954,23 +1906,23 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Collection"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/files':
     get:
       tags:
         - core.v2
       summary: 'Get files'
-      operationId: getFiles
+      operationId: getCoreV2Files
       produces:
         - application/json
       parameters:
@@ -2022,17 +1974,17 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Files"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     put:
       tags:
         - core.v2
@@ -2053,29 +2005,30 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.File"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/files/{file}/history':
     get:
       tags:
         - core.v2
       summary: 'Get file history'
-      operationId: getFileHistory
+      operationId: getCoreV2FileHistory
       produces:
         - application/json
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
       responses:
@@ -2084,17 +2037,17 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.FileHistory"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/files/{file}/restore':
     post:
       tags:
@@ -2108,6 +2061,7 @@ paths:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
       responses:
@@ -2116,17 +2070,17 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.File"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/files/chunk:
     put:
       tags:
@@ -2157,23 +2111,23 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.ChunkSession"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes':
     get:
       tags:
         - core.v2
       summary: 'Get all nodes'
-      operationId: getNodes
+      operationId: getCoreV2Nodes
       produces:
         - application/json
       parameters:
@@ -2225,27 +2179,28 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Nodes"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes/{node}':
     delete:
       tags:
         - core.v2
       summary: 'Delete node'
-      operationId: deleteNode
+      operationId: deleteCoreV2Node
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Node identifier'
         - name: force
@@ -2267,28 +2222,29 @@ paths:
         204:
           description: "If successful the server will respond with 204 No Content"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     get:
       tags:
         - core.v2
       summary: 'Get node'
-      operationId: getNode
+      operationId: getCoreV2Node
       produces:
         - application/json
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Node identifier'
         - name: attributes
@@ -2304,22 +2260,22 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Node"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     patch:
       tags:
         - core.v2
       summary: 'Change node'
-      operationId: updateNode
+      operationId: patchCoreV2Node
       consumes:
         - application/json
       produces:
@@ -2328,6 +2284,7 @@ paths:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Node identifier'
         - in: body
@@ -2342,58 +2299,60 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Node"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes/{node}/share-link':
     delete:
       tags:
         - sharelink.v2
       summary: 'Delete share link'
-      operationId: deleteLink
+      operationId: deleteCoreV2Link
       produces:
         - application/json
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Node identifier'
       responses:
         204:
           description: "The server responds with 204 if operation was successful"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     post:
       tags:
         - sharelink.v2
       summary: Create share link
       description: 'Create a unique share link of a node (global accessible). A possible existing link will get deleted if this endpoint gets called.'
-      operationId: createLink
+      operationId: addCoreV2Link
       produces:
         - application/json
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Node identifier'
         - name: expiration
@@ -2413,24 +2372,24 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Node"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/nodes/last-cursor:
     get:
       tags:
         - core.v2
       summary: Get last cursor
       description: 'Use this method to request the latest cursor if you only need to now if there are changes on the server. This method will not return any other data than the newest cursor. To request a feed with all deltas request /delta.'
-      operationId: getLastCursor
+      operationId: getCoreV2LastCursor
       produces:
         - application/json
       responses:
@@ -2444,13 +2403,14 @@ paths:
         - core.v2
       summary: 'Download node content.'
       description: 'Stream node contents. Note that collections are zipped on-the-fly.'
-      operationId: getContent
+      operationId: getCoreV2Content
       produces:
         - octet/stream
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'Node identifier'
         - name: Range
@@ -2477,23 +2437,23 @@ paths:
           schema:
             type: file
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/nodes/delta:
     get:
       tags:
         - core.v2
       summary: 'Delta stream with cursor support.'
-      operationId: getDelta
+      operationId: getCoreV2Delta
       produces:
         - application/json
       parameters:
@@ -2520,24 +2480,24 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Delta"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes/event-log':
     get:
       tags:
         - core.v2
       summary: 'Get events'
       description: 'Get event log containing all operations which are made by the user himself or share members'
-      operationId: getEventLog
+      operationId: getCoreV2EventLog
       produces:
         - application/json
       parameters:
@@ -2580,30 +2540,31 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.EventLogs"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes/{node}/event-log':
     get:
       tags:
         - core.v2
       summary: 'Get event'
       description: 'Get event log containing all operations which are made by the user himself or share members on a given node'
-      operationId: getNodeEventLog
+      operationId: getCoreV2NodeEventLog
       produces:
         - application/json
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Node identifier'
           type: string
         - in: query
@@ -2645,30 +2606,31 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.EventLogs"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/nodes/{node}/parents':
     get:
       tags:
         - core.v2
       summary: 'Get parent collections'
       description: 'The hirarchy of all parent nodes is ordered in a single level array beginning with the collection on the highest level.'
-      operationId: getParentNodes
+      operationId: getCoreV2ParentNodes
       produces:
         - application/json
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           description: 'Node identifier'
           type: string
         - in: query
@@ -2689,17 +2651,17 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.Nodes"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   /api/v2/feedbacks:
     post:
       tags:
@@ -2715,20 +2677,21 @@ paths:
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
   '/api/v2/files/{file}/preview':
     get:
       tags:
         - preview.v2
       description: 'Get preview'
       summary: 'Get a preview of the files content. The body either contains an encoded string or a jpeg binary.'
-      operationId: getPreview
+      operationId: getCoreV2Preview
       produces:
         - octet/stream
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
         - name: encode
@@ -2740,17 +2703,17 @@ paths:
         200:
           description: "Binary data"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     patch:
       tags:
         - preview.v2
@@ -2765,6 +2728,7 @@ paths:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
       responses:
@@ -2773,83 +2737,74 @@ paths:
           schema:
             $ref: "#/definitions/core.v2.File"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
     delete:
       tags:
         - preview.v2
       description: 'Delete preview'
       summary: 'Delete an existing preview'
-      operationId: deletePreview
+      operationId: deleteCoreV2Preview
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5cf767f818bf8e399206a693
           type: string
           description: 'File identifier'
       responses:
         204:
           description: "Preview deleted"
         400:
-          $ref: '#/responses/BadRequest'
+          $ref: '#/responses/core.v2.BadRequest'
         401:
-          $ref: '#/responses/Unauthorized'
+          $ref: '#/responses/core.v2.Unauthorized'
         403:
-          $ref: '#/responses/Forbidden'
+          $ref: '#/responses/core.v2.Forbidden'
         404:
-          $ref: '#/responses/NotFound'
+          $ref: '#/responses/core.v2.NotFound'
         422:
           $ref: '#/responses/UnprocessableEntity'
         500:
-          $ref: '#/responses/InternalServerError'
+          $ref: '#/responses/core.v2.InternalServerError'
 responses:
-  NotFound:
+  core.v2.NotFound:
     description: The specified resource was not found
     schema:
       $ref: '#/definitions/core.v2.Error'
-  Unauthorized:
-    description: Unauthorized
+  core.v2.Unauthorized:
+    description: core.v2.Unauthorized
     schema:
       $ref: '#/definitions/core.v2.Error'
   UnprocessableEntity:
-    description: Unauthorized
+    description: core.v2.Unauthorized
     schema:
       $ref: '#/definitions/core.v2.Error'
-  Conflict:
-    description: Conflict
+  core.v2.Conflict:
+    description: core.v2.Conflict
     schema:
       $ref: '#/definitions/core.v2.Error'
-  Forbidden:
-    description: Forbidden
+  core.v2.Forbidden:
+    description: core.v2.Forbidden
     schema:
       $ref: '#/definitions/core.v2.Error'
-  BadRequest:
+  core.v2.BadRequest:
     description: Bad Reqeust
     schema:
       $ref: '#/definitions/core.v2.Error'
-  InternalServerError:
+  core.v2.InternalServerError:
     description: Internal Server Error
     schema:
       $ref: '#/definitions/core.v2.Error'
-security:
-  - BasicAuth: []
-  - BearerAuth: []
-securityDefinitions:
-  BasicAuth:
-    type: basic
-  BearerAuth:
-    type: apiKey
-    name: Authorization
-    in: header
 definitions:
   core.v2.Error:
     type: object
@@ -2860,16 +2815,6 @@ definitions:
         type: string
       error:
         type: string
-  core.v2.JsonPatch:
-    description: "A JSON Patch according rfc6902."
-    type: "object"
-    properties:
-      op:
-        type: "string"
-      path:
-        type: "string"
-      value:
-        type: "string"
   core.v2.ApiRoot:
     description: "Describes the api root."
     type: "object"
@@ -2901,7 +2846,7 @@ definitions:
   core.v2.ResourceList:
     type: "object"
     properties:
-      _links:
+      links:
         description: "Holds a list of links rfc1738 to other resources."
         $ref: "#/definitions/core.v2.ListLinks"
       kind:
@@ -2917,7 +2862,7 @@ definitions:
   core.v2.Resource:
     type: "object"
     properties:
-      _links:
+      links:
         $ref: "#/definitions/core.v2.Links"
       kind:
         description: Resource type
@@ -3537,4 +3482,14 @@ definitions:
               name:
                 description: "The name of the node."
                 type: "string"
-
+  wopi.v2.Token:
+    description: "Single scoped file access token"
+    type: object
+    properties:
+      access_token:
+        type: string
+      ttl:
+        type: integer
+        default: 1800
+      node:
+        type: string
