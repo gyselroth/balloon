@@ -56,6 +56,21 @@
 * Discontinue distribution of deb packages #415
 
 
+## 2.6.9
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 18 16:24:42 CET 2019
+
+* CORE: [FIX] storage blob is gone with duplicate chunkgroup in api v1 #426
+
+
+## 2.6.8
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Dez 02 13:56:42 CET 2019
+
+* CORE: [FIX] Upgrade micro-container to v2.3 (fixes interface params which are not overwriteable in the di config)
+* CORE: [CHANGE] Increased default timeout for office conversion to 30s.
+
+
 ## 2.6.7
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Oct 22 09:50:42 CEST 2019
