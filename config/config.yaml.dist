@@ -64,12 +64,12 @@ Balloon\App\Wopi\HostManager:
       - name: LibreOffice Online
         url: '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery'
         wopi_endpoint: '{ENV(BALLOON_LIBREOFFICE_COLLAB_WOPI_URL,http://localhost/wopi)}'
-      client_url: '{ENV(BALLOON_URL,http://localhost)}'
       cache_ttl: 86400
       validate_proof: true
 Balloon\App\Wopi\SessionManager:
   arguments:
     access_token_ttl: 1800
+    post_message_origin: '{ENV(BALLOON_WOPI_POSTMESSAGE_ORIGIN,http://localhost)}'
 Balloon\App\Notification\Notifier:
   calls:
     Balloon\App\Notification\Adapter\Db:

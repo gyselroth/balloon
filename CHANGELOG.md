@@ -1,3 +1,17 @@
+## 2.7.0-beta3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dec 11 11:34:32 CET 2019
+
+### Bugfixes
+* Argument 2 passed to Balloon\\Filesystem\\Node\\Collection::addFile() must be an instance of Balloon\\Session\\SessionInterface or null, instance of MongoDB\\BSON\\ObjectId given #382 
+* Documented missing API endpoint in wopi.v2 /api/v2/files/{file}/tokens
+* wopi test PutRelativeAndRenameFile.RenamingADeletedFileShouldReturnA404 fails #422
+
+### Changes
+* Backported new swagger specs from v3.0 which contain the scope (example: CoreV2 => getCoreV2Node) in the operationId
+* New docker-compose-dev.yml (includes traefik as request router)
+
+
 ## 2.7.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Dec 11 11:34:32 CET 2019
