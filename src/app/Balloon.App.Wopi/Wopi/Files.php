@@ -105,6 +105,7 @@ class Files
         ]);
 
         $this->validateProof($access_token);
+
         return (new Response())->setCode(200)->setBody($session->getAttributes(), true);
     }
 
@@ -239,7 +240,7 @@ class Files
 
             return $response
                 ->setCode(200)
-                ->setHeader('X-WOPI-ItemVersion', (string)($version == $result ? $result : $result))
+                ->setHeader('X-WOPI-ItemVersion', (string) ($version == $result ? $result : $result))
                 ->setBody($result);
         } catch (Exception\Locked | Exception\LockIdMissmatch $e) {
             $lock = $file->getLock();
@@ -395,7 +396,6 @@ class Files
                 ]);
         }
 
-
         $session = $this->session_manager->create($new, $this->server->getUserById($new->getOwner()));
         $response->setBody([
             'Name' => $new->getName(),
@@ -423,7 +423,7 @@ class Files
         try {
             $file->setName($full);
 
-            if($file->isDeleted()) {
+            if ($file->isDeleted()) {
                 $response->setCode(404);
             }
         } catch (Exception\Conflict $e) {

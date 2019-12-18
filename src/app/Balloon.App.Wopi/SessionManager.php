@@ -46,7 +46,7 @@ class SessionManager
 
     /**
      * PostMessageOrigin
-     * https://wopi.readthedocs.io/en/latest/scenarios/customization.html#postmessage-properties
+     * https://wopi.readthedocs.io/en/latest/scenarios/customization.html#postmessage-properties.
      *
      * @var string
      */
@@ -74,7 +74,8 @@ class SessionManager
 
                     break;
                 case 'post_message_origin':
-                    $this->post_message_origin = (string)$value;
+                    $this->post_message_origin = (string) $value;
+                    // no break
                 default:
                     throw new InvalidArgumentException('invalid option '.$option.' given');
             }
@@ -121,6 +122,7 @@ class SessionManager
         $user = $this->server->getUserById($result['user']);
 
         $result['post_message_origin'] = $this->post_message_origin;
+
         return new Session($file, $user, $result);
     }
 
@@ -139,6 +141,7 @@ class SessionManager
         $this->db->wopi->insertOne($data);
 
         $data['post_message_origin'] = $this->post_message_origin;
+
         return new Session($file, $user, $data);
     }
 
