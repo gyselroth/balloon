@@ -10,6 +10,7 @@
 ### Changes
 * Backported new swagger specs from v3.0 which contain the scope (example: CoreV2 => getCoreV2Node) in the operationId
 * New docker-compose-dev.yml (includes traefik as request router)
+* wopi test Fail: files.PutFileReturnsDifferentVersion fails #423
 
 ### Features
 *  Pass webdav litmus tests #424
