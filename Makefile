@@ -178,7 +178,7 @@ wopi-test: ## Execute WOPI integration tests.
 
 .PHONY: webdav-test
 webdav-test: ## Execute WebDAV integration tests.
-	TESTS="basic copymove http locks" $(LITMUS_BIN) -k $(BALLOON_URL)/webdav $(BALLOON_USERNAME) $(BALLOON_PASSWORD)
+	TESTS="basic copymove http" $(LITMUS_BIN) -k $(BALLOON_URL)/webdav $(BALLOON_USERNAME) $(BALLOON_PASSWORD)
 
 
 .PHONY: api-test

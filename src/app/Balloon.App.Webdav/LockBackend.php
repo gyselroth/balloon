@@ -13,7 +13,6 @@ namespace Balloon\App\Webdav;
 
 use Balloon\Filesystem;
 use Balloon\Filesystem\Exception;
-use Balloon\Filesystem\Node\Collection;
 use Balloon\Server;
 use Sabre\DAV\Locks\Backend\BackendInterface;
 use Sabre\DAV\Locks\LockInfo;
@@ -50,10 +49,6 @@ class LockBackend implements BackendInterface
         $nodes = $node->getParents();
         array_unshift($nodes, $node);
 
-        //if($node instanceof Collection && $returnChildLocks === true) {
-        //    $nodes = array_merge($nodes, iterator_to_array($node->getChildren()));
-        //}
-
         foreach ($nodes as $node) {
             if (!$node->isLocked()) {
                 continue;
@@ -65,7 +60,7 @@ class LockBackend implements BackendInterface
             $info->token = $lock['id'];
             $info->timeout = $lock['expire']->toDateTime()->format('U') - time();
             $info->created = $lock['created']->toDateTime()->format('U');
-            $info->uri = /*$uri*/$node->getPath();
+            $info->uri = $node->getPath();
 
             $locks[] = $info;
         }

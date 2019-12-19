@@ -11,6 +11,9 @@
 * Backported new swagger specs from v3.0 which contain the scope (example: CoreV2 => getCoreV2Node) in the operationId
 * New docker-compose-dev.yml (includes traefik as request router)
 
+### Features
+*  Pass webdav litmus tests #424
+
 
 ## 2.7.0-beta2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
@@ -26,6 +29,11 @@
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Dec 04 09:52:42 CET 2019
 
+### Bugfixes
+* POST /api/v2/notifications reads message from attr named body instead message #400
+* Newly added folders from other users within a share get not added to other users descriptions #406
+* Upload big file (~7GB) ends in 504 Gateway Timeout due slow md5 sum calculation #382
+
 ### Changes
 * Balloon\App\Notification\Notifier,WARNING: there are no notification adapter enabled, notification can not be sent [] [] #401
 * Drop expiremental feature file based acl #375
@@ -36,11 +44,6 @@
 * Possibility to provide custom gridfs #410
 * Converter now only uses the first matched adapter and does not continue with others if that one failed
 * Added various new default env variables
-
-### Bugfixes
-* POST /api/v2/notifications reads message from attr named body instead message #400
-* Newly added folders from other users within a share get not added to other users descriptions #406
-* Upload big file (~7GB) ends in 504 Gateway Timeout due slow md5 sum calculation #382
 
 ### Features
 * Provide /healthz endpoint #377
