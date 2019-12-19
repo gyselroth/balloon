@@ -13,6 +13,7 @@
 
 ### Features
 *  Pass webdav litmus tests #424
+*  Add support for rfc4709 mount webdav #431
 
 
 ## 2.7.0-beta2
