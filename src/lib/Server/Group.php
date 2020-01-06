@@ -155,6 +155,10 @@ class Group implements RoleInterface
      */
     public function setAttributes(array $attributes = []): bool
     {
+        if (isset($attributes['name']) && $attributes['name'] === $this->username) {
+            unset($attributes['name']);
+        }
+
         $attributes = $this->server->validateGroupAttributes($attributes);
 
         foreach ($attributes as $attr => $value) {
@@ -184,10 +188,11 @@ class Group implements RoleInterface
     }
 
     /**
-     * Delete user.
+     * Delete group.
      */
     public function delete(bool $force = false): bool
     {
+        return true;
     }
 
     /**

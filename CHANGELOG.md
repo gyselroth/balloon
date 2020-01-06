@@ -6,6 +6,7 @@
 * Argument 2 passed to Balloon\\Filesystem\\Node\\Collection::addFile() must be an instance of Balloon\\Session\\SessionInterface or null, instance of MongoDB\\BSON\\ObjectId given #382 
 * Documented missing API endpoint in wopi.v2 /api/v2/files/{file}/tokens
 * wopi test PutRelativeAndRenameFile.RenamingADeletedFileShouldReturnA404 fails #422
+* No Balloon\\Server\\Group\\Exception\\NotUnique exception if a PATCH was issued with the same name
 
 ### Changes
 * Backported new swagger specs from v3.0 which contain the scope (example: CoreV2 => getCoreV2Node) in the operationId
