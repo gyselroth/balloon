@@ -155,7 +155,7 @@ class Group implements RoleInterface
      */
     public function setAttributes(array $attributes = []): bool
     {
-        if (isset($attributes['name']) && $attributes['name'] === $this->username) {
+        if (isset($attributes['name']) && $attributes['name'] === $this->name) {
             unset($attributes['name']);
         }
 
