@@ -1088,7 +1088,13 @@ abstract class AbstractNode implements NodeInterface
             return $name.' ('.substr(uniqid('', true), -4).')';
         }
 
-        $ext = substr(strrchr($name, '.'), 1);
+        $base = strrchr($name, '.');
+        $ext = false;
+
+        if($base !== false) {
+            $ext = substr($base, 1);
+        }
+
         if (false === $ext) {
             return $name.' ('.substr(uniqid('', true), -4).')';
         }

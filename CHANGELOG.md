@@ -7,11 +7,16 @@
 * Documented missing API endpoint in wopi.v2 /api/v2/files/{file}/tokens
 * wopi test PutRelativeAndRenameFile.RenamingADeletedFileShouldReturnA404 fails #422
 * No Balloon\\Server\\Group\\Exception\\NotUnique exception if a PATCH was issued with the same name
+* Update changed timestamp after a group has been modified
+* ErrorException "Undefined index: body" at POST /api/v2/nodes/search with an invalid query
+* POST /api/v2/nodes/{node}/clone?conflict=1 ends with error 500 if node name has no dot #433 
 
 ### Changes
 * Backported new swagger specs from v3.0 which contain the scope (example: CoreV2 => getCoreV2Node) in the operationId
 * New docker-compose-dev.yml (includes traefik as request router)
 * wopi test Fail: files.PutFileReturnsDifferentVersion fails #423
+* DELETE group via api removes the group now completely
+* Dropped api endpoint /api/v2/groups/{group}/undelete; There was no real support for group undelete
 
 ### Features
 *  Pass webdav litmus tests #424
