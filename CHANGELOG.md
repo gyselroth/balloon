@@ -10,6 +10,7 @@
 * Update changed timestamp after a group has been modified
 * ErrorException "Undefined index: body" at POST /api/v2/nodes/search with an invalid query
 * POST /api/v2/nodes/{node}/clone?conflict=1 ends with error 500 if node name has no dot #433 
+* Fetch content with an empty Range header results in error 500 Undefined offset: 1 #434
 
 ### Changes
 * Backported new swagger specs from v3.0 which contain the scope (example: CoreV2 => getCoreV2Node) in the operationId
