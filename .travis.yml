@@ -20,6 +20,8 @@ before_install:
 script:
 - docker-compose -f docker-compose-dev.yml up -d
 - docker ps
+- curl http://localhost:8084/api/v2
+- curl -u admin:admin http://localhost:8084/api/v2/users
 - make tar VERSION=$version
 - if [ "$TRAVIS_TAG" != "" ]; then docker build -t gyselroth/balloon:$version .; fi
 notifications:
