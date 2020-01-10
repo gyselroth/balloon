@@ -457,13 +457,15 @@ class User implements RoleInterface
         $new = array_diff($found, $exists);
         foreach ($new as $add) {
             $node = $list[(string) $add];
-            $lookup = array_column($node['acl'], null, 'privilege');
-            if (isset($lookup['d'])) {
-                $this->logger->debug('ignore share ['.$node['_id'].'] with deny privilege', [
-                    'category' => get_class($this),
-                ]);
 
-                continue;
+            foreach ($node['acl'] as $rule) {
+                if (($rule['id'] === (string) $this->_id || in_array(new ObjectId($rule['id']), $this->groups)) && $rule['privilege'] === 'd') {
+                    $this->logger->debug('ignore share ['.$node['_id'].'] with deny privilege', [
+                        'category' => get_class($this),
+                    ]);
+
+                    continue 2;
+                }
             }
 
             $this->logger->info('found new share ['.$node['_id'].']', [
