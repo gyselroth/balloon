@@ -11,7 +11,7 @@ addons:
 before_install:
 - ./scripts/install_smd5.sh
 - sudo ./scripts/install_litmus.sh
-- sudo npm install -g dredd
+- npm install -g dredd
 - echo "\n" | pecl install -f mongodb
 - echo "\n" | pecl install -f imagick
 - export version=$TRAVIS_TAG
