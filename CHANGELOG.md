@@ -18,6 +18,7 @@
 * wopi test Fail: files.PutFileReturnsDifferentVersion fails #423
 * DELETE group via api removes the group now completely
 * Dropped api endpoint /api/v2/groups/{group}/undelete; There was no real support for group undelete
+* Allow duplicate accounts with null as mail adresss #437
 
 ### Features
 * Pass webdav litmus tests #424

@@ -214,6 +214,10 @@ return [
     ],
     Migration::class => [
         'calls' => [
+            Delta\CreateUniqueUserMailIndexAllowNull::class => [
+                'method' => 'injectDelta',
+                'arguments' => ['delta' => '{'.Delta\CreateUniqueUserMailIndexAllowNull::class.'}']
+            ],
             Delta\CreateUniqueUserMailIndex::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CreateUniqueUserMailIndex::class.'}']
