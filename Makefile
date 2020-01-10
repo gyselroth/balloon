@@ -39,7 +39,7 @@ PHPSTAN_SCRIPT = $(VENDOR_DIR)/bin/phpstan
 PHPSTAN_LOCK = $(BASE_DIR)/.phpstan.lock
 # TESTTOOLS
 LITMUS_BIN=/usr/local/bin/litmus
-DREDD_BIN=/usr/bin/dredd
+DREDD_BIN=dredd
 
 # TARGET ALIASES
 INSTALL_TARGET = "$(INSTALL_PREFIX)usr/share/balloon"

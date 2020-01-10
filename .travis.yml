@@ -19,6 +19,7 @@ before_install:
 - if [ "$version" == "" ]; then version=$TRAVIS_BUILD_NUMBER; fi;
 script:
 - docker-compose -f docker-compose-dev.yml up -d
+- docker ps
 - make tar VERSION=$version
 - if [ "$TRAVIS_TAG" != "" ]; then docker build -t gyselroth/balloon:$version .; fi
 notifications:
