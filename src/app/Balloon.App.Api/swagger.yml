@@ -1843,7 +1843,7 @@ paths:
           name: collection
           description: The if of the parent collection
           type: string
-          required: false 
+          required: false
       responses:
         201:
           description: "File created"
@@ -2058,7 +2058,7 @@ paths:
           name: collection
           description: The if of the parent collection
           type: string
-          required: false 
+          required: false
       responses:
         200:
           description: "File updated"
@@ -2704,7 +2704,18 @@ paths:
       summary: 'Submit a feedback to the developers of balloon (or another destination). You may submit some metadata and a zipped collection of debug information.'
       operationId: submitFeedback
       consumes:
-      - multipart/mixed
+      - multipart/form-data
+      parameters:
+        - in: formData
+          name: feedback
+          type: string
+          required: true
+          description: The feedback must be a user written feedback.
+        - in: formData
+          name: report
+          type: file
+          required: false
+          description: The report is an application/zip which may hold various files and metadata from a client system. For example this may be log files and system information about a client.
       responses:
         201:
           description: "Feedback submited"

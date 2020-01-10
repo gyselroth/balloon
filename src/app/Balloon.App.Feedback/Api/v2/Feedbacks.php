@@ -37,7 +37,6 @@ class Feedbacks
     public function post(): Response
     {
         $this->feedback_handler->handle();
-
         return (new Response())->setCode(201);
     }
 }
