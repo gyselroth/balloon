@@ -10,8 +10,8 @@ addons:
     - imagemagick
 before_install:
 - ./scripts/install_smd5.sh
-- ./scripts/install_litmus.sh
-- npm install -g dredd
+- sudo ./scripts/install_litmus.sh
+- sudo npm install -g dredd
 - echo "\n" | pecl install -f mongodb
 - echo "\n" | pecl install -f imagick
 - export version=$TRAVIS_TAG
