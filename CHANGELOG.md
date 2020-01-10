@@ -1,6 +1,6 @@
 ## 2.6.10
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Fri Jan 10 16:10:42 CET 2019
+**Date**: Fri Jan 10 16:10:42 CET 2020
 
 * CORE: [FIX] Incoming share get not connected if the acl holds a deny rule #436
 
