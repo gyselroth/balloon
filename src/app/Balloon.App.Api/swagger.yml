@@ -1,3 +1,25 @@
+swagger: "2.0"
+info:
+  description: "balloon API"
+  version: "1.0.0"
+  title: "balloon API"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+basePath: "/"
+schemes:
+- "https"
+- "http"
+security:
+  - BasicAuth: []
+  - BearerAuth: []
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  BearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
 paths:
   /api:
     get:
@@ -7,7 +29,7 @@ paths:
       operationId: getCoreV2Api
       security: []
       produces:
-        - application/json
+        - application/json; charset=utf-8
       responses:
         200:
           description: "API root"
@@ -23,7 +45,7 @@ paths:
       operationId: getCoreV2V2
       security: []
       produces:
-        - application/json
+        - application/json; charset=utf-8
       responses:
         200:
           description: "API root"
@@ -40,7 +62,7 @@ paths:
       consumes:
         - application/x-www-form-urlencoded
       produces:
-      - "application/json"
+      - "application/json; charset=utf-8"
       parameters:
         - in: formData
           name: grant_type
@@ -98,7 +120,7 @@ paths:
       description: A group is a colletion of users
       operationId: getCoreV2Groups
       produces:
-      - "application/json"
+      - application/json; charset=utf-8
       parameters:
         - in: query
           name: query
@@ -155,8 +177,10 @@ paths:
         - core.v2
       summary: Add group
       operationId: addGroup
+      consumes:
+      - application/json
       produces:
-      - "application/json"
+      - "application/json; charset=utf-8"
       parameters:
       - in: body
         name: data
@@ -186,7 +210,7 @@ paths:
       operationId: getCoreV2Group
       summary: 'Get group'
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: group
           in: path
@@ -226,7 +250,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: group
           in: path
@@ -263,7 +287,7 @@ paths:
       summary: 'Delete group'
       operationId: deleteCoreV2Group
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: group
           in: path
@@ -298,7 +322,7 @@ paths:
       summary: 'Get group members'
       operationId: getCoreV2GroupMembers
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: group
           in: path
@@ -330,7 +354,7 @@ paths:
       summary: 'Restore group'
       operationId: undeleteGroup
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: group
           in: path
@@ -354,7 +378,7 @@ paths:
       summary: Get users
       operationId: getCoreV2Users
       produces:
-      - "application/json"
+      - "application/json; charset=utf-8"
       parameters:
         - in: query
           name: query
@@ -412,7 +436,7 @@ paths:
       summary: Add user
       operationId: addUser
       produces:
-      - "application/json"
+      - "application/json; charset=utf-8"
       parameters:
       - in: body
         name: data
@@ -442,7 +466,7 @@ paths:
       operationId: getCoreV2User
       summary: 'Get user'
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: user
           in: path
@@ -482,7 +506,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: user
           in: path
@@ -519,7 +543,7 @@ paths:
       summary: 'Delete user'
       operationId: deleteCoreV2User
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: user
           in: path
@@ -554,7 +578,7 @@ paths:
       summary: 'Get user node summary.'
       operationId: getCoreV2NodeAttributeSummary
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: user
           in: path
@@ -586,7 +610,7 @@ paths:
       summary: 'Get all groups of a user'
       operationId: getCoreV2UserGroups
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: user
           in: path
@@ -651,7 +675,7 @@ paths:
       summary: 'Restore user'
       operationId: undeleteUser
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: user
           in: path
@@ -683,7 +707,7 @@ paths:
       summary: 'Get current user'
       operationId: getCoreV2CurrentUser
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: query
           name: attributes
@@ -749,7 +773,7 @@ paths:
       description: 'Return deleted nodes (Excluding sub nodes of deleted collections)'
       operationId: getCoreV2DeletedNodes
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: query
           name: query
@@ -808,7 +832,7 @@ paths:
       summary: 'Extended search query using elasticsearch'
       operationId: queryElasticsearch
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: query
           in: query
@@ -845,7 +869,7 @@ paths:
       summary: 'Get nofitifications'
       operationId: getCoreV2Notifications
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: query
           name: query
@@ -905,7 +929,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: body
           name: body
@@ -935,7 +959,7 @@ paths:
       summary: 'Get notification'
       operationId: getCoreV2Notification
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: notification
           in: path
@@ -966,7 +990,7 @@ paths:
       summary: 'Delete notification'
       operationId: deleteCoreV2Notification
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: notification
           in: path
@@ -998,7 +1022,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: body
           name: body
@@ -1048,7 +1072,7 @@ paths:
       summary: 'Subscribe node updates'
       operationId: subscribeNode
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -1100,7 +1124,7 @@ paths:
       summary: 'Get convert slaves'
       operationId: getCoreV2Slaves
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: file
           in: path
@@ -1133,7 +1157,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: file
           in: path
@@ -1171,7 +1195,7 @@ paths:
       summary: 'Get convert slave'
       operationId: getCoreV2Slave
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: file
           in: path
@@ -1210,7 +1234,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: file
           in: path
@@ -1247,7 +1271,7 @@ paths:
       description: 'Get supported file formats to convert to (formats do vary between files)'
       operationId: getCoreV2SupportedFormats
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: file
           in: path
@@ -1319,7 +1343,7 @@ paths:
       description: 'Generate access token for a single file which is only valid for a certain time. Usually this is 30min.'
       operationId: addWopiV2Token
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: file
           in: path
@@ -1359,7 +1383,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: body
           name: body
@@ -1390,7 +1414,7 @@ paths:
       summary: Clone node
       operationId: cloneNode
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -1440,7 +1464,7 @@ paths:
       description: 'Move node (Change parent collection), single or multiple ones'
       operationId: moveNode
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -1492,7 +1516,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -1547,7 +1571,7 @@ paths:
       summary: 'Get share acl and share name'
       operationId: getCoreV2Share
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: collection
           in: path
@@ -1581,7 +1605,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: collection
           in: path
@@ -1639,7 +1663,7 @@ paths:
       summary: 'Get collection children'
       operationId: getCoreV2Children
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: collection
           in: path
@@ -1719,7 +1743,7 @@ paths:
       summary: 'Get root children'
       operationId: getCoreV2RootChildren
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: query
           name: query
@@ -1793,7 +1817,7 @@ paths:
       summary: 'Get collections'
       operationId: getCoreV2Collections
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: query
           name: query
@@ -1862,7 +1886,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: body
           name: body
@@ -1887,7 +1911,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: collection
           in: path
@@ -1924,7 +1948,7 @@ paths:
       summary: 'Get files'
       operationId: getCoreV2Files
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: query
           name: query
@@ -1992,7 +2016,7 @@ paths:
       description: 'Upload an entire file in one-shot. Use this endpoint only for small files, for bigger files use the chunking endpoint.'
       operationId: uploadFile
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: body
           name: body
@@ -2023,7 +2047,7 @@ paths:
       summary: 'Get file history'
       operationId: getCoreV2FileHistory
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: file
           in: path
@@ -2056,7 +2080,7 @@ paths:
       description: 'Rollback to a recent version from history. Use the version number from history.'
       operationId: rollbackFile
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: file
           in: path
@@ -2089,7 +2113,7 @@ paths:
       description: 'Upload a file chunk. You have to manually splitt the binary data into multiple chunks and upload them successively using this method. Once uploading the last chunk, the server will automatically create or update the file node. You may set the parent collection, name and or custom attributes only with the last request to save traffic.'
       operationId: uploadChunk
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: body
           name: body
@@ -2129,7 +2153,7 @@ paths:
       summary: 'Get all nodes'
       operationId: getCoreV2Nodes
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: query
           name: query
@@ -2239,7 +2263,7 @@ paths:
       summary: 'Get node'
       operationId: getCoreV2Node
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -2279,7 +2303,7 @@ paths:
       consumes:
         - application/json
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -2317,7 +2341,7 @@ paths:
       summary: 'Delete share link'
       operationId: deleteCoreV2Link
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -2347,7 +2371,7 @@ paths:
       description: 'Create a unique share link of a node (global accessible). A possible existing link will get deleted if this endpoint gets called.'
       operationId: addCoreV2Link
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -2391,7 +2415,7 @@ paths:
       description: 'Use this method to request the latest cursor if you only need to now if there are changes on the server. This method will not return any other data than the newest cursor. To request a feed with all deltas request /delta.'
       operationId: getCoreV2LastCursor
       produces:
-        - application/json
+        - application/json; charset=utf-8
       responses:
         200:
           description: "Cursor"
@@ -2455,7 +2479,7 @@ paths:
       summary: 'Delta stream with cursor support.'
       operationId: getCoreV2Delta
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: limit
           in: query
@@ -2499,7 +2523,7 @@ paths:
       description: 'Get event log containing all operations which are made by the user himself or share members'
       operationId: getCoreV2EventLog
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - in: query
           name: query
@@ -2559,7 +2583,7 @@ paths:
       description: 'Get event log containing all operations which are made by the user himself or share members on a given node'
       operationId: getCoreV2NodeEventLog
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -2625,7 +2649,7 @@ paths:
       description: 'The hirarchy of all parent nodes is ordered in a single level array beginning with the collection on the highest level.'
       operationId: getCoreV2ParentNodes
       produces:
-        - application/json
+        - application/json; charset=utf-8
       parameters:
         - name: node
           in: path
@@ -2721,7 +2745,7 @@ paths:
       summary: 'Create or replace preview of a file. A preview may be a maximum of 2MB'
       operationId: setPreview
       produces:
-        - application/json
+        - application/json; charset=utf-8
       consumes:
         - octet/stream
       parameters:
@@ -2821,7 +2845,7 @@ definitions:
     properties:
       name:
         type: string
-      api:
+      api_version:
         type: integer
   core.v2.Links:
     description: "Contains resource links (URL) to other resources."
@@ -2983,6 +3007,7 @@ definitions:
           name:
             description: "Group name."
             type: "string"
+            x-example: "foobar"
           namespace:
             description: "User namespace."
             type: "string"

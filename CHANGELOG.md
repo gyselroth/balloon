@@ -1,6 +1,6 @@
 ## 2.7.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Wed Dec 11 11:34:32 CET 2019
+**Date**: 
 
 ### Bugfixes
 * Argument 2 passed to Balloon\\Filesystem\\Node\\Collection::addFile() must be an instance of Balloon\\Session\\SessionInterface or null, instance of MongoDB\\BSON\\ObjectId given #382 
@@ -20,8 +20,9 @@
 * Dropped api endpoint /api/v2/groups/{group}/undelete; There was no real support for group undelete
 
 ### Features
-*  Pass webdav litmus tests #424
-*  Add support for rfc4709 mount webdav #431
+* Pass webdav litmus tests #424
+* Add integration tests (api,wopi,webdav) #421
+* Add support for rfc4709 mount webdav #431
 
 
 ## 2.7.0-beta2

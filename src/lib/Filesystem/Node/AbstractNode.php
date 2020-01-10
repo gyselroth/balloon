@@ -1091,7 +1091,7 @@ abstract class AbstractNode implements NodeInterface
         $base = strrchr($name, '.');
         $ext = false;
 
-        if($base !== false) {
+        if ($base !== false) {
             $ext = substr($base, 1);
         }
 
