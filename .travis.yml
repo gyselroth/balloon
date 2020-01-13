@@ -6,7 +6,6 @@ services:
 - docker
 cache:
   directories:
-  - docker_images
   - vendor
 addons:
   apt:
@@ -21,7 +20,6 @@ before_install:
 - export version=$TRAVIS_TAG
 - if [[ "${version:0:1}" == "v" ]]; then version=${version:1}; fi;
 - if [ "$version" == "" ]; then version=$TRAVIS_BUILD_NUMBER; fi;
-- docker load -i docker_images/images.tar || true
 script:
 - docker-compose -f docker-compose-dev.yml up -d
 - docker ps
@@ -31,8 +29,6 @@ script:
 - if [ "$TRAVIS_TAG" != "" ]; then docker build -t gyselroth/balloon:$version .; fi
 notifications:
   email: false
-before_cache:
-- docker save -o docker_images/images.tar $(docker images -a -q)
 deploy:
 - provider: releases
   api_key:
