@@ -105,7 +105,7 @@ services:
     image: gyselroth/balloon:latest-dev
     volumes:
     - .:/srv/www/balloon
-    entrypoint: /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv
+    entrypoint: make deps && php /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv
     networks:
     - backend
     environment: &env
@@ -119,11 +119,6 @@ services:
       - BALLOON_SMTP_HOST=postfix
       - BALLOON_URL=http://localhost:8080
       - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
-  balloon-deps:
-    image: gyselroth/balloon:latest-dev
-    volumes:
-    - .:/srv/www/balloon
-    entrypoint: make deps
   balloon-api:
     image: gyselroth/balloon:latest-dev
     volumes:
