@@ -18,7 +18,7 @@ services:
     - frontend
   mongodb:
     image: mongo:3.6
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all" ]
     networks:
     - backend
   clamav:
