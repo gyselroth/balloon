@@ -9,6 +9,7 @@ use Balloon\App\Notification\Adapter\Db;
 use Balloon\App\Notification\Adapter\Mail;
 use Balloon\Bootstrap\AbstractBootstrap;
 use Balloon\App\Notification\Constructor\Http;
+use Balloon\App\Notification\Notifier;
 
 return [
     Notifier::class => [
