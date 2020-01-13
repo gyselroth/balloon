@@ -6,9 +6,5 @@ phpize
 ./configure
 make install
 echo "extension=smd5.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
-php --ini
-php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"
-echo "SMD5:"
-php -i | grep smd5
 cd ..
 rm -rfv php-serializable-md5
