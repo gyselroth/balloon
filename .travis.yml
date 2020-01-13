@@ -20,10 +20,10 @@ before_install:
 script:
 - docker-compose -f docker-compose-dev.yml up -d
 - docker ps
-#- curl http://localhost:8084/api/v2
-#- curl -u admin:admin http://localhost:8084/api/v2/users
+- curl http://localhost:8084/api/v2
+- curl -u admin:admin http://localhost:8084/api/v2/users
 - make deps
-- docker exec balloon_balloon-api_1 php /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv
+- docker-compose -f docker-compose-dev.yml exec balloon-api php /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv
 - make tar VERSION=$version
 - if [ "$TRAVIS_TAG" != "" ]; then docker build -t gyselroth/balloon:$version .; fi
 notifications:
