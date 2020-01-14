@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "368d96c03d73dc5e21d9f45b1d004302",
+    "content-hash": "ccf521bc5588bb2efbf79f453d887368",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -1227,16 +1227,16 @@
         },
         {
             "name": "gyselroth/micro-http",
-            "version": "v0.0.7",
+            "version": "v0.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gyselroth/micro-http.git",
-                "reference": "2b347f6a3153c06c154b90376ac1e6be342d63b6"
+                "reference": "69d5d0dc165e160c875c8f8f874ef5e038682fa9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gyselroth/micro-http/zipball/2b347f6a3153c06c154b90376ac1e6be342d63b6",
-                "reference": "2b347f6a3153c06c154b90376ac1e6be342d63b6",
+                "url": "https://api.github.com/repos/gyselroth/micro-http/zipball/69d5d0dc165e160c875c8f8f874ef5e038682fa9",
+                "reference": "69d5d0dc165e160c875c8f8f874ef5e038682fa9",
                 "shasum": ""
             },
             "require": {
@@ -1275,7 +1275,7 @@
                 "psr-7",
                 "router"
             ],
-            "time": "2019-05-24T13:59:35+00:00"
+            "time": "2020-01-13T15:10:06+00:00"
         },
         {
             "name": "gyselroth/mongodb-php-task-scheduler",

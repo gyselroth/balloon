@@ -18,8 +18,7 @@ user: admin:admin
 inline-errors: false
 details: false
 method: []
-loglevel: debug
-#warning
+loglevel: warning
 path: []
 hooks-worker-timeout: 5000
 hooks-worker-connect-timeout: 1500

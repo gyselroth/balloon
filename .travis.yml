@@ -21,12 +21,11 @@ before_install:
 - if [[ "${version:0:1}" == "v" ]]; then version=${version:1}; fi;
 - if [ "$version" == "" ]; then version=$TRAVIS_BUILD_NUMBER; fi;
 script:
-- docker-compose -f docker-compose-dev.yml up -d
-- docker ps
-- make deps
-- docker-compose -f docker-compose-dev.yml exec balloon-api php /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv -i
-- make tar VERSION=$version
-- if [ "$TRAVIS_TAG" != "" ]; then docker build -t gyselroth/balloon:$version .; fi
+- make build
+- if [ "$TRAVIS_TAG" != "" ]; then docker-compose -f docker-compose-dev.yml up -d; docker ps; fi
+- if [ "$TRAVIS_TAG" != "" ]; then docker-compose -f docker-compose-dev.yml exec balloon-api php /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv -i; fi
+- if [ "$TRAVIS_TAG" != "" ]; then make integrationtest VERSION=$version; fi
+- if [ "$TRAVIS_TAG" != "" ]; then make dist VERSION=$version; fi
 notifications:
   email: false
 deploy:
@@ -38,7 +37,7 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-after_deploy:
+after_script:
 - test "$TRAVIS_TAG" != "" && version=${TRAVIS_TAG:1};
 - if [[ "$version" == *"-"* ]]; then export docker_tag=latest-unstable; else export docker_tag=latest; fi;
 - test "$TRAVIS_TAG" != "" && docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
