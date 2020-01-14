@@ -1,6 +1,6 @@
 ## 2.7.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: 
+**Date**: Tue Jan 14 10:39:22 CET 2020
 
 ### Bugfixes
 * Argument 2 passed to Balloon\\Filesystem\\Node\\Collection::addFile() must be an instance of Balloon\\Session\\SessionInterface or null, instance of MongoDB\\BSON\\ObjectId given #382 
