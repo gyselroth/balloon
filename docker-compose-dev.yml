@@ -5,14 +5,13 @@ networks:
 
 services:
   traefik:
-    image: traefik:v1.7-alpine
-    command: --web --docker --docker.domain=docker.localhost
+    image: traefik:v2.1
+    command: --providers.docker --entrypoints.http.Address=:80 --entrypoints.https.Address=:443
     ports:
       - "8084:80"
       - "4443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /dev/null:/traefik.toml
     networks:
     - backend
     - frontend
@@ -71,7 +70,7 @@ services:
               error_log /dev/stderr;
               client_max_body_size 16G;
 
-              location ~ ^/(api|webdav|share|wopi) {
+              location ~ ^/(api|webdav|share|wopi|healthz) {
                   index index.php;
                   root /srv/www/balloon/src/httpdocs;
                   rewrite ^(.+)\\\$$ /index.php\\\$$1 last;
@@ -91,16 +90,18 @@ services:
       nginx -g "daemon off;"
       EOF'
     labels:
-    - traefik.backend=balloon-api
-    - "traefik.frontend.rule=PathPrefix:/api,/webdav,/share,/wopi"
+    - "traefik.http.routers.api-http.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/healthz`)"
+    - "traefik.http.routers.api-https.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/healthz`)"
+    - "traefik.http.routers.api-https.tls"
   balloon-web:
     image: gyselroth/balloon-web:3.2.12
     networks:
     - backend
     - frontend
     labels:
-    - traefik.backend=web
-    - "traefik.frontend.rule=PathPrefix:/"
+    - "traefik.http.routers.webui-http.rule=PathPrefix(`/`)"
+    - "traefik.http.routers.webui-https.rule=PathPrefix(`/`)"
+    - "traefik.http.routers.webui-https.tls"
   balloon-upgrade:
     image: gyselroth/balloon:latest-dev
     volumes:
