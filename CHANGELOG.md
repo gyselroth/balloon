@@ -1,3 +1,11 @@
+## 2.7.0-beta4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jan 16 13:45:22 CET 2020
+
+### Bugfixes
+* WOPI discovery internal url may now be translated into an external url if the discovery sheet was fetched by the balloon-api server #405
+
+
 ## 2.7.0-beta3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Jan 14 10:39:22 CET 2020

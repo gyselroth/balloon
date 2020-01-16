@@ -62,7 +62,8 @@ Balloon\App\Wopi\HostManager:
     config:
       hosts:
       - name: LibreOffice Online
-        url: '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery'
+        url: '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,http://localhost:9980/libreoffice)}'
+        external_url: '{ENV(BALLOON_LIBREOFFICE_COLLAB_EXTERNAL_URL,http://localhost/libreoffice)}'
         wopi_endpoint: '{ENV(BALLOON_LIBREOFFICE_COLLAB_WOPI_URL,http://localhost/wopi)}'
       cache_ttl: 86400
       validate_proof: true

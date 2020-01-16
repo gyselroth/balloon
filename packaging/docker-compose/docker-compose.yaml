@@ -24,22 +24,24 @@ services:
     networks:
     - backend
   libreoffice-convert:
-    image: collabora/code:4.2-snapshot
+    image: collabora/code:4.2.0.3
     environment:
-      - domain=localhost
-      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:storage.wopi.host[2]=::ffff:172.[0-9]+.[0-9]+.[0-9]+"
+      - domain=localhost|balloon-proxy
+      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+"
     networks:
     - backend
   libreoffice-collab:
-    image: collabora/code:4.2-snapshot
-    ports:
-      - "9980:9980"
+    image: collabora/code:4.2.0.3
     environment:
-      - domain=localhost
-      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:storage.wopi.host[2]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:net.frame_ancestors="localhost:*"
+      - domain=localhost|balloon-proxy
+      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.service_root="/libreoffice" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.frame_ancestors="localhost:*"
     networks:
     - backend
     - frontend
+    labels:
+    - "traefik.http.routers.loolwsd-http.rule=PathPrefix(`/libreoffice`)"
+    - "traefik.http.routers.loolwsd-https.rule=PathPrefix(`/libreoffice`)"
+    - "traefik.http.routers.loolwsd-https.tls"
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.8.5
     entrypoint:
@@ -103,7 +105,8 @@ services:
       - BALLOON_MONGODB_URI=mongodb://mongodb:27017
       - BALLOON_CLAMAV_URI=tcp://clamav:3310
       - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-      - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice-collab:9980
+      - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice-collab:9980/libreoffice
+      - BALLOON_LIBREOFFICE_COLLAB_EXTERNAL_URL=http://localhost/libreoffice
       - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=http://balloon-proxy/wopi
       - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice-convert:9980
       - BALLOON_SMTP_HOST=postfix

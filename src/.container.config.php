@@ -38,6 +38,13 @@ use MongoDB\GridFS\Bucket as GridFSBucket;
 use Zend\Mail\Transport\SmtpOptions;
 
 return [
+    Server::class => [
+        'arguments' => [
+            'config' => [
+                'server_url' => '{ENV(BALLOON_URL,http://localhost)}',
+            ]
+        ]
+    ],
     Client::class => [
         'arguments' => [
             'uri' => '{ENV(BALLOON_MONGODB_URI,mongodb://localhost:27017)}',
@@ -89,7 +96,7 @@ return [
         'calls' => [[
             'method' => 'selectDatabase',
             'arguments' => [
-                'databaseName' => 'balloon',//'{ENV(BALLOON_MONGODB_DATABASE,balloon)}'
+                'databaseName' => '{ENV(BALLOON_MONGODB_DATABASE,balloon)}'
             ],
             'select' => true
         ]]

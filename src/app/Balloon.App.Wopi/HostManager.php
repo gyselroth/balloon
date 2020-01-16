@@ -21,6 +21,11 @@ use Psr\SimpleCache\CacheInterface;
 class HostManager
 {
     /**
+     * Discovery path.
+     */
+    public const DISCOVERY_PATH = '/hosting/discovery';
+
+    /**
      * Hosts.
      *
      * @var array
@@ -125,10 +130,10 @@ class HostManager
 
             try {
                 $result[] = [
-                    'url' => $url['url'],
+                    'url' => $url['external_url'] ?? $url['url'],
                     'name' => $url['name'],
                     'wopi_url' => $url['wopi_url'],
-                    'discovery' => $this->fetchDiscovery($url['url']),
+                    'discovery' => $this->fetchDiscovery($url['url'], $url['external_url'] ?? null),
                 ];
             } catch (\Exception $e) {
                 $this->logger->error('failed to fetch wopi discovery document [{url}]', [
@@ -233,9 +238,11 @@ class HostManager
     /**
      * Fetch discovery.
      */
-    protected function fetchDiscovery(string $url): array
+    protected function fetchDiscovery(string $url, ?string $external = null): array
     {
-        $key = md5($url);
+        $discovery = $url.self::DISCOVERY_PATH;
+
+        $key = md5($discovery);
 
         if ($this->cache->has($key)) {
             return $this->cache->get($key);
@@ -243,22 +250,27 @@ class HostManager
 
         $this->logger->debug('wopi discovery not found in cache, fetch wopi discovery [{url}]', [
             'category' => get_class($this),
-            'url' => $url,
+            'url' => $discovery,
         ]);
 
         $response = $this->client->request(
             'GET',
-            $url
+            $discovery
         );
 
         $body = $response->getBody()->getContents();
+
+        if ($external !== null) {
+            $body = str_replace($url, $external, $body);
+        }
+
         $body = json_decode(json_encode(simplexml_load_string($body), JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY);
 
         $result = $this->cache->set($key, $body, $this->cache_ttl);
 
         $this->logger->debug('stored wopi discovery [{url}] in cache for [{ttl}]s', [
             'category' => get_class($this),
-            'url' => $url,
+            'url' => $discovery,
             'ttl' => $this->cache_ttl,
             'result' => $result,
         ]);

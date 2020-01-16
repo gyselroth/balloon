@@ -15,7 +15,8 @@ return [
                 'hosts' => [
                     [
                         'name' => 'LibreOffice Online',
-                        'url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery',
+                        'url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,http://localhost/libreoffice)}',
+                        'external_url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_EXTERNAL_URL,http://localhost/libreoffice)}',
                         'wopi_url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_WOPI_URL,http://localhost/wopi)}',
                     ]
                 ]
