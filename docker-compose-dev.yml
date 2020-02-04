@@ -18,6 +18,8 @@ services:
   mongodb:
     image: mongo:3.6
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all" ]
+    ports:
+      - "27017:27017"
     networks:
     - backend
   clamav:
@@ -27,15 +29,15 @@ services:
   libreoffice-convert:
     image: collabora/code:4.2.0.3
     environment:
-      - domain=localhost|balloon-proxy
+      - domain=localhost|traefik
       - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+"
     networks:
     - backend
   libreoffice-collab:
     image: collabora/code:4.2.0.3
     environment:
-      - domain=localhost|balloon-proxy
-      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.service_root="/libreoffice" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.frame_ancestors="localhost:*"
+      - domain=localhost|traefik
+      - extra_params=--o:ssl.termination=true --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.service_root="/libreoffice" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.frame_ancestors="localhost:*"
     networks:
     - backend
     - frontend
@@ -117,8 +119,7 @@ services:
       - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
       - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
       - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice-collab:9980/libreoffice
-      - BALLOON_LIBREOFFICE_COLLAB_EXTERNAL_URL=http://localhost:8084/libreoffice
-      - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=http://balloon-proxy/wopi
+      - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=https://traefik/wopi
       - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice-convert:9980
       - BALLOON_WOPI_POSTMESSAGE_ORIGIN=http://localhost:8084
       - BALLOON_SMTP_HOST=postfix

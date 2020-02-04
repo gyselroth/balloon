@@ -1,3 +1,11 @@
+## 2.7.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Feb 04 10:17:22 CET 2020
+
+### Bugfixes
+* Translate WOPI discovery for incoming host header #405
+
+
 ## 2.7.0-beta4
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Jan 16 13:45:22 CET 2020

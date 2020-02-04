@@ -129,11 +129,26 @@ class HostManager
             }
 
             try {
+                $discovery = $this->fetchDiscovery($url['url']);
+
+                if (isset($url['replace']['to'], $url['replace']['from'])) {
+                    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+                        $url['replace']['to'] = str_replace('{protocol}', $_SERVER['HTTP_X_FORWARDED_PROTO'], $url['replace']['to']);
+                    }
+
+                    if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+                        $url['replace']['to'] = str_replace('{host}', $_SERVER['HTTP_X_FORWARDED_HOST'], $url['replace']['to']);
+                    }
+
+                    $discovery = preg_replace($url['replace']['from'], $url['replace']['to'], $discovery);
+                }
+
+                $discovery = json_decode($discovery, true, 512, JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY);
                 $result[] = [
-                    'url' => $url['external_url'] ?? $url['url'],
+                    'url' => $url['url'],
                     'name' => $url['name'],
                     'wopi_url' => $url['wopi_url'],
-                    'discovery' => $this->fetchDiscovery($url['url'], $url['external_url'] ?? null),
+                    'discovery' => $discovery,
                 ];
             } catch (\Exception $e) {
                 $this->logger->error('failed to fetch wopi discovery document [{url}]', [
@@ -238,7 +253,7 @@ class HostManager
     /**
      * Fetch discovery.
      */
-    protected function fetchDiscovery(string $url, ?string $external = null): array
+    protected function fetchDiscovery(string $url): string
     {
         $discovery = $url.self::DISCOVERY_PATH;
 
@@ -250,7 +265,7 @@ class HostManager
 
         $this->logger->debug('wopi discovery not found in cache, fetch wopi discovery [{url}]', [
             'category' => get_class($this),
-            'url' => $discovery,
+            'url' => $url,
         ]);
 
         $response = $this->client->request(
@@ -259,13 +274,7 @@ class HostManager
         );
 
         $body = $response->getBody()->getContents();
-
-        if ($external !== null) {
-            $body = str_replace($url, $external, $body);
-        }
-
-        $body = json_decode(json_encode(simplexml_load_string($body), JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY);
-
+        $body = json_encode(simplexml_load_string($body), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
         $result = $this->cache->set($key, $body, $this->cache_ttl);
 
         $this->logger->debug('stored wopi discovery [{url}] in cache for [{ttl}]s', [
