@@ -86,6 +86,13 @@
 * Discontinue distribution of deb packages #415
 
 
+## 2.6.10
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Jan 10 16:10:42 CET 2020
+
+* CORE: [FIX] Incoming share get not connected if the acl holds a deny rule #436
+
+
 ## 2.6.9
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Wed Dez 18 16:24:42 CET 2019

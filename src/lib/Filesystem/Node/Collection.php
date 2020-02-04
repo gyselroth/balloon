@@ -753,6 +753,24 @@ class Collection extends AbstractNode implements IQuota
     }
 
     /**
+     * Validate acl.
+     */
+    protected function validateAcl(array $acl): bool
+    {
+        if (!$this->_acl->isAllowed($this, 'm')) {
+            throw new ForbiddenException('not allowed to set acl', ForbiddenException::NOT_ALLOWED_TO_MANAGE);
+        }
+
+        if (!$this->isSpecial()) {
+            throw new Exception\Conflict('node acl may only be set on share member nodes', Exception\Conflict::NOT_SHARED);
+        }
+
+        $this->_acl->validateAcl($this->_server, $acl);
+
+        return true;
+    }
+
+    /**
      * Get children query filter.
      *
      * Deleted:
