@@ -14,8 +14,13 @@ return [
             'config' => [
                 'hosts' => [
                     [
-                            'name' => 'LibreOffice Online',
-                            'url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery'
+                        'name' => 'LibreOffice Online',
+                        'url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,http://libreoffice-collab:9980/libreoffice)}',
+                        'wopi_url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_WOPI_URL,https://traefik/wopi)}',
+                        'replace' => [
+                            'from' => "#http.?://libreoffice-collab:9980#",
+                            'to' => "{protocol}://{host}",
+                        ]
                     ]
                 ]
             ]

@@ -15,6 +15,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server\User;
+use Balloon\Session\SessionInterface;
 use MongoDB\BSON\ObjectId;
 
 interface AdapterInterface
@@ -47,7 +48,7 @@ interface AdapterInterface
     /**
      * Store file.
      */
-    public function storeFile(File $file, ObjectId $session): array;
+    public function storeFile(File $file, SessionInterface $session): array;
 
     /**
      * Create collection.

@@ -138,13 +138,6 @@ class AttributeDecorator implements AttributeDecoratorInterface
             'access' => function ($node) use ($acl) {
                 return $acl->getAclPrivilege($node);
             },
-            'acl' => function ($node) use ($attributes) {
-                if ($node->isShareMember() && count($attributes['acl']) > 0) {
-                    return $node->getAcl();
-                }
-
-                return null;
-            },
             'lock' => function ($node) use ($server, $decorator, $attributes) {
                 if (!$node->isLocked()) {
                     return null;

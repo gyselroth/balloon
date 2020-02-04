@@ -21,6 +21,11 @@ use Psr\SimpleCache\CacheInterface;
 class HostManager
 {
     /**
+     * Discovery path.
+     */
+    public const DISCOVERY_PATH = '/hosting/discovery';
+
+    /**
      * Hosts.
      *
      * @var array
@@ -91,10 +96,6 @@ class HostManager
                     $this->hosts = (array) $value;
 
                     break;
-                case 'client_url':
-                    $this->client_url = (string) $value;
-
-                break;
                 case 'cache_ttl':
                     $this->cache_ttl = (int) $value;
 
@@ -112,14 +113,6 @@ class HostManager
     }
 
     /**
-     * Get client url.
-     */
-    public function getClientUrl(): ?string
-    {
-        return $this->client_url;
-    }
-
-    /**
      * Get session by id.
      */
     public function getHosts(): array
@@ -127,8 +120,8 @@ class HostManager
         $result = [];
 
         foreach ($this->hosts as $url) {
-            if (!isset($url['url']) || !isset($url['name'])) {
-                $this->logger->error('skip wopi host entry, either name or url not set', [
+            if (!isset($url['url']) || !isset($url['name']) || !isset($url['wopi_url'])) {
+                $this->logger->error('skip wopi host entry, either name, wopi_url or url not set', [
                     'category' => get_class($this),
                 ]);
 
@@ -136,10 +129,26 @@ class HostManager
             }
 
             try {
+                $discovery = $this->fetchDiscovery($url['url']);
+
+                if (isset($url['replace']['to'], $url['replace']['from'])) {
+                    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+                        $url['replace']['to'] = str_replace('{protocol}', $_SERVER['HTTP_X_FORWARDED_PROTO'], $url['replace']['to']);
+                    }
+
+                    if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+                        $url['replace']['to'] = str_replace('{host}', $_SERVER['HTTP_X_FORWARDED_HOST'], $url['replace']['to']);
+                    }
+
+                    $discovery = preg_replace($url['replace']['from'], $url['replace']['to'], $discovery);
+                }
+
+                $discovery = json_decode($discovery, true, 512, JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY);
                 $result[] = [
                     'url' => $url['url'],
                     'name' => $url['name'],
-                    'discovery' => $this->fetchDiscovery($url['url']),
+                    'wopi_url' => $url['wopi_url'],
+                    'discovery' => $discovery,
                 ];
             } catch (\Exception $e) {
                 $this->logger->error('failed to fetch wopi discovery document [{url}]', [
@@ -244,9 +253,11 @@ class HostManager
     /**
      * Fetch discovery.
      */
-    protected function fetchDiscovery(string $url): array
+    protected function fetchDiscovery(string $url): string
     {
-        $key = md5($url);
+        $discovery = $url.self::DISCOVERY_PATH;
+
+        $key = md5($discovery);
 
         if ($this->cache->has($key)) {
             return $this->cache->get($key);
@@ -259,17 +270,16 @@ class HostManager
 
         $response = $this->client->request(
             'GET',
-            $url
+            $discovery
         );
 
         $body = $response->getBody()->getContents();
-        $body = json_decode(json_encode(simplexml_load_string($body), JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY);
-
+        $body = json_encode(simplexml_load_string($body), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
         $result = $this->cache->set($key, $body, $this->cache_ttl);
 
         $this->logger->debug('stored wopi discovery [{url}] in cache for [{ttl}]s', [
             'category' => get_class($this),
-            'url' => $url,
+            'url' => $discovery,
             'ttl' => $this->cache_ttl,
             'result' => $result,
         ]);

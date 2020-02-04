@@ -1,9 +1,0 @@
-description "balloon jobs"
-author      "Raffael Sahli <sahli@gyselroth.com>"
-
-start on filesystem or runlevel [2345]
-stop on shutdown
-
-script
-    exec /usr/bin/ballooncli jobs listen
-end script

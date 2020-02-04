@@ -19,6 +19,7 @@ use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterfa
 use Balloon\Filesystem\Storage\Factory as StorageFactory;
 use Balloon\Hook;
 use Balloon\Server;
+use Balloon\Session\Factory as SessionFactory;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
@@ -68,6 +69,13 @@ class Factory
     protected $storage_factory;
 
     /**
+     * Session Factory.
+     *
+     * @var SessionFactory
+     */
+    protected $session_factory;
+
+    /**
      * Acl.
      *
      * @var Acl
@@ -84,7 +92,7 @@ class Factory
     /**
      * Initialize.
      */
-    public function __construct(Database $db, Hook $hook, LoggerInterface $logger, StorageAdapterInterface $storage, Acl $acl, StorageFactory $storage_factory)
+    public function __construct(Database $db, Hook $hook, LoggerInterface $logger, StorageAdapterInterface $storage, Acl $acl, StorageFactory $storage_factory, SessionFactory $session_factory)
     {
         $this->db = $db;
         $this->logger = $logger;
@@ -92,6 +100,7 @@ class Factory
         $this->storage = $storage;
         $this->acl = $acl;
         $this->storage_factory = $storage_factory;
+        $this->session_factory = $session_factory;
     }
 
     /**
@@ -123,10 +132,10 @@ class Factory
         }
 
         if (true === $node['directory']) {
-            return new Collection($node, $fs, $this->logger, $this->hook, $this->acl, $parent, $storage);
+            return new Collection($node, $fs, $this->logger, $this->hook, $this->acl, $parent, $storage, $this->session_factory);
         }
 
-        return new File($node, $fs, $this->logger, $this->hook, $this->acl, $parent);
+        return new File($node, $fs, $this->logger, $this->hook, $this->acl, $parent, $this->session_factory);
     }
 
     /**

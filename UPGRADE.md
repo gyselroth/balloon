@@ -1,3 +1,16 @@
+## 2.x -> 2.7.x
+
+### Config
+
+* If you have a custom throttle time configured for notifications under `Balloon\App\Notification\Hook\Subscription`, this has to be configured
+under `Balloon\App\Notification\Notifier`.
+
+### Deployment
+
+* If you have a availability check confiured, you should now use the `/healthz` endpoint. See issue #377 for further information.
+* There is a new env variable for the libreoffice wopi server (BALLOON_LIBREOFFICE_COLLAB_WOPI_URL), by default this points to the balloon-proxy endpoint, but may be changeable in your deployment. If you have any additional office servers like Office365, you are required to configure `wopi_url` alongside `url` which must hold the url to the balloon wopi endpoint and must be reachable by the office server (You also are required to include /wopi). See issue #405 for further information.
+
+
 ## 2.x -> 2.6.x
 
 ### Upgrade
