@@ -1,3 +1,11 @@
+## 2.7.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Feb 06 15:07:22 CET 2020
+
+### Bugfixes
+* Match and replace wopi uri in discovery does not work in k8s helm chart #443 
+
+
 ## 2.7.0
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Tue Feb 04 10:17:22 CET 2020

@@ -18,7 +18,7 @@ return [
                         'url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,http://libreoffice-collab:9980/libreoffice)}',
                         'wopi_url' => '{ENV(BALLOON_LIBREOFFICE_COLLAB_WOPI_URL,https://traefik/wopi)}',
                         'replace' => [
-                            'from' => "#http.?://libreoffice-collab:9980#",
+                            'from' => "#http.?://[^:]+:9980#",
                             'to' => "{protocol}://{host}",
                         ]
                     ]
