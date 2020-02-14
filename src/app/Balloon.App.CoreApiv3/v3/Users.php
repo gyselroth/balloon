@@ -50,6 +50,14 @@ class Users
     /**
      * Entrypoint.
      */
+    public function getWhoami(ServerRequestInterface $request, User $identity): ResponseInterface
+    {
+        return Helper::getOne($request, $identity, $identity, $this->user_model_factory);
+    }
+
+    /**
+     * Entrypoint.
+     */
     public function getAll(ServerRequestInterface $request, User $identity): ResponseInterface
     {
         $query = $request->getQueryParams();

@@ -20,6 +20,6 @@ class NotAllowed extends \Balloon\Exception implements ExceptionInterface
      */
     public function getStatusCode(): int
     {
-        return 401;
+        return 403;
     }
 }

@@ -41,7 +41,7 @@ class User extends AbstractResource implements UserInterface
 
     public function getUsername(): string
     {
-        return $this->resource['username'];
+        return $this->resource['username'] ?? '';
     }
 
     /**

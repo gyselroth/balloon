@@ -8,7 +8,7 @@ paths:
       operationId: getCoreV3CoreV3Api
       security: []
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       responses:
         200:
           description: "API root"
@@ -24,7 +24,7 @@ paths:
       description: A group is a colletion of users
       operationId: getCoreV3CoreV3Groups
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
         - in: query
           name: query
@@ -82,7 +82,7 @@ paths:
       summary: Add group
       operationId: addCoreV3Group
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
       - in: body
         name: data
@@ -112,11 +112,12 @@ paths:
       operationId: getCoreV3Group
       summary: 'Get group'
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: group
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: query
@@ -149,13 +150,14 @@ paths:
       summary: 'Change group'
       operationId: patchCoreV3Group
       consumes:
-        - application/json-patch+json
+        - application/json; charset=UTF-8-patch+json
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: group
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: body
@@ -187,18 +189,14 @@ paths:
       summary: 'Delete group'
       operationId: deleteCoreV3Group
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: group
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
-        - name: force
-          in: query
-          required: false
-          type: boolean
-          description: 'Per default the group gets disabled, if force is set the group gets removed completely.'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
@@ -221,11 +219,12 @@ paths:
       summary: 'Get group members'
       operationId: getCoreV3GroupMembers
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: group
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
       responses:
@@ -253,7 +252,7 @@ paths:
       description: A access-role is a colletion of users
       operationId: getCoreV3CoreV3AccessRoles
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
         - in: query
           name: query
@@ -311,7 +310,7 @@ paths:
       summary: Add access-role
       operationId: addCoreV3AccessRole
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
       - in: body
         name: data
@@ -334,18 +333,19 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/core.v3.InternalServerError'
-  '/api/v3/access-roles/{access-role}':
+  '/api/v3/access-roles/{accessRole}':
     get:
       tags:
         - core.v3
       operationId: getCoreV3AccessRole
       summary: 'Get access-role'
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
-        - name: access-role
+        - name: accessRole
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: query
@@ -378,13 +378,14 @@ paths:
       summary: 'Change access-role'
       operationId: patchCoreV3AccessRole
       consumes:
-        - application/json-patch+json
+        - application/json; charset=UTF-8-patch+json
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
-        - name: access-role
+        - name: accessRole
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: body
@@ -416,18 +417,14 @@ paths:
       summary: 'Delete access-role'
       operationId: deleteCoreV3AccessRole
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
-        - name: access-role
+        - name: accessRole
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
-        - name: force
-          in: query
-          required: false
-          type: boolean
-          description: 'Per default the access-role gets disabled, if force is set the access-role gets removed completely.'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
@@ -451,7 +448,7 @@ paths:
       description: A access-rule is a colletion of users
       operationId: getCoreV3CoreV3AccessRules
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
         - in: query
           name: query
@@ -509,7 +506,7 @@ paths:
       summary: Add access-rule
       operationId: addCoreV3AccessRule
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
       - in: body
         name: data
@@ -532,18 +529,19 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         500:
           $ref: '#/responses/core.v3.InternalServerError'
-  '/api/v3/access-rules/{access-rule}':
+  '/api/v3/access-rules/{accessRule}':
     get:
       tags:
         - core.v3
       operationId: getCoreV3AccessRule
       summary: 'Get access-rule'
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
-        - name: access-rule
+        - name: accessRule
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: query
@@ -576,13 +574,14 @@ paths:
       summary: 'Change access-rule'
       operationId: patchCoreV3AccessRule
       consumes:
-        - application/json-patch+json
+        - application/json; charset=UTF-8-patch+json
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
-        - name: access-rule
+        - name: accessRule
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: body
@@ -614,18 +613,14 @@ paths:
       summary: 'Delete access-rule'
       operationId: deleteCoreV3AccessRule
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
-        - name: access-rule
+        - name: accessRule
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
-        - name: force
-          in: query
-          required: false
-          type: boolean
-          description: 'Per default the access-rule gets disabled, if force is set the access-rule gets removed completely.'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
@@ -648,7 +643,7 @@ paths:
       summary: Get users
       operationId: getCoreV3Users
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
         - in: query
           name: query
@@ -706,7 +701,7 @@ paths:
       summary: Add user
       operationId: addCoreV3User
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
       - in: body
         name: data
@@ -736,11 +731,12 @@ paths:
       operationId: getCoreV3User
       summary: 'Get user'
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: user
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: query
@@ -773,13 +769,14 @@ paths:
       summary: 'Update user'
       operationId: patchCoreV3User
       consumes:
-        - application/json-patch+json
+        - application/json; charset=UTF-8-patch+json
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: user
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: body
@@ -811,18 +808,14 @@ paths:
       summary: 'Delete user'
       operationId: deleteCoreV3User
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: user
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
-        - name: force
-          in: query
-          required: false
-          type: boolean
-          description: 'Per default the user gets disabled, if force is set the user gets removed completely.'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
@@ -845,11 +838,12 @@ paths:
       summary: 'Get all groups of a user'
       operationId: getCoreV3UserGroups
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: user
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: query
@@ -909,7 +903,7 @@ paths:
       summary: 'Get current user'
       operationId: getCoreV3CurrentUser
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: query
           name: attributes
@@ -947,6 +941,7 @@ paths:
         - name: user
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
       responses:
@@ -974,7 +969,7 @@ paths:
       description: 'Return deleted nodes (Excluding sub nodes of deleted collections)'
       operationId: getCoreV3DeletedNodes
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: query
           name: query
@@ -1033,7 +1028,7 @@ paths:
       summary: 'Get nofitifications'
       operationId: getCoreV3Notifications
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: query
           name: query
@@ -1091,9 +1086,9 @@ paths:
       summary: 'Send notification'
       operationId: addCoreV3Notification
       consumes:
-        - application/json
+        - application/json; charset=UTF-8
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: body
           name: body
@@ -1123,11 +1118,12 @@ paths:
       summary: 'Get notification'
       operationId: getCoreV3Notification
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: notification
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
       responses:
@@ -1153,11 +1149,12 @@ paths:
       summary: 'Delete notification'
       operationId: deleteCoreV3Notification
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: notification
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
       responses:
@@ -1182,9 +1179,9 @@ paths:
       summary: 'Send broadcast'
       operationId: sendCoreV3Broadcast
       consumes:
-        - application/json
+        - application/json; charset=UTF-8
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: body
           name: body
@@ -1205,7 +1202,7 @@ paths:
       summary: 'Send mail'
       operationId: sendCoreV3Mail
       consumes:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: body
           name: body
@@ -1234,11 +1231,12 @@ paths:
       summary: 'Get convert slaves'
       operationId: getCoreV3Slaves
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'File identifier'
       responses:
@@ -1264,13 +1262,14 @@ paths:
       summary: 'Add convert slave'
       operationId: addCoreV3Slave
       consumes:
-        - application/json
+        - application/json; charset=UTF-8
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'File identifier'
         - in: body
@@ -1303,16 +1302,18 @@ paths:
       summary: 'Get convert slave'
       operationId: getCoreV3Slave
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'File identifier'
         - name: slave
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Slave identifier'
       responses:
@@ -1338,18 +1339,20 @@ paths:
       summary: 'Delete convert slave'
       operationId: deleteCoreV3Slave
       consumes:
-        - application/json
+        - application/json; charset=UTF-8
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'File identifier'
         - name: slave
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Slave identifier'
       responses:
@@ -1375,11 +1378,12 @@ paths:
       description: 'Get supported file formats to convert to (formats do vary between files)'
       operationId: getCoreV3SupportedFormats
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'File identifier'
       responses:
@@ -1446,9 +1450,9 @@ paths:
       description: 'Create new document from an existing office document template'
       operationId: addCoreV3Document
       consumes:
-        - application/json
+        - application/json; charset=UTF-8
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: body
           name: body
@@ -1480,7 +1484,7 @@ paths:
       description: Upload sessions
       operationId: getCoreV3Sessions
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
         - in: query
           name: query
@@ -1538,7 +1542,7 @@ paths:
       summary: Add session
       operationId: addCoreV3Session
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
       - in: body
         name: data
@@ -1568,11 +1572,12 @@ paths:
       operationId: getCoreV3Session
       summary: 'Get session'
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: session
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: query
@@ -1605,13 +1610,14 @@ paths:
       summary: 'Change session'
       operationId: patchCoreV3Session
       consumes:
-        - application/json-patch+json
+        - application/json; charset=UTF-8-patch+json
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: session
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: body
@@ -1643,18 +1649,14 @@ paths:
       summary: 'Delete session'
       operationId: deleteCoreV3Session
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: session
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
-        - name: force
-          in: query
-          required: false
-          type: boolean
-          description: 'Per default the session gets disabled, if force is set the session gets removed completely.'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
@@ -1678,7 +1680,7 @@ paths:
       description: Async processes
       operationId: getCoreV3Processes
       produces:
-      - "application/json"
+      - "application/json; charset=UTF-8"
       parameters:
         - in: query
           name: query
@@ -1737,11 +1739,12 @@ paths:
       operationId: getCoreV3Process
       summary: 'Get process'
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: process
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
         - in: query
@@ -1774,18 +1777,14 @@ paths:
       summary: 'Delete process'
       operationId: deleteCoreV3Process
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: process
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Resource identifier'
-        - name: force
-          in: query
-          required: false
-          type: boolean
-          description: 'Per default the process gets disabled, if force is set the process gets removed completely.'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
@@ -1809,11 +1808,12 @@ paths:
       description: 'Get process containing all operations which are made by the user or share members on a given node'
       operationId: getCoreV3NodeProcesses
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           description: 'Node identifier'
           type: string
         - in: query
@@ -1873,11 +1873,12 @@ paths:
       summary: 'Get collection children'
       operationId: getCoreV3Children
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: collection
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           description: 'Parent collection'
           type: string
         - in: query
@@ -1952,7 +1953,7 @@ paths:
       summary: 'Get root children'
       operationId: getCoreV3RootChildren
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: query
           name: query
@@ -2026,7 +2027,7 @@ paths:
       summary: 'Get collections'
       operationId: getCoreV3Collections
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: query
           name: query
@@ -2094,7 +2095,7 @@ paths:
       summary: 'Get files'
       operationId: getCoreV3Files
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: query
           name: query
@@ -2162,11 +2163,12 @@ paths:
       summary: 'Get file history'
       operationId: getCoreV3FileHistory
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: file
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'File identifier'
       responses:
@@ -2193,7 +2195,7 @@ paths:
       summary: 'Get all nodes'
       operationId: getCoreV3Nodes
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: query
           name: query
@@ -2260,9 +2262,9 @@ paths:
       summary: 'Add node'
       operationId: addCoreV3Node
       consumes:
-        - application/json
+        - application/json; charset=UTF-8
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: body
           name: body
@@ -2301,23 +2303,9 @@ paths:
         - name: node
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Node identifier'
-        - name: force
-          in: query
-          required: false
-          type: boolean
-          description: 'Force flag need to be set to delete a node from trash (node must have the deleted flag) '
-        - name: ignore_flag
-          in: query
-          required: false
-          type: boolean
-          description: 'If both ignore_flag and force_flag were set, the node will be deleted completely '
-        - name: at
-          in: query
-          required: false
-          type: integer
-          description: 'Has to be a valid unix timestamp if so the node will destroy itself at this specified time instead immediatly'
       responses:
         204:
           description: "If successful the server will respond with 204 No Content"
@@ -2343,11 +2331,12 @@ paths:
       summary: 'Get node'
       operationId: getCoreV3Node
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Node identifier'
         - name: attributes
@@ -2378,15 +2367,16 @@ paths:
       tags:
         - core.v3
       summary: 'Change node'
-      operationId: updateNode
+      operationId: patchCoreV3Node
       consumes:
-        - application/json-patch+json
+        - application/json; charset=UTF-8-patch+json
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Node identifier'
         - in: body
@@ -2429,6 +2419,7 @@ paths:
         - name: node
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Node identifier'
       responses:
@@ -2458,9 +2449,10 @@ paths:
       produces:
         - octet/stream
       parameters:
-        - name: node
+        - name: file
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Node identifier'
         - name: Range
@@ -2506,7 +2498,7 @@ paths:
       description: 'Get events containing all operations which are made by the user himself or share members'
       operationId: getCoreV3Events
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - in: query
           name: query
@@ -2564,13 +2556,14 @@ paths:
         - core.v3
       summary: 'Get events'
       description: 'Get event'
-      operationId: getCoreV3Events
+      operationId: getCoreV3Event
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: event
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'Event identifier'
       responses:
@@ -2598,11 +2591,12 @@ paths:
       description: 'Get event containing all operations which are made by the user or share members on a given node'
       operationId: getCoreV3NodeEvents
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           description: 'Node identifier'
           type: string
         - in: query
@@ -2663,11 +2657,12 @@ paths:
       description: 'The hirarchy of all parent nodes is ordered in a single level array beginning with the collection on the highest level.'
       operationId: getCoreV3ParentNodes
       produces:
-        - application/json
+        - application/json; charset=UTF-8
       parameters:
         - name: node
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           description: 'Node identifier'
           type: string
         - in: query
@@ -2712,6 +2707,7 @@ paths:
         - name: file
           in: path
           required: true
+          x-example: 5c46ee8a3fee73342c3e9c58
           type: string
           description: 'File identifier'
         - name: encode
@@ -2740,19 +2736,19 @@ responses:
     schema:
       $ref: '#/definitions/core.v3.Error'
   core.v3.Unauthorized:
-    description: core.v3.Unauthorized
+    description: Unauthorized
     schema:
       $ref: '#/definitions/core.v3.Error'
   UnprocessableEntity:
-    description: core.v3.Unauthorized
+    description: Unprocessable Entity
     schema:
       $ref: '#/definitions/core.v3.Error'
   core.v3.Conflict:
-    description: core.v3.Conflict
+    description: Conflict
     schema:
       $ref: '#/definitions/core.v3.Error'
   core.v3.Forbidden:
-    description: core.v3.Forbidden
+    description: Forbidden
     schema:
       $ref: '#/definitions/core.v3.Error'
   core.v3.BadRequest:
@@ -2765,6 +2761,7 @@ responses:
       $ref: '#/definitions/core.v3.Error'
 definitions:
   core.v3.Error:
+    description: "Error definiton."
     type: object
     properties:
       code:
@@ -2797,11 +2794,13 @@ definitions:
       next:
         $ref: "#/definitions/core.v3.Link"
   core.v3.Link:
+    description: "A http URI pointing to another resource"
     type: "object"
     properties:
       href:
         type: "string"
   core.v3.ResourceList:
+    description: "A readonly list of resources."
     type: "object"
     properties:
       links:
@@ -2839,7 +2838,8 @@ definitions:
       annotations:
         description: "Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata."
         type: object
-        additionalProperties: "string"
+        additionalProperties:
+          type: "string"
       id:
         description: "Unique 12-byte resource identifier. Note this is a MongoDB ObjectId. The id only useful to verify that a given resource was completely recreated. An ID is immutable and will be created on the server."
         type: "string"
@@ -3212,7 +3212,7 @@ definitions:
   core.v3.AccessRules:
     description: "A list of access rules."
     allOf:
-      - $ref: '#/definitions/core.v3.List'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:
@@ -3272,7 +3272,7 @@ definitions:
   core.v3.AccessRoles:
     description: "A list of access roles."
     allOf:
-      - $ref: '#/definitions/core.v3.List'
+      - $ref: '#/definitions/core.v3.ResourceList'
       - type: object
         properties:
           data:

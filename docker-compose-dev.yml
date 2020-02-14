@@ -5,14 +5,13 @@ networks:
 
 services:
   traefik:
-    image: traefik:v1.7-alpine
-    command: --web --docker --docker.domain=docker.localhost
+    image: traefik:v2.1
+    command: --providers.docker --entrypoints.http.Address=:80 --entrypoints.https.Address=:443
     ports:
       - "8084:80"
       - "4443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /dev/null:/traefik.toml
     networks:
     - backend
     - frontend
@@ -71,7 +70,7 @@ services:
               error_log /dev/stderr;
               client_max_body_size 16G;
 
-              location ~ ^/(api|webdav|share|oidc|openapi) {
+              location ~ ^/(api|webdav|wopi|share|openapi|auth) {
                   index index.php;
                   root /srv/www/balloon/src/httpdocs;
                   rewrite ^(.+)\\\$$ /index.php\\\$$1 last;
@@ -91,16 +90,18 @@ services:
       nginx -g "daemon off;"
       EOF'
     labels:
-    - traefik.backend=balloon-api
-    - "traefik.frontend.rule=PathPrefix:/api,/webdav,/share,/wopi,/oidc,/openapi"
+    - "traefik.http.routers.api-http.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/openapi`)"
+    - "traefik.http.routers.api-https.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/openapi`)"
+    - "traefik.http.routers.api-https.tls"
   balloon-web:
     image: gyselroth/balloon-web:3.2.12
     networks:
     - backend
     - frontend
     labels:
-    - traefik.backend=web
-    - "traefik.frontend.rule=PathPrefix:/"
+    - "traefik.http.routers.webui-http.rule=PathPrefix(`/`)"
+    - "traefik.http.routers.webui-https.rule=PathPrefix(`/`)"
+    - "traefik.http.routers.webui-https.tls"
   balloon-upgrade:
     image: gyselroth/balloon:latest-dev
     volumes:
@@ -132,9 +133,11 @@ services:
     - backend
     environment: *env
     labels:
-    - traefik.port=80
-    - traefik.backend=balloon-ws
-    - "traefik.frontend.rule=PathPrefix:/ws"
+    #overwrite port 9000 because of php-fpm
+    - "traefik.http.services.balloon-ws.loadbalancer.server.port=80"
+    - "traefik.http.routers.ws-http.rule=PathPrefix(`/ws`)"
+    - "traefik.http.routers.ws-https.rule=PathPrefix(`/ws`)"
+    - "traefik.http.routers.ws-https.tls"
   balloon-api:
     image: gyselroth/balloon:latest-dev
     volumes:
@@ -143,3 +146,64 @@ services:
     networks:
     - backend
     environment: *env
+  hydra-migrate:
+    image: oryd/hydra:latest
+    environment:
+      - DSN=postgres://hydra:secret@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+    command:
+      migrate sql -e --yes
+    restart: on-failure
+  hydra:
+    image: oryd/hydra:latest
+    depends_on:
+      - hydra-migrate
+    ports:
+      - "4444:4444" # Public port
+      - "4445:4445" # Admin port
+      - "5555:5555" # Port for hydra token user
+    command:
+      serve all --dangerous-force-http
+    environment:
+      - SERVE_PUBLIC_CORS_ENABLED=true
+      - SERVE_PUBLIC_CORS_DEBUG=true
+      - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=*
+      - URLS_SELF_ISSUER=http://localhost:8084
+      - URLS_CONSENT=http://localhost:8084/consent
+      - URLS_LOGIN=http://localhost:8084/login
+      - URLS_LOGOUT=http://localhost:8084/logout
+      - DSN=postgres://hydra:secret@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+      - SECRETS_SYSTEM=youReallyNeedToChangeThis
+      - OIDC_SUBJECT_TYPES_SUPPORTED=public,pairwise
+      - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=youReallyNeedToChangeThis
+    restart: unless-stopped
+    networks:
+    - backend
+    - frontend
+    labels:
+    - "traefik.http.routers.oidc-http.rule=PathPrefix(`/.well-known/openid-configuration`) || PathPrefix(`/userinfo`) || PathPrefix(`/.well-known/jwks.json`) || PathPrefix(`/oauth2`)"
+    - "traefik.http.routers.oidc-https.rule=PathPrefix(`/.well-known/openid-configuration`) || PathPrefix(`/userinfo`) || PathPrefix(`/.well-known/jwks.json`) || PathPrefix(`/oauth2`)"
+    - "traefik.http.routers.oidc-https.tls"
+  postgresd:
+    image: postgres:9.6
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=hydra
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=hydra
+    networks:
+    - backend
+    - frontend
+  balloon-auth:
+    environment:
+      - HYDRA_ADMIN_URL=http://hydra:4445
+      - BALLOON_AUTH_URL=http://balloon-proxy/auth
+    image: gyselroth/balloon-auth:latest-dev
+    restart: unless-stopped
+    networks:
+    - backend
+    - frontend
+    labels:
+    - "traefik.http.routers.consent-http.rule=PathPrefix(`/consent`) || PathPrefix(`/login`) || PathPrefix(`/logout`)"
+    - "traefik.http.routers.consent-https.rule=PathPrefix(`/consent`) || PathPrefix(`/login`) || PathPrefix(`/logout`)"
+    - "traefik.http.routers.consent-https.tls"

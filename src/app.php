@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Balloon\Async\WorkerFactory;
 use Balloon\Auth\Adapter\Basic\Db;
+use Micro\Auth\Adapter\Oidc;
 use Balloon\Converter;
 use Balloon\Converter\Adapter\ImagickImage;
 use Balloon\Migration;
@@ -29,7 +30,8 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher as FastRouteDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as FastRouteRoutes;
 use FastRoute\RouteCollector;
-use Balloon\Rest\Openapi;
+use Balloon\Rest\Routes\Openapi as OpenapiRoute;
+use Balloon\Rest\Routes\Auth as AuthRoute;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std;
 use Lcobucci\ContentNegotiation\ContentTypeMiddleware;
@@ -123,6 +125,63 @@ return [
                     ],
                 ],
             ],
+            AuthMiddleware::class => [
+                'calls' => [
+                    [
+                      'method' => 'injectHandler',
+                      'arguments' => [
+                        'name' => 'internal-auth',
+                        'prefix' => '/auth',
+                        'handler' => '{InternalAuth}'
+                      ]
+                    ],
+                    [
+                      'method' => 'injectHandler',
+                      'arguments' => [
+                        'name' => 'api-auth',
+                        'prefix' => '/api',
+                        'handler' => '{ApiAuth}'
+                      ]
+                    ]
+                ],
+                'services' => [
+                    'InternalAuth' => [
+                        'use' => Auth::class,
+                        'calls' => [
+                            [
+                                'method' => 'injectAdapter',
+                                'arguments' => ['adapter' => '{'.Db::class.'}', 'name' => 'basic_db'],
+                            ],
+                        ]
+                    ],
+                    'ApiAuth' => [
+                        'use' => Auth::class,
+                        'calls' => [
+                            [
+                                'method' => 'injectAdapter',
+                                'arguments' => ['adapter' => '{'.Oidc::class.'}', 'name' => 'oidc'],
+                            ],
+                        ],
+                        'services' => [
+                            Oidc::class => [
+                                'arguments' => [
+                                    'config' => [
+                                        'identity_attribute' => 'sub',
+                                        'provider_url' => "http://hydra:4444",
+                                        'userinfo_url' => 'http://hydra:4444/userinfo',
+                                        'map' => [
+                                            'username' => [
+                                                'type' => 'string',
+                                                'attr' => 'sub',
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         ],
     ],
     Emitter::class => [
@@ -153,7 +212,8 @@ return [
                 'handler',
             ],
             'batch' => [
-                ['GET', '/openapi/v2', [Openapi::class, 'getV2']],
+                ['GET', '/openapi/v2', [OpenapiRoute::class, 'getV2']],
+                ['GET', '/auth', [AuthRoute::class, 'getIdentity']],
             ]
         ]],
         'services' => [
@@ -415,14 +475,6 @@ return [
             Delta\CoreInstallation::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CoreInstallation::class.'}', 'priority' => 100],
-            ],
-        ],
-    ],
-    Auth::class => [
-        'calls' => [
-            'basic_db' => [
-                'method' => 'injectAdapter',
-                'arguments' => ['adapter' => '{'.Db::class.'}', 'name' => 'basic_db'],
             ],
         ],
     ],

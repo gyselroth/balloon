@@ -35,6 +35,7 @@ return [
                 'handler',
             ],
             'batch' => [
+                ['GET', '/api/v3/users/whoami', [v3\Users::class, 'getWhoami']],
                 ['GET', '/api/v3/users', [v3\Users::class, 'getAll']],
                 ['GET', '/api/v3/users/{user}', [v3\Users::class, 'getOne']],
                 ['POST', '/api/v3/users', [v3\Users::class, 'post']],

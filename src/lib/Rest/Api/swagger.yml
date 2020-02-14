@@ -23,6 +23,18 @@ paths:
       responses:
         200:
           description: "openapi v2 (swagger) specs"
+  /openapi/v3:
+    get:
+      tags:
+        - openapi
+      summary: 'Get openapi v3 specs'
+      operationId: getOpenApiV3
+      security: []
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "openapi v3 specs"
 security:
   - BasicAuth: []
   - BearerAuth: []
@@ -48,3 +60,4 @@ definitions:
       path:
         type: "string"
       value:
+        description: May be anyting

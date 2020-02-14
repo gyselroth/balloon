@@ -172,7 +172,7 @@ class Factory
         $result = $cursor->toArray();
 
         if (count($result) === 0) {
-            throw new Exception\NotFound('user '.$id.' is not registered');
+            throw new Exception\NotFound('user '.$name.' is not registered');
         }
 
         return $this->build($result[0]);

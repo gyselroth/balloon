@@ -18,16 +18,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use League\Event\Emitter;
+use Micro\Auth\Exception\NotAuthenticated as NotAuthenticatedException;
+use Balloon\User\Exception\NotFound as NotFoundException;
 
 class Auth implements MiddlewareInterface
 {
-    /**
-     * Auth.
-     *
-     * @var CoreAuth
-     */
-    protected $auth;
-
     /**
      * User factory.
      *
@@ -36,13 +31,31 @@ class Auth implements MiddlewareInterface
     protected $user_factory;
 
     /**
+     * Auth handlers
+     *
+     * @var array
+     */
+    protected $handlers = [];
+
+    /**
      * Init.
      */
-    public function __construct(CoreAuth $auth, Emitter $emitter, UserFactory $user_factory)
+    public function __construct(Emitter $emitter, UserFactory $user_factory)
     {
-        $this->auth = $auth;
         $this->emitter = $emitter;
         $this->user_factory = $user_factory;
+    }
+
+    /**
+     * Inject an authentication handler for a given route prefix
+     */
+    public function injectHandler(string $name, string $prefix, CoreAuth $handler) {
+        $this->handlers[$name] = [
+          'prefix' => $prefix ?? '/',
+          'handler' => $handler,
+        ];
+
+        return $this;
     }
 
     /**
@@ -53,14 +66,23 @@ class Auth implements MiddlewareInterface
         $target = $request->getRequestTarget();
         $this->emitter->emit('http.stack.preAuth', $request);
 
-        if (preg_match('#^/spec/#', $target)) {
-            return $handler->handle($request);
-        }
+        foreach($this->handlers as $auth_handler) {
+          if (preg_match('#^'.$auth_handler['prefix'].'#', $target)) {
+            $attributes = $request->getAttributes();
 
-        $attributes = $request->getAttributes();
-        if (!isset($attributes['identity']) && $identity = $this->auth->requireOne($request)) {
-            $this->emitter->emit('http.stack.postAuth', $request, $identity);
-            $request = $request->withAttribute('identity', $this->user_factory->build($identity->getRawAttributes()));
+            if (!isset($attributes['identity']) && $identity = $auth_handler['handler']->requireOne($request)) {
+                $this->emitter->emit('http.stack.postAuth', $request, $identity);
+
+                try {
+                  $user = $this->user_factory->getOneByName($identity->getIdentifier());
+                } catch(NotFoundException $e) {
+                  throw new NotAuthenticatedException("the requested identity has not been found and auto create is disabled", 0, $e);
+                }
+
+                $request = $request->withAttribute('identity', $user);
+                return $handler->handle($request);
+            }
+          }
         }
 
         return $handler->handle($request);
