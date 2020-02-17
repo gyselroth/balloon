@@ -55,13 +55,11 @@ class Gridfs implements AdapterInterface
 
     /**
      * GridFS storage.
-     *
-     * @param Database
      */
     public function __construct(Database $db, UserFactory $user_factory, LoggerInterface $logger)
     {
         $this->db = $db;
-        $this->gridfs = $db->selectGridFSBucket();
+        $this->gridfs = $gridfs;
         $this->logger = $logger;
         $this->user_factory = $user_factory;
     }
@@ -205,7 +203,7 @@ class Gridfs implements AdapterInterface
                 ],
             ]);
 
-            $this->gridfs->delete($session);
+            $this->gridfs->delete($session->getId());
 
             return [
                 'reference' => ['_id' => $blob['_id']],
@@ -213,7 +211,7 @@ class Gridfs implements AdapterInterface
         }
 
         $this->db->selectCollection('fs.files')->updateOne([
-            '_id' => $session,
+            '_id' => $session->getId(),
         ], [
             '$set' => [
                 'md5' => $md5,
@@ -446,10 +444,7 @@ class Gridfs implements AdapterInterface
 
             $this->gridfs->delete($session);
 
-            throw new Exception\InsufficientStorage(
-                'user quota is full',
-                Exception\InsufficientStorage::USER_QUOTA_FULL
-            );
+            throw new Exception\InsufficientStorage('user quota is full', Exception\InsufficientStorage::USER_QUOTA_FULL);
         }
 
         return true;

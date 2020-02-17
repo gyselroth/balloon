@@ -18,6 +18,8 @@ services:
   mongodb:
     image: mongo:4.2
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    ports:
+      - "27017:27017"
     networks:
     - backend
   clamav:
@@ -25,22 +27,24 @@ services:
     networks:
     - backend
   libreoffice-convert:
-    image: collabora/code:4.0.8.2
+    image: collabora/code:4.2.0.3
     environment:
-      - domain=localhost
-      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:storage.wopi.host[2]=::ffff:172.[0-9]+.[0-9]+.[0-9]+"
+      - domain=localhost|traefik
+      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+"
     networks:
     - backend
   libreoffice-collab:
-    image: collabora/code:4.0.8.2
-    ports:
-      - "9980:9980"
+    image: collabora/code:4.2.0.3
     environment:
-      - domain=localhost
-      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:storage.wopi.host[2]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:net.frame_ancestors="localhost:*"
+      - domain=localhost|traefik
+      - extra_params=--o:ssl.termination=true --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.service_root="/libreoffice" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.frame_ancestors="localhost:*"
     networks:
     - backend
     - frontend
+    labels:
+    - "traefik.http.routers.loolwsd-http.rule=PathPrefix(`/libreoffice`)"
+    - "traefik.http.routers.loolwsd-https.rule=PathPrefix(`/libreoffice`)"
+    - "traefik.http.routers.loolwsd-https.tls"
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
     entrypoint:
@@ -94,7 +98,7 @@ services:
     - "traefik.http.routers.api-https.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/openapi`)"
     - "traefik.http.routers.api-https.tls"
   balloon-web:
-    image: gyselroth/balloon-web:3.2.12
+    image: gyselroth/balloon-client-web:latest
     networks:
     - backend
     - frontend
@@ -106,7 +110,7 @@ services:
     image: gyselroth/balloon:latest-dev
     volumes:
     - .:/srv/www/balloon
-    entrypoint: /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv
+    entrypoint: make deps && php /srv/www/balloon/src/cgi-bin/cli.php upgrade -vvvv
     networks:
     - backend
     environment: &env

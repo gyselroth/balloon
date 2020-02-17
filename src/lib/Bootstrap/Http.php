@@ -118,14 +118,18 @@ class Http extends AbstractBootstrap
                 $code = 401;
             }
 
-            (new Response())
-                ->setHeader('WWW-Authenticate', 'Basic realm="balloon"')
+            $response = (new Response())
                 ->setCode($code)
                 ->setBody([
                     'error' => 'Unauthorized',
                     'message' => 'authentication failed',
-                ])
-                ->send();
+                ]);
+
+            if (!isset($_SERVER['HTTP_AUTHORIZATION']) || substr($_SERVER['HTTP_AUTHORIZATION'], 0, 5) === 'Basic') {
+                $response->setHeader('WWW-Authenticate', 'Basic realm="balloon"');
+            }
+
+            $response->send();
         }
     }
 

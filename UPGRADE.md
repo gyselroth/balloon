@@ -1,3 +1,16 @@
+## 2.x -> 2.7.x
+
+### Config
+
+* If you have a custom throttle time configured for notifications under `Balloon\App\Notification\Hook\Subscription`, this has to be configured
+under `Balloon\App\Notification\Notifier`.
+
+### Deployment
+
+* If you have a availability check confiured, you should now use the `/healthz` endpoint. See issue #377 for further information.
+* There is a new env variable for the libreoffice wopi server (BALLOON_LIBREOFFICE_COLLAB_WOPI_URL), by default this points to the balloon-proxy endpoint, but may be changeable in your deployment. If you have any additional office servers like Office365, you are required to configure `wopi_url` alongside `url` which must hold the url to the balloon wopi endpoint and must be reachable by the office server (You also are required to include /wopi). See issue #405 for further information.
+
+
 ## 2.x -> 2.6.x
 
 ### Upgrade
@@ -14,14 +27,14 @@ ballooncli upgrade -vvvv
 balloon v2.5 requires elasticsearch 6.x and the newer elasticsearch ingest-attachment instead of mapper-attachment.
 This requires a full reindex of elasticsearch:
 
->**Note**: The reindex process makes use of the async functionality of balloon, the more worker you have the faster it will index.
+>**Note** The reindex process makes use of the async functionality of balloon, the more worker you have the faster it will index.
 This may take while to fully index all documents.
 
 ```
 ballooncli elasticsearch reindex -vvv
 ```
 
->**Note**: v2.5 creates new elasticsearch indices (`blobs` and `nodes`). You may drop the previously indices (default name: balloon).
+>**Note** v2.5 creates new elasticsearch indices (`blobs` and `nodes`). You may drop the previously indices (default name: balloon).
 
 ### Libreoffice
 balloon v2.5 requires loolwsd for office previews. Previously libreoffice (soffice.bin) has been shipped with balloon or has been declared as optional requirement.

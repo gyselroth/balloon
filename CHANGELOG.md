@@ -1,6 +1,207 @@
+## 2.7.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Feb 06 15:07:22 CET 2020
+
+### Bugfixes
+* Match and replace wopi uri in discovery does not work in k8s helm chart #443 
+
+
+## 2.7.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Feb 04 10:17:22 CET 2020
+
+### Bugfixes
+* Translate WOPI discovery for incoming host header #405
+
+
+## 2.7.0-beta4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jan 16 13:45:22 CET 2020
+
+### Bugfixes
+* WOPI discovery internal url may now be translated into an external url if the discovery sheet was fetched by the balloon-api server #405
+
+
+## 2.7.0-beta3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Jan 14 10:39:22 CET 2020
+
+### Bugfixes
+* Argument 2 passed to Balloon\\Filesystem\\Node\\Collection::addFile() must be an instance of Balloon\\Session\\SessionInterface or null, instance of MongoDB\\BSON\\ObjectId given #382 
+* Documented missing API endpoint in wopi.v2 /api/v2/files/{file}/tokens
+* wopi test PutRelativeAndRenameFile.RenamingADeletedFileShouldReturnA404 fails #422
+* No Balloon\\Server\\Group\\Exception\\NotUnique exception if a PATCH was issued with the same name
+* Update changed timestamp after a group has been modified
+* ErrorException "Undefined index: body" at POST /api/v2/nodes/search with an invalid query
+* POST /api/v2/nodes/{node}/clone?conflict=1 ends with error 500 if node name has no dot #433 
+* Fetch content with an empty Range header results in error 500 Undefined offset: 1 #434
+
+### Changes
+* Backported new swagger specs from v3.0 which contain the scope (example: CoreV2 => getCoreV2Node) in the operationId
+* New docker-compose-dev.yml (includes traefik as request router)
+* wopi test Fail: files.PutFileReturnsDifferentVersion fails #423
+* DELETE group via api removes the group now completely
+* Dropped api endpoint /api/v2/groups/{group}/undelete; There was no real support for group undelete
+* Allow duplicate accounts with null as mail adresss #437
+
+### Features
+* Pass webdav litmus tests #424
+* Add integration tests (api,wopi,webdav) #421
+* Add support for rfc4709 mount webdav #431
+
+
+## 2.7.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dec 11 11:34:32 CET 2019
+
+### Bugfixes
+* Argument 1 passed to Balloon\Filesystem\Node\File::setContent() must be an instance of Balloon\Session\SessionInterface, instance of MongoDB\BSON\ObjectId given, called in /srv/www/balloon/src/lib/Filesystem/Node/File.php on line 520 #382
+* Fixes 422 - invalid id given Balloon\Filesystem\Exception\InvalidArgument while uploading a file into root via PUT /api/v2/files|chunk #382
+* Balloon Image Upload via V1 api failed #416
+
+
+## 2.7.0-beta1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dec 04 09:52:42 CET 2019
+
+### Bugfixes
+* POST /api/v2/notifications reads message from attr named body instead message #400
+* Newly added folders from other users within a share get not added to other users descriptions #406
+* Upload big file (~7GB) ends in 504 Gateway Timeout due slow md5 sum calculation #382
+
+### Changes
+* Balloon\App\Notification\Notifier,WARNING: there are no notification adapter enabled, notification can not be sent [] [] #401
+* Drop expiremental feature file based acl #375
+* Do not send notification based on temporary file changes #378
+* Update to sabredav v4 #354
+* The wopi protocol should be reachble at /wopi instead /api/v2/office/wopi/ #407
+* Provide WOPI host via api #405
+* Possibility to provide custom gridfs #410
+* Converter now only uses the first matched adapter and does not continue with others if that one failed
+* Added various new default env variables
+
+### Features
+* Provide /healthz endpoint #377
+* Support office docs, pdfs, .. to image as convert shadow #399
+* Add custom throttle time to subscription #155
+* Possibility to manually provide/delete a preview #393
+* New api endpoint to submit error reports to developers #412
+
+### Common
+* Starting with v2.7.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability. Note for debian pkg changelog the issues get merged in a single list.
+
+### Packaging
+* Discontinue distribution of deb packages #415
+
+
+## 2.6.10
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Jan 10 16:10:42 CET 2020
+
+* CORE: [FIX] Incoming share get not connected if the acl holds a deny rule #436
+
+
+## 2.6.9
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 18 16:24:42 CET 2019
+
+* CORE: [FIX] storage blob is gone with duplicate chunkgroup in api v1 #426
+
+
+## 2.6.8
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Dez 02 13:56:42 CET 2019
+
+* CORE: [FIX] Upgrade micro-container to v2.3 (fixes interface params which are not overwriteable in the di config)
+* CORE: [CHANGE] Increased default timeout for office conversion to 30s.
+
+
+## 2.6.7
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Oct 22 09:50:42 CEST 2019
+
+* API: [FIX] Download file > ~6GB ends in invalid checksum and partial data #395
+* API: [FIX] Upload big file (~7GB) ends in 504 Gateway Timeout due slow md5 sum calculation #382
+* API: [FIX] Update user with unchanged username results in exception #394
+
+
+## 2.6.6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Oct 15 15:37:42 CEST 2019
+
+* CORE: [CHANGE] Include nginx deb dependency (does not require balloon-web package anymore)
+* CORE: [FIX] ballooncli returns with an exit code 1 if an exception occured #380
+* CORE: [FIX] Changed packaging/kubernetes resources to the latest tag
+* CORE: [FIX] Use param $hooks instead of $hook
+* CORE: [FIX] Upgrade command fails #376
+* CORE: [CHANGE] Env BALLOON_LIBREOFFICE_URL is now splitted into BALLOON_LIBREOFFICE_COLLAB_URL and BALLOON_LIBREOFFICE_CONVERT_URL
+* CORE: [CHANGE] Balloon.App.Wopi now contains a WOPI host BALLOON_LIBREOFFICE_COLLAB_URL by default
+
+
+## 2.6.5
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Aug 28 14:15:42 CEST 2019
+
+* CORE: [FIX] Delta extremely slow with many nodes from inbox shares #372
+
+
+## 2.6.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Aug 22 16:13:42 CEST 2019
+
+* CORE: [FIX] SMB folder does not get synced correctly (use parent storage) #368
+
+
+## 2.6.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Aug 21 14:31:43 CEST 2019
+
+* CORE: [FIX] SMB folder does not get synced correctly (failed sync child node) #368
+* CORE: [FIX] Node children count does not account groups #351
+
+
+## 2.6.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jul 11 12:25:42 CEST 2019
+
+* CORE: [FIX] Argument 2 passed to Balloon\Filesystem\Acl::processShareMember() must be an instance of Balloon\Server\User, null given #362
+* CORE: [FIX] Libreoffice online shows "changed 49 years ago" in the top header #363
+* CORE: [FIX] wopi loolwsd save does not work, 409 not locked response #359
+* CORE: [FIX] /trash may respond no data but a total nodes higher than limit #361
+
+
+## 2.6.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Jul 05 10:14:42 CEST 2019
+
+* CORE: [FIX] Add new file via webdav ends in error #355
+* API: [FIX] apiv1/v2 colletion size is always 0 if the node gets requested directly #353
+* API: [FIX] Node count calculated wrong for mailbox share access #356
+
+
+## 2.6.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Jun 25 08:15:43 CEST 2019
+
+* API: [CHANGE] Added token endpoint to openapi/swagger specs
+* CORE: [FIX] Fatal error: Allowed memory size of 134217728 bytes exhausted bug #349
+
+
+## 2.6.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Jun 14 16:19:43 CEST 2019
+
+* CORE: [CHANGE] Do not send WWW-Authenticate header if Basic was not requested via Authorization header #342
+* CORE: [CHANGE] Merge v2.5.x releases (v2.5.3 - v2.5.6)
+* API: [CHANGE] added v1 prefix to all openapi resources
+* API: [CHANGE] removed deprecated wopi endopoints from openapi schema
+* CORE: [CHANGE] Incresed device creation challenge timeout from 20s to 60s #307
+* API: [FEATURE] Add has_password flag to users #347
+
+
 ## 2.6.0-beta1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**:
+**Date**: Wed Jun 05 14:50:43 CEST 2019
 
 * CORE: [FEATURE] Introduce node locks #320
 * API: [FEATURE]  Implement propper WOPI support Balloon.App.Wopi #154
@@ -12,6 +213,38 @@
 * API: [FEATURE] Add query to all get api endpoints #315
 * CORE: [CHANGE] Users mail address must be unique #262
 * CORE: [CHANGE] Better disable/enable of apps #336
+* API: [FEATURE] ETag for GET `api/v2/files/content/` #339
+
+
+## 2.5.6
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jun 13 11:43:31 CEST 2019
+
+* CORE: [CHANGE] Slow performance in GET nodes #343 
+* CORE: [FIX] Not all nodes are returned if a nodes have a custom acl within a shared folder #344
+
+
+## 2.5.5
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri May 17 12:04:22 CEST 2019
+
+* CORE: [FIX] authentication via token endpoint does not work using mail adress #328
+
+
+## 2.5.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue May 14 17:00:30 CEST 2019
+
+* CORE: [CHANGE] Do not clone node if unshare as manager #322
+
+
+## 2.5.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon May 13 13:54:30 CEST 2019
+
+* CORE: [FIX] Share can not be removed from share manager member #322
+* API: [FIX] file preview /api/v1/file/preview?id=XXX #319
+* CORE: [FIX] Subscription mentions path from change issuer instead receiver #276
 
 
 ## 2.5.2

@@ -1095,6 +1095,12 @@ paths:
           description: Apply subscription to children (inclusive newly added children)
           schema:
             type: boolean
+        - name: throttle
+          in: query
+          required: false
+          description: Set a custom notification throttle interval in seconds
+          schema:
+            type: integer
       responses:
         "202":
           description: Node
@@ -2825,6 +2831,25 @@ paths:
           $ref: "#/components/responses/UnprocessableEntity"
         "500":
           $ref: "#/components/responses/InternalServerError"
+<<<<<<< HEAD:api/openapi.yml
+=======
+  /api/v2/feedbacks:
+    post:
+      tags:
+        - feedback.v2
+      description: Submit feedback
+      summary: Submit a feedback to the developers of balloon (or another destination).
+        You may submit some metadata and a zipped collection of debug
+        information.
+      operationId: submitFeedback
+      responses:
+        "201":
+          description: Feedback submited
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+>>>>>>> origin/v2.7:src/app/Balloon.App.Api/openapi.yml
   "/api/v2/files/{file}/preview":
     get:
       tags:
@@ -2849,7 +2874,11 @@ paths:
             type: string
       responses:
         "200":
+<<<<<<< HEAD:api/openapi.yml
           description: Binara data
+=======
+          description: Binary data
+>>>>>>> origin/v2.7:src/app/Balloon.App.Api/openapi.yml
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -2862,6 +2891,69 @@ paths:
           $ref: "#/components/responses/UnprocessableEntity"
         "500":
           $ref: "#/components/responses/InternalServerError"
+<<<<<<< HEAD:api/openapi.yml
+=======
+    patch:
+      tags:
+        - preview.v2
+      description: Create preview
+      summary: Create or replace preview of a file. A preview may be a maximum of 2MB
+      operationId: setPreview
+      parameters:
+        - name: file
+          in: path
+          required: true
+          description: File identifier
+          schema:
+            type: string
+      responses:
+        "200":
+          description: File
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/core.v2.File"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - preview.v2
+      description: Delete preview
+      summary: Delete an existing preview
+      operationId: deletePreview
+      parameters:
+        - name: file
+          in: path
+          required: true
+          description: File identifier
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Preview deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+>>>>>>> origin/v2.7:src/app/Balloon.App.Api/openapi.yml
 security:
   - BasicAuth: []
   - BearerAuth: []
@@ -3172,8 +3264,13 @@ components:
               format: date-time
             deleted:
               description: ISO 8601 timestamp when the resource was deleted.
+<<<<<<< HEAD:api/openapi.yml
               format: date-time
               type: string
+=======
+              type: string
+              format: date-time
+>>>>>>> origin/v2.7:src/app/Balloon.App.Api/openapi.yml
             name:
               description: Node name.
               type: string
@@ -3267,6 +3364,10 @@ components:
             subscription_exclude_me:
               description: Subscription excludes actions from the subscribed user itself.
               type: boolean
+              default: false
+            subscription_throttle:
+              description: Subscription throttle interval in seconds
+              type: integer
               default: false
             sharelink_has_password:
               description: Is true if the node has a protected public sharelink.

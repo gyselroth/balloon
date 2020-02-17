@@ -26,7 +26,6 @@ abstract class AbstractBootstrap
     /**
      * Inject object.
      *
-     *
      * @return AbstractBootstrap
      */
     public function inject($object): self

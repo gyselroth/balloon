@@ -116,6 +116,12 @@ class Acl
      */
     public function getAclPrivilege(NodeInterface $node, ?UserInterface $user = null): string
     {
+        $user = $user === null ? $node->getFilesystem()->getUser() : $user;
+
+        if ($user === null) {
+            return self::PRIVILEGE_MANAGE;
+        }
+
         if ($node->isShareMember()) {
             return $this->processShareMember($node, $user);
         }
@@ -231,18 +237,7 @@ class Acl
             return self::PRIVILEGE_MANAGE;
         }
 
-        $acl = $node->getAttributes()['acl'];
-        $share = $this->processRuleset($user, $share['acl']);
-
-        if (count($acl) > 0) {
-            $own = $this->processRuleset($user, $node->getAttributes()['acl']);
-
-            if ($share !== self::PRIVILEGE_DENY) {
-                return $own;
-            }
-        }
-
-        return $share;
+        return $this->processRuleset($user, $share['acl']);
     }
 
     /**
@@ -251,9 +246,9 @@ class Acl
     protected function processShareReference(NodeInterface $node, UserInterface $user): string
     {
         try {
-            $share = $node->getFilesystem()->findRawNode($node->getShareId());
+            $share = $node->getFilesystem()->findRawNode($node->getReference());
         } catch (\Exception $e) {
-            $this->logger->error('could not find share node ['.$node->getShareId().'] for reference ['.$node->getId().'], dead reference?', [
+            $this->logger->error('could not find share node ['.$node->getReference().'] for reference ['.$node->getId().'], dead reference?', [
                  'category' => get_class($this),
                  'exception' => $e,
             ]);

@@ -1,0 +1,4 @@
+* deleted false => null
+* rename storage => nodes
+* rename user => users
+* rename delta => deltas

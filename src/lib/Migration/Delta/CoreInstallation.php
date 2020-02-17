@@ -64,10 +64,17 @@ class CoreInstallation implements DeltaInterface
             $collections[] = $collection->getName();
         }
 
-        $this->db->users->createIndex(['username' => 1], ['unique' => true]);
-        $this->db->users->createIndex(['mail' => 1], ['unique' => true]);
-        $this->db->groups->createIndex(['member' => 1]);
+        $this->db->user->createIndex(['username' => 1], ['unique' => true]);
+        $this->db->user->createIndex(['mail' => 1], [
+            'unique' => true,
+            'partialFilterExpression' => [
+                'mail' => [
+                    '$type' => 'string',
+                ],
+            ],
+        ]);
 
+        $this->db->group->createIndex(['member' => 1]);
         $this->db->selectCollection('fs.files')->createIndex(['md5' => 1], [
             'unique' => true,
             'partialFilterExpression' => [

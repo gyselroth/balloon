@@ -137,7 +137,7 @@ class Blackhole implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeFile(File $file, ObjectId $session): array
+    public function storeFile(File $file, SessionInterface $session): array
     {
         $hash = hash_init('md5');
 
