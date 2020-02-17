@@ -194,7 +194,7 @@ services:
     networks:
     - backend
     - frontend
-  balloon-auth:
+  balloon-auth-consent:
     environment:
       - HYDRA_ADMIN_URL=http://hydra:4445
       - BALLOON_AUTH_URL=http://balloon-proxy/auth
