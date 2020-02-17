@@ -275,6 +275,7 @@ class File extends Node
 
         $session = $this->db->selectCollection('fs.files')->findOne([
             'metadata.chunkgroup' => $this->server->getIdentity()->getId().'_'.$chunkgroup,
+            'metadata.temporary' => true,
         ]);
 
         $storage = $this->getStorage($id, $p, $collection);

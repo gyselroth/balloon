@@ -1,3 +1,17 @@
+## 2.6.10
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Jan 10 16:10:42 CET 2020
+
+* CORE: [FIX] Incoming share get not connected if the acl holds a deny rule #436
+
+
+## 2.6.9
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dez 18 16:24:42 CET 2019
+
+* CORE: [FIX] storage blob is gone with duplicate chunkgroup in api v1 #426
+
+
 ## 2.6.8
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Dez 02 13:56:42 CET 2019
