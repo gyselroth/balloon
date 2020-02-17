@@ -65,13 +65,7 @@ class Markdown extends Office
      */
     public function getSupportedFormats(File $file): array
     {
-        if (in_array($file->getContentType(), $this->locked_formats, true)) {
-            return [
-                array_search($file->getContentType(), $this->locked_formats, true),
-            ];
-        }
-
-        return array_keys($this->formats['text']);
+        return array_keys($this->dest_formats['text']);
     }
 
     /**

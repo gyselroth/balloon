@@ -1,3 +1,5 @@
+child.log
+debug.log
 vendor
 config/config.yaml
 config/php.ini

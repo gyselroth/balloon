@@ -54,7 +54,7 @@ class Collections extends Nodes
         }
         $this->logger->debug(json_encode($query));
 
-        $nodes = $this->fs->getNode($id, Collection::class, false, true)->getChildNodes($deleted, $query, $offset, $limit, $recursive);
+        $nodes = $this->fs->getNode($id, Collection::class, false, true)->getChildren($deleted, $query, $offset, $limit, $recursive);
         $pager = new Pager($this->node_decorator, $nodes, $attributes, $offset, $limit, $uri);
         $result = $pager->paging();
 

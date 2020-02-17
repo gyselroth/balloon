@@ -32,7 +32,9 @@ class Http
             ->prependRoute(new Route('/api/v2/nodes|files|collections/subscription(/|\z)', v2\Subscription::class))
             ->prependRoute(new Route('/api/v2/nodes|files|collections/{id:#([0-9a-z]{24})#}/subscription(/|\z)', v2\Subscription::class));
 
-        $decorator->addDecorator('subscription', function ($node) use ($notifier, $server) {
+        $subscription = null;
+
+        $decorator->addDecorator('subscription', function ($node) use ($notifier, $server, &$subscription) {
             $subscription = $notifier->getSubscription($node, $server->getIdentity());
             if ($subscription === null) {
                 return false;
@@ -41,8 +43,7 @@ class Http
             return true;
         });
 
-        $decorator->addDecorator('subscription_exclude_me', function ($node) use ($notifier, $server) {
-            $subscription = $notifier->getSubscription($node, $server->getIdentity());
+        $decorator->addDecorator('subscription_exclude_me', function ($node) use (&$subscription) {
             if ($subscription === null) {
                 return false;
             }
@@ -50,17 +51,24 @@ class Http
             return $subscription['exclude_me'];
         });
 
-        $decorator->addDecorator('subscription_recursive', function ($node) use ($notifier, $server) {
+        $decorator->addDecorator('subscription_recursive', function ($node) use (&$subscription) {
             if (!($node instanceof Collection)) {
                 return null;
             }
 
-            $subscription = $notifier->getSubscription($node, $server->getIdentity());
             if ($subscription === null) {
                 return false;
             }
 
             return $subscription['recursive'];
+        });
+
+        $decorator->addDecorator('subscription_throttle', function ($node) use ($notifier, &$subscription) {
+            if ($subscription === null) {
+                return $notifier->getThrottleTime();
+            }
+
+            return $subscription['throttle'] ?? $notifier->getThrottleTime();
         });
     }
 }

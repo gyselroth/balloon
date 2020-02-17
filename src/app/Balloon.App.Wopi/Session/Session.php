@@ -83,9 +83,9 @@ class Session implements SessionInterface
     /**
      * Get wopi url.
      */
-    public function getWopiUrl(): string
+    public function getWopiUrl(string $url = 'http://localhost/wopi'): string
     {
-        return $this->session['client'].'/api/v2/office/wopi/files/'.$this->file->getId().'?access_token='.$this->getAccessToken().'&access_token_ttl='.$this->getAccessTokenTTl();
+        return $url.'/wopi/files/'.$this->file->getId().'?access_token='.$this->getAccessToken().'&access_token_ttl='.$this->getAccessTokenTTl();
     }
 
     /**
@@ -100,7 +100,7 @@ class Session implements SessionInterface
             'DisablePrint' => false,
             'DisableTranslation' => false,
             'FileVersionPostMessage' => true,
-            'PostMessageOrigin' => $this->session['client'],
+            'PostMessageOrigin' => $this->session['post_message_origin'] ?? 'http://localhost',
             'OwnerId' => (string) $this->file->getOwner(),
             'ReadOnly' => $this->file->isReadonly(),
             'RestrictedWebViewOnly' => false,

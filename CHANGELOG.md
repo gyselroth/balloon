@@ -1,3 +1,99 @@
+## 2.7.1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Feb 06 15:07:22 CET 2020
+
+### Bugfixes
+* Match and replace wopi uri in discovery does not work in k8s helm chart #443 
+
+
+## 2.7.0
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Feb 04 10:17:22 CET 2020
+
+### Bugfixes
+* Translate WOPI discovery for incoming host header #405
+
+
+## 2.7.0-beta4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Thu Jan 16 13:45:22 CET 2020
+
+### Bugfixes
+* WOPI discovery internal url may now be translated into an external url if the discovery sheet was fetched by the balloon-api server #405
+
+
+## 2.7.0-beta3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Tue Jan 14 10:39:22 CET 2020
+
+### Bugfixes
+* Argument 2 passed to Balloon\\Filesystem\\Node\\Collection::addFile() must be an instance of Balloon\\Session\\SessionInterface or null, instance of MongoDB\\BSON\\ObjectId given #382 
+* Documented missing API endpoint in wopi.v2 /api/v2/files/{file}/tokens
+* wopi test PutRelativeAndRenameFile.RenamingADeletedFileShouldReturnA404 fails #422
+* No Balloon\\Server\\Group\\Exception\\NotUnique exception if a PATCH was issued with the same name
+* Update changed timestamp after a group has been modified
+* ErrorException "Undefined index: body" at POST /api/v2/nodes/search with an invalid query
+* POST /api/v2/nodes/{node}/clone?conflict=1 ends with error 500 if node name has no dot #433 
+* Fetch content with an empty Range header results in error 500 Undefined offset: 1 #434
+
+### Changes
+* Backported new swagger specs from v3.0 which contain the scope (example: CoreV2 => getCoreV2Node) in the operationId
+* New docker-compose-dev.yml (includes traefik as request router)
+* wopi test Fail: files.PutFileReturnsDifferentVersion fails #423
+* DELETE group via api removes the group now completely
+* Dropped api endpoint /api/v2/groups/{group}/undelete; There was no real support for group undelete
+* Allow duplicate accounts with null as mail adresss #437
+
+### Features
+* Pass webdav litmus tests #424
+* Add integration tests (api,wopi,webdav) #421
+* Add support for rfc4709 mount webdav #431
+
+
+## 2.7.0-beta2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dec 11 11:34:32 CET 2019
+
+### Bugfixes
+* Argument 1 passed to Balloon\Filesystem\Node\File::setContent() must be an instance of Balloon\Session\SessionInterface, instance of MongoDB\BSON\ObjectId given, called in /srv/www/balloon/src/lib/Filesystem/Node/File.php on line 520 #382
+* Fixes 422 - invalid id given Balloon\Filesystem\Exception\InvalidArgument while uploading a file into root via PUT /api/v2/files|chunk #382
+* Balloon Image Upload via V1 api failed #416
+
+
+## 2.7.0-beta1
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Wed Dec 04 09:52:42 CET 2019
+
+### Bugfixes
+* POST /api/v2/notifications reads message from attr named body instead message #400
+* Newly added folders from other users within a share get not added to other users descriptions #406
+* Upload big file (~7GB) ends in 504 Gateway Timeout due slow md5 sum calculation #382
+
+### Changes
+* Balloon\App\Notification\Notifier,WARNING: there are no notification adapter enabled, notification can not be sent [] [] #401
+* Drop expiremental feature file based acl #375
+* Do not send notification based on temporary file changes #378
+* Update to sabredav v4 #354
+* The wopi protocol should be reachble at /wopi instead /api/v2/office/wopi/ #407
+* Provide WOPI host via api #405
+* Possibility to provide custom gridfs #410
+* Converter now only uses the first matched adapter and does not continue with others if that one failed
+* Added various new default env variables
+
+### Features
+* Provide /healthz endpoint #377
+* Support office docs, pdfs, .. to image as convert shadow #399
+* Add custom throttle time to subscription #155
+* Possibility to manually provide/delete a preview #393
+* New api endpoint to submit error reports to developers #412
+
+### Common
+* Starting with v2.7.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability. Note for debian pkg changelog the issues get merged in a single list.
+
+### Packaging
+* Discontinue distribution of deb packages #415
+
+
 ## 2.6.10
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Jan 10 16:10:42 CET 2020

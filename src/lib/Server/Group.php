@@ -155,6 +155,10 @@ class Group implements RoleInterface
      */
     public function setAttributes(array $attributes = []): bool
     {
+        if (isset($attributes['name']) && $attributes['name'] === $this->name) {
+            unset($attributes['name']);
+        }
+
         $attributes = $this->server->validateGroupAttributes($attributes);
 
         foreach ($attributes as $attr => $value) {
@@ -169,6 +173,9 @@ class Group implements RoleInterface
      */
     public function save(array $attributes = []): bool
     {
+        $this->changed = new UTCDateTime();
+        $attributes[] = 'changed';
+
         $set = [];
         foreach ($attributes as $attr) {
             $set[$attr] = $this->{$attr};
@@ -184,28 +191,15 @@ class Group implements RoleInterface
     }
 
     /**
-     * Delete user.
+     * Delete group.
      */
-    public function delete(bool $force = false): bool
+    public function delete(): bool
     {
-    }
+        $result = $this->db->group->deleteOne([
+            '_id' => $this->_id,
+        ]);
 
-    /**
-     * Undelete user.
-     */
-    public function undelete(): bool
-    {
-        $this->deleted = false;
-
-        return $this->save(['deleted']);
-    }
-
-    /**
-     * Check if user is deleted.
-     */
-    public function isDeleted(): bool
-    {
-        return $this->deleted instanceof UTCDateTime;
+        return $result->isAcknowledged();
     }
 
     /**

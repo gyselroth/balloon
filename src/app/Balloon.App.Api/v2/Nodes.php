@@ -25,6 +25,7 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\User;
+use Balloon\Session\Factory as SessionFactory;
 use Micro\Http\Response;
 use function MongoDB\BSON\fromJSON;
 use function MongoDB\BSON\toPHP;
@@ -70,15 +71,23 @@ class Nodes extends Controller
     protected $node_decorator;
 
     /**
+     * Session factory.
+     *
+     * @var SessionFactory
+     */
+    protected $session_factory;
+
+    /**
      * Initialize.
      */
-    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger)
+    public function __construct(Server $server, NodeAttributeDecorator $decorator, LoggerInterface $logger, SessionFactory $session_factory)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
         $this->server = $server;
         $this->node_decorator = $decorator;
         $this->logger = $logger;
+        $this->session_factory = $session_factory;
     }
 
     /**
@@ -199,9 +208,9 @@ class Nodes extends Controller
      *
      * @param null|mixed $lock
      */
-    public function patch(string $id, ?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, ?array $acl = null, $lock = null): Response
+    public function patch(string $id, ?string $name = null, ?array $meta = null, ?bool $readonly = null, ?array $filter = null, $lock = null): Response
     {
-        $attributes = compact('name', 'meta', 'readonly', 'filter', 'acl', 'lock');
+        $attributes = compact('name', 'meta', 'readonly', 'filter', 'lock');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         $lock = $_SERVER['HTTP_LOCK_TOKEN'] ?? null;
@@ -225,10 +234,6 @@ class Nodes extends Controller
                         if ($node instanceof Collection) {
                             $node->setFilter($value);
                         }
-
-                    break;
-                    case 'acl':
-                        $node->setAcl($value);
 
                     break;
                     case 'lock':
@@ -472,7 +477,6 @@ class Nodes extends Controller
             'created',
             'meta',
             'readonly',
-            'acl',
             'lock',
         ];
 
@@ -483,10 +487,10 @@ class Nodes extends Controller
         $check = array_merge(array_flip($valid_attributes), $attributes);
 
         if ($this instanceof ApiCollection && count($check) > 9) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, lock, filter, mount, readonly and/or meta attributes may be overwritten');
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, lock, filter, mount, readonly and/or meta attributes may be overwritten');
         }
         if ($this instanceof ApiFile && count($check) > 7) {
-            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, acl, lock, readonly and/or meta attributes may be overwritten');
+            throw new Exception\InvalidArgument('Only changed, created, destroy timestamp, lock, readonly and/or meta attributes may be overwritten');
         }
 
         foreach ($attributes as $attribute => $value) {

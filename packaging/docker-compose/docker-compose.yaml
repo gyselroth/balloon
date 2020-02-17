@@ -5,14 +5,13 @@ networks:
 
 services:
   traefik:
-    image: traefik:v1.7-alpine
-    command: --web --docker --docker.domain=docker.localhost
+    image: traefik:v2.1
+    command: --providers.docker --entrypoints.http.Address=:80 --entrypoints.https.Address=:443
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /dev/null:/traefik.toml
     networks:
     - backend
     - frontend
@@ -24,18 +23,27 @@ services:
     image: dinkel/clamavd:latest
     networks:
     - backend
-  libreoffice:
-    image: collabora/code:4.0.1.1
-    ports:
-      - "9980:9980"
+  libreoffice-convert:
+    image: collabora/code:4.2.0.3
     environment:
-      - domain=balloon
-      - extra_params=--o:ssl.termination=true --o:ssl.enable=false --o:net.post_allow.host[0]=::ffff:172.[0-9]+.[0-9]+.[0-9]+ --o:storage.wopi.host[2]=::ffff:172.[0-9]+.[0-9]+.[0-9]+
+      - domain=localhost|balloon-proxy
+      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+"
+    networks:
+    - backend
+  libreoffice-collab:
+    image: collabora/code:4.2.0.3
+    environment:
+      - domain=localhost|balloon-proxy
+      - extra_params=--o:ssl.termination=false --o:ssl.enable=false --o:net.post_allow.host[0]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.service_root="/libreoffice" --o:storage.wopi.host[2]="::ffff:(172|192).[0-9]+.[0-9]+.[0-9]+" --o:net.frame_ancestors="localhost:*"
     networks:
     - backend
     - frontend
+    labels:
+    - "traefik.http.routers.loolwsd-http.rule=PathPrefix(`/libreoffice`)"
+    - "traefik.http.routers.loolwsd-https.rule=PathPrefix(`/libreoffice`)"
+    - "traefik.http.routers.loolwsd-https.tls"
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.5
     entrypoint:
       - /bin/sh
       - -c
@@ -63,7 +71,7 @@ services:
               error_log /dev/stderr;
               client_max_body_size 16G;
 
-              location ~ ^/(api|webdav|share) {
+              location ~ ^/(api|webdav|share|wopi|healthz) {
                   index index.php;
                   root /usr/share/balloon/bin/httpdocs;
                   rewrite ^(.+)\\\$$ /index.php\\\$$1 last;
@@ -72,7 +80,7 @@ services:
 
               location ~ ^/index.php {
                   root /usr/share/balloon/bin/httpdocs;
-                  fastcgi_pass balloon:9000;
+                  fastcgi_pass balloon-api:9000;
                   fastcgi_read_timeout 300;
                   fastcgi_param SCRIPT_FILENAME /usr/share/balloon/bin/httpdocs\\\$$fastcgi_script_name;
                   fastcgi_param PATH_INFO \\\$$fastcgi_script_name;
@@ -83,8 +91,9 @@ services:
       nginx -g "daemon off;"
       EOF'
     labels:
-    - traefik.backend=server
-    - "traefik.frontend.rule=PathPrefix:/api,/webdav,/share"
+    - "traefik.http.routers.api-http.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/healthz`)"
+    - "traefik.http.routers.api-https.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/healthz`)"
+    - "traefik.http.routers.api-https.tls"
   balloon-jobs:
     image: gyselroth/balloon:latest
     depends_on:
@@ -92,52 +101,35 @@ services:
     entrypoint: ballooncli jobs -vvvv
     networks:
     - backend
-    environment:
+    environment: &env
       - BALLOON_MONGODB_URI=mongodb://mongodb:27017
       - BALLOON_CLAMAV_URI=tcp://clamav:3310
-      - BALLOON_WOPI_URL=http://balloon
-      - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice:9980
-      - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice:9980
+      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
+      - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice-collab:9980/libreoffice
+      - BALLOON_LIBREOFFICE_COLLAB_EXTERNAL_URL=http://localhost/libreoffice
+      - BALLOON_LIBREOFFICE_COLLAB_WOPI_URL=http://balloon-proxy/wopi
+      - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice-convert:9980
       - BALLOON_SMTP_HOST=postfix
       - BALLOON_URL=http://localhost:8080
       - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
-      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
   balloon-web:
     image: gyselroth/balloon-web:latest
     networks:
     - backend
     - frontend
     labels:
-    - traefik.backend=web
-    - "traefik.frontend.rule=PathPrefix:/"
+    - "traefik.http.routers.webui-http.rule=PathPrefix(`/`)"
+    - "traefik.http.routers.webui-https.rule=PathPrefix(`/`)"
+    - "traefik.http.routers.webui-https.tls"
   balloon-upgrade:
     image: gyselroth/balloon:latest
     restart: on-failure
     entrypoint: ballooncli upgrade -vvvv
     networks:
     - backend
-    environment:
-      - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-      - BALLOON_CLAMAV_URI=tcp://clamav:3310
-      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-      - BALLOON_WOPI_URL=http://balloon
-      - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice:9980
-      - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice:9980
-      - BALLOON_SMTP_HOST=postfix
-      - BALLOON_URL=http://localhost:8080
-      - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
-  balloon:
+    environment: *env
+  balloon-api:
     image: gyselroth/balloon:latest
-    entrypoint: php-fpm
     networks:
     - backend
-    environment:
-      - BALLOON_MONGODB_URI=mongodb://mongodb:27017
-      - BALLOON_CLAMAV_URI=tcp://clamav:3310
-      - BALLOON_ELASTICSEARCH_URI=http://elasticsearch:9200
-      - BALLOON_WOPI_URL=http://balloon
-      - BALLOON_LIBREOFFICE_COLLAB_URL=http://libreoffice:9980
-      - BALLOON_LIBREOFFICE_CONVERT_URL=http://libreoffice:9980
-      - BALLOON_SMTP_HOST=postfix
-      - BALLOON_URL=http://localhost:8080
-      - BALLOON_BURL_BROWSERLESS_URL=http://browserless:3000
+    environment: *env

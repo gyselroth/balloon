@@ -16,6 +16,7 @@ use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook;
+use Balloon\Session\Factory as SessionFactory;
 use Balloon\Testsuite\Unit\Test;
 use Psr\Log\LoggerInterface;
 use Socket\Raw\Factory;
@@ -85,6 +86,7 @@ class ScannerTest extends Test
                 $this->createMock(Hook::class),
                 $acl,
                 $this->createMock(Collection::class),
+                $this->createMock(SessionFactory::class),
             ])
             ->getMock();
 
@@ -112,7 +114,8 @@ class ScannerTest extends Test
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
             $acl,
-            $this->createMock(Collection::class)
+            $this->createMock(Collection::class),
+            $this->createMock(SessionFactory::class),
         );
     }
 }

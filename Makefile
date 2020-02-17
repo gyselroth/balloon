@@ -20,7 +20,6 @@ VERSION := "0.0.1"
 endif
 
 # PACKAGES
-DEB = $(DIST_DIR)/balloon-$(VERSION).deb
 TAR = $(DIST_DIR)/balloon-$(VERSION).tar.gz
 
 # PHP BINARY
@@ -38,14 +37,16 @@ PHPUNIT_LOCK = $(BASE_DIR)/.phpunit.lock
 # PHPSTAN STUFF
 PHPSTAN_SCRIPT = $(VENDOR_DIR)/bin/phpstan
 PHPSTAN_LOCK = $(BASE_DIR)/.phpstan.lock
+# TESTTOOLS
+LITMUS_BIN=/usr/local/bin/litmus
+DREDD_BIN=dredd
 
 # TARGET ALIASES
 INSTALL_TARGET = "$(INSTALL_PREFIX)usr/share/balloon"
-COMPOSER_TARGET = $(COMPOSER_LOCK)
+COMPOSER_TARGET = $(COMPOSER_LOCK) $(VENDOR_DIR)/autoload.php
 PHPCS_CHECK_TARGET = $(PHPCS_FIXER_LOCK)
 PHPUNIT_TARGET = $(PHPUNIT_LOCK)
 PHPSTAN_TARGET = $(PHPSTAN_LOCK)
-CHANGELOG_TARGET = $(BUILD_DIR)/DEBIAN/changelog
 BUILD_TARGET = $(COMPOSER_TARGET) $(PHPCS_CHECK_TARGET) $(PHPUNIT_TARGET) $(PHPSTAN_TARGET)
 
 # MACROS
@@ -58,7 +59,20 @@ PHP_CORE_API_FILES = $(call macro_find_phpfiles,$(CORE_API_DIR))
 PHP_TEST_FILES = $(call macro_find_phpfiles,$(TESTS_DIR))
 PHP_UNITTEST_FILES = $(call macro_find_phpfiles,$(UNITTESTS_DIR))
 
-# TARGETS
+# INTEGRATION TESTING
+BALLOON_USERNAME=admin
+BALLOON_PASSWORD=admin
+BALLOON_URL=http://localhost:8084
+
+#DOCKER
+DOCKER_NAME=gyselroth/balloon
+
+
+help: ## This help.
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+.DEFAULT_GOAL := help
+
 .PHONY: all
 all: build
 
@@ -72,58 +86,28 @@ clean: mostlyclean
 mostlyclean:
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
-	@-test ! -f $(DIST_DIR)/*.deb || rm -fv $(DIST_DIR)/*.deb
 	@-test ! -f $(COMPOSER_LOCK) || rm -fv $(COMPOSER_LOCK)
 	@-test ! -f $(PHPCS_FIXER_LOCK) || rm -fv $(PHPCS_FIXER_LOCK)
 	@-test ! -f $(PHPUNIT_LOCK) || rm -fv $(PHPUNIT_LOCK)
 	@-test ! -f $(PHPSTAN_LOCK) || rm -fv $(PHPSTAN_LOCK)
 
 
-.PHONY: deps
-deps: composer
-
-
-.PHONY: build
+.PHONY: build #Build and test
 build: $(BUILD_TARGET)
 
 
-.PHONY: dist
-dist: tar deb
+.PHONY: dist #Build, test and create both tar and docker image
+dist: tar docker
 
 
-.PHONY: deb
-deb: $(DIST_DIR)/balloon-$(VERSION).deb
+.PHONY: docker #Build test and create docker image
+docker: $(BUILD_TARGET) composer-no-dev
+	docker build -t $(DOCKER_NAME):$(VERSION) .
 
-$(DIST_DIR)/balloon-$(VERSION).deb: $(CHANGELOG_TARGET) $(BUILD_TARGET)
-	$(COMPOSER_BIN) update --no-dev
-	@mkdir -p $(BUILD_DIR)/DEBIAN
-	@cp $(BASE_DIR)/packaging/debian/control $(BUILD_DIR)/DEBIAN/control
-	@cp $(BASE_DIR)/packaging/debian/postinst $(BUILD_DIR)/DEBIAN/postinst
-	@sed -i s/'{version}'/$(VERSION)/g $(BUILD_DIR)/DEBIAN/control
-	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
-	@mkdir -p $(BUILD_DIR)/usr/share/balloon/scripts
-	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
-	@mkdir -p $(BUILD_DIR)/etc/balloon
-	@rsync -a --exclude='.git' $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
-	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.systemd $(BUILD_DIR)/usr/share/balloon/scripts
-	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.upstart $(BUILD_DIR)/usr/share/balloon/scripts
-	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/share/balloon/bin/console/ballooncli
-	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon/bin
-	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon/src
-	@cp -Rp $(SRC_DIR)/.container.config.php $(BUILD_DIR)/usr/share/balloon/src
-	@mkdir -p $(BUILD_DIR)/etc/balloon
-	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
-	@mkdir -p $(BUILD_DIR)/usr/share/balloon/nginx
-	@cp -Rp $(BASE_DIR)/packaging/debian/nginx.conf $(BUILD_DIR)/usr/share/balloon/nginx
-	@cp -Rp $(BASE_DIR)/packaging/debian/nginx-server.conf $(BUILD_DIR)/usr/share/balloon/nginx
-	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
-	@dpkg-deb --build $(BUILD_DIR) $@
-	$(COMPOSER_BIN) update
 
 .PHONY: tar
-tar: $(TAR)
-
-$(TAR): $(BUILD_TARGET)
+tar: $(TAR) #Build, test and create tar archive
+$(TAR): $(BUILD_TARGET) composer-no-dev
 	$(COMPOSER_BIN) update --no-dev
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
@@ -141,100 +125,84 @@ $(TAR): $(BUILD_TARGET)
 	@touch $@
 
 
-.PHONY: changelog
-changelog: $(CHANGELOG_TARGET)
+.PHONY: deps
+deps: composer ## Update 3rd party dependencies (Alias of composer).
 
-$(CHANGELOG_TARGET): CHANGELOG.md
-	@-test -d $(@D) || mkdir -p $(@D)
-	@v=""
-	@stable="stable"
-	@author=""
-	@date=""
-	@changes=""
-	@-test ! -f $@ || rm $@
 
-	@while read l; \
-	do \
-		if [ "$${l:0:2}" == "##" ]; \
-		then \
-	 		if [ "$$v" != "" ]; \
-	 		then \
-	 			echo "balloon ($$v) $$stable; urgency=low" >> $@; \
-	 			echo -e "$$changes" >> $@; \
-	 			echo >>  $@; \
-	 			echo " -- $$author  $$date" >> $@; \
-	 			echo >>  $@; \
-	 			v=""; \
-	 			stable="stable"; \
-	 			author=";" \
-	 			date=";" \
-	 			changes=""; \
-	 		fi; \
-	 		v=$${l:3}; \
-			if [[ "$$v" == *"RC"* ]]; \
-	 	 	then \
-	 			stable="unstable"; \
-	 		elif [[ "$$v" == *"BETA"* ]]; \
-	 		then \
-	 			stable="unstable"; \
-	 		elif [[ "$$v" == *"ALPHA"* ]]; \
-	 		then \
-	 			stable="unstable"; \
-	 		elif [[ "$$v" == *"dev"* ]]; \
-			then \
-	 			stable="unstable"; \
-	 		fi \
-	 	elif [ "$${l:0:5}" == "**Mai" ]; \
-	 	then \
-	 		p1=`echo $$l | cut -d '>' -f1`; \
-	 		p2=`echo $$l | cut -d '>' -f2`; \
-	 		author="$${p1:16}>"; \
-	 		date=$${p2:13}; \
-	 		date=`date -d"$$date" +'%a, %d %b %Y %H:%M:%S %z'`; \
-	 	elif [ "$${l:0:2}" == "* " ]; \
-	 	then \
-	 		changes="  $$changes\n  $$l"; \
-	 	fi; \
-	done < $<
-	@echo generated $@ from $<
+.PHONY: composer-no-dev
+composer-no-dev: ## Uninstall development 3rd party dependencies.
+	$(COMPOSER_BIN) update --no-dev
+	@touch $@
 
 
 .PHONY: composer
-composer: $(COMPOSER_TARGET)
-
+composer: $(COMPOSER_TARGET)  ## Update 3rd party dependencies.
 $(COMPOSER_TARGET) $(PHPCS_FIXER_SCRIPT) $(PHPUNIT_SCRIPT) $(PHPSTAN_SCRIPT): $(BASE_DIR)/composer.json
 	$(COMPOSER_BIN) update
 	@touch $@
 
 
 .PHONY: phpcs
-phpcs: $(PHPCS_CHECK_TARGET)
-
+phpcs: $(PHPCS_CHECK_TARGET) ## Enforce php-cs-fixer code policy.
 $(PHPCS_CHECK_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
 	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky=yes --stop-on-violation --using-cache=no
 	@touch $@
 
 
+.PHONY: unittest
+unittest: phpunit ## Execute unit tests (Alias of phpunit).
+
+
 .PHONY: test
-test: $(PHPUNIT_TARGET)
+test: phpunit integrationtest ## Execute all tests (unit tests and integration tests).
+
+
+.PHONY: integrationtest
+integrationtest: webdav-test wopi-test api-test ## Execute all integration tests (webdav,wopi,api).
+
+
+.PHONY: wopi-test
+wopi-test: ## Execute WOPI integration tests.
+	{ \
+	set -e ;\
+	NAME=$$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1) ;\
+	echo $$NAME ;\
+	NODE=$$(curl -u $(BALLOON_USERNAME):$(BALLOON_PASSWORD) $(BALLOON_URL)/api/v2/office/documents -XPOST -H 'Content-Type: application/json' -d "{\"name\":\"$$NAME.wopitest\",\"type\":\"docx\"}" | jq '.id' -r) ;\
+	echo $$NODE ;\
+	TOKEN=$$(curl -u $(BALLOON_USERNAME):$(BALLOON_PASSWORD) $(BALLOON_URL)/api/v2/files/$$NODE/tokens -XPOST | jq '.access_token' -r) ;\
+	echo $$TOKEN ;\
+	DIRNAME=$$(basename $$(pwd)) ;\
+	docker run -it --net "$$DIRNAME"_frontend --rm tylerbutler/wopi-validator -- -w http://traefik/wopi/files/$$NODE -t $$TOKEN -l 1800 -e WopiCore -s ;\
+	}
+
+
+.PHONY: webdav-test
+webdav-test: ## Execute WebDAV integration tests.
+	TESTS="basic copymove http" $(LITMUS_BIN) -k $(BALLOON_URL)/webdav $(BALLOON_USERNAME) $(BALLOON_PASSWORD)
+
+
+.PHONY: api-test
+api-test: ## Execute API integration tests.
+	$(DREDD_BIN)
+
 
 .PHONY: phpunit
-phpunit: $(PHPUNIT_TARGET)
+phpunit: $(PHPUNIT_TARGET) ## Execute unit tests.
 
 $(PHPUNIT_TARGET): $(PHPUNIT_SCRIPT) $(PHP_FILES) $(PHP_UNITTEST_FILES)
 	$(PHP_BIN) $(PHPUNIT_SCRIPT) --stderr --debug -c phpunit.xml
 	@touch $@
 
-.PHONY: phpstan
-phpstan: $(PHPSTAN_TARGET)
 
+.PHONY: phpstan
+phpstan: $(PHPSTAN_TARGET) ## Execute phpstan and enforce phpstan policy.
 $(PHPSTAN_TARGET): $(PHPSTAN_SCRIPT) $(PHP_FILES) $(PHP_TEST_FILES)
 	$(PHP_BIN) $(PHPSTAN_SCRIPT) analyse -c phpstan.neon $(SRC_DIR) $(TESTS_DIR)
 	@touch $@
 
-.PHONY: install
-install: $(INSTALL_TARGET)
 
+.PHONY: install
+install: $(INSTALL_TARGET) ##Build and install balloon locally.
 $(INSTALL_TARGET): $(BUILD_TARGET)
 	$(COMPOSER_BIN) update --no-dev
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
