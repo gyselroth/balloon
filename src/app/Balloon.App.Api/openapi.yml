@@ -3340,15 +3340,15 @@ components:
               description: Is true if the node has a protected public sharelink.
               type: boolean
               default: false
-           sharelink_token:
-             description: "Contains the shared link token if set"
-             type: "string"
-             default: null
-           sharelink_expire:
-             description: "Contains the datetime of a shared link if set"
-             type: "string"
-             default: null
-             format: date-time
+            sharelink_token:
+              description: "Contains the shared link token if set"
+              type: "string"
+              default: null
+            sharelink_expire:
+              description: "Contains the datetime of a shared link if set"
+              type: "string"
+              default: null
+              format: date-time
     core.v2.Collections:
       description: A list of collections.
       allOf:
