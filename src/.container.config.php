@@ -60,7 +60,12 @@ return [
         ],
     ],
     GuzzleHttpClientInterface::class => [
-        'use' => GuzzleHttpClient::class
+        'use' => GuzzleHttpClient::class,
+        'arguments' => [
+            'config' => [
+                'connect_timeout' => 5
+            ]
+        ]
     ],
     HttpClientInterface::class => [
         'use' => GuzzleAdapter::class

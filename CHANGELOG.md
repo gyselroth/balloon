@@ -4,6 +4,7 @@
 
 ### Bugfixes
 * Preview does not work with balloon v2.7.x #450
+* Unresponding wopi discovery url leads to a 130s timeout (os default) #451
 
 
 ## 2.7.1

@@ -172,7 +172,7 @@ class Preview
             $stream = $bucket->openUploadStream(null, ['_id' => $id]);
             $result = stream_copy_to_stream($content, $stream);
 
-            if($result !== false) {
+            if ($result !== false) {
                 $file->setAppAttribute(__NAMESPACE__, 'preview', $id);
             }
 
