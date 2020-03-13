@@ -1,3 +1,12 @@
+## 2.7.2
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Fri Mar 13 13:07:22 CET 2020
+
+### Bugfixes
+* Preview does not work with balloon v2.7.x #450
+* Unresponding wopi discovery url leads to a 130s timeout (os default) #451
+
+
 ## 2.7.1
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Thu Feb 06 15:07:22 CET 2020
