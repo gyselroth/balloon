@@ -170,7 +170,11 @@ class Preview
             $id = new ObjectId();
             $bucket = $this->db->selectGridFSBucket(['bucketName' => 'thumbnail']);
             $stream = $bucket->openUploadStream(null, ['_id' => $id]);
-            stream_copy_to_stream($content, $stream);
+            $result = stream_copy_to_stream($content, $stream);
+
+            if($result !== false) {
+                $file->setAppAttribute(__NAMESPACE__, 'preview', $id);
+            }
 
             return $id;
         } catch (\Exception $e) {
