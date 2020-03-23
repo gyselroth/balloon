@@ -55,18 +55,19 @@ services:
     networks:
     - backend
   browserless:
-    image: browserless/chrome
+    image: browserless/chrome:latest
     networks:
     - backend
   balloon-proxy:
-    image: nginx
+    image: nginxinc/nginx-unprivileged:1-alpine
     networks:
     - backend
     command: |
-      bash -c 'rm /etc/nginx/conf.d/default.conf; bash -s <<EOF
-        cat > /etc/nginx/conf.d/balloon.conf <<EON
+      ash -c 'cat /etc/nginx/nginx.conf | sed -r "s/include \/etc\/nginx\/conf.d\/\*.conf\;/include \/tmp\/balloon\.conf;/g" > /tmp/nginx.conf; ash -s <<EOF
+        cat > /tmp/balloon.conf <<EON
+          server_tokens off;
           server {
-              listen 80;
+              listen 8080;
               access_log /dev/stdout;
               error_log /dev/stderr;
               client_max_body_size 16G;
@@ -88,7 +89,7 @@ services:
               }
           }
       EON
-      nginx -g "daemon off;"
+      nginx -c /tmp/nginx.conf -g "daemon off;"
       EOF'
     labels:
     - "traefik.http.routers.api-http.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/healthz`)"

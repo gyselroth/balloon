@@ -1,3 +1,13 @@
+## 2.7.3
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Mar 23 16:33:22 CET 2020
+
+### Packaging
+* Execute php-fpm master not as root
+* Include official php-src production ini
+* disable expose_php
+
+
 ## 2.7.2
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Mar 13 13:07:22 CET 2020

@@ -98,7 +98,7 @@ services:
     - "traefik.http.routers.api-https.rule=PathPrefix(`/api`) || PathPrefix(`/webdav`) || PathPrefix(`/share`) || PathPrefix(`/wopi`) || PathPrefix(`/healthz`)"
     - "traefik.http.routers.api-https.tls"
   balloon-web:
-    image: gyselroth/balloon-web:3.2.12
+    image: gyselroth/balloon-client-web:3.2.14
     networks:
     - backend
     - frontend
