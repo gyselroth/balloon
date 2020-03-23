@@ -54,5 +54,10 @@ COPY config/config.yaml.dist /etc/balloon/
 RUN ln -s /usr/share/balloon/bin/console/ballooncli /usr/bin/ballooncli
 RUN mkdir /var/cache/samba/msg.lock
 
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && echo "expose_php=0" >> "$PHP_INI_DIR/php.ini"
+
+USER 1000:1000
+
 ENV BALLOON_PATH /usr/share/balloon
 ENV BALLOON_CONFIG_DIR /etc/balloon
