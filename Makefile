@@ -210,8 +210,6 @@ $(INSTALL_TARGET): $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@rsync -a --exclude='.git' $(VENDOR_DIR) $(BUILD_DIR)/usr/share/balloon
-	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.systemd $(BUILD_DIR)/usr/share/balloon/scripts
-	@cp  $(BASE_DIR)/packaging/balloon-jobs.service.upstart $(BUILD_DIR)/usr/share/balloon/scripts
 	@cp -Rp $(SRC_DIR)/cgi-bin/cli.php $(BUILD_DIR)/usr/share/balloon/bin/console/ballooncli
 	@cp -Rp $(SRC_DIR)/httpdocs $(BUILD_DIR)/usr/share/balloon/bin
 	@cp -Rp $(SRC_DIR)/{lib,app} $(BUILD_DIR)/usr/share/balloon/src
@@ -219,6 +217,4 @@ $(INSTALL_TARGET): $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
 	@cp -Rp $(BUILD_DIR)/* $(INSTALL_PREFIX)
-	@cp -Rp $(BASE_DIR)/packaging/debian/nginx.conf /etc/nginx/conf.d/balloon.conf
-	@cp -Rp $(BASE_DIR)/packaging/debian/nginx-server.conf /etc/nginx/conf.d/balloon/server.conf
 	$(COMPOSER_BIN) update
