@@ -176,9 +176,9 @@ class Users
     /**
      * Change attributes.
      */
-    public function patch(string $id, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null, ?bool $multi_factor_auth = null): Response
+    public function patch(string $id, ?string $username = null, ?string $password = null, ?int $soft_quota = null, ?int $hard_quota = null, ?string $avatar = null, ?string $mail = null, ?bool $admin = null, ?string $namespace = null, ?string $locale = null, ?bool $multi_factor_auth = null, ?string $multi_factor_validate = null): Response
     {
-        $attributes = compact('username', 'password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale', 'multi_factor_auth');
+        $attributes = compact('username', 'password', 'soft_quota', 'hard_quota', 'avatar', 'mail', 'admin', 'namespace', 'locale', 'multi_factor_auth', 'multi_factor_validate');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         if (isset($attributes['avatar'])) {

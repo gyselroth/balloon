@@ -189,6 +189,13 @@ class User implements RoleInterface
     protected $google_auth_secret;
 
     /**
+     * Recovery codes.
+     *
+     * @var string
+     */
+    protected $multi_factor_recovery;
+
+    /**
      * Instance user.
      */
     public function __construct(array $attributes, Server $server, Database $db, Hook $hook, LoggerInterface $logger)
@@ -301,6 +308,7 @@ class User implements RoleInterface
             'admin' => $this->admin,
             'avatar' => $this->avatar,
             'multi_factor_auth' => $this->multi_factor_auth,
+            'multi_factor_recovery' => $this->multi_factor_recovery,
             'google_auth_secret' => $this->google_auth_secret,
         ];
     }

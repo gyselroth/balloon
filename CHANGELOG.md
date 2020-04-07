@@ -1,3 +1,11 @@
+## 2.7.4
+**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
+**Date**: Mon Mar 23 16:33:22 CET 2020
+
+### Bugfixes
+* Verify 2fa code before activation #457
+
+
 ## 2.7.3
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Mon Mar 23 16:33:22 CET 2020

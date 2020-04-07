@@ -2307,16 +2307,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.26",
+            "version": "2.0.27",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "09655fcc1f8bab65727be036b28f6f20311c126c"
+                "reference": "34620af4df7d1988d8f0d7e91f6c8a3bf931d8dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/09655fcc1f8bab65727be036b28f6f20311c126c",
-                "reference": "09655fcc1f8bab65727be036b28f6f20311c126c",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/34620af4df7d1988d8f0d7e91f6c8a3bf931d8dc",
+                "reference": "34620af4df7d1988d8f0d7e91f6c8a3bf931d8dc",
                 "shasum": ""
             },
             "require": {
@@ -2395,7 +2395,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2020-03-13T04:15:39+00:00"
+            "time": "2020-04-04T23:17:33+00:00"
         },
         {
             "name": "psr/cache",
@@ -5363,16 +5363,16 @@
         },
         {
             "name": "web-token/jwt-framework",
-            "version": "v1.3.9",
+            "version": "v1.3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-framework.git",
-                "reference": "cf821c7fc5c74fab6150056e44d4edfaf081ea6f"
+                "reference": "49289f26906d40d3fef23c5ddbba5f24347bb56a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-framework/zipball/cf821c7fc5c74fab6150056e44d4edfaf081ea6f",
-                "reference": "cf821c7fc5c74fab6150056e44d4edfaf081ea6f",
+                "url": "https://api.github.com/repos/web-token/jwt-framework/zipball/49289f26906d40d3fef23c5ddbba5f24347bb56a",
+                "reference": "49289f26906d40d3fef23c5ddbba5f24347bb56a",
                 "shasum": ""
             },
             "require": {
@@ -5513,7 +5513,7 @@
                 "jwt",
                 "symfony"
             ],
-            "time": "2019-08-22T11:10:04+00:00"
+            "time": "2020-03-27T12:22:14+00:00"
         },
         {
             "name": "xenolope/quahog",
