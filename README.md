@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/gyselroth/balloon.svg)](https://travis-ci.org/gyselroth/balloon.svg?branch=master)
 [![GitHub release](https://img.shields.io/github/release/gyselroth/balloon.svg)](https://github.com/gyselroth/balloon/releases)
-[ ![Download](https://api.bintray.com/packages/gyselroth/balloon/balloon/images/download.svg) ](https://bintray.com/gyselroth/balloon/balloon/_latestVersion) 
  [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/gyselroth/balloon/badges/quality-score.png)](https://scrutinizer-ci.com/g/gyselroth/balloon)
 
@@ -17,14 +16,14 @@
 * Various DMS features like tagging, meta data, sharing, file history and more
 * Sharing for user and groups with different levels of permissions (manager, read-write, readonly, mailbox)
 * Comes with cloud native support and deploy ready kubernetes resources
-* Deployable out of the box for debian (deb), tar archive, docker images, kubernetes and more
+* Deployable out of the box using docker-compose, k8s, helm, and more)
 * App system for 3rd party apps
 * The core is shipped with various core apps pre-installed
 * File previews for various formats (including office documents, pdf, text, images, markdown, html and more)
 * Notification system (including mail notifications)
 * Full text search using [Elasticsearch](https://github.com/elastic/elasticsearch)
 * Malware scanning using [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
-* Full WOPI support (Tested with Libre Office Online and Microsoft Office Online)
+* Full WOPI support (Support for Libre Office Online and Microsoft Office Online)
 * Automatically convert files (shadow nodes) to other file formats (for example keep an automatic pdf file for a word file)
 * Automatically destroy files/folders at a certain time
 * Mount external storage (Currently only SMB/CIFS is supported since v2.1.0)

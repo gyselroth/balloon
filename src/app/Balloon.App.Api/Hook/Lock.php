@@ -85,7 +85,7 @@ class Lock extends AbstractHook
      */
     protected function validateRequest(NodeInterface $node): bool
     {
-        if (isset($_SERVER['ORIG_SCRIPT_NAME']) && preg_match('#^/index.php/api/#', $_SERVER['ORIG_SCRIPT_NAME']) && $node->isLocked()) {
+        if (isset($_SERVER['ORIG_SCRIPT_NAME']) && preg_match('#^/index.php/(api|wopi)/#', $_SERVER['ORIG_SCRIPT_NAME']) && $node->isLocked()) {
             $token = $_SERVER['HTTP_LOCK_TOKEN'] ?? null;
             $lock = $node->getLock();
 

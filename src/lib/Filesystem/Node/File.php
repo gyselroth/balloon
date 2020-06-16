@@ -17,6 +17,8 @@ use Balloon\Filesystem\Acl\Exception as AclException;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage\Exception as StorageException;
 use Balloon\Hook;
+use Balloon\Session\Factory as SessionFactory;
+use Balloon\Session\SessionInterface;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use Psr\Log\LoggerInterface;
@@ -51,6 +53,7 @@ class File extends AbstractNode implements IFile
         '/^.(.*).swp$/',   // ViM temporary files
         '/^\.dat(.*)$/',   // Smultron seems to create these
         '/^~lock.(.*)#$/', // Windows 7 lockfiles
+        '/^\~\$/',         // Temporary office files
     ];
 
     /**
@@ -75,9 +78,16 @@ class File extends AbstractNode implements IFile
     protected $history = [];
 
     /**
+     * Session factory.
+     *
+     * @var SessionFactory
+     */
+    protected $_session_factory;
+
+    /**
      * Initialize file node.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Collection $parent)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, Collection $parent, SessionFactory $session_factory)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -87,6 +97,7 @@ class File extends AbstractNode implements IFile
         $this->_hook = $hook;
         $this->_acl = $acl;
         $this->_parent = $parent;
+        $this->_session_factory = $session_factory;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -423,7 +434,7 @@ class File extends AbstractNode implements IFile
             'category' => get_class($this),
         ]);
 
-        $session = $this->_parent->getStorage()->storeTemporaryFile($content, $this->_user);
+        $session = $this->_session_factory->add($this->_user, $this->getParent(), $content);
 
         return $this->setContent($session);
     }
@@ -431,35 +442,41 @@ class File extends AbstractNode implements IFile
     /**
      * Set content (temporary file).
      */
-    public function setContent(ObjectId $session, array $attributes = []): int
+    public function setContent(SessionInterface $session, array $attributes = []): int
     {
-        $this->_logger->debug('set temporary file ['.$session.'] as file content for ['.$this->_id.']', [
+        $this->_logger->debug('set temporary file ['.$session->getId().'] as file content for ['.$this->_id.']', [
             'category' => get_class($this),
         ]);
 
         $previous = $this->version;
         $storage = $this->storage;
-        $this->prePutFile($session);
+        $this->prePutFile($session->getId());
+
         $result = $this->_parent->getStorage()->storeFile($this, $session);
         $this->storage = $result['reference'];
 
-        if ($this->isDeleted() && $this->hash === $result['hash']) {
+        $hash = $session->getHash();
+
+        if ($this->isDeleted() && $this->hash === $hash) {
             $this->deleted = false;
             $this->save(['deleted']);
         }
 
         $this->deleted = false;
 
-        if ($this->hash === $result['hash']) {
-            $this->_logger->debug('do not update file version, hash identical to existing version ['.$this->hash.' == '.$result['hash'].']', [
+        if ($this->hash === $hash) {
+            $this->_logger->debug('do not add history entry, hash identical to existing version ['.$this->hash.' == '.$hash.']', [
                 'category' => get_class($this),
             ]);
+
+            ++$this->version;
+            $this->save(['version']);
 
             return $this->version;
         }
 
-        $this->hash = $result['hash'];
-        $this->size = $result['size'];
+        $this->hash = $hash;
+        $this->size = $session->getSize();
 
         if ($this->size === 0 && $this->getMount() === null) {
             $this->storage = null;
@@ -483,7 +500,7 @@ class File extends AbstractNode implements IFile
             $this->addVersion($attributes);
         }
 
-        $this->postPutFile();
+        $this->postPutFile($session);
 
         return $this->version;
     }
@@ -502,7 +519,7 @@ class File extends AbstractNode implements IFile
         $stream = $this->get();
 
         if ($stream !== null) {
-            $session = $parent->getStorage()->storeTemporaryFile($stream, $this->_server->getUserById($this->getOwner()));
+            $session = $this->_session_factory->add($this->_server->getUserById($this->getOwner()), $parent, $stream);
             $result->setContent($session);
             fclose($stream);
         }
@@ -620,7 +637,7 @@ class File extends AbstractNode implements IFile
     /**
      * Finalize put request.
      */
-    protected function postPutFile(): self
+    protected function postPutFile(SessionInterface $session): self
     {
         try {
             $this->save([
@@ -633,6 +650,8 @@ class File extends AbstractNode implements IFile
                 'history',
                 'storage',
             ]);
+
+            $this->_session_factory->deleteOne($session->getId());
 
             $this->_logger->debug('modifed file metadata ['.$this->_id.']', [
                 'category' => get_class($this),

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Balloon\App\Wopi\Constructor;
 
 use Balloon\App\Wopi\Api\v2;
+use Balloon\App\Wopi\Wopi;
 use Micro\Http\Router;
 use Micro\Http\Router\Route;
 
@@ -26,7 +27,11 @@ class Http
             ->prependRoute(new Route('/api/v2/office/documents', v2\Documents::class))
             ->prependRoute(new Route('/api/v2/office/hosts', v2\Hosts::class))
             ->prependRoute(new Route('/api/v2/files/{id:#([0-9a-z]{24})#}/tokens', v2\Tokens::class))
-            ->prependRoute(new Route('/api/v2/office/wopi/files', v2\Wopi\Files::class))
-            ->prependRoute(new Route('/api/v2/office/wopi/files/{id:#([0-9a-z]{24})#}', v2\Wopi\Files::class));
+            ->prependRoute(new Route('/wopi/files', Wopi\Files::class))
+            ->prependRoute(new Route('/wopi/files/{id:#([0-9a-z]{24})#}', Wopi\Files::class))
+
+            //TODO #407 drop support with balloon v3
+            ->prependRoute(new Route('/api/v2/office/wopi/files', Wopi\Files::class))
+            ->prependRoute(new Route('/api/v2/office/wopi/files/{id:#([0-9a-z]{24})#}', Wopi\Files::class));
     }
 }

@@ -237,6 +237,13 @@ abstract class AbstractNode implements NodeInterface
     protected $_parent;
 
     /**
+     * Session factory.
+     *
+     * @var SessionFactory
+     */
+    protected $_session_factory;
+
+    /**
      * Convert to filename.
      *
      * @return string
@@ -366,15 +373,19 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Lock file.
      */
-    public function lock(string $identifier, ?int $ttl = 1800): NodeInterface
+    public function lock(string $identifier, ?int $ttl = 1800, ?string $client = null): NodeInterface
     {
         if ($this->isLocked()) {
             if ($identifier !== $this->lock['id']) {
                 throw new Exception\LockIdMissmatch('the unlock id must match the current lock id');
             }
+
+            if ($this->lock['client'] !== $client) {
+                throw new Exception\Forbidden('node is locked by another client');
+            }
         }
 
-        $this->lock = $this->prepareLock($identifier, $ttl ?? 1800);
+        $this->lock = $this->prepareLock($identifier, $ttl ?? 1800, $client);
         $this->save(['lock']);
 
         return $this;
@@ -410,10 +421,14 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Unlock.
      */
-    public function unlock(?string $identifier = null): NodeInterface
+    public function unlock(?string $identifier = null, ?string $client = null): NodeInterface
     {
         if (!$this->isLocked()) {
             throw new Exception\NotLocked('node is not locked');
+        }
+
+        if ($this->lock['client'] !== $client) {
+            throw new Exception\Forbidden('node is locked by another client');
         }
 
         if ($this->lock['owner'] != $this->_user->getId()) {
@@ -780,7 +795,7 @@ abstract class AbstractNode implements NodeInterface
         }
 
         if ($parent instanceof Collection) {
-            $children = $parent->getChildNodes();
+            $children = $parent->getChildren();
 
             if (true === $self && 0 === $depth) {
                 $path = $parent->getName().DIRECTORY_SEPARATOR;
@@ -881,7 +896,7 @@ abstract class AbstractNode implements NodeInterface
     {
         if (isset($this->app[$namespace][$attribute])) {
             unset($this->app[$namespace][$attribute]);
-            $this->save('app'.$namespace);
+            $this->save([], ['app.'.$namespace.'.'.$attribute]);
         }
 
         return $this;
@@ -1093,7 +1108,13 @@ abstract class AbstractNode implements NodeInterface
             return $name.' ('.substr(uniqid('', true), -4).')';
         }
 
-        $ext = substr(strrchr($name, '.'), 1);
+        $base = strrchr($name, '.');
+        $ext = false;
+
+        if ($base !== false) {
+            $ext = substr($base, 1);
+        }
+
         if (false === $ext) {
             return $name.' ('.substr(uniqid('', true), -4).')';
         }
@@ -1106,11 +1127,12 @@ abstract class AbstractNode implements NodeInterface
     /**
      * Prepare lock.
      */
-    protected function prepareLock(string $identifier, int $ttl = 1800): array
+    protected function prepareLock(string $identifier, int $ttl = 1800, ?string $client = null): array
     {
         return [
-             'owner' => $this->_user->getId(),
+            'owner' => $this->_user->getId(),
             'created' => new UTCDateTime(),
+            'client' => $client,
             'id' => $identifier,
             'expire' => new UTCDateTime((time() + $ttl) * 1000),
         ];

@@ -14,10 +14,9 @@ namespace Balloon\App\Api\v1;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
 use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Helper;
+use Balloon\Session\SessionInterface;
 use Micro\Http\Response;
-use MongoDB\BSON\ObjectId;
 
 class File extends Node
 {
@@ -278,19 +277,20 @@ class File extends Node
             'metadata.temporary' => true,
         ]);
 
-        $storage = $this->getStorage($id, $p, $collection);
+        $parent = $this->getParent($id, $p, $collection);
 
         if ($session === null) {
-            $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
+            $session = $this->session_factory->add($this->server->getIdentity(), $parent, $input);
             $this->db->selectCollection('fs.files')->updateOne(
-                ['_id' => $session],
+                ['_id' => $session->getId()],
                 ['$set' => [
                     'metadata.chunkgroup' => $this->server->getIdentity()->getId().'_'.$chunkgroup,
                 ]]
             );
         } else {
             $session = $session['_id'];
-            $storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
+            $session = $this->session_factory->getOne($this->server->getIdentity(), $session);
+            $this->session_factory->update($this->server->getIdentity(), $session, $parent, $input);
         }
 
         if ($index === $chunks) {
@@ -398,30 +398,30 @@ class File extends Node
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
 
-        $storage = $this->getStorage($id, $p, $collection);
-        $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
+        $parent = $this->getParent($id, $p, $collection);
+        $session = $this->session_factory->add($this->server->getIdentity(), $parent, $input);
 
         return $this->_put($session, $id, $p, $collection, $name, $attributes, $conflict);
     }
 
     /**
-     * Get storage.
+     * Get Parent.
      */
-    protected function getStorage($id, $p, $collection): StorageAdapterInterface
+    protected function getParent($id, $p, $collection): Collection
     {
         if ($id !== null) {
-            return $this->_getNode($id, $p)->getParent()->getStorage();
+            return $this->_getNode($id, $p)->getParent();
         }
         if ($p !== null) {
             $path = '/'.ltrim(dirname('/'.$p), '/');
 
-            return $this->_getNode($id, $path, Collection::class)->getStorage();
+            return $this->_getNode($id, $path, Collection::class);
         }
         if ($id === null && $p === null && $collection === null) {
-            return $this->server->getFilesystem()->getRoot()->getStorage();
+            return $this->server->getFilesystem()->getRoot();
         }
 
-        return $this->_getNode($collection, null, Collection::class)->getStorage();
+        return $this->_getNode($collection, null, Collection::class);
     }
 
     /**
@@ -434,7 +434,7 @@ class File extends Node
      * @param string  $name
      */
     protected function _put(
-        ObjectId $session,
+        SessionInterface $session,
         ?string $id = null,
         ?string $p = null,
         ?string $collection = null,
