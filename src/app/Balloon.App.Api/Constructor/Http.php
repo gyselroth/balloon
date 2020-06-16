@@ -54,7 +54,6 @@ class Http
             ->appendRoute(new Route('/api/v2/nodes(/|\z)', v2\Nodes::class))
             ->appendRoute(new Route('/api/v2$', v2\Api::class))
             ->appendRoute(new Route('/api/v2', v2\Api::class))
-            ->appendRoute(new Route('/healthz$', v2\Api::class))
             ->appendRoute(new Route('/api$', v2\Api::class))
             ->appendRoute(new Route('/api/v1/user/{uid:#([0-9a-z]{24})#}', v1\User::class))
             ->appendRoute(new Route('/api/v1/user', v1\User::class))
@@ -72,7 +71,7 @@ class Http
         $hook->injectHook(new class() extends AbstractHook {
             public function preAuthentication(Auth $auth): void
             {
-                if ('/index.php/healthz' === $_SERVER['ORIG_SCRIPT_NAME'] || '/index.php/api' === $_SERVER['ORIG_SCRIPT_NAME'] || '/index.php/api/v2' === $_SERVER['ORIG_SCRIPT_NAME']) {
+                if ('/index.php/api' === $_SERVER['ORIG_SCRIPT_NAME'] || '/index.php/api/v2' === $_SERVER['ORIG_SCRIPT_NAME']) {
                     $auth->injectAdapter(new AuthNone());
                 }
             }

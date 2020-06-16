@@ -16,7 +16,6 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Exception;
 use Balloon\Server\User;
-use Balloon\Session\SessionInterface;
 use Icewind\SMB\Exception as SMBException;
 use Icewind\SMB\IFileInfo;
 use Icewind\SMB\IShare;
@@ -171,15 +170,37 @@ class Smb implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeFile(File $file, SessionInterface $session): array
+    public function storeFile(File $file, ObjectId $session): array
     {
-        $path = $this->getSystemPath(self::SYSTEM_TEMP).DIRECTORY_SEPARATOR.$session->getId();
+        $path = $this->getSystemPath(self::SYSTEM_TEMP).DIRECTORY_SEPARATOR.$session;
 
         $current = $file->getPath();
         $mount = $file->getFilesystem()->findNodeById($file->getMount())->getPath();
         $dest = substr($current, strlen($mount));
 
-        $this->logger->debug('copy file from session ['.$session->getId().'] in ['.$path.'] to ['.$dest.']', [
+        $this->logger->debug('copy file from session ['.$session.'] in ['.$path.'] to ['.$dest.']', [
+            'category' => get_class($this),
+        ]);
+
+        $hash = hash_init('md5');
+        $size = 0;
+        $stream = $this->share->read($path);
+
+        while (!feof($stream)) {
+            $buffer = fgets($stream, 65536);
+
+            if ($buffer === false) {
+                continue;
+            }
+
+            $size += mb_strlen($buffer, '8bit');
+            hash_update($hash, $buffer);
+        }
+
+        fclose($stream);
+        $md5 = hash_final($hash);
+
+        $this->logger->debug('calculated hash ['.$md5.'] for temporary file ['.$session.']', [
             'category' => get_class($this),
         ]);
 
@@ -189,6 +210,8 @@ class Smb implements AdapterInterface
             'reference' => [
                 'path' => $dest,
             ],
+            'size' => $size,
+            'hash' => $md5,
         ];
     }
 

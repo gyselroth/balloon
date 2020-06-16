@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: balloon
+  namespace: balloon
+spec:
+  rules:
+  - host: BALLOON_DOMAIN
+    http:
+      paths:
+      - path: /api
+        backend:
+          serviceName: balloon-nginx
+          servicePort: 80
+      - path: /webdav
+        backend:
+          serviceName: balloon-nginx
+          servicePort: 80
+      - path: /share
+        backend:
+          serviceName: balloon-nginx
+          servicePort: 80
+  #tls:
+  #- secretName: secret

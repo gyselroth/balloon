@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: libreoffice
+  namespace: balloon
+spec:
+  rules:
+  - host: OFFICE_DOMAIN
+    http:
+      paths:
+      - backend:
+          serviceName: libreoffice
+          servicePort: 9980
+  #tls:
+  #- secretName: secret

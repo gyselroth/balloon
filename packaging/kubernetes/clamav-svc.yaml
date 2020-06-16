@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: clamav
+  name: clamav
+  namespace: balloon
+spec:
+  ports:
+  - name: "tcp"
+    port: 3310
+    protocol: TCP
+    targetPort: 3310
+  selector:
+    k8s-app: clamav
+  sessionAffinity: None
+  type: ClusterIP

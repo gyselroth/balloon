@@ -147,10 +147,20 @@ class Groups
     /**
      * Delete group.
      */
-    public function delete(string $id): Response
+    public function delete(string $id, bool $force = false): Response
     {
         $group = $this->_getGroup($id, true);
-        $group->delete();
+        $group->delete($force);
+
+        return (new Response())->setCode(204);
+    }
+
+    /**
+     * Restore group.
+     */
+    public function postUndelete(string $id): Response
+    {
+        $this->_getGroup($id, true)->undelete();
 
         return (new Response())->setCode(204);
     }

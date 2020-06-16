@@ -16,7 +16,6 @@ use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Filesystem\Storage\Exception;
 use Balloon\Server\User;
-use Balloon\Session\SessionInterface;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
@@ -54,11 +53,13 @@ class Gridfs implements AdapterInterface
 
     /**
      * GridFS storage.
+     *
+     * @param Database
      */
-    public function __construct(Database $db, Bucket $gridfs, LoggerInterface $logger)
+    public function __construct(Database $db, LoggerInterface $logger)
     {
         $this->db = $db;
-        $this->gridfs = $gridfs;
+        $this->gridfs = $db->selectGridFSBucket();
         $this->logger = $logger;
     }
 
@@ -179,13 +180,17 @@ class Gridfs implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function storeFile(File $file, SessionInterface $session): array
+    public function storeFile(File $file, ObjectId $session): array
     {
-        $this->logger->debug('finalize temporary file ['.$session->getId().'] and add file ['.$file->getId().'] as reference', [
+        $this->logger->debug('finalize temporary file ['.$session.'] and add file ['.$file->getId().'] as reference', [
             'category' => get_class($this),
         ]);
 
-        $md5 = $session->getHash();
+        $md5 = $this->db->command([
+            'filemd5' => $session,
+            'root' => 'fs',
+        ])->toArray()[0]['md5'];
+
         $blob = $this->getFileByHash($md5);
 
         if ($blob !== null) {
@@ -201,15 +206,21 @@ class Gridfs implements AdapterInterface
                 ],
             ]);
 
-            $this->gridfs->delete($session->getId());
+            $this->gridfs->delete($session);
 
             return [
                 'reference' => ['_id' => $blob['_id']],
+                'size' => $blob['length'],
+                'hash' => $md5,
             ];
         }
 
+        $this->logger->debug('calculated hash ['.$md5.'] for temporary file ['.$session.'], remove temporary flag', [
+            'category' => get_class($this),
+        ]);
+
         $this->db->selectCollection('fs.files')->updateOne([
-            '_id' => $session->getId(),
+            '_id' => $session,
         ], [
             '$set' => [
                 'md5' => $md5,
@@ -220,11 +231,12 @@ class Gridfs implements AdapterInterface
             ],
         ]);
 
-        $blob = $this->getFileById($session->getId());
+        $blob = $this->getFileById($session);
 
         return [
-            'reference' => ['_id' => $session->getId()],
+            'reference' => ['_id' => $session],
             'size' => $blob['length'],
+            'hash' => $md5,
         ];
     }
 

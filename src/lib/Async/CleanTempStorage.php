@@ -11,10 +11,8 @@ declare(strict_types=1);
 
 namespace Balloon\Async;
 
-use Balloon\Session\Factory as SessionFactory;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
-use MongoDB\GridFS\Bucket;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
 
@@ -26,20 +24,6 @@ class CleanTempStorage extends AbstractJob
      * @var Database
      */
     protected $db;
-
-    /**
-     * Session factory.
-     *
-     * @var SessionFactory
-     */
-    protected $session_factory;
-
-    /**
-     * Bucket.
-     *
-     * @var Bucket
-     */
-    protected $bucket;
 
     /**
      * Logger.
@@ -60,12 +44,10 @@ class CleanTempStorage extends AbstractJob
     /**
      * Constructor.
      */
-    public function __construct(Database $db, SessionFactory $session_factory, LoggerInterface $logger, Bucket $bucket)
+    public function __construct(Database $db, LoggerInterface $logger)
     {
         $this->db = $db;
         $this->logger = $logger;
-        $this->session_factory = $session_factory;
-        $this->bucket = $bucket;
     }
 
     /**
@@ -73,19 +55,21 @@ class CleanTempStorage extends AbstractJob
      */
     public function start(): bool
     {
-        $this->logger->debug('clean sessions older than ['.$this->data['max_age'].'s]', [
+        $this->logger->debug('clean temporary storage from blobs older than ['.$this->data['max_age'].'s]', [
             'category' => get_class($this),
         ]);
 
         $lt = (time() - $this->data['max_age']) * 1000;
-        $result = $this->db->selectCollection('sessions')->find([
-            'changed' => ['$lt' => new UTCDateTime($lt)],
+        $result = $this->db->selectCollection('fs.files')->find([
+            'uploadDate' => ['$lt' => new UTCDateTime($lt)],
+            'metadata.temporary' => true,
         ]);
 
         $count = 0;
-        foreach ($result as $session) {
-            $this->session_factory->deleteOne($session['_id']);
-            $this->bucket->delete($session['_id']);
+        $gridfs = $this->db->selectGridFSBucket();
+
+        foreach ($result as $blob) {
+            $gridfs->delete($blob['_id']);
             ++$count;
         }
 

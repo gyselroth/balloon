@@ -18,7 +18,6 @@ use Balloon\Filesystem\Storage\Adapter\Smb;
 use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\User;
-use Balloon\Session\Factory as SessionFactory;
 use Icewind\SMB\Exception\NotFoundException;
 use Icewind\SMB\IFileInfo;
 use Icewind\SMB\INotifyHandler;
@@ -45,13 +44,6 @@ class SmbScanner extends AbstractJob
     protected $logger;
 
     /**
-     * Session factory.
-     *
-     * @var SessionFactory
-     */
-    protected $session_factory;
-
-    /**
      * Dummy storage.
      */
     protected $dummy;
@@ -59,11 +51,10 @@ class SmbScanner extends AbstractJob
     /**
      * Constructor.
      */
-    public function __construct(Server $server, SessionFactory $session_factory, LoggerInterface $logger)
+    public function __construct(Server $server, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->logger = $logger;
-        $this->session_factory = $session_factory;
         $this->dummy = new Blackhole();
     }
 
@@ -217,7 +208,7 @@ class SmbScanner extends AbstractJob
                     }
                 }
 
-                foreach ($child->getChildren() as $sub_child) {
+                foreach ($child->getChildNodes() as $sub_child) {
                     $sub_name = Normalizer::normalize($sub_child->getName());
 
                     if (!in_array($sub_name, $nodes)) {
@@ -266,11 +257,8 @@ class SmbScanner extends AbstractJob
         $storage = $parent->getStorage();
         $stream = $share->read($node->getPath());
         $session = $storage->storeTemporaryFile($stream, $user);
-        $session = $this->session_factory->build([
-            '_id' => $session,
-        ]);
-
         $file->setContent($session, $attributes);
+
         fclose($stream);
 
         return true;

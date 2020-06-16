@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mongo
+  namespace: balloon
+spec:
+  clusterIP: None
+  selector:
+    k8s-app: mongo
+  ports:
+    - port: 27017
+      targetPort: 27017
