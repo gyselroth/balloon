@@ -13,7 +13,6 @@ paths:
         - core.v2
       summary: Get server status
       operationId: getApi
-      security: []
       responses:
         "200":
           description: API root
@@ -21,15 +20,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.ApiRoot"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
   /api/v2:
     get:
       tags:
         - core.v2
-      summary: Get server status (API v2)
+      summary: Get server status
       operationId: getV2
-      security: []
       responses:
         "200":
           description: API root
@@ -37,43 +33,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.ApiRoot"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
   /api/v2/tokens:
-    post:
+    get:
       tags:
         - core.v2
-      summary: Get OAUTH2 Bearer token
+      summary: OAUTH2/OIDC token endpoint
       operationId: createToken
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                grant_type:
-                  description: OAUTH2 grant_type
-                  type: string
-                  enum:
-                    - password
-                    - password_mfa
-                    - refresh_token
-                username:
-                  description: Username
-                  type: string
-                password:
-                  description: Password
-                  type: string
-                code:
-                  description: Multi factor value. This is usually some kind of a code.
-                  type: string
-                refresh_token:
-                  description: OAUTH2 refresh_token to retrieve a new access_token.
-                  type: string
-              required:
-                - grant_type
-      security:
-        - BasicAuth: []
       responses:
         "200":
           description: Oauth2 token
@@ -81,18 +46,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.OAuth2Token"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
   /api/v2/groups:
     get:
       tags:
@@ -103,9 +56,10 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -119,23 +73,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -146,22 +102,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Groups"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Access denied
     post:
       tags:
         - core.v2
-      summary: Add group
+      summary: Add new group
       operationId: addGroup
       requestBody:
         content:
@@ -175,24 +121,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Group"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Access denied
   "/api/v2/groups/{group}":
     get:
       tags:
         - core.v2
       operationId: getGroup
-      summary: Get group
+      summary: Get single group
       parameters:
         - name: group
           in: path
@@ -215,22 +151,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Group"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     patch:
       tags:
         - core.v2
-      summary: Change group
+      summary: Set attributes for group
       operationId: patchGroup
       parameters:
         - name: group
@@ -253,18 +181,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Group"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     delete:
       tags:
         - core.v2
@@ -287,23 +207,15 @@ paths:
       responses:
         "204":
           description: If successful the server will respond with 204 No Content
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/groups/{group}/members":
     get:
       tags:
         - core.v2
-      summary: Get group members
+      summary: Request all member of a group
       operationId: getGroupMembers
       parameters:
         - name: group
@@ -314,28 +226,20 @@ paths:
             type: string
       responses:
         "200":
-          description: List of users
+          description: "List of users"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Users"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/groups/{group}/undelete":
     post:
       tags:
         - core.v2
-      summary: Restore group
+      summary: Restore deleted group
       operationId: undeleteGroup
       parameters:
         - name: group
@@ -360,13 +264,15 @@ paths:
       tags:
         - core.v2
       summary: Get users
+      description: A user is a colletion of users
       operationId: getUsers
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -380,49 +286,42 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
       responses:
         "200":
-          description: List of users
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Users"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     post:
       tags:
         - core.v2
-      summary: Add user
+      summary: Add new user
       operationId: addUser
       requestBody:
         content:
@@ -436,24 +335,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.User"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Access denied
   "/api/v2/users/{user}":
     get:
       tags:
         - core.v2
       operationId: getUser
-      summary: Get user
+      summary: Get single user
       parameters:
         - name: user
           in: path
@@ -476,22 +365,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.User"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     patch:
       tags:
         - core.v2
-      summary: Update user
+      summary: Set attributes for user
       operationId: patchUser
       parameters:
         - name: user
@@ -514,18 +395,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.User"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     delete:
       tags:
         - core.v2
@@ -548,23 +421,15 @@ paths:
       responses:
         "204":
           description: If successful the server will respond with 204 No Content
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/users/{user}/node-attribute-summary":
     get:
       tags:
         - core.v2
-      summary: Get user node summary.
+      summary: Get summary of node usage.
       operationId: getNodeAttributeSummary
       parameters:
         - name: user
@@ -580,23 +445,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.UserNodeAttributeSummary"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/users/{user}/groups":
     get:
       tags:
         - core.v2
-      summary: Get all groups of a user
+      summary: Request all groups of a user
       operationId: getUserGroups
       parameters:
         - name: user
@@ -607,9 +464,10 @@ paths:
             type: string
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -623,50 +481,44 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
       responses:
         "200":
-          description: List of groups
+          description: Groups
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Groups"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/users/{user}/undelete":
     post:
       tags:
         - core.v2
-      summary: Restore user
+      summary: Restore deleted user
       operationId: undeleteUser
       parameters:
         - name: user
@@ -682,23 +534,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.User"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/users/whoami:
     get:
       tags:
         - core.v2
-      summary: Get current user
+      summary: Get user object of the current authenticated user
       operationId: getCurrentUser
       parameters:
         - in: query
@@ -716,18 +560,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.User"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
   "/api/v2/users/{user}/avatar":
     get:
       tags:
@@ -748,31 +580,23 @@ paths:
             octet/stream:
               schema:
                 $ref: "#/components/schemas/core.v2.User"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/nodes/trash:
     get:
       tags:
         - core.v2
-      summary: Get deleted nodes
-      description: Return deleted nodes (Excluding sub nodes of deleted collections)
+      summary: Return delete nodes (Excluding sub nodes of deleted collections)
       operationId: getDeletedNodes
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -786,23 +610,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -813,22 +639,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Nodes"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
   /api/v2/nodes/search:
     get:
       tags:
-        - elasticsearch.v2
+        - ballon.app.elasticsearch.v2
       summary: Extended search query using elasticsearch
       operationId: queryElasticsearch
       parameters:
@@ -844,7 +658,7 @@ paths:
           description: "Wherever include deleted nodes or not, possible values:  0 Exclude
             deleted 1 Only deleted 2 Include deleted."
           schema:
-            type: integer
+            type: number
       responses:
         "200":
           description: Nodes
@@ -852,30 +666,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Nodes"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
   /api/v2/notifications:
     get:
       tags:
         - notification.v2
-      summary: Get nofitifications
-      operationId: getNotifications
+      summary: Get my nofitifications
+      operationId: getMyNotifications
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -889,23 +692,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -916,18 +721,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/notification.v2.Notifications"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
     post:
       tags:
         - notification.v2
@@ -945,23 +738,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/notification.v2.Notification"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
   "/api/v2/notifications/{notification}":
     get:
       tags:
         - notification.v2
-      summary: Get notification
+      summary: Get a single notification
       operationId: getNotification
       parameters:
         - name: notification
@@ -977,22 +758,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/notification.v2.Notification"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     delete:
       tags:
         - notification.v2
-      summary: Delete notification
+      summary: Delete a notification
       operationId: deleteNotification
       parameters:
         - name: notification
@@ -1004,23 +777,15 @@ paths:
       responses:
         "204":
           description: If successful the server will respond with 204 No Content
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/notifications/broadcast:
     post:
       tags:
         - notification.v2
-      summary: Send broadcast
+      summary: Send notification to all users
       operationId: sendBroadcast
       requestBody:
         content:
@@ -1052,23 +817,13 @@ paths:
       responses:
         "202":
           description: Mail
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Access denied
   "/api/v2/nodes/{node}/subscription":
     post:
       tags:
         - notification.v2
-      summary: Subscribe node updates
+      summary: Receive node updates
       operationId: subscribeNode
       parameters:
         - name: node
@@ -1095,12 +850,6 @@ paths:
           description: Apply subscription to children (inclusive newly added children)
           schema:
             type: boolean
-        - name: throttle
-          in: query
-          required: false
-          description: Set a custom notification throttle interval in seconds
-          schema:
-            type: integer
       responses:
         "202":
           description: Node
@@ -1108,23 +857,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Node"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/files/{file}/convert/slaves":
     get:
       tags:
         - convert.v2
-      summary: Get convert slaves
+      summary: Get existing convert slaves
       operationId: getSlaves
       parameters:
         - name: file
@@ -1140,22 +881,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/convert.v2.Slaves"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     post:
       tags:
         - convert.v2
-      summary: Add convert slave
+      summary: Add new convert slave
       operationId: addSlave
       parameters:
         - name: file
@@ -1178,23 +911,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/convert.v2.Slave"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/files/{file}/convert/slaves/{slave}":
     get:
       tags:
         - convert.v2
-      summary: Get convert slave
+      summary: Get single slave
       operationId: getSlave
       parameters:
         - name: file
@@ -1216,22 +941,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/convert.v2.Slave"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     delete:
       tags:
         - convert.v2
-      summary: Delete convert slave
+      summary: Delete slave
       operationId: deleteSlave
       parameters:
         - name: file
@@ -1249,24 +966,15 @@ paths:
       responses:
         "204":
           description: If successful the server will respond with 204 No Content
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/files/{file}/convert/supported-formats":
     get:
       tags:
         - convert.v2
-      summary: Get supported convert file formats
-      description: Get supported file formats to convert to (formats do vary between files)
+      summary: Get supported file formats to convert to (formats do vary between files)
       operationId: getSupportedFormats
       parameters:
         - name: file
@@ -1284,18 +992,10 @@ paths:
                 type: array
                 items:
                   type: string
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/desktop-clients/{format}/content":
     get:
       tags:
@@ -1323,24 +1023,11 @@ paths:
               schema:
                 type: string
                 format: binary
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
   "/api/v2/office/wopi/document/{document}":
     get:
       tags:
         - wopi.v2
-      summary: Get wopi document
-      description: Get document session information including document owner, session user
+      summary: Get document session information including document owner, session user
         and document size
       operationId: getWopiDocument
       parameters:
@@ -1363,23 +1050,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/office.v2.WopiDocument"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/office/wopi/document/{document}/contents":
     get:
       tags:
         - wopi.v2
-      summary: Get wopi document contents
+      summary: Get document contents
       operationId: getWopiDocumentContent
       parameters:
         - name: document
@@ -1397,22 +1076,14 @@ paths:
       responses:
         "200":
           description: Contents
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     post:
       tags:
         - wopi.v2
-      summary: Save wopi document contents
+      summary: Save document contents
       operationId: updateWopiDocuemntContent
       parameters:
         - name: document
@@ -1436,23 +1107,14 @@ paths:
       responses:
         "200":
           description: Operation was successful
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/office/documents:
     post:
       tags:
         - wopi.v2
-      summary: Create new document
       description: Create new document from an existing office document template
       operationId: createDocument
       requestBody:
@@ -1468,23 +1130,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.File"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/nodes/{node}/clone":
     post:
       tags:
         - core.v2
-      summary: Clone node
+      summary: Clone existing node
       operationId: cloneNode
       parameters:
         - name: node
@@ -1504,7 +1158,7 @@ paths:
           required: false
           description: Conflict resolution
           schema:
-            type: integer
+            type: number
             enum:
               - 0
               - 1
@@ -1519,24 +1173,15 @@ paths:
                 $ref: "#/components/schemas/core.v2.Node"
         "207":
           description: Multi status if batch request
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/nodes/{node}/move":
     post:
       tags:
         - core.v2
-      summary: Move node
-      description: Move node (Change parent collection), single or multiple ones
+      summary: Move node (Change parent collection), single or multiple ones
       operationId: moveNode
       parameters:
         - name: node
@@ -1556,7 +1201,7 @@ paths:
           required: false
           description: Conflict resolution
           schema:
-            type: integer
+            type: number
             enum:
               - 0
               - 1
@@ -1571,24 +1216,15 @@ paths:
                 $ref: "#/components/schemas/core.v2.Node"
         "207":
           description: Multi status if batch request
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/nodes/{node}/undelete":
     post:
       tags:
         - core.v2
-      summary: Restore node
-      description: Undelete (Restore from trash) a single node or multiple ones.
+      summary: Undelete (Restore from trash) a single node or multiple ones.
       operationId: undeleteNode
       parameters:
         - name: node
@@ -1615,7 +1251,7 @@ paths:
           required: false
           description: Conflict resolution
           schema:
-            type: integer
+            type: number
             enum:
               - 0
               - 1
@@ -1630,18 +1266,10 @@ paths:
                 $ref: "#/components/schemas/core.v2.Node"
         "207":
           description: Multi status if batch request
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/collections/{collection}/share":
     get:
       tags:
@@ -1662,23 +1290,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Share"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     post:
       tags:
         - core.v2
-      summary: Create share
-      description: Create a new share from an existing collection
+      summary: Create a new share from an existing collection
       operationId: shareCollection
       parameters:
         - name: collection
@@ -1701,23 +1320,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Collection"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     delete:
       tags:
         - core.v2
-      summary: Delete share
-      description: Does only remove sharing options and transform a share back into a
+      summary: Does only remove sharing options and transform a share back into a
         normal collection. There will not be any data loss after this action.
         All existing references would be removed automatically.
       operationId: deleteShare
@@ -1739,7 +1349,7 @@ paths:
     get:
       tags:
         - core.v2
-      summary: Get collection children
+      summary: Get all children of a collection
       operationId: getChildren
       parameters:
         - name: collection
@@ -1750,9 +1360,10 @@ paths:
             type: string
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -1761,7 +1372,7 @@ paths:
           description: Wheter to include deleted or not
           required: false
           schema:
-            type: integer
+            type: number
             enum:
               - 0
               - 1
@@ -1776,23 +1387,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -1810,30 +1423,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Nodes"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/collections/children:
     get:
       tags:
         - core.v2
-      summary: Get root children
+      summary: Get all children of the root collection
       operationId: getRootChildren
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -1842,7 +1448,7 @@ paths:
           description: Wheter to include deleted or not
           required: false
           schema:
-            type: integer
+            type: number
             enum:
               - 0
               - 1
@@ -1857,23 +1463,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -1891,30 +1499,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Nodes"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/collections:
     get:
       tags:
         - core.v2
-      summary: Get collections
+      summary: Get all collections
       operationId: getCollections
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -1923,7 +1524,7 @@ paths:
           description: Wheter to include deleted or not
           required: false
           schema:
-            type: integer
+            type: number
             enum:
               - 0
               - 1
@@ -1938,23 +1539,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -1965,18 +1568,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Collections"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     post:
       tags:
         - core.v2
@@ -1999,7 +1594,7 @@ paths:
     post:
       tags:
         - core.v2
-      summary: Create collection
+      summary: Create a new collection
       operationId: createCollection
       parameters:
         - name: collection
@@ -2017,30 +1612,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Collection"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/files:
     get:
       tags:
         - core.v2
-      summary: Get files
+      summary: Get all files
       operationId: getFiles
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -2049,7 +1637,7 @@ paths:
           description: Wheter to include deleted or not
           required: false
           schema:
-            type: integer
+            type: number
             enum:
               - 0
               - 1
@@ -2064,23 +1652,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -2091,23 +1681,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Files"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     put:
       tags:
         - core.v2
-      summary: Upload file
-      description: Upload an entire file in one-shot. Use this endpoint only for small
+      summary: Upload an entire file in one-shot. Use this endpoint only for small
         files, for bigger files use the chunking endpoint.
       operationId: uploadFile
       requestBody:
@@ -2123,23 +1704,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.File"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/files/{file}/history":
     get:
       tags:
         - core.v2
-      summary: Get file history
+      summary: Get a full change history of a file
       operationId: getFileHistory
       parameters:
         - name: file
@@ -2155,24 +1728,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.FileHistory"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/files/{file}/restore":
     post:
       tags:
         - core.v2
-      summary: Rollback file
-      description: Rollback to a recent version from history. Use the version number from
+      summary: Rollback to a recent version from history. Use the version number from
         history.
       operationId: rollbackFile
       parameters:
@@ -2189,25 +1753,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.File"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/files/chunk:
     put:
       tags:
         - core.v2
-      summary: Resumeable upload file (chunked)
-      description: Upload a file chunk. You have to manually splitt the binary data into
-        multiple chunks and upload them successively using this method. Once
+      summary: Upload a file chunk. You have to manually splitt the binary data into
+        multiple chunks and upload them successively! using this method. Once
         uploading the last chunk, the server will automatically create or update
         the file node. You may set the parent collection, name and or custom
         attributes only with the last request to save traffic.
@@ -2238,18 +1793,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.ChunkSession"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/nodes:
     get:
       tags:
@@ -2259,9 +1806,10 @@ paths:
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -2270,7 +1818,7 @@ paths:
           description: Wheter to include deleted or not
           required: false
           schema:
-            type: integer
+            type: number
             enum:
               - 0
               - 1
@@ -2285,23 +1833,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -2312,18 +1862,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Nodes"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/nodes/{node}":
     delete:
       tags:
@@ -2357,26 +1899,18 @@ paths:
           description: Has to be a valid unix timestamp if so the node will destroy itself
             at this specified time instead immediatly
           schema:
-            type: integer
+            type: number
       responses:
         "204":
           description: If successful the server will respond with 204 No Content
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     get:
       tags:
         - core.v2
-      summary: Get node
+      summary: Get single node
       operationId: getNode
       parameters:
         - name: node
@@ -2400,22 +1934,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Node"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     patch:
       tags:
         - core.v2
-      summary: Change node
+      summary: Change attributes
       operationId: updateNode
       parameters:
         - name: node
@@ -2438,23 +1964,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Node"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/nodes/{node}/share-link":
     delete:
       tags:
         - sharelink.v2
-      summary: Delete share link
+      summary: Delete an existing sharing link
       operationId: deleteLink
       parameters:
         - name: node
@@ -2466,24 +1984,15 @@ paths:
       responses:
         "204":
           description: The server responds with 204 if operation was successful
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
     post:
       tags:
         - sharelink.v2
-      summary: Create share link
-      description: Create a unique share link of a node (global accessible). A possible
-        existing link will get deleted if this endpoint gets called.
+      summary: "Create a unique sharing link of a node (global accessible): a possible
+        existing link will be deleted if this method will be called."
       operationId: createLink
       parameters:
         - name: node
@@ -2498,7 +2007,7 @@ paths:
           description: Expire timestamp as unix timestap. Tells the server when the public
             link should expire automatically. The default is to never expire.
           schema:
-            type: integer
+            type: number
             default: 0
         - name: password
           in: query
@@ -2513,24 +2022,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Node"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/nodes/last-cursor:
     get:
       tags:
         - core.v2
-      summary: Get last cursor
-      description: Use this method to request the latest cursor if you only need to now if
+      summary: Use this method to request the latest cursor if you only need to now if
         there are changes on the server. This method will not return any other
         data than the newest cursor. To request a feed with all deltas request
         /delta.
@@ -2546,8 +2046,7 @@ paths:
     get:
       tags:
         - core.v2
-      summary: Download node content.
-      description: Stream node contents. Note that collections are zipped on-the-fly.
+      summary: Download node contents. Note that collections are zipped on-the-fly.
       operationId: getContent
       parameters:
         - name: node
@@ -2556,12 +2055,12 @@ paths:
           description: Node identifier
           schema:
             type: string
-        - name: Range
+        - name: Byte-Ranges
           in: header
           required: false
-          description: Read stream from a specific offset/limit in bytes.
+          description: "Read stream from a specific offset/limit in bytes "
           schema:
-            type: string
+            type: number
         - name: encode
           in: query
           required: false
@@ -2585,18 +2084,10 @@ paths:
               schema:
                 type: string
                 format: binary
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/nodes/delta:
     get:
       tags:
@@ -2610,7 +2101,7 @@ paths:
           description: "Limit the number of delta entries, if too low you have to call this
             endpoint more often since has_more would be true more often "
           schema:
-            type: integer
+            type: number
         - name: attributes
           in: query
           required: false
@@ -2632,32 +2123,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Delta"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   /api/v2/nodes/event-log:
     get:
       tags:
         - core.v2
-      summary: Get events
-      description: Get event log containing all operations which are made by the user
+      summary: Get event log containing all operations which are made by the user
         himself or share members
       operationId: getEventLog
       parameters:
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -2671,23 +2154,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -2698,24 +2183,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.EventLogs"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/nodes/{node}/event-log":
     get:
       tags:
         - core.v2
-      summary: Get event
-      description: Get event log containing all operations which are made by the user
+      summary: Get event log containing all operations which are made by the user
         himself or share members on a given node
       operationId: getNodeEventLog
       parameters:
@@ -2727,9 +2203,10 @@ paths:
             type: string
         - in: query
           name: query
-          description: "Specify a MongoDB based resource query
+          description: |-
+            Specify a MongoDB based resource query
             (https://docs.mongodb.com/manual/tutorial/query-documents) using
-            JSON (For example: {\"name\": {$regex: 'foo.*'}})."
+            JSON (For example: {"name": {$regex: 'foo.*'}}).
           required: false
           schema:
             type: string
@@ -2743,23 +2220,25 @@ paths:
               type: string
         - in: query
           name: offset
-          description: Objects offset, per default it starts from 0. You may also request a
+          description: |-
+            Objects offset, per default it starts from 0. You may also request a
             negative offset which will return results from the end [total -
             offset].
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: limit
           description: Objects limit, per default 20 objects will get returned
           required: false
           schema:
-            type: integer
+            type: number
         - in: query
           name: sort
-          description: 'Specify a MongoDB sort operation
+          description: |-
+            Specify a MongoDB sort operation
             (https://docs.mongodb.com/manual/reference/method/cursor.sort/)
-            using JSON (For example: {"name": -1}).'
+            using JSON (For example: {"name": -1}).
           required: false
           schema:
             type: string
@@ -2770,24 +2249,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.EventLogs"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/nodes/{node}/parents":
     get:
       tags:
         - core.v2
-      summary: Get parent collections
-      description: The hirarchy of all parent nodes is ordered in a single level array
+      summary: The hirarchy of all parent nodes is ordered in a single level array
         beginning with the collection on the highest level.
       operationId: getParentNodes
       parameters:
@@ -2819,39 +2289,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/core.v2.Nodes"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-  /api/v2/feedbacks:
-    post:
-      tags:
-        - feedback.v2
-      description: Submit feedback
-      summary: Submit a feedback to the developers of balloon (or another destination).
-        You may submit some metadata and a zipped collection of debug
-        information.
-      operationId: submitFeedback
-      responses:
-        "201":
-          description: Feedback submited
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
   "/api/v2/files/{file}/preview":
     get:
       tags:
         - preview.v2
-      description: Get preview
       summary: Get a preview of the files content. The body either contains an encoded
         string or a jpeg binary.
       operationId: getPreview
@@ -2871,128 +2316,28 @@ paths:
             type: string
       responses:
         "200":
-          description: Binary data
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
+          description: Binara data
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Access denied
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-    patch:
-      tags:
-        - preview.v2
-      description: Create preview
-      summary: Create or replace preview of a file. A preview may be a maximum of 2MB
-      operationId: setPreview
-      parameters:
-        - name: file
-          in: path
-          required: true
-          description: File identifier
-          schema:
-            type: string
-      responses:
-        "200":
-          description: File
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/core.v2.File"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-    delete:
-      tags:
-        - preview.v2
-      description: Delete preview
-      summary: Delete an existing preview
-      operationId: deletePreview
-      parameters:
-        - name: file
-          in: path
-          required: true
-          description: File identifier
-          schema:
-            type: string
-      responses:
-        "204":
-          description: Preview deleted
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+          description: Resource does not exists
+servers:
+  - url: /
 security:
   - BasicAuth: []
   - BearerAuth: []
-servers:
-  - url: /
+  - OpenID: []
 components:
-  responses:
-    NotFound:
-      description: The specified resource was not found
-      content:
-        "*/*":
-          schema:
-            $ref: "#/components/schemas/core.v2.Error"
-    Unauthorized:
-      description: Unauthorized
-      content:
-        "*/*":
-          schema:
-            $ref: "#/components/schemas/core.v2.Error"
-    UnprocessableEntity:
-      description: Unauthorized
-      content:
-        "*/*":
-          schema:
-            $ref: "#/components/schemas/core.v2.Error"
-    Conflict:
-      description: Conflict
-      content:
-        "*/*":
-          schema:
-            $ref: "#/components/schemas/core.v2.Error"
-    Forbidden:
-      description: Forbidden
-      content:
-        "*/*":
-          schema:
-            $ref: "#/components/schemas/core.v2.Error"
-    BadRequest:
-      description: Bad Reqeust
-      content:
-        "*/*":
-          schema:
-            $ref: "#/components/schemas/core.v2.Error"
-    InternalServerError:
-      description: Internal Server Error
-      content:
-        "*/*":
-          schema:
-            $ref: "#/components/schemas/core.v2.Error"
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
+    OpenID:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
   requestBodies:
     core.v2.Collection:
       content:
@@ -3000,24 +2345,7 @@ components:
           schema:
             $ref: "#/components/schemas/core.v2.Collection"
       required: true
-  securitySchemes:
-    BasicAuth:
-      type: http
-      scheme: basic
-    BearerAuth:
-      type: apiKey
-      name: Authorization
-      in: header
   schemas:
-    core.v2.Error:
-      type: object
-      properties:
-        code:
-          type: integer
-        message:
-          type: string
-        error:
-          type: string
     core.v2.JsonPatch:
       description: A JSON Patch according rfc6902.
       type: object
@@ -3035,7 +2363,7 @@ components:
         name:
           type: string
         api:
-          type: integer
+          type: number
     core.v2.Links:
       description: Contains resource links (URL) to other resources.
       type: object
@@ -3067,20 +2395,17 @@ components:
           default: List
         count:
           description: Holds the number of items in the current list response.
-          type: integer
+          type: number
         total:
           description: Holds the number of total available items on the server. Note that a
             List resource is always paged. You need to traverse with offset and
             limit to request further resources in the list.
-          type: integer
+          type: number
     core.v2.Resource:
       type: object
       properties:
         _links:
           $ref: "#/components/schemas/core.v2.Links"
-        kind:
-          description: Resource type
-          type: string
         id:
           description: Unique 12-byte resource identifier. Note this is a MongoDB ObjectId.
             The name is the standard resource identifier, the id only useful to
@@ -3092,17 +2417,15 @@ components:
           type: string
           format: date-time
     core.v2.OAuth2Token:
-      description: OAUTH2 access token response according RFC6749
-        https://tools.ietf.org/html/rfc6749#section-4.3.3
+      description: "OAUTH2 access token response according RFC6749 https://tools.ietf.org/html/rfc6749#section-4.3.3"
       type: object
       properties:
         access_token:
           description: Resource access_token.
           type: string
         expires_in:
-          description: The number of seconds the issues acceess_token is valid for. This is
-            usually 1hour.
-          type: integer
+          description: The number of seconds the issues acceess_token is valid for. This is usually 1hour.
+          type: number
           default: 3600
         token_type:
           description: The type of token. This is usually a Bearer token.
@@ -3112,12 +2435,10 @@ components:
           description: The scopes.
           type: string
         refresh_token:
-          description: An optional refresh token to get new access_tokens via the
-            refresh_token grant type.
+          description: An optional refresh token to get new access_tokens via the refresh_token grant type.
           type: string
     core.v2.Users:
       description: A list of users.
-      type: object
       allOf:
         - $ref: "#/components/schemas/core.v2.ResourceList"
         - type: object
@@ -3168,20 +2489,20 @@ components:
               description: Hard quota in bytes (Max. limit of storage usage). Note that
                 external storage is not part of the quota. The default is no
                 limit.
-              type: integer
+              type: number
               default: -1
             soft_quota:
               description: Soft quota in bytes (Warning of high quota usage). The default
                 is no limit.
-              type: integer
+              type: number
               default: -1
             available:
               description: Available storage in bytes. Is -1 if there is no hard_quota.
-              type: integer
+              type: number
               default: -1
             used:
               description: Used storage in bytes.
-              type: integer
+              type: number
               default: 0
     core.v2.Groups:
       description: A list of groups.
@@ -3275,7 +2596,7 @@ components:
             size:
               description: The size in bytes. If the node is of type collection the size is
                 the number of child nodes.
-              type: integer
+              type: number
               default: 0
             path:
               description: The path abstraction of the node.
@@ -3288,7 +2609,7 @@ components:
                 - rw
                 - w
                 - m
-                - rp
+                - w+
             parent:
               description: Points to the parent collection. If the nodes is in the root
                 this is null.
@@ -3332,23 +2653,10 @@ components:
               description: Subscription excludes actions from the subscribed user itself.
               type: boolean
               default: false
-            subscription_throttle:
-              description: Subscription throttle interval in seconds
-              type: integer
-              default: false
             sharelink_has_password:
               description: Is true if the node has a protected public sharelink.
               type: boolean
               default: false
-            sharelink_token:
-              description: "Contains the shared link token if set"
-              type: "string"
-              default: null
-            sharelink_expire:
-              description: "Contains the datetime of a shared link if set"
-              type: "string"
-              default: null
-              format: date-time
     core.v2.Collections:
       description: A list of collections.
       allOf:
@@ -3381,7 +2689,7 @@ components:
           properties:
             version:
               description: The content version. Does increase if the content gets changed.
-              type: integer
+              type: number
               default: 1
             hash:
               description: MD5 content checksum.
@@ -3395,7 +2703,7 @@ components:
       properties:
         version:
           description: The version number.
-          type: integer
+          type: number
           default: 1
         changed:
           description: ISO 8601 timestamp when the resource was changed.
@@ -3403,7 +2711,7 @@ components:
           format: date-time
         type:
           description: Type of change.
-          type: integer
+          type: number
         user:
           description: Resolves to user who executed the operation.
           type: object
@@ -3467,7 +2775,7 @@ components:
             - rw
             - w
             - m
-            - rp
+            - w+
             - d
         role:
           description: Points to the share owner. If the node is not part of any share this
@@ -3491,7 +2799,7 @@ components:
             _id:
               type: string
             sum:
-              type: integer
+              type: number
     core.v2.ChunkSession:
       description: Chunking upload session.
       type: object
@@ -3501,7 +2809,7 @@ components:
           type: string
         chunks_left:
           description: Tells how many chunks are left to upload.
-          type: integer
+          type: number
     core.v2.EventLogs:
       description: A list of events.
       allOf:

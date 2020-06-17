@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: clamav
+  name: clamav
+  namespace: balloon
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      k8s-app: clamav
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: clamav
+    spec:
+      containers:
+      - image: dinkel/clamavd:latest
+        imagePullPolicy: IfNotPresent
+        name: clamav
+        ports:
+        - containerPort: 3310
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 1470Mi
+          requests:
+            cpu: "0"
+            memory: 560Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

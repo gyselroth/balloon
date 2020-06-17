@@ -108,11 +108,7 @@ class Elasticsearch
     protected function executeQuery(array $query, ?int $skip = null, ?int $limit = null): array
     {
         $shares = $this->user->getShares();
-        $bool = [];
-
-        if (isset($query['body']['query'])) {
-            $bool = $query['body']['query'];
-        }
+        $bool = $query['body']['query'];
 
         $filter1 = [];
         $filter1['bool']['should'][]['term']['owner'] = (string) $this->user->getId();

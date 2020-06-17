@@ -56,14 +56,14 @@ class ImagickImage implements AdapterInterface
      *
      * @var string
      */
-    protected $match_convert = '#^image/|text/|application/pdf#';
+    protected $match_convert = '#^image\/#';
 
     /**
      * Match preview filter.
      *
      * @var string
      */
-    protected $match_preview = '#^image/|text/|application/pdf#';
+    protected $match_preview = '#^image|text\/#';
 
     /**
      * Initialize.
@@ -135,7 +135,7 @@ class ImagickImage implements AdapterInterface
         stream_copy_to_stream($file->get(), $sourceh);
         $desth = tmpfile();
         $dest = stream_get_meta_data($desth)['uri'];
-        $image = new Imagick($source);
+        $image = new Imagick($source.'[0]');
 
         $width = $image->getImageWidth();
         $height = $image->getImageHeight();

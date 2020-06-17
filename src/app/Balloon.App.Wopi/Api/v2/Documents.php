@@ -16,7 +16,6 @@ use Balloon\Filesystem;
 use Balloon\Filesystem\Node\AttributeDecorator;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Server;
-use Balloon\Session\Factory as SessionFactory;
 use Micro\Http\Response;
 
 class Documents
@@ -43,20 +42,12 @@ class Documents
     protected $decorator;
 
     /**
-     * Session factory.
-     *
-     * @var SessionFactory
-     */
-    protected $session_factory;
-
-    /**
      * Constructor.
      */
-    public function __construct(Server $server, SessionFactory $session_factory, AttributeDecorator $decorator)
+    public function __construct(Server $server, AttributeDecorator $decorator)
     {
         $this->server = $server;
         $this->fs = $server->getFilesystem();
-        $this->session_factory = $session_factory;
         $this->decorator = $decorator;
     }
 
@@ -72,7 +63,8 @@ class Documents
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
 
         $stream = $tpl->get();
-        $session = $this->session_factory->add($this->server->getIdentity(), $parent, $stream);
+        $storage = $parent->getStorage();
+        $session = $storage->storeTemporaryFile($stream, $this->server->getIdentity());
         $result = $parent->addFile($name, $session, $attributes);
         fclose($stream);
         $result = $this->decorator->decorate($result);

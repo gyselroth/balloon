@@ -24,7 +24,6 @@ use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Helper;
 use Balloon\Server;
 use Balloon\Server\User;
-use Balloon\Session\Factory as SessionFactory;
 use Closure;
 use Generator;
 use Micro\Http\Response;
@@ -78,16 +77,9 @@ class Node extends Controller
     protected $db;
 
     /**
-     * Session factory.
-     *
-     * @var SessionFactory
-     */
-    protected $session_factory;
-
-    /**
      * Initialize.
      */
-    public function __construct(Server $server, NodeDecorator $decorator, LoggerInterface $logger, Database $db, SessionFactory $session_factory)
+    public function __construct(Server $server, NodeDecorator $decorator, LoggerInterface $logger, Database $db)
     {
         $this->fs = $server->getFilesystem();
         $this->user = $server->getIdentity();
@@ -95,7 +87,6 @@ class Node extends Controller
         $this->node_decorator = $decorator;
         $this->logger = $logger;
         $this->db = $db;
-        $this->session_factory = $session_factory;
     }
 
     /**

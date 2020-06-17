@@ -147,13 +147,13 @@ class Notifications
     /**
      * Post a notification to a group of users.
      */
-    public function post(array $receiver, string $subject, string $message): Response
+    public function post(array $receiver, string $subject, string $body): Response
     {
         $users = $this->server->getUsersById($receiver);
 
         $message = $this->notifier->compose('user_message', [
             'user_subject' => $subject,
-            'user_body' => $message,
+            'user_body' => $body,
         ]);
 
         $this->notifier->notify($users, $this->user, $message);
@@ -164,7 +164,7 @@ class Notifications
     /**
      * Post a notification to all users.
      */
-    public function postBroadcast(string $subject, string $message): Response
+    public function postBroadcast(string $subject, string $body): Response
     {
         if (!$this->user->isAdmin()) {
             throw new ForbiddenException('submitted parameters require to have admin privileges', ForbiddenException::ADMIN_PRIV_REQUIRED);
@@ -173,7 +173,7 @@ class Notifications
         $users = $this->server->getUsers();
         $message = $this->notifier->compose('user_message', [
             'user_subject' => $subject,
-            'user_body' => $message,
+            'user_body' => $body,
         ]);
 
         $this->notifier->notify($users, $this->user, $message);

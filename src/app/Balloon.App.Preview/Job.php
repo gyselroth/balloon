@@ -27,14 +27,14 @@ class Job extends AbstractJob
     /**
      * Preview.
      *
-     * @var Preview
+     * @var PreviewCreator
      */
     protected $preview;
 
     /**
      * Constructor.
      */
-    public function __construct(Preview $preview, Server $server)
+    public function __construct(PreviewCreator $preview, Server $server)
     {
         $this->preview = $preview;
         $this->fs = $server->getFilesystem();

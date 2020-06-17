@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: balloon
+  labels:
+    component: elasticsearch
+    role: client
+    k8s-app: elasticsearch
+spec:
+  selector:
+    component: elasticsearch
+    role: client
+  ports:
+  - name: http
+    port: 9200
+  type: NodePort

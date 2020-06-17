@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Balloon\App\Notification\Hook;
 
-use Balloon\App\Notification\Exception;
 use Balloon\App\Notification\Notifier;
 use Balloon\Filesystem\Acl;
 use Balloon\Filesystem\Node\Collection;
@@ -21,10 +20,18 @@ use Balloon\Hook\AbstractHook;
 use Balloon\Server;
 use Balloon\Server\User;
 use Generator;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 class Subscription extends AbstractHook
 {
+    /**
+     * Notification throttle.
+     *
+     * @var int
+     */
+    protected $notification_throttle = 120;
+
     /**
      * Notifier.
      *
@@ -56,12 +63,36 @@ class Subscription extends AbstractHook
     /**
      * Constructor.
      */
-    public function __construct(Notifier $notifier, Server $server, Acl $acl, LoggerInterface $logger)
+    public function __construct(Notifier $notifier, Server $server, Acl $acl, LoggerInterface $logger, ?Iterable $config = null)
     {
         $this->notifier = $notifier;
         $this->server = $server;
+        $this->setOptions($config);
         $this->logger = $logger;
         $this->acl = $acl;
+    }
+
+    /**
+     * Set config.
+     */
+    public function setOptions(?Iterable $config = null): self
+    {
+        if (null === $config) {
+            return $this;
+        }
+
+        foreach ($config as $option => $value) {
+            switch ($option) {
+                case 'notification_throttle':
+                    $this->{$option} = (int) $value;
+
+                break;
+                default:
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -70,6 +101,16 @@ class Subscription extends AbstractHook
     public function postCreateCollection(Collection $parent, Collection $node, bool $clone): void
     {
         $this->notify($node);
+
+        if ($this->server->getIdentity() === null) {
+            return;
+        }
+
+        $subscription = $this->notifier->getSubscription($parent, $this->server->getIdentity());
+
+        if ($subscription !== null && $subscription['recursive'] === true) {
+            $this->notifier->subscribeNode($node, true, $subscription['exclude_me'], $subscription['recursive']);
+        }
     }
 
     /**
@@ -128,15 +169,16 @@ class Subscription extends AbstractHook
      */
     protected function notify(NodeInterface $node): bool
     {
-        if ($node instanceof File && $node->isTemporaryFile()) {
-            $this->logger->debug('skip subscription notification for node temporary file ['.$node->getId().'] (matches temporary file pattern)', [
-                'category' => get_class($this),
-            ]);
+        $receiver = $this->getReceiver($node);
+        $parent = $node->getParent();
 
-            return false;
+        if ($parent !== null) {
+            $parents = $this->getReceiver($parent);
+            $parents = array_diff($parents, $receiver);
+
+            $this->send($node, $parent, $parents);
         }
 
-        $receiver = $this->getReceiver($node);
         $this->send($node, $node, $receiver);
 
         return true;
@@ -163,14 +205,7 @@ class Subscription extends AbstractHook
             'node' => $node,
         ]);
 
-        try {
-            return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
-        } catch (Exception\NoAdapterAvailable $e) {
-            $this->logger->error('subscription notification could not be sent', [
-                'category' => get_class($this),
-                'exception' => $e,
-            ]);
-        }
+        return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
     }
 
     /**
@@ -178,7 +213,7 @@ class Subscription extends AbstractHook
      */
     protected function getReceiver(NodeInterface $node): array
     {
-        $subs = $this->notifier->getAllSubscriptions($node);
+        $subs = $this->notifier->getSubscriptions($node);
 
         $receiver = [];
         $user_id = null;
@@ -186,13 +221,9 @@ class Subscription extends AbstractHook
             $user_id = $this->server->getIdentity()->getId();
         }
 
-        $subscriptions = [];
-
         foreach ($subs as $key => $subscription) {
-            $throttle = $subscription['throttle'] ?? $this->notifier->getThrottleTime();
-
-            if (isset($subscription['last_notification']) && ($subscription['last_notification']->toDateTime()->format('U') + $throttle) > time()) {
-                $this->logger->debug('skip message for user ['.$subscription['user'].'], message within throttle time range of ['.$throttle.'s]', [
+            if (isset($subscription['last_notification']) && ($subscription['last_notification']->toDateTime()->format('U') + $this->notification_throttle) > time()) {
+                $this->logger->debug('skip message for user ['.$subscription['user'].'], message within throttle time range of ['.$this->notification_throttle.'s]', [
                     'category' => get_class($this),
                 ]);
             } elseif ($subscription['user'] == $user_id && $subscription['exclude_me'] === true) {
@@ -201,11 +232,10 @@ class Subscription extends AbstractHook
                 ]);
             } else {
                 $receiver[] = $subscription['user'];
-                $subscriptions[] = $subscription['_id'];
             }
         }
 
-        $this->notifier->throttleSubscriptions($subscriptions);
+        $this->notifier->throttleSubscriptions($node, $receiver);
 
         return $receiver;
     }
@@ -228,6 +258,6 @@ class Subscription extends AbstractHook
             }
         }
 
-        //$this->notifier->throttleSubscriptions($node, $users);
+        $this->notifier->throttleSubscriptions($node, $users);
     }
 }

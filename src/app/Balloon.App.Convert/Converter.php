@@ -16,7 +16,6 @@ use Balloon\Filesystem\Exception\NotFound as NotFoundException;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
-use Balloon\Session\Factory as SessionFactory;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Database;
 use Psr\Log\LoggerInterface;
@@ -67,22 +66,16 @@ class Converter
     protected $logger;
 
     /**
-     * Session factory.
-     *
-     * @var SessionFactory
-     */
-    protected $session_factory;
-
-    /**
      * Constructor.
+     *
+     * @param LoggerInterface   logger
      */
-    public function __construct(Database $db, Server $server, FileConverter $converter, Scheduler $scheduler, SessionFactory $session_factory, LoggerInterface $logger)
+    public function __construct(Database $db, Server $server, FileConverter $converter, Scheduler $scheduler, LoggerInterface $logger)
     {
         $this->server = $server;
         $this->db = $db;
         $this->converter = $converter;
         $this->scheduler = $scheduler;
-        $this->session_factory = $session_factory;
         $this->logger = $logger;
     }
 
@@ -192,7 +185,8 @@ class Converter
         try {
             if (isset($slave['slave'])) {
                 $slave = $master->getFilesystem()->findNodeById($slave['slave']);
-                $session = $this->session_factory->add($this->server->getUserById($master->getOwner()), $slave->getParent(), $result);
+                $storage = $slave->getParent()->getStorage();
+                $session = $storage->storeTemporaryFile($result, $this->server->getUserById($master->getOwner()));
                 $slave->setReadonly(false);
                 $slave->setContent($session);
                 fclose($result);
@@ -218,7 +212,9 @@ class Converter
             $name = $master->getName().'.'.$slave['format'];
         }
 
-        $session = $this->session_factory->add($this->server->getUserById($master->getOwner()), $master->getParent(), $result);
+        $storage = $master->getParent()->getStorage();
+        $session = $storage->storeTemporaryFile($result, $this->server->getUserById($master->getOwner()));
+
         $node = $master->getParent()->addFile($name, $session, [
             'owner' => $master->getOwner(),
             'app' => [

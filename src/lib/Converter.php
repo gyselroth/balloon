@@ -129,16 +129,23 @@ class Converter
         }
 
         foreach ($this->adapter as $name => $adapter) {
-            if ($adapter->matchPreview($file)) {
-                return $adapter->createPreview($file);
-            }
+            try {
+                if ($adapter->matchPreview($file)) {
+                    return $adapter->createPreview($file);
+                }
 
-            $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
-                'category' => get_class($this),
-            ]);
+                $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
+                    'category' => get_class($this),
+                ]);
+            } catch (\Exception $e) {
+                $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+            }
         }
 
-        throw new Exception('no converter adapter available to create preview for node '.$file->getId());
+        throw new Exception('all adapter failed');
     }
 
     /**
@@ -155,15 +162,22 @@ class Converter
         }
 
         foreach ($this->adapter as $name => $adapter) {
-            if ($adapter->match($file) && in_array($format, $adapter->getSupportedFormats($file), true)) {
-                return $adapter->convert($file, $format);
-            }
+            try {
+                if ($adapter->match($file) && in_array($format, $adapter->getSupportedFormats($file), true)) {
+                    return $adapter->convert($file, $format);
+                }
 
-            $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
-                'category' => get_class($this),
-            ]);
+                $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
+                    'category' => get_class($this),
+                ]);
+            } catch (\Exception $e) {
+                $this->logger->error('failed execute adapter ['.get_class($adapter).']', [
+                    'category' => get_class($this),
+                    'exception' => $e,
+                ]);
+            }
         }
 
-        throw new Exception('no converter adapter available for node '.$file->getId());
+        throw new Exception('all adapter failed');
     }
 }

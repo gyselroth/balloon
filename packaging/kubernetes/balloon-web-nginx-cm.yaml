@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  nginx.conf: " user  nginx; worker_processes  1;\nerror_log  /var/log/nginx/error.log
+    warn; pid        /var/run/nginx.pid;\n\nevents { worker_connections  10240; }\n\nhttp
+    { include       /etc/nginx/mime.types; default_type  application/octet-stream;\n
+    \nsendfile        on; tcp_nopush     on;\nkeepalive_timeout  65;\ngzip  on;\n
+    log_format access  '$http_x_forwarded_for - $remote_user [$time_local]
+    \"$request\" ' '$status $body_bytes_sent \"$http_referer\" ' '\"$http_user_agent\"';\n
+    server {\n    listen 80;\n\n    client_max_body_size 16G;\n\n access_log /dev/stdout
+    access;\n    error_log /dev/stderr;\n\n    location /docs {\n        alias /usr/share/balloon-apidoc;\n
+    \       index index.html;\n        break;\n\t}\n\n
+    \ location / {\n        root /usr/share/balloon-web;\n        index
+    index.html;\n        break;\n    }\n}\n\n} "
+kind: ConfigMap
+metadata:
+  name: balloon-web-nginx-config
+  namespace: balloon

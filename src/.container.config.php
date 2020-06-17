@@ -34,19 +34,10 @@ use Cache\Adapter\Apcu\ApcuCachePool;
 use Psr\SimpleCache\CacheInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Mjelamanov\GuzzlePsr18\Client as GuzzleAdapter;
-use MongoDB\GridFS\Bucket as GridFSBucket;
-use Zend\Mail\Transport\SmtpOptions;
 use GuzzleHttp\ClientInterface as GuzzleHttpClientInterface;
 use GuzzleHttp\Client as GuzzleHttpClient;
 
 return [
-    Server::class => [
-        'arguments' => [
-            'config' => [
-                'server_url' => '{ENV(BALLOON_URL,http://localhost)}',
-            ]
-        ]
-    ],
     Client::class => [
         'arguments' => [
             'uri' => '{ENV(BALLOON_MONGODB_URI,mongodb://localhost:27017)}',
@@ -60,12 +51,7 @@ return [
         ],
     ],
     GuzzleHttpClientInterface::class => [
-        'use' => GuzzleHttpClient::class,
-        'arguments' => [
-            'config' => [
-                'connect_timeout' => 5
-            ]
-        ]
+        'use' => GuzzleHttpClient::class
     ],
     HttpClientInterface::class => [
         'use' => GuzzleAdapter::class
@@ -79,13 +65,6 @@ return [
                 'use' => GridfsStorage::class
             ]
         ]
-    ],
-    GridFSBucket::class => [
-        'use' => '{MongoDB\Database}',
-        'calls' => [[
-            'method' => 'selectGridFSBucket',
-            'select' => true
-        ]]
     ],
     EncryptionKey::class => [
         'use' => KeyFactory::class,
@@ -119,13 +98,6 @@ return [
         ]
     ],
     WorkerManager::class => [
-        'arguments' => [
-            'config' => [
-                'pm' => '{ENV(BALLOON_TASK_WORKER_PM,dynamic)}',
-                'max_children' => '{ENV(BALLOON_TASK_WORKER_MAX_CHILDREN,4)(int)}',
-                'min_children' => '{ENV(BALLOON_TASK_WORKER_MIN_CHILDREN,2)(int)}',
-            ]
-        ],
         'services' => [
             WorkerFactoryInterface::class => [
                 'use' => WorkerFactory::class
@@ -154,8 +126,8 @@ return [
             'Monolog\Formatter\FormatterInterface' => [
                 'use' => 'Monolog\Formatter\LineFormatter',
                 'arguments' => [
-                    'dateFormat' => '{ENV(BALLOON_LOG_DATE_FORMAT,Y-m-d H:i:s)}',
-                    'format' => "{ENV(BALLOON_LOG_FORMAT,%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n)}"
+                    'dateFormat' => 'Y-m-d H:i:s',
+                    'format' => "%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n"
                 ],
                 'calls' => [
                     ['method' => 'includeStacktraces']
@@ -177,7 +149,7 @@ return [
                 'use' => 'Monolog\Handler\FilterHandler',
                 'arguments' => [
                     'handler' => '{output}',
-                    'minLevelOrList' => '{ENV(BALLOON_LOG_LEVEL,300)(int)}',
+                    'minLevelOrList' => 100,
                     'maxLevel' => 550
                 ],
                 'services' => [
@@ -200,7 +172,7 @@ return [
     Converter::class => [
         'calls' => [
             ImagickImage::class => [
-                'method' => 'injectAdapter',
+                    'method' => 'injectAdapter',
                 'arguments' => ['adapter' => '{'.ImagickImage::class.'}']
             ],
         ]
@@ -231,10 +203,6 @@ return [
     ],
     Migration::class => [
         'calls' => [
-            Delta\CreateUniqueUserMailIndexAllowNull::class => [
-                'method' => 'injectDelta',
-                'arguments' => ['delta' => '{'.Delta\CreateUniqueUserMailIndexAllowNull::class.'}']
-            ],
             Delta\CreateUniqueUserMailIndex::class => [
                 'method' => 'injectDelta',
                 'arguments' => ['delta' => '{'.Delta\CreateUniqueUserMailIndex::class.'}']
@@ -327,13 +295,5 @@ return [
     ],
     TransportInterface::class => [
         'use' => Smtp::class
-    ],
-    SmtpOptions::class => [
-        'arguments' => [
-            'options' => [
-                'host' => '{ENV(BALLOON_SMTP_HOST,127.0.0.1)}',
-                'port' => '{ENV(BALLOON_SMTP_PORT,25)(int)}',
-            ]
-        ]
     ],
 ];

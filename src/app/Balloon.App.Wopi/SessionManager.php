@@ -38,27 +38,25 @@ class SessionManager
     protected $db;
 
     /**
-     * Server.
+     * Host manager.
      *
-     * @var Server
+     * @var HostManager
+     */
+    protected $host_manager;
+
+    /**
+     * Server.
      */
     protected $server;
 
     /**
-     * PostMessageOrigin
-     * https://wopi.readthedocs.io/en/latest/scenarios/customization.html#postmessage-properties.
-     *
-     * @var string
-     */
-    protected $post_message_origin = 'http://localhost';
-
-    /**
      * Session.
      */
-    public function __construct(Database $db, Server $server, array $config = [])
+    public function __construct(Database $db, Server $server, HostManager $host_manager, array $config = [])
     {
         $this->db = $db;
         $this->server = $server;
+        $this->host_manager = $host_manager;
         $this->setOptions($config);
     }
 
@@ -73,9 +71,6 @@ class SessionManager
                     $this->access_token_ttl = (int) $value;
 
                     break;
-                case 'post_message_origin':
-                    $this->post_message_origin = (string) $value;
-                    // no break
                 default:
                     throw new InvalidArgumentException('invalid option '.$option.' given');
             }
@@ -119,9 +114,8 @@ class SessionManager
             throw new Exception\Forbidden('session does not exists');
         }
 
+        $result['client'] = $this->host_manager->getClientUrl();
         $user = $this->server->getUserById($result['user']);
-
-        $result['post_message_origin'] = $this->post_message_origin;
 
         return new Session($file, $user, $result);
     }
@@ -139,8 +133,7 @@ class SessionManager
         ];
 
         $this->db->wopi->insertOne($data);
-
-        $data['post_message_origin'] = $this->post_message_origin;
+        $data['client'] = $this->host_manager->getClientUrl();
 
         return new Session($file, $user, $data);
     }

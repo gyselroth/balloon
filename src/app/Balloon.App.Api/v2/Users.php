@@ -213,9 +213,8 @@ class Users
      */
     public function postUndelete(string $id): Response
     {
-        $user = $this->_getUser($id);
-        $user->undelete();
+        $this->_getUser($id)->undelete();
 
-        return (new Response())->setCode(200)->setBody($user);
+        return (new Response())->setCode(204);
     }
 }

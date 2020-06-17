@@ -83,7 +83,7 @@ class Migration
             return false;
         }
 
-        foreach (array_reverse($this->getDeltas($deltas)) as $name => $delta) {
+        foreach ($this->getDeltas($deltas) as $name => $delta) {
             if (false === $force && $this->isDeltaApplied($name)) {
                 $this->logger->debug('skip existing delta ['.$name.']', [
                     'category' => get_class($this),

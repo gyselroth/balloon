@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: balloon-web
+  namespace: balloon
+spec:
+  rules:
+  - host: BALLOON_DOMAIN
+    http:
+      paths:
+      - backend:
+          serviceName: balloon-web
+          servicePort: 80
+  #tls:
+  #- secretName: secret

@@ -53,13 +53,13 @@ class Subscription extends Controller
     /**
      * Subscribe to node updates.
      */
-    public function post($id, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false, ?int $throttle = null)
+    public function post($id, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false)
     {
         $node_decorator = $this->node_decorator;
         $notifier = $this->notifier;
 
-        return $this->bulk($id, function ($node) use ($node_decorator, $notifier, $subscribe, $exclude_me, $recursive, $throttle) {
-            $notifier->subscribeNode($node, $subscribe, $exclude_me, $recursive, $throttle);
+        return $this->bulk($id, function ($node) use ($node_decorator, $notifier, $subscribe, $exclude_me, $recursive) {
+            $notifier->subscribeNode($node, $subscribe, $exclude_me, $recursive);
 
             return [
                 'code' => 200,

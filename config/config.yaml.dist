@@ -11,7 +11,6 @@ MongoDB\Database:
 Apps:
   Balloon.App.Api: {enabled: true}
   Balloon.App.Recaptcha: {enabled: false}
-  Balloon.App.Feedback: {enabled: true}
   Balloon.App.Burl: {enabled: true}
   Balloon.App.Cli: {enabled: true}
   Balloon.App.Webauthn: {enabled: true}
@@ -31,7 +30,7 @@ Balloon\Server:
   arguments:
     config:
       max_file_version: 16
-      server_url: "{ENV(BALLOON_URL,http://localhost)}"
+      server_url: "{ENV(BALLOON_URL,https://localhost)}"
       password_policy: '#^.*$#'
       password_hash: 1
 Balloon\App\ClamAv\Scanner:
@@ -49,30 +48,18 @@ Balloon\App\Recaptcha\Hook\Recaptcha:
     config:
       recaptcha_threshold: 30
       hostname: null
-Balloon\App\Feedback\Feedback:
-  services:
-    GuzzleHttp\ClientInterface:
-      arguments:
-        config:
-          base_uri: '{ENV(BALLOON_FEEDBACK_REMOTE_URL,https://support.gyselroth.net/balloon)}'
-          connect_timeout: 3
-          timeout: 60
 Balloon\App\Wopi\HostManager:
   arguments:
     config:
       hosts:
       - name: LibreOffice Online
-        url: '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,http://libreoffice-collab:9980/libreoffice)}'
-        wopi_endpoint: '{ENV(BALLOON_LIBREOFFICE_COLLAB_WOPI_URL,https://traefik/wopi)}'
-        replace:
-          from: "#http.?://libreoffice-collab:9980#"
-          to: "{protocol}://{host}"
+        url: '{ENV(BALLOON_LIBREOFFICE_COLLAB_URL,https://libreoffice:9980)}/hosting/discovery'
+      client_url: '{ENV(BALLOON_URL,https://localhost)}'
       cache_ttl: 86400
       validate_proof: true
 Balloon\App\Wopi\SessionManager:
   arguments:
     access_token_ttl: 1800
-    post_message_origin: '{ENV(BALLOON_WOPI_POSTMESSAGE_ORIGIN,http://localhost)}'
 Balloon\App\Notification\Notifier:
   calls:
     Balloon\App\Notification\Adapter\Db:
@@ -101,7 +88,7 @@ Balloon\App\Elasticsearch\Job:
   arguments:
     config:
       size_limit: 52428800
-Balloon\App\Notification\Notifier:
+Balloon\App\Notification\Async\Subscription:
   arguments:
     config:
       notification_throttle: 120
@@ -125,14 +112,20 @@ TaskScheduler\Scheduler:
 TaskScheduler\WorkerManager:
   arguments:
     config:
-      pm: '{ENV(BALLOON_TASK_WORKER_PM,dynamic)}'
-      max_children: '{ENV(BALLOON_TASK_WORKER_MAX_CHILDREN,4)(int)}'
-      min_children: '{ENV(BALLOON_TASK_WORKER_MIN_CHILDREN,2)(int)}'
+      pm: dynamic
+      max_children: 4
+      min_children: 2
+GuzzleHttp\ClientInterface:
+  arguments:
+    config:
+      connect_timeout: 3
+      timeout: 10
+      verify: false
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:
       host: '{ENV(BALLOON_SMTP_HOST,127.0.0.1)}'
-      port: '{ENV(BALLOON_SMTP_PORT,25)(int)}'
+      port: 25
 Zend\Mail\Transport\TransportInterface:
   use: "Zend\\Mail\\Transport\\Smtp"
 Balloon\Filesystem\Node\Factory:
@@ -260,8 +253,8 @@ Psr\Log\LoggerInterface:
     Monolog\Formatter\FormatterInterface:
       use: Monolog\Formatter\LineFormatter
       arguments:
-        dateFormat: '{ENV(BALLOON_LOG_DATE_FORMAT,Y-m-d H:i:s)}'
-        format: "{ENV(BALLOON_LOG_FORMAT,%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n)}"
+        dateFormat: "Y-m-d H:i:s"
+        format: "%datetime% [%context.category%,%level_name%]: %message% %context% %extra%\n"
       calls:
         - method: includeStacktraces
     stderr:
@@ -276,7 +269,7 @@ Psr\Log\LoggerInterface:
       use: Monolog\Handler\FilterHandler
       arguments:
         handler: '{output}'
-        minLevelOrList: '{ENV(BALLOON_LOG_LEVEL,300)(int)}'
+        minLevelOrList: 100
         maxLevel: 550
       services:
         output:

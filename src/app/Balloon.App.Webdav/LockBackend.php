@@ -45,27 +45,19 @@ class LockBackend implements BackendInterface
             return [];
         }
 
-        $locks = [];
-        $nodes = $node->getParents();
-        array_unshift($nodes, $node);
-
-        foreach ($nodes as $node) {
-            if (!$node->isLocked()) {
-                continue;
-            }
-
-            $lock = $node->getLock();
-            $info = new LockInfo();
-            $info->owner = $lock['client'] ?? null;
-            $info->token = $lock['id'];
-            $info->timeout = $lock['expire']->toDateTime()->format('U') - time();
-            $info->created = $lock['created']->toDateTime()->format('U');
-            $info->uri = $node->getPath();
-
-            $locks[] = $info;
+        if (!$node->isLocked()) {
+            return [];
         }
 
-        return $locks;
+        $lock = $node->getLock();
+        $info = new LockInfo();
+        $info->owner = (string) $lock['owner'];
+        $info->token = $lock['id'];
+        $info->timeout = $lock['expire']->toDateTime()->format('U') - time();
+        $info->created = $lock['created']->toDateTime()->format('U');
+        $info->uri = $uri;
+
+        return [$info];
     }
 
     /**
@@ -74,7 +66,7 @@ class LockBackend implements BackendInterface
     public function lock($uri, LockInfo $lock)
     {
         $node = $this->fs->findNodeByPath($uri);
-        $node->lock($lock->token, $lock->timeout, $lock->owner);
+        $node->lock($lock->token, $lock->timeout);
     }
 
     /**
@@ -83,6 +75,6 @@ class LockBackend implements BackendInterface
     public function unlock($uri, LockInfo $lock)
     {
         $node = $this->fs->findNodeByPath($uri);
-        $node->unlock($lock->token, $lock->owner);
+        $node->unlock($lock->token);
     }
 }

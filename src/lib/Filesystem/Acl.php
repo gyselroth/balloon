@@ -227,7 +227,18 @@ class Acl
             return self::PRIVILEGE_MANAGE;
         }
 
-        return $this->processRuleset($user, $share['acl']);
+        $acl = $node->getAttributes()['acl'];
+        $share = $this->processRuleset($user, $share['acl']);
+
+        if (count($acl) > 0) {
+            $own = $this->processRuleset($user, $node->getAttributes()['acl']);
+
+            if ($share !== self::PRIVILEGE_DENY) {
+                return $own;
+            }
+        }
+
+        return $share;
     }
 
     /**

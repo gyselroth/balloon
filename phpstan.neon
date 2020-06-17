@@ -3,9 +3,6 @@ parameters:
         - %rootDir%/../../../src/app
         - %rootDir%/../../../src/lib
         - %rootDir%/../../../tests
-    autoload_files:
-        - %rootDir%/../../../tests/Integration/Hooks/Dredd.php
-
 
     ignoreErrors:
         - '#^Class MongoDB\\BSON\\UTCDateTime constructor invoked with 0 parameters, 1 required\.#'

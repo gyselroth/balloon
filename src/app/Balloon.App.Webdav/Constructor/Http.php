@@ -44,10 +44,16 @@ class Http
         $server = new DAV\Server($root);
         $server->setBaseUri('/webdav/');
 
-        $server->addPlugin(new DAV\Locks\Plugin(new LockBackend($this->server)));
-        $server->addPlugin(new DAV\Browser\Plugin());
-        $server->addPlugin(new \Sabre\DAV\Mount\Plugin());
-        $server->addPlugin(new DAV\Auth\Plugin(new DAV\Auth\Backend\Apache()));
+        $plugin = new DAV\Locks\Plugin(new LockBackend($this->server));
+        $server->addPlugin($plugin);
+
+        $lock = new DAV\Browser\Plugin();
+        $server->addPlugin($lock);
+
+        $backend = new DAV\Auth\Backend\Apache();
+        $auth = new DAV\Auth\Plugin($backend);
+        $server->addPlugin($auth);
+
         $server->exec();
 
         return true;
