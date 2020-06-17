@@ -17,6 +17,7 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Hook;
+use Balloon\Session\Factory as SessionFactory;
 use Balloon\Testsuite\Unit\Test;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
@@ -136,7 +137,8 @@ class FileTest extends Test
             $this->createMock(LoggerInterface::class),
             $this->createMock(Hook::class),
             $this->createMock(Acl::class),
-            $this->createMock(Collection::class)
+            $this->createMock(Collection::class),
+            $this->createMock(SessionFactory::class)
         );
     }
 }

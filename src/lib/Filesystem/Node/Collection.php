@@ -18,6 +18,8 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Hook;
 use Balloon\Server\User;
+use Balloon\Session\Factory as SessionFactory;
+use Balloon\Session\SessionInterface;
 use Generator;
 use MimeType\MimeType;
 use function MongoDB\BSON\fromJSON;
@@ -66,7 +68,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Initialize.
      */
-    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage)
+    public function __construct(array $attributes, Filesystem $fs, LoggerInterface $logger, Hook $hook, Acl $acl, ?Collection $parent, StorageAdapterInterface $storage, SessionFactory $session_factory)
     {
         $this->_fs = $fs;
         $this->_server = $fs->getServer();
@@ -77,6 +79,7 @@ class Collection extends AbstractNode implements IQuota
         $this->_acl = $acl;
         $this->_storage = $storage;
         $this->_parent = $parent;
+        $this->_session_factory = $session_factory;
 
         foreach ($attributes as $attr => $value) {
             $this->{$attr} = $value;
@@ -146,7 +149,7 @@ class Collection extends AbstractNode implements IQuota
             ], NodeInterface::CONFLICT_NOACTION, true);
         }
 
-        foreach ($this->getChildNodes($deleted) as $child) {
+        foreach ($this->getChildren($deleted) as $child) {
             $child->copyTo($new_parent, $conflict, $recursion, false, $deleted);
         }
 
@@ -235,7 +238,7 @@ class Collection extends AbstractNode implements IQuota
      *  1 - Only deleted
      *  2 - Include deleted
      */
-    public function getChildNodes(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null, bool $recursive = false): Generator
+    public function getChildren(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = [], ?int $offset = null, ?int $limit = null, bool $recursive = false): Generator
     {
         $filter = $this->getChildrenFilter($deleted, $filter);
 
@@ -246,19 +249,6 @@ class Collection extends AbstractNode implements IQuota
         unset($filter['parent']);
 
         return $this->_fs->findNodesByFilterRecursive($this, $filter, $offset, $limit);
-    }
-
-    /**
-     * Fetch children items of this collection (as array).
-     *
-     * Deleted:
-     *  0 - Exclude deleted
-     *  1 - Only deleted
-     *  2 - Include deleted
-     */
-    public function getChildren(int $deleted = NodeInterface::DELETED_EXCLUDE, array $filter = []): array
-    {
-        return iterator_to_array($this->getChildNodes($deleted, $filter));
     }
 
     /**
@@ -275,7 +265,7 @@ class Collection extends AbstractNode implements IQuota
     public function getSize(): int
     {
         if ($this->isFiltered() || $this->_acl->getAclPrivilege($this) === Acl::PRIVILEGE_WRITEPLUS) {
-            return count($this->getChildren());
+            return count(iterator_to_array($this->getChildren()));
         }
 
         return $this->size;
@@ -575,10 +565,6 @@ class Collection extends AbstractNode implements IQuota
                 $this->validateFilter($save['filter']);
             }
 
-            if (isset($save['acl'])) {
-                $this->validateAcl($save['acl']);
-            }
-
             $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new collection ['.$save['_id'].'] under parent ['.$this->_id.']', [
@@ -605,7 +591,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Create new file as a child from this collection.
      */
-    public function addFile($name, ?ObjectId $session = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
+    public function addFile($name, ?SessionInterface $session = null, array $attributes = [], int $conflict = NodeInterface::CONFLICT_NOACTION, bool $clone = false): File
     {
         if (!$this->_acl->isAllowed($this, 'w')) {
             throw new ForbiddenException('not allowed to create new node here', ForbiddenException::NOT_ALLOWED_TO_CREATE);
@@ -641,11 +627,6 @@ class Collection extends AbstractNode implements IQuota
             }
 
             $save = array_merge($meta, $attributes);
-
-            if (isset($save['acl'])) {
-                $this->validateAcl($save['acl']);
-            }
-
             $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [
@@ -685,7 +666,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function createFile($name, $data = null): string
     {
-        $session = $this->_storage->storeTemporaryFile($data, $this->_user);
+        $session = $this->_session_factory->add($this->_user, $this->getParent(), $data);
 
         if ($this->childExists($name, NodeInterface::DELETED_INCLUDE, ['directory' => false])) {
             $file = $this->getChild($name, NodeInterface::DELETED_INCLUDE, ['directory' => false]);
@@ -715,7 +696,7 @@ class Collection extends AbstractNode implements IQuota
      */
     public function doRecursiveAction(callable $callable, int $deleted = NodeInterface::DELETED_EXCLUDE): bool
     {
-        $children = $this->getChildNodes($deleted, []);
+        $children = $this->getChildren($deleted, []);
 
         foreach ($children as $child) {
             $callable($child);

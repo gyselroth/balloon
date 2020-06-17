@@ -16,8 +16,8 @@ use Balloon\Filesystem\Exception;
 use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\File;
 use Balloon\Filesystem\Node\NodeInterface;
-use Balloon\Filesystem\Storage\Adapter\AdapterInterface as StorageAdapterInterface;
 use Balloon\Server\AttributeDecorator as RoleAttributeDecorator;
+use Balloon\Session\SessionInterface;
 use Micro\Http\Response;
 use MongoDB\BSON\ObjectId;
 
@@ -86,12 +86,13 @@ class Files extends Nodes
             throw new Exception\InvalidArgument('chunk index can not be greater than the total number of chunks');
         }
 
-        $storage = $this->getStorage($id, $collection);
+        $parent = $this->getParent($id, $collection);
 
         if ($session === null) {
-            $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
+            $session = $this->session_factory->add($this->server->getIdentity(), $parent, $input);
         } else {
-            $storage->storeTemporaryFile($input, $this->server->getIdentity(), $session);
+            $session = $this->session_factory->getOne($this->server->getIdentity(), $session);
+            $this->session_factory->update($this->server->getIdentity(), $session, $parent, $input);
         }
 
         if ($index === $chunks) {
@@ -103,7 +104,7 @@ class Files extends Nodes
         }
 
         return (new Response())->setCode(206)->setBody([
-                'session' => (string) $session,
+                'session' => (string) $session->getId(),
                 'chunks_left' => $chunks - $index,
             ]);
     }
@@ -125,8 +126,8 @@ class Files extends Nodes
         ini_set('auto_detect_line_endings', '1');
         $input = fopen('php://input', 'rb');
 
-        $storage = $this->getStorage($id, $collection);
-        $session = $storage->storeTemporaryFile($input, $this->server->getIdentity());
+        $parent = $this->getParent($id, $collection);
+        $session = $this->session_factory->add($this->server->getIdentity(), $parent, $input);
         $attributes = compact('changed', 'created', 'readonly', 'meta', 'acl');
         $attributes = array_filter($attributes, function ($attribute) {return !is_null($attribute); });
         $attributes = $this->_verifyAttributes($attributes);
@@ -135,26 +136,26 @@ class Files extends Nodes
     }
 
     /**
-     * Get storage.
+     * Get parent.
      */
-    protected function getStorage($id, $collection): StorageAdapterInterface
+    protected function getParent($id, $collection): Collection
     {
         if ($id !== null) {
-            return $this->_getNode($id)->getParent()->getStorage();
+            return $this->_getNode($id)->getParent();
         }
 
         if ($id === null && $collection === null) {
-            return $this->server->getFilesystem()->getRoot()->getStorage();
+            return $this->server->getFilesystem()->getRoot();
         }
 
-        return $this->fs->getNode($collection, Collection::class)->getStorage();
+        return $this->fs->getNode($collection, Collection::class);
     }
 
     /**
      * Add or update file.
      */
     protected function _put(
-        ObjectId $session,
+        SessionInterface $session,
         ?string $id = null,
         ?string $collection = null,
         ?string $name = null,

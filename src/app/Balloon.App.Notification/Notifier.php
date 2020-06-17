@@ -16,6 +16,7 @@ use Balloon\Filesystem\Node\Collection;
 use Balloon\Filesystem\Node\NodeInterface;
 use Balloon\Server;
 use Balloon\Server\User;
+use InvalidArgumentException;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Database;
@@ -73,14 +74,49 @@ class Notifier
     protected $template;
 
     /**
+     * Notification throttle.
+     *
+     * @var int
+     */
+    protected $notification_throttle = 120;
+
+    /**
      * Constructor.
      */
-    public function __construct(Database $db, Server $server, LoggerInterface $logger, TemplateHandler $template)
+    public function __construct(Database $db, Server $server, LoggerInterface $logger, TemplateHandler $template, array $config = [])
     {
         $this->logger = $logger;
         $this->db = $db;
         $this->server = $server;
         $this->template = $template;
+        $this->setOptions($config);
+    }
+
+    /**
+     * Set config.
+     */
+    public function setOptions(array $config = []): self
+    {
+        foreach ($config as $option => $value) {
+            switch ($option) {
+                case 'notification_throttle':
+                    $this->{$option} = (int) $value;
+
+                break;
+                default:
+                    throw new InvalidArgumentException('invalid option '.$option.' given');
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get notification throttle time.
+     */
+    public function getThrottleTime(): int
+    {
+        return $this->notification_throttle;
     }
 
     /**
@@ -97,11 +133,7 @@ class Notifier
     public function notify(iterable $receiver, ?User $sender, MessageInterface $message): bool
     {
         if (0 === count($this->adapter)) {
-            $this->logger->warning('there are no notification adapter enabled, notification can not be sent', [
-                'category' => get_class($this),
-            ]);
-
-            return false;
+            throw new Exception\NoAdapterAvailable('there are no notification adapter enabled, notification can not be sent');
         }
 
         foreach ($receiver as $user) {
@@ -269,13 +301,11 @@ class Notifier
     /**
      * Throttle subscriptions.
      */
-    public function throttleSubscriptions(NodeInterface $node, array $user): Notifier
+    public function throttleSubscriptions(array $subscriptions): Notifier
     {
-        $node_id = $node->isReference() ? $node->getShareId() : $node->getId();
         $this->db->subscription->updateMany([
-            'node' => $node_id,
-            'user' => [
-                '$in' => $user,
+            '_id' => [
+                '$in' => $subscriptions,
             ],
         ], [
             '$set' => [
@@ -312,9 +342,44 @@ class Notifier
     }
 
     /**
+     * Get subscriptions.
+     */
+    public function getAllSubscriptions(NodeInterface $node): iterable
+    {
+        $sub_id = $node->isReference() ? $node->getShareId() : $node->getId();
+
+        $ids = [$sub_id];
+        foreach ($node->getParents() as $parent) {
+            $ids[] = $parent->isReference() ? $parent->getShareId() : $parent->getId();
+
+            if ($parent->isShare()) {
+                break;
+            }
+        }
+
+        $parents = [$ids[0]];
+
+        if (count($ids) > 1) {
+            $parents[] = $ids[1];
+        }
+
+        return $this->db->subscription->find([
+            '$or' => [
+                [
+                    'node' => ['$in' => $ids],
+                    'recursive' => true,
+                ],
+                [
+                    'node' => ['$in' => $parents],
+                ],
+            ],
+        ]);
+    }
+
+    /**
      * Subscribe to node updates.
      */
-    public function subscribeNode(NodeInterface $node, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false): bool
+    public function subscribeNode(NodeInterface $node, bool $subscribe = true, bool $exclude_me = true, bool $recursive = false, ?int $throttle = null): bool
     {
         $node_id = $node->isReference() ? $node->getShareId() : $node->getId();
         $user_id = $this->server->getIdentity()->getId();
@@ -328,6 +393,7 @@ class Notifier
                 'timestamp' => new UTCDateTime(),
                 'exclude_me' => $exclude_me,
                 'recursive' => $recursive,
+                'throttle' => $throttle,
                 'user' => $user_id,
                 'node' => $node_id,
             ];
@@ -342,23 +408,6 @@ class Notifier
                 'upsert' => true,
             ]
             );
-
-            if ($node instanceof Collection && $recursive === true) {
-                $db = $this->db;
-                $node->doRecursiveAction(function ($child) use ($db, $subscription) {
-                    $subscription['node'] = $child->getId();
-                    $db->subscription->replaceOne(
-                        [
-                        'user' => $subscription['user'],
-                        'node' => $subscription['node'],
-                    ],
-                        $subscription,
-                        [
-                        'upsert' => true,
-                    ]
-                    );
-                });
-            }
         } else {
             $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] unsubscribes node ['.$node->getId().']', [
                 'category' => get_class($this),
