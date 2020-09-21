@@ -202,8 +202,7 @@ class Job extends AbstractJob
 
         $params = [
             'id' => (string) $node,
-            'index' => 'nodes',
-            'type' => '_doc',
+            'index' => 'nodes'
         ];
 
         $this->client->delete($params);
@@ -222,8 +221,7 @@ class Job extends AbstractJob
 
         $params = [
             'id' => (string) $node,
-            'index' => 'nodes',
-            'type' => '_doc',
+            'index' => 'nodes'
         ];
 
         $this->client->delete($params);
@@ -325,8 +323,7 @@ class Job extends AbstractJob
     {
         return [
             'index' => 'nodes',
-            'id' => (string) $node->getId(),
-            'type' => '_doc',
+            'id' => (string) $node->getId()
         ];
     }
 
@@ -337,8 +334,7 @@ class Job extends AbstractJob
     {
         $params = [
             'index' => 'blobs',
-            'id' => $id,
-            'type' => '_doc',
+            'id' => $id
         ];
 
         $this->client->delete($params);
@@ -357,7 +353,6 @@ class Job extends AbstractJob
 
         $params = [
             'index' => 'blobs',
-            'type' => '_doc',
             'body' => [
                 'query' => [
                     'match' => [
@@ -468,7 +463,6 @@ class Job extends AbstractJob
         $params = [
             'pipeline' => 'attachments',
             'index' => 'blobs',
-            'type' => '_doc',
             'id' => $file->getHash(),
             'body' => [
                 'md5' => $file->getHash(),
@@ -489,7 +483,6 @@ class Job extends AbstractJob
     {
         $params = [
             'index' => 'blobs',
-            'type' => '_doc',
             'id' => $id,
             'body' => [
                 'doc' => [

@@ -226,14 +226,14 @@ class SmbScanner extends AbstractJob
                 }
             }
         } else {
-            $this->syncFile($parent, $mount, $node, $action, $share, $user);
+            $this->syncFile($parent, $mount, $node, $share, $user);
         }
     }
 
     /**
      * Sync file.
      */
-    protected function syncFile(Collection $parent, Collection $mount, IFileInfo $node, int $action, IShare $share, User $user): bool
+    protected function syncFile(Collection $parent, Collection $mount, IFileInfo $node, IShare $share, User $user): bool
     {
         $this->logger->debug('update smb file meta data from ['.$node->getPath().'] in parent node ['.$parent->getId().']', [
             'category' => get_class($this),

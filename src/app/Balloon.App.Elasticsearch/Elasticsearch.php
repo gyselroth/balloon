@@ -67,7 +67,7 @@ class Elasticsearch
     {
         $result = $this->executeQuery($query, $skip, $limit);
 
-        $this->logger->debug('elasticsearch query executed with ['.$result['hits']['total'].'] hits', [
+        $this->logger->debug('elasticsearch query executed with ['.$result['hits']['total']['value'].'] hits', [
             'category' => get_class($this),
             'params' => [
                 'took' => $result['took'],
@@ -78,7 +78,7 @@ class Elasticsearch
             ],
         ]);
 
-        $total = $result['hits']['total'];
+        $total = $result['hits']['total']['value'];
 
         $nodes = [];
         foreach ($result['hits']['hits'] as $node) {

@@ -1,9 +1,12 @@
 ## 2.7.4
-**Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
-**Date**: Mon Mar 23 16:33:22 CET 2020
+**Maintainer**: Daniel Kleeb <kleeb@gyselroth.com>\
+**Date**: Mo 21 Sep 2020 16:11:49 CEST
 
 ### Bugfixes
 * Verify 2fa code before activation #457
+
+### Changes
+* Upgrade to elastic-search version with integrated basic auth support
 
 
 ## 2.7.3
