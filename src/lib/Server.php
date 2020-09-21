@@ -287,6 +287,7 @@ class Server
 
                 break;
                 case 'google_auth_secret':
+                case 'multi_factor_recovery':
                 break;
                 case 'multi_factor_auth':
                 case 'admin':

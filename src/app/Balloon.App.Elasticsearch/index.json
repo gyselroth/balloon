@@ -2,101 +2,99 @@
   "blobs" : {
     "settings": {},
     "mappings" : {
-      "_doc" : {
-        "properties" : {
-          "attachment" : {
-            "properties" : {
-              "author" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
+      "properties" : {
+        "attachment" : {
+          "properties" : {
+            "author" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
                 }
-              },
-              "content" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
+              }
+            },
+            "content" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
                 }
-              },
-              "content_length" : {
-                "type" : "long"
-              },
-              "content_type" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
+              }
+            },
+            "content_length" : {
+              "type" : "long"
+            },
+            "content_type" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
                 }
-              },
-              "date" : {
-                "type" : "date"
-              },
-              "language" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
+              }
+            },
+            "date" : {
+              "type" : "date"
+            },
+            "language" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
                 }
-              },
-              "title" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
+              }
+            },
+            "title" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
                 }
               }
             }
-          },
-          "content" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
+          }
+        },
+        "content" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
             }
-          },
-          "md5" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
+          }
+        },
+        "md5" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
             }
-          },
-          "metadata" : {
-            "properties" : {
-              "ref" : {
-                "properties" : {
-                  "id" : {
-                    "type" : "text",
-                    "fields" : {
-                      "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                      }
+          }
+        },
+        "metadata" : {
+          "properties" : {
+            "ref" : {
+              "properties" : {
+                "id" : {
+                  "type" : "text",
+                  "fields" : {
+                    "keyword" : {
+                      "type" : "keyword",
+                      "ignore_above" : 256
                     }
-                  },
-                  "owner" : {
-                    "type" : "text",
-                    "fields" : {
-                      "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                      }
+                  }
+                },
+                "owner" : {
+                  "type" : "text",
+                  "fields" : {
+                    "keyword" : {
+                      "type" : "keyword",
+                      "ignore_above" : 256
                     }
                   }
                 }
@@ -110,111 +108,109 @@
   "nodes" : {
     "settings": {},
     "mappings" : {
-      "_doc" : {
-        "properties" : {
-          "changed" : {
-            "type" : "date"
-          },
-          "created" : {
-            "type" : "date"
-          },
-          "deleted" : {
-            "type" : "date"
-          },
-          "directory" : {
-            "type" : "boolean"
-          },
-          "hash" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
+      "properties" : {
+        "changed" : {
+          "type" : "date"
+        },
+        "created" : {
+          "type" : "date"
+        },
+        "deleted" : {
+          "type" : "date"
+        },
+        "directory" : {
+          "type" : "boolean"
+        },
+        "hash" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
             }
-          },
-          "meta" : {
-            "properties" : {
-              "color" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
-                }
-              },
-              "tags" : {
-                "type" : "text",
-                "fields" : {
-                  "keyword" : {
-                    "type" : "keyword",
-                    "ignore_above" : 256
-                  }
-                }
-              }
-            }
-          },
-          "mime" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
-            }
-          },
-          "name" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
-            }
-          },
-          "owner" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
-            }
-          },
-          "parent" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
-            }
-          },
-          "readonly" : {
-            "type" : "boolean"
-          },
-          "reference" : {
-            "type" : "boolean"
-          },
-          "share" : {
-            "type" : "boolean"
-          },
-          "shared" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "type" : "keyword",
-                "ignore_above" : 256
-              }
-            }
-          },
-          "size" : {
-            "type" : "long"
-          },
-          "version" : {
-            "type" : "long"
           }
+        },
+        "meta" : {
+          "properties" : {
+            "color" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            },
+            "tags" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            }
+          }
+        },
+        "mime" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "name" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "owner" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "parent" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "readonly" : {
+          "type" : "boolean"
+        },
+        "reference" : {
+          "type" : "boolean"
+        },
+        "share" : {
+          "type" : "boolean"
+        },
+        "shared" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "size" : {
+          "type" : "long"
+        },
+        "version" : {
+          "type" : "long"
         }
       }
     }

@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Balloon\App\Idp\GrantType;
 
+use Balloon\Server;
 use Dolondro\GoogleAuthenticator\GoogleAuthenticator;
 use OAuth2\GrantType\GrantTypeInterface;
 use OAuth2\RequestInterface;
@@ -42,12 +43,20 @@ class UserCredentialsMultiFactor implements GrantTypeInterface
     private $user = [];
 
     /**
+     * Server.
+     *
+     * @var Server
+     */
+    private $server;
+
+    /**
      * Init.
      */
-    public function __construct(UserCredentialsInterface $storage, GoogleAuthenticator $authenticator)
+    public function __construct(UserCredentialsInterface $storage, GoogleAuthenticator $authenticator, Server $server)
     {
         $this->storage = $storage;
         $this->authenticator = $authenticator;
+        $this->server = $server;
     }
 
     /**
@@ -91,6 +100,20 @@ class UserCredentialsMultiFactor implements GrantTypeInterface
         }
 
         if ($this->authenticator->authenticate($user['google_auth_secret'], $request->request('code')) === false) {
+            $code = hash('sha512', $request->request('code'));
+            if (($key = array_search($code, $user['multi_factor_recovery'])) !== false) {
+                $codes = $user['multi_factor_recovery'];
+                array_splice($codes, $key, $key);
+
+                $this->server->getUserById($user['_id'])->setAttributes([
+                'multi_factor_recovery' => $codes,
+              ]);
+
+                $this->user = $user;
+
+                return true;
+            }
+
             $response->setError(400, 'invalid_grant', 'Invalid auth code provided');
 
             return null;

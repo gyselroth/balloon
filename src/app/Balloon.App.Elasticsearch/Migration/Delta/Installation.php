@@ -107,7 +107,6 @@ class Installation implements DeltaInterface
 
                 $this->client->indices()->putMapping([
                     'index' => $name,
-                    'type' => '_doc',
                     'body' => $settings->mappings,
                 ]);
             }
