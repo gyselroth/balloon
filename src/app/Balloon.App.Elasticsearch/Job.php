@@ -202,7 +202,7 @@ class Job extends AbstractJob
 
         $params = [
             'id' => (string) $node,
-            'index' => 'nodes'
+            'index' => 'nodes',
         ];
 
         $this->client->delete($params);
@@ -221,7 +221,7 @@ class Job extends AbstractJob
 
         $params = [
             'id' => (string) $node,
-            'index' => 'nodes'
+            'index' => 'nodes',
         ];
 
         $this->client->delete($params);
@@ -323,7 +323,7 @@ class Job extends AbstractJob
     {
         return [
             'index' => 'nodes',
-            'id' => (string) $node->getId()
+            'id' => (string) $node->getId(),
         ];
     }
 
@@ -334,7 +334,7 @@ class Job extends AbstractJob
     {
         $params = [
             'index' => 'blobs',
-            'id' => $id
+            'id' => $id,
         ];
 
         $this->client->delete($params);
