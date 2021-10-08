@@ -3,7 +3,7 @@
 $header = <<<'EOF'
 balloon
 
-@copyright   Copryright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
+@copyright   Copyright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
 @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
 EOF;
 

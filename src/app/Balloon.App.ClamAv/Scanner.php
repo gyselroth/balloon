@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * balloon
  *
- * @copyright   Copryright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
+ * @copyright   Copyright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
@@ -63,7 +63,7 @@ class Scanner
      */
     protected $logger;
 
-    /*
+    /**
      * Socket factory
      *
      * @var SocketFactory
@@ -115,7 +115,6 @@ class Scanner
 
                     break;
 
-                break;
                 default:
                     throw new InvalidArgumentException('invalid option '.$option.' given');
             }
