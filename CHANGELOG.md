@@ -1,3 +1,11 @@
+## 2.7.5
+**Maintainer**: Daniel Kleeb <kleeb@gyselroth.com>\
+**Date**: Fri Oct 8 16:08:15 CEST 2021
+
+### Bugfixes
+* Job Balloon\Async\CleanTrash ends with an error #463
+
+
 ## 2.7.4
 **Maintainer**: Daniel Kleeb <kleeb@gyselroth.com>\
 **Date**: Mo 21 Sep 2020 16:11:49 CEST

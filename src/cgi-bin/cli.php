@@ -4,7 +4,7 @@
  * Balloon.
  *
  * @author      Raffael Sahli <sahli@gyselroth.net>
- * @copyright   copryright (c) 2012-2017 gyselroth GmbH
+ * @copyright   Copyright (c) 2012-2017 gyselroth GmbH
  * @license     GPLv3 https://opensource.org/licenses/GPL-3.0
  */
 define('BALLOON_PATH', (getenv('BALLOON_PATH') ? getenv('BALLOON_PATH') : realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..')));

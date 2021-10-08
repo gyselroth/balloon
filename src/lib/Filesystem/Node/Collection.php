@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * balloon
  *
- * @copyright   Copryright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
+ * @copyright   Copyright (c) 2012-2019 gyselroth GmbH (https://gyselroth.com)
  * @license     GPL-3.0 https://opensource.org/licenses/GPL-3.0
  */
 
@@ -790,6 +790,19 @@ class Collection extends AbstractNode implements IQuota
         }
 
         if ($this->shared) {
+            $or = [
+                [
+                    'acl' => ['$exists' => false],
+                ],
+            ];
+
+            if (null !== $this->_user) {
+                $or[] = [
+                    'acl.id' => (string)$this->_user->getId(),
+                    'acl.privilege' => ['$in' => ['m', 'rw', 'r', 'w', 'w+']]
+                ];
+            }
+
             $search = [
                 '$and' => [
                     $search,
@@ -801,14 +814,7 @@ class Collection extends AbstractNode implements IQuota
                         ],
                     ],
                     [
-                        '$or' => [
-                            [
-                                'acl' => ['$exists' => false],
-                            ], [
-                                'acl.id' => (string) $this->_user->getId(),
-                                'acl.privilege' => ['$in' => ['m', 'rw', 'r', 'w', 'w+']],
-                            ],
-                        ],
+                        '$or' => $or,
                     ],
                 ],
             ];
