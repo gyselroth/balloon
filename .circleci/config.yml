@@ -103,19 +103,19 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build:
+      - dependencies:
           filters:
             tags:
               only: /.*/
       - deploy:
           requires:
-            - build
+            - dependencies
           filters:
             tags:
               only: /^v.*/
       - publish-github-release:
           requires:
-            - build
+            - dependencies
             - deploy
           filters:
             tags:
