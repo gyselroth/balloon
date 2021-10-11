@@ -34,7 +34,7 @@ jobs:
       - run:
           name: build
           command: |
-            make build VERSION=$version
+            make composer VERSION=$version
       - save_cache:
          key: composer-{{ checksum "composer.lock" }}
          paths:
