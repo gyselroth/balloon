@@ -304,13 +304,8 @@ abstract class Controller
 
             return $this->fs->findNodeById($id, $class, $deleted);
         }
-        if (null !== $path) {
-            if (null === $deleted) {
-                $deleted = NodeInterface::DELETED_EXCLUDE;
-            }
 
-            return $this->findNodeByPath($path, $class);
-        }
+        return $this->findNodeByPath($path, $class);
     }
 
     /**
@@ -382,7 +377,7 @@ abstract class Controller
             }
         }
 
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
+        return $this->fs->getNode($id, $class, $multiple, $allow_root, $deleted);
     }
 
     /**
@@ -412,6 +407,6 @@ abstract class Controller
             }
         }
 
-        return $this->fs->getNodes($id, $path, $class, $deleted);
+        return $this->fs->getNodes($id, $class, $deleted);
     }
 }
