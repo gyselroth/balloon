@@ -298,10 +298,6 @@ abstract class Controller
                 $deleted = NodeInterface::DELETED_INCLUDE;
             }
 
-            if (true === $multiple && is_array($id)) {
-                return $this->fs->findNodesById($id, $class, $deleted);
-            }
-
             return $this->fs->findNodeById($id, $class, $deleted);
         }
 
@@ -383,7 +379,7 @@ abstract class Controller
     /**
      * Get nodes.
      *
-     * @param string $id
+     * @param array|string $id
      * @param string $path
      * @param string $class   Force set node type
      * @param bool   $deleted How to handle deleted node
