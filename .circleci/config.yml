@@ -41,10 +41,10 @@ jobs:
            - vendor
       - store_artifacts:
           path: /tmp/balloon/dist
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist/*
+#      - persist_to_workspace:
+#          root: .
+#          paths:
+#            - dist/*
 
   deploy:
     <<: *defaults
