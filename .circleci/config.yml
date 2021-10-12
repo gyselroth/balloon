@@ -63,7 +63,7 @@ jobs:
           command: |
             if [ "$CIRCLE_TAG" != "" ];
             then
-              composer update;
+              composer update --ignore-platform-reqs;
             fi;
       - save_cache:
           key: composer-{{ checksum "composer.lock" }}
