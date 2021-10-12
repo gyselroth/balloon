@@ -113,10 +113,10 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - publish-github-release:
-          requires:
-            - dependencies
-            - deploy
-          filters:
-            tags:
-              only: /^v.*/
+#      - publish-github-release:
+#          requires:
+#            - dependencies
+#            - deploy
+#          filters:
+#            tags:
+#              only: /^v.*/
