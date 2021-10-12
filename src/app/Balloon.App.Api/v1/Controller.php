@@ -298,19 +298,10 @@ abstract class Controller
                 $deleted = NodeInterface::DELETED_INCLUDE;
             }
 
-            if (true === $multiple && is_array($id)) {
-                return $this->fs->findNodesById($id, $class, $deleted);
-            }
-
             return $this->fs->findNodeById($id, $class, $deleted);
         }
-        if (null !== $path) {
-            if (null === $deleted) {
-                $deleted = NodeInterface::DELETED_EXCLUDE;
-            }
 
-            return $this->findNodeByPath($path, $class);
-        }
+        return $this->findNodeByPath($path, $class);
     }
 
     /**
@@ -382,13 +373,13 @@ abstract class Controller
             }
         }
 
-        return $this->fs->getNode($id, $path, $class, $multiple, $allow_root, $deleted);
+        return $this->fs->getNode($id, $class, $multiple, $allow_root, $deleted);
     }
 
     /**
      * Get nodes.
      *
-     * @param string $id
+     * @param array|string $id
      * @param string $path
      * @param string $class   Force set node type
      * @param bool   $deleted How to handle deleted node
@@ -412,6 +403,6 @@ abstract class Controller
             }
         }
 
-        return $this->fs->getNodes($id, $path, $class, $deleted);
+        return $this->fs->getNodes($id, $class, $deleted);
     }
 }
