@@ -29,7 +29,8 @@ RUN apk update && apk add --virtual .build-deps --no-cache \
   && docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg gmp \
   && pecl install mongodb \
   && pecl install apcu \
-  && pecl install imagick \
+  # TODO: use imagick on php 7.4
+  && pecl install imagick-3.4.4 \
   && pecl install smbclient \
   && docker-php-ext-enable mongodb apcu imagick smbclient \
   && git clone https://github.com/gyselroth/php-serializable-md5 \
