@@ -96,5 +96,8 @@
     "helmich/mongomock": "dev-master#1ee4147",
     "phpstan/phpstan": "^0.11.19",
     "ddelnano/dredd-hooks-php": "^1.1"
+  },
+  "conflict": {
+    "ocramius/proxy-manager": ">2.2.3"
   }
 }
