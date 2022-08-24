@@ -16,8 +16,8 @@ services:
     - backend
     - frontend
   mongodb:
-    image: mongo:3.6
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all" ]
+    image: mongo:4.4
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
     #ports:
     # - "27017:27017"
     networks:

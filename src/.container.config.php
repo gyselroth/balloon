@@ -17,6 +17,7 @@ use Monolog\Processor;
 use Balloon\App\Notification\Notification;
 use Balloon\Migration;
 use Balloon\Migration\Delta;
+use Balloon\Server;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Transport\Smtp;
 use Balloon\Hook;

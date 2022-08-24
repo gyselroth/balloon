@@ -14,6 +14,7 @@ namespace Balloon;
 use Balloon\Migration\Delta\DeltaInterface;
 use Balloon\Migration\Exception;
 use MongoDB\Database;
+use MongoDB\Driver\Exception\ServerException;
 use Psr\Log\LoggerInterface;
 
 class Migration
@@ -61,7 +62,15 @@ class Migration
      */
     public function isDeltaApplied(string $class): bool
     {
-        return null !== $this->db->{$this->meta_collection}->findOne(['class' => $class]);
+        try {
+            return null !== $this->db->{$this->meta_collection}->findOne(['class' => $class]);
+        } catch (ServerException $e) {
+            if ($e->getCode() === 13436) {
+                return false;
+            }
+
+            throw $e;
+        }
     }
 
     /**
