@@ -1,0 +1,122 @@
+version: 2.1
+
+defaults: &defaults
+  docker:
+    - image: cimg/php:7.3
+
+workspace_root: &workspace_root
+  /tmp/balloon
+
+attach_workspace: &attach_workspace
+  attach_workspace:
+    at: *workspace_root
+
+jobs:
+  dependencies:
+    <<: *defaults
+    working_directory: *workspace_root
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - composer-{{ checksum "composer.lock" }}
+      - run:
+          name: before_install
+          command: |
+            if [ -z "${CIRCLE_TAG}"];
+            then
+              version=$CIRCLE_BUILD_NUM;
+            else
+              version=$CIRCLE_TAG;
+              if [ "${version:0:1}" == "v" ]; then version=${CIRCLE_TAG:1}; fi;
+              if [ "${version}" == "" ]; then version=${CIRCLE_BUILD_NUM}; fi;
+            fi;
+      - run:
+          name: build
+          command: |
+            make composer VERSION=$version
+      - save_cache:
+         key: composer-{{ checksum "composer.lock" }}
+         paths:
+           - vendor
+      - store_artifacts:
+          path: /tmp/balloon/dist
+#      - persist_to_workspace:
+#          root: .
+#          paths:
+#            - dist/*
+
+  deploy:
+    <<: *defaults
+    working_directory: *workspace_root
+
+    steps:
+      - checkout
+      - *attach_workspace
+      - setup_remote_docker:
+          version: 20.10.6
+      - restore_cache:
+          keys:
+            - composer-{{ checksum "composer.lock" }}
+      - run:
+          name: composer update
+          command: |
+            if [ "$CIRCLE_TAG" != "" ];
+            then
+              composer update --ignore-platform-reqs;
+            fi;
+      - save_cache:
+          key: composer-{{ checksum "composer.lock" }}
+          paths:
+            - vendor
+      - run:
+          name: deploy
+          command: |
+            if [ "$CIRCLE_TAG" != "" ];
+            then
+              version=$CIRCLE_TAG;
+              if [ "${version:0:1}" == "v" ]; then version=${CIRCLE_TAG:1}; fi;
+              if [[ "$version" == *"-"* ]]; then export docker_tag=latest-unstable; else export docker_tag=latest; fi;
+
+              docker build -t gyselroth/balloon:$version .
+              echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+              docker tag gyselroth/balloon:$version gyselroth/balloon:$docker_tag
+              docker push gyselroth/balloon:$version
+              docker push gyselroth/balloon:$docker_tag
+            fi;
+
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    working_directory: *workspace_root
+    steps:
+      - *attach_workspace
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            if [ "$CIRCLE_TAG" != "" ];
+            then
+              ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -c $CIRCLE_SHA1 $CIRCLE_TAG ./dist/
+            fi;
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - dependencies:
+          filters:
+            tags:
+              only: /.*/
+      - deploy:
+          requires:
+            - dependencies
+          filters:
+            tags:
+              only: /^v.*/
+#      - publish-github-release:
+#          requires:
+#            - dependencies
+#            - deploy
+#          filters:
+#            tags:
+#              only: /^v.*/
