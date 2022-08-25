@@ -108,7 +108,7 @@ docker: $(BUILD_TARGET) composer-no-dev
 .PHONY: tar
 tar: $(TAR) #Build, test and create tar archive
 $(TAR): $(BUILD_TARGET) composer-no-dev
-	$(COMPOSER_BIN) update --no-dev
+	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
@@ -121,7 +121,7 @@ $(TAR): $(BUILD_TARGET) composer-no-dev
 	@tar -czf $(TAR) -C $(BUILD_DIR) .
 	@rm -rf $(BUILD_DIR)
 
-	$(COMPOSER_BIN) update
+	$(COMPOSER_BIN) update --ignore-platform-reqs
 	@touch $@
 
 
@@ -131,21 +131,21 @@ deps: composer ## Update 3rd party dependencies (Alias of composer).
 
 .PHONY: composer-no-dev
 composer-no-dev: ## Uninstall development 3rd party dependencies.
-	$(COMPOSER_BIN) update --no-dev
+	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
 	@touch $@
 
 
 .PHONY: composer
 composer: $(COMPOSER_TARGET)  ## Update 3rd party dependencies.
 $(COMPOSER_TARGET) $(PHPCS_FIXER_SCRIPT) $(PHPUNIT_SCRIPT) $(PHPSTAN_SCRIPT): $(BASE_DIR)/composer.json
-	$(COMPOSER_BIN) update
+	$(COMPOSER_BIN) update --ignore-platform-reqs
 	@touch $@
 
 
 .PHONY: phpcs
 phpcs: $(PHPCS_CHECK_TARGET) ## Enforce php-cs-fixer code policy.
 $(PHPCS_CHECK_TARGET): $(PHPCS_FIXER_SCRIPT) $(PHP_FILES) $(COMPOSER_LOCK)
-	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php_cs.dist -v --dry-run --allow-risky=yes --stop-on-violation --using-cache=no
+	$(PHP_BIN) $(PHPCS_FIXER_SCRIPT)  fix --config=.php-cs-fixer.dist.php -v --dry-run --allow-risky=yes --stop-on-violation --using-cache=no
 	@touch $@
 
 
@@ -204,7 +204,7 @@ $(PHPSTAN_TARGET): $(PHPSTAN_SCRIPT) $(PHP_FILES) $(PHP_TEST_FILES)
 .PHONY: install
 install: $(INSTALL_TARGET) ##Build and install balloon locally.
 $(INSTALL_TARGET): $(BUILD_TARGET)
-	$(COMPOSER_BIN) update --no-dev
+	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/scripts
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
@@ -217,4 +217,4 @@ $(INSTALL_TARGET): $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
 	@cp -Rp $(BUILD_DIR)/* $(INSTALL_PREFIX)
-	$(COMPOSER_BIN) update
+	$(COMPOSER_BIN) update --ignore-platform-reqs
