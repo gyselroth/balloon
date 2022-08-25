@@ -17,9 +17,9 @@ jobs:
     working_directory: *workspace_root
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - composer-{{ checksum "composer.lock" }}
+#      - restore_cache:
+#          keys:
+#            - composer-{{ checksum "composer.lock" }}
       - run:
           name: before_install
           command: |
