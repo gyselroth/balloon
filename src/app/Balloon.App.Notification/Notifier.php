@@ -139,7 +139,7 @@ class Notifier
         foreach ($receiver as $user) {
             foreach ($this->adapter as $name => $adapter) {
                 $this->logger->debug('send notification to user ['.$user->getId().'] via adapter ['.$name.']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 $adapter->notify($user, $sender, $message);
@@ -167,7 +167,7 @@ class Notifier
         }
 
         $this->logger->debug('inject notification adapter ['.$name.'] of type ['.get_class($adapter).']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if ($this->hasAdapter($name)) {
@@ -292,7 +292,7 @@ class Notifier
         }
 
         $this->logger->debug('notification ['.$id.'] removed from user ['.$this->server->getIdentity()->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return true;
@@ -386,7 +386,7 @@ class Notifier
 
         if (true === $subscribe) {
             $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] subscribes node ['.$node->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $subscription = [
@@ -410,7 +410,7 @@ class Notifier
             );
         } else {
             $this->logger->debug('user ['.$this->server->getIdentity()->getId().'] unsubscribes node ['.$node->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->db->subscription->deleteOne([

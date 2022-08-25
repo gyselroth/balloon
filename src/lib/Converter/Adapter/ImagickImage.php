@@ -21,7 +21,7 @@ class ImagickImage implements AdapterInterface
     /**
      * Preview format.
      */
-    const PREVIEW_FORMAT = 'png';
+    public const PREVIEW_FORMAT = 'png';
 
     /**
      * preview max size.
@@ -70,7 +70,7 @@ class ImagickImage implements AdapterInterface
      *
      * @param iterable $config
      */
-    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger, ?iterable $config = null)
     {
         $this->logger = $logger;
         $this->setOptions($config);
@@ -81,7 +81,7 @@ class ImagickImage implements AdapterInterface
      *
      * @param iterable $config
      */
-    public function setOptions(?Iterable $config = null): AdapterInterface
+    public function setOptions(?iterable $config = null): AdapterInterface
     {
         if (null === $config) {
             return $this;

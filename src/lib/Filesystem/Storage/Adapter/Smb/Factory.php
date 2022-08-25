@@ -67,7 +67,7 @@ class Factory
             $auth = new AnonymousAuth();
         } else {
             $this->logger->debug('decrypt basic auth credentials for username ['.$options['username'].']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $options = array_merge(['workgroup' => null], $options);
@@ -77,7 +77,7 @@ class Factory
                 $auth = new BasicAuth($options['username'], $options['workgroup'], $decrypted->getString());
             } catch (\Exception $e) {
                 $this->logger->error('failed decrypt basic auth credentials, fallback to anonymous auth', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
 

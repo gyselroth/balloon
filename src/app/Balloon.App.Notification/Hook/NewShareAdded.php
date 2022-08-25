@@ -125,7 +125,7 @@ class NewShareAdded extends AbstractHook
     {
         if ($user->hasShare($node)) {
             $this->logger->debug('skip notifcation for share ['.$node->getId().'] user ['.$user->getId().'] already got it', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;

@@ -54,7 +54,7 @@ class AutoCreateUser extends AbstractHook
     /**
      * Set options.
      */
-    public function setOptions(?Iterable $config): HookInterface
+    public function setOptions(?iterable $config): HookInterface
     {
         if (null === $config) {
             return $this;
@@ -84,7 +84,7 @@ class AutoCreateUser extends AbstractHook
         }
 
         $this->logger->info('found first time username ['.$identity->getIdentifier().'], auto-create user', [
-             'category' => get_class($this),
+             'category' => static::class,
         ]);
 
         $attributes = [];

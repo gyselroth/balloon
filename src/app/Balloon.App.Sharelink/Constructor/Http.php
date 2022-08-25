@@ -126,8 +126,8 @@ class Http
 
                 if (false === $valid) {
                     echo "<form method=\"post\">\n";
-                    echo    "Password: <input type=\"password\" name=\"password\"/>\n";
-                    echo    "<input type=\"submit\" value=\"Submit\"/>\n";
+                    echo "Password: <input type=\"password\" name=\"password\"/>\n";
+                    echo "<input type=\"submit\" value=\"Submit\"/>\n";
                     echo "</form>\n";
                     exit();
                 }
@@ -147,7 +147,7 @@ class Http
             return Helper::streamContent($response, $node, $download);
         } catch (\Exception $e) {
             $this->logger->error('failed load node with given access token', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 

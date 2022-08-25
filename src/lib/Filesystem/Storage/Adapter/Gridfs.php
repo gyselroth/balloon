@@ -123,7 +123,7 @@ class Gridfs implements AdapterInterface
 
         if (null === $exists) {
             $this->logger->debug('gridfs blob ['.$exists['_id'].'] was not found for file reference ['.$file->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
@@ -143,7 +143,7 @@ class Gridfs implements AdapterInterface
 
         if (count($refs) >= 1) {
             $this->logger->debug('gridfs content node ['.$exists['_id'].'] still has references left, just remove the reference ['.$file->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->db->{'fs.files'}->updateOne(['_id' => $exists['_id']], [
@@ -151,7 +151,7 @@ class Gridfs implements AdapterInterface
             ]);
         } else {
             $this->logger->debug('gridfs content node ['.$exists['_id'].'] has no references left, delete node completely', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->gridfs->delete($exists['_id']);
@@ -182,7 +182,7 @@ class Gridfs implements AdapterInterface
     public function storeFile(File $file, SessionInterface $session): array
     {
         $this->logger->debug('finalize temporary file ['.$session->getId().'] and add file ['.$file->getId().'] as reference', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $md5 = $session->getHash();
@@ -190,7 +190,7 @@ class Gridfs implements AdapterInterface
 
         if ($blob !== null) {
             $this->logger->debug('found existing file with hash ['.$md5.'], add file ['.$file->getId().'] as reference to ['.$blob['_id'].']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->db->selectCollection('fs.files')->updateOne([
@@ -255,7 +255,7 @@ class Gridfs implements AdapterInterface
             $session = new ObjectId();
 
             $this->logger->info('create new tempory storage file ['.$session.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->db->selectCollection('fs.files')->insertOne([
@@ -341,7 +341,7 @@ class Gridfs implements AdapterInterface
                 $left = 0;
             } else {
                 $this->logger->debug('found existing chunks ['.$chunks.'] for temporary file ['.$temp['_id'].'] while the last chunk has ['.$left.'] bytes free', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 --$chunks;
@@ -368,7 +368,7 @@ class Gridfs implements AdapterInterface
                 $length += $size;
 
                 $this->logger->debug('append data ['.$size.'] to last chunk ['.$chunks.'] in temporary file ['.$temp['_id'].']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 $last = $this->db->selectCollection('fs.chunks')->updateOne([
@@ -403,7 +403,7 @@ class Gridfs implements AdapterInterface
             ]);
 
             $this->logger->debug('inserted new chunk ['.$last->getInsertedId().'] ['.$size.'] in temporary file ['.$temp['_id'].']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             ++$chunks;
@@ -432,7 +432,7 @@ class Gridfs implements AdapterInterface
     {
         if (!$user->checkQuota($size)) {
             $this->logger->warning('stop adding chunk, user ['.$user->getId().'] quota is full, remove upload session', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->gridfs->delete($session);

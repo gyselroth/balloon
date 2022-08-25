@@ -31,7 +31,7 @@ abstract class AbstractNode implements NodeInterface
     /**
      * name max lenght.
      */
-    const MAX_NAME_LENGTH = 255;
+    public const MAX_NAME_LENGTH = 255;
 
     /**
      * Unique id.
@@ -317,7 +317,7 @@ abstract class AbstractNode implements NodeInterface
             throw new ForbiddenException('not allowed to move node '.$this->name, ForbiddenException::NOT_ALLOWED_TO_MOVE);
         }
 
-        $new_name = $parent->validateInsert($this->name, $conflict, get_class($this));
+        $new_name = $parent->validateInsert($this->name, $conflict, static::class);
 
         if ($this->isShared() && $this instanceof Collection && $parent->isShared()) {
             throw new Exception\Conflict('a shared folder can not be a child of a shared folder', Exception\Conflict::SHARED_NODE_CANT_BE_CHILD_OF_SHARE);
@@ -818,7 +818,7 @@ abstract class AbstractNode implements NodeInterface
                         }
                     } catch (\Exception $e) {
                         $this->_logger->error('failed add file ['.$child->getId().'] to zip stream', [
-                            'category' => get_class($this),
+                            'category' => static::class,
                             'exception' => $e,
                         ]);
                     }
@@ -1076,14 +1076,14 @@ abstract class AbstractNode implements NodeInterface
             );
 
             $this->_logger->info('modified node attributes of ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'params' => $update,
             ]);
 
             return true;
         } catch (\Exception $e) {
             $this->_logger->error('failed modify node attributes of ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 
@@ -1101,7 +1101,7 @@ abstract class AbstractNode implements NodeInterface
         }
 
         if (null === $class) {
-            $class = get_class($this);
+            $class = static::class;
         }
 
         if ($class === Collection::class) {

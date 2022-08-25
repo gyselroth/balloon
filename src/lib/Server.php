@@ -106,7 +106,7 @@ class Server
     /**
      * Initialize.
      */
-    public function __construct(Database $db, NodeFactory $node_factory, LoggerInterface $logger, Hook $hook, Acl $acl, ?Iterable $config = null)
+    public function __construct(Database $db, NodeFactory $node_factory, LoggerInterface $logger, Hook $hook, Acl $acl, ?iterable $config = null)
     {
         $this->db = $db;
         $this->node_factory = $node_factory;
@@ -120,7 +120,7 @@ class Server
     /**
      * Set options.
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -339,7 +339,7 @@ class Server
      */
     public function usernameExists(string $username): bool
     {
-        return  1 === $this->db->user->count(['username' => $username]);
+        return 1 === $this->db->user->count(['username' => $username]);
     }
 
     /**
@@ -347,7 +347,7 @@ class Server
      */
     public function mailExists(string $mail): bool
     {
-        return  1 === $this->db->user->count(['mail' => $mail]);
+        return 1 === $this->db->user->count(['mail' => $mail]);
     }
 
     /**
@@ -355,7 +355,7 @@ class Server
      */
     public function userExists(ObjectId $id): bool
     {
-        return  1 === $this->db->user->count(['_id' => $id]);
+        return 1 === $this->db->user->count(['_id' => $id]);
     }
 
     /**
@@ -363,7 +363,7 @@ class Server
      */
     public function groupExists(ObjectId $id): bool
     {
-        return  1 === $this->db->group->count(['_id' => $id]);
+        return 1 === $this->db->group->count(['_id' => $id]);
     }
 
     /**
@@ -371,7 +371,7 @@ class Server
      */
     public function groupNameExists(string $name): bool
     {
-        return  1 === $this->db->group->count(['name' => $name]);
+        return 1 === $this->db->group->count(['name' => $name]);
     }
 
     /**
@@ -440,7 +440,7 @@ class Server
             $user = $this->getUserByName($identity->getIdentifier());
         } catch (User\Exception\NotFound $e) {
             $this->logger->warning('failed connect authenticated user, user account does not exists', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
         }
 

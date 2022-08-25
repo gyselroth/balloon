@@ -71,7 +71,7 @@ class Http extends AbstractBootstrap
     public function process()
     {
         $this->logger->info('processing incoming http ['.$_SERVER['REQUEST_METHOD'].'] request to ['.$_SERVER['REQUEST_URI'].']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $this->hook->run('preAuthentication', [$this->auth]);
@@ -140,7 +140,7 @@ class Http extends AbstractBootstrap
     {
         set_exception_handler(function ($e) {
             $this->logger->emergency('uncaught exception: '.$e->getMessage(), [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 

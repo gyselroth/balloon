@@ -57,7 +57,7 @@ class CleanTrash extends AbstractJob
     public function start(): bool
     {
         $this->logger->debug('clean trash from nodes deleted for ['.$this->data['max_age'].'s]', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $lt = (time() - $this->data['max_age']) * 1000;
@@ -71,14 +71,14 @@ class CleanTrash extends AbstractJob
                 $node->delete(true);
             } catch (Exception $e) {
                 $this->logger->error('failed delete node ['.$node->getId().']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }
         }
 
         $this->logger->info('found ['.$result->getReturn().'] nodes for cleanup, force removed them from trash', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return true;

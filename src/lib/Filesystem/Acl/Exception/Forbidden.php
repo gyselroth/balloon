@@ -15,16 +15,16 @@ use Micro\Http\ExceptionInterface;
 
 class Forbidden extends \Sabre\DAV\Exception\Forbidden implements ExceptionInterface
 {
-    const NOT_ALLOWED_TO_RESTORE = 33;
-    const NOT_ALLOWED_TO_DELETE = 34;
-    const NOT_ALLOWED_TO_MODIFY = 35;
-    const NOT_ALLOWED_TO_OVERWRITE = 36;
-    const NOT_ALLOWED_TO_MANAGE = 37;
-    const NOT_ALLOWED_TO_CREATE = 38;
-    const NOT_ALLOWED_TO_MOVE = 39;
-    const NOT_ALLOWED_TO_ACCESS = 40;
-    const ADMIN_PRIV_REQUIRED = 41;
-    const NOT_ALLOWED_TO_UNDELETE = 42;
+    public const NOT_ALLOWED_TO_RESTORE = 33;
+    public const NOT_ALLOWED_TO_DELETE = 34;
+    public const NOT_ALLOWED_TO_MODIFY = 35;
+    public const NOT_ALLOWED_TO_OVERWRITE = 36;
+    public const NOT_ALLOWED_TO_MANAGE = 37;
+    public const NOT_ALLOWED_TO_CREATE = 38;
+    public const NOT_ALLOWED_TO_MOVE = 39;
+    public const NOT_ALLOWED_TO_ACCESS = 40;
+    public const ADMIN_PRIV_REQUIRED = 41;
+    public const NOT_ALLOWED_TO_UNDELETE = 42;
 
     /**
      * {@inheritdoc}

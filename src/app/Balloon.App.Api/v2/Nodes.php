@@ -457,7 +457,7 @@ class Nodes extends Controller
                 $node->zip($archive);
             } catch (\Exception $e) {
                 $this->logger->debug('failed zip node in multi node request ['.$node->getId().']', [
-                   'category' => get_class($this),
+                   'category' => static::class,
                    'exception' => $e,
                ]);
             }

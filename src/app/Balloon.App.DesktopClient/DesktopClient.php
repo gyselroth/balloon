@@ -69,7 +69,7 @@ class DesktopClient
      *
      * @param iterable $config
      */
-    public function __construct(LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger, ?iterable $config = null)
     {
         $this->logger = $logger;
         $this->setOptions($config);
@@ -82,7 +82,7 @@ class DesktopClient
      *
      * @return DesktopClient
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -143,7 +143,7 @@ class DesktopClient
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $this->logger->debug('github request to ['.$this->github_request_url.'] resulted in ['.$code.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if (200 !== $code) {
@@ -158,12 +158,12 @@ class DesktopClient
 
         foreach ($data['assets'] as $asset) {
             $this->logger->debug('check release asset ['.$asset['name'].'] for ['.$this->github_asset_mapping[$format].']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             if (preg_match($this->github_asset_mapping[$format], $asset['name'])) {
                 $this->logger->info('github asset ['.$asset['browser_download_url'].'] found', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 return $asset['browser_download_url'];

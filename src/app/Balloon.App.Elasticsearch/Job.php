@@ -27,12 +27,12 @@ class Job extends AbstractJob
     /**
      * Document actions.
      */
-    const ACTION_CREATE = 0;
-    const ACTION_UPDATE = 1;
-    const ACTION_DELETE_COLLECTION = 2;
-    const ACTION_DELETE_FILE = 3;
-    const ACTION_ADD_SHARE = 4;
-    const ACTION_DELETE_SHARE = 5;
+    public const ACTION_CREATE = 0;
+    public const ACTION_UPDATE = 1;
+    public const ACTION_DELETE_COLLECTION = 2;
+    public const ACTION_DELETE_FILE = 3;
+    public const ACTION_ADD_SHARE = 4;
+    public const ACTION_DELETE_SHARE = 5;
 
     /**
      * Filesystem.
@@ -85,7 +85,7 @@ class Job extends AbstractJob
     /**
      * Set options.
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -111,7 +111,7 @@ class Job extends AbstractJob
     public function start(): bool
     {
         $this->logger->debug('elasticsearch document action ['.$this->data['action'].'] for node ['.$this->data['id'].']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         switch ($this->data['action']) {
@@ -152,7 +152,7 @@ class Job extends AbstractJob
     public function createDocument(NodeInterface $node): bool
     {
         $this->logger->info('create elasticsearch document for node ['.$node->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $params = $this->getParams($node);
@@ -173,7 +173,7 @@ class Job extends AbstractJob
     public function updateDocument(NodeInterface $node, ?string $hash): bool
     {
         $this->logger->info('update elasticsearch document for node ['.$node->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $params = $this->getParams($node);
@@ -197,7 +197,7 @@ class Job extends AbstractJob
     public function deleteCollectionDocument(ObjectId $node): bool
     {
         $this->logger->info('delete elasticsearch document for collection ['.$node.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $params = [
@@ -216,7 +216,7 @@ class Job extends AbstractJob
     public function deleteFileDocument(ObjectId $node, ?string $hash): bool
     {
         $this->logger->info('delete elasticsearch document for file ['.$node.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $params = [
@@ -286,7 +286,7 @@ class Job extends AbstractJob
 
         if (count($ref) >= 1) {
             $this->logger->debug('elasticsarch blob document ['.$result['_id'].'] still has references left, just remove the reference ['.$id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $meta = $result['_source']['metadata'];
@@ -296,7 +296,7 @@ class Job extends AbstractJob
         }
 
         $this->logger->debug('elasticsarch blob document ['.$result['_id'].'] has no references left, remove completely', [
-         'category' => get_class($this),
+         'category' => static::class,
         ]);
 
         return $this->deleteBlob($result['_id']);
@@ -380,20 +380,20 @@ class Job extends AbstractJob
     protected function storeBlob(File $file): bool
     {
         $this->logger->debug('store file blob for node ['.$file->getId().'] to elasticsearch', [
-            'category' => get_class($this),
+            'category' => static::class,
             'size' => $file->getSize(),
         ]);
 
         if ($file->getSize() > $this->size_limit) {
             $this->logger->debug('skip file blob ['.$file->getId().'] because size ['.$file->getSize().'] is bigger than the maximum configured ['.$this->size_limit.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
         }
         if ($file->getSize() === 0) {
             $this->logger->debug('skip empty file blob ['.$file->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;

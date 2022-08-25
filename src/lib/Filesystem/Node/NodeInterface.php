@@ -20,27 +20,27 @@ interface NodeInterface extends DAV\INode
     /**
      * Deleted node options.
      */
-    const DELETED_EXCLUDE = 0;
-    const DELETED_ONLY = 1;
-    const DELETED_INCLUDE = 2;
+    public const DELETED_EXCLUDE = 0;
+    public const DELETED_ONLY = 1;
+    public const DELETED_INCLUDE = 2;
 
     /**
      * Handle conflicts.
      */
-    const CONFLICT_NOACTION = 0;
-    const CONFLICT_RENAME = 1;
-    const CONFLICT_MERGE = 2;
+    public const CONFLICT_NOACTION = 0;
+    public const CONFLICT_RENAME = 1;
+    public const CONFLICT_MERGE = 2;
 
     /**
      * Meta attributes.
      */
-    const META_DESCRIPTION = 'description';
-    const META_COLOR = 'color';
-    const META_AUTHOR = 'author';
-    const META_MAIL = 'mail';
-    const META_LICENSE = 'license';
-    const META_COPYRIGHT = 'copyright';
-    const META_TAGS = 'tags';
+    public const META_DESCRIPTION = 'description';
+    public const META_COLOR = 'color';
+    public const META_AUTHOR = 'author';
+    public const META_MAIL = 'mail';
+    public const META_LICENSE = 'license';
+    public const META_COPYRIGHT = 'copyright';
+    public const META_TAGS = 'tags';
 
     /**
      * Delete node.

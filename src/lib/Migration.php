@@ -79,14 +79,14 @@ class Migration
     public function start(bool $force = false, bool $ignore = false, array $deltas = []): bool
     {
         $this->logger->info('execute migration deltas', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $instances = [];
 
         if (0 === count($this->delta)) {
             $this->logger->warning('no deltas have been configured', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
@@ -95,11 +95,11 @@ class Migration
         foreach (array_reverse($this->getDeltas($deltas)) as $name => $delta) {
             if (false === $force && $this->isDeltaApplied($name)) {
                 $this->logger->debug('skip existing delta ['.$name.']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
             } else {
                 $this->logger->info('apply delta ['.$name.']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 try {
@@ -107,7 +107,7 @@ class Migration
                     $this->db->{$this->meta_collection}->insertOne(['class' => get_class($delta)]);
                 } catch (\Exception $e) {
                     $this->logger->error('failed to apply delta ['.get_class($delta).']', [
-                        'category' => get_class($this),
+                        'category' => static::class,
                         'exception' => $e,
                     ]);
 
@@ -119,7 +119,7 @@ class Migration
         }
 
         $this->logger->info('executed migration deltas successfully', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return true;
@@ -161,7 +161,7 @@ class Migration
         }
 
         $this->logger->debug('inject delta ['.$name.'] of type ['.get_class($delta).']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if ($this->hasDelta($name)) {

@@ -102,7 +102,7 @@ class Elasticsearch
         }
 
         $this->logger->info('reindex elasticsearch, nodes left: {total}/{total}', [
-            'category' => get_class($this),
+            'category' => static::class,
             'total' => $total,
         ]);
 
@@ -117,7 +117,7 @@ class Elasticsearch
                 $skip -= $this->bulk;
 
                 $this->logger->error('cursor timeout captchered, restart from {skip}', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                     'skip' => $skip,
                 ]);
@@ -182,12 +182,12 @@ class Elasticsearch
 
             if (count($stack) >= $this->bulk) {
                 $this->logger->info('waiting for ['.$this->bulk.'] jobs to be finished', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 $done += $this->bulk;
                 $this->logger->info('reindex elasticsearch {percent}, nodes left: {done}/{total}', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'percent' => round($done / $total * 100, 1).'%',
                     'total' => $total,
                     'done' => $done,

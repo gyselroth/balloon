@@ -34,7 +34,7 @@ class AutoDestroy extends AbstractHook
     /**
      * Constructor.
      */
-    public function __construct(Scheduler $scheduler, ?Iterable $config = null)
+    public function __construct(Scheduler $scheduler, ?iterable $config = null)
     {
         $this->scheduler = $scheduler;
         $this->setOptions($config);
@@ -43,7 +43,7 @@ class AutoDestroy extends AbstractHook
     /**
      * Set options.
      */
-    public function setOptions(?Iterable $config = null): HookInterface
+    public function setOptions(?iterable $config = null): HookInterface
     {
         if (null === $config) {
             return $this;

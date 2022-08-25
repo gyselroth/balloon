@@ -72,7 +72,7 @@ class Jobs
     public function __invoke(): bool
     {
         $this->logger->info('daemon execution requested, fire up daemon', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if ($this->getopt->getOption('flush')) {

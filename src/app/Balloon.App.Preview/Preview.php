@@ -87,7 +87,7 @@ class Preview
                 return $contents;
             } catch (\Exception $e) {
                 $this->logger->warning('failed download preview from gridfs for file ['.$file->getId().']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }
@@ -111,13 +111,13 @@ class Preview
 
             if (1 === $references) {
                 $this->logger->debug('delete preview ['.$preview.'] from file ['.$file->getId().']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 $bucket->delete($preview);
             } else {
                 $this->logger->debug('do not remove preview blob ['.$preview.'] from file ['.$file->getId().'], there are still other references left', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
             }
 
@@ -135,7 +135,7 @@ class Preview
     protected function storePreview(File $file, $content): ObjectId
     {
         $this->logger->info('store new preview for file ['.$file->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         try {
@@ -159,7 +159,7 @@ class Preview
 
             if ($found) {
                 $this->logger->debug('found existing preview ['.$found['_id'].'] with same hash, use stored preview', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 $file->setAppAttribute(__NAMESPACE__, 'preview', $found['_id']);

@@ -82,7 +82,7 @@ class TemplateHandler
     /**
      * Set config.
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?iterable $config = null): self
     {
         if (null === $config) {
             return $this;

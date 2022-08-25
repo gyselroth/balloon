@@ -88,7 +88,7 @@ class Db extends OAuthMongoDB
                             $user = $this->server->getUserByName($username);
                         } catch (User\Exception\NotFound $e) {
                             $this->logger->warning('failed connect authenticated user, user account does not exists', [
-                                'category' => get_class($this),
+                                'category' => static::class,
                             ]);
                         }
 
@@ -111,7 +111,7 @@ class Db extends OAuthMongoDB
                     throw $e;
                 } catch (\Exception $e) {
                     $this->logger->error('failed authenticate user, unexcepted exception was thrown', [
-                        'category' => get_class($this),
+                        'category' => static::class,
                         'exception' => $e,
                     ]);
                 }
@@ -133,7 +133,7 @@ class Db extends OAuthMongoDB
                 ->getAttributes();
         } catch (User\Exception\NotFound $e) {
             $this->logger->warning('failed connect authenticated user, user account does not exists', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;

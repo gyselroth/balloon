@@ -35,7 +35,7 @@ class Collection extends AbstractNode implements IQuota
     /**
      * Root folder.
      */
-    const ROOT_FOLDER = '/';
+    public const ROOT_FOLDER = '/';
 
     /**
      * Share acl.
@@ -568,7 +568,7 @@ class Collection extends AbstractNode implements IQuota
             $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new collection ['.$save['_id'].'] under parent ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->changed = $save['changed'];
@@ -580,7 +580,7 @@ class Collection extends AbstractNode implements IQuota
             return $new;
         } catch (\Exception $e) {
             $this->_logger->error('failed create new collection under parent ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 
@@ -630,7 +630,7 @@ class Collection extends AbstractNode implements IQuota
             $result = $this->_db->storage->insertOne($save);
 
             $this->_logger->info('added new file ['.$save['_id'].'] under parent ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->changed = $save['changed'];
@@ -647,7 +647,7 @@ class Collection extends AbstractNode implements IQuota
             return $file;
         } catch (\Exception $e) {
             $this->_logger->error('failed add new file under parent ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 
@@ -798,8 +798,8 @@ class Collection extends AbstractNode implements IQuota
 
             if (null !== $this->_user) {
                 $or[] = [
-                    'acl.id' => (string)$this->_user->getId(),
-                    'acl.privilege' => ['$in' => ['m', 'rw', 'r', 'w', 'w+']]
+                    'acl.id' => (string) $this->_user->getId(),
+                    'acl.privilege' => ['$in' => ['m', 'rw', 'r', 'w', 'w+']],
                 ];
             }
 
@@ -874,7 +874,7 @@ class Collection extends AbstractNode implements IQuota
             }
 
             $this->_logger->info('force removed collection ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->_hook->run(
@@ -883,7 +883,7 @@ class Collection extends AbstractNode implements IQuota
             );
         } catch (\Exception $e) {
             $this->_logger->error('failed force remove collection ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 

@@ -138,7 +138,7 @@ class SmbScanner extends AbstractJob
                     throw $e;
                 }
                 $this->logger->debug('child node ['.$child.'] does not exits, add folder', [
-                        'category' => get_class($this),
+                        'category' => static::class,
                         'exception' => $e,
                     ]);
 
@@ -162,7 +162,7 @@ class SmbScanner extends AbstractJob
         }
 
         $this->logger->debug('sync smb path ['.$path.'] in mount ['.$mount->getId().'] from operation ['.$action.']', [
-            'category' => get_class($this),
+            'category' => static::class,
             'recursive' => $recursive,
         ]);
 
@@ -211,7 +211,7 @@ class SmbScanner extends AbstractJob
                         $this->recursiveIterator($child, $mount, $share, $user, $smb, $child_path, $recursive, $action);
                     } catch (\Exception $e) {
                         $this->logger->error('failed sync child node ['.$child_path.'] in smb mount', [
-                            'category' => get_class($this),
+                            'category' => static::class,
                             'exception' => $e,
                         ]);
                     }
@@ -236,7 +236,7 @@ class SmbScanner extends AbstractJob
     protected function syncFile(Collection $parent, Collection $mount, IFileInfo $node, IShare $share, User $user): bool
     {
         $this->logger->debug('update smb file meta data from ['.$node->getPath().'] in parent node ['.$parent->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $attributes = $this->getAttributes($mount, $share, $node);

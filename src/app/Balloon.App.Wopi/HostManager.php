@@ -122,7 +122,7 @@ class HostManager
         foreach ($this->hosts as $url) {
             if (!isset($url['url']) || !isset($url['name']) || !isset($url['wopi_url'])) {
                 $this->logger->error('skip wopi host entry, either name, wopi_url or url not set', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 continue;
@@ -152,7 +152,7 @@ class HostManager
                 ];
             } catch (\Exception $e) {
                 $this->logger->error('failed to fetch wopi discovery document [{url}]', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'url' => $url,
                     'exception' => $e,
                 ]);
@@ -172,7 +172,7 @@ class HostManager
     {
         if ($this->validate_proof === false) {
             $this->logger->debug('skip wopi proof validation, validate_proof is disabled', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return true;
@@ -181,7 +181,7 @@ class HostManager
         foreach ($this->getHosts() as $host) {
             if (!isset($host['discovery']['proof-key']['@attributes']['modulus'])) {
                 $this->logger->debug('skip wopi proof validation, no public keys for wopi host [{host}] provided', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'host' => $host['url'],
                 ]);
 
@@ -189,7 +189,7 @@ class HostManager
             }
 
             $this->logger->debug('start wopi proof validation for host [{host}]', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'host' => $host['url'],
                 'data' => $data,
             ]);
@@ -240,7 +240,7 @@ class HostManager
               $pub_key->verify($expected, base64_decode($data['proof-old'])) ||
               $pub_key_old->verify($expected, base64_decode($data['proof']))) {
                 $this->logger->debug('wopi proof signature matches', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 return true;
@@ -264,7 +264,7 @@ class HostManager
         }
 
         $this->logger->debug('wopi discovery not found in cache, fetch wopi discovery [{url}]', [
-            'category' => get_class($this),
+            'category' => static::class,
             'url' => $url,
         ]);
 
@@ -278,7 +278,7 @@ class HostManager
         $result = $this->cache->set($key, $body, $this->cache_ttl);
 
         $this->logger->debug('stored wopi discovery [{url}] in cache for [{ttl}]s', [
-            'category' => get_class($this),
+            'category' => static::class,
             'url' => $discovery,
             'ttl' => $this->cache_ttl,
             'result' => $result,

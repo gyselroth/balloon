@@ -92,7 +92,7 @@ class Recaptcha extends AbstractHook
 
         if ($identity === null && $username !== null) {
             $this->logger->info('detected unsuccessful authentication for ['.$username.'], increase failed_auth counter', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->db->user->updateOne([
@@ -108,7 +108,7 @@ class Recaptcha extends AbstractHook
 
         if ($identity instanceof Identity && !($identity->getAdapter() instanceof None)) {
             $this->logger->info('detected successful authentication for ['.$identity->getIdentifier().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->db->user->updateOne([
@@ -143,7 +143,7 @@ class Recaptcha extends AbstractHook
 
         if ($result !== null) {
             $this->logger->info('max failed auth requests for user ['.$username.'] exceeded recaptcha threshold ['.$this->recaptcha_threshold.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             if (!isset($_GET['g-recaptcha-response'])) {
@@ -154,11 +154,11 @@ class Recaptcha extends AbstractHook
 
             if ($resp->isSuccess()) {
                 $this->logger->info('recaptcha token validation for ['.$username.'] succeeded', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
             } else {
                 $this->logger->info('recaptcha token validation for ['.$username.'] failed', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'errors' => $resp->getErrorCodes(),
                 ]);
 

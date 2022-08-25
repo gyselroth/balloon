@@ -182,7 +182,7 @@ class Converter
     public function convert(ObjectId $slave, File $master): bool
     {
         $this->logger->info('create slave for master node ['.$master->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $slave = $this->getSlave($slave);
@@ -202,13 +202,13 @@ class Converter
             }
         } catch (NotFoundException $e) {
             $this->logger->debug('referenced slave node ['.$slave['slave'].'] does not exists or is not accessible', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
         }
 
         $this->logger->debug('create non existing slave ['.$slave['_id'].'] node for master ['.$master->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         try {

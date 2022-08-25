@@ -73,20 +73,20 @@ class WorkerFactory implements WorkerFactoryInterface
                 case E_ERROR:
                 case E_USER_ERROR:
                     $logger->error($log, [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                 break;
                 case E_WARNING:
                 case E_USER_WARNING:
                     $logger->warning($log, [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                 break;
                 default:
                     $logger->debug($log, [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                 break;

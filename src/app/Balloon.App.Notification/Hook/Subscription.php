@@ -130,7 +130,7 @@ class Subscription extends AbstractHook
     {
         if ($node instanceof File && $node->isTemporaryFile()) {
             $this->logger->debug('skip subscription notification for node temporary file ['.$node->getId().'] (matches temporary file pattern)', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
@@ -149,7 +149,7 @@ class Subscription extends AbstractHook
     {
         if (empty($receiver)) {
             $this->logger->debug('skip subscription notification for node ['.$node->getId().'] due empty receiver list', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
@@ -167,7 +167,7 @@ class Subscription extends AbstractHook
             return $this->notifier->notify($receiver, $this->server->getIdentity(), $message);
         } catch (Exception\NoAdapterAvailable $e) {
             $this->logger->error('subscription notification could not be sent', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
         }
@@ -193,11 +193,11 @@ class Subscription extends AbstractHook
 
             if (isset($subscription['last_notification']) && ($subscription['last_notification']->toDateTime()->format('U') + $throttle) > time()) {
                 $this->logger->debug('skip message for user ['.$subscription['user'].'], message within throttle time range of ['.$throttle.'s]', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
             } elseif ($subscription['user'] == $user_id && $subscription['exclude_me'] === true) {
                 $this->logger->debug('skip message for user ['.$user_id.'], user excludes own actions in node ['.$node->getId().']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
             } else {
                 $receiver[] = $subscription['user'];
@@ -223,7 +223,7 @@ class Subscription extends AbstractHook
                 yield $user;
             } else {
                 $this->logger->debug('skip message for user ['.$user->getId().'], node ['.$node->getId().'] not accessible by this user', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
             }
         }
