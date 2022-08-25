@@ -24,7 +24,7 @@ class Burl implements AdapterInterface
     /**
      * Preview format.
      */
-    const PREVIEW_FORMAT = 'png';
+    public const PREVIEW_FORMAT = 'png';
 
     /**
      * preview max size.
@@ -190,7 +190,7 @@ class Burl implements AdapterInterface
         }
 
         $this->logger->debug('request screenshot from [/screenshot] using url ['.$url.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $response = $this->client->request(
@@ -205,7 +205,7 @@ class Burl implements AdapterInterface
         );
 
         $this->logger->debug('screenshot create request ended with status code ['.$response->getStatusCode().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return StreamWrapper::getResource($response->getBody());
@@ -217,7 +217,7 @@ class Burl implements AdapterInterface
     protected function getPdf(string $url)
     {
         $this->logger->debug('request pdf from [/pdf] using url ['.$url.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $response = $this->client->request(
@@ -235,7 +235,7 @@ class Burl implements AdapterInterface
         );
 
         $this->logger->debug('pdf create request ended with status code ['.$response->getStatusCode().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return StreamWrapper::getResource($response->getBody());

@@ -242,7 +242,7 @@ class User implements RoleInterface
 
         if (time() - $attr_sync > $cache) {
             $this->logger->info('user attribute sync cache time expired, resync with auth attributes', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $attributes = $identity->getAttributes();
@@ -261,7 +261,7 @@ class User implements RoleInterface
         }
 
         $this->logger->debug('user auth attribute sync cache is in time', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return $this;
@@ -446,7 +446,7 @@ class User implements RoleInterface
         foreach ($item as $child) {
             if (!in_array($child['reference'], $found)) {
                 $this->logger->debug('found dead reference ['.$child['_id'].'] pointing to share ['.$child['reference'].']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 try {
@@ -455,7 +455,7 @@ class User implements RoleInterface
                 }
             } else {
                 $this->logger->debug('found existing share reference ['.$child['_id'].'] pointing to share ['.$child['reference'].']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 $exists[] = $child['reference'];
@@ -469,7 +469,7 @@ class User implements RoleInterface
             foreach ($node['acl'] as $rule) {
                 if (($rule['id'] === (string) $this->_id || in_array(new ObjectId($rule['id']), $this->groups)) && $rule['privilege'] === 'd') {
                     $this->logger->debug('ignore share ['.$node['_id'].'] with deny privilege', [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                     continue 2;
@@ -477,12 +477,12 @@ class User implements RoleInterface
             }
 
             $this->logger->info('found new share ['.$node['_id'].']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             if ($node['owner'] == $this->_id) {
                 $this->logger->debug('skip creating reference to share ['.$node['_id'].'] cause share owner ['.$node['owner'].'] is the current user', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 continue;
@@ -512,14 +512,14 @@ class User implements RoleInterface
                 }
 
                 $this->logger->warning('share reference to ['.$node['_id'].'] has already been created', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
 
                 continue;
             } catch (\Exception $e) {
                 $this->logger->error('failed create new share reference to share ['.$node['_id'].']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
 
@@ -527,7 +527,7 @@ class User implements RoleInterface
             }
 
             $this->logger->info('created new share reference to share ['.$node['_id'].']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
         }
 

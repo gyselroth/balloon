@@ -41,7 +41,7 @@
   "require": {
     "php": ">=7.3",
     "gyselroth/micro-auth": "^0.0.11",
-    "gyselroth/micro-container": "^2.3.2",
+    "gyselroth/micro-container": "^2.3.3",
     "gyselroth/micro-http": "^0.0.8",
     "elasticsearch/elasticsearch": "^7.9",
     "xenolope/quahog": "2.*",
@@ -59,7 +59,7 @@
     "ext-sockets": "*",
     "ulrichsg/getopt-php": "^3.2.0",
     "zendframework/zend-mail": "2.9.*",
-    "gyselroth/mongodb-php-task-scheduler": "^3.1.0",
+    "gyselroth/mongodb-php-task-scheduler": "^4.0.0",
     "hassankhan/config": "^1.1.0",
     "symfony/yaml": "^4.0",
     "monolog/monolog": "^2.0.0-beta1",
@@ -81,7 +81,6 @@
     "zendframework/zend-diactoros": "^2.1",
     "web-token/jwt-framework": "^1.3",
     "php-http/discovery": "^1.6",
-    "psr/http-client": "^1.0",
     "mjelamanov/psr18-guzzle": "^1.0"
   },
   "suggest": {
@@ -93,11 +92,8 @@
   "require-dev": {
     "phpunit/phpunit": "^5.7.0",
     "friendsofphp/php-cs-fixer": "^3.0",
-    "helmich/mongomock": "dev-master#1ee4147",
-    "phpstan/phpstan": "^0.11.19",
+    "helmich/mongomock": "dev-master#7bb0b5d",
+    "phpstan/phpstan": "^0.12",
     "ddelnano/dredd-hooks-php": "^1.1"
-  },
-  "conflict": {
-    "ocramius/proxy-manager": ">2.2.3"
   }
 }

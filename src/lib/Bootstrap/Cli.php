@@ -61,7 +61,7 @@ class Cli extends AbstractBootstrap
             $this->getopt->process();
         } catch (\Exception $e) {
             $this->logger->debug('Some cli input failed', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
         }
@@ -165,7 +165,7 @@ class Cli extends AbstractBootstrap
     {
         set_exception_handler(function ($e) {
             $this->logger->emergency('uncaught exception: '.$e->getMessage(), [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 

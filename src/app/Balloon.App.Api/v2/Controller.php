@@ -83,7 +83,7 @@ abstract class Controller
         int $deleted = 2
     ): NodeInterface {
         if (null === $class) {
-            switch (get_class($this)) {
+            switch (static::class) {
                 case ApiFile::class:
                     $class = File::class;
 
@@ -109,7 +109,7 @@ abstract class Controller
         int $deleted = 2
     ): Generator {
         if (null === $class) {
-            switch (get_class($this)) {
+            switch (static::class) {
                 case ApiFile::class:
                     $class = File::class;
 

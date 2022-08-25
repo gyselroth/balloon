@@ -361,7 +361,7 @@ abstract class Controller
         int $deleted = 2
     ): NodeInterface {
         if (null === $class) {
-            switch (get_class($this)) {
+            switch (static::class) {
                 case ApiFile::class:
                     $class = File::class;
 
@@ -380,9 +380,9 @@ abstract class Controller
      * Get nodes.
      *
      * @param array|string $id
-     * @param string $path
-     * @param string $class   Force set node type
-     * @param bool   $deleted How to handle deleted node
+     * @param string       $path
+     * @param string       $class   Force set node type
+     * @param bool         $deleted How to handle deleted node
      */
     protected function _getNodes(
         $id = null,
@@ -391,7 +391,7 @@ abstract class Controller
         int $deleted = 2
     ): Generator {
         if (null === $class) {
-            switch (get_class($this)) {
+            switch (static::class) {
                 case ApiFile::class:
                     $class = File::class;
 

@@ -70,7 +70,7 @@ class Acl
     public function isAllowed(NodeInterface $node, string $privilege = self::PRIVILEGE_READ, ?User $user = null): bool
     {
         $this->logger->debug('check acl for ['.$node->getId().'] with privilege ['.$privilege.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $custom = $user;
@@ -78,7 +78,7 @@ class Acl
 
         if (null === $user) {
             $this->logger->debug('system acl call, grant full access', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return true;
@@ -99,14 +99,14 @@ class Acl
 
         if ($result === true) {
             $this->logger->debug('grant access to node ['.$node->getId().'] for user ['.$user->getId().'] by privilege ['.$priv.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return $result;
         }
 
         $this->logger->debug('deny access to node ['.$node->getId().'] for user ['.$user->getId().'] by privilege ['.$priv.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return $result;
@@ -131,7 +131,7 @@ class Acl
         }
         if (!$node->isOwnerRequest()) {
             $this->logger->warning('user ['.$user.'] not allowed to access non owned node ['.$node->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return self::PRIVILEGE_DENY;
@@ -198,7 +198,7 @@ class Acl
             } catch (\Exception $e) {
                 unset($acl[$key]);
                 $this->logger->error('acl role ['.$rule['id'].'] could not be resolved, remove from list', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }
@@ -216,7 +216,7 @@ class Acl
             $share = $node->getFilesystem()->findRawNode($node->getShareId());
         } catch (\Exception $e) {
             $this->logger->error('could not found share node ['.$node->getShareId().'] for share child node ['.$node->getId().'], dead reference?', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 
@@ -239,7 +239,7 @@ class Acl
             $share = $node->getFilesystem()->findRawNode($node->getReference());
         } catch (\Exception $e) {
             $this->logger->error('could not find share node ['.$node->getReference().'] for reference ['.$node->getId().'], dead reference?', [
-                 'category' => get_class($this),
+                 'category' => static::class,
                  'exception' => $e,
             ]);
 
@@ -248,7 +248,7 @@ class Acl
 
         if ($share['deleted'] instanceof UTCDateTime || true !== $share['shared']) {
             $this->logger->error('share node ['.$share['_id'].'] has been deleted, dead reference?', [
-                 'category' => get_class($this),
+                 'category' => static::class,
             ]);
 
             return self::PRIVILEGE_DENY;

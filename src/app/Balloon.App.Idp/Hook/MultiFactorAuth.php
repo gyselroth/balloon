@@ -145,7 +145,7 @@ class MultiFactorAuth extends AbstractHook
         }
 
         $this->logger->debug('multi-factor authentication is not required for user ['.$user->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
     }
 

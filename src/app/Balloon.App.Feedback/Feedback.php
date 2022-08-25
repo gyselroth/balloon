@@ -54,7 +54,7 @@ class Feedback
         $input = fopen('php://input', 'r');
 
         $this->logger->info('send feedback report to [remote]', [
-            'category' => get_class($this),
+            'category' => static::class,
             'remote' => $this->client->getConfig()['base_uri'] ?? '',
         ]);
 
@@ -65,7 +65,7 @@ class Feedback
 
         if ($res->getStatusCode() !== 201) {
             $this->logger->error('sending feedback report failed with code [code] and message [error]', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'code' => $res->getStatusCode(),
                 'error' => $res->getBody()->read(10240), //only read 2KB which should be enaugh as error description
             ]);

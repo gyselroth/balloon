@@ -52,7 +52,7 @@ class AutoDestroy extends AbstractJob
                 $node->delete(true);
             } catch (\Exception $e) {
                 $this->logger->error('failed auto remove auto destroyable node', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }

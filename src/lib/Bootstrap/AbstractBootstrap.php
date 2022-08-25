@@ -47,20 +47,20 @@ abstract class AbstractBootstrap
                 case E_ERROR:
                 case E_USER_ERROR:
                     $this->logger->error($log, [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                 break;
                 case E_WARNING:
                 case E_USER_WARNING:
                     $this->logger->warning($log, [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                 break;
                 default:
                     $this->logger->debug($log, [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                 break;

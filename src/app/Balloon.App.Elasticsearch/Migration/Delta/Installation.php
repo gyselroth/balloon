@@ -75,11 +75,11 @@ class Installation implements DeltaInterface
     public function start(): bool
     {
         $this->logger->info('create elasticsearch indices blobs and nodes', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $this->logger->debug('read index configuration from ['.$this->index_configuration.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if (!is_readable($this->index_configuration)) {
@@ -90,7 +90,7 @@ class Installation implements DeltaInterface
 
         foreach ($index as $name => $settings) {
             $this->logger->info('create elasticsearch index ['.$name.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'settings' => $settings,
             ]);
 
@@ -101,7 +101,7 @@ class Installation implements DeltaInterface
                 ]);
             } catch (\Exception $e) {
                 $this->logger->error('can not create index, try to update existing index', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
 

@@ -151,7 +151,7 @@ class Smb implements AdapterInterface
     {
         if (false === $this->hasNode($file)) {
             $this->logger->debug('smb blob for file ['.$file->getId().'] was not found', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
@@ -180,7 +180,7 @@ class Smb implements AdapterInterface
         $dest = substr($current, strlen($mount));
 
         $this->logger->debug('copy file from session ['.$session->getId().'] in ['.$path.'] to ['.$dest.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $this->share->rename($path, $dest);
@@ -220,7 +220,7 @@ class Smb implements AdapterInterface
     {
         if (false === $this->hasNode($collection)) {
             $this->logger->debug('smb collection ['.$collection->getId().'] was not found', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
@@ -268,7 +268,7 @@ class Smb implements AdapterInterface
     {
         if (false === $this->hasNode($node)) {
             $this->logger->debug('smb node ['.$this->getPath($node).'] was not found for reference=['.$node->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return $node->getAttributes()['storage'];
@@ -296,7 +296,7 @@ class Smb implements AdapterInterface
             $session = new ObjectId();
 
             $this->logger->info('create new tempory storage file ['.$session.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
             $path = $this->getSystemPath(self::SYSTEM_TEMP).DIRECTORY_SEPARATOR.$session;
         } else {
@@ -355,7 +355,7 @@ class Smb implements AdapterInterface
             $this->share->stat($path);
         } catch (SMBException\NotFoundException $e) {
             $this->logger->debug('create smb system folder ['.$path.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->share->mkdir($path);
@@ -368,7 +368,7 @@ class Smb implements AdapterInterface
             $this->share->stat($path);
         } catch (SMBException\NotFoundException $e) {
             $this->logger->debug('create smb system folder ['.$path.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->share->mkdir($path);
@@ -386,7 +386,7 @@ class Smb implements AdapterInterface
 
         if ($this->hasNode($node) === false) {
             $this->logger->debug('smb node ['.$this->getPath($node).'] was not found for reference=['.$node->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return $reference;

@@ -94,19 +94,19 @@ class SmbListener extends AbstractJob
         while (true) {
             foreach ($notify->getChanges() as $change) {
                 $logger->debug('smb mount ['.$mount->getId().'] notify event in ['.$change->getCode().'] for path ['.$change->getPath().']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 if (substr($change->getPath(), 0, strlen($root)) !== $root) {
                     $logger->debug('skip smb event ['.$change->getPath().'], path is not part of root ['.$root.']', [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                     continue;
                 }
                 if (substr($change->getPath(), 0, strlen($system)) === $system) {
                     $logger->debug('skip smb event ['.$change->getPath().'], path is part of balloon system folder ['.$system.']', [
-                        'category' => get_class($this),
+                        'category' => static::class,
                     ]);
 
                     continue;
@@ -145,7 +145,7 @@ class SmbListener extends AbstractJob
     {
         try {
             $this->logger->debug('rename smb node from ['.$from.'] to ['.$to.'] in mount ['.$mount->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $node = $this->getNode($mount, $from);
@@ -158,7 +158,7 @@ class SmbListener extends AbstractJob
             return true;
         } catch (\Exception $e) {
             $this->logger->error('failed to handle smb rename event from ['.$from.'] to ['.$to.'] in mount ['.$mount->getId().']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
         }
@@ -172,7 +172,7 @@ class SmbListener extends AbstractJob
     protected function syncNode(Collection $mount, string $path, int $action): Process
     {
         $this->logger->debug('add new smb sync job for path ['.$path.'] in mount ['.$mount->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return $this->scheduler->addJob(SmbScanner::class, [

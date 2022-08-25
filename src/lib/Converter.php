@@ -58,7 +58,7 @@ class Converter
         }
 
         $this->logger->debug('inject converter adapter ['.$name.'] of type ['.get_class($adapter).']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if ($this->hasAdapter($name)) {
@@ -121,7 +121,7 @@ class Converter
     public function createPreview(File $file)
     {
         $this->logger->debug('create preview from file ['.$file->getId().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if (0 === $file->getSize()) {
@@ -134,7 +134,7 @@ class Converter
             }
 
             $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
         }
 
@@ -147,7 +147,7 @@ class Converter
     public function convert(File $file, string $format)
     {
         $this->logger->debug('convert file ['.$file->getId().'] to format ['.$format.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if (0 === $file->getSize()) {
@@ -160,7 +160,7 @@ class Converter
             }
 
             $this->logger->debug('skip convert adapter ['.$name.'], adapter can not handle file', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
         }
 

@@ -12,10 +12,19 @@ declare(strict_types=1);
 namespace Balloon\Migration\Delta;
 
 use Balloon\Server;
+use MongoDB\Client;
 use MongoDB\Database;
+use MongoDB\Driver\Exception\CommandException;
 
 class CoreInstallation implements DeltaInterface
 {
+    /**
+     * MongoDB Client.
+     *
+     * @var Client
+     */
+    protected $client;
+
     /**
      * Database.
      *
@@ -33,10 +42,11 @@ class CoreInstallation implements DeltaInterface
     /**
      * Construct.
      */
-    public function __construct(Database $db, Server $server)
+    public function __construct(Database $db, Server $server, Client $client)
     {
         $this->db = $db;
         $this->server = $server;
+        $this->client = $client;
     }
 
     /**
@@ -44,6 +54,14 @@ class CoreInstallation implements DeltaInterface
      */
     public function start(): bool
     {
+        try {
+            $this->client->selectDatabase('admin')->command(['replSetInitiate' => []]);
+        } catch (CommandException $e) {
+            if ($e->getCode() !== 23) {
+                throw $e;
+            }
+        }
+
         $collections = [];
         foreach ($this->db->listCollections() as $collection) {
             $collections[] = $collection->getName();
@@ -114,6 +132,8 @@ class CoreInstallation implements DeltaInterface
             'mail' => 'root@localhost.local',
             'admin' => true,
         ]);
+
+        $this->db->taskscheduler->createIndex(['created' => 1], ['expireAfterSeconds' => 864000]);
 
         return true;
     }

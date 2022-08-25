@@ -29,14 +29,14 @@ class File extends AbstractNode implements IFile
     /**
      * History types.
      */
-    const HISTORY_CREATE = 0;
-    const HISTORY_EDIT = 1;
-    const HISTORY_RESTORE = 2;
+    public const HISTORY_CREATE = 0;
+    public const HISTORY_EDIT = 1;
+    public const HISTORY_RESTORE = 2;
 
     /**
      * Empty content hash (NULL).
      */
-    const EMPTY_CONTENT = 'd41d8cd98f00b204e9800998ecf8427e';
+    public const EMPTY_CONTENT = 'd41d8cd98f00b204e9800998ecf8427e';
 
     /**
      * Temporary file patterns.
@@ -235,11 +235,11 @@ class File extends AbstractNode implements IFile
             $this->_hook->run('postRestoreFile', [$this, &$version]);
 
             $this->_logger->info('restored file ['.$this->_id.'] to version ['.$version.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
         } catch (\Exception $e) {
             $this->_logger->error('failed restore file ['.$this->_id.'] to version ['.$version.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 
@@ -322,13 +322,13 @@ class File extends AbstractNode implements IFile
             array_splice($this->history, $key, 1);
 
             $this->_logger->debug('removed version ['.$version.'] from file ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return $this->save('history');
         } catch (StorageException\BlobNotFound $e) {
             $this->_logger->error('failed remove version ['.$version.'] from file ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 
@@ -431,7 +431,7 @@ class File extends AbstractNode implements IFile
     public function put($content): int
     {
         $this->_logger->debug('write new file content into temporary storage for file ['.$this->_id.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $session = $this->_session_factory->add($this->_user, $this->getParent(), $content);
@@ -445,7 +445,7 @@ class File extends AbstractNode implements IFile
     public function setContent(SessionInterface $session, array $attributes = []): int
     {
         $this->_logger->debug('set temporary file ['.$session->getId().'] as file content for ['.$this->_id.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $previous = $this->version;
@@ -466,7 +466,7 @@ class File extends AbstractNode implements IFile
 
         if ($this->hash === $hash) {
             $this->_logger->debug('do not add history entry, hash identical to existing version ['.$this->hash.' == '.$hash.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             ++$this->version;
@@ -540,11 +540,11 @@ class File extends AbstractNode implements IFile
             ]);
 
             $this->_logger->info('removed file node ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
         } catch (\Exception $e) {
             $this->_logger->error('failed delete file node ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 
@@ -563,7 +563,7 @@ class File extends AbstractNode implements IFile
         if (count($this->history) >= $max) {
             $del = key($this->history);
             $this->_logger->debug('history limit ['.$max.'] reached, remove oldest version ['.$this->history[$del]['version'].'] from file ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->deleteVersion($this->history[$del]['version']);
@@ -599,7 +599,7 @@ class File extends AbstractNode implements IFile
     {
         if (1 !== $this->version) {
             $this->_logger->debug('added new history version ['.$this->version.'] for file ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->history[] = [
@@ -617,7 +617,7 @@ class File extends AbstractNode implements IFile
         }
 
         $this->_logger->debug('added first file version [1] for file ['.$this->_id.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $this->history[0] = [
@@ -654,7 +654,7 @@ class File extends AbstractNode implements IFile
             $this->_session_factory->deleteOne($session->getId());
 
             $this->_logger->debug('modifed file metadata ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $this->_hook->run('postPutFile', [$this]);
@@ -662,7 +662,7 @@ class File extends AbstractNode implements IFile
             return $this;
         } catch (\Exception $e) {
             $this->_logger->error('failed modify file metadata ['.$this->_id.']', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 

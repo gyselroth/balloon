@@ -45,7 +45,7 @@ class Hook
     public function injectHook(HookInterface $hook): self
     {
         $this->logger->debug('inject hook ['.get_class($hook).']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if ($this->hasHook(get_class($hook))) {
@@ -102,7 +102,7 @@ class Hook
     public function run(string $method, array $context = []): bool
     {
         $this->logger->debug('execute hooks hooks for ['.$method.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $args = [];
@@ -112,7 +112,7 @@ class Hook
 
         foreach ($this->hook as $hook) {
             $this->logger->debug('found registered hook, execute ['.get_class($hook).'::'.$method.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             call_user_func_array([$hook, $method], $args);

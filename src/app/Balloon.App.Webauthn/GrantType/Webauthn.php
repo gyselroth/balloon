@@ -144,7 +144,7 @@ class Webauthn implements GrantTypeInterface
             );
         } catch (\Exception $e) {
             $this->logger->error('failed to authenticate device', [
-                'category' => get_class($this),
+                'category' => static::class,
                 'exception' => $e,
             ]);
 

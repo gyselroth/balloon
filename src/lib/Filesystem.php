@@ -291,7 +291,7 @@ class Filesystem
                 $nodes[] = $return->getId();
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
 
@@ -385,7 +385,7 @@ class Filesystem
                 yield $this->initNode($node);
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }
@@ -629,7 +629,7 @@ class Filesystem
 
         if ($loaded === false && isset($node['destroy']) && $node['destroy'] instanceof UTCDateTime && $node['destroy']->toDateTime()->format('U') <= time()) {
             $this->logger->info('node ['.$node['_id'].'] is not accessible anmyore, destroy node cause of expired destroy flag', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $instance->delete(true);
@@ -753,7 +753,7 @@ class Filesystem
                 yield $this->initNode($node, $parent);
             } catch (\Exception $e) {
                 $this->logger->error('remove node from result list, failed load node', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }
@@ -769,7 +769,7 @@ class Filesystem
     {
         if (isset($node['reference']) && ($node['reference'] instanceof ObjectId)) {
             $this->logger->debug('reference node ['.$node['_id'].'] requested from share owner, trying to find the shared node', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $result = $this->db->storage->findOne([
@@ -783,7 +783,7 @@ class Filesystem
             }
         } else {
             $this->logger->debug('share node ['.$node['_id'].'] requested from member, trying to find the reference node', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $result = $this->db->storage->findOne([
