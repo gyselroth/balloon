@@ -15,17 +15,17 @@ use Micro\Http\ExceptionInterface;
 
 class InvalidArgument extends \InvalidArgumentException implements ExceptionInterface
 {
-    const INVALID_USERNAME = 1;
-    const INVALID_PASSWORD = 2;
-    const INVALID_QUOTA = 3;
-    const INVALID_AVATAR = 4;
-    const INVALID_MAIL = 5;
-    const INVALID_NAMESPACE = 6;
-    const INVALID_OPTIONAL = 7;
-    const INVALID_ATTRIBUTE = 8;
-    const IDENTIFIER_NOT_UNIQUE = 9;
-    const CAN_NOT_DELETE_OWN_ACCOUNT = 10;
-    const INVALID_LOCALE = 11;
+    public const INVALID_USERNAME = 1;
+    public const INVALID_PASSWORD = 2;
+    public const INVALID_QUOTA = 3;
+    public const INVALID_AVATAR = 4;
+    public const INVALID_MAIL = 5;
+    public const INVALID_NAMESPACE = 6;
+    public const INVALID_OPTIONAL = 7;
+    public const INVALID_ATTRIBUTE = 8;
+    public const IDENTIFIER_NOT_UNIQUE = 9;
+    public const CAN_NOT_DELETE_OWN_ACCOUNT = 10;
+    public const INVALID_LOCALE = 11;
 
     /**
      * {@inheritdoc}

@@ -21,7 +21,7 @@ class Factory
     /**
      * Adapters.
      */
-    const ADAPTERS = [
+    public const ADAPTERS = [
         'smb' => Smb::class,
     ];
 

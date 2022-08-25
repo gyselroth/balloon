@@ -28,7 +28,7 @@ class Db extends AbstractBasic implements InternalAuthInterface
     /**
      * Set options.
      */
-    public function __construct(LoggerInterface $logger, Database $db, ?Iterable $config = null)
+    public function __construct(LoggerInterface $logger, Database $db, ?iterable $config = null)
     {
         parent::__construct($logger);
         $this->db = $db;
@@ -73,7 +73,7 @@ class Db extends AbstractBasic implements InternalAuthInterface
 
         if (null === $result) {
             $this->logger->info('found no user named ['.$username.'] in database', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
@@ -81,7 +81,7 @@ class Db extends AbstractBasic implements InternalAuthInterface
 
         if (!isset($result['password']) || empty($result['password'])) {
             $this->logger->info('found no password for ['.$username.'] in database', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;
@@ -89,7 +89,7 @@ class Db extends AbstractBasic implements InternalAuthInterface
 
         if (!password_verify($password, $result['password'])) {
             $this->logger->info('failed match given password for ['.$username.'] with stored hash in database', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             return false;

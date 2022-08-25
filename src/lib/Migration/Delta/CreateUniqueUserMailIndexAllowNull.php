@@ -39,7 +39,7 @@ class CreateUniqueUserMailIndexAllowNull implements DeltaInterface
     {
         try {
             $this->createIndex();
-        } catch (CommandException | RuntimeException $e) {
+        } catch (CommandException|RuntimeException $e) {
             if ($e->getCode() === 85) {
                 $this->db->selectCollection('user')->dropIndex('mail_1');
                 $this->createIndex();

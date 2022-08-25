@@ -16,13 +16,13 @@ use Micro\Http\ExceptionInterface;
 class NotFound extends \Sabre\DAV\Exception\NotFound implements ExceptionInterface
 {
     //Error codes are not in order due backwards compatibility
-    const NODE_NOT_FOUND = 49;
-    const SHARE_NOT_FOUND = 50;
-    const REFERENCE_NOT_FOUND = 51;
-    const NOT_ALL_NODES_FOUND = 52;
-    const DESTINATION_NOT_FOUND = 54;
-    const PARENT_NOT_FOUND = 55;
-    const CONTENTS_NOT_FOUND = 57;
+    public const NODE_NOT_FOUND = 49;
+    public const SHARE_NOT_FOUND = 50;
+    public const REFERENCE_NOT_FOUND = 51;
+    public const NOT_ALL_NODES_FOUND = 52;
+    public const DESTINATION_NOT_FOUND = 54;
+    public const PARENT_NOT_FOUND = 55;
+    public const CONTENTS_NOT_FOUND = 57;
 
     /**
      * {@inheritdoc}

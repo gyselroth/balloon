@@ -39,7 +39,7 @@ class Md5BlobIgnoreNull implements DeltaInterface
     {
         try {
             $this->createIndex();
-        } catch (CommandException | RuntimeException $e) {
+        } catch (CommandException|RuntimeException $e) {
             if ($e->getCode() === 85) {
                 $this->db->selectCollection('fs.files')->dropIndex('md5_1');
                 $this->createIndex();

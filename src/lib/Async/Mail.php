@@ -50,7 +50,7 @@ class Mail extends AbstractJob
     /**
      * Constructor.
      */
-    public function __construct(TransportInterface $transport, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(TransportInterface $transport, LoggerInterface $logger, ?iterable $config = null)
     {
         $this->transport = $transport;
         $this->logger = $logger;
@@ -60,7 +60,7 @@ class Mail extends AbstractJob
     /**
      * Set options.
      */
-    public function setOptions(?Iterable $config = []): self
+    public function setOptions(?iterable $config = []): self
     {
         if (null === $config) {
             return $this;
@@ -92,7 +92,7 @@ class Mail extends AbstractJob
         $mail->getHeaders()->addHeaderLine('X-Mailer', 'balloon');
 
         $this->logger->debug('send mail ['.$mail->getSubject().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $this->transport->send($mail);

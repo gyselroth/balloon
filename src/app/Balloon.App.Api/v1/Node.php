@@ -1267,7 +1267,7 @@ class Node extends Controller
         int $deleted = 2
     ): NodeInterface {
         if (null === $class) {
-            switch (get_class($this)) {
+            switch (static::class) {
                 case ApiFile::class:
                     $class = File::class;
 
@@ -1297,7 +1297,7 @@ class Node extends Controller
         int $deleted = 2
     ): Generator {
         if (null === $class) {
-            switch (get_class($this)) {
+            switch (static::class) {
                 case ApiFile::class:
                     $class = File::class;
 
@@ -1327,7 +1327,7 @@ class Node extends Controller
                 $node->zip($archive);
             } catch (\Exception $e) {
                 $this->logger->debug('failed zip node in multi node request ['.$node->getId().']', [
-                   'category' => get_class($this),
+                   'category' => static::class,
                    'exception' => $e,
                ]);
             }

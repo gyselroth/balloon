@@ -25,8 +25,8 @@ class Scanner
     /**
      * States.
      */
-    const FILE_INFECTED = 'FOUND';
-    const FILE_OK = 'OK';
+    public const FILE_INFECTED = 'FOUND';
+    public const FILE_OK = 'OK';
 
     /**
      * Socket.
@@ -64,7 +64,7 @@ class Scanner
     protected $logger;
 
     /**
-     * Socket factory
+     * Socket factory.
      *
      * @var SocketFactory
      */
@@ -73,7 +73,7 @@ class Scanner
     /**
      * Constructor.
      */
-    public function __construct(SocketFactory $factory, LoggerInterface $logger, ?Iterable $config = null)
+    public function __construct(SocketFactory $factory, LoggerInterface $logger, ?iterable $config = null)
     {
         $this->logger = $logger;
         $this->socket_factory = $factory;
@@ -87,7 +87,7 @@ class Scanner
      *
      * @return Scanner
      */
-    public function setOptions(?Iterable $config = null): self
+    public function setOptions(?iterable $config = null): self
     {
         if (null === $config) {
             return $this;
@@ -114,7 +114,6 @@ class Scanner
                     $this->timeout = (int) $value;
 
                     break;
-
                 default:
                     throw new InvalidArgumentException('invalid option '.$option.' given');
             }
@@ -129,7 +128,7 @@ class Scanner
     public function scan(File $file): array
     {
         $this->logger->debug('scan file ['.$file->getId().'] via clamav', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         if ($file->getSize() > $this->max_stream_size) {
@@ -138,7 +137,7 @@ class Scanner
 
         try {
             $this->logger->debug('open clamav socket ['.$this->socket.']', [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             $socket = $this->socket_factory->createClient($this->socket);
@@ -151,7 +150,7 @@ class Scanner
             $result = $clamav->scanResourceStream($file->get());
 
             $this->logger->debug('scan result for file ['.$file->getId().']: '.$result['status'], [
-                'category' => get_class($this),
+                'category' => static::class,
             ]);
 
             if (self::FILE_OK === $result['status']) {
@@ -159,7 +158,7 @@ class Scanner
             }
             if (self::FILE_INFECTED === $result['status']) {
                 $this->logger->debug('file ['.$file->getId().'] is infected ('.$result['reason'].')', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                 ]);
 
                 return $result;

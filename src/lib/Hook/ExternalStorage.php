@@ -187,7 +187,7 @@ class ExternalStorage extends AbstractHook
                 $this->scheduler->cancelJob($job->getId());
             } catch (\Exception $e) {
                 $this->logger->error('failed pre check mount job ['.$job->getId().']', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }

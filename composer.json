@@ -93,10 +93,7 @@
     "phpunit/phpunit": "^5.7.0",
     "friendsofphp/php-cs-fixer": "^3.0",
     "helmich/mongomock": "dev-master#7bb0b5d",
-    "phpstan/phpstan": "^0.11.19",
+    "phpstan/phpstan": "^0.12",
     "ddelnano/dredd-hooks-php": "^1.1"
-  },
-  "conflict": {
-    "ocramius/proxy-manager": ">2.2.3"
   }
 }

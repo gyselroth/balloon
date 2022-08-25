@@ -60,7 +60,7 @@ class Hook extends AbstractHook
                 $this->preview->deletePreview($node);
             } catch (FileNotFoundException $e) {
                 $this->logger->debug('could not remove preview from file ['.$node->getId().'], preview does not exists', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }

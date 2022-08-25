@@ -68,7 +68,7 @@ class Elasticsearch
         $result = $this->executeQuery($query, $skip, $limit);
 
         $this->logger->debug('elasticsearch query executed with ['.$result['hits']['total']['value'].'] hits', [
-            'category' => get_class($this),
+            'category' => static::class,
             'params' => [
                 'took' => $result['took'],
                 'timed_out' => $result['timed_out'],
@@ -152,7 +152,7 @@ class Elasticsearch
         $query['size'] = $limit;
 
         $this->logger->debug('prepared elasticsearch query', [
-            'category' => get_class($this),
+            'category' => static::class,
             'params' => $query,
         ]);
 

@@ -74,7 +74,7 @@ class CleanTempStorage extends AbstractJob
     public function start(): bool
     {
         $this->logger->debug('clean sessions older than ['.$this->data['max_age'].'s]', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $lt = (time() - $this->data['max_age']) * 1000;
@@ -90,7 +90,7 @@ class CleanTempStorage extends AbstractJob
         }
 
         $this->logger->info('found ['.$count.'] temporary storage blobs for cleanup', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return true;

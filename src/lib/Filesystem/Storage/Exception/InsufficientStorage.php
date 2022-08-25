@@ -16,8 +16,8 @@ use Micro\Http\ExceptionInterface;
 class InsufficientStorage extends \Sabre\DAV\Exception\InsufficientStorage implements ExceptionInterface
 {
     //Error codes are not in order due backwards compatibility
-    const USER_QUOTA_FULL = 65;
-    const FILE_SIZE_LIMIT = 66;
+    public const USER_QUOTA_FULL = 65;
+    public const FILE_SIZE_LIMIT = 66;
 
     /**
      * {@inheritdoc}

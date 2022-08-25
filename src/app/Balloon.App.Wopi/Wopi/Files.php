@@ -34,15 +34,15 @@ class Files
     /**
      * WOPI operations.
      */
-    const WOPI_GET_LOCK = 'GET_LOCK';
-    const WOPI_LOCK = 'LOCK';
-    const WOPI_REFRESH_LOCK = 'REFRESH_LOCK';
-    const WOPI_UNLOCK = 'UNLOCK';
-    const WOPI_PUT = 'PUT';
-    const WOPI_PUT_RELATIVE = 'PUT_RELATIVE';
-    const WOPI_RENAME_FILE = 'RENAME_FILE';
-    const WOPI_DELETE = 'DELETE';
-    const WOPI_PUT_USERINFO = 'PUT_USERINFO';
+    public const WOPI_GET_LOCK = 'GET_LOCK';
+    public const WOPI_LOCK = 'LOCK';
+    public const WOPI_REFRESH_LOCK = 'REFRESH_LOCK';
+    public const WOPI_UNLOCK = 'UNLOCK';
+    public const WOPI_PUT = 'PUT';
+    public const WOPI_PUT_RELATIVE = 'PUT_RELATIVE';
+    public const WOPI_RENAME_FILE = 'RENAME_FILE';
+    public const WOPI_DELETE = 'DELETE';
+    public const WOPI_PUT_USERINFO = 'PUT_USERINFO';
 
     /**
      * Server.
@@ -100,7 +100,7 @@ class Files
         $session = $this->session_manager->getByToken($file, $access_token);
 
         $this->logger->info('incoming GET wopi operation', [
-            'category' => get_class($this),
+            'category' => static::class,
             'session' => $session->getAttributes(),
         ]);
 
@@ -123,7 +123,7 @@ class Files
         $_SERVER['HTTP_LOCK_TOKEN'] = $identifier;
 
         $this->logger->info('incoming POST wopi operation [{operation}] with id [{identifier}]', [
-            'category' => get_class($this),
+            'category' => static::class,
             'operation' => $op,
             'identifier' => $identifier,
             'previous' => $previous,
@@ -190,7 +190,7 @@ class Files
                 ->setCode(200)
                 ->setHeader('X-WOPI-Lock', '')
                 ->setBody($e);
-        } catch (Exception\Locked | Exception\LockIdMissmatch | Exception\Forbidden $e) {
+        } catch (Exception\Locked|Exception\LockIdMissmatch|Exception\Forbidden $e) {
             $lock = $file->getLock();
 
             return (new Response())
@@ -216,7 +216,7 @@ class Files
         $agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
         $this->logger->info('incoming POST wopi operation [{operation}] with id [{identifier}]', [
-            'category' => get_class($this),
+            'category' => static::class,
             'operation' => $op,
             'identifier' => $identifier,
         ]);
@@ -242,7 +242,7 @@ class Files
                 ->setCode(200)
                 ->setHeader('X-WOPI-ItemVersion', (string) ($version == $result ? $result : $result))
                 ->setBody($result);
-        } catch (Exception\Locked | Exception\LockIdMissmatch $e) {
+        } catch (Exception\Locked|Exception\LockIdMissmatch $e) {
             $lock = $file->getLock();
 
             return $response
@@ -321,7 +321,7 @@ class Files
         $content = fopen('php://input', 'rb');
 
         $this->logger->debug('wopi PutRelative request', [
-            'category' => get_class($this),
+            'category' => static::class,
             'X-Wopi-SuggestedTarget' => $suggested,
             'X-Wopi-RelativeTarget' => $relative,
             'X-Wopi-OverwriteRelativeTarget' => $overwrite,

@@ -16,7 +16,7 @@ class Template
     /**
      * templates.
      */
-    const TEMPLATES = [
+    public const TEMPLATES = [
         'xlsx' => 'Office Open XML Spreadsheet',
         'xls' => 'Microsoft Excel 97-2003',
         'xlt' => 'Microsoft Excel 97-2003 Template',

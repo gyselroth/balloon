@@ -109,7 +109,7 @@ class Search extends Controller
                 $children[] = $child;
             } catch (\Exception $e) {
                 $this->logger->info('error occured during loading attributes, skip search result node', [
-                    'category' => get_class($this),
+                    'category' => static::class,
                     'exception' => $e,
                 ]);
             }

@@ -24,12 +24,12 @@ class Office implements AdapterInterface
     /**
      * Preview format.
      */
-    const PREVIEW_FORMAT = 'png';
+    public const PREVIEW_FORMAT = 'png';
 
     /**
      * Additional destination formats supported by this adapter.
      */
-    const DEST_FORMATS = [
+    public const DEST_FORMATS = [
         'jpg' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
         'png' => 'image/png',
@@ -242,7 +242,7 @@ class Office implements AdapterInterface
     protected function convertFromStream($stream, string $format)
     {
         $this->logger->debug('execute convert-to from [/lool/convert-to/'.$format.']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         $response = $this->client->request(
@@ -260,7 +260,7 @@ class Office implements AdapterInterface
         );
 
         $this->logger->debug('convert-to request ended with status code ['.$response->getStatusCode().']', [
-            'category' => get_class($this),
+            'category' => static::class,
         ]);
 
         return StreamWrapper::getResource($response->getBody());
