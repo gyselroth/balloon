@@ -1,9 +1,9 @@
 parameters:
-    autoload_directories:
+    scanDirectories:
         - %rootDir%/../../../src/app
         - %rootDir%/../../../src/lib
         - %rootDir%/../../../tests
-    autoload_files:
+    bootstrapFiles:
         - %rootDir%/../../../tests/Integration/Hooks/Dredd.php
 
 
@@ -15,7 +15,14 @@ parameters:
         - '#Function apc_exists not found#'
         - '#Function apc_store not found#'
         - '#Function apc_fetch not found#'
+        - '#Method Balloon\\App\\Api\\v1\\Controller\:\:getNodes\(\) should return Generator but return statement is missing.#'
+        - '#Method Balloon\\App\\Api\\v1\\File\:\:_put\(\) should return Micro\\Http\\Response but return statement is missing.#'
+        - '#Method Balloon\\App\\Api\\v2\\Files::_put\(\) should return Micro\\Http\\Response but return statement is missing.#'
+        - '#Method Balloon\\App\\Webauthn\\CredentialRepository::has\(\) should return bool but return statement is missing.#'
+        - '#Method Balloon\\App\\Webauthn\\CredentialRepository::get\(\) should return Webauthn\\AttestedCredentialData but return statement is missing.#'
+        - '#Method Balloon\\App\\Webauthn\\CredentialRepository::getUserHandleFor\(\) should return string but return statement is missing.#'
+        - '#Method Balloon\\App\\Webauthn\\CredentialRepository::getCounterFor\(\) should return int but return statement is missing.#'
 
     reportUnmatchedIgnoredErrors: false
 includes:
-    - vendor/phpstan/phpstan/conf/config.level1.neon
+    - phar://vendor/phpstan/phpstan/phpstan.phar/conf/config.level1.neon

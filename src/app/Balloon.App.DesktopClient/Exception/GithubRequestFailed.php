@@ -33,7 +33,7 @@ class GithubRequestFailed extends \Balloon\Exception implements ExceptionInterfa
     /**
      * Set status code.
      */
-    public function setStatusCode(int $code): int
+    public function setStatusCode(int $code)
     {
         $this->status_code = $code;
     }

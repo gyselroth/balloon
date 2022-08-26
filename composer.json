@@ -95,5 +95,8 @@
     "helmich/mongomock": "dev-master#7bb0b5d",
     "phpstan/phpstan": "^0.12",
     "ddelnano/dredd-hooks-php": "^1.1"
+  },
+  "conflict": {
+    "ocramius/package-versions": ">1.5.1"
   }
 }

@@ -74,7 +74,8 @@ class LockBackend implements BackendInterface
     public function lock($uri, LockInfo $lock)
     {
         $node = $this->fs->findNodeByPath($uri);
-        $node->lock($lock->token, $lock->timeout, $lock->owner);
+
+        return $node->lock($lock->token, $lock->timeout, $lock->owner);
     }
 
     /**
@@ -83,6 +84,7 @@ class LockBackend implements BackendInterface
     public function unlock($uri, LockInfo $lock)
     {
         $node = $this->fs->findNodeByPath($uri);
-        $node->unlock($lock->token, $lock->owner);
+
+        return $node->unlock($lock->token, $lock->owner);
     }
 }
