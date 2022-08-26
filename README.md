@@ -1,6 +1,6 @@
 # balloon
 
-[![Build Status](https://travis-ci.org/gyselroth/balloon.svg)](https://travis-ci.org/gyselroth/balloon.svg?branch=master)
+[![Build Status](https://circleci.com/gh/gyselroth/balloon.svg?style=shield)](https://circleci.com/gh/gyselroth/balloon)
 [![GitHub release](https://img.shields.io/github/release/gyselroth/balloon.svg)](https://github.com/gyselroth/balloon/releases)
  [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon/master/LICENSE)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/gyselroth/balloon/badges/quality-score.png)](https://scrutinizer-ci.com/g/gyselroth/balloon)

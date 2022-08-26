@@ -132,6 +132,20 @@
 * Discontinue distribution of deb packages #415
 
 
+## 2.6.12
+**Maintainer**: Daniel Kleeb <kleeb@gyselroth.com>\
+**Date**: Mi 17 Jun 2020 11:00:58 CEST
+
+* CORE: [FIX] ExternalStorage: SmbListener will not be triggered after the SmbScanner #458
+
+
+## 2.6.11
+**Maintainer**: Daniel Kleeb <kleeb@gyselroth.com>\
+**Date**: Di 16 Jun 2020 15:02:32 CEST
+
+* CORE: [FIX] ExternalStorage: SmbListener will not be triggered after the SmbScanner #458
+
+
 ## 2.6.10
 **Maintainer**: Raffael Sahli <sahli@gyselroth.com>\
 **Date**: Fri Jan 10 16:10:42 CET 2020
