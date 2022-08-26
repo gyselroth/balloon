@@ -12,7 +12,7 @@ attach_workspace: &attach_workspace
     at: *workspace_root
 
 jobs:
-  dependencies:
+  build:
     <<: *defaults
     working_directory: *workspace_root
     steps:
@@ -34,7 +34,7 @@ jobs:
       - run:
           name: build
           command: |
-            make build VERSION=$version
+            make tar VERSION=$version
       - save_cache:
          key: composer-{{ checksum "composer.lock" }}
          paths:
@@ -103,19 +103,19 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - dependencies:
+      - build:
           filters:
             tags:
               only: /.*/
       - deploy:
           requires:
-            - dependencies
+            - build
           filters:
             tags:
               only: /^v.*/
 #      - publish-github-release:
 #          requires:
-#            - dependencies
+#            - build
 #            - deploy
 #          filters:
 #            tags:
