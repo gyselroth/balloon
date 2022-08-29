@@ -21,7 +21,7 @@ jobs:
           keys:
             - composer-{{ checksum "composer.lock" }}
       - run:
-          name: before_install
+          name: build
           command: |
             if [ -z "${CIRCLE_TAG}"];
             then
@@ -31,9 +31,7 @@ jobs:
               if [ "${version:0:1}" == "v" ]; then version=${CIRCLE_TAG:1}; fi;
               if [ "${version}" == "" ]; then version=${CIRCLE_BUILD_NUM}; fi;
             fi;
-      - run:
-          name: build
-          command: |
+
             make VERSION=$version
       - save_cache:
          key: composer-{{ checksum "composer.lock" }}
