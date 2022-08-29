@@ -1,0 +1,28 @@
+FROM circleci/php:7.3-fpm
+
+RUN sudo apt update && sudo apt install -y \
+    libgmp-dev \
+    imagemagick \
+    libmagickwand-dev
+
+RUN sudo ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so
+RUN sudo docker-php-ext-install intl gmp sockets pcntl sysvmsg
+
+RUN sudo pecl install mongodb \
+    && sudo pecl install imagick
+
+RUN echo "extension = mongodb.so" | sudo tee -a /usr/local/etc/php/php.ini > /dev/null \
+    && echo "xdebug.mode = coverage" | sudo tee -a /usr/local/etc/php/php.ini > /dev/null \
+    && echo "extension = imagick.so" | sudo tee -a /usr/local/etc/php/php.ini > /dev/null
+
+RUN git clone https://github.com/gyselroth/php-serializable-md5 \
+    && sudo docker-php-source extract \
+    && cd php-serializable-md5 \
+    && phpize \
+    && ./configure \
+    && sudo make install \
+    && sudo bash -c "echo "extension=smd5.so" > /usr/local/etc/php/conf.d/docker-php-ext-smd5.ini" \
+    && cd .. \
+    && sudo rm -rfv php-serializable-md5
+
+RUN echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini > /dev/null

@@ -100,14 +100,14 @@ dist: tar
 
 .PHONY: docker #Build test and create docker image
 docker: $(BUILD_TARGET)
-	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
+	$(COMPOSER_BIN) update --no-dev
 	docker build -t $(DOCKER_NAME):$(VERSION) .
 
 
 .PHONY: tar
 tar: $(TAR) #Build, test and create tar archive
 $(TAR): $(BUILD_TARGET)
-	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
+	$(COMPOSER_BIN) update --no-dev
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
 	@-test ! -d $(BUILD_DIR) || rm -rfv $(BUILD_DIR)
@@ -120,7 +120,7 @@ $(TAR): $(BUILD_TARGET)
 	@tar -czf $(TAR) -C $(BUILD_DIR) .
 	@rm -rf $(BUILD_DIR)
 
-	$(COMPOSER_BIN) update --ignore-platform-reqs
+	$(COMPOSER_BIN) update
 	@touch $@
 
 
@@ -130,14 +130,14 @@ deps: composer ## Update 3rd party dependencies (Alias of composer).
 
 .PHONY: composer-no-dev
 composer-no-dev: ## Uninstall development 3rd party dependencies.
-	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
+	$(COMPOSER_BIN) update --no-dev
 	@touch $@
 
 
 .PHONY: composer
 composer: $(COMPOSER_TARGET)  ## Update 3rd party dependencies.
 $(COMPOSER_TARGET) $(PHPCS_FIXER_SCRIPT) $(PHPUNIT_SCRIPT) $(PHPSTAN_SCRIPT): $(BASE_DIR)/composer.json
-	$(COMPOSER_BIN) update --ignore-platform-reqs
+	$(COMPOSER_BIN) update
 	@touch $@
 
 
@@ -203,7 +203,7 @@ $(PHPSTAN_TARGET): $(PHPSTAN_SCRIPT) $(PHP_FILES) $(PHP_TEST_FILES)
 .PHONY: install
 install: $(INSTALL_TARGET) ##Build and install balloon locally.
 $(INSTALL_TARGET): $(BUILD_TARGET)
-	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
+	$(COMPOSER_BIN) update --no-dev
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/src
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/scripts
 	@mkdir -p $(BUILD_DIR)/usr/share/balloon/bin/console
@@ -216,4 +216,4 @@ $(INSTALL_TARGET): $(BUILD_TARGET)
 	@mkdir -p $(BUILD_DIR)/etc/balloon
 	@cp $(CONFIG_DIR)/config.yaml.dist $(BUILD_DIR)/etc/balloon
 	@cp -Rp $(BUILD_DIR)/* $(INSTALL_PREFIX)
-	$(COMPOSER_BIN) update --ignore-platform-reqs
+	$(COMPOSER_BIN) update

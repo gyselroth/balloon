@@ -2,7 +2,7 @@ version: 2.1
 
 defaults: &defaults
   docker:
-    - image: cimg/php:7.3
+    - image: gyselroth/balloon:php7.3-fpm-circleci
 
 workspace_root: &workspace_root
   /tmp/balloon
