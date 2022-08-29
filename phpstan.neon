@@ -4,8 +4,7 @@ parameters:
         - %rootDir%/../../../src/lib
         - %rootDir%/../../../tests
     bootstrapFiles:
-        - %rootDir%/../../../tests/Integration/Hooks/Dredd.php
-
+        - %rootDir%/../../../tests/Unit/Bootstrap.php
 
     ignoreErrors:
         - '#^Class MongoDB\\BSON\\UTCDateTime constructor invoked with 0 parameters, 1 required\.#'

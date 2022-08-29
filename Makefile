@@ -67,14 +67,13 @@ BALLOON_URL=http://localhost:8084
 #DOCKER
 DOCKER_NAME=gyselroth/balloon
 
+.PHONY: all
+all: dist
 
+.PHONY: help
 help: ## This help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.DEFAULT_GOAL := help
-
-.PHONY: all
-all: build
 
 
 .PHONY: clean
@@ -97,17 +96,17 @@ build: $(BUILD_TARGET)
 
 
 .PHONY: dist #Build, test and create both tar and docker image
-dist: tar docker
-
+dist: tar
 
 .PHONY: docker #Build test and create docker image
-docker: $(BUILD_TARGET) composer-no-dev
+docker: $(BUILD_TARGET)
+	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
 	docker build -t $(DOCKER_NAME):$(VERSION) .
 
 
 .PHONY: tar
 tar: $(TAR) #Build, test and create tar archive
-$(TAR): $(BUILD_TARGET) composer-no-dev
+$(TAR): $(BUILD_TARGET)
 	$(COMPOSER_BIN) update --no-dev --ignore-platform-reqs
 	@-test ! -f $(TAR) || rm -fv $(TAR)
 	@-test -d $(DIST_DIR) || mkdir $(DIST_DIR)
@@ -197,7 +196,7 @@ $(PHPUNIT_TARGET): $(PHPUNIT_SCRIPT) $(PHP_FILES) $(PHP_UNITTEST_FILES)
 .PHONY: phpstan
 phpstan: $(PHPSTAN_TARGET) ## Execute phpstan and enforce phpstan policy.
 $(PHPSTAN_TARGET): $(PHPSTAN_SCRIPT) $(PHP_FILES) $(PHP_TEST_FILES)
-	$(PHP_BIN) $(PHPSTAN_SCRIPT) analyse -c phpstan.neon $(SRC_DIR) $(TESTS_DIR)
+	$(PHP_BIN) '-d memory_limit=4G' $(PHPSTAN_SCRIPT) analyse -c phpstan.neon $(SRC_DIR) $(TESTS_DIR)
 	@touch $@
 
 
