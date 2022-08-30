@@ -39,10 +39,10 @@ jobs:
            - vendor
       - store_artifacts:
           path: /tmp/balloon/dist
-#      - persist_to_workspace:
-#          root: .
-#          paths:
-#            - dist/*
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/*
 
   deploy:
     <<: *defaults
@@ -61,7 +61,7 @@ jobs:
           command: |
             if [ "$CIRCLE_TAG" != "" ];
             then
-              composer update --ignore-platform-reqs;
+              composer update;
             fi;
       - save_cache:
           key: composer-{{ checksum "composer.lock" }}
@@ -74,7 +74,7 @@ jobs:
             then
               version=$CIRCLE_TAG;
               if [ "${version:0:1}" == "v" ]; then version=${CIRCLE_TAG:1}; fi;
-              if [[ "$version" == *"-"* ]]; then export docker_tag=latest-unstable; else export docker_tag=latest; fi;
+              if [[ "$version" == *"-"* ]]; then docker_tag=latest-unstable; else docker_tag=latest; fi;
 
               docker build -t gyselroth/balloon:$version .
               echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
@@ -111,10 +111,10 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-#      - publish-github-release:
-#          requires:
-#            - build
-#            - deploy
-#          filters:
-#            tags:
-#              only: /^v.*/
+      - publish-github-release:
+          requires:
+            - build
+            - deploy
+          filters:
+            tags:
+              only: /^v.*/
