@@ -121,6 +121,7 @@ class ExternalStorage extends AbstractHook
                 throw new Exception\InvalidEncryptionKey('smb encryption key required to be changed');
             }
 
+            /* @phpstan-ignore-next-line */
             $message = new HiddenString($attributes['mount']['password']);
             $attributes['mount']['password'] = Symmetric::encrypt($message, $this->key);
         }

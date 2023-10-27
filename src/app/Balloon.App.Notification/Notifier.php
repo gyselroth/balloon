@@ -194,7 +194,7 @@ class Notifier
     /**
      * Get adapters.
      */
-    public function getAdapters(array $adapters = []): array
+    public function getAdapters(array $adapter = []): array
     {
         if (empty($adapter)) {
             return $this->adapter;

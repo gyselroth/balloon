@@ -177,7 +177,7 @@ class Db extends OAuthMongoDB
     /**
      * {@inheritdoc}
      */
-    public function setAuthorizationCode($code, $client_id, $user_id, $redirect_uri, $expires, $scope = null, $id_token = null)
+    public function setAuthorizationCode($code, $client_id, $user_id, $redirect_uri, $expires, $scope = null, $id_token = null, $code_challenge = null, $code_challenge_method = null)
     {
         if ($expires === 0) {
             $expires = null;

@@ -93,7 +93,12 @@
     "phpunit/phpunit": "^5.7.0",
     "friendsofphp/php-cs-fixer": "^2.16.1",
     "helmich/mongomock": "dev-master#7bb0b5d",
-    "phpstan/phpstan": "^0.12",
+    "phpstan/phpstan": "^1.8",
     "ddelnano/dredd-hooks-php": "^1.1"
+  },
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
   }
 }
