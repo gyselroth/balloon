@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc0c2a261283ed1a1cbeca231b84e422",
+    "content-hash": "53c54b0237c88cd3cdbfc6d6600c234e",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -1626,16 +1626,16 @@
         },
         {
             "name": "gyselroth/mongodb-php-task-scheduler",
-            "version": "v4.0.11",
+            "version": "v4.0.16-beta1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gyselroth/php-task-scheduler.git",
-                "reference": "3c8ef4b76b088fa4ec391cfcc6e5e72c432352ca"
+                "reference": "5f773524cf83bf76d145d13484400b0b07664a3c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gyselroth/php-task-scheduler/zipball/3c8ef4b76b088fa4ec391cfcc6e5e72c432352ca",
-                "reference": "3c8ef4b76b088fa4ec391cfcc6e5e72c432352ca",
+                "url": "https://api.github.com/repos/gyselroth/php-task-scheduler/zipball/5f773524cf83bf76d145d13484400b0b07664a3c",
+                "reference": "5f773524cf83bf76d145d13484400b0b07664a3c",
                 "shasum": ""
             },
             "require": {
@@ -1651,7 +1651,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "*",
-                "helmich/mongomock": "dev-master#1c770a1",
+                "helmich/mongomock": "dev-master#6925c67",
                 "phpstan/phpstan": "^0.8.5",
                 "phpunit/phpunit": "^8.5"
             },
@@ -1682,9 +1682,9 @@
             ],
             "support": {
                 "issues": "https://github.com/gyselroth/php-task-scheduler/issues",
-                "source": "https://github.com/gyselroth/php-task-scheduler/tree/v4.0.11"
+                "source": "https://github.com/gyselroth/php-task-scheduler/tree/v4.0.16-beta1"
             },
-            "time": "2022-10-24T12:47:48+00:00"
+            "time": "2023-10-25T15:22:32+00:00"
         },
         {
             "name": "hassankhan/config",
