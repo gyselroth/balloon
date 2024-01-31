@@ -74,6 +74,8 @@ class Hook extends AbstractHook
     {
         $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
+        ], [
+            Scheduler::OPTION_TIMEOUT => 900,
         ]);
     }
 
@@ -84,6 +86,8 @@ class Hook extends AbstractHook
     {
         $this->scheduler->addJob(Job::class, [
             'id' => $node->getId(),
+        ], [
+            Scheduler::OPTION_TIMEOUT => 900,
         ]);
     }
 }
