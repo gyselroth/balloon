@@ -27,7 +27,8 @@ RUN apk update && apk add --virtual .build-deps --no-cache \
   curl \
   samba-client \
   && docker-php-ext-install ldap xml opcache curl zip intl sockets pcntl sysvmsg gmp \
-  && pecl install mongodb \
+  && pecl install mongodb-1.16.2 \
+  # TODO: use mongodb on php 7.4
   && pecl install apcu \
   # TODO: use imagick on php 7.4
   && pecl install imagick-3.4.4 \
