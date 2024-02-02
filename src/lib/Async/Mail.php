@@ -17,9 +17,9 @@ use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\AbstractJob;
 use Zend\Mail\Message;
+use Zend\Mail\Transport\TransportInterface;
 use Zend\Mime\Message as MimeMessage;
 use Zend\Mime\Part as MimePart;
-use Zend\Mail\Transport\TransportInterface;
 
 class Mail extends AbstractJob
 {
