@@ -16,9 +16,6 @@ use Balloon\Async\Mail as MailJob;
 use Balloon\Server\User;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Scheduler;
-use Zend\Mail\Message;
-use Zend\Mime\Message as MimeMessage;
-use Zend\Mime\Part as MimePart;
 
 class Mail implements AdapterInterface
 {
