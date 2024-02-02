@@ -59,26 +59,11 @@ class Mail implements AdapterInterface
             return false;
         }
 
-        $html = new MimePart($message->renderTemplate('mail_html.phtml', $receiver));
-        $html->type = 'text/html';
-        $html->setCharset('utf-8');
+        $data['receiver'] = $receiver->getId();
+        $data['subject'] = $message->getSubject($receiver);
+        $data['message'] = $message->getContext();
 
-        $plain = new MimePart($message->renderTemplate('mail_plain.phtml', $receiver));
-        $plain->type = 'text/plain';
-        $plain->setCharset('utf-8');
-        $body = new MimeMessage();
-        $body->setParts([$html, $plain]);
-
-        $mail = (new Message())
-          ->setSubject($message->getSubject($receiver))
-          ->setBody($body)
-          ->setTo($address)
-          ->setEncoding('UTF-8');
-
-        $type = $mail->getHeaders()->get('Content-Type');
-        $type->setType('multipart/alternative');
-
-        $this->scheduler->addJob(MailJob::class, $mail->toString(), [
+        $this->scheduler->addJob(MailJob::class, $data, [
             Scheduler::OPTION_RETRY => 1,
         ]);
 
