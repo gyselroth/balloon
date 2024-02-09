@@ -47,7 +47,8 @@ class Mail implements AdapterInterface
      */
     public function notify(User $receiver, ?User $sender, MessageInterface $message, array $context = []): bool
     {
-        $address = $receiver->getAttributes()['mail'];
+        $attributes = $receiver->getAttributes();
+        $address = $attributes['mail'];
         if (null === $address) {
             $this->logger->debug('skip mail notifcation for user ['.$receiver->getId().'], user does not have a valid mail address', [
                 'category' => static::class,
@@ -57,8 +58,11 @@ class Mail implements AdapterInterface
         }
 
         $data['receiver'] = $receiver->getId();
+        $data['receiver_name'] = $attributes['username'];
+        $data['receiver_mail'] = $address;
         $data['subject'] = $message->getSubject($receiver);
         $data['message'] = $message->getContext();
+        $data['type'] = $message->getType();
 
         $this->scheduler->addJob(MailJob::class, $data, [
             Scheduler::OPTION_RETRY => 1,

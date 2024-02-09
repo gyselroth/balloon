@@ -84,7 +84,6 @@ class SmbListener extends AbstractJob
     protected function notify(Collection $mount, IShare $share, Blackhole $dummy, Smb $smb): void
     {
         $last = null;
-        $that = $this;
         $logger = $this->logger;
         $root = $smb->getRoot();
         $system = ($root === '') ? $smb->getSystemFolder() : $root.DIRECTORY_SEPARATOR.$smb->getSystemFolder();

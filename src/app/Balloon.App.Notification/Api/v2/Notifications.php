@@ -13,7 +13,6 @@ namespace Balloon\App\Notification\Api\v2;
 
 use Balloon\App\Notification\AttributeDecorator as NotificationAttributeDecorator;
 use Balloon\App\Notification\Notifier;
-use Balloon\Async\Mail;
 use Balloon\AttributeDecorator\Pager;
 use Balloon\Filesystem;
 use Balloon\Filesystem\Acl\Exception\Forbidden as ForbiddenException;
@@ -27,9 +26,6 @@ use MongoDB\BSON\ObjectId;
 use function MongoDB\BSON\toPHP;
 use Psr\Log\LoggerInterface;
 use TaskScheduler\Scheduler;
-use Zend\Mail\Message;
-use Zend\Mime\Message as MimeMessage;
-use Zend\Mime\Part as MimePart;
 
 class Notifications
 {
@@ -186,33 +182,18 @@ class Notifications
      */
     public function postMail(array $receiver, string $subject, string $body)
     {
+        $users = [];
+
+        foreach ($receiver as $user) {
+            $users[] = $this->server->getUserByName($user);
+        }
+
         $message = $this->notifier->compose('user_message', [
             'user_subject' => $subject,
             'user_body' => $body,
         ]);
 
-        $html = new MimePart($message->renderTemplate('mail_html.phtml'));
-        $html->type = 'text/html';
-        $html->setCharset('utf-8');
-
-        $plain = new MimePart($message->renderTemplate('mail_plain.phtml'));
-        $plain->type = 'text/plain';
-        $plain->setCharset('utf-8');
-        $body = new MimeMessage();
-        $body->setParts([$html, $plain]);
-
-        $mail = (new Message())
-          ->setSubject($message->getSubject())
-          ->setBody($body)
-          ->setEncoding('UTF-8');
-
-        $type = $mail->getHeaders()->get('Content-Type');
-        $type->setType('multipart/alternative');
-
-        foreach ($receiver as $address) {
-            $mail->setTo($address);
-            $this->scheduler->addJob(Mail::class, $mail->toString());
-        }
+        $this->notifier->notify($users, $this->user, $message);
 
         return (new Response())->setCode(202);
     }
