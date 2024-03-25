@@ -334,6 +334,12 @@ return [
             'options' => [
                 'host' => '{ENV(BALLOON_SMTP_HOST,127.0.0.1)}',
                 'port' => '{ENV(BALLOON_SMTP_PORT,25)(int)}',
+                'connection_class' => 'plain',
+                'connection_config' => [
+                    'username' => '{ENV(BALLOON_SMTP_USER,balloon)}',
+                    'password' => '{ENV(BALLOON_SMTP_USER_PW,balloon)}',
+                    'ssl' => 'ssl'
+                ]
             ]
         ]
     ],

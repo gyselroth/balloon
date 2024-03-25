@@ -117,14 +117,12 @@ TaskScheduler\Queue:
   arguments:
     config:
       orphaned_timeout: 7200
-      max_msg_size: 32768
 TaskScheduler\WorkerManager:
   arguments:
     config:
       pm: '{ENV(BALLOON_TASK_WORKER_PM,dynamic)}'
       max_children: '{ENV(BALLOON_TASK_WORKER_MAX_CHILDREN,4)(int)}'
       min_children: '{ENV(BALLOON_TASK_WORKER_MIN_CHILDREN,2)(int)}'
-      max_msg_size: 32768
 Zend\Mail\Transport\SmtpOptions:
   arguments:
     options:
