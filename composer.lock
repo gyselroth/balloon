@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a5378f0b0fe11e6f1930378062f32f6",
+    "content-hash": "a4a33f3e88b07d01da139b75f3af3571",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -1620,16 +1620,16 @@
         },
         {
             "name": "gyselroth/mongodb-php-task-scheduler",
-            "version": "v4.0.16-beta2",
+            "version": "v4.0.16-beta3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gyselroth/php-task-scheduler.git",
-                "reference": "d0d5b851ca5f86bce3245ffeb8b4677663f9b075"
+                "reference": "fe0b542888e061a6714176d8c25a91eabb26a791"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gyselroth/php-task-scheduler/zipball/d0d5b851ca5f86bce3245ffeb8b4677663f9b075",
-                "reference": "d0d5b851ca5f86bce3245ffeb8b4677663f9b075",
+                "url": "https://api.github.com/repos/gyselroth/php-task-scheduler/zipball/fe0b542888e061a6714176d8c25a91eabb26a791",
+                "reference": "fe0b542888e061a6714176d8c25a91eabb26a791",
                 "shasum": ""
             },
             "require": {
@@ -1676,9 +1676,9 @@
             ],
             "support": {
                 "issues": "https://github.com/gyselroth/php-task-scheduler/issues",
-                "source": "https://github.com/gyselroth/php-task-scheduler/tree/v4.0.16-beta2"
+                "source": "https://github.com/gyselroth/php-task-scheduler/tree/v4.0.16-beta3"
             },
-            "time": "2024-03-25T11:49:52+00:00"
+            "time": "2024-03-25T15:31:36+00:00"
         },
         {
             "name": "hassankhan/config",
