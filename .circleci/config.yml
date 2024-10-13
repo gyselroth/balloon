@@ -51,8 +51,7 @@ jobs:
     steps:
       - checkout
       - *attach_workspace
-      - setup_remote_docker:
-          version: 20.10.6
+      - setup_remote_docker
       - restore_cache:
           keys:
             - composer-{{ checksum "composer.lock" }}
