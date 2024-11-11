@@ -1,3 +1,11 @@
+## 2.7.7
+**Maintainer**: Sandro Aebischer <aebischer@gyselroth.com>\
+**Date**: Mon Nov 11 13:30:00 CEST 2024
+
+### Bugfixes
+* Updated micro-auth to v0.0.13
+
+
 ## 2.7.6
 **Maintainer**: Sandro Aebischer <aebischer@gyselroth.com>\
 **Date**: Wed Sep 4 14:00:00 CEST 2024
