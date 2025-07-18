@@ -32,7 +32,8 @@ RUN apk update && apk add --virtual .build-deps --no-cache \
   && pecl install apcu \
   # TODO: use imagick on php 7.4
   && pecl install imagick-3.4.4 \
-  && pecl install smbclient \
+  # TODO: use smbclient on php 7.4
+  && pecl install smbclient-1.1.2 \
   && docker-php-ext-enable mongodb apcu imagick smbclient \
   && git clone https://github.com/gyselroth/php-serializable-md5 \
   && docker-php-source extract \
