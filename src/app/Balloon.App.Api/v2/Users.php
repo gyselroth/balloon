@@ -132,6 +132,12 @@ class Users
             $result = $this->decorator->decorate($this->_getUser($id, false), $attributes);
         }
 
+        if (!$this->user->isAdmin()) {
+            foreach ($result['data'] as $id => $user) {
+                unset($result['data'][$id]['multi_factor_auth']);
+            }
+        }
+
         return (new Response())->setCode(200)->setBody($result);
     }
 

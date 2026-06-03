@@ -1,3 +1,11 @@
+## 2.7.9
+**Maintainer**: Sandro Aebischer <aebischer@gyselroth.com>\
+**Date**: Wed Jun 03 14:30:00 CEST 2026
+
+### Bugfixes
+* Do not expose auth, multi_factor_auth, has_password and admin attributes when a non-admin user requests user data.
+
+
 ## 2.7.8
 **Maintainer**: Sandro Aebischer <aebischer@gyselroth.com>\
 **Date**: Fri Jul 18 11:30:00 CEST 2025

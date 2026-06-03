@@ -146,7 +146,13 @@ class AttributeDecorator implements AttributeDecoratorInterface
             'id' => (string) $attributes['_id'],
             'username' => (string) $attributes['username'],
             'name' => (string) $attributes['username'],
-            'admin' => (bool) $attributes['admin'],
+            'admin' => function ($role) use ($attributes, $user) {
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+                    return (bool) $attributes['admin'];
+                }
+
+                return null;
+            },
             'namespace' => isset($attributes['namespace']) ? (string) $attributes['namespace'] : null,
             'mail' => function ($role) use ($attributes, $user) {
                 if (!isset($attributes['mail'])) {
@@ -185,17 +191,21 @@ class AttributeDecorator implements AttributeDecoratorInterface
 
                 return null;
             },
-            'auth' => function () use ($user) {
+            'auth' => function () use ($attributes, $user) {
                 $identity = $user->getIdentity();
                 if ($identity === null) {
                     return null;
                 }
 
-                if ($identity->getAdapter() instanceof InternalAuthInterface) {
-                    return $identity->getAdapter()->isInternal() ? 'internal' : 'external';
+                if ($attributes['_id'] == $user->getId() || $user->isAdmin()) {
+                    if ($identity->getAdapter() instanceof InternalAuthInterface) {
+                        return $identity->getAdapter()->isInternal() ? 'internal' : 'external';
+                    }
+
+                    return 'external';
                 }
 
-                return 'external';
+                return null;
             },
         ];
 
